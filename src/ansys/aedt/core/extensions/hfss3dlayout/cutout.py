@@ -28,7 +28,6 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
-from typing import List
 
 from pyedb import Edb
 
@@ -71,8 +70,8 @@ class CutoutData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
-    signals: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
-    references: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
+    signals: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
+    references: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
     expansion_factor: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
 

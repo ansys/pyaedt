@@ -23,7 +23,6 @@
 # SOFTWARE.
 from abc import abstractmethod
 import copy
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -259,7 +258,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name: Optional[str] = None, props=None, create: bool = False) -> None:
+    def __init__(self, app, name: str | None = None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -695,9 +694,9 @@ class NetworkObject(BoundaryObject):
     def add_face_node(
         self,
         assignment,
-        name: Optional[str] = None,
+        name: str | None = None,
         thermal_resistance: str = "NoResistance",
-        material: Optional[str] = None,
+        material: str | None = None,
         thickness=None,
         resistance=None,
     ):
@@ -892,7 +891,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1, node2, value, name: Optional[str] = None) -> bool:
+    def add_link(self, node1, node2, value, name: str | None = None) -> bool:
         """Create links in the network object.
 
         Parameters

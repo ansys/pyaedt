@@ -48,11 +48,6 @@ import tempfile
 import time
 import traceback
 from types import TracebackType
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
 import warnings
 
 from ansys.aedt.core import __version__
@@ -148,7 +143,7 @@ class _ServerArgs:
         return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
 
 
-def _get_grpcsrv_args(host: Optional[str], port: int) -> _ServerArgs:
+def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
     def check_mtls():
         """Perform checks for remote mTLS connections."""
         certs_folder = os.environ.get("ANSYS_GRPC_CERTIFICATES")
@@ -177,11 +172,11 @@ def _get_grpcsrv_args(host: Optional[str], port: int) -> _ServerArgs:
 
 @pyaedt_function_handler()
 def launch_aedt(
-    full_path: Union[str, Path],
+    full_path: str | Path,
     non_graphical: bool,
     port: int,
     student_version: bool,
-    host: Optional[str] = None,
+    host: str | None = None,
 ):  # pragma: no cover
     """Launch AEDT in gRPC mode.
 
@@ -338,7 +333,7 @@ def launch_aedt(
 
 
 @pyaedt_function_handler()
-def launch_aedt_in_lsf(non_graphical: bool, port: int, host: Optional[str] = None):  # pragma: no cover
+def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):  # pragma: no cover
     """Launch AEDT in LSF in gRPC mode.
 
     .. warning::
@@ -617,14 +612,14 @@ class Desktop(PyAedtBase):
 
     def __init__(
         self,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = True,
-        close_on_exit: Optional[bool] = True,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = None,
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = True,
+        close_on_exit: bool | None = True,
+        student_version: bool | None = False,
+        machine: str | None = None,
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
     ) -> None:
         """Initialize desktop."""
         # Check if already initialized and returning object if so.
@@ -904,9 +899,9 @@ class Desktop(PyAedtBase):
 
     def __exit__(
         self,
-        ex_type: Optional[Type[BaseException]],
-        ex_value: Optional[BaseException],
-        ex_traceback: Optional[TracebackType],
+        ex_type: type[BaseException] | None,
+        ex_value: BaseException | None,
+        ex_traceback: TracebackType | None,
     ) -> None:  # pragma no cover
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
@@ -998,7 +993,7 @@ class Desktop(PyAedtBase):
             return self.installed_versions[version_key + "CL"]
 
     @pyaedt_function_handler()
-    def get_example(self, example_name: str, folder_name: Optional[str] = ".") -> Path:
+    def get_example(self, example_name: str, folder_name: str | None = ".") -> Path:
         """Retrieve the path to a built-in example project.
 
         Parameters
@@ -1173,8 +1168,8 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def active_design(
-        self, project_object: Optional[object] = None, name: Optional[str] = None, design_type: Optional[str] = None
-    ) -> Optional[object]:
+        self, project_object: object | None = None, name: str | None = None, design_type: str | None = None
+    ) -> object | None:
         """Get the active design.
 
         Parameters
@@ -1221,7 +1216,7 @@ class Desktop(PyAedtBase):
         return active_design
 
     @pyaedt_function_handler()
-    def active_project(self, name: Optional[str] = None) -> Optional[object]:
+    def active_project(self, name: str | None = None) -> object | None:
         """Get the active project.
 
         Parameters
@@ -1280,7 +1275,7 @@ class Desktop(PyAedtBase):
         return list(self.odesktop.GetProjectList())
 
     @pyaedt_function_handler()
-    def analyze_all(self, project: Optional[str] = None, design: Optional[str] = None) -> bool:  # pragma: no cover
+    def analyze_all(self, project: str | None = None, design: str | None = None) -> bool:  # pragma: no cover
         """Analyze all setups in a project.
 
         Parameters
@@ -1323,7 +1318,7 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def save_project(self, project_name: Optional[str] = None, project_path: Optional[Union[str, Path]] = None) -> bool:
+    def save_project(self, project_name: str | None = None, project_path: str | Path | None = None) -> bool:
         """Save the project.
 
         Parameters
@@ -1358,7 +1353,7 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def project_path(self, project_name: Optional[str] = None) -> Optional[str]:
+    def project_path(self, project_name: str | None = None) -> str | None:
         """Get the path to the project.
 
         Parameters
@@ -1382,7 +1377,7 @@ class Desktop(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def design_list(self, project: Optional[str] = None) -> List[str]:
+    def design_list(self, project: str | None = None) -> list[str]:
         """Get a list of the designs.
 
         Parameters
@@ -1409,7 +1404,7 @@ class Desktop(PyAedtBase):
         return updateddeslist
 
     @pyaedt_function_handler()
-    def design_type(self, project_name: Optional[str] = None, design_name: Optional[str] = None) -> str:
+    def design_type(self, project_name: str | None = None, design_name: str | None = None) -> str:
         """Get the type of design.
 
         Parameters
@@ -1467,7 +1462,7 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file: str, design_name: Optional[str] = None) -> Union[bool, object]:
+    def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -1680,7 +1675,7 @@ class Desktop(PyAedtBase):
         message="The ``close_on_exit`` argument will be removed in future versions. "
         "Use ``close_desktop`` method to close the desktop.",
     )
-    def release_desktop(self, close_projects: Optional[bool] = True, close_on_exit: Optional[bool] = True) -> bool:
+    def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
         """Release AEDT.
 
         Parameters
@@ -1762,7 +1757,7 @@ class Desktop(PyAedtBase):
         """
         self.odesktop.EnableAutoSave(False)
 
-    def change_license_type(self, license_type: Optional[str] = "Pool") -> bool:  # pragma: no cover
+    def change_license_type(self, license_type: str | None = "Pool") -> bool:  # pragma: no cover
         """Change the license type.
 
         Parameters
@@ -1816,7 +1811,7 @@ class Desktop(PyAedtBase):
             self.logger.error("Failed to disable optimetrics.")
             return False
 
-    def change_registry_key(self, key_full_name: str, key_value: Union[str, int]) -> bool:
+    def change_registry_key(self, key_full_name: str, key_value: str | int) -> bool:
         """Change an AEDT registry key to a new value.
 
         Parameters
@@ -1852,7 +1847,7 @@ class Desktop(PyAedtBase):
             return False
 
     def change_active_dso_config_name(
-        self, product_name: Optional[str] = "HFSS", config_name: Optional[str] = "Local"
+        self, product_name: str | None = "HFSS", config_name: str | None = "Local"
     ) -> bool:  # pragma: no cover
         """Change a specific registry key to a new value.
 
@@ -1879,7 +1874,7 @@ class Desktop(PyAedtBase):
             return False
 
     def change_registry_from_file(
-        self, registry_file: str, make_active: Optional[bool] = True
+        self, registry_file: str, make_active: bool | None = True
     ) -> bool:  # pragma: no cover
         """Apply desktop registry settings from an ACF file.
 
@@ -1916,7 +1911,7 @@ class Desktop(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_available_toolkits() -> List[str]:
+    def get_available_toolkits() -> list[str]:
         """Get toolkit ready for installation.
 
         Returns
@@ -1932,12 +1927,12 @@ class Desktop(PyAedtBase):
     def submit_job(
         self,
         clustername: str,
-        project_file: Optional[Union[str, Path]] = None,
-        aedt_full_exe_path: Optional[str] = None,
-        numnodes: Optional[int] = 1,
-        numcores: Optional[int] = 32,
-        wait_for_license: Optional[bool] = True,
-        setting_file: Optional[str] = None,
+        project_file: str | Path | None = None,
+        aedt_full_exe_path: str | None = None,
+        numnodes: int | None = 1,
+        numcores: int | None = 32,
+        wait_for_license: bool | None = True,
+        setting_file: str | None = None,
     ) -> int:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2048,11 +2043,11 @@ class Desktop(PyAedtBase):
         config_name: str,
         region: str,
         job_name: str,
-        numnodes: Optional[int] = 1,
-        numcores: Optional[int] = 32,
-        wait_for_license: Optional[bool] = True,
-        setting_file: Optional[str] = None,
-    ) -> Tuple[str, str]:  # pragma: no cover
+        numnodes: int | None = 1,
+        numcores: int | None = 32,
+        wait_for_license: bool | None = True,
+        setting_file: str | None = None,
+    ) -> tuple[str, str]:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
@@ -2157,7 +2152,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_ansyscloud_job_info(
-        self, job_id: Optional[str] = None, job_name: Optional[str] = None
+        self, job_id: str | None = None, job_name: str | None = None
     ) -> dict:  # pragma: no cover
         """Monitor a job submitted to Ansys Cloud.
 
@@ -2222,9 +2217,9 @@ class Desktop(PyAedtBase):
     def select_scheduler(
         self,
         scheduler_type: str,
-        address: Optional[str] = None,
-        username: Optional[str] = None,
-        force_password_entry: Optional[bool] = False,
+        address: str | None = None,
+        username: str | None = None,
+        force_password_entry: bool | None = False,
     ) -> str:  # pragma: no cover
         """Select a scheduler to submit the job.
 
@@ -2344,7 +2339,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def download_job_results(
-        self, job_id: str, project_path: str, results_folder: str, file_type_filter: Optional[str] = "*"
+        self, job_id: str, project_path: str, results_folder: str, file_type_filter: str | None = "*"
     ) -> bool:  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 

@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
@@ -327,7 +326,7 @@ class Radar(MultiPartComponent, PyAedtBase):
     def __init__(
         self,
         radar_folder,
-        name: Optional[str] = None,
+        name: str | None = None,
         motion: bool = False,
         use_relative_cs: bool = False,
         offset=("0", "0", "0"),

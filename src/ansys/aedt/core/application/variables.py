@@ -44,8 +44,6 @@ import os
 import re
 import types
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -1415,18 +1413,18 @@ class Variable(PyAedtBase):
 
     def __init__(
         self,
-        expression: Union[float, str],
-        units: Optional[str] = None,
-        si_value: Optional[float] = None,
-        full_variables: Optional[dict] = None,
-        name: Optional[str] = None,
+        expression: float | str,
+        units: str | None = None,
+        si_value: float | None = None,
+        full_variables: dict | None = None,
+        name: str | None = None,
         app=None,
-        readonly: Optional[bool] = False,
-        hidden: Optional[bool] = False,
-        sweep: Optional[bool] = True,
-        description: Optional[str] = None,
-        postprocessing: Optional[bool] = False,
-        circuit_parameter: Optional[bool] = True,
+        readonly: bool | None = False,
+        hidden: bool | None = False,
+        sweep: bool | None = True,
+        description: str | None = None,
+        postprocessing: bool | None = False,
+        circuit_parameter: bool | None = True,
     ) -> None:
         full_variables = full_variables or {}
 
@@ -1851,7 +1849,7 @@ class Variable(PyAedtBase):
 
     # Values and units
     @property
-    def numeric_value(self) -> Union[float, list[Any], Any]:
+    def numeric_value(self) -> float | list[Any] | Any:
         """Numeric value of the expression in current units.
 
         If the expression is an array-like string ("[1, 2, 3]"), returns a list.
@@ -1981,7 +1979,7 @@ class Variable(PyAedtBase):
 
     # Arithmetic operators
     @pyaedt_function_handler()
-    def __mul__(self, other: Union[Variable, float, int]) -> Variable:
+    def __mul__(self, other: Variable | float | int) -> Variable:
         """Multiply this variable by a number or another variable.
 
         Parameters
@@ -2012,7 +2010,7 @@ class Variable(PyAedtBase):
     __rmul__ = __mul__
 
     @pyaedt_function_handler()
-    def __add__(self, other: Union[Variable, float, int]) -> Variable:
+    def __add__(self, other: Variable | float | int) -> Variable:
         """Add two variables with the same unit system.
 
         Parameters
@@ -2036,7 +2034,7 @@ class Variable(PyAedtBase):
         return result_variable
 
     @pyaedt_function_handler()
-    def __sub__(self, other: Union[Variable, float, int]) -> Variable:
+    def __sub__(self, other: Variable | float | int) -> Variable:
         """Subtract two variables with the same unit system.
 
         Parameters
@@ -2060,7 +2058,7 @@ class Variable(PyAedtBase):
         return result_variable
 
     @pyaedt_function_handler()
-    def __truediv__(self, other: Union[Variable, float, int]) -> Variable:
+    def __truediv__(self, other: Variable | float | int) -> Variable:
         """Divide this variable by a number or another variable.
 
         Parameters
@@ -2082,7 +2080,7 @@ class Variable(PyAedtBase):
         return Variable(f"{result_value}{result_units}")
 
     @pyaedt_function_handler()
-    def __rtruediv__(self, other: Union[Variable, float, int]) -> Variable:
+    def __rtruediv__(self, other: Variable | float | int) -> Variable:
         """Right-division: divide *other* by this variable.
 
         Parameters
@@ -2122,7 +2120,7 @@ class Variable(PyAedtBase):
         return self._units
 
     @pyaedt_function_handler()
-    def __to_si(self, numeric: float, units: Optional[str] = None) -> float:
+    def __to_si(self, numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from the given units to SI units.
 
         Parameters
@@ -2157,7 +2155,7 @@ class Variable(PyAedtBase):
             return numeric * scale
 
     @pyaedt_function_handler()
-    def __from_si(self, si_numeric: float, units: Optional[str] = None) -> float:
+    def __from_si(self, si_numeric: float, units: str | None = None) -> float:
         """Convert a numeric value from SI units to the given units.
 
         Parameters

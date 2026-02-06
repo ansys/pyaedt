@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -64,8 +63,8 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         radius,
         num_sides: int = 0,
         is_covered: bool = True,
-        name: Optional[str] = None,
-        material: Optional[str] = None,
+        name: str | None = None,
+        material: str | None = None,
         non_model: bool = False,
         **kwargs,
     ):
@@ -145,8 +144,8 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         major_radius,
         ratio,
         is_covered: bool=True,
-        name: Optional[str]=None,
-        material: Optional[str]=None,
+        name: str | None=None,
+        material: str | None=None,
         non_model: bool=False,
         segments: int=0,
         **kwargs
@@ -213,7 +212,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, is_covered: bool=True, name: Optional[str]=None, material: Optional[str]=None, non_model: bool=False, **kwargs):
+    def create_rectangle(self, origin, sizes, is_covered: bool=True, name: str | None=None, material: str | None=None, non_model: bool=False, **kwargs):
         """Create a rectangle.
 
         Parameters
@@ -271,7 +270,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides: int=6, name: Optional[str]=None, material: Optional[str]=None, non_model: bool=False, **kwargs
+        self, origin, start_point, num_sides: int=6, name: str | None=None, material: str | None=None, non_model: bool=False, **kwargs
     ):
         """Create a rectangle.
 

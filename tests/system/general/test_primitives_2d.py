@@ -24,7 +24,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 import pytest
 
@@ -54,7 +53,7 @@ def q2d_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def create_rectangle(app, name: Optional[str] = None):
+def create_rectangle(app, name: str | None = None):
     if not name:
         name = "MyRectangle"
     if app.modeler[name]:

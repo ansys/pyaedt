@@ -25,8 +25,6 @@ import locale
 import math
 from pathlib import Path
 import secrets
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -465,7 +463,7 @@ class CircuitComponents(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_model_from_touchstone(
-        self, input_file: Union[str, Path], model_name=None, show_bitmap: bool = True, image_path=None
+        self, input_file: str | Path, model_name=None, show_bitmap: bool = True, image_path=None
     ):
         """Create a model from a Touchstone file.
 
@@ -1087,7 +1085,7 @@ class CircuitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_component(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         component_library: str = "Resistors",
         component_name: str = "RES_",
         location=None,
@@ -1394,7 +1392,7 @@ class CircuitComponents(PyAedtBase):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, component_id, name: Optional[str] = None):
+    def add_id_to_component(self, component_id, name: str | None = None):
         """Add an ID to a component.
 
         Parameters

@@ -25,14 +25,13 @@
 import logging
 from pathlib import Path
 import re
-from typing import Union
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pyaedt_function_handler()
-def change_objects_visibility(input_file: Union[str, Path], assignment: list) -> bool:
+def change_objects_visibility(input_file: str | Path, assignment: list) -> bool:
     """Edit the project file to make only the solids that are specified visible.
 
     Parameters
@@ -79,7 +78,7 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
 
 
 @pyaedt_function_handler()
-def change_model_orientation(input_file: Union[str, Path], bottom_dir: str) -> bool:
+def change_model_orientation(input_file: str | Path, bottom_dir: str) -> bool:
     """Edit the project file to change the model orientation.
 
     Parameters

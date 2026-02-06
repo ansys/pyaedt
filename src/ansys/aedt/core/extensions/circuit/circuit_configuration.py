@@ -31,7 +31,6 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import List
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
@@ -63,7 +62,7 @@ DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 class CircuitConfigurationData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    file_path: List[str] = field(default_factory=list)
+    file_path: list[str] = field(default_factory=list)
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
 
 

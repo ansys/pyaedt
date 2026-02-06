@@ -30,7 +30,6 @@ import os
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
-from typing import Optional
 from typing import Union
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
@@ -156,20 +155,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     def __init__(
         self,
-        project: Optional[str] = None,
-        design: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        setup: Optional[str] = None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        ic_mode: Optional[bool] = None,
-        remove_lock: Optional[bool] = False,
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        ic_mode: bool | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         FieldAnalysis3DLayout.__init__(
             self,
@@ -213,14 +212,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         assignment: Union[str, "Line3dLayout"],
         edge_number: int,
-        is_circuit_port: Optional[bool] = False,
-        is_wave_port: Optional[bool] = False,
-        wave_horizontal_extension: Optional[float] = 5,
-        wave_vertical_extension: Optional[float] = 3,
-        wave_launcher: Optional[str] = "1mm",
-        reference_primitive: Optional[str] = None,
-        reference_edge_number: Optional[Union[str, int]] = 0,
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        is_circuit_port: bool | None = False,
+        is_wave_port: bool | None = False,
+        wave_horizontal_extension: float | None = 5,
+        wave_vertical_extension: float | None = 3,
+        wave_launcher: str | None = "1mm",
+        reference_primitive: str | None = None,
+        reference_edge_number: str | int | None = 0,
+    ) -> BoundaryObject3dLayout | bool:
         # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
         """Create an edge port.
 
@@ -326,10 +325,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         assignment: str,
         edge_number: int,
-        wave_horizontal_extension: Optional[float] = 5,
-        wave_vertical_extension: Optional[float] = 3,
-        wave_launcher: Optional[str] = "1mm",
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        wave_horizontal_extension: float | None = 5,
+        wave_vertical_extension: float | None = 3,
+        wave_launcher: str | None = "1mm",
+    ) -> BoundaryObject3dLayout | bool:
         """Create a single-ended wave port.
 
         Parameters
@@ -373,8 +372,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(
-        self, assignment: Optional[list] = None, edge_numbers: Optional[list] = None
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        self, assignment: list | None = None, edge_numbers: list | None = None
+    ) -> BoundaryObject3dLayout | bool:
         """Create a wave port.
 
         Parameters
@@ -452,7 +451,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     def create_ports_by_nets(
         self,
-        nets: Union[str, list],
+        nets: str | list,
     ) -> list[BoundaryObject3dLayout]:
         """Create the ports for a list of nets.
 
@@ -487,7 +486,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def create_ports_on_component_by_nets(
         self,
         component: str,
-        nets: Union[str, list],
+        nets: str | list,
     ) -> list[BoundaryObject3dLayout]:
         """Create the ports on a component for a list of nets.
 
@@ -530,7 +529,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def create_pec_on_component_by_nets(
         self,
         component: str,
-        nets: Union[str, list],
+        nets: str | list,
     ) -> bool:
         """Create a PEC connection on a component for a list of nets.
 
@@ -561,8 +560,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_differential_port(
-        self, via_signal: str, via_reference: float, name: str, deembed: Optional[bool] = True
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        self, via_signal: str, via_reference: float, name: str, deembed: bool | None = True
+    ) -> BoundaryObject3dLayout | bool:
         """Create a differential port.
 
         Parameters
@@ -611,8 +610,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_coax_port(
-        self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: Optional[str] = "lower"
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: str | None = "lower"
+    ) -> BoundaryObject3dLayout | bool:
         """Create a coax port.
 
         Parameters
@@ -661,12 +660,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def create_pin_port(
         self,
         name: str,
-        x: Optional[float] = 0,
-        y: Optional[float] = 0,
-        rotation: Optional[float] = 0,
-        top_layer: Optional[str] = None,
-        bottom_layer: Optional[str] = None,
-    ) -> Union[BoundaryObject3dLayout, bool]:
+        x: float | None = 0,
+        y: float | None = 0,
+        rotation: float | None = 0,
+        top_layer: str | None = None,
+        bottom_layer: str | None = None,
+    ) -> BoundaryObject3dLayout | bool:
         """Create a pin port.
 
         Parameters
@@ -733,7 +732,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def delete_port(
         self,
         name: str,
-        remove_geometry: Optional[bool] = True,
+        remove_geometry: bool | None = True,
     ) -> bool:
         """Delete a port.
 
@@ -765,7 +764,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_edb(self, input_folder: Union[str, Path]) -> bool:
+    def import_edb(self, input_folder: str | Path) -> bool:
         """Import EDB.
 
         Parameters
@@ -794,9 +793,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def validate_full_design(
         self,
-        name: Optional[str] = None,
-        output_dir: Optional[str] = None,
-        ports: Optional[str] = None,
+        name: str | None = None,
+        output_dir: str | None = None,
+        ports: str | None = None,
     ) -> tuple[list[str], bool]:
         """Validate the design based on the expected value and save the information in the log file.
 
@@ -899,11 +898,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_scattering(
         self,
-        plot: Optional[str] = "S Parameter Plot Nominal",
-        sweep_name: Optional[str] = None,
-        port_names: Optional[Union[str, list]] = None,
-        port_excited: Optional[Union[str, list]] = None,
-        variations: Optional[dict] = None,
+        plot: str | None = "S Parameter Plot Nominal",
+        sweep_name: str | None = None,
+        port_names: str | list | None = None,
+        port_excited: str | list | None = None,
+        variations: dict | None = None,
     ) -> bool:
         """Create a scattering report.
 
@@ -947,23 +946,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @min_aedt_version("2025.1")
     def set_export_touchstone(
         self,
-        file_format: Optional[str] = "TouchStone1.0",
-        enforce_passivity: Optional[bool] = True,
-        enforce_causality: Optional[bool] = False,
-        use_common_ground: Optional[bool] = True,
-        show_gamma_comments: Optional[bool] = True,
-        renormalize: Optional[bool] = False,
-        impedance: Optional[float] = 50.0,
-        fitting_error: Optional[float] = 0.5,
-        maximum_poles: Optional[int] = 1000,
-        passivity_type: Optional[str] = "PassivityByPerturbation",
-        column_fitting_type: Optional[str] = "Matrix",
-        state_space_fitting: Optional[str] = "IterativeRational",
-        relative_error_tolerance: Optional[bool] = True,
-        ensure_accurate_fit: Optional[bool] = False,
-        touchstone_output: Optional[str] = "MA",
-        units: Optional[str] = "GHz",
-        precision: Optional[int] = 11,
+        file_format: str | None = "TouchStone1.0",
+        enforce_passivity: bool | None = True,
+        enforce_causality: bool | None = False,
+        use_common_ground: bool | None = True,
+        show_gamma_comments: bool | None = True,
+        renormalize: bool | None = False,
+        impedance: float | None = 50.0,
+        fitting_error: float | None = 0.5,
+        maximum_poles: int | None = 1000,
+        passivity_type: str | None = "PassivityByPerturbation",
+        column_fitting_type: str | None = "Matrix",
+        state_space_fitting: str | None = "IterativeRational",
+        relative_error_tolerance: bool | None = True,
+        ensure_accurate_fit: bool | None = False,
+        touchstone_output: str | None = "MA",
+        units: str | None = "GHz",
+        precision: int | None = 11,
     ) -> bool:  # pragma: no cover
         """Set or disable the automatic export of the touchstone file after completing frequency sweep.
 
@@ -1075,8 +1074,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def set_meshing_settings(
         self,
         mesh_method: str = "Phi",
-        enable_intersections_check: Optional[bool] = True,
-        use_alternative_fallback: Optional[bool] = True,
+        enable_intersections_check: bool | None = True,
+        use_alternative_fallback: bool | None = True,
     ) -> bool:
         """Define the settings of the mesh.
 
@@ -1119,13 +1118,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         start_frequency: float,
         stop_frequency: float,
         num_of_freq_points: int,
-        name: Optional[str] = None,
-        save_fields: Optional[bool] = True,
-        save_rad_fields_only: Optional[bool] = False,
-        sweep_type: Optional[str] = "Interpolating",
-        interpolation_tol_percent: Optional[float] = 0.5,
-        interpolation_max_solutions: Optional[int] = 250,
-        use_q3d_for_dc: Optional[bool] = False,
+        name: str | None = None,
+        save_fields: bool | None = True,
+        save_rad_fields_only: bool | None = False,
+        sweep_type: str | None = "Interpolating",
+        interpolation_tol_percent: float | None = 0.5,
+        interpolation_max_solutions: int | None = 250,
+        use_q3d_for_dc: bool | None = False,
     ) -> Union["SweepHFSS3DLayout", bool]:
         """Create a sweep with the specified number of points.
 
@@ -1224,13 +1223,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         start_frequency: float,
         stop_frequency: float,
         step_size: float,
-        name: Optional[str] = None,
-        save_fields: Optional[bool] = True,
-        save_rad_fields_only: Optional[bool] = False,
-        sweep_type: Optional[str] = "Interpolating",
-        interpolation_tol_percent: Optional[float] = 0.5,
-        interpolation_max_solutions: Optional[int] = 250,
-        use_q3d_for_dc: Optional[bool] = False,
+        name: str | None = None,
+        save_fields: bool | None = True,
+        save_rad_fields_only: bool | None = False,
+        sweep_type: str | None = "Interpolating",
+        interpolation_tol_percent: float | None = 0.5,
+        interpolation_max_solutions: int | None = 250,
+        use_q3d_for_dc: bool | None = False,
     ) -> Union["SweepHFSS3DLayout", bool]:
         """Create a sweep with the specified frequency step.
 
@@ -1326,10 +1325,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         setup: str,
         unit: str,
-        freq: Union[float, list],
-        name: Optional[str] = None,
-        save_fields: Optional[bool] = False,
-        save_rad_fields_only: Optional[bool] = False,
+        freq: float | list,
+        name: str | None = None,
+        save_fields: bool | None = False,
+        save_rad_fields_only: bool | None = False,
     ) -> Union["SweepHFSS", bool]:
         """Create a sweep with a single frequency point.
 
@@ -1453,10 +1452,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_gds(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:
         """Import a GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1492,10 +1491,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_dxf(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:
         """Import a DXF file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1531,10 +1530,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_gerber(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:
         """Import a Gerber zip file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1568,10 +1567,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_brd(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
-        control_file: Optional[str] = None,
+        output_dir: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
+        control_file: str | None = None,
     ) -> bool:  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1605,10 +1604,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_awr(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:  # pragma: no cover
         """Import an AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1642,10 +1641,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_ipc2581(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:
         """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1679,10 +1678,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_odb(
         self,
         input_file: str,
-        output_dir: Optional[str] = None,
-        control_file: Optional[str] = None,
-        set_as_active: Optional[bool] = True,
-        close_active_project: Optional[bool] = False,
+        output_dir: str | None = None,
+        control_file: str | None = None,
+        set_as_active: bool | None = True,
+        close_active_project: bool | None = False,
     ) -> bool:
         """Import an ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1715,15 +1714,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def edit_cosim_options(
         self,
-        simulate_missing_solution: Optional[bool] = True,
-        align_ports: Optional[bool] = True,
-        renormalize_ports: Optional[bool] = True,
-        renorm_impedance: Optional[int] = 50,
-        setup_override_name: Optional[str] = None,
-        sweep_override_name: Optional[str] = None,
-        use_interpolating_sweep: Optional[bool] = False,
-        use_y_matrix: Optional[bool] = True,
-        interpolation_algorithm: Optional[str] = "auto",
+        simulate_missing_solution: bool | None = True,
+        align_ports: bool | None = True,
+        renormalize_ports: bool | None = True,
+        renorm_impedance: int | None = 50,
+        setup_override_name: str | None = None,
+        sweep_override_name: str | None = None,
+        use_interpolating_sweep: bool | None = False,
+        use_y_matrix: bool | None = True,
+        interpolation_algorithm: str | None = "auto",
     ) -> bool:
         """Edit cosimulation options.
 
@@ -1826,12 +1825,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         assignment: str,
         reference: str,
-        common_mode: Optional[str] = None,
-        differential_mode: Optional[str] = None,
-        common_reference: Optional[float] = 25,
-        differential_reference: Optional[float] = 100,
-        active: Optional[bool] = True,
-        matched: Optional[bool] = False,
+        common_mode: str | None = None,
+        differential_mode: str | None = None,
+        common_reference: float | None = 25,
+        differential_reference: float | None = 100,
+        active: bool | None = True,
+        matched: bool | None = False,
     ) -> bool:
         """Add a differential pair definition.
 
@@ -1968,7 +1967,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file: Union[str, Path]) -> bool:
+    def load_diff_pairs_from_file(self, input_file: str | Path) -> bool:
         # type: (str) -> bool
         """Load differential pairs definition from a file.
 
@@ -2033,7 +2032,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return Path(output_file).is_file()
 
     @pyaedt_function_handler()
-    def export_3d_model(self, output_file: Optional[str] = None) -> str:
+    def export_3d_model(self, output_file: str | None = None) -> str:
         """Export the Ecad model to a 3D file.
 
         Parameters
@@ -2081,15 +2080,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def edit_hfss_extents(
         self,
-        diel_extent_type: Optional[str] = None,
-        diel_extent_horizontal_padding: Optional[str] = None,
-        diel_honor_primitives_on_diel_layers: Optional[str] = "keep",
-        air_extent_type: Optional[str] = None,
-        air_truncate_model_at_ground_layer: Optional[str] = "keep",
-        air_vertical_positive_padding: Optional[str] = None,
-        air_vertical_negative_padding: Optional[str] = None,
+        diel_extent_type: str | None = None,
+        diel_extent_horizontal_padding: str | None = None,
+        diel_honor_primitives_on_diel_layers: str | None = "keep",
+        air_extent_type: str | None = None,
+        air_truncate_model_at_ground_layer: str | None = "keep",
+        air_vertical_positive_padding: str | None = None,
+        air_vertical_negative_padding: str | None = None,
         airbox_values_as_dim: bool = True,
-        air_horizontal_padding: Optional[str] = None,
+        air_horizontal_padding: str | None = None,
     ) -> bool:
         """Edit HFSS 3D Layout extents.
 
@@ -2162,7 +2161,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return BoundaryObject3dLayout(self, port, props, "Port")
 
     @pyaedt_function_handler()
-    def get_model_from_mesh_results(self, binary: Optional[str] = True) -> str:
+    def get_model_from_mesh_results(self, binary: str | None = True) -> str:
         """Get the path for the parasolid file in the result folder.
 
         The parasolid file is generated after the mesh is created in 3D Layout.
@@ -2199,15 +2198,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         source: str,
         input_file: str,
-        is_time_domain: Optional[bool] = True,
-        x_scale: Optional[float] = 1,
-        y_scale: Optional[float] = 1,
-        impedance: Optional[float] = 50,
-        data_format: Optional[str] = "Power",
-        encoding: Optional[str] = "utf-8",
-        include_post_effects: Optional[bool] = True,
-        incident_voltage: Optional[bool] = True,
-        window: Optional[str] = "hamming",
+        is_time_domain: bool | None = True,
+        x_scale: float | None = 1,
+        y_scale: float | None = 1,
+        impedance: float | None = 50,
+        data_format: str | None = "Power",
+        encoding: str | None = "utf-8",
+        include_post_effects: bool | None = True,
+        incident_voltage: bool | None = True,
+        window: str | None = "hamming",
     ) -> bool:
         """Edit a source from file data.
 
@@ -2344,7 +2343,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_dcir_solution_data(
-        self, setup: str, show: Optional[str] = "RL", category: Optional[str] = "Loop_Resistance"
+        self, setup: str, show: str | None = "RL", category: str | None = "Loop_Resistance"
     ) -> "SolutionData":
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
 
@@ -2493,7 +2492,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def show_extent(self, show: Optional[bool] = True) -> bool:
+    def show_extent(self, show: bool | None = True) -> bool:
         """Show or hide extent in a HFSS3dLayout design.
 
         Parameters
@@ -2522,7 +2521,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_options(self, color_by_net: Optional[bool] = True) -> bool:
+    def change_options(self, color_by_net: bool | None = True) -> bool:
         """Change options for an existing layout.
 
         It changes design visualization by color.
@@ -2555,7 +2554,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def export_touchstone_on_completion(self, export: Optional[bool] = True, output_dir: Optional[str] = None) -> bool:
+    def export_touchstone_on_completion(self, export: bool | None = True, output_dir: str | None = None) -> bool:
         """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters
@@ -2588,15 +2587,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def import_table(
         self,
         input_file: str,
-        link: Optional[bool] = False,
-        header_rows: Optional[int] = 0,
-        rows_to_read: Optional[int] = -1,
-        column_separator: Optional[str] = "Space",
-        data_type: Optional[str] = "real",
-        sweep_columns: Optional[int] = 0,
-        total_columns: Optional[int] = -1,
-        real_columns: Optional[int] = 1,
-    ) -> Union[bool, str]:
+        link: bool | None = False,
+        header_rows: int | None = 0,
+        rows_to_read: int | None = -1,
+        column_separator: str | None = "Space",
+        data_type: str | None = "real",
+        sweep_columns: int | None = 0,
+        total_columns: int | None = -1,
+        real_columns: int | None = 1,
+    ) -> bool | str:
         """Import a data table as a solution.
 
         Parameters

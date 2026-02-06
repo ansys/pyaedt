@@ -30,7 +30,6 @@ This module provides all functionalities for creating and editing reports.
 """
 
 import os
-from typing import Optional
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -289,7 +288,7 @@ class AMIConturEyeDiagram(CommonReport):
             return ["X Component:=", self.primary_sweep, "Y Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name: Optional[str] = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -836,7 +835,7 @@ class AMIEyeDiagram(CommonReport):
         return ["Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name: Optional[str] = None) -> bool:
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters

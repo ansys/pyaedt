@@ -31,7 +31,6 @@ import re
 import shutil
 import subprocess  # nosec
 import sys
-from typing import List
 import warnings
 import xml.etree.ElementTree as ET  # nosec
 
@@ -459,7 +458,7 @@ def tab_map(product):  # pragma: no cover
         return product
 
 
-def run_command(command: List[str], desktop_object):  # pragma: no cover
+def run_command(command: list[str], desktop_object):  # pragma: no cover
     """Run a command through subprocess.
 
     .. warning::

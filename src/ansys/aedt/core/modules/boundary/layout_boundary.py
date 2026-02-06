@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -491,7 +490,7 @@ class NativeComponentPCB(NativeComponentObject):
     def set_high_side_radiation(
         self,
         enabled,
-        surface_material: Optional[str] = "Steel-oxidised-surface",
+        surface_material: str | None = "Steel-oxidised-surface",
         radiate_to_ref_temperature: bool = False,
         view_factor: int = 1,
         ref_temperature: str = "AmbientTemp",
@@ -637,7 +636,7 @@ class NativeComponentPCB(NativeComponentObject):
     def set_low_side_radiation(
         self,
         enabled,
-        surface_material: Optional[str] = "Steel-oxidised-surface",
+        surface_material: str | None = "Steel-oxidised-surface",
         radiate_to_ref_temperature: bool = False,
         view_factor: int = 1,
         ref_temperature: str = "AmbientTemp",
@@ -930,7 +929,7 @@ class PCBSettingsPackageParts(PyAedtBase):
         self,
         modeling=None,
         solderbumps_modeling: str = "Boxes",
-        bondwire_material: Optional[str] = "Au-Typical",
+        bondwire_material: str | None = "Au-Typical",
         bondwire_diameter: str = "0.05mm",
     ) -> bool:
         """Set how to model connectors.

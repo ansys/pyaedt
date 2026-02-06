@@ -24,7 +24,6 @@
 import ast
 import os
 import re
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -56,7 +55,7 @@ class ComponentArray(PyAedtBase):
     >>> array = aedtapp.component_array[array_names[0]]
     """
 
-    def __init__(self, app, name: Optional[str] = None) -> None:
+    def __init__(self, app, name: str | None = None) -> None:
         # Public attributes
         self.logger = app.logger
         self.update_cells = True
@@ -87,7 +86,7 @@ class ComponentArray(PyAedtBase):
         self.__post_processing_cells = {}
 
     @classmethod
-    def create(cls, app, input_data, name: Optional[str] = None):
+    def create(cls, app, input_data, name: str | None = None):
         """Create a component array.
 
         Parameters

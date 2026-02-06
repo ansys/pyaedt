@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
@@ -89,16 +87,16 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         project: str,
         design: str,
         solution_type: str,
-        setup: Optional[str] = None,
-        version: Optional[Union[str, int, float]] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        setup: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,

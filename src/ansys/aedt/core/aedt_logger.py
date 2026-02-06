@@ -30,8 +30,6 @@ import shutil
 import sys
 import tempfile
 import time
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.generic.settings import settings
 
@@ -160,7 +158,7 @@ class AedtLogger:
     """
 
     def __init__(
-        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop=None
+        self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None
     ) -> None:
         self._desktop_class = desktop
         self._oproject = None
@@ -225,7 +223,7 @@ class AedtLogger:
         self._timer = time.time()
         settings.logger = self
 
-    def add_file_logger(self, filename: str, project_name: str, level: Optional[int] = None) -> logging.Logger:
+    def add_file_logger(self, filename: str, project_name: str, level: int | None = None) -> logging.Logger:
         """Add a new file to the logger handlers list."""
         # Ensure the directory exists
         log_path = Path(filename)
@@ -308,7 +306,7 @@ class AedtLogger:
         settings.enable_screen_logs = val
 
     @property
-    def logger(self) -> Union[logging.Logger, None]:
+    def logger(self) -> logging.Logger | None:
         """AEDT logger object."""
         if self._log_on_file:
             return logging.getLogger("Global")
@@ -418,7 +416,7 @@ class AedtLogger:
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
         return aa.error_level
 
-    def reset_timer(self, time_val: Optional[float] = None) -> float:
+    def reset_timer(self, time_val: float | None = None) -> float:
         """Reset actual timer to  actual time or specified time.
 
         Parameters
@@ -438,10 +436,10 @@ class AedtLogger:
 
     def get_messages(
         self,
-        project_name: Optional[str] = None,
-        design_name: Optional[str] = None,
-        level: Optional[int] = 0,
-        aedt_messages: Optional[bool] = False,
+        project_name: str | None = None,
+        design_name: str | None = None,
+        level: int | None = 0,
+        aedt_messages: bool | None = False,
     ) -> list:
         """Get the message manager content for a specified project and design.
 
@@ -486,7 +484,7 @@ class AedtLogger:
                         message_lists.append(levels[message[0]] + message[1])
         return MessageList(message_lists)
 
-    def add_error_message(self, message_text: str, level: Optional[int] = None) -> None:
+    def add_error_message(self, message_text: str, level: int | None = None) -> None:
         """
         Add a type 2 "Error" message to the message manager tree.
 
@@ -511,7 +509,7 @@ class AedtLogger:
         """
         self.add_message(2, message_text, level)
 
-    def add_warning_message(self, message_text: str, level: Optional[int] = None) -> None:
+    def add_warning_message(self, message_text: str, level: int | None = None) -> None:
         """
         Add a type 1 "Warning" message to the message manager tree.
 
@@ -536,7 +534,7 @@ class AedtLogger:
         """
         self.add_message(1, message_text, level)
 
-    def add_info_message(self, message_text: str, level: Optional[int] = None) -> None:
+    def add_info_message(self, message_text: str, level: int | None = None) -> None:
         """Add a type 0 "Info" message to the active design level of the message manager tree.
 
         Also add an info message to the logger if the handler is present.
@@ -560,7 +558,7 @@ class AedtLogger:
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_text: str, level: Optional[int] = None) -> None:
+    def add_debug_message(self, message_text: str, level: int | None = None) -> None:
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
@@ -580,9 +578,9 @@ class AedtLogger:
         self,
         message_type: int,
         message_text: str,
-        level: Optional[int] = None,
-        proj_name: Optional[str] = None,
-        des_name: Optional[str] = None,
+        level: int | None = None,
+        proj_name: str | None = None,
+        des_name: str | None = None,
     ) -> None:
         """Add a message to the message manager to specify the type and project or design level.
 
@@ -612,7 +610,7 @@ class AedtLogger:
 
         self._log_on_handler(message_type, message_text)
 
-    def _log_on_dekstop(self, message_type, message_text, level: Optional[int] = None, proj_name=None, des_name=None):
+    def _log_on_dekstop(self, message_type, message_text, level: int | None = None, proj_name=None, des_name=None):
         if not proj_name:
             proj_name = ""
 
@@ -664,7 +662,7 @@ class AedtLogger:
             print(f"Logging error: {e}", file=sys.stderr)
 
     def clear_messages(
-        self, proj_name: Optional[str] = None, des_name: Optional[str] = None, level: Optional[int] = 2
+        self, proj_name: str | None = None, des_name: str | None = None, level: int | None = 2
     ) -> None:
         """Clear all messages.
 
@@ -783,7 +781,7 @@ class AedtLogger:
         """
         return self._project_name
 
-    def add_logger(self, destination: str, level: Optional[int] = logging.DEBUG) -> logging.Logger:
+    def add_logger(self, destination: str, level: int | None = logging.DEBUG) -> logging.Logger:
         """
         Add a logger for either the active project or active design.
 
@@ -942,7 +940,7 @@ class AedtLogger:
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def info_timer(self, msg: str, start_time: Optional[float] = None, *args, **kwargs) -> None:
+    def info_timer(self, msg: str, start_time: float | None = None, *args, **kwargs) -> None:
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time.
         """

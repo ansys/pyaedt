@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -131,18 +129,18 @@ class Emit(Design, PyAedtBase):
 
     def __init__(
         self,
-        project: Optional[str] = None,
-        design: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
         new_desktop: bool = True,
         close_on_exit: bool = True,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         self.__emit_api_enabled = False
         self.results = None
@@ -299,7 +297,7 @@ class Emit(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type: Optional[str] = "") -> Optional[Union[str, dict]]:
+    def get_units(self, unit_type: str | None = "") -> str | dict | None:
         """Get units for the EMIT design.
 
         Parameters
@@ -327,7 +325,7 @@ class Emit(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def save_project(
-        self, file_name: Optional[str] = None, overwrite: Optional[bool] = True, refresh_ids: Optional[bool] = False
+        self, file_name: str | None = None, overwrite: bool | None = True, refresh_ids: bool | None = False
     ) -> bool:
         """Save the AEDT project and the current EMIT revision.
 

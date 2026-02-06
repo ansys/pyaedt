@@ -32,7 +32,6 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
-from typing import List
 from unittest.mock import MagicMock
 
 import pytest
@@ -119,7 +118,7 @@ else:
     settings._update_settings()
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests

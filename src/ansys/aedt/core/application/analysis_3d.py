@@ -27,9 +27,6 @@ from __future__ import annotations
 import csv
 import os
 from pathlib import Path
-from typing import List
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -103,15 +100,15 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         Analysis.__init__(
             self,
@@ -302,7 +299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
+    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -330,7 +327,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def get_component_variables(self, name: Union[str, Path]) -> dict:
+    def get_component_variables(self, name: str | Path) -> dict:
         """Read component file and extract variables.
 
         Parameters
@@ -493,7 +490,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def import_3d_cad(
         self,
-        input_file: Union[str, Path],
+        input_file: str | Path,
         healing: bool = False,
         refresh_all_ids: bool = True,
         import_materials: bool = False,
@@ -966,7 +963,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def cleanup_solution(
         self,
-        variations: Optional[Union[list, str]] = "All",
+        variations: list | str | None = "All",
         entire_solution: bool = True,
         field: bool = True,
         mesh: bool = True,
@@ -1199,8 +1196,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def import_dxf(
         self,
-        input_file: Union[str, Path],
-        layers: List[str],
+        input_file: str | Path,
+        layers: list[str],
         auto_detect_close: bool = True,
         self_stitch: bool = True,
         self_stitch_tolerance: float = 0.0,
@@ -1210,7 +1207,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         round_coordinates: bool = False,
         round_num_digits: int = 4,
         write_poly_with_width_as_filled_poly: bool = False,
-        import_method: Union[int, bool] = 1,
+        import_method: int | bool = 1,
     ) -> bool:  # pragma: no cover
         """Import a DXF file.
 

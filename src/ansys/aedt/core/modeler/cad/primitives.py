@@ -33,8 +33,6 @@ from pathlib import Path
 import secrets
 import string
 import time
-from typing import Optional
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
@@ -1174,7 +1172,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, material: Optional[str] = None):
+    def get_objects_by_material(self, material: str | None = None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
@@ -1551,7 +1549,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self,
         origin=None,
         reference_cs: str = "Global",
-        name: Optional[str] = None,
+        name: str | None = None,
         mode: str = "axis",
         view: str = "iso",
         x_pointing=None,
@@ -1663,7 +1661,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         origin,
         axis_position,
         axis: str = "X",
-        name: Optional[str] = None,
+        name: str | None = None,
         offset=None,
         rotation: int = 0,
         always_move_to_end: bool = True,
@@ -1746,7 +1744,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         move_to_end: bool = True,
         reverse_x_axis: bool = False,
         reverse_y_axis: bool = False,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         """Create an object coordinate system.
 
@@ -4304,7 +4302,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_face_list(self, assignment, name: Optional[str] = None):
+    def create_face_list(self, assignment, name: str | None = None):
         """Create a list of faces given a list of face ID or a list of objects.
 
         Parameters
@@ -4344,7 +4342,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_object_list(self, assignment, name: Optional[str] = None):
+    def create_object_list(self, assignment, name: str | None = None):
         """Create an object list given a list of object names.
 
         Parameters
@@ -4913,7 +4911,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def import_3d_cad(
         self,
-        input_file: Union[str, Path],
+        input_file: str | Path,
         healing: bool = False,
         refresh_all_ids: bool = True,
         import_materials: bool = False,
@@ -5300,7 +5298,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_primitives_from_file(self, input_file: Optional[str] = None, primitives: Optional[dict] = None):
+    def import_primitives_from_file(self, input_file: str | None = None, primitives: dict | None = None):
         """Import and create primitives from a JSON file or dictionary of properties.
 
         Parameters
@@ -6266,7 +6264,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_point(self, position, name: Optional[str] = None, color: str = "(143 175 143)"):
+    def create_point(self, position, name: str | None = None, color: str = "(143 175 143)"):
         """Create a point.
 
         Parameters
@@ -6318,7 +6316,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_plane(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         plane_base_x: str = "0mm",
         plane_base_y: str = "0mm",
         plane_base_z: str = "0mm",
@@ -6471,7 +6469,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def update_geometry_property(self, assignment, name: Optional[str] = None, value=None):
+    def update_geometry_property(self, assignment, name: str | None = None, value=None):
         """Update property of assigned geometry objects.
 
         Parameters
@@ -6621,7 +6619,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def create_subregion(self, padding_values, padding_types, assignment, name: Optional[str] = None):
+    def create_subregion(self, padding_values, padding_types, assignment, name: str | None = None):
         """Create a subregion.
 
         Parameters
@@ -6977,8 +6975,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         segment_type=None,
         cover_surface: bool = False,
         close_surface: bool = False,
-        name: Optional[str] = None,
-        material: Optional[str] = None,
+        name: str | None = None,
+        material: str | None = None,
         xsection_type=None,
         xsection_orient=None,
         xsection_width: int = 1,
@@ -7241,7 +7239,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return Polyline(self, src_object=assignment)
 
     @pyaedt_function_handler()
-    def create_udp(self, dll, parameters, library: str = "syslib", name: Optional[str] = None):
+    def create_udp(self, dll, parameters, library: str = "syslib", name: str | None = None):
         """Create a user-defined primitive (UDP).
 
         Parameters
@@ -8902,7 +8900,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def _default_object_attributes(self, name: Optional[str] = None, material: Optional[str] = None, flags: str = ""):
+    def _default_object_attributes(self, name: str | None = None, material: str | None = None, flags: str = ""):
         if not material:
             material = self.defaultmaterial
 
@@ -9184,7 +9182,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp.desktop_class.close_desktop()
     """
 
-    def __init__(self, app, input_file: Optional[str] = None, input_dict=None) -> None:
+    def __init__(self, app, input_file: str | None = None, input_dict=None) -> None:
         self._app = app
         props = {}
         if not input_dict and not input_file:  # pragma: no cover

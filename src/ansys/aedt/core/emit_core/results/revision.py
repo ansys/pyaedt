@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -74,7 +73,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name: Optional[str] = None) -> None:
+    def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 

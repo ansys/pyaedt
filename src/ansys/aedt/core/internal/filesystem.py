@@ -28,8 +28,6 @@ import secrets
 import shutil
 import string
 from types import TracebackType
-from typing import Optional
-from typing import Type
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
@@ -151,9 +149,9 @@ class Scratch(PyAedtBase):
 
     def __exit__(
         self,
-        ex_type: Optional[Type[BaseException]],
-        ex_value: Optional[BaseException],
-        ex_traceback: Optional[TracebackType],
+        ex_type: type[BaseException] | None,
+        ex_value: BaseException | None,
+        ex_traceback: TracebackType | None,
     ) -> None:
         if ex_type or self._volatile:
             self.remove()

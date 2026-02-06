@@ -29,7 +29,6 @@ import math
 import os
 from pathlib import Path
 import tempfile
-from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -1086,7 +1085,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file: Union[str, Path], *args) -> dict:
+    def import_config(self, config_file: str | Path, *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.

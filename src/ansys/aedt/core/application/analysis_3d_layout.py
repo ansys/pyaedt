@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-from typing import Optional
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -95,16 +94,16 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
         ic_mode=None,
-        remove_lock: Optional[bool] = False,
+        remove_lock: bool | None = False,
     ) -> None:
         Analysis.__init__(
             self,
@@ -209,7 +208,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
+    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters

@@ -27,7 +27,6 @@ import math
 import os
 from pathlib import Path
 import re
-from typing import Union
 
 from ansys.aedt.core import settings
 from ansys.aedt.core.base import PyAedtBase
@@ -216,7 +215,7 @@ def convert_nearfield_data(
 
 
 @pyaedt_function_handler()
-def convert_farfield_data(input_file: Union[str, Path], output_file=None) -> str:
+def convert_farfield_data(input_file: str | Path, output_file=None) -> str:
     """Convert a far field data file to hfss `ffd` file.
 
     Parameters

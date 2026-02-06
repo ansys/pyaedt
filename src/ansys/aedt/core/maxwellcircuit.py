@@ -26,8 +26,6 @@
 
 import math
 from pathlib import Path
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.base import PyAedtBase
@@ -111,18 +109,18 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     def __init__(
         self,
-        project: Optional[str] = None,
-        design: Optional[str] = None,
-        version: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        project: str | None = None,
+        design: str | None = None,
+        version: str | None = None,
+        solution_type: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
@@ -214,7 +212,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_netlist_from_schematic(self, output_file: Union[str, Path]) -> Union[str, bool]:
+    def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
         """Create netlist from schematic circuit.
 
         Parameters

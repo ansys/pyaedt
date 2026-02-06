@@ -26,8 +26,6 @@
 
 import math
 from pathlib import Path
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
@@ -125,19 +123,19 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     def __init__(
         self,
-        project: Optional[str] = None,
-        design: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        setup: Optional[str] = None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -304,7 +302,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_sim_setup_parameter(
-        self, variable: Variable, expression: Variable, analysis_name: Optional[str] = "TR"
+        self, variable: Variable, expression: Variable, analysis_name: str | None = "TR"
     ) -> bool:
         """Set simulation setup parameters.
 
@@ -347,7 +345,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_subsheet(self, name: str, design_name: Optional[str] = None) -> bool:
+    def create_subsheet(self, name: str, design_name: str | None = None) -> bool:
         """Create a subsheet from a parent design.
 
         If the parent design does not exist, it will add at top level.
@@ -388,14 +386,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         setup: str,
         sweep: str,
         coupling_matrix_name: str,
-        model_depth: Optional[str] = "1meter",
-        maximum_order: Optional[float] = 10000,
-        error_tolerance: Optional[float] = 0.005,
-        z_ref: Optional[float] = 50,
-        state_space_dynamic_link_type: Optional[str] = None,
-        component_name: Optional[str] = None,
-        save_project: Optional[bool] = True,
-    ) -> Union[CircuitComponent, bool]:
+        model_depth: str | None = "1meter",
+        maximum_order: float | None = 10000,
+        error_tolerance: float | None = 0.005,
+        z_ref: float | None = 50,
+        state_space_dynamic_link_type: str | None = None,
+        component_name: str | None = None,
+        save_project: bool | None = True,
+    ) -> CircuitComponent | bool:
         """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
         Parameters
@@ -649,14 +647,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         self,
         project: str,
         design: str,
-        use_default_values: Optional[bool] = True,
-        setup: Optional[str] = None,
-        start: Optional[str] = None,
-        stop: Optional[str] = None,
-        export_uniform_points: Optional[bool] = False,
-        export_uniform_points_step: Optional[float] = 1e-5,
-        excitations: Optional[dict] = None,
-    ) -> Union[CircuitComponent, bool]:
+        use_default_values: bool | None = True,
+        setup: str | None = None,
+        start: str | None = None,
+        stop: str | None = None,
+        export_uniform_points: bool | None = False,
+        export_uniform_points_step: float | None = 1e-5,
+        excitations: dict | None = None,
+    ) -> CircuitComponent | bool:
         """Use the excitation component to assign output quantities
 
         This works in a Twin Builder design to a windings in a Maxwell design.

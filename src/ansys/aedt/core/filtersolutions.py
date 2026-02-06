@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 import warnings
 
 from ansys.aedt.core import Circuit
@@ -56,7 +55,7 @@ class FilterDesignBase(PyAedtBase):
 
     _active_design = None
 
-    def __init__(self, version: Optional[str] = None) -> None:
+    def __init__(self, version: str | None = None) -> None:
         if FilterDesignBase._active_design:
             warnings.warn(
                 "FilterSolutions API currently supports only one design at a time. \n"
@@ -149,7 +148,7 @@ class LumpedDesign(FilterDesignBase):
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
 
-    def __init__(self, version: Optional[str] = None) -> None:
+    def __init__(self, version: str | None = None) -> None:
         super().__init__(version)
         self._init_lumped_design()
 
@@ -184,7 +183,7 @@ class DistributedDesign(FilterDesignBase):
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
     """
 
-    def __init__(self, version: Optional[str] = None) -> None:
+    def __init__(self, version: str | None = None) -> None:
         super().__init__(version)
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()

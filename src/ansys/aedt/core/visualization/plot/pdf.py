@@ -26,7 +26,6 @@ from dataclasses import dataclass
 from dataclasses import field
 import json
 import os
-from typing import Optional
 
 from fpdf import FPDF
 from fpdf import FontFace
@@ -681,7 +680,7 @@ class AnsysReport(FPDF, PyAedtBase):
                 link=link,
             )
 
-    def save_pdf(self, file_path, file_name: Optional[str] = None):
+    def save_pdf(self, file_path, file_name: str | None = None):
         """Save pdf.
 
         Parameters

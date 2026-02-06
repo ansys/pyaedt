@@ -30,10 +30,6 @@ import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -112,8 +108,8 @@ DATA = {
 class AedtInfo(BaseModel):
     version: str = ""
     port: int
-    aedt_process_id: Union[int, None]
-    student_version: Optional[bool] = False
+    aedt_process_id: int | None
+    student_version: bool | None = False
 
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
@@ -264,11 +260,11 @@ def insert_items(tree, parent, dictionary) -> None:
 class Arrange(BaseModel):
     operation: str
     # Rotate parameters
-    axis: Optional[str] = "X"
-    angle: Optional[str] = "0deg"
+    axis: str | None = "X"
+    angle: str | None = "0deg"
 
     # Move parameters
-    vector: Optional[list[Union[str, int, float]]] = ["0mm", "0mm", "0mm"]
+    vector: list[str | int | float] | None = ["0mm", "0mm", "0mm"]
 
     class Config:
         extra = "forbid"
@@ -280,19 +276,19 @@ class Component(BaseModel):
     model: str
 
     target_coordinate_system: str
-    layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
-    arranges: List[Arrange] = Field(default_factory=list)
-    sub_components: Optional[Dict] = Field(default_factory=dict)
+    layout_coordinate_systems: list[str] | None = Field(default_factory=list)
+    arranges: list[Arrange] = Field(default_factory=list)
+    sub_components: dict | None = Field(default_factory=dict)
     password: str = None
 
     # Mcad parameters
-    geometry_parameters: Optional[Dict[str, Union[str, float, int]]] = None
+    geometry_parameters: dict[str, str | float | int] | None = None
 
     # Ecad parameters
     reference_coordinate_system: str = "Global"
 
     # internal properties
-    __rotate_index: Optional[int] = 0
+    __rotate_index: int | None = 0
 
     class Config:
         extra = "forbid"
@@ -381,10 +377,10 @@ COMPONENT_MODELS = {}
 
 
 class MCADAssemblyBackend(BaseModel):
-    coordinate_system: Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
-    layout_component_models: Dict[str, str] = Field(default_factory=dict)
-    component_models: Dict[str, str] = Field(default_factory=dict)
-    sub_components: Dict[str, Component] = Field(default_factory=dict)
+    coordinate_system: dict[str, dict[str, str | list[str]]] = Field(default_factory=dict)
+    layout_component_models: dict[str, str] = Field(default_factory=dict)
+    component_models: dict[str, str] = Field(default_factory=dict)
+    sub_components: dict[str, Component] = Field(default_factory=dict)
 
     class Config:
         extra = "forbid"

@@ -25,7 +25,6 @@
 import os
 import re
 import secrets
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
@@ -113,7 +112,7 @@ class UserDefinedComponent(PyAedtBase):
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
-    def __init__(self, primitives, name: Optional[str] = None, props=None, component_type=None) -> None:
+    def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
         self._fix_udm_props = [
             "General[Name]",
             "Group",

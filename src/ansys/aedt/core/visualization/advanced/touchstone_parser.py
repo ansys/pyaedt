@@ -29,9 +29,6 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import List
-from typing import Optional
-from typing import Union
 import warnings
 
 import numpy as np
@@ -128,7 +125,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
     @pyaedt_function_handler()
     def reduce(
-        self, ports: Union[List[str], List[int]], output_file: Optional[Union[str, Path]] = None, reordered: bool = True
+        self, ports: list[str] | list[int], output_file: str | Path | None = None, reordered: bool = True
     ) -> str:
         """Reduce the Touchstone file and export it.
 
@@ -186,11 +183,11 @@ class TouchstoneData(rf.Network, PyAedtBase):
         low_loss: float = -40.0,
         high_loss: float = -60.0,
         include_same_component: bool = True,
-        component_filter: Optional[List] = None,
+        component_filter: list | None = None,
         include_filter: bool = True,
         frequency_sample: int = 5,
-        output_file: Optional[Union[str, Path]] = None,
-    ) -> List[tuple]:
+        output_file: str | Path | None = None,
+    ) -> list[tuple]:
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 

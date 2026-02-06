@@ -30,7 +30,6 @@ import math
 import os
 import re
 import sys
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -469,7 +468,7 @@ class Materials(PyAedtBase):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material: str, name: Optional[str] = None, properties=None):
+    def duplicate_material(self, material: str, name: str | None = None, properties=None):
         """Duplicate a material.
 
         Parameters
@@ -553,7 +552,7 @@ class Materials(PyAedtBase):
         return new_material
 
     @pyaedt_function_handler()
-    def duplicate_surface_material(self, material: str, name: Optional[str] = None):
+    def duplicate_surface_material(self, material: str, name: str | None = None):
         """Duplicate a surface material.
 
         Parameters
@@ -763,7 +762,7 @@ class Materials(PyAedtBase):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler()
-    def import_materials_from_file(self, input_file: Optional[str] = None):
+    def import_materials_from_file(self, input_file: str | None = None):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters

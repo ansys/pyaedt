@@ -37,11 +37,6 @@ import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
@@ -104,7 +99,7 @@ def get_latest_version(package_name, timeout: int = 3):
         return UNKNOWN_VERSION
 
 
-def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
     """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
 
     Returns
@@ -133,7 +128,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return False
 
-    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+    def read_version_file(file_path: Path) -> tuple[str | None, bool]:
         """Read version file and return (last_known_version, show_updates).
 
         File format:
@@ -232,8 +227,8 @@ class ExtensionCommon(PyAedtBase):
         theme_color: str = "light",
         withdraw: bool = False,
         add_custom_content: bool = True,
-        toggle_row: Optional[int] = None,
-        toggle_column: Optional[int] = None,
+        toggle_row: int | None = None,
+        toggle_column: int | None = None,
     ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
@@ -266,7 +261,7 @@ class ExtensionCommon(PyAedtBase):
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
-        self.__data: Optional[ExtensionCommonData] = None
+        self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
@@ -495,8 +490,8 @@ class ExtensionCommon(PyAedtBase):
     def __find_all_widgets(
         self,
         widget: tkinter.Widget,
-        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
-    ) -> List[tkinter.Widget]:
+        widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
+    ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
         if isinstance(widget, widget_classes):
@@ -578,7 +573,7 @@ class ExtensionCommon(PyAedtBase):
         return True
 
     @property
-    def data(self) -> Optional[ExtensionCommonData]:
+    def data(self) -> ExtensionCommonData | None:
         return self.__data
 
     @data.setter

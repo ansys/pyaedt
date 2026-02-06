@@ -29,7 +29,6 @@ import tkinter
 from tkinter import filedialog
 from tkinter import font
 from tkinter import ttk
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -62,7 +61,7 @@ EXTENSION_NB_COLUMN = 3
 class PointsCloudExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    choice: Union[str, list[str]] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
 

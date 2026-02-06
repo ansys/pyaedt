@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -64,7 +63,7 @@ class Results:
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
 
     @pyaedt_function_handler()
-    def _add_revision(self, name: Optional[str] = None):
+    def _add_revision(self, name: str | None = None):
         """Add a new revision or get the current revision if it already exists.
 
         Parameters

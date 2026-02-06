@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 from ansys.aedt.core import constants
 from ansys.aedt.core.base import PyAedtBase
@@ -785,7 +784,7 @@ class Layer3D(PyAedtBase):
         return created_line
 
     @pyaedt_function_handler()
-    def add_polygon(self, points, material: Optional[str] = "copper", is_void: bool = False, poly_name=None):
+    def add_polygon(self, points, material: str | None = "copper", is_void: bool = False, poly_name=None):
         """Create a polygon.
 
         Parameters
@@ -1422,7 +1421,7 @@ class Stackup3D(PyAedtBase):
         return self._duplicated_material_list
 
     @pyaedt_function_handler()
-    def add_padstack(self, name: str, material: Optional[str] = "copper"):
+    def add_padstack(self, name: str, material: str | None = "copper"):
         """Add a new padstack definition.
 
         Parameters
@@ -1447,7 +1446,7 @@ class Stackup3D(PyAedtBase):
         layer_type: str = "S",
         material_name: str = "copper",
         thickness: float = 0.035,
-        fill_material: Optional[str] = "FR4_epoxy",
+        fill_material: str | None = "FR4_epoxy",
         frequency=None,
     ):
         """Add a new layer to the stackup.
@@ -1628,7 +1627,7 @@ class Stackup3D(PyAedtBase):
     def add_ground_layer(
         self,
         name: str,
-        material: Optional[str] = "copper",
+        material: str | None = "copper",
         thickness: float = 0.035,
         fill_material: str = "air",
         frequency=None,

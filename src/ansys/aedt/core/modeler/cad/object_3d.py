@@ -37,7 +37,6 @@ from __future__ import annotations
 import math
 from pathlib import Path
 import re
-from typing import Optional
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -87,7 +86,7 @@ class Object3d(PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name: Optional[str] = None) -> None:
+    def __init__(self, primitives, name: str | None = None) -> None:
         self._id = None
         self._positions = None
         if name:

@@ -24,8 +24,6 @@
 
 from pathlib import Path
 import re
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -463,7 +461,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return assignment
 
     @pyaedt_function_handler()
-    def import_cadence_brd(self, input_file: str, output_dir=None, name: Optional[str] = None) -> bool:
+    def import_cadence_brd(self, input_file: str, output_dir=None, name: str | None = None) -> bool:
         """Import a cadence board.
 
         Parameters
@@ -516,7 +514,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def import_ipc2581(self, input_file: str, output_dir=None, name: Optional[str] = None) -> bool:
+    def import_ipc2581(self, input_file: str, output_dir=None, name: str | None = None) -> bool:
         """Import an IPC file.
 
         Parameters
@@ -795,10 +793,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     def set_spice_model(
         self,
         assignment: str,
-        input_file: Union[str, Path],
-        model_name: Optional[str] = None,
-        subcircuit_name: Optional[str] = None,
-        pin_map: Optional[list] = None,
+        input_file: str | Path,
+        model_name: str | None = None,
+        subcircuit_name: str | None = None,
+        pin_map: list | None = None,
     ) -> bool:
         """Assign a Spice model to a component.
 
@@ -906,7 +904,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_touchstone_model(self, assignment, input_file: Optional[Union[str, Path]] = None, model_name=None):
+    def set_touchstone_model(self, assignment, input_file: str | Path | None = None, model_name=None):
         """Assign a Touchstone model to a component.
 
         Parameters

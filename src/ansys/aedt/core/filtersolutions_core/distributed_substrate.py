@@ -28,7 +28,6 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 from ctypes import create_string_buffer
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
@@ -127,7 +126,7 @@ class DistributedSubstrate:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_er(self) -> Union[SubstrateType, str]:
+    def substrate_er(self) -> SubstrateType | str:
         """Substrate's relative permittivity ``Er``.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
@@ -163,7 +162,7 @@ class DistributedSubstrate:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
+    def substrate_resistivity(self) -> SubstrateResistivity | str:
         """Substrate's resistivity.
 
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
@@ -199,7 +198,7 @@ class DistributedSubstrate:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
+    def substrate_loss_tangent(self) -> SubstrateEr | str:
         """Substrate's loss tangent.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.

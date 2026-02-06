@@ -25,7 +25,6 @@
 import os
 import shutil
 import time
-from typing import Optional
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -92,7 +91,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         sphere_name,
         setup_name,
         frequencies,
-        variations: Optional[dict] = None,
+        variations: dict | None = None,
         overwrite: bool = True,
         export_touchstone: bool = True,
         set_phase_center_per_port: bool = True,

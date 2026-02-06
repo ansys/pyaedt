@@ -26,7 +26,6 @@ import copy
 import datetime
 import json
 import os.path
-from typing import Optional
 
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
@@ -69,7 +68,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def create_3dcomponent(
         self,
         input_file: str,
-        name: Optional[str] = None,
+        name: str | None = None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
@@ -397,7 +396,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
@@ -636,11 +635,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
         wgmodel: str = "WG0",
         wg_length: int = 100,
         wg_thickness=None,
-        wg_material: Optional[str] = "aluminum",
+        wg_material: str | None = "aluminum",
         parametrize_w: bool = False,
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
@@ -822,7 +821,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         cone_height,
         ring_height,
         thickness=None,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         """Create rings in a conical shape.
 

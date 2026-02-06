@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import os
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -113,7 +112,7 @@ class MultiPartComponent(PyAedtBase):
     def __init__(
         self,
         comp_folder,
-        name: Optional[str] = None,
+        name: str | None = None,
         use_relative_cs: bool = False,
         relative_cs_name=None,
         motion: bool = False,

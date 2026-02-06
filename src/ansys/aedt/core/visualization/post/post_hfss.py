@@ -28,7 +28,6 @@ This module contains the `PostProcessor3D` class.
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
 """
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -366,11 +365,11 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         self,
         layers,
         quantity,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         nets=None,
         plot_on_surface: bool = True,
         intrinsics=None,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -430,7 +429,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         self,
         layers_nets,
         quantity,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         intrinsics=None,
         plot_on_surface: bool = True,
         plot_name=None,

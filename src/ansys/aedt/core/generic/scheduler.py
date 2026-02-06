@@ -32,8 +32,6 @@ import os
 from pathlib import Path
 import platform
 import re
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 
@@ -99,7 +97,7 @@ def path_string(path: Path):
     return path_str
 
 
-def get_aedt_exe(version: Optional[str] = None):
+def get_aedt_exe(version: str | None = None):
     """Retrieve the full path to the Ansys AEDT executable.
 
     Parameters
@@ -192,10 +190,10 @@ class _ResourcesConfiguration:
         self,
         exclusive: bool,
         num_cores: int,
-        num_gpus: Optional[int],
+        num_gpus: int | None,
         num_nodes: int,
         num_tasks: int,
-        max_tasks_per_node: Optional[int],
+        max_tasks_per_node: int | None,
         ram_limit: int,
         ram_per_core: float,
     ) -> None:
@@ -243,7 +241,7 @@ class _ResourcesConfiguration:
         return self.__validate_positive_int(name, value, strict=strict)
 
     @property
-    def cores_per_task(self) -> Optional[int]:
+    def cores_per_task(self) -> int | None:
         """Get the number of cores assigned to each task."""
         return self.__num_cores // self.__num_tasks
 
@@ -270,12 +268,12 @@ class _ResourcesConfiguration:
         self.__num_cores = self.__validate_positive_int("num_cores", value)
 
     @property
-    def num_gpus(self) -> Optional[int]:
+    def num_gpus(self) -> int | None:
         """Get the number of GPUs to be used for the simulation."""
         return self.__num_gpus
 
     @num_gpus.setter
-    def num_gpus(self, value: Optional[int]) -> None:
+    def num_gpus(self, value: int | None) -> None:
         """Set the number of GPUs to be used for the simulation."""
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
@@ -300,12 +298,12 @@ class _ResourcesConfiguration:
         self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
     @property
-    def max_tasks_per_node(self) -> Optional[int]:
+    def max_tasks_per_node(self) -> int | None:
         """Get the maximum number of tasks allowed to run on a single node."""
         return self.__max_tasks_per_node
 
     @max_tasks_per_node.setter
-    def max_tasks_per_node(self, value: Optional[int]) -> None:
+    def max_tasks_per_node(self, value: int | None) -> None:
         """Set the maximum number of tasks allowed to run on a single node."""
         self.__max_tasks_per_node = self.__validate_optional_positive_int("max_tasks_per_node", value, strict=False)
 
@@ -391,9 +389,9 @@ class _ExecutionConfiguration:
     job_name: str = DEFAULT_JOB_NAME
     monitor: bool = True
     ng_solve: bool = False
-    product_full_path: Optional[str] = None
-    shared_directory_linux: Optional[str] = None
-    shared_directory_windows: Optional[str] = None
+    product_full_path: str | None = None
+    shared_directory_linux: str | None = None
+    shared_directory_windows: str | None = None
     use_ppe: bool = True
     wait_for_license: bool = True
 
@@ -401,24 +399,24 @@ class _ExecutionConfiguration:
 class JobConfigurationData(PyAedtBase):
     def __init__(
         self,
-        aedt_version: Optional[str] = None,
+        aedt_version: str | None = None,
         auto_hpc: bool = DEFAULT_AUTO_HPC,
         cluster_name: str = DEFAULT_CLUSTER_NAME,
         custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING,
         exclusive: bool = False,
         job_name: str = DEFAULT_JOB_NAME,
-        max_tasks_per_node: Optional[int] = None,
+        max_tasks_per_node: int | None = None,
         monitor: bool = True,
         ng_solve: bool = False,
         num_cores: int = DEFAULT_NUM_CORES,
-        num_gpus: Optional[int] = None,
+        num_gpus: int | None = None,
         num_nodes: int = DEFAULT_NUM_NODES,
         num_tasks: int = DEFAULT_NUM_TASKS,
-        product_full_path: Optional[str] = None,
+        product_full_path: str | None = None,
         ram_limit: int = DEFAULT_RAM_LIMIT,
         ram_per_core: float = DEFAULT_RAM_PER_CORE,
-        shared_directory_linux: Optional[str] = None,
-        shared_directory_windows: Optional[str] = None,
+        shared_directory_linux: str | None = None,
+        shared_directory_windows: str | None = None,
         use_ppe: bool = True,
         wait_for_license: bool = True,
     ) -> None:
@@ -531,7 +529,7 @@ class JobConfigurationData(PyAedtBase):
     # === _ResourcesConfiguration properties ===
 
     @property
-    def cores_per_task(self) -> Optional[int]:
+    def cores_per_task(self) -> int | None:
         """Get the number of cores assigned to each task."""
         return self.__resources_conf.cores_per_task
 
@@ -558,12 +556,12 @@ class JobConfigurationData(PyAedtBase):
         self.__resources_conf.num_cores = value
 
     @property
-    def num_gpus(self) -> Optional[int]:
+    def num_gpus(self) -> int | None:
         """Get the number of GPUs to be used for the simulation."""
         return self.__resources_conf.num_gpus
 
     @num_gpus.setter
-    def num_gpus(self, value: Optional[int]) -> None:
+    def num_gpus(self, value: int | None) -> None:
         """Set the number of GPUs to be used for the simulation."""
         self.__resources_conf.num_gpus = value
 
@@ -594,12 +592,12 @@ class JobConfigurationData(PyAedtBase):
         self.__update_hpc_method()
 
     @property
-    def max_tasks_per_node(self) -> Optional[int]:
+    def max_tasks_per_node(self) -> int | None:
         """Get the maximum number of tasks allowed to run on a single node."""
         return self.__resources_conf.max_tasks_per_node
 
     @max_tasks_per_node.setter
-    def max_tasks_per_node(self, value: Optional[int]) -> None:
+    def max_tasks_per_node(self, value: int | None) -> None:
         """Set the maximum number of tasks allowed to run on a single node."""
         self.__resources_conf.max_tasks_per_node = value
 
@@ -687,32 +685,32 @@ class JobConfigurationData(PyAedtBase):
         self.__execution_conf.ng_solve = value
 
     @property
-    def product_full_path(self) -> Optional[str]:
+    def product_full_path(self) -> str | None:
         """Get the full path to the AEDT executable used for job submission."""
         return self.__execution_conf.product_full_path
 
     @product_full_path.setter
-    def product_full_path(self, value: Optional[str]) -> None:
+    def product_full_path(self, value: str | None) -> None:
         """Set the full path to the AEDT executable used for job submission."""
         self.__execution_conf.product_full_path = value
 
     @property
-    def shared_directory_linux(self) -> Optional[str]:
+    def shared_directory_linux(self) -> str | None:
         """Get the path to the shared directory on Linux systems."""
         return self.__execution_conf.shared_directory_linux
 
     @shared_directory_linux.setter
-    def shared_directory_linux(self, value: Optional[str]) -> None:
+    def shared_directory_linux(self, value: str | None) -> None:
         """Set the path to the shared directory on Linux systems."""
         self.__execution_conf.shared_directory_linux = value
 
     @property
-    def shared_directory_windows(self) -> Optional[str]:
+    def shared_directory_windows(self) -> str | None:
         """Get the path to the shared directory on Windows systems."""
         return self.__execution_conf.shared_directory_windows
 
     @shared_directory_windows.setter
-    def shared_directory_windows(self, value: Optional[str]) -> None:
+    def shared_directory_windows(self, value: str | None) -> None:
         """Set the path to the shared directory on Windows systems."""
         self.__execution_conf.shared_directory_windows = value
 
@@ -788,13 +786,13 @@ class JobConfigurationData(PyAedtBase):
             "wait_for_license": self.wait_for_license,
         }
 
-    def to_json(self, path: Union[str, Path]) -> None:
+    def to_json(self, path: str | Path) -> None:
         """Save the job configuration to a JSON file."""
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
 
     @classmethod
-    def from_json(cls, path: Union[str, Path]) -> JobConfigurationData:
+    def from_json(cls, path: str | Path) -> JobConfigurationData:
         """Load the job configuration from a JSON file."""
         with open(path, "r") as f:
             data = json.load(f)

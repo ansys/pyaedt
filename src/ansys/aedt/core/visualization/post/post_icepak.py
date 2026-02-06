@@ -33,8 +33,6 @@ import csv
 import os
 import re
 from typing import Literal
-from typing import Optional
-from typing import Tuple
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -181,7 +179,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity,
         side: str = "Default",
         setup_name=None,
-        variations: Optional[dict] = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -239,7 +237,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         side: str = "Default",
         volume: bool = False,
         setup_name=None,
-        variations: Optional[dict] = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -302,7 +300,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity,
         side: str = "Default",
         setup_name=None,
-        variations: Optional[dict] = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -362,7 +360,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         side: str = "Default",
         volume: bool = False,
         setup_name=None,
-        variations: Optional[dict] = None,
+        variations: dict | None = None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -421,9 +419,9 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         assignment: str,
         max_min: Literal["Max", "Min"],
         location: Literal["Surface", "Volume"],
-        setup: Optional[str] = None,
-        time: Optional[str] = None,
-    ) -> Tuple[Tuple[float, float, float], float]:
+        setup: str | None = None,
+        time: str | None = None,
+    ) -> tuple[tuple[float, float, float], float]:
         """Calculate the position and value of the temperature maximum or minimum.
 
         Parameters

@@ -33,7 +33,6 @@ from collections import defaultdict
 import csv
 import os
 import tempfile
-from typing import Optional
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -188,7 +187,7 @@ class FieldSummary(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_field_summary_data(
-        self, setup: Optional[str] = None, variation=None, intrinsics: str = "", pandas_output: bool = False
+        self, setup: str | None = None, variation=None, intrinsics: str = "", pandas_output: bool = False
     ):
         """
         Get  field summary output computation.
@@ -240,7 +239,7 @@ class FieldSummary(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_csv(
-        self, output_file, setup: Optional[str] = None, variations: Optional[dict] = None, intrinsics: str = ""
+        self, output_file, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
         """
         Get the field summary output computation.

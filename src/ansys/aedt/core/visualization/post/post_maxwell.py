@@ -30,8 +30,6 @@ It contains all advanced postprocessing functionalities for creating and editing
 
 import secrets
 import string
-from typing import List
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -117,7 +115,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         seeding_faces,
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         intrinsics=None,
         plot_name=None,
         field_type: str = "DC R/L Fields",
@@ -236,11 +234,11 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         self,
         layers,
         quantity,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         nets=None,
         plot_on_surface: bool = True,
         intrinsics=None,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -300,7 +298,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         self,
         layers_nets,
         quantity,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         intrinsics=None,
         plot_on_surface: bool = True,
         plot_name=None,
@@ -493,7 +491,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         streamer_constant: float = 9.15,
         ionization_check: bool = False,
         ionization_equation: str = "x",
-        ionization_dataset: Optional[List] = None,
+        ionization_dataset: list | None = None,
     ) -> bool:  # pragma: no cover
         """Modify inception voltage evaluation parameters.
 

@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import re
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SI_UNITS
@@ -777,7 +776,7 @@ class ObjectMonitor(PyAedtBase):
         return self._type
 
     @pyaedt_function_handler()
-    def value(self, quantity=None, setup: Optional[str] = None, design_variation_dict=None, si_out: bool = True):
+    def value(self, quantity=None, setup: str | None = None, design_variation_dict=None, si_out: bool = True):
         """Get a list of values obtained from the monitor object.
 
         If the simulation is steady state, the list will contain just one element.

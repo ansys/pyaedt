@@ -29,7 +29,6 @@ import re
 import threading
 import time
 from typing import Callable
-from typing import Optional
 
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
@@ -37,7 +36,7 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
-    def __init__(self, show_gui: bool = False, version: Optional[str] = None) -> None:
+    def __init__(self, show_gui: bool = False, version: str | None = None) -> None:
         self._init_dll_path(version)
         self._init_dll(show_gui)
 

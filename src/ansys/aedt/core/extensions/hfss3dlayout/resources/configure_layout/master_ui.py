@@ -27,7 +27,6 @@ from pathlib import Path
 import tempfile
 import tkinter
 from tkinter import ttk
-from typing import Union
 import webbrowser
 
 from pyedb import Edb
@@ -83,7 +82,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             return self.__selected_design
 
     @selected_edb.setter
-    def selected_edb(self, value: Union[str, Path]) -> None:
+    def selected_edb(self, value: str | Path) -> None:
         self.__selected_design = value
 
     def __init__(self, withdraw: bool = False) -> None:
@@ -194,7 +193,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         app.close()
         return data
 
-    def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
+    def load_edb_into_hfss3dlayout(self, edb_path: str | Path):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.desktop_class.release_desktop(False, False)

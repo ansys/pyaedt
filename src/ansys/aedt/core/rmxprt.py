@@ -25,8 +25,6 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
 from pathlib import Path
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
@@ -46,7 +44,7 @@ class RMXprtModule(PyAedtBase):
         self.oeditor = app.oeditor
 
     @property
-    def properties(self) -> Union[BinaryTreeNode, bool]:
+    def properties(self) -> BinaryTreeNode | bool:
         """Object parameters.
 
         Returns
@@ -222,20 +220,20 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     def __init__(
         self,
-        project: Optional[str] = None,
-        design: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        model_units: Optional[str] = None,
-        setup: Optional[str] = None,
-        version: Optional[str] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: Optional[bool] = False,
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        model_units: str | None = None,
+        setup: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
         FieldAnalysisRMxprt.__init__(
             self,
@@ -279,7 +277,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_setup(
-        self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs
+        self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs
     ) -> SetupHFSS:
         """Create an analysis setup for RmXport.
 
@@ -332,7 +330,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def export_configuration(self, output_file: Union[str, Path]) -> str:
+    def export_configuration(self, output_file: str | Path) -> str:
         """Export Rmxprt project to config file.
 
         Parameters

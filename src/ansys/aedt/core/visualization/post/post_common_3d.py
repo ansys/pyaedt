@@ -36,12 +36,7 @@ from pathlib import Path
 import secrets
 import string
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Literal
-from typing import Optional
-from typing import Tuple
-from typing import Union
 import warnings
 
 import numpy as np
@@ -190,7 +185,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return ""  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _get_intrinsic(self, setup: str) -> Dict[str, str]:
+    def _get_intrinsic(self, setup: str) -> dict[str, str]:
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
         intr_dict = {}
@@ -203,11 +198,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def _check_intrinsics(
         self,
-        input_data: Optional[Union[str, Dict[str, str]]],
-        input_phase: Optional[str] = None,
-        setup: Optional[str] = None,
+        input_data: str | dict[str, str] | None,
+        input_phase: str | None = None,
+        setup: str | None = None,
         return_list: bool = False,
-    ) -> Union[Dict[str, str], List[str]]:
+    ) -> dict[str, str] | list[str]:
         intrinsics = {}
         if input_data is None:
             if setup is None:
@@ -254,7 +249,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return intrinsics
 
     @pyaedt_function_handler()
-    def _get_volume_objects(self, assignment: List[Any]) -> List[Any]:
+    def _get_volume_objects(self, assignment: list[Any]) -> list[Any]:
         obj_list = []
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
@@ -267,7 +262,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return assignment
 
     @pyaedt_function_handler()
-    def _get_surface_objects(self, assignment: List[Any]) -> Tuple[str, List[Any]]:
+    def _get_surface_objects(self, assignment: list[Any]) -> tuple[str, list[Any]]:
         faces = [int(i) for i in assignment]
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             planes = self._get_cs_plane_ids()
@@ -280,7 +275,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return "FacesList", faces
 
     @pyaedt_function_handler()
-    def _get_cs_plane_ids(self) -> Dict[int, str]:
+    def _get_cs_plane_ids(self) -> dict[int, str]:
         name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
         if self._app.design_properties and "ModelSetup" in self._app.design_properties:  # pragma: no cover
             cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
@@ -306,7 +301,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return name2refid
 
     @pyaedt_function_handler()
-    def _get_fields_plot(self) -> Dict[str, FieldPlot]:
+    def _get_fields_plot(self) -> dict[str, FieldPlot]:
         plots = {}
         if (
             self._app.design_properties
@@ -399,11 +394,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self,
         quantity: str,
         scalar_function: str = "Maximum",
-        solution: Optional[str] = None,
-        variations: Optional[Dict[str, Any]] = None,
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
         is_vector: bool = False,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        phase: Optional[str] = None,
+        intrinsics: str | dict[str, str] | None = None,
+        phase: str | None = None,
         object_name: str = "AllObjects",
         object_type: str = "volume",
         adjacent_side: bool = False,
@@ -543,22 +538,22 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_field_file_on_grid(
         self,
         quantity: str,
-        solution: Optional[str] = None,
-        variations: Optional[Dict[str, Any]] = None,
-        file_name: Optional[str] = None,
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
+        file_name: str | None = None,
         grid_type: str = "Cartesian",
-        grid_center: Optional[List[float]] = None,
-        grid_start: Optional[List[float]] = None,
-        grid_stop: Optional[List[float]] = None,
-        grid_step: Optional[List[float]] = None,
+        grid_center: list[float] | None = None,
+        grid_start: list[float] | None = None,
+        grid_stop: list[float] | None = None,
+        grid_step: list[float] | None = None,
         is_vector: bool = False,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        phase: Optional[str] = None,
+        intrinsics: str | dict[str, str] | None = None,
+        phase: str | None = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
-    ) -> Union[str, bool]:
+    ) -> str | bool:
         """Use the field calculator to create a field file on a grid based on a solution and variation.
 
         Parameters
@@ -730,15 +725,15 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_field_file(
         self,
         quantity: str,
-        solution: Optional[str] = None,
-        variations: Optional[Dict[str, Any]] = None,
-        output_file: Optional[str] = None,
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
+        output_file: str | None = None,
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        phase: Optional[str] = None,
-        sample_points_file: Optional[str] = None,
-        sample_points: Optional[List[List[float]]] = None,
+        intrinsics: str | dict[str, str] | None = None,
+        phase: str | None = None,
+        sample_points_file: str | None = None,
+        sample_points: list[list[float]] | None = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
@@ -924,8 +919,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_field_plot(
-        self, plot_name: str, output_dir: Union[str, Path], file_name: str = "", file_format: str = "aedtplt"
-    ) -> Union[str, bool]:
+        self, plot_name: str, output_dir: str | Path, file_name: str = "", file_format: str = "aedtplt"
+    ) -> str | bool:
         """Export a field plot.
 
         .. note:
@@ -967,14 +962,14 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def _create_fieldplot(
         self,
-        assignment: Union[List[str], List[int]],
+        assignment: list[str] | list[int],
         quantity: str,
-        setup: Optional[str],
-        intrinsics: Dict[str, str],
+        setup: str | None,
+        intrinsics: dict[str, str],
         list_type: str,
-        plot_name: Optional[str] = None,
-        filter_boxes: Optional[List[str]] = None,
-        field_type: Optional[str] = None,
+        plot_name: str | None = None,
+        filter_boxes: list[str] | None = None,
+        field_type: str | None = None,
         create_plot: bool = True,
     ) -> FieldPlot:
         intrinsics = self._check_intrinsics(intrinsics, None, setup)
@@ -1028,11 +1023,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_line(
         self,
-        assignment: Union[str, List[str]],
+        assignment: str | list[str],
         quantity: str,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        plot_name: Optional[str] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
+        plot_name: str | None = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
         """Create a field plot of the line.
@@ -1100,11 +1095,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_surface(
         self,
-        assignment: Union[str, List[str], List[FacePrimitive]],
+        assignment: str | list[str] | list[FacePrimitive],
         quantity: str,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        plot_name: Optional[str] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
+        plot_name: str | None = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
         """Create a field plot of surfaces.
@@ -1162,12 +1157,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_cutplane(
         self,
-        assignment: Union[str, List[str]],
+        assignment: str | list[str],
         quantity: str,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        plot_name: Optional[str] = None,
-        filter_objects: Optional[List[str]] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
+        plot_name: str | None = None,
+        filter_objects: list[str] | None = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
         """Create a field plot of cut planes.
@@ -1251,11 +1246,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_volume(
         self,
-        assignment: Union[str, List[str]],
+        assignment: str | list[str],
         quantity: str,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
-        plot_name: Optional[str] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
+        plot_name: str | None = None,
         field_type: str = "DC R/L Fields",
     ) -> FieldPlot:
         """Create a field plot of volumes.
@@ -1329,7 +1324,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         width: int = 1920,
         height: int = 1080,
         display_wireframe: bool = True,
-        selections: Optional[List[str]] = None,
+        selections: list[str] | None = None,
         show_axis: bool = True,
         show_grid: bool = True,
         show_ruler: bool = True,
@@ -1445,13 +1440,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def export_model_picture(
         self,
-        full_name: Optional[Union[str, Path]] = None,
+        full_name: str | Path | None = None,
         show_axis: bool = True,
         show_grid: bool = True,
         show_ruler: bool = True,
         show_region: str = "Default",
-        selections: Optional[List[str]] = None,
-        field_selections: Optional[Union[str, List[str]]] = None,
+        selections: list[str] | None = None,
+        field_selections: str | list[str] | None = None,
         orientation: str = "isometric",
         width: int = 0,
         height: int = 0,
@@ -1565,11 +1560,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @min_aedt_version("2021.2")
     def export_model_obj(
         self,
-        assignment: Optional[Union[str, List[str]]] = None,
-        export_path: Optional[Union[str, Path]] = None,
+        assignment: str | list[str] | None = None,
+        export_path: str | Path | None = None,
         export_as_multiple_objects: bool = False,
         air_objects: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         """Export the model.
 
         Parameters
@@ -1644,11 +1639,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def export_mesh_obj(
         self,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
         export_air_objects: bool = False,
         on_surfaces: bool = True,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Export the mesh in AEDTPLT format.
 
         The mesh has to be available in the selected setup.
@@ -1757,7 +1752,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             warnings.warn("The Ipython package is missing and must be installed.")
 
     @pyaedt_function_handler()
-    def get_efields_data(self, setup_sweep_name: str = "", ff_setup: str = "Infinite Sphere1") -> Dict[str, Any]:
+    def get_efields_data(self, setup_sweep_name: str = "", ff_setup: str = "Infinite Sphere1") -> dict[str, Any]:
         """Compute Etheta and EPhi.
 
         .. warning::
@@ -1830,11 +1825,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def get_model_plotter_geometries(
         self,
-        objects: Optional[List[str]] = None,
+        objects: list[str] | None = None,
         plot_as_separate_objects: bool = True,
         plot_air_objects: bool = False,
-        force_opacity_value: Optional[float] = None,
-        array_coordinates: Optional[List[List[float]]] = None,
+        force_opacity_value: float | None = None,
+        array_coordinates: list[list[float]] | None = None,
         generate_mesh: bool = True,
         get_objects_from_aedt: bool = True,
     ):
@@ -1891,14 +1886,14 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def plot_model_obj(
         self,
-        objects: Optional[List[str]] = None,
+        objects: list[str] | None = None,
         show: bool = True,
-        export_path: Optional[Union[str, Path]] = None,
+        export_path: str | Path | None = None,
         plot_as_separate_objects: bool = True,
         plot_air_objects: bool = False,
-        force_opacity_value: Optional[float] = None,
+        force_opacity_value: float | None = None,
         clean_files: bool = False,
-        array_coordinates: Optional[List[List[float]]] = None,
+        array_coordinates: list[list[float]] | None = None,
         view: str = "isometric",
         show_legend: bool = True,
         dark_mode: bool = False,
@@ -1981,10 +1976,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         image_format: str = "jpg",
         view: str = "isometric",
         plot_label: str = "Temperature",
-        plot_folder: Optional[str] = None,
+        plot_folder: str | None = None,
         show: bool = True,
-        scale_min: Optional[float] = None,
-        scale_max: Optional[float] = None,
+        scale_min: float | None = None,
+        scale_max: float | None = None,
         plot_cad_objs: bool = True,
         log_scale: bool = True,
         dark_mode: bool = False,
@@ -2107,16 +2102,16 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def plot_field(
         self,
         quantity: str,
-        assignment: Union[str, List[str]],
+        assignment: str | list[str],
         plot_type: str = "Surface",
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
         mesh_on_fields: bool = False,
         view: str = "isometric",
-        plot_label: Optional[str] = None,
+        plot_label: str | None = None,
         show: bool = True,
-        scale_min: Optional[float] = None,
-        scale_max: Optional[float] = None,
+        scale_min: float | None = None,
+        scale_max: float | None = None,
         plot_cad_objs: bool = True,
         log_scale: bool = False,
         export_path: str = "",
@@ -2126,7 +2121,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_bounding: bool = False,
         show_grid: bool = False,
         show_legend: bool = True,
-        filter_objects: Optional[List[str]] = None,
+        filter_objects: list[str] | None = None,
         plot_as_separate_objects: bool = True,
         file_format: str = "case",
     ):
@@ -2250,19 +2245,19 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def plot_animated_field(
         self,
         quantity: str,
-        assignment: Union[str, List[str]],
+        assignment: str | list[str],
         plot_type: str = "Surface",
-        setup: Optional[str] = None,
-        intrinsics: Optional[Union[str, Dict[str, str]]] = None,
+        setup: str | None = None,
+        intrinsics: str | dict[str, str] | None = None,
         variation_variable: str = "Phi",
-        variations: Optional[List[str]] = None,
+        variations: list[str] | None = None,
         view: str = "isometric",
         show: bool = True,
-        scale_min: Optional[float] = None,
-        scale_max: Optional[float] = None,
+        scale_min: float | None = None,
+        scale_max: float | None = None,
         plot_cad_objs: bool = True,
         log_scale: bool = True,
-        zoom: Optional[float] = None,
+        zoom: float | None = None,
         export_gif: bool = False,
         export_path: str = "",
         force_opacity_value: float = 0.1,
@@ -2270,7 +2265,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_grid: bool = False,
         show_bounding: bool = False,
         show_legend: bool = True,
-        filter_objects: Optional[List[str]] = None,
+        filter_objects: list[str] | None = None,
         file_format: str = "case",
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
@@ -2411,9 +2406,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def animate_fields_from_aedtplt(
         self,
         plot_name: str,
-        plot_folder: Optional[str] = None,
+        plot_folder: str | None = None,
         variation_variable: str = "Phase",
-        variations: List[str] = ["0deg"],
+        variations: list[str] = ["0deg"],
         project_path: str = "",
         export_gif: bool = False,
         show: bool = True,
@@ -2508,11 +2503,11 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def create_3d_plot(
         self,
         solution_data: Any,
-        nominal_sweep: Optional[str] = None,
-        nominal_value: Optional[str] = None,
+        nominal_sweep: str | None = None,
+        nominal_value: str | None = None,
         primary_sweep: str = "Theta",
         secondary_sweep: str = "Phi",
-        snapshot_path: Optional[Union[str, Path]] = None,
+        snapshot_path: str | Path | None = None,
         show: bool = True,
     ) -> bool:
         """Create a 3D plot using Matplotlib.
@@ -2551,8 +2546,8 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def plot_scene(
         self,
-        frames: Union[List[str], str],
-        gif_path: Union[str, Path],
+        frames: list[str] | str,
+        gif_path: str | Path,
         norm_index: int = 0,
         dy_rng: int = 0,
         fps: int = 30,
@@ -2638,9 +2633,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         max_min: Literal["Max", "Min"],
         location: Literal["Surface", "Volume"],
         field: str,
-        setup: Optional[str] = None,
-        intrinsics: Optional[Dict[str, str]] = None,
-    ) -> Tuple[Tuple[float, float, float], float]:
+        setup: str | None = None,
+        intrinsics: dict[str, str] | None = None,
+    ) -> tuple[tuple[float, float, float], float]:
         """
         Calculates the position and value of the field maximum or minimum.
 

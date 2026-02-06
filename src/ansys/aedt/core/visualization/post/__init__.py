@@ -23,11 +23,9 @@
 # SOFTWARE.
 
 
-from typing import Optional
-
 
 def post_processor(
-    app=None, project: Optional[str] = None, design: Optional[str] = None, version: Optional[str] = None
+    app=None, project: str | None = None, design: str | None = None, version: str | None = None
 ):
     """PostProcessor.
 

@@ -28,7 +28,6 @@ import datetime
 from pathlib import Path
 import shutil
 import sys
-from typing import List
 
 import pandas as pd
 import pytest
@@ -43,7 +42,7 @@ from tests.conftest import SYSTEM_SOLVERS_TEST_PREFIX
 from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
-def _collect_archives_from_path(path_obj: Path) -> List[Path]:
+def _collect_archives_from_path(path_obj: Path) -> list[Path]:
     """Return a list of .aedtz/.aedt files under the provided path."""
     if path_obj.is_file() and path_obj.suffix.lower() in (".aedtz", ".aedt"):
         return [path_obj]
@@ -61,13 +60,13 @@ def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent
 
 
-def _download_archives(folder: str, dest: Path) -> List[Path]:
+def _download_archives(folder: str, dest: Path) -> list[Path]:
     """Download one or more solved project archives."""
     dest.mkdir(parents=True, exist_ok=True)
 
     # The download_file API can differ; try common call styles gracefully.
-    candidates: List[Path] = []
-    errors: List[str] = []
+    candidates: list[Path] = []
+    errors: list[str] = []
     result = None
 
     try:

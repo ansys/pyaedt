@@ -9,7 +9,6 @@ import subprocess  # nosec
 import sys
 import tempfile
 import time
-from typing import Optional, List
 
 import rpyc
 
@@ -328,8 +327,8 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_edb(
         self,
-        edbpath: Optional[str]=None,
-        cellname: Optional[str]=None,
+        edbpath: str | None=None,
+        cellname: str | None=None,
         isreadonly: bool=False,
         edbversion: str="2021.2",
         use_ppe: bool=False,
@@ -369,11 +368,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_hfss(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Hfss session.
@@ -424,11 +423,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_hfss3dlayout(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Hfss3dLayout session.
@@ -479,11 +478,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_maxwell3d(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Maxwell3d session.
@@ -534,11 +533,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_maxwell2d(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Maxwell32 session.
@@ -589,11 +588,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_icepak(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Icepak session.
@@ -644,11 +643,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_circuit(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Circuit session.
@@ -699,11 +698,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_mechanical(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Mechanical session.
@@ -754,11 +753,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_q3d(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Q3d session.
@@ -809,11 +808,11 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_q2d(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: str | None=None,
+        design: str | None=None,
+        solution_type: str | None=None,
+        setup: str | None=None,
+        version: str | None=None,
         non_graphical: bool=True,
     ):
         """Start a new Q2d session.
@@ -897,7 +896,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def aedt_grpc(
-            port=None, beta_options: List[str] = None, use_aedt_relative_path: bool=False, non_graphical: bool=True,
+            port=None, beta_options: list[str] = None, use_aedt_relative_path: bool=False, non_graphical: bool=True,
             check_interval: int=2
     ) -> bool:
         """Start a new AEDT session on a specified gRPC port.
@@ -1028,10 +1027,10 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def edb(
-        edbpath: Optional[str]=None,
-        cellname: Optional[str]=None,
+        edbpath: str | None=None,
+        cellname: str | None=None,
         isreadonly: bool=False,
-        edbversion: Optional[str]=None,
+        edbversion: str | None=None,
         isaedtowned: bool=False,
         oproject=None,
         student_version: bool=False,

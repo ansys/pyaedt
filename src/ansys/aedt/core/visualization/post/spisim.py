@@ -31,9 +31,6 @@ from pathlib import Path
 import re
 import shutil
 from struct import unpack
-from typing import List
-from typing import Optional
-from typing import Union
 
 from numpy import float64
 from numpy import zeros
@@ -73,16 +70,16 @@ class FrequencyFigure(ReportBase):
 
 class AdvancedReport(ReportBase):
     version: str = Field("1.0", alias="Version")
-    rpt_name: Optional[str] = Field("", alias="RptName")
+    rpt_name: str | None = Field("", alias="RptName")
     touchstone: str = Field(..., alias="Touchstone")
     expiration: str = Field(default="12/31/2100", alias="Expiration")
     mode: str = Field(..., alias="Mode")
-    dpextract: Optional[str] = Field("", alias="DPExtract")
+    dpextract: str | None = Field("", alias="DPExtract")
     port: str = Field(..., alias="Port")
     r: int = Field(50, alias="R")
     report_dir: str = Field(..., alias="ReportDir")
     extrapolate: str = Field(..., alias="Extrapolate")
-    watermark: Optional[str] = Field("", alias="WaterMark")
+    watermark: str | None = Field("", alias="WaterMark")
     td_length: str = Field(..., alias="TDLength")
     fq_axis_log: str = Field("F", alias="FqAxis Log")
     fq_unit: str = Field("GHz", alias="FqUnit")
@@ -97,10 +94,10 @@ class AdvancedReport(ReportBase):
     var_list: str = Field(..., alias="VARList")
     cascade: str = Field(default="", alias="CASCADE")  # additional file to be formed via cascading
 
-    frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
+    frequency_domain: list[FrequencyFigure] | None = Field(default=[], alias="[Frequency Domain]")
 
     @classmethod
-    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":  # pragma: no cover
+    def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
         """Load SPIsim configuration file."""
         with open(file_path, "r") as f:
             content = f.read()
@@ -164,7 +161,7 @@ class AdvancedReport(ReportBase):
 
         return cls(**config)
 
-    def dump_spisim_cfg(self, file_path: Union[str, Path]) -> str:
+    def dump_spisim_cfg(self, file_path: str | Path) -> str:
         """Create a SPIsim configuration file."""
         data = self.model_dump(by_alias=True)
 
@@ -592,9 +589,9 @@ class SpiSim(PyAedtBase):
         tx_ports: list[int],
         rx_ports: list[int],
         victim_ports: list[int],
-        tx_resistance: Union[int, float, str] = 30,
+        tx_resistance: int | float | str = 30,
         tx_capacitance: str = "0.2p",
-        rx_resistance: Union[int, float, str] = 50,
+        rx_resistance: int | float | str = 50,
         rx_capacitance: str = "0.2p",
         packaging_type: str = "standard",
         data_rate: str = "GTS04",
@@ -627,9 +624,9 @@ class SpiSim(PyAedtBase):
         """
 
         class Ucie(BaseModel):
-            TxR: Union[str, int]
+            TxR: str | int
             TxC: str
-            RxR: Union[str, int]
+            RxR: str | int
             RxC: str
             TxIdx: str
             RxIdx: str

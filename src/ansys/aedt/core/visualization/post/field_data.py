@@ -29,7 +29,6 @@ import os
 import shutil
 import sys
 import tempfile
-from typing import Optional
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -1266,7 +1265,7 @@ class FieldPlot(PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename: Optional[str] = None, visibility: bool = False):  # pragma: no cover
+    def get_points_value(self, points, filename: str | None = None, visibility: bool = False):  # pragma: no cover
         """
         Get points data from field plot.
 

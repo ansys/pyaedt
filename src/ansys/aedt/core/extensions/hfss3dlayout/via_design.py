@@ -32,8 +32,6 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 import tkinter.ttk as ttk
-from typing import List
-from typing import Optional
 
 import PIL.Image
 import PIL.ImageTk
@@ -91,7 +89,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=False,
         )
         self.__create_design_path = None
-        self.__export_examples: List[ExportExampleData] = EXPORT_EXAMPLES
+        self.__export_examples: list[ExportExampleData] = EXPORT_EXAMPLES
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
@@ -165,7 +163,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         )
         change_theme_button.grid(row=0, column=1)
 
-    def create_design(self, create_design_path: Optional[Path] = None):
+    def create_design(self, create_design_path: Path | None = None):
         """Create via design in AEDT"""
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(

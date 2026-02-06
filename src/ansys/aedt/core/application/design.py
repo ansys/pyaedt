@@ -43,12 +43,6 @@ import threading
 import time
 from types import TracebackType
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
@@ -165,24 +159,24 @@ class Design(AedtObjects, PyAedtBase):
     def __init__(
         self,
         design_type: str,
-        project_name: Optional[Union[str, Path]] = None,
-        design_name: Optional[str] = None,
-        solution_type: Optional[str] = None,
-        version: Optional[Union[str, int, float]] = None,
-        non_graphical: Optional[bool] = False,
-        new_desktop: Optional[bool] = False,
-        close_on_exit: Optional[bool] = False,
-        student_version: Optional[bool] = False,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
-        ic_mode: Optional[bool] = None,
-        remove_lock: Optional[bool] = False,
+        project_name: str | Path | None = None,
+        design_name: str | None = None,
+        solution_type: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        ic_mode: bool | None = None,
+        remove_lock: bool | None = False,
     ) -> None:
-        self._design_name: Optional[str] = None
-        self._project_name: Optional[str] = None
-        self._project_path: Optional[str] = None
-        self.__t: Optional[threading.Thread] = None
+        self._design_name: str | None = None
+        self._project_name: str | None = None
+        self._project_path: str | None = None
+        self.__t: threading.Thread | None = None
         if isinstance(project_name, Path):
             project_name = str(project_name)
         if (
@@ -194,14 +188,14 @@ class Design(AedtObjects, PyAedtBase):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
         self._init_variables()
-        self._ic_mode: Optional[bool] = ic_mode
+        self._ic_mode: bool | None = ic_mode
         self.last_run_log: str = ""
         self.last_run_job: str = ""
-        self._design_dictionary: Optional[Dict] = None
-        self._project_dictionary: Dict = {}
-        self._boundaries: Dict = {}
-        self._project_datasets: List = []
-        self._design_datasets: List = []
+        self._design_dictionary: dict | None = None
+        self._project_dictionary: dict = {}
+        self._boundaries: dict = {}
+        self._project_datasets: list = []
+        self._design_datasets: list = []
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
         self._desktop_class = self.__init_desktop_from_design(
@@ -224,11 +218,11 @@ class Design(AedtObjects, PyAedtBase):
         if self.student_version:
             settings.disable_bounding_box_sat = True
 
-        self._mttime: Optional[float] = None
+        self._mttime: float | None = None
         self._desktop = self._desktop_class.odesktop
-        self._desktop_install_dir: Optional[str] = self._desktop_class.aedt_install_dir
-        self._odesign: Optional[Any] = None
-        self._oproject: Optional[Any] = None
+        self._desktop_install_dir: str | None = self._desktop_class.aedt_install_dir
+        self._odesign: Any | None = None
+        self._oproject: Any | None = None
 
         if self._design_type == DesignType.HFSS.NAME:
             self.design_solutions = HFSSDesignSolution(None, self._design_type, self._aedt_version)
@@ -242,15 +236,15 @@ class Design(AedtObjects, PyAedtBase):
             self.design_solutions = DesignSolution(None, self._design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
 
-        self._temp_solution_type: Optional[str] = solution_type
+        self._temp_solution_type: str | None = solution_type
         self._remove_lock: bool = remove_lock
 
         # ensure load_aedt_thread, if started, has finished before opening the project
         if self.__t:
             self.__t.join()
             self.__t = None
-        self.oproject: Optional[str] = project_name
-        self.odesign: Optional[str] = design_name
+        self.oproject: str | None = project_name
+        self.odesign: str | None = design_name
 
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
@@ -268,7 +262,7 @@ class Design(AedtObjects, PyAedtBase):
             self.design_settings = DesignSettings(self)
 
     @property
-    def _pyaedt_details(self) -> Dict[str, str]:
+    def _pyaedt_details(self) -> dict[str, str]:
         """Retrieve detailed session information for PyAEDT.
 
         Returns
@@ -307,9 +301,9 @@ class Design(AedtObjects, PyAedtBase):
 
     def __exit__(
         self,
-        ex_type: Optional[Type[BaseException]],
-        ex_value: Optional[BaseException],
-        ex_traceback: Optional[TracebackType],
+        ex_type: type[BaseException] | None,
+        ex_value: BaseException | None,
+        ex_traceback: TracebackType | None,
     ) -> None:
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
@@ -330,13 +324,13 @@ class Design(AedtObjects, PyAedtBase):
         return self.variable_manager[variable_name].expression
 
     @pyaedt_function_handler()
-    def __setitem__(self, variable_name: str, variable_value: Optional[Union[str, int, float]]) -> bool:
+    def __setitem__(self, variable_name: str, variable_value: str | int | float | None) -> bool:
         variable_value = _units_assignment(variable_value)
         self.variable_manager[variable_name] = variable_value
         return True
 
     @property
-    def info(self) -> Dict[str, str]:
+    def info(self) -> dict[str, str]:
         """Dictionary of the PyAEDT session information.
 
         Returns
@@ -346,7 +340,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name: str, design_name: str, solution_type: Optional[str] = None) -> None:
+    def _init_design(self, project_name: str, design_name: str, solution_type: str | None = None) -> None:
         """Initializes a new design.
 
         Parameters
@@ -383,7 +377,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._desktop_class
 
     @property
-    def project_datasets(self) -> Dict[str, DataSet]:
+    def project_datasets(self) -> dict[str, DataSet]:
         """Dictionary of project datasets.
 
         Returns
@@ -396,7 +390,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._project_datasets
 
     @property
-    def design_datasets(self) -> Dict[str, DataSet]:
+    def design_datasets(self) -> dict[str, DataSet]:
         """Dictionary of Design Datasets.
 
         Returns
@@ -409,7 +403,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._design_datasets
 
     @property
-    def boundaries(self) -> List[BoundaryObject]:
+    def boundaries(self) -> list[BoundaryObject]:
         """Design boundaries and excitations.
 
         Returns
@@ -542,7 +536,7 @@ class Design(AedtObjects, PyAedtBase):
         return list(self._boundaries.values())
 
     @property
-    def boundaries_by_type(self) -> Dict[str, List[BoundaryObject]]:
+    def boundaries_by_type(self) -> dict[str, list[BoundaryObject]]:
         """Design boundaries by type.
 
         Returns
@@ -558,7 +552,7 @@ class Design(AedtObjects, PyAedtBase):
         return _dict_out
 
     @property
-    def ports(self) -> List[str]:
+    def ports(self) -> list[str]:
         """Design excitations.
 
         Returns
@@ -620,7 +614,7 @@ class Design(AedtObjects, PyAedtBase):
         self._mesh = None
 
     @property
-    def settings(self) -> Dict:
+    def settings(self) -> dict:
         """Settings of the current Python/Pyaedt session."""
         return settings
 
@@ -635,7 +629,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._logger
 
     @property
-    def project_properties(self) -> Dict[str, dict]:
+    def project_properties(self) -> dict[str, dict]:
         """Project properties.
 
         Returns
@@ -672,7 +666,7 @@ class Design(AedtObjects, PyAedtBase):
         return {}
 
     @property
-    def design_properties(self) -> Dict[str, dict]:
+    def design_properties(self) -> dict[str, dict]:
         """Design properties.
 
         Returns
@@ -714,7 +708,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.desktop_class.aedt_version_id
 
     @property
-    def design_name(self) -> Optional[str]:
+    def design_name(self) -> str | None:
         """Design name.
 
         Returns
@@ -770,7 +764,7 @@ class Design(AedtObjects, PyAedtBase):
             self._design_name = new_name
 
     @property
-    def design_list(self) -> List[str]:
+    def design_list(self) -> list[str]:
         """Design list.
 
         Returns
@@ -808,7 +802,7 @@ class Design(AedtObjects, PyAedtBase):
         return str(self._design_type)
 
     @property
-    def project_name(self) -> Optional[str]:
+    def project_name(self) -> str | None:
         """Project name.
 
         Returns
@@ -838,7 +832,7 @@ class Design(AedtObjects, PyAedtBase):
             return None
 
     @property
-    def project_path(self) -> Optional[str]:
+    def project_path(self) -> str | None:
         """Project path.
 
         Returns
@@ -855,7 +849,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._project_path
 
     @property
-    def project_time_stamp(self) -> Union[int, float]:
+    def project_time_stamp(self) -> int | float:
         """Return Project time stamp."""
         if Path(self.project_file).exists():
             inner_project_settings.time_stamp = Path(self.project_file).stat().st_mtime
@@ -870,7 +864,7 @@ class Design(AedtObjects, PyAedtBase):
         return old_time != self.project_time_stamp
 
     @property
-    def project_file(self) -> Optional[str]:
+    def project_file(self) -> str | None:
         """Project name and path.
 
         Returns
@@ -883,7 +877,7 @@ class Design(AedtObjects, PyAedtBase):
             return str(Path(self.project_path) / (self.project_name + ".aedt"))
 
     @property
-    def lock_file(self) -> Optional[str]:
+    def lock_file(self) -> str | None:
         """Lock file.
 
         Returns
@@ -896,7 +890,7 @@ class Design(AedtObjects, PyAedtBase):
             return str(Path(self.project_path) / (self.project_name + ".aedt.lock"))
 
     @property
-    def results_directory(self) -> Optional[str]:
+    def results_directory(self) -> str | None:
         """Results directory.
 
         Returns
@@ -909,7 +903,7 @@ class Design(AedtObjects, PyAedtBase):
             return str(Path(self.project_path) / (self.project_name + ".aedtresults"))
 
     @property
-    def solution_type(self) -> Optional[str]:
+    def solution_type(self) -> str | None:
         """Solution type.
 
         Returns
@@ -1023,7 +1017,7 @@ class Design(AedtObjects, PyAedtBase):
         return str(Path(self.src_dir).parent.resolve())
 
     @property
-    def library_list(self) -> List[str]:
+    def library_list(self) -> list[str]:
         """Library list.
 
         Returns
@@ -1116,7 +1110,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._design_type.solution_default
 
     @pyaedt_function_handler()
-    def _find_design(self) -> Tuple[str, str]:
+    def _find_design(self) -> tuple[str, str]:
         activedes = None
         warning_msg = ""
         names = self.get_oo_name(self.oproject)
@@ -1398,7 +1392,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name: Optional[str] = None) -> Profiles:
+    def get_profile(self, name: str | None = None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1453,7 +1447,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_oo_name(self, aedt_object, object_name=None) -> List[str]:
+    def get_oo_name(self, aedt_object, object_name=None) -> list[str]:
         """Return the object-oriented AEDT property names.
 
         Parameters
@@ -1520,7 +1514,7 @@ class Design(AedtObjects, PyAedtBase):
             return []
 
     @pyaedt_function_handler()
-    def get_oo_property_value(self, aedt_object, object_name: str, prop_name: str) -> Union[str, float, bool]:
+    def get_oo_property_value(self, aedt_object, object_name: str, prop_name: str) -> str | float | bool:
         """Return the Object Oriented AEDT Object Properties.
 
         Parameters
@@ -1872,7 +1866,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def set_registry_from_file(self, registry_file: Union[str, Path], make_active: bool = True) -> bool:
+    def set_registry_from_file(self, registry_file: str | Path, make_active: bool = True) -> bool:
         """Apply desktop registry settings from an ACT file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
@@ -2302,7 +2296,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_em_target_design(self, design, setup: Optional[str] = None, design_setup=None) -> bool:
+    def create_em_target_design(self, design, setup: str | None = None, design_setup=None) -> bool:
         """Create an EM Target design.
 
         Parameters
@@ -2628,7 +2622,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def load_project(
-        self, file_name: str, design: Optional[str] = None, close_active: bool = False, set_active: bool = False
+        self, file_name: str, design: str | None = None, close_active: bool = False, set_active: bool = False
     ) -> bool:
         """Open an AEDT project based on a project and optional design.
 
@@ -2803,8 +2797,8 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def import_dataset1d(
         self,
-        input_file: Union[str, Path],
-        name: Optional[str] = None,
+        input_file: str | Path,
+        name: str | None = None,
         is_project_dataset: bool = True,
         sort: bool = True,
     ):
@@ -2865,8 +2859,8 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def import_dataset3d(
         self,
-        input_file: Union[str, Path],
-        name: Optional[str] = None,
+        input_file: str | Path,
+        name: str | None = None,
         encoding: str = "utf-8-sig",
         is_project_dataset: bool = True,
         sort: bool = True,
@@ -3179,7 +3173,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory=None, name: Optional[str] = None) -> bool:
+    def clean_proj_folder(self, directory=None, name: str | None = None) -> bool:
         """Delete a project folder.
 
         Parameters
@@ -3265,7 +3259,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name: Optional[str] = None, save: bool = True) -> bool:
+    def close_project(self, name: str | None = None, save: bool = True) -> bool:
         """Close an AEDT project.
 
         Parameters
@@ -3338,7 +3332,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_design(self, name: Optional[str] = None, fallback_design=None) -> bool:
+    def delete_design(self, name: str | None = None, fallback_design=None) -> bool:
         """Delete a design from the current project.
 
         .. warning::
@@ -3435,7 +3429,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.variable_manager.delete_unused_variables()
 
     @pyaedt_function_handler()
-    def insert_design(self, name: Optional[str] = None, solution_type: Optional[str] = None):
+    def insert_design(self, name: str | None = None, solution_type: str | None = None):
         """Add a design of a specified type.
 
         The default design type is taken from the derived application class.
@@ -3719,7 +3713,7 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def export_variables_to_csv(
         self,
-        output_file: Union[str, Path],
+        output_file: str | Path,
         export_project_variables: bool = True,
         export_design_properties: bool = True,
     ) -> bool:
@@ -3792,7 +3786,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def save_project(
-        self, file_name: Union[str, Path] = None, overwrite: bool = True, refresh_ids: bool = False
+        self, file_name: str | Path = None, overwrite: bool = True, refresh_ids: bool = False
     ) -> bool:
         """Save the project and add a message.
 
@@ -4201,7 +4195,7 @@ class Design(AedtObjects, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_temporary_directory(self, path: Union[str, Path]) -> bool:
+    def set_temporary_directory(self, path: str | Path) -> bool:
         """Set temporary directory path.
 
         Parameters
@@ -4271,7 +4265,7 @@ class DesignSettings(PyAedtBase):
 
     def __init__(self, app) -> None:
         self._app: Any = app
-        self.manipulate_inputs: Optional[DesignSettingsManipulation] = None
+        self.manipulate_inputs: DesignSettingsManipulation | None = None
 
     def __repr__(self) -> str:
         lines = ["{"]
@@ -4280,7 +4274,7 @@ class DesignSettings(PyAedtBase):
         lines.append("}")
         return "\n".join(lines)
 
-    def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
+    def __setitem__(self, key: str, value: Any) -> bool | None:
         value = _units_assignment(value)
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
@@ -4297,7 +4291,7 @@ class DesignSettings(PyAedtBase):
         else:
             self._app.logger.error(f"{key} property is not available in design settings.")
 
-    def __getitem__(self, key: str) -> Optional[Any]:
+    def __getitem__(self, key: str) -> Any | None:
         if key in self.available_properties:
             return self.design_settings.GetPropValue(key)
         else:
@@ -4308,7 +4302,7 @@ class DesignSettings(PyAedtBase):
         return item in self.available_properties
 
     @property
-    def design_settings(self) -> Optional[Any]:
+    def design_settings(self) -> Any | None:
         """Design settings."""
         try:
             return self._app.odesign.GetChildObject("Design Settings")
@@ -4317,7 +4311,7 @@ class DesignSettings(PyAedtBase):
             return None
 
     @property
-    def available_properties(self) -> List[str]:
+    def available_properties(self) -> list[str]:
         """Available properties names for the current design."""
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 

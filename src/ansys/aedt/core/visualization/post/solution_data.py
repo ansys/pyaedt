@@ -25,7 +25,6 @@
 import math
 import os
 import time
-from typing import Optional
 import warnings
 
 import numpy as np
@@ -842,9 +841,9 @@ class SolutionData(PyAedtBase):
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        formula: Optional[str] = None,
-        size: Optional[tuple] = (1920, 1440),
-        snapshot_path: Optional[str] = None,
+        formula: str | None = None,
+        size: tuple | None = (1920, 1440),
+        snapshot_path: str | None = None,
         show: bool = True,
     ):
         """Create a matplotlib 3D figure based on a list of data.

@@ -30,8 +30,6 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Optional
-from typing import Tuple
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -562,7 +560,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
 
     @property
-    def die_properties(self) -> Optional[Tuple[int, int, str, int]]:
+    def die_properties(self) -> tuple[int, int, str, int] | None:
         """Get die properties from component.
 
         Returns
@@ -579,7 +577,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return self.__part_type_id() in [0, 4, 5]
 
     @property
-    def port_properties(self) -> Optional[Tuple[str, bool, str, str]]:
+    def port_properties(self) -> tuple[str, bool, str, str] | None:
         """Get port properties from component.
 
         Returns
@@ -593,7 +591,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return Components3DLayout.__get_port_properties(self.__get_model_info())
 
     @port_properties.setter
-    def port_properties(self, values: Tuple[str, bool, str, str]) -> None:
+    def port_properties(self, values: tuple[str, bool, str, str]) -> None:
         rh, rsa, rsx, rsy = values
         if not self.__has_port_properties():
             self.logger.warning(
@@ -762,7 +760,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         diameter: str = "0.1mm",
         mid_diameter: str = "0.1mm",
         height: str = "0.2mm",
-        material: Optional[str] = "solder",
+        material: str | None = "solder",
         reference_offset=None,
     ):
         """Set solderball on the active component.

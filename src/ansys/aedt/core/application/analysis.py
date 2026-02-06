@@ -35,10 +35,6 @@ import re
 import shutil
 import tempfile
 import time
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 import warnings
 
 from ansys.aedt.core.application.design import Design
@@ -134,11 +130,11 @@ class Analysis(Design, PyAedtBase):
         new_desktop,
         close_on_exit,
         student_version,
-        machine: Optional[str] = "",
-        port: Optional[int] = 0,
-        aedt_process_id: Optional[int] = None,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
         ic_mode=None,
-        remove_lock: Optional[bool] = False,
+        remove_lock: bool | None = False,
     ) -> None:
         Design.__init__(
             self,
@@ -666,7 +662,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def list_of_variations(self, setup: Optional[str] = None, sweep: Optional[str] = None):
+    def list_of_variations(self, setup: str | None = None, sweep: str | None = None):
         """Retrieve a list of active variations for input setup.
 
         Parameters
@@ -729,7 +725,7 @@ class Analysis(Design, PyAedtBase):
         impedance: int = 50,
         include_gamma_comment: bool = True,
         support_non_standard_touchstone_extension: bool = False,
-        variations: Optional[list] = None,
+        variations: list | None = None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -1159,7 +1155,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def generate_unique_setup_name(self, name: Optional[str] = None):
+    def generate_unique_setup_name(self, name: str | None = None):
         """Generate a new setup with a unique name.
 
         Parameters
@@ -1361,7 +1357,7 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_output_variable(
-        self, variable, expression, solution: Optional[str] = None, context=None, is_differential: bool = False
+        self, variable, expression, solution: str | None = None, context=None, is_differential: bool = False
     ) -> bool:
         """Create or modify an output variable.
 
@@ -1472,7 +1468,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable, solution: Optional[str] = None):
+    def get_output_variable(self, variable, solution: str | None = None):
         """Retrieve the value of the output variable.
 
         Parameters
@@ -1548,7 +1544,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze(
         self,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         cores=None,
         tasks=None,
         gpus=None,
@@ -1626,7 +1622,7 @@ class Analysis(Design, PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def set_hpc_from_file(self, acf_file: Union[str, Path] = None, configuration_name: Optional[str] = None) -> bool:
+    def set_hpc_from_file(self, acf_file: str | Path = None, configuration_name: str | None = None) -> bool:
         """Set custom HPC options from ACF file.
 
         Parameters
@@ -1662,11 +1658,11 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def set_custom_hpc_options(
         self,
-        cores: Optional[int] = None,
-        gpus: Optional[int] = None,
-        tasks: Optional[int] = None,
-        num_variations_to_distribute: Optional[int] = None,
-        allowed_distribution_types: Optional[list] = None,
+        cores: int | None = None,
+        gpus: int | None = None,
+        tasks: int | None = None,
+        num_variations_to_distribute: int | None = None,
+        allowed_distribution_types: list | None = None,
         use_auto_settings: bool = True,
     ) -> bool:
         """Set custom HPC options.
@@ -1768,7 +1764,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         cores=None,
         tasks=None,
         gpus=None,
@@ -1933,12 +1929,12 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def solve_in_batch(
         self,
-        file_name: Optional[str] = None,
+        file_name: str | None = None,
         machine: str = "localhost",
         run_in_thread: bool = False,
         cores: int = 4,
         tasks: int = 1,
-        setup: Optional[str] = None,
+        setup: str | None = None,
         revert_to_initial_mesh: bool = False,
     ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
@@ -2074,11 +2070,11 @@ class Analysis(Design, PyAedtBase):
     def submit_job(
         self,
         cluster_name,
-        aedt_full_exe_path: Optional[str] = None,
+        aedt_full_exe_path: str | None = None,
         nodes: int = 1,
         cores: int = 32,
         wait_for_license: bool = True,
-        setting_file: Optional[str] = None,
+        setting_file: str | None = None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2116,11 +2112,11 @@ class Analysis(Design, PyAedtBase):
         self,
         setup_name=None,
         sweep_name=None,
-        file_name: Optional[str] = None,
-        variations: Optional[list] = None,
+        file_name: str | None = None,
+        variations: list | None = None,
         variations_value=None,
         renormalization: bool = False,
-        impedance: Optional[float] = None,
+        impedance: float | None = None,
         comments: bool = False,
     ):
         """Export the Touchstone file to a local folder.
@@ -2451,7 +2447,7 @@ class AvailableVariations(PyAedtBase):
         return variation_str
 
     @pyaedt_function_handler()
-    def variations(self, setup_sweep: str, output_as_dict: bool = False) -> Union[List[List], List[Dict]]:
+    def variations(self, setup_sweep: str, output_as_dict: bool = False) -> list[list] | list[dict]:
         """Retrieve variations for a given setup.
 
         Parameters
@@ -2513,7 +2509,7 @@ class AvailableVariations(PyAedtBase):
         return families
 
     @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> Dict:  # pragma: no cover
+    def get_independent_nominal_values(self) -> dict:  # pragma: no cover
         """Retrieve variations for a given setup.
 
         .. deprecated:: 0.22.0
@@ -2532,7 +2528,7 @@ class AvailableVariations(PyAedtBase):
         return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
-    def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> Dict:
+    def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:
         """Retrieve variations for a given setup.
 
         Parameters

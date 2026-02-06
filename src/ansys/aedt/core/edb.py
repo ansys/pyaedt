@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 
-from typing import Optional
 
 from pyedb import Siwave
 
@@ -34,15 +33,15 @@ log = settings.logger
 
 # lazy imports
 def Edb(
-    edbpath: Optional[str] = None,
-    cellname: Optional[str] = None,
-    isreadonly: Optional[bool] = False,
-    edbversion: Optional[str] = None,
-    isaedtowned: Optional[bool] = False,
-    oproject: Optional[any] = None,
-    student_version: Optional[bool] = False,
-    use_ppe: Optional[bool] = False,
-    technology_file: Optional[str] = None,
+    edbpath: str | None = None,
+    cellname: str | None = None,
+    isreadonly: bool | None = False,
+    edbversion: str | None = None,
+    isaedtowned: bool | None = False,
+    oproject: any | None = None,
+    student_version: bool | None = False,
+    use_ppe: bool | None = False,
+    technology_file: str | None = None,
 ):
     """Provides the EDB application interface.
 
@@ -128,7 +127,7 @@ def Edb(
 
 
 def Siwave(
-    specified_version: Optional[str] = None,
+    specified_version: str | None = None,
 ) -> Siwave:
     """Siwave Class."""
     from pyedb.siwave import Siwave as app

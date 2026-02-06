@@ -30,7 +30,6 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import Optional
 
 import ansys.aedt.core
 from ansys.aedt.core import Icepak
@@ -71,7 +70,7 @@ class IcepakCSVFormatError(AEDTRuntimeError):
 class PowerMapFromCSVExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    file_path: Optional[Path] = None
+    file_path: Path | None = None
     geometric_info: list = field(default_factory=list)
     source_value_info: dict = field(default_factory=dict)
     source_unit_info: dict = field(default_factory=dict)

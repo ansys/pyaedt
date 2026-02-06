@@ -28,8 +28,6 @@ import copy
 import csv
 from pathlib import Path
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsHfss
@@ -159,7 +157,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
         self.auto_update = True
 
-    def _get_setup_props(self, arg1: Dict[str, Any]) -> None:
+    def _get_setup_props(self, arg1: dict[str, Any]) -> None:
         for k, v in arg1.items():
             if isinstance(v, dict):
                 arg1[k] = SetupProps(self, v)
@@ -181,7 +179,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         intrinsics=None,
         report_category=None,
         context=None,
-        subdesign_id: Optional[int] = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 0,
         is_goal: bool = False,
     ):
@@ -291,7 +289,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return sweep_definition
 
     @pyaedt_function_handler()
-    def update(self, update_dictionary: Optional[Dict[str, Any]] = None) -> bool:
+    def update(self, update_dictionary: dict[str, Any] | None = None) -> bool:
         """Update the setup based on stored properties.
 
         Parameters
@@ -348,9 +346,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution: Optional[str] = None,
+        solution: str | None = None,
         context=None,
-        subdesign_id: Optional[int] = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
         report_type=None,
     ):
@@ -404,9 +402,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution: Optional[str] = None,
+        solution: str | None = None,
         context=None,
-        subdesign_id: Optional[int] = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
         report_type=None,
         is_goal: bool = False,
@@ -592,9 +590,9 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         calculation,
         ranges,
         variables=None,
-        solution: Optional[str] = None,
+        solution: str | None = None,
         context=None,
-        subdesign_id: Optional[int] = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
         report_type=None,
         condition: str = "<=",
@@ -1019,8 +1017,8 @@ class ParametricSetups(PyAedtBase):
         end_point=None,
         step: int = 100,
         variation_type: str = "LinearCount",
-        solution: Optional[str] = None,
-        name: Optional[str] = None,
+        solution: str | None = None,
+        name: str | None = None,
     ):
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
@@ -1100,7 +1098,7 @@ class ParametricSetups(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_from_file(self, input_file: str, name: Optional[str] = None):
+    def add_from_file(self, input_file: str, name: str | None = None):
         """Add a Parametric setup from either a csv or txt file.
 
         Parameters
@@ -1243,10 +1241,10 @@ class OptimizationSetups(PyAedtBase):
         condition: str = "<=",
         goal_value: int = 1,
         goal_weight: int = 1,
-        solution: Optional[str] = None,
-        name: Optional[str] = None,
+        solution: str | None = None,
+        name: str | None = None,
         context=None,
-        subdesign_id: Optional[int] = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
         report_type=None,
     ):

@@ -25,8 +25,6 @@
 from __future__ import annotations
 
 import ast
-from typing import List
-from typing import Union
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
@@ -55,7 +53,7 @@ class EmitNode:
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @staticmethod
-    def props_to_dict(props: List[str]) -> dict:
+    def props_to_dict(props: list[str]) -> dict:
         """Converts a list of key/value pairs to a dictionary.
 
         Parameters
@@ -181,7 +179,7 @@ class EmitNode:
         return node_warnings
 
     @property
-    def allowed_child_types(self) -> List[str]:
+    def allowed_child_types(self) -> list[str]:
         """Child types allowed for this node.
 
         Returns
@@ -255,7 +253,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
         Parameters

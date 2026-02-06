@@ -32,7 +32,6 @@ import os
 from pathlib import Path
 import re
 import types
-from typing import Optional
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
@@ -334,7 +333,7 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine, port: Optional[int] = 0, NGmode: bool = False, alwaysNew: bool = True):
+    def CreateAedtApplication(self, machine, port: int | None = 0, NGmode: bool = False, alwaysNew: bool = True):
         try:
             pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
             if machine.endswith("InsecureMode"):

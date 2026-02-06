@@ -32,9 +32,6 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
-from typing import List
-from typing import Optional
-from typing import Union
 import warnings
 
 try:
@@ -77,7 +74,7 @@ def string_to_time(time_string: str) -> timedelta:
         return timedelta(seconds=0)
 
 
-def format_timedelta(time_delta: Optional[Union[str, timedelta]]) -> str:
+def format_timedelta(time_delta: str | timedelta | None) -> str:
     """Format :class:`datetime.timedelta` for tables.
 
     Parameters
@@ -189,7 +186,7 @@ class MemoryGB(PyAedtBase):
     _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "MB": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
 
     @pyaedt_function_handler()
-    def __init__(self, memory_value: Optional[Union[int, float, str]] = None) -> None:
+    def __init__(self, memory_value: int | float | str | None = None) -> None:
         """Initialize the instance."""
         if isinstance(memory_value, (int, float)):
             self._memory_str = f"{memory_value} G"
@@ -473,7 +470,7 @@ class ProfileStep(PyAedtBase):
                 setattr(self, "stop_time", self.start_time + self.elapsed_time)
 
     @property
-    def process_steps(self) -> Optional[List[str]]:
+    def process_steps(self) -> list[str] | None:
         """Names of nested process steps, if any.
 
         Returns
@@ -684,10 +681,10 @@ class TransientProfile(ProfileStep):
                 self._time_step_keys.append(match.group(1))
 
     @property
-    def time_steps(self) -> List[float]:
+    def time_steps(self) -> list[float]:
         return sorted([float(t.replace("s", "")) for t in self._time_step_keys])
 
-    def time_step_keys(self, max_time: float) -> List[str]:
+    def time_step_keys(self, max_time: float) -> list[str]:
         """Return time-step labels up to a limit.
 
         Parameters
@@ -706,7 +703,7 @@ class TransientProfile(ProfileStep):
         return return_val
 
     @property
-    def max_time(self) -> Optional[float]:
+    def max_time(self) -> float | None:
         """Largest time step in seconds, if any.
 
         Returns
@@ -793,7 +790,7 @@ class FrequencySweepProfile(ProfileStep):
             self.start_time = datetime.strptime(data["Time"], "%m/%d/%Y %H:%M:%S")
 
     @property
-    def frequencies(self) -> List[Quantity]:
+    def frequencies(self) -> list[Quantity]:
         """Frequencies extracted from child groups or summary.
 
         Returns
@@ -830,7 +827,7 @@ class FrequencySweepProfile(ProfileStep):
         return f"Frequency - {freq_str} Group"
 
     @pyaedt_function_handler()
-    def keys(self) -> Optional[List[str]]:
+    def keys(self) -> list[str] | None:
         """Frequency strings for quick iteration.
 
         Returns
@@ -869,13 +866,13 @@ class AdaptivePass(ProfileStep):
             self._adapt_frequency = Quantity(data.properties["Frequency"])
 
     @property
-    def adapt_frequency(self) -> Optional[Quantity]:
+    def adapt_frequency(self) -> Quantity | None:
         """Frequency used in this adaptive pass."""
         return self._adapt_frequency
 
 
 @pyaedt_function_handler()
-def get_mesh_process_name(group_data: BinaryTreeNode) -> Optional[str]:
+def get_mesh_process_name(group_data: BinaryTreeNode) -> str | None:
     """Return the name of the meshing process group if present.
 
     Parameters
@@ -1098,7 +1095,7 @@ class SimulationProfile(PyAedtBase):
                 setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
 
     @property
-    def product(self) -> Optional[str]:
+    def product(self) -> str | None:
         """Product name parsed from the ``Product`` field.
 
         Returns
@@ -1331,7 +1328,7 @@ class SimulationProfile(PyAedtBase):
         return repr_str
 
     @property
-    def max_time(self) -> Optional[float]:
+    def max_time(self) -> float | None:
         """Maximum transient time in seconds.
 
         Returns
@@ -1347,7 +1344,7 @@ class SimulationProfile(PyAedtBase):
             return None
 
     @property
-    def time_steps(self) -> Optional[List[float]]:
+    def time_steps(self) -> list[float] | None:
         """List of transient time steps.
 
         Returns
@@ -1360,7 +1357,7 @@ class SimulationProfile(PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def time_keys(self, max_time: float) -> List[str]:
+    def time_keys(self, max_time: float) -> list[str]:
         """Return labels for transient steps not exceeding ``max_time``.
 
         Parameters
@@ -1376,7 +1373,7 @@ class SimulationProfile(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def _merge_profiles(profiles: List) -> SimulationProfile:
+def _merge_profiles(profiles: list) -> SimulationProfile:
     """Merge a list of :class:`SimulationProfile` into one.
 
     Parameters

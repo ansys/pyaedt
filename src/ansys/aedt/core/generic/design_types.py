@@ -25,7 +25,6 @@
 import re
 import sys
 import time
-from typing import Optional
 
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
@@ -52,14 +51,14 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    version: Optional[str] = None,
-    non_graphical: Optional[bool] = False,
+    version: str | None = None,
+    non_graphical: bool | None = False,
     new_desktop: bool = True,
     close_on_exit: bool = True,
-    student_version: Optional[bool] = False,
-    machine: Optional[str] = "",
-    port: Optional[int] = 0,
-    aedt_process_id: Optional[int] = None,
+    student_version: bool | None = False,
+    machine: str | None = "",
+    port: int | None = 0,
+    aedt_process_id: int | None = None,
 ):
     """Initialize AEDT based on the inputs provided.
 

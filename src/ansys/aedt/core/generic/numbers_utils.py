@@ -27,7 +27,6 @@ from __future__ import annotations
 import ast
 import re
 from typing import Any
-from typing import Dict
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -353,7 +352,7 @@ class Quantity(float, PyAedtBase):
         return self.__class__, (self.expression, self.unit)
 
 
-def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
+def decompose_variable_value(variable_value: str, full_variables: dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
 
     Parameters

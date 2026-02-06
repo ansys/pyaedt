@@ -25,8 +25,6 @@ import copy
 import os.path
 from pathlib import Path
 import time
-from typing import List
-from typing import Optional
 
 import numpy as np
 from pyedb.generic.constants import unit_converter
@@ -317,7 +315,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         pass_fail,
         pass_fail_criteria: int = 0,
         name: str = "ERL",
-        project: Optional[str] = None,
+        project: str | None = None,
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -366,7 +364,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         report_type,
         pass_fail_criteria,
         name: str,
-        project: Optional[str] = None,
+        project: str | None = None,
     ) -> None:
         """Add report derived parameters computed by AEDT and python into the configuration.
 
@@ -414,7 +412,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         pass_fail,
         group_plots,
         name: str,
-        project: Optional[str] = None,
+        project: str | None = None,
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -453,7 +451,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report_from_folder(
-        self, input_folder, design_name, group_plots: bool = False, project: Optional[str] = None
+        self, input_folder, design_name, group_plots: bool = False, project: str | None = None
     ) -> None:
         """Add multiple reports from a folder.
 
@@ -550,7 +548,7 @@ class VirtualComplianceData(PyAedtBase):
         self._chapters = []
 
     @property
-    def chapters(self) -> List[VirtualComplianceChaptersData]:
+    def chapters(self) -> list[VirtualComplianceChaptersData]:
         """Chapters list.
 
         Returns

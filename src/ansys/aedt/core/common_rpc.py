@@ -29,7 +29,6 @@ import socket
 import sys
 import tempfile
 import time
-from typing import Optional
 
 import rpyc
 from rpyc import Connection
@@ -144,7 +143,7 @@ safe_attrs = {
 
 
 def pyaedt_service_manager(
-    port: int = 17878, aedt_version: Optional[str] = None, student_version: Optional[bool] = False
+    port: int = 17878, aedt_version: str | None = None, student_version: bool | None = False
 ) -> bool:
     """Start the PyAEDT service manager using RPyC server on CPython.
 
@@ -216,7 +215,7 @@ def pyaedt_service_manager(
 
 
 def launch_server(
-    port: int = 18000, ansysem_path: Optional[str] = None, non_graphical: Optional[bool] = False, threaded: bool = True
+    port: int = 18000, ansysem_path: str | None = None, non_graphical: bool | None = False, threaded: bool = True
 ) -> bool:
     """Start an RPyC server and listens on a specified port.
 
@@ -291,10 +290,10 @@ def launch_server(
 
 def create_session(
     server_name: str,
-    client_port: Optional[int] = None,
-    launch_aedt_on_server: Optional[bool] = False,
-    aedt_port: Optional[int] = None,
-    non_graphical: Optional[bool] = False,
+    client_port: int | None = None,
+    launch_aedt_on_server: bool | None = False,
+    aedt_port: int | None = None,
+    non_graphical: bool | None = False,
 ) -> Connection:
     """
     Connect to an existing AEDT server session and create a new client session from it.

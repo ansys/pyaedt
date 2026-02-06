@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -114,7 +113,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_resistor(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         value: int = 50,
         location=None,
         angle: int = 0,
@@ -163,7 +162,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_inductor(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         value: int = 50,
         location=None,
         angle: int = 0,
@@ -211,7 +210,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_capacitor(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         value: int = 50,
         location=None,
         angle: int = 0,
@@ -260,7 +259,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_voltage_source(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         source_type: str = "E",
         amplitude: int = 326,
         freq: int = 50,
@@ -322,7 +321,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_diode(
-        self, name: Optional[str] = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
     ):
         """Create a diode.
 
@@ -361,7 +360,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_npn(
-        self, name: Optional[str] = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
     ):
         """Create an NPN transistor.
 
@@ -400,7 +399,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_pnp(
-        self, name: Optional[str] = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
     ):
         """Create a PNP transistor.
 
@@ -441,7 +440,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_periodic_waveform_source(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         waveform_type: str = "SINE",
         amplitude: int = 100,
         freq: int = 50,

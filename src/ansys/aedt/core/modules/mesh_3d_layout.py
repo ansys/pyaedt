@@ -29,7 +29,6 @@ This module provides all functionalities for creating and editing the mesh in th
 
 """
 
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -250,7 +249,7 @@ class Mesh3d(PyAedtBase):
         is_inside: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         """Assign mesh length.
 
@@ -345,7 +344,7 @@ class Mesh3d(PyAedtBase):
         maximum_elements=None,
         triangulation_max_length: float = 0.1,
         layers_number: str = "2",
-        name: Optional[str] = None,
+        name: str | None = None,
     ):
         """Assign skin depth to the mesh.
 

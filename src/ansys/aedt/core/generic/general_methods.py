@@ -36,9 +36,6 @@ import subprocess  # nosec
 import sys
 import time
 import traceback
-from typing import Dict
-from typing import List
-from typing import Optional
 import warnings
 
 import psutil
@@ -868,7 +865,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]]:
+def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]]:
     """Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
@@ -903,7 +900,7 @@ def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]
 
 
 @pyaedt_function_handler()
-def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pid: int) -> int:
+def _check_connection_grpc_port(connections: dict[int, list[dict[str, any]]], pid: int) -> int:
     """Find the gRPC port for a specific process from its network connections.
 
     This function searches through network connections to identify the gRPC port
@@ -999,7 +996,7 @@ def is_grpc_session_active(port: int) -> bool:
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None, student_version: bool = False, non_graphical: Optional[bool] = None
+    version: str = None, student_version: bool = False, non_graphical: bool | None = None
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
@@ -1104,7 +1101,7 @@ def active_sessions(
 
 @pyaedt_function_handler()
 def com_active_sessions(
-    version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False
+    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
 ):
     """Get information for the active COM AEDT sessions.
 
@@ -1135,7 +1132,7 @@ def com_active_sessions(
 
 @pyaedt_function_handler()
 def grpc_active_sessions(
-    version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False
+    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
 ):
     """Get information for the active gRPC AEDT sessions.
 
