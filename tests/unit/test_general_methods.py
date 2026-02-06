@@ -30,52 +30,52 @@ from ansys.aedt.core.generic.general_methods import number_aware_string_key
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
 class TestGeneralMethods:
-    def test_00_number_aware_string_key(self):
+    def test_00_number_aware_string_key(self) -> None:
         assert number_aware_string_key("C1") == ("C", 1)
         assert number_aware_string_key("1234asdf") == (1234, "asdf")
         assert number_aware_string_key("U100") == ("U", 100)
         assert number_aware_string_key("U100X0") == ("U", 100, "X", 0)
 
-    def test_01_number_aware_string_key(self):
+    def test_01_number_aware_string_key(self) -> None:
         component_names = ["U10", "U2", "C1", "Y1000", "Y200"]
         expected_sort_order = ["C1", "U2", "U10", "Y200", "Y1000"]
         assert sorted(component_names, key=number_aware_string_key) == expected_sort_order
         assert sorted(component_names + [""], key=number_aware_string_key) == [""] + expected_sort_order
 
-    def test_valid_full_year_float(self):
+    def test_valid_full_year_float(self) -> None:
         assert _normalize_version_to_string(2023.2) == "2023.2"
         assert _normalize_version_to_string("2024.5") == "2024.5"
 
-    def test_valid_short_year_float(self):
+    def test_valid_short_year_float(self) -> None:
         assert _normalize_version_to_string(23.4) == "2023.4"
         assert _normalize_version_to_string("25.9") == "2025.9"
 
-    def test_valid_int_formats(self):
+    def test_valid_int_formats(self) -> None:
         assert _normalize_version_to_string(232) == "2023.2"
         assert _normalize_version_to_string("245") == "2024.5"
 
-    def test_valid_string_R_formats(self):
+    def test_valid_string_R_formats(self) -> None:
         assert _normalize_version_to_string("2025R2") == "2025.2"
         assert _normalize_version_to_string("2025 R2") == "2025.2"
         assert _normalize_version_to_string("25R2") == "2025.2"
         assert _normalize_version_to_string("25 R2") == "2025.2"
 
-    def test_none_value_as_version(self):
+    def test_none_value_as_version(self) -> None:
         assert _normalize_version_to_string(None) is None
 
-    def test_invalid_types(self):
+    def test_invalid_types(self) -> None:
         with pytest.raises(ValueError):
             _normalize_version_to_string([2023.2])  # list not allowed
         with pytest.raises(ValueError):
             _normalize_version_to_string({"year": 2023.2})  # dict not allowed
 
-    def test_invalid_formats(self):
+    def test_invalid_formats(self) -> None:
         with pytest.raises(ValueError):
             _normalize_version_to_string("20232")  # too many digits
         with pytest.raises(ValueError):
@@ -89,7 +89,7 @@ class TestGeneralMethods:
         with pytest.raises(ValueError):
             _normalize_version_to_string("2025 R")  # missing digit after R
 
-    def test_edge_cases(self):
+    def test_edge_cases(self) -> None:
         assert _normalize_version_to_string("2000.0") == "2000.0"  # earliest year
         assert _normalize_version_to_string("2099.9") == "2099.9"  # latest year
         assert _normalize_version_to_string("00.1") == "2000.1"  # short float lowest
@@ -111,7 +111,7 @@ class TestGeneralMethods:
             "2023.12SV",
         ],
     )
-    def test_valid_versions(self, version):
+    def test_valid_versions(self, version) -> None:
         assert _is_version_format_valid(version)
 
     @pytest.mark.parametrize(
@@ -130,5 +130,5 @@ class TestGeneralMethods:
             2023.2,  # float type
         ],
     )
-    def test_invalid_versions(self, version):
+    def test_invalid_versions(self, version) -> None:
         assert not _is_version_format_valid(version)

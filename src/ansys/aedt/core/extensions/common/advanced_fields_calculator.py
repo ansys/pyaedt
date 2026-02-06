@@ -66,7 +66,7 @@ class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
 class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
     """Extension for advanced fields calculator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -142,7 +142,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
                     available_descriptions[expression] = expression_info["description"]
         self.__available_descriptions = available_descriptions
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -162,7 +162,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         combo_calculation.grid(row=1, column=1, padx=15, pady=10)
         combo_calculation.focus_set()
 
-        def callback(extension: AdvancedFieldsCalculatorExtension):
+        def callback(extension: AdvancedFieldsCalculatorExtension) -> None:
             assignments = extension.aedt_application.modeler.convert_to_selections(
                 extension.aedt_application.modeler.selections, True
             )
@@ -188,7 +188,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         return self.__available_descriptions
 
 
-def main(data: AdvancedFieldsCalculatorExtensionData):
+def main(data: AdvancedFieldsCalculatorExtensionData) -> bool:
     """Main function to run the advanced fields calculator extension."""
     if not data.calculation:
         raise AEDTRuntimeError("No calculation provided to the extension.")

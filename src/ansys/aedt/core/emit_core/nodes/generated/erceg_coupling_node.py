@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class ErcegCouplingNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -46,7 +46,7 @@ class ErcegCouplingNode(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -60,7 +60,7 @@ class ErcegCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -70,7 +70,7 @@ class ErcegCouplingNode(EmitNode):
         return val
 
     @base_antenna.setter
-    def base_antenna(self, value: EmitNode):
+    def base_antenna(self, value: EmitNode) -> None:
         self._set_property("Base Antenna", f"{value}")
 
     @property
@@ -80,7 +80,7 @@ class ErcegCouplingNode(EmitNode):
         return val
 
     @mobile_antenna.setter
-    def mobile_antenna(self, value: EmitNode):
+    def mobile_antenna(self, value: EmitNode) -> None:
         self._set_property("Mobile Antenna", f"{value}")
 
     class TerrainCategoryOption(Enum):
@@ -96,7 +96,7 @@ class ErcegCouplingNode(EmitNode):
         return val
 
     @terrain_category.setter
-    def terrain_category(self, value: TerrainCategoryOption):
+    def terrain_category(self, value: TerrainCategoryOption) -> None:
         self._set_property("Terrain Category", f"{value.value}")
 
     @property
@@ -112,7 +112,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
+    def custom_fading_margin(self, value: float) -> None:
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -128,7 +128,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
+    def polarization_mismatch(self, value: float) -> None:
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -144,7 +144,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
+    def pointing_error_loss(self, value: float) -> None:
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -161,7 +161,7 @@ class ErcegCouplingNode(EmitNode):
         return val
 
     @fading_type.setter
-    def fading_type(self, value: FadingTypeOption):
+    def fading_type(self, value: FadingTypeOption) -> None:
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -177,7 +177,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
+    def fading_availability(self, value: float) -> None:
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -190,7 +190,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
+    def std_deviation(self, value: float) -> None:
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -203,7 +203,7 @@ class ErcegCouplingNode(EmitNode):
         return val == "true"
 
     @include_rain_attenuation.setter
-    def include_rain_attenuation(self, value: bool):
+    def include_rain_attenuation(self, value: bool) -> None:
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -219,7 +219,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
+    def rain_availability(self, value: float) -> None:
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -232,7 +232,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
+    def rain_rate(self, value: float) -> None:
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -248,7 +248,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
+    def polarization_tilt_angle(self, value: float) -> None:
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -264,7 +264,7 @@ class ErcegCouplingNode(EmitNode):
         return val == "true"
 
     @include_atmospheric_absorption.setter
-    def include_atmospheric_absorption(self, value: bool):
+    def include_atmospheric_absorption(self, value: bool) -> None:
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
@@ -277,7 +277,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @temperature.setter
-    def temperature(self, value: float):
+    def temperature(self, value: float) -> None:
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -290,7 +290,7 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
+    def total_air_pressure(self, value: float) -> None:
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -303,5 +303,5 @@ class ErcegCouplingNode(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
+    def water_vapor_concentration(self, value: float) -> None:
         self._set_property("Water Vapor Concentration", f"{value}")

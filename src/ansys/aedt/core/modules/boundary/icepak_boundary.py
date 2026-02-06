@@ -46,7 +46,7 @@ class BoundaryDictionary(PyAedtBase):
         ``"Sinusoidal"``, and ``"Square Wave"``.
     """
 
-    def __init__(self, assignment_type, function_type):
+    def __init__(self, assignment_type, function_type) -> None:
         if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
             raise AttributeError(f"The argument {assignment_type} for ``assignment_type`` is not valid.")
         if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
@@ -90,7 +90,7 @@ class LinearDictionary(BoundaryDictionary):
         corresponds to the coefficient ``b`` in the formula.
     """
 
-    def __init__(self, intercept, slope):
+    def __init__(self, intercept, slope) -> None:
         super().__init__("Transient", "Linear")
         self.intercept = intercept
         self.slope = slope
@@ -119,7 +119,7 @@ class PowerLawDictionary(BoundaryDictionary):
          corresponds to the coefficient ``c`` in the formula.
     """
 
-    def __init__(self, intercept, coefficient, scaling_exponent):
+    def __init__(self, intercept, coefficient, scaling_exponent) -> None:
         super().__init__("Transient", "Power Law")
         self.intercept = intercept
         self.coefficient = coefficient
@@ -149,7 +149,7 @@ class ExponentialDictionary(BoundaryDictionary):
         corresponds to the coefficient ``c`` in the formula.
     """
 
-    def __init__(self, vertical_offset, coefficient, exponent_coefficient):
+    def __init__(self, vertical_offset, coefficient, exponent_coefficient) -> None:
         super().__init__("Transient", "Exponential")
         self.vertical_offset = vertical_offset
         self.coefficient = coefficient
@@ -182,7 +182,7 @@ class SinusoidalDictionary(BoundaryDictionary):
         corresponds to the coefficient ``t0`` in the formula.
     """
 
-    def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
+    def __init__(self, vertical_offset, vertical_scaling, period, period_offset) -> None:
         super().__init__("Transient", "Sinusoidal")
         self.vertical_offset = vertical_offset
         self.vertical_scaling = vertical_scaling
@@ -211,7 +211,7 @@ class SquareWaveDictionary(BoundaryDictionary):
         Minimum value of the square wave.
     """
 
-    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value):
+    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value) -> None:
         super().__init__("Transient", "Square Wave")
         self.on_value = on_value
         self.initial_time_off = initial_time_off
@@ -239,7 +239,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         Scaling factor for the y values of the dataset.
     """
 
-    def __init__(self, assignment_type, ds, scale):
+    def __init__(self, assignment_type, ds, scale) -> None:
         super().__init__(assignment_type, "Piecewise Linear")
         self.scale = scale
         self._assignment_type = assignment_type
@@ -258,7 +258,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name=None, props=None, create=False):
+    def __init__(self, app, name: str | None = None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -297,7 +297,7 @@ class NetworkObject(BoundaryObject):
         return new_list
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """
         Create network in AEDT.
 
@@ -327,7 +327,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def _update_from_props(self):
+    def _update_from_props(self) -> None:
         nodes = self.props.get("Nodes", None)
         if nodes is not None:
             nd_name_list = [node.name for node in self._nodes]
@@ -373,7 +373,7 @@ class NetworkObject(BoundaryObject):
                     self.add_link(link_dict[0], link_dict[1], link_dict[-1], link_name)
 
     @property
-    def auto_update(self):
+    def auto_update(self) -> bool:
         """
         Get if auto-update is enabled.
 
@@ -385,7 +385,7 @@ class NetworkObject(BoundaryObject):
         return False
 
     @auto_update.setter
-    def auto_update(self, b):
+    def auto_update(self, b) -> None:
         """
         Set auto-update on or off.
 
@@ -543,7 +543,7 @@ class NetworkObject(BoundaryObject):
         return self._name
 
     @name.setter
-    def name(self, new_network_name):
+    def name(self, new_network_name) -> None:
         """
         Set new name of the network.
 
@@ -564,7 +564,7 @@ class NetworkObject(BoundaryObject):
             self._name = new_network_name
 
     @pyaedt_function_handler()
-    def add_internal_node(self, name, power, mass=None, specific_heat=None):
+    def add_internal_node(self, name: str, power, mass=None, specific_heat=None):
         """Add an internal node to the network.
 
         Parameters
@@ -624,7 +624,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def add_boundary_node(self, name, assignment_type, value):
+    def add_boundary_node(self, name: str, assignment_type, value):
         """
         Add a boundary node to the network.
 
@@ -684,7 +684,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def _add_to_props(self, new_node, type_dict="Nodes"):
+    def _add_to_props(self, new_node, type_dict: str = "Nodes") -> None:
         try:
             self.props[type_dict].update({new_node.name: new_node.props})
         except KeyError:
@@ -692,7 +692,13 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_face_node(
-        self, assignment, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
+        self,
+        assignment,
+        name: str | None = None,
+        thermal_resistance: str = "NoResistance",
+        material: str | None = None,
+        thickness=None,
+        resistance=None,
     ):
         """
         Create a face node in the network.
@@ -777,7 +783,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def add_nodes_from_dictionaries(self, nodes):
+    def add_nodes_from_dictionaries(self, nodes) -> bool:
         """
         Add nodes to the network from dictionary.
 
@@ -885,7 +891,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1, node2, value, name=None):
+    def add_link(self, node1, node2, value, name: str | None = None) -> bool:
         """Create links in the network object.
 
         Parameters
@@ -932,7 +938,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_links_from_dictionaries(self, connections):
+    def add_links_from_dictionaries(self, connections) -> bool:
         """Create links in the network object.
 
         Parameters
@@ -980,7 +986,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the network in AEDT.
 
         Returns
@@ -1009,7 +1015,7 @@ class NetworkObject(BoundaryObject):
         return self.update()
 
     class _Link:
-        def __init__(self, node_1, node_2, value, name, network):
+        def __init__(self, node_1, node_2, value, name: str, network) -> None:
             self.name = name
             if not isinstance(node_1, str):
                 node_1 = "FaceID" + str(node_1)
@@ -1059,13 +1065,13 @@ class NetworkObject(BoundaryObject):
             return [self.node_1, self.node_2] + self._link_type + [self.value]
 
         @pyaedt_function_handler()
-        def delete_link(self):
+        def delete_link(self) -> None:
             """Delete link from network."""
             self._network.props["Links"].pop(self.name)
             self._network._links.remove(self)
 
     class _Node:
-        def __init__(self, name, app, network, node_type=None, props=None):
+        def __init__(self, name: str, app, network, node_type=None, props=None) -> None:
             self.name = name
             self._type = node_type
             self._app = app
@@ -1074,7 +1080,7 @@ class NetworkObject(BoundaryObject):
             self._network = network
 
         @pyaedt_function_handler()
-        def delete_node(self):
+        def delete_node(self) -> None:
             """Delete node from network."""
             self._network.props["Nodes"].pop(self.name)
             self._network._nodes.remove(self)
@@ -1114,7 +1120,7 @@ class NetworkObject(BoundaryObject):
             return self._props
 
         @props.setter
-        def props(self, props):
+        def props(self, props) -> None:
             """Set properties of the node.
 
             Parameters
@@ -1125,7 +1131,7 @@ class NetworkObject(BoundaryObject):
             self._props = props
             self._node_props()
 
-        def _node_props(self):
+        def _node_props(self) -> None:
             face_node_default_dict = {
                 "FaceID": None,
                 "ThermalResistance": "NoResistance",

@@ -32,49 +32,49 @@ from tests.system.filter_solutions.resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_lumped_capacitor_q(self, lumped_design):
+    def test_lumped_capacitor_q(self, lumped_design) -> None:
         assert lumped_design.parasitics.capacitor_q == "Inf"
         lumped_design.parasitics.capacitor_q = "100"
         assert lumped_design.parasitics.capacitor_q == "100"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_q.ckt", "Lumped")
 
-    def test_lumped_capacitor_rs(self, lumped_design):
+    def test_lumped_capacitor_rs(self, lumped_design) -> None:
         assert lumped_design.parasitics.capacitor_rs == "0"
         lumped_design.parasitics.capacitor_rs = "1"
         assert lumped_design.parasitics.capacitor_rs == "1"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_rs.ckt", "Lumped")
 
-    def test_lumped_capacitor_rp(self, lumped_design):
+    def test_lumped_capacitor_rp(self, lumped_design) -> None:
         assert lumped_design.parasitics.capacitor_rp == "Inf"
         lumped_design.parasitics.capacitor_rp = "1000"
         assert lumped_design.parasitics.capacitor_rp == "1000"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_rp.ckt", "Lumped")
 
-    def test_lumped_capacitor_ls(self, lumped_design):
+    def test_lumped_capacitor_ls(self, lumped_design) -> None:
         assert lumped_design.parasitics.capacitor_ls == "0"
         lumped_design.parasitics.capacitor_ls = "1n"
         assert lumped_design.parasitics.capacitor_ls == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_ls.ckt", "Lumped")
 
-    def test_lumped_inductor_q(self, lumped_design):
+    def test_lumped_inductor_q(self, lumped_design) -> None:
         assert lumped_design.parasitics.inductor_q == "Inf"
         lumped_design.parasitics.inductor_q = "100"
         assert lumped_design.parasitics.inductor_q == "100"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_q.ckt", "Lumped")
 
-    def test_lumped_inductor_rs(self, lumped_design):
+    def test_lumped_inductor_rs(self, lumped_design) -> None:
         assert lumped_design.parasitics.inductor_rs == "0"
         lumped_design.parasitics.inductor_rs = "1"
         assert lumped_design.parasitics.inductor_rs == "1"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_rs.ckt", "Lumped")
 
-    def test_lumped_inductor_rp(self, lumped_design):
+    def test_lumped_inductor_rp(self, lumped_design) -> None:
         assert lumped_design.parasitics.inductor_rp == "Inf"
         lumped_design.parasitics.inductor_rp = "1000"
         assert lumped_design.parasitics.inductor_rp == "1000"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_rp.ckt", "Lumped")
 
-    def test_lumped_inductor_cp(self, lumped_design):
+    def test_lumped_inductor_cp(self, lumped_design) -> None:
         assert lumped_design.parasitics.inductor_cp == "0"
         lumped_design.parasitics.inductor_cp = "1n"
         assert lumped_design.parasitics.inductor_cp == "1n"

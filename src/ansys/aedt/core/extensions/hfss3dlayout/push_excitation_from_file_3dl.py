@@ -61,7 +61,7 @@ class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
 class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for push excitation from file in HFSS 3D Layout."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
         # Initialize the common extension class
         super().__init__(
@@ -97,7 +97,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
         self.excitation_names = excitation_names
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add content to the extension UI."""
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
@@ -155,7 +155,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         # Configure grid weights
         self.root.grid_columnconfigure(1, weight=1)
 
-    def browse_files(self):
+    def browse_files(self) -> None:
         """Open file dialog to browse for excitation files."""
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -170,7 +170,7 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
             self.file_entry.insert(tkinter.END, filename)
 
 
-def main(data: PushExcitation3DLayoutExtensionData):
+def main(data: PushExcitation3DLayoutExtensionData) -> bool:
     """Main function to run the push excitation extension."""
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")

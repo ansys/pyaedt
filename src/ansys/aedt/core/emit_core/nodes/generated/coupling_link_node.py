@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CouplingLinkNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -50,7 +50,7 @@ class CouplingLinkNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -60,5 +60,5 @@ class CouplingLinkNode(EmitNode):
         return val
 
     @ports.setter
-    def ports(self, value):
+    def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")

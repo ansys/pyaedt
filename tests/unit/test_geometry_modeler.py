@@ -46,7 +46,7 @@ def mock_hfss_app():
 
 
 @patch("ansys.aedt.core.modeler.cad.primitives.GeometryModeler.unclassified_objects", new_callable=PropertyMock)
-def test_project_object_failure(mock_unclassified_objects, mock_hfss_app, caplog: pytest.LogCaptureFixture):
+def test_project_object_failure(mock_unclassified_objects, mock_hfss_app, caplog: pytest.LogCaptureFixture) -> None:
     mock_unclassified_objects.side_effect = [[], [MagicMock()]]
     gm = GeometryModeler(mock_hfss_app)
 

@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 
-def sort_bundle(bundle, monoPW_attrib="sweep_angle_index"):
+def sort_bundle(bundle, monoPW_attrib: str = "sweep_angle_index") -> None:
     """
     In-place sorting utility for hdm ray exports.
 

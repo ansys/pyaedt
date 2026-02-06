@@ -23,9 +23,6 @@
 # SOFTWARE.
 from __future__ import annotations
 
-from typing import Optional
-from typing import Union
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -96,7 +93,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = value
@@ -147,7 +144,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the boundary.
 
         Returns
@@ -216,7 +213,7 @@ class MaxwellMatrix(MaxwellParameters):
         self._schema = schema
 
     @property
-    def signal_sources(self) -> Union[list[SourceACMagnetic], None]:
+    def signal_sources(self) -> list[SourceACMagnetic] | None:
         if (
             isinstance(self._schema, MaxwellMatrix.MatrixElectric)
             or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
@@ -226,25 +223,25 @@ class MaxwellMatrix(MaxwellParameters):
         return None
 
     @property
-    def ground_sources(self) -> Union[list[str], None]:
+    def ground_sources(self) -> list[str] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
-    def group_sources(self) -> Union[list[GroupSourcesMagnetostatic], None]:
+    def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
-    def rl_sources(self) -> Union[list[RLSourceACMagneticAPhi], None]:
+    def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
-    def gc_sources(self) -> Union[list[GCSourceACMagneticAPhi], None]:
+    def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None
@@ -275,9 +272,7 @@ class MaxwellMatrix(MaxwellParameters):
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
 
-        def __init__(
-            self, signal_sources: list, ground_sources: Optional[list] = None, matrix_name: Optional[str] = None
-        ):
+        def __init__(self, signal_sources: list, ground_sources: list | None = None, matrix_name: str | None = None):
             self.signal_sources = signal_sources
             self.ground_sources = ground_sources if ground_sources is not None else []
             self.matrix_name = matrix_name
@@ -297,7 +292,7 @@ class MaxwellMatrix(MaxwellParameters):
             Number of turns for the source. The default value is ``1``.
         """
 
-        def __init__(self, name: str, return_path: Optional[str] = "infinite", turns_number: Optional[int] = 1):
+        def __init__(self, name: str, return_path: str | None = "infinite", turns_number: int | None = 1):
             self.name = name
             self.return_path = return_path
             self.turns_number = turns_number
@@ -317,7 +312,7 @@ class MaxwellMatrix(MaxwellParameters):
             The default value is ``None``.
         """
 
-        def __init__(self, source_names: list, branches_number: Optional[int] = 1, name: Optional[str] = None):
+        def __init__(self, source_names: list, branches_number: int | None = 1, name: str | None = None):
             self.source_names = source_names
             self.branches_number = branches_number
             self.name = name
@@ -348,14 +343,14 @@ class MaxwellMatrix(MaxwellParameters):
             For Maxwell 3D design types, this parameter is ignored.
         """
 
-        def __init__(self, name: str, return_path: Optional[str] = "infinite"):
+        def __init__(self, name: str, return_path: str | None = "infinite"):
             self.name = name
             self.return_path = return_path
 
     class MatrixACMagnetic:
         """Matrix assignment for AC Magnetic solver."""
 
-        def __init__(self, signal_sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: Optional[str] = None):
+        def __init__(self, signal_sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: str | None = None):
             self.signal_sources = signal_sources
             self.matrix_name = matrix_name
 
@@ -388,7 +383,7 @@ class MaxwellMatrix(MaxwellParameters):
             self,
             rl_sources: list[MaxwellMatrix.RLSourceACMagneticAPhi],
             gc_sources: list[MaxwellMatrix.GCSourceACMagneticAPhi],
-            matrix_name: Optional[str] = None,
+            matrix_name: str | None = None,
         ):
             self.rl_sources = rl_sources
             self.gc_sources = gc_sources
@@ -521,7 +516,7 @@ class MaxwellReducedMatrix:
         app,
         parent_matrix: MaxwellMatrix,
         name: str,
-        operations_reduction: Union[list[MaxwellReducedMatrixOperation], MaxwellReducedMatrixOperation, None] = None,
+        operations_reduction: list[MaxwellReducedMatrixOperation] | MaxwellReducedMatrixOperation | None = None,
     ):
         self._app = app
         self.parent_matrix = parent_matrix
@@ -535,7 +530,7 @@ class MaxwellReducedMatrix:
 
     @pyaedt_function_handler()
     def update(
-        self, name: str, operation_type: str, new_name: Optional[str] = None, new_sources: Optional[list] = None
+        self, name: str, operation_type: str, new_name: str | None = None, new_sources: list | None = None
     ) -> MaxwellReducedMatrixOperation:
         """Update the reduced matrix.
 
@@ -629,7 +624,7 @@ class MaxwellReducedMatrix:
         return MaxwellReducedMatrixOperation(self.parent_matrix.name, self.name, operation.name, operation.sources)
 
     @pyaedt_function_handler()
-    def delete(self, name) -> bool:
+    def delete(self, name: str) -> bool:
         """Delete a specific reduction operation.
 
         Parameters

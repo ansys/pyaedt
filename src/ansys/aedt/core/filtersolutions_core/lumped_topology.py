@@ -37,14 +37,14 @@ class LumpedTopology:
     This class allows you to define and modify the topology parameters of lumped filters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
         if self._dll_interface.api_version() >= "2025.2":
             self._set_lump_implementation()
 
-    def _define_topology_dll_functions(self):
+    def _define_topology_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         if self._dll_interface.api_version() >= "2025.2":
             self._dll.setLumpedSourceResistance.argtype = c_char_p
@@ -173,7 +173,7 @@ class LumpedTopology:
             self._dll.getLumpedCircuitResponse.argtypes = [c_char_p, c_int]
             self._dll.getLumpedCircuitResponse.restype = c_int
 
-    def _set_lump_implementation(self):
+    def _set_lump_implementation(self) -> None:
         """Set ``FilterSolutions`` attributes to lump design."""
         filter_implementation_status = self._dll.setFilterImplementation(0)
         self._dll_interface.raise_error(filter_implementation_status)
@@ -193,7 +193,7 @@ class LumpedTopology:
         return source_resistance_string
 
     @source_resistance.setter
-    def source_resistance(self, source_resistance_string):
+    def source_resistance(self, source_resistance_string) -> None:
         if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedSourceResistance, source_resistance_string)
         else:
@@ -214,7 +214,7 @@ class LumpedTopology:
         return load_resistance_string
 
     @load_resistance.setter
-    def load_resistance(self, load_resistance_string):
+    def load_resistance(self, load_resistance_string) -> None:
         if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedLoadResistance, load_resistance_string)
         else:
@@ -234,7 +234,7 @@ class LumpedTopology:
         return bool(current_source.value)
 
     @current_source.setter
-    def current_source(self, current_source: bool):
+    def current_source(self, current_source: bool) -> None:
         status = self._dll.setLumpedCurrentSource(current_source)
         self._dll_interface.raise_error(status)
 
@@ -254,7 +254,7 @@ class LumpedTopology:
         return bool(first_shunt.value)
 
     @first_shunt.setter
-    def first_shunt(self, first_shunt: bool):
+    def first_shunt(self, first_shunt: bool) -> None:
         status = self._dll.setLumpedFirstElementShunt(first_shunt)
         self._dll_interface.raise_error(status)
 
@@ -272,7 +272,7 @@ class LumpedTopology:
         return bool(bridge_t.value)
 
     @bridge_t.setter
-    def bridge_t(self, bridge_t: bool):
+    def bridge_t(self, bridge_t: bool) -> None:
         status = self._dll.setLumpedBridgeT(bridge_t)
         self._dll_interface.raise_error(status)
 
@@ -290,7 +290,7 @@ class LumpedTopology:
         return bool(bridge_t_low.value)
 
     @bridge_t_low.setter
-    def bridge_t_low(self, bridge_t_low: bool):
+    def bridge_t_low(self, bridge_t_low: bool) -> None:
         status = self._dll.setLumpedBridgeTLow(bridge_t_low)
         self._dll_interface.raise_error(status)
 
@@ -308,7 +308,7 @@ class LumpedTopology:
         return bool(bridge_t_high.value)
 
     @bridge_t_high.setter
-    def bridge_t_high(self, bridge_t_high: bool):
+    def bridge_t_high(self, bridge_t_high: bool) -> None:
         status = self._dll.setLumpedBridgeTHigh(bridge_t_high)
         self._dll_interface.raise_error(status)
 
@@ -326,7 +326,7 @@ class LumpedTopology:
         return bool(equal_inductors.value)
 
     @equal_inductors.setter
-    def equal_inductors(self, equal_inductors: bool):
+    def equal_inductors(self, equal_inductors: bool) -> None:
         status = self._dll.setLumpedEqualInductors(equal_inductors)
         self._dll_interface.raise_error(status)
 
@@ -344,7 +344,7 @@ class LumpedTopology:
         return bool(equal_capacitors.value)
 
     @equal_capacitors.setter
-    def equal_capacitors(self, equal_capacitors: bool):
+    def equal_capacitors(self, equal_capacitors: bool) -> None:
         status = self._dll.setLumpedEqualCapacitors(equal_capacitors)
         self._dll_interface.raise_error(status)
 
@@ -362,7 +362,7 @@ class LumpedTopology:
         return bool(equal_legs.value)
 
     @equal_legs.setter
-    def equal_legs(self, equal_legs: bool):
+    def equal_legs(self, equal_legs: bool) -> None:
         status = self._dll.setLumpedEqualLegs(equal_legs)
         self._dll_interface.raise_error(status)
 
@@ -380,7 +380,7 @@ class LumpedTopology:
         return bool(high_low_pass.value)
 
     @high_low_pass.setter
-    def high_low_pass(self, high_low_pass: bool):
+    def high_low_pass(self, high_low_pass: bool) -> None:
         status = self._dll.setLumpedHighLowPass(high_low_pass)
         self._dll_interface.raise_error(status)
 
@@ -399,7 +399,7 @@ class LumpedTopology:
         return bool(high_low_pass_min_ind.value)
 
     @high_low_pass_min_ind.setter
-    def high_low_pass_min_ind(self, high_low_pass_min_ind: bool):
+    def high_low_pass_min_ind(self, high_low_pass_min_ind: bool) -> None:
         status = self._dll.setLumpedHighLowPassMinInd(high_low_pass_min_ind)
         self._dll_interface.raise_error(status)
 
@@ -417,7 +417,7 @@ class LumpedTopology:
         return bool(zig_zag.value)
 
     @zig_zag.setter
-    def zig_zag(self, zig_zag: bool):
+    def zig_zag(self, zig_zag: bool) -> None:
         status = self._dll.setLumpedZigZag(zig_zag)
         self._dll_interface.raise_error(status)
 
@@ -435,7 +435,7 @@ class LumpedTopology:
         return bool(min_ind.value)
 
     @min_ind.setter
-    def min_ind(self, min_ind: bool):
+    def min_ind(self, min_ind: bool) -> None:
         status = self._dll.setLumpedMinInd(min_ind)
         self._dll_interface.raise_error(status)
 
@@ -453,7 +453,7 @@ class LumpedTopology:
         return bool(min_cap.value)
 
     @min_cap.setter
-    def min_cap(self, min_cap: bool):
+    def min_cap(self, min_cap: bool) -> None:
         status = self._dll.setLumpedMinCap(min_cap)
         self._dll_interface.raise_error(status)
 
@@ -471,7 +471,7 @@ class LumpedTopology:
         return bool(set_source_res.value)
 
     @set_source_res.setter
-    def set_source_res(self, set_source_res: bool):
+    def set_source_res(self, set_source_res: bool) -> None:
         status = self._dll.setLumpedSourceRes(set_source_res)
         self._dll_interface.raise_error(status)
 
@@ -489,7 +489,7 @@ class LumpedTopology:
         return bool(trap_topology.value)
 
     @trap_topology.setter
-    def trap_topology(self, trap_topology: bool):
+    def trap_topology(self, trap_topology: bool) -> None:
         status = self._dll.setLumpedTrapTopology(trap_topology)
         self._dll_interface.raise_error(status)
 
@@ -507,7 +507,7 @@ class LumpedTopology:
         return bool(node_cap_ground.value)
 
     @node_cap_ground.setter
-    def node_cap_ground(self, node_cap_ground: bool):
+    def node_cap_ground(self, node_cap_ground: bool) -> None:
         status = self._dll.setLumpedNodeCapGround(node_cap_ground)
         self._dll_interface.raise_error(status)
 
@@ -525,7 +525,7 @@ class LumpedTopology:
         return bool(match_impedance.value)
 
     @match_impedance.setter
-    def match_impedance(self, match_impedance: bool):
+    def match_impedance(self, match_impedance: bool) -> None:
         status = self._dll.setLumpedMatchImpedance(match_impedance)
         self._dll_interface.raise_error(status)
 
@@ -543,7 +543,7 @@ class LumpedTopology:
         return bool(complex_termination.value)
 
     @complex_termination.setter
-    def complex_termination(self, complex_termination: bool):
+    def complex_termination(self, complex_termination: bool) -> None:
         status = self._dll.setLumpedComplexTermination(complex_termination)
         self._dll_interface.raise_error(status)
 
@@ -561,7 +561,7 @@ class LumpedTopology:
         return bool(complex_element_tune_enabled.value)
 
     @complex_element_tune_enabled.setter
-    def complex_element_tune_enabled(self, complex_element_tune_enabled: bool):
+    def complex_element_tune_enabled(self, complex_element_tune_enabled: bool) -> None:
         status = self._dll.setLumpedComplexElementTuneEnabled(complex_element_tune_enabled)
         self._dll_interface.raise_error(status)
 

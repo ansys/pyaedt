@@ -103,7 +103,7 @@ class CoilExtensionData(ExtensionCommonData):
 class CoilExtension(ExtensionMaxwell3DCommon):
     """Extension to create coils in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -119,7 +119,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.add_extension_content()
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
-    def show_pictures_popup(self):
+    def show_pictures_popup(self) -> None:
         popup = tk.Toplevel(self.root)
         popup.title("Coil Parameters")
 
@@ -156,13 +156,13 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         row += 1
         return row
 
-    def _add_export_button(self, tab, row):
+    def _add_export_button(self, tab, row) -> None:
         export_points_button = ttk.Button(
             tab, text="Parameters help", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
-    def create_parameter_inputs(self, tab, tab_name):
+    def create_parameter_inputs(self, tab, tab_name) -> None:
         """Create parameter input widgets for a category."""
         row = 0
         if tab_name == "Common":
@@ -174,10 +174,10 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         if tab_name == "Common":
             self._add_export_button(tab, row)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
 
-        def callback(extension: CoilExtension):
+        def callback(extension: CoilExtension) -> None:
             data = CoilExtensionData()
             for k, widget in self.__widget.items():
                 val = widget.get("1.0", "end-1c") if isinstance(widget, tk.Text) else bool(widget.var.get())
@@ -213,7 +213,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         create_coil.grid(row=1, column=0, sticky="w", **DEFAULT_PADDING)
 
 
-def main(data: CoilExtensionData):
+def main(data: CoilExtensionData) -> bool:
     """Main function to create coils in AEDT."""
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

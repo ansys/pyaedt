@@ -82,7 +82,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         port,
         aedt_process_id,
         remove_lock,
-    ):
+    ) -> None:
         Analysis.__init__(
             self,
             "CIRCUITNETLIST",

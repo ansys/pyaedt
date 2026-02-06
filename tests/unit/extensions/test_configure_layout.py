@@ -51,7 +51,7 @@ def _mock_aedt_application():
         patcher.stop()
 
 
-def test_create_new_edb_name():
+def test_create_new_edb_name() -> None:
     from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import create_new_edb_name
 
     assert create_new_edb_name("test") == "test_1"
@@ -69,7 +69,7 @@ def test_create_new_edb_name():
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
 )
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app):
+def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app) -> None:
     mock_active_db.return_value = "/path/active.aedb/edb.def"
     mock_askopenfilename.return_value = "/path/inactive.aedb/edb.def"
     # Provide a mocked aedt_application with the expected design_type so the
@@ -114,7 +114,7 @@ def test_tab_main_apply(
     mock_selected_edb,
     mock_apply_config_to_edb,
     mock_load_edb_into_hfss3dlayout,
-):
+) -> None:
     mock_askopenfilename.return_value = "/path/config.json"
     mock_selected_edb.return_value = "/path/edb.def"
     mock_apply_config_to_edb.return_value = "/path/mock.aedb"
@@ -150,7 +150,7 @@ def test_main_tab_export(
     mock_selected_edb,
     mock_export_config_from_edb,
     test_tmp_dir,
-):
+) -> None:
     mock_msg.return_value = None
     mock_selected_edb.return_value = "/path/edb.def"
     mock_export_config_from_edb.return_value = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
@@ -165,7 +165,7 @@ def test_main_tab_export(
     extension.root.destroy()
 
 
-def test_main_tab_export_options():
+def test_main_tab_export_options() -> None:
     from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import update_options
 
     # Patch aedt_application for this test so extension initialization succeeds
@@ -186,7 +186,7 @@ def test_main_tab_export_options():
 
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("tkinter.messagebox.showinfo")
-def test_export_template(mock_msg, mock_asksaveasfilename, test_tmp_dir):
+def test_export_template(mock_msg, mock_asksaveasfilename, test_tmp_dir) -> None:
     mock_msg.return_value = None
     mock_asksaveasfilename.return_value = str(test_tmp_dir / "serdes_config.json")
     from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import call_back_export_template

@@ -96,12 +96,12 @@ class DistributedTopology:
     This class allows you to define and modify the topology parameters of distributed filters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
 
-    def _define_topology_dll_functions(self):
+    def _define_topology_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setDistributedTopology.argtype = c_char_p
         self._dll.setDistributedTopology.restype = int
@@ -306,7 +306,7 @@ class DistributedTopology:
         return self._dll_interface.string_to_enum(TopologyType, type_string)
 
     @topology_type.setter
-    def topology_type(self, topology_type: TopologyType):
+    def topology_type(self, topology_type: TopologyType) -> None:
         if topology_type:
             string_value = self._dll_interface.enum_to_string(topology_type)
             self._dll_interface.set_string(self._dll.setDistributedTopology, string_value)
@@ -323,7 +323,7 @@ class DistributedTopology:
         return source_resistance_string
 
     @source_resistance.setter
-    def source_resistance(self, source_resistance_string):
+    def source_resistance(self, source_resistance_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedSourceResistance, source_resistance_string)
 
     @property
@@ -338,7 +338,7 @@ class DistributedTopology:
         return load_resistance_string
 
     @load_resistance.setter
-    def load_resistance(self, load_resistance_string):
+    def load_resistance(self, load_resistance_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedLoadResistance, load_resistance_string)
 
     @property
@@ -357,7 +357,7 @@ class DistributedTopology:
         return bool(first_shunt.value)
 
     @first_shunt.setter
-    def first_shunt(self, first_shunt: bool):
+    def first_shunt(self, first_shunt: bool) -> None:
         status = self._dll.setDistributedFirstElementShunt(first_shunt)
         self._dll_interface.raise_error(status)
 
@@ -377,7 +377,7 @@ class DistributedTopology:
         return bool(first_fat.value)
 
     @first_fat.setter
-    def first_fat(self, first_fat: bool):
+    def first_fat(self, first_fat: bool) -> None:
         status = self._dll.setDistributedFirstElementFat(first_fat)
         self._dll_interface.raise_error(status)
 
@@ -399,7 +399,7 @@ class DistributedTopology:
         return bool(use_series_caps.value)
 
     @use_series_caps.setter
-    def use_series_caps(self, use_series_caps: bool):
+    def use_series_caps(self, use_series_caps: bool) -> None:
         status = self._dll.setDistributedSeriesCaps(use_series_caps)
         self._dll_interface.raise_error(status)
 
@@ -420,7 +420,7 @@ class DistributedTopology:
         return bool(combine_stubs.value)
 
     @combine_stubs.setter
-    def combine_stubs(self, combine_stubs: bool):
+    def combine_stubs(self, combine_stubs: bool) -> None:
         status = self._dll.setDistributedCombineStubs(combine_stubs)
         self._dll_interface.raise_error(status)
 
@@ -441,7 +441,7 @@ class DistributedTopology:
         return bool(use_coupled_lines.value)
 
     @use_coupled_lines.setter
-    def use_coupled_lines(self, use_coupled_lines: bool):
+    def use_coupled_lines(self, use_coupled_lines: bool) -> None:
         status = self._dll.setDistributedCoupledLines(use_coupled_lines)
         self._dll_interface.raise_error(status)
 
@@ -461,7 +461,7 @@ class DistributedTopology:
         return bool(equal_width_approx.value)
 
     @equal_width_approx.setter
-    def equal_width_approx(self, equal_width_approx: bool):
+    def equal_width_approx(self, equal_width_approx: bool) -> None:
         status = self._dll.setDistributedEqualWidthApprox(equal_width_approx)
         self._dll_interface.raise_error(status)
 
@@ -480,7 +480,7 @@ class DistributedTopology:
         return bool(open_stub_ground.value)
 
     @open_stub_ground.setter
-    def open_stub_ground(self, open_stub_ground: bool):
+    def open_stub_ground(self, open_stub_ground: bool) -> None:
         status = self._dll.setDistributedOpenStubGround(open_stub_ground)
         self._dll_interface.raise_error(status)
 
@@ -500,7 +500,7 @@ class DistributedTopology:
         return bool(left_ground_side.value)
 
     @left_ground_side.setter
-    def left_ground_side(self, left_ground_side: bool):
+    def left_ground_side(self, left_ground_side: bool) -> None:
         status = self._dll.setDistributedGroundSideLeft(left_ground_side)
         self._dll_interface.raise_error(status)
 
@@ -520,7 +520,7 @@ class DistributedTopology:
         return bool(equal_stub_widths.value)
 
     @equal_stub_widths.setter
-    def equal_stub_widths(self, equal_stub_widths: bool):
+    def equal_stub_widths(self, equal_stub_widths: bool) -> None:
         status = self._dll.setDistributedEqualStubWidths(equal_stub_widths)
         self._dll_interface.raise_error(status)
 
@@ -539,7 +539,7 @@ class DistributedTopology:
         return bool(center_z0_impedance_enabled.value)
 
     @center_z0_impedance_enabled.setter
-    def center_z0_impedance_enabled(self, center_z0_impedance_enabled: bool):
+    def center_z0_impedance_enabled(self, center_z0_impedance_enabled: bool) -> None:
         status = self._dll.setEnableDistributedCenterImpedance(center_z0_impedance_enabled)
         self._dll_interface.raise_error(status)
 
@@ -565,7 +565,7 @@ class DistributedTopology:
         return center_z0_impedance_string
 
     @center_z0_impedance.setter
-    def center_z0_impedance(self, center_z0_impedance_string):
+    def center_z0_impedance(self, center_z0_impedance_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCenterImpedance, center_z0_impedance_string)
 
     @property
@@ -583,7 +583,7 @@ class DistributedTopology:
         return bool(equal_width_conductors.value)
 
     @equal_width_conductors.setter
-    def equal_width_conductors(self, equal_width_conductors: bool):
+    def equal_width_conductors(self, equal_width_conductors: bool) -> None:
         status = self._dll.setDistributedEqualWidthApprox(equal_width_conductors)
         self._dll_interface.raise_error(status)
 
@@ -607,7 +607,7 @@ class DistributedTopology:
         return bool(tapped.value)
 
     @tapped.setter
-    def tapped(self, tapped: bool):
+    def tapped(self, tapped: bool) -> None:
         status = self._dll.setDistributedTapped(tapped)
         self._dll_interface.raise_error(status)
 
@@ -631,7 +631,7 @@ class DistributedTopology:
         return bool(pinned.value)
 
     @pinned.setter
-    def pinned(self, pinned: bool):
+    def pinned(self, pinned: bool) -> None:
         status = self._dll.setDistributedPinned(pinned)
         self._dll_interface.raise_error(status)
 
@@ -653,7 +653,7 @@ class DistributedTopology:
         return bool(stub_taps.value)
 
     @stub_taps.setter
-    def stub_taps(self, stub_taps: bool):
+    def stub_taps(self, stub_taps: bool) -> None:
         status = self._dll.setDistributedStubTaps(stub_taps)
         self._dll_interface.raise_error(status)
 
@@ -674,7 +674,7 @@ class DistributedTopology:
         return bool(via_ends.value)
 
     @via_ends.setter
-    def via_ends(self, via_ends: bool):
+    def via_ends(self, via_ends: bool) -> None:
         status = self._dll.setDistributedViaEnds(via_ends)
         self._dll_interface.raise_error(status)
 
@@ -693,7 +693,7 @@ class DistributedTopology:
         return bool(resonator_line_width_enabled.value)
 
     @resonator_line_width_enabled.setter
-    def resonator_line_width_enabled(self, resonator_line_width_enabled: bool):
+    def resonator_line_width_enabled(self, resonator_line_width_enabled: bool) -> None:
         status = self._dll.setEnableDistributedLineWidth(resonator_line_width_enabled)
         self._dll_interface.raise_error(status)
 
@@ -710,7 +710,7 @@ class DistributedTopology:
         return resonator_line_width_string
 
     @resonator_line_width.setter
-    def resonator_line_width(self, resonator_line_width_string):
+    def resonator_line_width(self, resonator_line_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedLineWidth, resonator_line_width_string)
 
     @property
@@ -728,7 +728,7 @@ class DistributedTopology:
         return bool(resonator_rotation_angle_enabled.value)
 
     @resonator_rotation_angle_enabled.setter
-    def resonator_rotation_angle_enabled(self, resonator_rotation_angle_enabled: bool):
+    def resonator_rotation_angle_enabled(self, resonator_rotation_angle_enabled: bool) -> None:
         status = self._dll.setEnableDistributedResonatorRotationAngle(resonator_rotation_angle_enabled)
         self._dll_interface.raise_error(status)
 
@@ -745,7 +745,7 @@ class DistributedTopology:
         return resonator_rotation_angle_string
 
     @resonator_rotation_angle.setter
-    def resonator_rotation_angle(self, resonator_rotation_angle_string):
+    def resonator_rotation_angle(self, resonator_rotation_angle_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedResonatorRotationAngle, resonator_rotation_angle_string)
 
     @property
@@ -764,7 +764,7 @@ class DistributedTopology:
         return bool(mitered_corners.value)
 
     @mitered_corners.setter
-    def mitered_corners(self, mitered_corners: bool):
+    def mitered_corners(self, mitered_corners: bool) -> None:
         status = self._dll.setDistributedMiteredCorners(mitered_corners)
         self._dll_interface.raise_error(status)
 
@@ -783,7 +783,7 @@ class DistributedTopology:
         return bool(hairpin_gap_width_enabled.value)
 
     @hairpin_gap_width_enabled.setter
-    def hairpin_gap_width_enabled(self, hairpin_gap_width_enabled: bool):
+    def hairpin_gap_width_enabled(self, hairpin_gap_width_enabled: bool) -> None:
         status = self._dll.setEnableDistributedHGapWidth(hairpin_gap_width_enabled)
         self._dll_interface.raise_error(status)
 
@@ -799,7 +799,7 @@ class DistributedTopology:
         return hairpin_gap_width_string
 
     @hairpin_gap_width.setter
-    def hairpin_gap_width(self, hairpin_gap_width_string):
+    def hairpin_gap_width(self, hairpin_gap_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedHGapWidth, hairpin_gap_width_string)
 
     @property
@@ -818,7 +818,7 @@ class DistributedTopology:
         return bool(miniature_hairpin_gap_width_enabled.value)
 
     @miniature_hairpin_gap_width_enabled.setter
-    def miniature_hairpin_gap_width_enabled(self, miniature_hairpin_gap_width_enabled: bool):
+    def miniature_hairpin_gap_width_enabled(self, miniature_hairpin_gap_width_enabled: bool) -> None:
         status = self._dll.setEnableDistributedRHGapWidth(miniature_hairpin_gap_width_enabled)
         self._dll_interface.raise_error(status)
 
@@ -834,7 +834,7 @@ class DistributedTopology:
         return miniature_hairpin_gap_width_string
 
     @miniature_hairpin_gap_width.setter
-    def miniature_hairpin_gap_width(self, miniature_hairpin_gap_width_string):
+    def miniature_hairpin_gap_width(self, miniature_hairpin_gap_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedRHGapWidth, miniature_hairpin_gap_width_string)
 
     @property
@@ -849,7 +849,7 @@ class DistributedTopology:
         return ring_resonator_gap_width_string
 
     @ring_resonator_gap_width.setter
-    def ring_resonator_gap_width(self, ring_resonator_gap_width_string):
+    def ring_resonator_gap_width(self, ring_resonator_gap_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedRHGapWidth, ring_resonator_gap_width_string)
 
     @property
@@ -865,7 +865,7 @@ class DistributedTopology:
         return hairpin_extension_length_string
 
     @hairpin_extension_length.setter
-    def hairpin_extension_length(self, hairpin_extension_length_string):
+    def hairpin_extension_length(self, hairpin_extension_length_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedTuningExtensionValue, hairpin_extension_length_string)
 
     @property
@@ -883,7 +883,7 @@ class DistributedTopology:
         return miniature_hairpin_end_curl_extension_string
 
     @miniature_hairpin_end_curl_extension.setter
-    def miniature_hairpin_end_curl_extension(self, miniature_hairpin_end_curl_extension_string):
+    def miniature_hairpin_end_curl_extension(self, miniature_hairpin_end_curl_extension_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedTuningExtensionValue, miniature_hairpin_end_curl_extension_string
         )
@@ -903,7 +903,7 @@ class DistributedTopology:
         return ring_resonator_end_gap_extension_string
 
     @ring_resonator_end_gap_extension.setter
-    def ring_resonator_end_gap_extension(self, ring_resonator_end_gap_extension_string):
+    def ring_resonator_end_gap_extension(self, ring_resonator_end_gap_extension_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedTuningExtensionValue, ring_resonator_end_gap_extension_string
         )
@@ -923,7 +923,7 @@ class DistributedTopology:
         return bool(tuning_type_1.value)
 
     @tuning_type_1.setter
-    def tuning_type_1(self, tuning_type_1: bool):
+    def tuning_type_1(self, tuning_type_1: bool) -> None:
         status = self._dll.setDistributedTuningType1(tuning_type_1)
         self._dll_interface.raise_error(status)
 
@@ -941,7 +941,7 @@ class DistributedTopology:
         return self._dll_interface.string_to_enum(TapPosition, type_string)
 
     @tap_position.setter
-    def tap_position(self, tap_position: TapPosition):
+    def tap_position(self, tap_position: TapPosition) -> None:
         if tap_position:
             string_value = self._dll_interface.enum_to_string(tap_position)
             self._dll_interface.set_string(self._dll.setDistributedTapPosition, string_value)
@@ -960,7 +960,7 @@ class DistributedTopology:
         return bool(wide_band.value)
 
     @wide_band.setter
-    def wide_band(self, wide_band: bool):
+    def wide_band(self, wide_band: bool) -> None:
         status = self._dll.setDistributedWideBand(wide_band)
         self._dll_interface.raise_error(status)
 
@@ -981,7 +981,7 @@ class DistributedTopology:
         return bool(open_ends.value)
 
     @open_ends.setter
-    def open_ends(self, open_ends: bool):
+    def open_ends(self, open_ends: bool) -> None:
         status = self._dll.setDistributedOpenEnds(open_ends)
         self._dll_interface.raise_error(status)
 
@@ -1000,7 +1000,7 @@ class DistributedTopology:
         return combline_half_length_frequency_string
 
     @combline_half_length_frequency.setter
-    def combline_half_length_frequency(self, combline_half_length_frequency_string):
+    def combline_half_length_frequency(self, combline_half_length_frequency_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedHalfLengthFrequency, combline_half_length_frequency_string
         )
@@ -1024,7 +1024,7 @@ class DistributedTopology:
     @coupled_segments_quarter_length_frequency_enabled.setter
     def coupled_segments_quarter_length_frequency_enabled(
         self, coupled_segments_quarter_length_frequency_enabled: bool
-    ):
+    ) -> None:
         status = self._dll.setEnableDistributedQuarterLengthFrequency(coupled_segments_quarter_length_frequency_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1043,7 +1043,7 @@ class DistributedTopology:
         return coupled_segments_quarter_length_frequency_string
 
     @coupled_segments_quarter_length_frequency.setter
-    def coupled_segments_quarter_length_frequency(self, coupled_segments_quarter_length_frequency_string):
+    def coupled_segments_quarter_length_frequency(self, coupled_segments_quarter_length_frequency_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedQuarterLengthFrequency, coupled_segments_quarter_length_frequency_string
         )
@@ -1071,7 +1071,7 @@ class DistributedTopology:
         return bool(quick_optimize.value)
 
     @quick_optimize.setter
-    def quick_optimize(self, quick_optimize: bool):
+    def quick_optimize(self, quick_optimize: bool) -> None:
         status = self._dll.setDistributedQuickOptimize(quick_optimize)
         self._dll_interface.raise_error(status)
 
@@ -1090,6 +1090,6 @@ class DistributedTopology:
         return bool(resonator_length_extension.value)
 
     @resonator_length_extension.setter
-    def resonator_length_extension(self, resonator_length_extension: bool):
+    def resonator_length_extension(self, resonator_length_extension: bool) -> None:
         status = self._dll.setDistributedEnableExtensions(resonator_length_extension)
         self._dll_interface.raise_error(status)

@@ -46,7 +46,7 @@ def hfss_app(add_app):
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 @patch("tkinter.filedialog.askopenfilename")
-def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
+def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     """Test the examples provided in the via design extension."""
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
     config_file = test_tmp_dir / "config.json"

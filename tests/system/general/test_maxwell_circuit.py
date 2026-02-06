@@ -43,37 +43,37 @@ def aedt_app(add_app):
     app.close_project(app.project_name)
 
 
-def test_create_resistor(aedt_app):
+def test_create_resistor(aedt_app) -> None:
     resistor = aedt_app.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
     assert resistor.parameters["R"] == "10"
 
 
-def test_create_inductor(aedt_app):
+def test_create_inductor(aedt_app) -> None:
     inductor = aedt_app.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
     assert inductor.parameters["L"] == "1.5"
 
 
-def test_create_capacitor(aedt_app):
+def test_create_capacitor(aedt_app) -> None:
     capacitor = aedt_app.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
     assert capacitor.parameters["C"] == "7.5"
 
 
-def test_create_diode(aedt_app):
+def test_create_diode(aedt_app) -> None:
     assert aedt_app.modeler.schematic.create_diode("Diode1")
 
 
-def test_create_winding(aedt_app):
+def test_create_winding(aedt_app) -> None:
     assert aedt_app.modeler.schematic.create_winding("mywinding")
 
 
-def test_set_variable(aedt_app):
+def test_set_variable(aedt_app) -> None:
     aedt_app.variable_manager.set_variable("var_test", expression="123")
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_export_netlist(aedt_app, add_app, test_tmp_dir):
+def test_export_netlist(aedt_app, add_app, test_tmp_dir) -> None:
     aedt_app.modeler.schematic_units = "mil"
     ind = aedt_app.modeler.schematic.create_inductor("Inductor1", 1.5, [-1000, 1000])
     res = aedt_app.modeler.schematic.create_resistor("Resistor1", 10, [1000, 1000])
@@ -110,7 +110,7 @@ def test_export_netlist(aedt_app, add_app, test_tmp_dir):
     assert m2d.edit_external_circuit(str(netlist_file_2), aedt_app.design_name)
 
 
-def test_import_netlist(aedt_app):
+def test_import_netlist(aedt_app) -> None:
     netlist_file1 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST1
     aedt_app.insert_design("SchematicImport")
     aedt_app.modeler.schematic.limits_mils = 5000

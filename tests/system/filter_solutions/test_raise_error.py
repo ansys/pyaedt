@@ -32,13 +32,13 @@ from tests.system.filter_solutions.test_filter import test_transmission_zeros
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_raise_error(self, lumped_design):
+    def test_raise_error(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
 
     @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
-    def test_close_lumped_design(self, lumped_design):
+    def test_close_lumped_design(self, lumped_design) -> None:
         lumped_design.close()
         for attr_name in dir(lumped_design):
             if attr_name.startswith("_") or callable(getattr(lumped_design, attr_name)):
@@ -48,7 +48,7 @@ class TestClass:
             assert getattr(lumped_design, attr_name) is None
 
     @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
-    def test_close_distributed_design(self, distributed_design):
+    def test_close_distributed_design(self, distributed_design) -> None:
         distributed_design.close()
         for attr_name in dir(distributed_design):
             if attr_name.startswith("_") or callable(getattr(distributed_design, attr_name)):

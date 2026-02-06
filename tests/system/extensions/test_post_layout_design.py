@@ -32,7 +32,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
 
-def test_post_layout_design_data_class():
+def test_post_layout_design_data_class() -> None:
     """Test the PostLayoutDesignExtensionData class."""
     # Test default values
     data = PostLayoutDesignExtensionData()
@@ -63,7 +63,7 @@ def test_post_layout_design_data_class():
     assert custom_data.angle == 45.0
 
 
-def test_post_layout_design_main_function_exceptions():
+def test_post_layout_design_main_function_exceptions() -> None:
     """Test exceptions in the main function."""
     # Test with no selections
     data = PostLayoutDesignExtensionData(action="antipad", selections=[])
@@ -71,7 +71,7 @@ def test_post_layout_design_main_function_exceptions():
         post_layout_design.main(data)
 
 
-def test_layout_design_toolkit_antipad_1(add_app_example):
+def test_layout_design_toolkit_antipad_1(add_app_example) -> None:
     """Test antipad creation with racetrack enabled."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
@@ -97,7 +97,7 @@ def test_layout_design_toolkit_antipad_1(add_app_example):
     h3d.close_project(save=False)
 
 
-def test_layout_design_toolkit_antipad_2(add_app_example):
+def test_layout_design_toolkit_antipad_2(add_app_example) -> None:
     """Test antipad creation with racetrack disabled."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
@@ -122,7 +122,7 @@ def test_layout_design_toolkit_antipad_2(add_app_example):
     h3d.close_project(save=False)
 
 
-def test_layout_design_toolkit_unknown_action(add_app_example):
+def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
     """Test main function with unknown action."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
@@ -146,7 +146,7 @@ def test_layout_design_toolkit_unknown_action(add_app_example):
     h3d.close_project(save=False)
 
 
-def test_layout_design_toolkit_microvia(add_app_example):
+def test_layout_design_toolkit_microvia(add_app_example) -> None:
     """Test microvia creation with conical shape."""
     h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,

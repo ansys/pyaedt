@@ -61,7 +61,7 @@ def ic_mode_design(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_get_components(aedt_app):
+def test_get_components(aedt_app) -> None:
     comp = aedt_app.modeler.components
     assert len(comp) > 0
     assert comp["L10"].object_units == "mm"
@@ -103,7 +103,7 @@ def test_get_components(aedt_app):
     assert not r5.model.is_parallel
 
 
-def test_get_geometries(aedt_app):
+def test_get_geometries(aedt_app) -> None:
     line = aedt_app.modeler.geometries["line_209"]
     assert line.edges
     assert isinstance(line.edge_by_point([0, 0]), int)
@@ -146,7 +146,7 @@ def test_get_geometries(aedt_app):
     assert aedt_app.modeler.geometries["line_209"].object_units == "mm"
 
 
-def test_geo_layer(aedt_app):
+def test_geo_layer(aedt_app) -> None:
     assert aedt_app.modeler.geometries["line_209"].placement_layer
     assert len(aedt_app.modeler.layers.drawing_layers) > 0
     assert len(aedt_app.modeler.layers.all_signal_layers) > 0
@@ -161,21 +161,21 @@ def test_geo_layer(aedt_app):
     assert isinstance(aedt_app.modeler.layers.all_diel_layers[0].name, str)
 
 
-def test_geo_lock(aedt_app):
+def test_geo_lock(aedt_app) -> None:
     aedt_app.modeler.geometries["line_209"].lock_position = True
     assert aedt_app.modeler.geometries["line_209"].lock_position
     aedt_app.modeler.geometries["line_209"].lock_position = False
     assert not aedt_app.modeler.geometries["line_209"].lock_position
 
 
-def test_geo_setter(aedt_app):
+def test_geo_setter(aedt_app) -> None:
     aedt_app.modeler.geometries["line_209"].layer = "PWR"
     assert aedt_app.modeler.geometries["line_209"].layer == "PWR"
     aedt_app.modeler.geometries["line_209"].net_name = "VCC"
     assert aedt_app.modeler.geometries["line_209"].net_name == "VCC"
 
 
-def test_get_pins(aedt_app):
+def test_get_pins(aedt_app) -> None:
     pins = aedt_app.modeler.pins
     assert len(pins) > 0
     assert pins["L10-1"].object_units == "mm"
@@ -187,7 +187,7 @@ def test_get_pins(aedt_app):
     assert pins["L10-1"].stop_layer == "1_Top"
 
 
-def test_get_vias(aedt_app):
+def test_get_vias(aedt_app) -> None:
     vias = aedt_app.modeler.vias
     assert len(vias) > 0
     assert vias["Via1920"].object_units == "mm"
@@ -199,13 +199,13 @@ def test_get_vias(aedt_app):
     assert vias["Via1920"].holediam == "0.1499997mm"
 
 
-def test_voids(aedt_app):
+def test_voids(aedt_app) -> None:
     assert len(aedt_app.modeler.voids) > 0
     poly = aedt_app.modeler.polygons["poly_2084"]
     assert len(poly.polygon_voids) > 0
 
 
-def test_add_mesh_operations(aedt_app):
+def test_add_mesh_operations(aedt_app) -> None:
     aedt_app.create_setup("HFSS")
     setup1 = aedt_app.mesh.assign_length_mesh("HFSS", "PWR", "GND")
     setup2 = aedt_app.mesh.assign_skin_depth("HFSS", "PWR", "GND")
@@ -219,18 +219,18 @@ def test_add_mesh_operations(aedt_app):
     )
 
 
-def test_change_property(aedt_app):
+def test_change_property(aedt_app) -> None:
     ports = aedt_app.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
     assert aedt_app.modeler.change_property(f"Excitations:{ports[0].name}", "Impedance", "49ohm", "EM Design")
 
 
-def test_assign_touchstone_model(aedt_app, test_tmp_dir):
+def test_assign_touchstone_model(aedt_app, test_tmp_dir) -> None:
     model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
     file = shutil.copy2(model_path, test_tmp_dir / "GRM32_DC0V_25degC_series.s2p")
     assert aedt_app.modeler.set_touchstone_model(assignment="C217", input_file=str(file), model_name="Test1")
 
 
-def test_assign_spice_model(aedt_app, file_tmp_root):
+def test_assign_spice_model(aedt_app, file_tmp_root) -> None:
     model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
     file = shutil.copy2(model_path, file_tmp_root / "GRM32ER72A225KA35_25C_0V.sp")
     assert aedt_app.modeler.set_spice_model(
@@ -239,7 +239,7 @@ def test_assign_spice_model(aedt_app, file_tmp_root):
 
 
 @pytest.mark.skipif(is_linux, reason="Bug under investigation.")
-def test_nets(aedt_app, test_tmp_dir):
+def test_nets(aedt_app, test_tmp_dir) -> None:
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
     assert len(nets) > 0
@@ -249,7 +249,7 @@ def test_nets(aedt_app, test_tmp_dir):
     assert local_png1.is_file()
 
 
-def test_nets_count(aedt_app):
+def test_nets_count(aedt_app) -> None:
     nets = aedt_app.modeler.nets
     power_nets = aedt_app.modeler.power_nets
     signal_nets = aedt_app.modeler.signal_nets
@@ -258,7 +258,7 @@ def test_nets_count(aedt_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
-def test_merge(flipchip):
+def test_merge(flipchip) -> None:
     tol = 1e-12
     brd = Hfss3dLayout(project=flipchip.project_name, design="Dummy_Board")
     comp = brd.modeler.merge_design(flipchip, rotation=90)
@@ -282,7 +282,7 @@ def test_merge(flipchip):
 
 
 @pytest.mark.skipif(ON_CI, reason="Lead to logger issues on CI runners")
-def test_change_stackup(add_app):
+def test_change_stackup(add_app) -> None:
     app = add_app(application=Hfss3dLayout)
     app.modeler.layers.add_layer(
         layer="Top",
@@ -309,24 +309,24 @@ def test_change_stackup(add_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
-def test_export_picture(aedt_app):
+def test_export_picture(aedt_app) -> None:
     picture = aedt_app.post.export_model_picture(orientation="top")
     assert Path(picture).is_file()
 
 
-def test_objects_by_net(aedt_app):
+def test_objects_by_net(aedt_app) -> None:
     poly_on_gnd = aedt_app.modeler.objects_by_net("GND", "poly")
     assert len(poly_on_gnd) > 0
     assert aedt_app.modeler.geometries[poly_on_gnd[0]].net_name == "GND"
 
 
-def test_objects_by_layer(aedt_app):
+def test_objects_by_layer(aedt_app) -> None:
     lines_on_top = aedt_app.modeler.objects_by_layer("1_Top", "line")
     assert len(lines_on_top) > 0
     assert aedt_app.modeler.geometries[lines_on_top[0]].placement_layer == "1_Top"
 
 
-def test_set_solderball(aedt_app):
+def test_set_solderball(aedt_app) -> None:
     assert not aedt_app.modeler.components["U1"].die_enabled
     assert not aedt_app.modeler.components["U1"].die_type
     assert aedt_app.modeler.components["U1"].set_die_type()
@@ -338,7 +338,7 @@ def test_set_solderball(aedt_app):
     assert aedt_app.modeler.components["J1"].set_solderball("Sph")
 
 
-def test_3dplacement(aedt_app):
+def test_3dplacement(aedt_app) -> None:
     aedt_app.insert_design("placement_3d")
     aedt_app.modeler.layers.add_layer("BOTTOM", "signal")
     aedt_app.modeler.layers.add_layer("diel", "dielectric")
@@ -364,13 +364,13 @@ def test_3dplacement(aedt_app):
     assert comp2.location[2] == 1.0
 
 
-def test_differential_ports(aedt_app):
+def test_differential_ports(aedt_app) -> None:
     pins = list(aedt_app.modeler.components["R3"].pins.keys())
     assert aedt_app.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
     assert "test_differential" in aedt_app.port_list
 
 
-def test_ports_on_components_nets(aedt_app):
+def test_ports_on_components_nets(aedt_app) -> None:
     component = aedt_app.modeler.components["J1"]
     nets = [
         aedt_app.modeler.pins[i].net_name
@@ -389,32 +389,32 @@ def test_ports_on_components_nets(aedt_app):
     assert ports[0].name == "port_test2"
 
 
-def test_set_variable(aedt_app):
+def test_set_variable(aedt_app) -> None:
     aedt_app.variable_manager.set_variable("var_test", expression="123")
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_change_options(aedt_app):
+def test_change_options(aedt_app) -> None:
     assert aedt_app.change_options()
     assert aedt_app.change_options(color_by_net=False)
     assert not aedt_app.change_options(color_by_net=None)
 
 
-def test_show_extent(aedt_app):
+def test_show_extent(aedt_app) -> None:
     assert aedt_app.show_extent()
     assert aedt_app.show_extent(show=False)
     assert not aedt_app.show_extent(show=None)
 
 
-def test_change_design_settings(aedt_app):
+def test_change_design_settings(aedt_app) -> None:
     assert aedt_app.get_oo_property_value(aedt_app.odesign, "Design Settings", "DCExtrapolation") == "Standard"
     assert aedt_app.change_design_settings({"UseAdvancedDCExtrap": True})
     assert aedt_app.get_oo_property_value(aedt_app.odesign, "Design Settings", "DCExtrapolation") == "Advanced"
 
 
-def test_dissolve_element(aedt_app):
+def test_dissolve_element(aedt_app) -> None:
     comp = aedt_app.modeler.components["D1"]
     pins = {name: pin for name, pin in comp.pins.items() if name in ["D1-1", "D1-2", "D1-7"]}
     aedt_app.dissolve_component("D1")
@@ -428,11 +428,11 @@ def test_dissolve_element(aedt_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2024.1", reason="Introduced in 2024R1")
-def test_open_ic_mode_design(ic_mode_design):
+def test_open_ic_mode_design(ic_mode_design) -> None:
     assert ic_mode_design.ic_mode
 
 
-def test_set_port_properties(aedt_app):
+def test_set_port_properties(aedt_app) -> None:
     component: Components3DLayout = aedt_app.modeler.components["Q1"]
     assert component.port_properties == ("0", True, "0", "0")
     new_values = ("10um", False, "0um", "0um")
@@ -440,7 +440,7 @@ def test_set_port_properties(aedt_app):
     assert component.port_properties == new_values
 
 
-def test_set_port_properties_on_ic_component(aedt_app):
+def test_set_port_properties_on_ic_component(aedt_app) -> None:
     component: Components3DLayout = aedt_app.modeler.components["U10"]
     original_die_properties = component.die_properties
     assert component.port_properties == ("0", True, "0", "0")
@@ -450,19 +450,19 @@ def test_set_port_properties_on_ic_component(aedt_app):
     assert component.die_properties == original_die_properties
 
 
-def test_get_properties_on_rlc_component(aedt_app):
+def test_get_properties_on_rlc_component(aedt_app) -> None:
     component: Components3DLayout = aedt_app.modeler.components["C1"]
     assert component.die_properties is None
     assert component.port_properties is None
 
 
-def test_set_port_properties_on_rlc_component(aedt_app):
+def test_set_port_properties_on_rlc_component(aedt_app) -> None:
     component: Components3DLayout = aedt_app.modeler.components["C1"]
     component.port_properties = ("10um", False, "0um", "0um")
     assert component.port_properties is None
 
 
-def test_import_table(aedt_app):
+def test_import_table(aedt_app) -> None:
     file_header = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
@@ -478,7 +478,7 @@ def test_import_table(aedt_app):
     assert table not in aedt_app.existing_analysis_sweeps
 
 
-def test_ports_on_nets(aedt_app):
+def test_ports_on_nets(aedt_app) -> None:
     nets = ["DDR4_DQ0", "DDR4_DQ1"]
     ports_before = len(aedt_app.port_list)
     ports = aedt_app.create_ports_by_nets(nets)

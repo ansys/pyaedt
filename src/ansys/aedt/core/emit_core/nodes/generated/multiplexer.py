@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Multiplexer(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
 
@@ -45,7 +45,7 @@ class Multiplexer(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -59,7 +59,7 @@ class Multiplexer(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -72,7 +72,7 @@ class Multiplexer(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -82,7 +82,7 @@ class Multiplexer(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class MultiplexerTypeOption(Enum):
@@ -102,7 +102,7 @@ class Multiplexer(EmitNode):
         return val
 
     @multiplexer_type.setter
-    def multiplexer_type(self, value: MultiplexerTypeOption):
+    def multiplexer_type(self, value: MultiplexerTypeOption) -> None:
         self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
@@ -112,7 +112,7 @@ class Multiplexer(EmitNode):
         return val
 
     @ports.setter
-    def ports(self, value):
+    def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")
 
     @property

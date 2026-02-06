@@ -48,7 +48,7 @@ class CouplingsEmit(object):
     >>> my_couplings = app.couplings
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     # Properties derived from internal parent data
@@ -93,7 +93,7 @@ class CouplingsEmit(object):
         """
         return self._odesign.GetLinkNames()
 
-    def add_link(self, new_coupling_name):
+    def add_link(self, new_coupling_name) -> None:
         """Add a new link if it's not already there.
 
         Parameters
@@ -114,7 +114,7 @@ class CouplingsEmit(object):
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
 
-    def delete_link(self, coupling_link_name):
+    def delete_link(self, coupling_link_name) -> None:
         """Delete a link from the EMIT design.
 
         Parameters
@@ -133,7 +133,7 @@ class CouplingsEmit(object):
         """
         self._odesign.DeleteLink(coupling_link_name)
 
-    def update_link(self, coupling_name):
+    def update_link(self, coupling_name) -> None:
         """Update the link if it's a valid link.
 
         Check if anything in the linked design has changed and retrieve updated data if it has.

@@ -60,7 +60,7 @@ class ImportSchematicData(ExtensionCommonData):
 class ImportSchematicExtension(ExtensionCircuitCommon):
     """Extension for importing schematic into Circuit."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
@@ -72,7 +72,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self._text_widget = None
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add UI elements for file selection and import action."""
         label = ttk.Label(
             self.root,
@@ -88,7 +88,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         )
         self._text_widget.grid(row=0, column=1, padx=5, pady=10)
 
-        def browse_file():
+        def browse_file() -> None:
             current = self._text_widget.get(
                 "1.0",
                 tkinter.END,

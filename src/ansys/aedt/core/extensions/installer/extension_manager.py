@@ -162,7 +162,7 @@ class ExtensionManager(ExtensionProjectCommon):
         except Exception:  # don't let update checker break the UI
             logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension."""
         # Main container (horizontal layout)
         container = ttk.Frame(self.root, style="PyAEDT.TFrame")
@@ -192,7 +192,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.apply_canvas_theme(left_canvas)
 
         # Configure scrolling for left panel
-        def _on_left_mousewheel(event):  # pragma: no cover
+        def _on_left_mousewheel(event) -> None:  # pragma: no cover
             if _left_content_overflows():
                 left_canvas.yview_scroll(
                     int(-1 * (event.delta / 120)), "units"
@@ -207,13 +207,13 @@ class ExtensionManager(ExtensionProjectCommon):
             canvas_height = left_canvas.winfo_height()
             return content_height > canvas_height
 
-        def _bind_left_mousewheel(event):  # pragma: no cover
+        def _bind_left_mousewheel(event) -> None:  # pragma: no cover
             left_canvas.bind_all("<MouseWheel>", _on_left_mousewheel)
 
-        def _unbind_left_mousewheel(event):  # pragma: no cover
+        def _unbind_left_mousewheel(event) -> None:  # pragma: no cover
             left_canvas.unbind_all("<MouseWheel>")
 
-        def _configure_left_scroll_region(e):  # pragma: no cover
+        def _configure_left_scroll_region(e) -> None:  # pragma: no cover
             left_canvas.configure(
                 scrollregion=left_canvas.bbox("all")
             )
@@ -267,7 +267,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if self.current_category:
             self.load_extensions(self.current_category)
 
-    def load_extensions(self, category: str):
+    def load_extensions(self, category: str) -> None:
         """Load application extensions."""
         icon_category = self._resolve_category_folder(category)
         # Track the current category for UI refresh
@@ -311,14 +311,14 @@ class ExtensionManager(ExtensionProjectCommon):
         self.apply_canvas_theme(canvas)
 
         # Add mouse wheel scrolling only when content overflows
-        def _on_mousewheel(event):  # pragma: no cover
+        def _on_mousewheel(event) -> None:  # pragma: no cover
             # Only scroll if content overflows the canvas
             if _content_overflows_vertically():
                 canvas.yview_scroll(
                     int(-1 * (event.delta / 120)), "units"
                 )
 
-        def _on_shift_mousewheel(event):  # pragma: no cover
+        def _on_shift_mousewheel(event) -> None:  # pragma: no cover
             # Horizontal scrolling with Shift+MouseWheel
             if _content_overflows_horizontally():
                 canvas.xview_scroll(
@@ -345,20 +345,20 @@ class ExtensionManager(ExtensionProjectCommon):
             canvas_width = canvas.winfo_width()
             return content_width > canvas_width
 
-        def _bind_mousewheel(event):  # pragma: no cover
+        def _bind_mousewheel(event) -> None:  # pragma: no cover
             canvas.bind_all("<MouseWheel>", _on_mousewheel)
             canvas.bind_all(
                 "<Shift-MouseWheel>", _on_shift_mousewheel
             )
 
-        def _unbind_mousewheel(event):  # pragma: no cover
+        def _unbind_mousewheel(event) -> None:  # pragma: no cover
             canvas.unbind_all("<MouseWheel>")
             canvas.unbind_all("<Shift-MouseWheel>")
 
         canvas.bind("<Enter>", _bind_mousewheel)
         canvas.bind("<Leave>", _unbind_mousewheel)
 
-        def _configure_scroll_region(e):  # pragma: no cover
+        def _configure_scroll_region(e) -> None:  # pragma: no cover
             canvas.configure(scrollregion=canvas.bbox("all"))
             # Show/hide scrollbars based on content overflow
             if _content_overflows_vertically():
@@ -761,12 +761,12 @@ class ExtensionManager(ExtensionProjectCommon):
         # Start streaming logs
         self._start_log_stream_threads()
 
-    def _start_log_stream_threads(self):
+    def _start_log_stream_threads(self) -> None:
         """Start background threads to capture stdout and stderr."""
         import threading
         if not self.active_process:
             return
-        def reader(stream, tag):
+        def reader(stream, tag) -> None:
             for line in iter(stream.readline, ''):
                 self._append_full_log(line.rstrip('\n'), tag)
             stream.close()
@@ -786,13 +786,13 @@ class ExtensionManager(ExtensionProjectCommon):
         # Schedule periodic UI refresh
         self.root.after(500, self._periodic_log_refresh)
 
-    def _append_full_log(self, text, tag):
+    def _append_full_log(self, text, tag) -> None:
         self.full_log_buffer.append((text, tag))
         # Keep size bounded (optional)
         if len(self.full_log_buffer) > 10000:
             self.full_log_buffer = self.full_log_buffer[-8000:]
 
-    def _periodic_log_refresh(self): # pragma: no cover
+    def _periodic_log_refresh(self) -> None: # pragma: no cover
         # If detached window open update it
         if self.logs_window and self.logs_text_widget:
             try:
@@ -805,7 +805,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if self.active_process and self.active_process.poll() is None:
             self.root.after(500, self._periodic_log_refresh)
 
-    def _update_logs_text_widget(self):
+    def _update_logs_text_widget(self) -> None:
         widget = self.logs_text_widget
         if not widget:
             return
@@ -824,7 +824,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if at_end:
             widget.see('end')
 
-    def _close_logs_window(self):  # pragma: no cover
+    def _close_logs_window(self) -> None:  # pragma: no cover
         """Close and cleanup the detached logs window."""
         if self.logs_window:
             try:
@@ -838,7 +838,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.logs_window = None
         self.logs_text_widget = None
 
-    def open_all_logs_window(self):  # override base
+    def open_all_logs_window(self) -> None:  # override base
         # Toggle behavior: if already open, close it on button click
         if self.logs_window and tkinter.Toplevel.winfo_exists(
             self.logs_window
@@ -916,7 +916,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.logs_text_widget = txt
         self._update_logs_text_widget()
 
-    def _clear_logs(self):
+    def _clear_logs(self) -> None:
         """Clear full log buffer and update window."""
         self.full_log_buffer.clear()
         if self.logs_text_widget:
@@ -929,7 +929,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     "Error", "Failed to clear logs window."
                 )
 
-    def _export_logs(self):
+    def _export_logs(self) -> None:
         """Export logs to a text file."""
         if not self.full_log_buffer:
             messagebox.showinfo(
@@ -958,7 +958,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 'Export Logs', f'Failed to save logs: {e}'
             )
 
-    def pin_extension(self, category: str, option: str):
+    def pin_extension(self, category: str, option: str) -> None:
         """Pin extension to AEDT to bar."""
         if option.lower() == "custom":
             script_file, option = self.handle_custom_extension()
@@ -1043,7 +1043,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script(): # pragma: no cover
+        def browse_script() -> None: # pragma: no cover
             file_path = filedialog.askopenfilename(
                 title="Select Python script",
                 filetypes=[("Python Files", "*.py"), ("All Files", "*.*")],
@@ -1070,7 +1070,7 @@ class ExtensionManager(ExtensionProjectCommon):
         btn_frame = ttk.Frame(dialog)
         btn_frame.pack(padx=10, pady=10, fill="x")
 
-        def on_ok():
+        def on_ok() -> None:
             script = script_var.get().strip()
             name = name_var.get().strip()
 
@@ -1117,7 +1117,7 @@ class ExtensionManager(ExtensionProjectCommon):
             result["display_name"] = name
             dialog.destroy()
 
-        def on_cancel():
+        def on_cancel() -> None:
             result["script_file"] = None
             result["display_name"] = None
             dialog.destroy()
@@ -1247,7 +1247,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         return pin_label
 
-    def on_pin_click(self, category: str, option: str):
+    def on_pin_click(self, category: str, option: str) -> None:
         """Handle pin icon click events.
 
         Parameters
@@ -1264,7 +1264,7 @@ class ExtensionManager(ExtensionProjectCommon):
         else:
             self.pin_extension(category, option)
 
-    def apply_canvas_theme(self, canvas):
+    def apply_canvas_theme(self, canvas) -> None:
         """Apply theme to a specific canvas widget."""
         theme_colors = (
             self.theme.light
@@ -1277,7 +1277,7 @@ class ExtensionManager(ExtensionProjectCommon):
             highlightcolor=theme_colors["tab_border"],
         )
 
-    def toggle_theme(self):
+    def toggle_theme(self) -> None:
         """Toggle between light and dark themes and refresh UI."""
         super().toggle_theme()
 
@@ -1294,7 +1294,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # images
         self.add_extension_content()
 
-    def confirm_unpin(self, category, option):
+    def confirm_unpin(self, category, option) -> None:
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
         if option.lower() == "custom": # pragma: no cover
@@ -1375,7 +1375,7 @@ class ExtensionManager(ExtensionProjectCommon):
         except Exception: # pragma: no cover
             return False
 
-    def launch_web_url(self, category: str, option: str):
+    def launch_web_url(self, category: str, option: str) -> bool:
         """Launch web URL for an extension or toolkit."""
         try:
             if option.lower() == "custom":
@@ -1407,10 +1407,10 @@ class ExtensionManager(ExtensionProjectCommon):
             messagebox.showerror("Error", msg)
             return False
 
-    def check_for_pyaedt_update_on_startup(self):
+    def check_for_pyaedt_update_on_startup(self) -> None:
         """Spawn a background thread to check PyPI for a newer PyAEDT release.
         """
-        def worker(): # pragma: no cover
+        def worker() -> None: # pragma: no cover
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
@@ -1429,7 +1429,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path) -> None: # pragma: no cover
         """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
         try:
             dlg = tkinter.Toplevel(self.root)
@@ -1465,7 +1465,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 justify="center",
             ).pack(side="left", expand=True, fill="both")
 
-            def open_changelog():
+            def open_changelog() -> None:
                 try:
                     url = ("https://aedt.docs.pyansys.com/version/stable/"
                            "changelog.html")
@@ -1491,7 +1491,7 @@ class ExtensionManager(ExtensionProjectCommon):
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             btn_frame.pack(padx=10, pady=(0, 10), fill="x")
 
-            def decline():
+            def decline() -> None:
                 try:
                     from ansys.aedt.core.extensions.misc import (
                         decline_pyaedt_update,
@@ -1508,7 +1508,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                 dlg.destroy()
 
-            def remind():
+            def remind() -> None:
                 dlg.destroy()
 
             ttk.Button(

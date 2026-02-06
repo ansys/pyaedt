@@ -30,8 +30,6 @@ It contains all advanced postprocessing functionalities for creating and editing
 
 import secrets
 import string
-from typing import List
-from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -57,7 +55,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 
@@ -71,7 +69,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         setup,
         intrinsics,
         plot_name=None,
-        field_type="",
+        field_type: str = "",
     ):
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
@@ -117,10 +115,10 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         seeding_faces,
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
-        setup=None,
+        setup: str | None = None,
         intrinsics=None,
         plot_name=None,
-        field_type="DC R/L Fields",
+        field_type: str = "DC R/L Fields",
     ):
         """
         Create a field plot of the line.
@@ -233,7 +231,14 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup=None, nets=None, plot_on_surface=True, intrinsics=None, name=None
+        self,
+        layers,
+        quantity,
+        setup: str | None = None,
+        nets=None,
+        plot_on_surface: bool = True,
+        intrinsics=None,
+        name: str | None = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -290,7 +295,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
+        self,
+        layers_nets,
+        quantity,
+        setup: str | None = None,
+        intrinsics=None,
+        plot_on_surface: bool = True,
+        plot_name=None,
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
@@ -345,7 +356,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def evaluate_inception_voltage(self, plot_name, field_line_number=None):  # pragma: no cover
+    def evaluate_inception_voltage(self, plot_name, field_line_number=None) -> bool:  # pragma: no cover
         """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
@@ -404,7 +415,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def export_inception_voltage(self, plot_name, output_file, field_line_number=None):  # pragma: no cover
+    def export_inception_voltage(self, plot_name, output_file, field_line_number=None) -> bool:  # pragma: no cover
         """Export inception voltage evaluation results to a TXT file.
 
         .. note::
@@ -480,7 +491,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         streamer_constant: float = 9.15,
         ionization_check: bool = False,
         ionization_equation: str = "x",
-        ionization_dataset: Optional[List] = None,
+        ionization_dataset: list | None = None,
     ) -> bool:  # pragma: no cover
         """Modify inception voltage evaluation parameters.
 

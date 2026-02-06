@@ -40,7 +40,7 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_read_ibis(aedt_app):
+def test_read_ibis(aedt_app) -> None:
     reader = ibis_reader.IbisReader(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ansys_ddr4.ibs", aedt_app
     )
@@ -76,7 +76,7 @@ def test_read_ibis(aedt_app):
     assert buffer.name == "CompInst@ansys_ddr4_dq_odt_ansys_ddr4"
 
 
-def test_read_ibis_from_circuit(aedt_app):
+def test_read_ibis_from_circuit(aedt_app) -> None:
     ibis_model = aedt_app.get_ibis_model_from_file(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ansys_ddr4.ibs"
     )
@@ -84,7 +84,7 @@ def test_read_ibis_from_circuit(aedt_app):
     assert len(ibis_model.models) == 12
 
 
-def test_read_ibis_ami(aedt_app, test_tmp_dir):
+def test_read_ibis_ami(aedt_app, test_tmp_dir) -> None:
     # Copy AMI files to local_scratch to avoid modifying source files
     source_dir = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER
 

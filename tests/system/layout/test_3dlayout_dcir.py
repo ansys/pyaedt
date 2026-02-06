@@ -42,7 +42,7 @@ def dcir_example_project(add_app_example):
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
-def test_dcir(dcir_example_project):
+def test_dcir(dcir_example_project) -> None:
     import pandas as pd
 
     setup = dcir_example_project.get_setup("SIwaveDCIR1")

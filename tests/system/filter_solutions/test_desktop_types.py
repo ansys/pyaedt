@@ -37,7 +37,7 @@ from tests.conftest import USE_GRPC
     DESKTOP_VERSION < "2026.1" or USE_GRPC, reason="Skipped on versions earlier than 2026.1 or gRPC mode"
 )
 class TestClass:
-    def test_lumped_exported_desktop(self, lumped_design):
+    def test_lumped_exported_desktop(self, lumped_design) -> None:
         schem_name = lumped_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         app = lumped_design.export_to_aedt.export_design()
@@ -52,7 +52,7 @@ class TestClass:
         assert variables["C3"].value == pytest.approx(6.366e-12)
         app.desktop_class.close_desktop()
 
-    def test_distributed_circuit_exported_desktop(self, distributed_design):
+    def test_distributed_circuit_exported_desktop(self, distributed_design) -> None:
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_circuit_design = True
@@ -71,7 +71,7 @@ class TestClass:
         assert variables["S3"].value == pytest.approx(1.008e-2)
         app.desktop_class.close_desktop()
 
-    def test_distributed_hfss3dl_exported_desktop(self, distributed_design):
+    def test_distributed_hfss3dl_exported_desktop(self, distributed_design) -> None:
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_hfss_3dl_design = True
@@ -91,7 +91,7 @@ class TestClass:
         assert variables["S3"].value == pytest.approx(1.00773795179e-2)
         app.desktop_class.close_desktop()
 
-    def test_distributed_hfss_exported_desktop(self, distributed_design):
+    def test_distributed_hfss_exported_desktop(self, distributed_design) -> None:
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_hfss_design = True

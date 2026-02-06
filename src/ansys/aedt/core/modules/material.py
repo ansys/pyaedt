@@ -288,7 +288,7 @@ class Dataset:
 class BasicValue:
     """Manages thermal and spatial modifier calculations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.value = None
         self.dataset = None
         self.thermalmodifier = None
@@ -318,7 +318,7 @@ class MatProperty(PyAedtBase):
     >>> matproperty = app.materials["copper"].conductivity
     """
 
-    def __init__(self, material, name, val=None, thermalmodifier=None, spatialmodifier=None):
+    def __init__(self, material: str, name: str, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
         self._material = material
         self.logger = self._material.logger
         self._type = "simple"
@@ -394,7 +394,7 @@ class MatProperty(PyAedtBase):
         return self._type
 
     @type.setter
-    def type(self, type):
+    def type(self, type) -> None:
         self._type = type
         if self._type == "simple":
             self._property_value = [self._property_value[0]]
@@ -430,7 +430,7 @@ class MatProperty(PyAedtBase):
             return [i.value for i in self._property_value]
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
             self.set_non_linear()
@@ -463,7 +463,7 @@ class MatProperty(PyAedtBase):
         return self._unit
 
     @unit.setter
-    def unit(self, unit):
+    def unit(self, unit) -> None:
         self._unit = unit
 
     @property
@@ -483,7 +483,7 @@ class MatProperty(PyAedtBase):
             return [i.thermalmodifier for i in self._property_value]
 
     @thermalmodifier.setter
-    def thermalmodifier(self, thermal_value):
+    def thermalmodifier(self, thermal_value) -> None:
         """Thermal modifier.
 
         References
@@ -675,7 +675,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def add_thermal_modifier_free_form(self, formula, index=0):
+    def add_thermal_modifier_free_form(self, formula, index: int = 0):
         """Add a thermal modifier to a material property using a free-form formula.
 
         Parameters
@@ -705,7 +705,7 @@ class MatProperty(PyAedtBase):
         return self._add_thermal_modifier(formula, index)
 
     @pyaedt_function_handler()
-    def add_thermal_modifier_dataset(self, dataset, index=0):
+    def add_thermal_modifier_dataset(self, dataset, index: int = 0):
         """Add a thermal modifier to a material property using an existing dataset.
 
         Parameters
@@ -738,7 +738,17 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_closed_form(
-        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
+        self,
+        tref: int = 22,
+        c1: float = 0.0001,
+        c2: float = 1e-6,
+        tl=-273.15,
+        tu: int = 1000,
+        units: str = "cel",
+        auto_calc: bool = True,
+        tml: int = 1000,
+        tmu: int = 1000,
+        index: int = 0,
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
 
@@ -994,7 +1004,7 @@ class MatProperty(PyAedtBase):
             return [i.spatialmodifier for i in self._property_value]
 
     @spatialmodifier.setter
-    def spatialmodifier(self, spatial_value):
+    def spatialmodifier(self, spatial_value) -> None:
         """Spatial modifier.
 
         References
@@ -1159,7 +1169,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def add_spatial_modifier_free_form(self, formula, index=0):
+    def add_spatial_modifier_free_form(self, formula, index: int = 0):
         """Add a spatial modifier to a material property using a free-form formula.
 
         Parameters
@@ -1189,7 +1199,7 @@ class MatProperty(PyAedtBase):
         return self._add_spatial_modifier(formula, index)
 
     @pyaedt_function_handler()
-    def add_spatial_modifier_dataset(self, dataset, index=0):
+    def add_spatial_modifier_dataset(self, dataset, index: int = 0):
         """Add a spatial modifier to a material property using an existing dataset.
 
         Parameters
@@ -1232,7 +1242,7 @@ class CommonMaterial(PyAedtBase):
         The default is ``None``.
     """
 
-    def __init__(self, materials, name, props=None):
+    def __init__(self, materials, name: str, props=None) -> None:
         self._materials = materials
         self.odefinition_manager = self._materials.odefinition_manager
         self._omaterial_manager = self._materials.omaterial_manager
@@ -1266,7 +1276,7 @@ class CommonMaterial(PyAedtBase):
             del self._props["ModSinceLib"]
 
     @property
-    def is_used(self):
+    def is_used(self) -> bool:
         """Checks if a project material is in use."""
         is_used = self._omaterial_manager.IsUsed(self.name)
         if is_used == 0:
@@ -1279,7 +1289,7 @@ class CommonMaterial(PyAedtBase):
         return self._coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, value):
+    def coordinate_system(self, value) -> None:
         if value in ["Cartesian", "Cylindrical", "Spherical"]:
             self._coordinate_system = value
             self._update_props("CoordinateSystemType", value)
@@ -1299,7 +1309,7 @@ class CommonMaterial(PyAedtBase):
         _dict2arg(props, arg)
         return arg
 
-    def _update_props(self, propname, propvalue, update_aedt=True):
+    def _update_props(self, propname, propvalue, update_aedt: bool = True):
         """Update properties.
 
         Parameters
@@ -1398,13 +1408,13 @@ class Material(CommonMaterial, PyAedtBase):
     >>> material = app.materials["copper"]
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __init__(self, materiallib, name, props=None, material_update=True):
+    def __init__(self, materiallib, name: str, props=None, material_update: bool = True) -> None:
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
@@ -1577,7 +1587,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._permittivity
 
     @permittivity.setter
-    def permittivity(self, value):
+    def permittivity(self, value) -> None:
         self._permittivity.value = value
 
     @property
@@ -1596,7 +1606,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._permeability
 
     @permeability.setter
-    def permeability(self, value):
+    def permeability(self, value) -> None:
         self._permeability.value = value
 
     @property
@@ -1615,7 +1625,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._conductivity
 
     @conductivity.setter
-    def conductivity(self, value):
+    def conductivity(self, value) -> None:
         self._conductivity.value = value
 
     @property
@@ -1630,7 +1640,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._dielectric_loss_tangent
 
     @dielectric_loss_tangent.setter
-    def dielectric_loss_tangent(self, value):
+    def dielectric_loss_tangent(self, value) -> None:
         self._dielectric_loss_tangent.value = value
 
     @property
@@ -1649,7 +1659,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._magnetic_loss_tangent
 
     @magnetic_loss_tangent.setter
-    def magnetic_loss_tangent(self, value):
+    def magnetic_loss_tangent(self, value) -> None:
         self._magnetic_loss_tangent.value = value
 
     @property
@@ -1668,7 +1678,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._thermal_conductivity
 
     @thermal_conductivity.setter
-    def thermal_conductivity(self, value):
+    def thermal_conductivity(self, value) -> None:
         self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._thermal_conductivity.value = value
@@ -1689,7 +1699,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._mass_density
 
     @mass_density.setter
-    def mass_density(self, value):
+    def mass_density(self, value) -> None:
         self._mass_density.value = value
 
     @property
@@ -1708,7 +1718,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._specific_heat
 
     @specific_heat.setter
-    def specific_heat(self, value):
+    def specific_heat(self, value) -> None:
         self._specific_heat.value = value
 
     @property
@@ -1727,7 +1737,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._thermal_expansion_coefficient
 
     @thermal_expansion_coefficient.setter
-    def thermal_expansion_coefficient(self, value):
+    def thermal_expansion_coefficient(self, value) -> None:
         self._thermal_expansion_coefficient.value = value
 
     @property
@@ -1746,7 +1756,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._youngs_modulus
 
     @youngs_modulus.setter
-    def youngs_modulus(self, value):
+    def youngs_modulus(self, value) -> None:
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._youngs_modulus.value = value
@@ -1767,7 +1777,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._poissons_ratio
 
     @poissons_ratio.setter
-    def poissons_ratio(self, value):
+    def poissons_ratio(self, value) -> None:
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._poissons_ratio.value = value
@@ -1788,7 +1798,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._diffusivity
 
     @diffusivity.setter
-    def diffusivity(self, value):
+    def diffusivity(self, value) -> None:
         self._diffusivity.value = value
 
     @property
@@ -1807,7 +1817,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._magnetic_coercivity
 
     @magnetic_coercivity.setter
-    def magnetic_coercivity(self, value):
+    def magnetic_coercivity(self, value) -> None:
         if isinstance(value, list) and len(value) == 4:
             self.set_magnetic_coercivity(value[0], value[1], value[2], value[3])
             self._magnetic_coercivity.value = value
@@ -1828,7 +1838,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._molecular_mass
 
     @molecular_mass.setter
-    def molecular_mass(self, value):
+    def molecular_mass(self, value) -> None:
         self._molecular_mass.value = value
 
     @property
@@ -1847,7 +1857,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._viscosity
 
     @viscosity.setter
-    def viscosity(self, value):
+    def viscosity(self, value) -> None:
         self._viscosity.value = value
 
     @property
@@ -1970,7 +1980,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._strand_number
 
     @strand_number.setter
-    def strand_number(self, value):
+    def strand_number(self, value) -> None:
         self._strand_number = value
         if self._material_update:
             self._update_props("strand_number", value)
@@ -1991,7 +2001,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_thickness
 
     @wire_thickness.setter
-    def wire_thickness(self, value):
+    def wire_thickness(self, value) -> None:
         self._wire_thickness = value
         if self._material_update:
             self._update_props("wire_thickness", value)
@@ -2012,7 +2022,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_diameter
 
     @wire_diameter.setter
-    def wire_diameter(self, value):
+    def wire_diameter(self, value) -> None:
         self._wire_diameter = value
         if self._material_update:
             self._update_props("wire_diameter", value)
@@ -2033,7 +2043,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_width
 
     @wire_width.setter
-    def wire_width(self, value):
+    def wire_width(self, value) -> None:
         self._wire_width = value
         if self._material_update:
             self._update_props("wire_width", value)
@@ -2054,7 +2064,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._stacking_factor
 
     @stacking_factor.setter
-    def stacking_factor(self, value):
+    def stacking_factor(self, value) -> None:
         self._stacking_factor = value
         if self._material_update:
             self._update_props("stacking_factor", value)
@@ -2084,7 +2094,7 @@ class Material(CommonMaterial, PyAedtBase):
             self._update_props("stacking_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
-    def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
+    def set_magnetic_coercivity(self, value: int = 0, x: int = 1, y: int = 0, z: int = 0):
         """Set magnetic coercivity for material.
 
         Parameters
@@ -2117,10 +2127,10 @@ class Material(CommonMaterial, PyAedtBase):
     def get_core_loss_coefficients(
         self,
         points_at_frequency,
-        core_loss_model_type="Electrical Steel",
-        thickness="0.5mm",
-        conductivity=0,
-        coefficient_setup="w_per_cubic_meter",
+        core_loss_model_type: str = "Electrical Steel",
+        thickness: str = "0.5mm",
+        conductivity: int = 0,
+        coefficient_setup: str = "w_per_cubic_meter",
     ):
         """Get electrical steel or power ferrite core loss coefficients at a given frequency.
 
@@ -2225,12 +2235,12 @@ class Material(CommonMaterial, PyAedtBase):
     def set_coreloss_at_frequency(
         self,
         points_at_frequency,
-        kdc=0,
-        cut_depth="1mm",
-        thickness="0.5mm",
-        conductivity=0,
-        coefficient_setup="w_per_cubic_meter",
-        core_loss_model_type="Electrical Steel",
+        kdc: int = 0,
+        cut_depth: str = "1mm",
+        thickness: str = "0.5mm",
+        conductivity: int = 0,
+        coefficient_setup: str = "w_per_cubic_meter",
+        core_loss_model_type: str = "Electrical Steel",
     ):
         """Set electrical steel or power ferrite core loss model at one single frequency or at multiple frequencies.
 
@@ -2372,7 +2382,9 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_electrical_steel_coreloss(self, kh=0, kc=0, ke=0, kdc=0, cut_depth="1mm"):
+    def set_electrical_steel_coreloss(
+        self, kh: int = 0, kc: int = 0, ke: int = 0, kdc: int = 0, cut_depth: str = "1mm"
+    ):
         """Set electrical steel core loss.
 
         Parameters
@@ -2416,7 +2428,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_hysteresis_coreloss(self, kdc=0, hci=0, br=0, hkc=0, cut_depth=0.0001):
+    def set_hysteresis_coreloss(self, kdc: int = 0, hci: int = 0, br: int = 0, hkc: int = 0, cut_depth: float = 0.0001):
         """Set Hysteresis Type Core Loss.
 
         Parameters
@@ -2453,7 +2465,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_power_ferrite_coreloss(self, cm=0, x=0, y=0, kdc=0, cut_depth=0.0001):
+    def set_power_ferrite_coreloss(self, cm: int = 0, x: int = 0, y: int = 0, kdc: int = 0, cut_depth: float = 0.0001):
         """Set Power Ferrite Type Core Loss.
 
         Parameters
@@ -2491,7 +2503,14 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_bp_curve_coreloss(
-        self, points, kdc=0, cut_depth=0.0001, units="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
+        self,
+        points,
+        kdc: int = 0,
+        cut_depth: float = 0.0001,
+        units: str = "kw/m^3",
+        bunit: str = "tesla",
+        frequency: int = 60,
+        thickness: str = "0.5mm",
     ):
         """Set B-P Type Core Loss.
 
@@ -2659,11 +2678,11 @@ class Material(CommonMaterial, PyAedtBase):
     @pyaedt_function_handler()
     def set_djordjevic_sarkar_model(
         self,
-        dk=4,
-        df=0.02,
-        frequency=1e9,
-        sigma_dc=1e-12,
-        freq_hi=159.15494e9,
+        dk: int = 4,
+        df: float = 0.02,
+        frequency: float = 1e9,
+        sigma_dc: float = 1e-12,
+        freq_hi: float = 159.15494e9,
     ):
         """Set Djordjevic-Sarkar model.
 
@@ -2699,7 +2718,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the material in AEDT.
 
         Returns
@@ -2720,7 +2739,7 @@ class Material(CommonMaterial, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _does_material_exists(self, material_name):
+    def _does_material_exists(self, material_name) -> bool:
         listmatprj = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
         if material_name.lower() in listmatprj:
             return True
@@ -2743,7 +2762,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         The default is ``True``.
     """
 
-    def __init__(self, materiallib, name, props=None, material_update=True):
+    def __init__(self, materiallib, name: str, props=None, material_update: bool = True) -> None:
         CommonMaterial.__init__(self, materiallib, name, props)
         self.surface_clarity_type = "Opaque"
         self._material_update = material_update
@@ -2793,7 +2812,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         return self._surface_emissivity
 
     @emissivity.setter
-    def emissivity(self, value):
+    def emissivity(self, value) -> None:
         self._surface_emissivity.value = value
         if self._material_update:
             self._update_props("surface_emissivity", value)
@@ -2814,7 +2833,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         return self._surface_diffuse_absorptance
 
     @surface_diffuse_absorptance.setter
-    def surface_diffuse_absorptance(self, value):
+    def surface_diffuse_absorptance(self, value) -> None:
         self._surface_diffuse_absorptance.value = value
         if self._material_update:
             self._update_props("surface_diffuse_absorptance", value)
@@ -2835,7 +2854,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         return self._surface_incident_absorptance
 
     @surface_incident_absorptance.setter
-    def surface_incident_absorptance(self, value):
+    def surface_incident_absorptance(self, value) -> None:
         self._surface_incident_absorptance.value = value
         if self._material_update:
             self._update_props("surface_incident_absorptance", value)
@@ -2856,13 +2875,13 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         return self._surface_roughness
 
     @surface_roughness.setter
-    def surface_roughness(self, value):
+    def surface_roughness(self, value) -> None:
         self._surface_roughness.value = value
         if self._material_update:
             self._update_props("surface_roughness", value)
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the surface material in AEDT.
 
         Returns
@@ -2884,7 +2903,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _does_material_exists(self, szMat):
+    def _does_material_exists(self, szMat) -> bool:
         a = self.odefinition_manager.DoesSurfaceMaterialExist(szMat)
         if a != 0:
             return True

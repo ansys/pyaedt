@@ -34,12 +34,12 @@ defusedxml.defuse_stdlib()
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-def test_write_new_xml(test_tmp_dir):
+def test_write_new_xml(test_tmp_dir) -> None:
     project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = add_automation_tab(name="Test", lib_dir=test_tmp_dir)
@@ -49,7 +49,7 @@ def test_write_new_xml(test_tmp_dir):
     assert len(panel_names) == 1
 
 
-def test_add_pyaedt_config_to_existing_existing_xml(test_tmp_dir):
+def test_add_pyaedt_config_to_existing_existing_xml(test_tmp_dir) -> None:
     """
     First write a dummy XML with a different Panel and then add PyAEDT's tabs
     :return:
@@ -82,7 +82,7 @@ def test_add_pyaedt_config_to_existing_existing_xml(test_tmp_dir):
     assert "Panel_1" in panel_names
 
 
-def test_overwrite_existing_pyaedt_config(test_tmp_dir):
+def test_overwrite_existing_pyaedt_config(test_tmp_dir) -> None:
     project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = project_path / "TabConfig.xml"
@@ -109,7 +109,7 @@ def test_overwrite_existing_pyaedt_config(test_tmp_dir):
     assert len(panel_names) == 2
 
 
-def test_write_to_existing_file_but_no_panels(test_tmp_dir):
+def test_write_to_existing_file_but_no_panels(test_tmp_dir) -> None:
     project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = project_path / "TabConfig.xml"

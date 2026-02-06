@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class MultiplexerBand(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -46,7 +46,7 @@ class MultiplexerBand(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -69,7 +69,7 @@ class MultiplexerBand(EmitNode):
         return val
 
     @passband_type.setter
-    def passband_type(self, value: PassbandTypeOption):
+    def passband_type(self, value: PassbandTypeOption) -> None:
         self._set_property("Passband Type", f"{value.value}")
 
     @property
@@ -82,7 +82,7 @@ class MultiplexerBand(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -95,7 +95,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @insertion_loss.setter
-    def insertion_loss(self, value: float):
+    def insertion_loss(self, value: float) -> None:
         self._set_property("Insertion Loss", f"{value}")
 
     @property
@@ -108,7 +108,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @stop_band_attenuation.setter
-    def stop_band_attenuation(self, value: float):
+    def stop_band_attenuation(self, value: float) -> None:
         self._set_property("Stop band Attenuation", f"{value}")
 
     @property
@@ -122,7 +122,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @max_pass_band.setter
-    def max_pass_band(self, value: float | str):
+    def max_pass_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Pass Band", f"{value}")
 
@@ -137,7 +137,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @min_stop_band.setter
-    def min_stop_band(self, value: float | str):
+    def min_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Stop Band", f"{value}")
 
@@ -152,7 +152,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @max_stop_band.setter
-    def max_stop_band(self, value: float | str):
+    def max_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Stop Band", f"{value}")
 
@@ -167,7 +167,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @min_pass_band.setter
-    def min_pass_band(self, value: float | str):
+    def min_pass_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Pass Band", f"{value}")
 
@@ -182,7 +182,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -197,7 +197,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -212,7 +212,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -227,7 +227,7 @@ class MultiplexerBand(EmitNode):
         return float(val)
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

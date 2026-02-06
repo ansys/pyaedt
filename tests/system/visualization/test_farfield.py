@@ -45,7 +45,7 @@ def array_test(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_far_field_data_txt(test_tmp_dir):
+def test_far_field_data_txt(test_tmp_dir) -> None:
     eep_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "eep"
     eep_dir = test_tmp_dir / "eep"
     shutil.copytree(eep_dir_original, eep_dir)
@@ -65,7 +65,7 @@ def test_far_field_data_txt(test_tmp_dir):
     assert ffdata.metadata["model_info"]
 
 
-def test_far_field_data_json(test_tmp_dir):
+def test_far_field_data_json(test_tmp_dir) -> None:
     pyaedt_metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "pyaedt_metadata"
     pyaedt_metadata_dir = test_tmp_dir / "pyaedt_metadata"
     shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
@@ -78,7 +78,7 @@ def test_far_field_data_json(test_tmp_dir):
     assert ffdata.incident_power == 40.0
 
 
-def test_far_field_data_xml(test_tmp_dir):
+def test_far_field_data_xml(test_tmp_dir) -> None:
     metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "metadata"
     metadata_dir = test_tmp_dir / "metadata"
     shutil.copytree(metadata_dir_original, metadata_dir)
@@ -92,7 +92,7 @@ def test_far_field_data_xml(test_tmp_dir):
 
 
 @pytest.mark.avoid_ansys_load
-def test_far_field_data(test_tmp_dir):
+def test_far_field_data(test_tmp_dir) -> None:
     from pyvista.plotting.plotter import Plotter
 
     pyaedt_metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "pyaedt_metadata"
@@ -218,7 +218,7 @@ def test_far_field_data(test_tmp_dir):
 
 
 @pytest.mark.avoid_ansys_load
-def test_antenna_plot(array_test, test_tmp_dir):
+def test_antenna_plot(array_test, test_tmp_dir) -> None:
     ffdata = array_test.get_antenna_data(sphere="3D")
     assert ffdata.setup_name == "Setup1 : LastAdaptive"
     assert ffdata.model_info
@@ -280,7 +280,7 @@ def test_antenna_plot(array_test, test_tmp_dir):
     assert Path(img5).is_file()
 
 
-def test_farfield_exporter(array_test):
+def test_farfield_exporter(array_test) -> None:
     ffdata = FfdSolutionDataExporter(
         array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
     )
@@ -301,7 +301,7 @@ def test_farfield_exporter(array_test):
 
 
 @pytest.mark.avoid_ansys_load
-def test_ffd_solution_data_plot_3d(test_tmp_dir):
+def test_ffd_solution_data_plot_3d(test_tmp_dir) -> None:
     """Test FfdSolutionData.plot_3d() method with various parameters."""
     from pyvista.plotting.plotter import Plotter
 
@@ -365,7 +365,7 @@ def test_ffd_solution_data_plot_3d(test_tmp_dir):
 
 
 @pytest.mark.avoid_ansys_load
-def test_update_beam_form(test_tmp_dir):
+def test_update_beam_form(test_tmp_dir) -> None:
     """Test UpdateBeamForm.update_phi() and update_theta() methods."""
     import numpy as np
 

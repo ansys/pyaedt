@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TxSpectralProfEmitterNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -62,7 +62,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -73,7 +73,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @output_voltage_peak.setter
-    def output_voltage_peak(self, value: float | str):
+    def output_voltage_peak(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Voltage")
         self._set_property("Output Voltage Peak", f"{value}")
 
@@ -87,7 +87,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return val == "true"
 
     @include_phase_noise.setter
-    def include_phase_noise(self, value: bool):
+    def include_phase_noise(self, value: bool) -> None:
         self._set_property("Include Phase Noise", f"{str(value).lower()}")
 
     @property
@@ -100,7 +100,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @tx_broadband_noise.setter
-    def tx_broadband_noise(self, value: float):
+    def tx_broadband_noise(self, value: float) -> None:
         self._set_property("Tx Broadband Noise", f"{value}")
 
     @property
@@ -113,7 +113,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return int(val)
 
     @number_of_harmonics.setter
-    def number_of_harmonics(self, value: int):
+    def number_of_harmonics(self, value: int) -> None:
         self._set_property("Number of Harmonics", f"{value}")
 
     @property
@@ -126,7 +126,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return val == "true"
 
     @perform_tx_intermod_analysis.setter
-    def perform_tx_intermod_analysis(self, value: bool):
+    def perform_tx_intermod_analysis(self, value: bool) -> None:
         self._set_property("Perform Tx Intermod Analysis", f"{str(value).lower()}")
 
     @property
@@ -139,7 +139,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @internal_amp_gain.setter
-    def internal_amp_gain(self, value: float):
+    def internal_amp_gain(self, value: float) -> None:
         self._set_property("Internal Amp Gain", f"{value}")
 
     @property
@@ -152,7 +152,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @noise_figure.setter
-    def noise_figure(self, value: float):
+    def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
@@ -166,7 +166,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @amplifier_saturation_level.setter
-    def amplifier_saturation_level(self, value: float | str):
+    def amplifier_saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Amplifier Saturation Level", f"{value}")
 
@@ -184,7 +184,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @p1_db_point_ref_input.setter
-    def p1_db_point_ref_input(self, value: float | str):
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input ", f"{value}")
 
@@ -199,7 +199,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value: float | str):
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
@@ -213,7 +213,7 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value: float):
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -226,5 +226,5 @@ class TxSpectralProfEmitterNode(EmitNode):
         return int(val)
 
     @max_intermod_order.setter
-    def max_intermod_order(self, value: int):
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

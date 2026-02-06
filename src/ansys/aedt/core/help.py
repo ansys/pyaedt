@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Union
 from urllib.parse import quote_plus
 import webbrowser
 
@@ -53,7 +52,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def __init__(
         self,
-        version: Optional[str] = None,
+        version: str | None = None,
         browser: str = "default",
         silent: bool = False,
     ) -> None:
@@ -167,7 +166,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @staticmethod
     def _build_search_query(
-        keywords: Union[str, Iterable[str]],
+        keywords: str | Iterable[str],
     ) -> str:
         """Build a Sphinx-style search query string.
 
@@ -182,7 +181,7 @@ class Help(PyAedtBase):  # pragma: no cover
             Search query.
         """
         if isinstance(keywords, str):
-            keywords_list: List[str] = [keywords]
+            keywords_list: list[str] = [keywords]
         else:
             keywords_list = list(keywords)
 
@@ -196,7 +195,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def search(
         self,
-        keywords: Union[str, Iterable[str]],
+        keywords: str | Iterable[str],
     ) -> str:
         """Search the PyAEDT documentation.
 
@@ -322,7 +321,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def changelog(
         self,
-        release: Optional[str] = None,
+        release: str | None = None,
     ) -> str:
         """Open the GitHub changelog page for a specific release.
 

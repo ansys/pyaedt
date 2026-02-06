@@ -36,7 +36,9 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(PyAedtBase):
-    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+    def __init__(
+        self, desktop=None, project: str | None = None, design: str | None = None, is_inherithed: bool = False
+    ) -> None:
         self._odesign = design
         self._oproject = project
         if desktop:
@@ -89,7 +91,7 @@ class AedtObjects(PyAedtBase):
         self.__aedtunits = AedtUnits(self)
 
     @property
-    def units(self):
+    def units(self) -> AedtUnits:
         """PyAEDT default units.
 
         Returns

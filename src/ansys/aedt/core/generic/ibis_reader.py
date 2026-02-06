@@ -38,7 +38,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 class Component(PyAedtBase):
     """Component extracted from ibis model."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._name = None
         self._manufacturer = None
         self._pins = {}
@@ -59,7 +59,7 @@ class Component(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._name = value
 
     @property
@@ -77,7 +77,7 @@ class Component(PyAedtBase):
         return self._manufacturer
 
     @manufacturer.setter
-    def manufacturer(self, value):
+    def manufacturer(self, value) -> None:
         self._manufacturer = value
 
     @property
@@ -95,7 +95,7 @@ class Component(PyAedtBase):
         return self._pins
 
     @pins.setter
-    def pins(self, value):
+    def pins(self, value) -> None:
         self._pins = value
 
     @property
@@ -113,7 +113,7 @@ class Component(PyAedtBase):
         return self._differential_pins
 
     @differential_pins.setter
-    def differential_pins(self, value):
+    def differential_pins(self, value) -> None:
         self._differential_pins = value
 
 
@@ -128,7 +128,7 @@ class Pin(PyAedtBase):
         Circuit in which the pin will be added to.
     """
 
-    def __init__(self, name, buffername, app):
+    def __init__(self, name: str, buffername, app) -> None:
         self._name = name
         self._buffer_name = buffername
         self._app = app
@@ -152,7 +152,7 @@ class Pin(PyAedtBase):
         return self._is_differential
 
     @is_differential.setter
-    def is_differential(self, val):
+    def is_differential(self, val) -> None:
         self._is_differential = val
 
     @property
@@ -187,7 +187,7 @@ class Pin(PyAedtBase):
         return self._short_name
 
     @short_name.setter
-    def short_name(self, value):
+    def short_name(self, value) -> None:
         self._short_name = value
 
     @property
@@ -204,7 +204,7 @@ class Pin(PyAedtBase):
         return self._signal
 
     @signal.setter
-    def signal(self, value):
+    def signal(self, value) -> None:
         self._signal = value
 
     @property
@@ -221,7 +221,7 @@ class Pin(PyAedtBase):
         return self._model
 
     @model.setter
-    def model(self, value):
+    def model(self, value) -> None:
         self._model = value
 
     @property
@@ -238,7 +238,7 @@ class Pin(PyAedtBase):
         return self._r_value
 
     @r_value.setter
-    def r_value(self, value):
+    def r_value(self, value) -> None:
         self._r_value = value
 
     @property
@@ -255,7 +255,7 @@ class Pin(PyAedtBase):
         return self._l_value
 
     @l_value.setter
-    def l_value(self, value):
+    def l_value(self, value) -> None:
         self._l_value = value
 
     @property
@@ -272,7 +272,7 @@ class Pin(PyAedtBase):
         return self._c_value
 
     @c_value.setter
-    def c_value(self, value):
+    def c_value(self, value) -> None:
         self._c_value = value
 
     def add(self):
@@ -303,7 +303,7 @@ class Pin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -345,7 +345,7 @@ class DifferentialPin(PyAedtBase):
         Circuit to add the pin to.
     """
 
-    def __init__(self, name, buffer_name, app):
+    def __init__(self, name: str, buffer_name, app) -> None:
         self._buffer_name = buffer_name
         self._app = app
         self._circuit = app._circuit
@@ -371,7 +371,7 @@ class DifferentialPin(PyAedtBase):
         return self._model
 
     @model.setter
-    def model(self, value):
+    def model(self, value) -> None:
         self._model = value
 
     @property
@@ -475,7 +475,7 @@ class DifferentialPin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -507,14 +507,14 @@ class DifferentialPin(PyAedtBase):
 
 
 class Buffer(PyAedtBase):
-    def __init__(self, ibis_name, short_name, app):
+    def __init__(self, ibis_name, short_name, app) -> None:
         self._ibis_name = ibis_name
         self._short_name = short_name
         self._app = app
         self._circuit = app._circuit
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Full name of the buffer including the ibis filename."""
         return f"{self.short_name}_{self._ibis_name}"
 
@@ -523,7 +523,7 @@ class Buffer(PyAedtBase):
         """Short name of the buffer without the ibis filename included."""
         return self._short_name
 
-    def add(self):
+    def add(self) -> None:
         """Add a buffer to the list of components in the Project Manager."""
         available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
         if self.name not in available_names:
@@ -547,7 +547,7 @@ class Buffer(PyAedtBase):
             ],
         )
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a buffer at a defined location inside the graphical window.
 
         Parameters
@@ -576,7 +576,7 @@ class Buffer(PyAedtBase):
 
 
 class ModelSelector(PyAedtBase):
-    def __init__(self):
+    def __init__(self) -> None:
         self._model_selector_items = []
         self._name = None
 
@@ -586,7 +586,7 @@ class ModelSelector(PyAedtBase):
         return self._model_selector_items
 
     @model_selector_items.setter
-    def model_selector_items(self, value):
+    def model_selector_items(self, value) -> None:
         self._model_selector_items = value
 
     @property
@@ -595,12 +595,12 @@ class ModelSelector(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._name = value
 
 
 class ModelSelectorItem(PyAedtBase):
-    def __init__(self):
+    def __init__(self) -> None:
         self._description = []
         self._name = None
 
@@ -610,7 +610,7 @@ class ModelSelectorItem(PyAedtBase):
         return self._description
 
     @description.setter
-    def description(self, value):
+    def description(self, value) -> None:
         self._description = value
 
     @property
@@ -619,12 +619,12 @@ class ModelSelectorItem(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._name = value
 
 
 class Model(PyAedtBase):
-    def __init__(self):
+    def __init__(self) -> None:
         self._description = []
         self._name = None
         self._clamp = None
@@ -638,7 +638,7 @@ class Model(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._name = value
 
     @property
@@ -647,7 +647,7 @@ class Model(PyAedtBase):
         return self._model_type
 
     @model_type.setter
-    def model_type(self, value):
+    def model_type(self, value) -> None:
         self._model_type = value
 
     @property
@@ -656,7 +656,7 @@ class Model(PyAedtBase):
         return self._clamp
 
     @clamp.setter
-    def clamp(self, value):
+    def clamp(self, value) -> None:
         self._clamp = value
 
     @property
@@ -665,7 +665,7 @@ class Model(PyAedtBase):
         return self._enable
 
     @enable.setter
-    def enable(self, value):
+    def enable(self, value) -> None:
         self._enable = value
 
     @property
@@ -674,7 +674,7 @@ class Model(PyAedtBase):
         return self._ami
 
     @ami.setter
-    def ami(self, value):
+    def ami(self, value) -> None:
         self._ami = value
 
     @property
@@ -683,7 +683,7 @@ class Model(PyAedtBase):
         return self._c_comp
 
     @c_comp.setter
-    def c_comp(self, value):
+    def c_comp(self, value) -> None:
         self._c_comp = value
 
 
@@ -699,7 +699,7 @@ class Ibis(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name, app):
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name
@@ -718,7 +718,7 @@ class Ibis(PyAedtBase):
         return self._components
 
     @components.setter
-    def components(self, value):
+    def components(self, value) -> None:
         self._components = value
 
     @property
@@ -727,7 +727,7 @@ class Ibis(PyAedtBase):
         return self._model_selectors
 
     @model_selectors.setter
-    def model_selectors(self, value):
+    def model_selectors(self, value) -> None:
         self._model_selectors = value
 
     @property
@@ -736,7 +736,7 @@ class Ibis(PyAedtBase):
         return self._models
 
     @models.setter
-    def models(self, value):
+    def models(self, value) -> None:
         self._models = value
 
     @property
@@ -745,7 +745,7 @@ class Ibis(PyAedtBase):
         return self._buffers
 
     @buffers.setter
-    def buffers(self, value):
+    def buffers(self, value) -> None:
         self._buffers = value
 
 
@@ -761,7 +761,7 @@ class AMI(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name, app):
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name
@@ -780,7 +780,7 @@ class AMI(PyAedtBase):
         return self._components
 
     @components.setter
-    def components(self, value):
+    def components(self, value) -> None:
         self._components = value
 
     @property
@@ -789,7 +789,7 @@ class AMI(PyAedtBase):
         return self._model_selectors
 
     @model_selectors.setter
-    def model_selectors(self, value):
+    def model_selectors(self, value) -> None:
         self._model_selectors = value
 
     @property
@@ -798,7 +798,7 @@ class AMI(PyAedtBase):
         return self._models
 
     @models.setter
-    def models(self, value):
+    def models(self, value) -> None:
         self._models = value
 
     @property
@@ -807,7 +807,7 @@ class AMI(PyAedtBase):
         return self._buffers
 
     @buffers.setter
-    def buffers(self, value):
+    def buffers(self, value) -> None:
         self._buffers = value
 
 
@@ -824,7 +824,7 @@ class IbisReader(PyAedtBase):
         Circuit in which the ibis components will be used.
     """
 
-    def __init__(self, filename, circuit):
+    def __init__(self, filename, circuit) -> None:
         filename = Path(filename)
         self._filename = filename
         self._circuit = circuit
@@ -892,7 +892,7 @@ class IbisReader(PyAedtBase):
 
         return ibis_info
 
-    def import_model_in_aedt(self, pins=None, buffers=None):
+    def import_model_in_aedt(self, pins=None, buffers=None) -> bool:
         """Check and import the ibis model in AEDT.
 
         Parameters
@@ -974,7 +974,7 @@ class IbisReader(PyAedtBase):
         return False
 
     # Model
-    def read_model(self, ibis, model_list):
+    def read_model(self, ibis, model_list) -> None:
         """Extract model's info.
 
         Parameters
@@ -1022,7 +1022,7 @@ class IbisReader(PyAedtBase):
             ibis.models.append(model)
 
     # Model Selector
-    def read_model_selector(self, ibis, model_selector_list):
+    def read_model_selector(self, ibis, model_selector_list) -> None:
         """Extract model selector's info.
 
         Parameters
@@ -1073,7 +1073,7 @@ class IbisReader(PyAedtBase):
         return item
 
     # Component
-    def read_component(self, ibis, comp_infos):
+    def read_component(self, ibis, comp_infos) -> None:
         """Extracts component's info.
 
         Parameters
@@ -1105,7 +1105,7 @@ class IbisReader(PyAedtBase):
             ibis.components[component.name] = component
 
     @classmethod
-    def fill_package_info(cls, component, pkg_info):
+    def fill_package_info(cls, component, pkg_info) -> None:
         """Extract model's info.
 
         Parameters
@@ -1284,7 +1284,7 @@ class AMIReader(IbisReader, PyAedtBase):
         Circuit in which the ibis components will be used.
     """
 
-    def __init__(self, filename, circuit):
+    def __init__(self, filename, circuit) -> None:
         self._filename = filename
         self._circuit = circuit
         self._ami_model = None
@@ -1349,7 +1349,7 @@ class AMIReader(IbisReader, PyAedtBase):
         self._ibis_model = ibis
         return ibis_info
 
-    def import_model_in_aedt(self, pins=None, buffers=None):
+    def import_model_in_aedt(self, pins=None, buffers=None) -> bool:
         """Check and import the ibis model in AEDT.
 
         Returns
@@ -1429,7 +1429,7 @@ class AMIReader(IbisReader, PyAedtBase):
             self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
 
-def is_started_with(src, find, ignore_case=True):
+def is_started_with(src, find, ignore_case: bool = True):
     """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes

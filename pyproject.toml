@@ -179,6 +179,9 @@ select = [
     "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
     "W",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "UP006", # non-pep585-annotation, https://docs.astral.sh/ruff/rules/non-pep585-annotation
+    "UP007", # non-pep604-annotation-union, https://docs.astral.sh/ruff/rules/non-pep604-annotation-union
+    "UP045", # non-pep604-annotation-optional, https://docs.astral.sh/ruff/rules/non-pep604-annotation-optional
 ]
 ignore = [
     # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d

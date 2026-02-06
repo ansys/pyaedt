@@ -74,7 +74,7 @@ class ViaClusteringExtensionData(ExtensionCommonData):
     stop_layer: str = EXTENSION_DEFAULT_ARGUMENTS["stop_layer"]
     contour_list: list = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.nets_filter is None:
             self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
         if self.contour_list is None:
@@ -84,7 +84,7 @@ class ViaClusteringExtensionData(ExtensionCommonData):
 class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for via clustering in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -131,7 +131,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             self.release_desktop()
             raise AEDTRuntimeError("No signal layers are defined in this design.")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Project name label and entry
         project_label = ttk.Label(
@@ -203,7 +203,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["stop_layer_combo"] = self.stop_layer_combo
 
         # Buttons
-        def add_drawing_layer():
+        def add_drawing_layer() -> None:
             """Add a drawing layer for via merging."""
             hfss = Hfss3dLayout(
                 new_desktop=False,
@@ -287,7 +287,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["button_merge_vias"] = button_merge_vias
 
 
-def main(data: ViaClusteringExtensionData):
+def main(data: ViaClusteringExtensionData) -> bool:
     """Main function to run the via clustering extension."""
     if not data.aedb_path:
         raise AEDTRuntimeError("No AEDB path provided to the extension.")

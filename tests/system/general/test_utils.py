@@ -34,12 +34,12 @@ from ansys.aedt.core.generic.settings import Settings
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-def test_settings_load_default_yaml(monkeypatch, test_tmp_dir):
+def test_settings_load_default_yaml(monkeypatch, test_tmp_dir) -> None:
     """Test loading the default YAML file in docs/source/Resources."""
     # Set PYAEDT_LOCAL_SETTINGS_PATH to default value
     monkeypatch.setenv("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -65,7 +65,7 @@ def test_settings_load_default_yaml(monkeypatch, test_tmp_dir):
     assert default_settings_attributes == local_settings_attributes
 
 
-def test_settings_write_default_yaml(test_tmp_dir):
+def test_settings_write_default_yaml(test_tmp_dir) -> None:
     default_settings = Settings()
     path = test_tmp_dir / "pyaedt_settings.yaml"
 

@@ -29,9 +29,6 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from typing import List
-from typing import Optional
-from typing import Union
 import warnings
 
 import numpy as np
@@ -71,7 +68,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         Path for the touchstone file. The default is ``None``.
     """
 
-    def __init__(self, solution_data=None, touchstone_file=None):
+    def __init__(self, solution_data=None, touchstone_file=None) -> None:
         if touchstone_file is not None:
             touchstone_file = Path(touchstone_file)
 
@@ -128,7 +125,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
     @pyaedt_function_handler()
     def reduce(
-        self, ports: Union[List[str], List[int]], output_file: Optional[Union[str, Path]] = None, reordered: bool = True
+        self, ports: list[str] | list[int], output_file: str | Path | None = None, reordered: bool = True
     ) -> str:
         """Reduce the Touchstone file and export it.
 
@@ -186,11 +183,11 @@ class TouchstoneData(rf.Network, PyAedtBase):
         low_loss: float = -40.0,
         high_loss: float = -60.0,
         include_same_component: bool = True,
-        component_filter: Optional[List] = None,
+        component_filter: list | None = None,
         include_filter: bool = True,
         frequency_sample: int = 5,
-        output_file: Optional[Union[str, Path]] = None,
-    ) -> List[tuple]:
+        output_file: str | Path | None = None,
+    ) -> list[tuple]:
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
@@ -345,7 +342,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot_insertion_losses(self, threshold=-3, plot=True):
+    def plot_insertion_losses(self, threshold=-3, plot: bool = True):
         """Plot all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
@@ -372,7 +369,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot(self, index_couples=None, show=True):
+    def plot(self, index_couples=None, show: bool = True) -> bool:
         """Plot a list of curves.
 
         Parameters
@@ -398,7 +395,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_return_losses(self):
+    def plot_return_losses(self) -> bool:
         """Plot all return losses.
 
         Returns
@@ -412,7 +409,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         plt.show()
         return True
 
-    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
+    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering: str = "1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
         Parameters
@@ -461,7 +458,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return ts_diff
 
     @pyaedt_function_handler()
-    def get_return_loss_index(self, excitation_name_prefix=""):
+    def get_return_loss_index(self, excitation_name_prefix: str = ""):
         """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
@@ -517,7 +514,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_next_xtalk_index(self, tx_prefix=""):
+    def get_next_xtalk_index(self, tx_prefix: str = ""):
         """Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
@@ -546,7 +543,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
+    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True):
         """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
@@ -576,7 +573,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @graphics_required
-    def plot_next_xtalk_losses(self, tx_prefix=""):
+    def plot_next_xtalk_losses(self, tx_prefix: str = "") -> bool:
         """Plot all next crosstalk curves.
 
         Parameters
@@ -598,7 +595,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
+    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True) -> bool:
         """Plot all fext crosstalk curves.
 
         Parameters
@@ -626,7 +623,9 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
+    def get_worst_curve(
+        self, freq_min=None, freq_max=None, worst_is_higher: bool = True, curve_list=None, plot: bool = True
+    ):
         """Analyze a solution data object with multiple curves and find the worst curve.
 
         Take the mean of the magnitude over the frequency range.
@@ -683,7 +682,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
 
 @pyaedt_function_handler()
-def read_touchstone(input_file):
+def read_touchstone(input_file: str):
     """Load the contents of a Touchstone file into an NPort.
 
     Parameters
@@ -702,7 +701,7 @@ def read_touchstone(input_file):
 
 
 @pyaedt_function_handler()
-def check_touchstone_files(input_dir="", passivity=True, causality=True):
+def check_touchstone_files(input_dir: str = "", passivity: bool = True, causality: bool = True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
     .. warning::

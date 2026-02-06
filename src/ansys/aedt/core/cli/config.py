@@ -129,7 +129,7 @@ def _update_string_config(key: str, value: str | None, display_name: str = None,
 def test_callback(
     ctx: typer.Context,
     show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
-):
+) -> None:
     """Create or modify local_config.json in the tests folder interactively."""
     if ctx.invoked_subcommand is not None:
         return
@@ -241,7 +241,7 @@ def test_callback(
 
 
 @test_app.command()
-def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2025.2)")):
+def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2025.2)")) -> None:
     """Set AEDT desktop version."""
     import re
 
@@ -255,48 +255,48 @@ def desktop_version(value: str = typer.Argument(None, help="AEDT version (format
 
 
 @test_app.command()
-def non_graphical(value: bool = typer.Argument(None, help="Run AEDT without GUI (true/false)")):
+def non_graphical(value: bool = typer.Argument(None, help="Run AEDT without GUI (true/false)")) -> None:
     """Set non-graphical mode."""
     _update_bool_config("NonGraphical", value, "NonGraphical")
 
 
 @test_app.command()
-def new_thread(value: bool = typer.Argument(None, help="Use new thread for AEDT (true/false)")):
+def new_thread(value: bool = typer.Argument(None, help="Use new thread for AEDT (true/false)")) -> None:
     """Set new thread mode."""
     _update_bool_config("NewThread", value, "NewThread")
 
 
 @test_app.command()
-def skip_circuits(value: bool = typer.Argument(None, help="Skip circuit tests (true/false)")):
+def skip_circuits(value: bool = typer.Argument(None, help="Skip circuit tests (true/false)")) -> None:
     """Set skip circuits flag."""
     _update_bool_config("skip_circuits", value, "skip_circuits")
 
 
 @test_app.command()
-def use_grpc(value: bool = typer.Argument(None, help="Use gRPC for communication (true/false)")):
+def use_grpc(value: bool = typer.Argument(None, help="Use gRPC for communication (true/false)")) -> None:
     """Set use gRPC flag."""
     _update_bool_config("use_grpc", value, "use_grpc")
 
 
 @test_app.command()
-def close_desktop(value: bool = typer.Argument(None, help="Close AEDT after tests (true/false)")):
+def close_desktop(value: bool = typer.Argument(None, help="Close AEDT after tests (true/false)")) -> None:
     """Set close desktop flag."""
     _update_bool_config("close_desktop", value, "close_desktop")
 
 
 @test_app.command()
-def use_local_example_data(value: bool = typer.Argument(None, help="Use local example data (true/false)")):
+def use_local_example_data(value: bool = typer.Argument(None, help="Use local example data (true/false)")) -> None:
     """Set use local example data flag."""
     _update_bool_config("use_local_example_data", value, "use_local_example_data")
 
 
 @test_app.command()
-def local_example_folder(value: str = typer.Argument(None, help="Path to local examples folder")):
+def local_example_folder(value: str = typer.Argument(None, help="Path to local examples folder")) -> None:
     """Set local example folder path."""
     _update_string_config("local_example_folder", value, "local_example_folder")
 
 
 @test_app.command()
-def skip_modelithics(value: bool = typer.Argument(None, help="Skip Modelithics tests (true/false)")):
+def skip_modelithics(value: bool = typer.Argument(None, help="Skip Modelithics tests (true/false)")) -> None:
     """Set skip Modelithics flag."""
     _update_bool_config("skip_modelithics", value, "skip_modelithics")
