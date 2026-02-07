@@ -72,11 +72,11 @@ class SolutionData(PyAedtBase):
         else:
             self._primary_sweep = self._sweeps_names[0]
         end = time.time() - start
-        print(f"Time to initialize solution data:{end}")
+        settings.logger.debug(f"Time to initialize solution data:{end}")
         self.init_solutions_data()
         self._ifft = None
         end = time.time() - start
-        print(f"Time to initialize solution data:{end}")
+        settings.logger.debug(f"Time to initialize solution data:{end}")
 
     @property
     def active_variation(self):
