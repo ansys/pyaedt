@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -45,6 +46,8 @@ from ansys.aedt.core.visualization.post.solution_data import SolutionData
 import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
+import ansys.aedt.core.visualization.report.netlist
+from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
 import ansys.aedt.core.visualization.report.standard
 
 if TYPE_CHECKING:
@@ -70,6 +73,7 @@ TEMPLATES_BY_NAME = {
     "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.Standard,
     "Spectrum": ansys.aedt.core.visualization.report.standard.Spectral,
     "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
+    "Netlist": ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport,
 }
 
 
@@ -1249,8 +1253,12 @@ class PostProcessorCommon(PyAedtBase):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
+        if (
+            self._app.design_type not in ["Circuit Netlist", "Twin Builder"]
+            and setup_name not in self._app.setup_sweeps_names
+        ):
             raise KeyError(f"Setup {setup_name} not available in current design.")
+
         # Domain
         if not domain:
             domain = "Sweep"
@@ -1281,9 +1289,9 @@ class PostProcessorCommon(PyAedtBase):
 
         # Report Class
         if report_category in TEMPLATES_BY_NAME:
-            report_class = TEMPLATES_BY_NAME[report_category]
-        elif "Fields" in report_category:
-            report_class = TEMPLATES_BY_NAME["Fields"]
+            report_class = TEMPLATES_BY_NAME[
+                "Netlist" if self._app.design_type == "Circuit Netlist" else report_category
+            ]
         else:
             report_class = TEMPLATES_BY_NAME["Standard"]
 
@@ -1407,6 +1415,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
+        solution=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
@@ -1454,6 +1463,14 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
+        solution : str, optional
+            For Circuit Netlist designs only, specify the solution name to create the report for.
+            Possible values are ``"NexximLNA"`` , ``"NexximDC"`` , ``"NexximTransient"``,
+            ``"NexximVerifEye"``, ``"NexximQuickEye"``, ``"NexximAMI"``, ``"NexximOscillatorRSF"``,
+            ``"NexximOscillator1T"``, ``"NexximOscillatorNT"``, ``"NexximHarmonicBalance1T"``,
+            ``"NexximHarmonicBalanceNT"``, ``"NexximSystem"``, ``"NexximTVNoise"``, ``"HSPICE"``
+            ``"TR"``.
+            The default is ``None``.
 
         Returns
         -------
@@ -1466,6 +1483,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Examples
         --------
+        HFSS Example
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report("dB(S(1,1))")
@@ -1486,36 +1504,51 @@ class PostProcessorCommon(PyAedtBase):
         >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
         >>> hfss.desktop_class.release_desktop(False, False)
 
+        Maxwell 2D Example - Field report on a polyline
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
-        >>> m2d.post.create_report(
-        ...     expressions="InputCurrent(PHA)",
-        ...     domain="Time",
-        ...     primary_sweep_variable="Time",
-        ...     plot_name="Winding Plot 1",
+        >>> m2d = Maxwell2d(version="2025.2")
+        Setup model
+        >>> circ = m2d.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
+        >>> poly = m2d.modeler.create_polyline(points=[[8, 8, 0], [8, -10, 0]], name="Poly1")
+        >>> m2d.assign_current(assignment=circ.name, amplitude=5)
+        >>> region = m2d.modeler.create_region(pad_value=100)
+        >>> m2d.assign_balloon(assignment=region.edges)
+        >>> setup = m2d.create_setup()
+        >>> m2d.analyze_setup(setup.name)
+        Create a field report on the polyline
+        >>> report = m2d.post.create_report(
+        ...     expressions="Mag_B",
+        ...     setup_sweep_name=m2d.nominal_adaptive,
+        ...     plot_type="Rectangular Plot",
+        ...     report_category="Fields",
+        ...     context=poly.name,
+        ...     primary_sweep_variable="Distance",
         ... )
-        >>> m2d.desktop_class.release_desktop(False, False)
+        >>> m2d.release_desktop(False, False)
 
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
-        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
-        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
-        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
-        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
-        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-        >>> expressions = m3d.post.available_report_quantities(
-        ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
-        ... )
-        >>> report = m3d.post.create_report(
-        ...     expressions=expressions,
-        ...     context={"Matrix1": "ReducedMatrix1"},
-        ...     plot_type="Data Table",
-        ...     plot_name="reduced_matrix",
-        ... )
-        >>> m3d.desktop_class.release_desktop(False, False)
+        Circuit Netlist Example
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
+        >>> cir = CircuitNetlist(version="2025.2")
+        To get the available report solution there are two options:
+        >>> solutions = cir.post.available_report_solutions()[0]
+        or
+        >>> solutions = CircuitNetlistConstants.solution_types["NexximLNA"]["name"]
+        Get the available report categories
+        >>> categories = cir.post.available_report_types(solution=solutions)[0]
+        Get the available report quantities for a specific category and solution
+        >>> quantities = cir.post.available_report_quantities(quantities_category="Noise", solution=solution)
+        Create the report for each quantity
+        >>> for quantity in quantities:
+        ...     cir.post.create_report(
+        ...         expressions=f"dB({quantity})",
+        ...         solution="NexximLNA",
+        ...         plot_type="Rectangular Plot",
+        ...         report_category="Noise",
+        ...         domain="Sweep",
+        ...         primary_sweep_variable="Freq",
+        ...     )
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1530,7 +1563,9 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
-        result = report.create(plot_name)
+        result = (
+            report.create(plot_name, solution) if isinstance(report, CircuitNetlistReport) else report.create(plot_name)
+        )
         if result:
             if report.traces:
                 return report
@@ -2000,13 +2035,14 @@ class Reports(PyAedtBase):
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
         if expressions:
             return expressions
-        setup_only_name = setup_sweep_name.split(":")[0].strip()
-        get_setup = self._post_app._app.get_setup(setup_only_name)
         is_siwave_dc = False
-        if (
-            "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
-        ):  # pragma: no cover
-            is_siwave_dc = True
+        if self._post_app._app.design_type != "Circuit Netlist":
+            setup_only_name = setup_sweep_name.split(":")[0].strip()
+            get_setup = self._post_app._app.get_setup(setup_only_name)
+            if (
+                "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
+            ):  # pragma: no cover
+                is_siwave_dc = True
         return self._post_app.available_report_quantities(
             solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
         )
@@ -2676,4 +2712,55 @@ class Reports(PyAedtBase):
                         rep.net = net_name
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
 
+        return rep
+
+    @pyaedt_function_handler()
+    def circuit_netlist(self, expressions=None, setup=None, domain=None):
+        """Create a Circuit Netlist Report object.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more expressions to add into the report.
+        setup : str, optional
+            Name of the analysis type.
+            Specify the name of the analysis as listed
+            in :class:`ansys.aedt.core.generic.aedt_constants.CircuitNetlistConstants` or
+            call the method `available_report_solutions()`.
+            The default value is ``None`` and the first available analysis type is used.
+        domain : str, optional
+            Domain of the report. The default is ``None``, in which case
+            the domain is set to ``"Sweep"`` or ``"Time"`` for transient analysis.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modules.report_templates.netlist.CircuitNetlistReport`
+
+        Examples
+        --------
+        Initialize Circuit Netlist.
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> cir = CircuitNetlist(version="2025.2")
+        Create a report object (not in AEDT) for a transient analysis.
+        >>> new_report = cir.post.reports_by_category.circuit_netlist(
+        ...     expressions="V(net_20,0)", setup="NexximTransient", domain="Time", primary_sweep_variable="Time"
+        ... )
+        Set time range for the report.
+        >>> new_report.time_start = "0us"
+        >>> new_report.time_stop = "10us"
+        Create the report in AEDT.
+        >>> assert new_report.create()
+        >>> cir.release_desktop(False, False)
+        """
+        if not setup:
+            setup = self._post_app._app.available_report_solutions()[0]
+        else:
+            setup = CircuitNetlistConstants.solution_types[setup]["name"]
+        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(self._post_app, "Standard", expressions)
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        if not domain:
+            domain = "Sweep"
+            if setup == "Tran":
+                domain = "Time"
+        rep.domain = domain
         return rep
