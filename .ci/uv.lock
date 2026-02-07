@@ -3544,9 +3544,6 @@ all = [
     { name = "ansys-tools-visualization-interface" },
     { name = "fast-simplification" },
     { name = "fpdf2" },
-    { name = "ipython", version = "8.38.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "ipython", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "openpyxl" },
     { name = "osmnx" },
@@ -3700,7 +3697,6 @@ requires-dist = [
     { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0,<6.6" },
     { name = "psutil" },
     { name = "pyaedt", extras = ["integration-tests"], marker = "extra == 'tests'" },
-    { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pyaedt", extras = ["unit-tests"], marker = "extra == 'integration-tests'" },
     { name = "pydantic", specifier = ">=2.6.4,<2.13" },
     { name = "pyedb", specifier = ">=0.24.0,!=0.28.0" },
@@ -3907,7 +3903,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.67.3"
+version = "0.68.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3930,9 +3926,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c4/36/4679547be328d87362e26664fefb57dac0de74f3892834b8148472d18ab1/pyedb-0.67.3.tar.gz", hash = "sha256:5eda375045a52ffa5c5637175077d55a14ea82bf1991ee12e9f9a15989603fc7", size = 728527, upload-time = "2026-01-22T08:05:48.273Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/e4/103bb054caf7f79fb2e2207fb30376682f9c7fdd1fb0a90b101b5f31563e/pyedb-0.68.0.tar.gz", hash = "sha256:84902b927bb8c80443cab9d9f4c70ee5a8db8933e0908a7134fa823b7e3329e7", size = 754347, upload-time = "2026-01-28T07:53:07.496Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c1/20/d4b7e96a70df65c34a2bbc10ad4a47a5d4b2f827c449d967ec0b40325889/pyedb-0.67.3-py3-none-any.whl", hash = "sha256:35697ac56792dd1274284d6c134326e86d4d9d3d161e3858e968a435cfee7b99", size = 976861, upload-time = "2026-01-22T08:05:46.108Z" },
+    { url = "https://files.pythonhosted.org/packages/62/79/703aa3919fc91fe8a2512bacc2847ee73885a274201b336eeabd5e11dcac/pyedb-0.68.0-py3-none-any.whl", hash = "sha256:36655d6c0504e463aada4f6ba78f7e1fa23dccda0ee518b9a654f6f8dd6350ff", size = 1034932, upload-time = "2026-01-28T07:53:05.12Z" },
 ]
 
 [[package]]
