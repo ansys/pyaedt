@@ -152,7 +152,12 @@ def test_3dl_analyze_setup(hfss3dl_solve):
         with pytest.raises(AEDTRuntimeError):
             hfss3dl_solve.set_export_touchstone()
     assert hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
-    assert hfss3dl_solve.are_there_simulations_running
+    running = hfss3dl_solve.are_there_simulations_running
+    start = time.time()
+    while not running and time.time() - start < 10:
+        time.sleep(0.5)
+        running = hfss3dl_solve.are_there_simulations_running
+    assert running
     assert hfss3dl_solve.stop_simulations()
     while hfss3dl_solve.are_there_simulations_running:
         time.sleep(1)
