@@ -212,8 +212,7 @@ def test_3dl_analyze_setup(hfss3dl_solve):
             f"iteration #{wait_count}, elapsed={time.time() - wait_start:.1f}s"
         )
     logger.info(
-        f"test_3dl_analyze_setup: simulations stopped after {time.time() - wait_start:.1f}s, "
-        f"wait_count={wait_count}"
+        f"test_3dl_analyze_setup: simulations stopped after {time.time() - wait_start:.1f}s, wait_count={wait_count}"
     )
 
     profile = hfss3dl_solve.setups[0].get_profile()
