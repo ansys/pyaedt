@@ -728,13 +728,13 @@ class Configurations(PyAedtBase):
         """
         if self._schema:
             return self._schema
-        pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
+        pyaedt_installed_path = Path(ansys.aedt.core.__file__).parent
 
         schema_bytes = None
 
-        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+        config_schema_path = Path(pyaedt_installed_path) / "misc" / "config.schema.json"
 
-        if os.path.exists(config_schema_path):
+        if Path(config_schema_path).exists():
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
@@ -1250,8 +1250,8 @@ class Configurations(PyAedtBase):
         dict_out["general"]["object_mapping"] = {}
         dict_out["general"]["output_variables"] = {}
         if list(self._app.output_variables):
-            oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
-            self._app.ooutput_variable.ExportOutputVariables(oo_out)
+            oo_out = Path(tempfile.gettempdir()) / f"{generate_unique_name('oo')}.txt"
+            self._app.ooutput_variable.ExportOutputVariables(str(oo_out))
             with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
@@ -1476,7 +1476,7 @@ class Configurations(PyAedtBase):
             dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite=False):
+    def export_config(self, config_file=None, overwrite=False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
@@ -1496,9 +1496,10 @@ class Configurations(PyAedtBase):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(
-                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
-            )
+            config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
+        else:
+            config_file = Path(config_file)
+
         dict_out = {}
         self._export_general(dict_out)
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
@@ -1507,7 +1508,7 @@ class Configurations(PyAedtBase):
 
         # update the json if it exists already
 
-        if os.path.exists(config_file) and not overwrite:
+        if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -1524,9 +1525,9 @@ class Configurations(PyAedtBase):
         # write the updated dict to file
         if write_configuration_file(dict_out, config_file):
             self._app.logger.info(f"Json file {config_file} created correctly.")
-            return config_file
-        self._app.logger.error(f"Error creating json file {config_file}.")
-        return False
+            return str(config_file)
+
+        raise RuntimeError(f"An error occurred while creating json file {config_file}.")
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
@@ -1897,10 +1898,10 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        root_dir = os.path.join(self._app.toolkit_directory, self._app.design_name)
+        root_dir = Path(self._app.toolkit_directory) / self._app.design_name
         directory = generate_unique_folder_name(root_name=str(root_dir), folder_name="config_export_temp_project")
-        tempproj_name = os.path.join(directory, "temp_proj.aedt")
-        tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
+        tempproj_name = Path(directory) / "temp_proj.aedt"
+        tempproj = Icepak(str(tempproj_name), version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
         self._app.modeler.refresh()
         self._app.modeler.delete(
@@ -1915,14 +1916,14 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         tempproj.modeler.refresh_all_ids()
         tempproj.delete_design(empty_design)
         tempproj.close_project()
-        dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
+        dictionary = load_keyword_in_aedt_file(str(tempproj_name), "UserDefinedModels")["UserDefinedModels"]
         try:
             for root, dirs, files in os.walk(directory, topdown=False):
                 for name in files:
-                    os.remove(os.path.join(root, name))
+                    (Path(root) / name).unlink()
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(directory)
+                    (Path(root) / name).rmdir()
+            Path(directory).rmdir()
         except Exception:  # pragma: no cover
             self._app.logger.error(f"An error occurred while removing {directory}.")
 
@@ -2187,7 +2188,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite=False):
+    def export_config(self, config_file=None, overwrite=False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         Parameters
@@ -2205,9 +2206,10 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(
-                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
-            )
+            config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
+        else:
+            config_file = Path(config_file)
+
         # dict_out = {}
         # self._export_general(dict_out)
         dict_out = {}
@@ -2355,7 +2357,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
         # update the json if it exists already
 
-        if os.path.exists(config_file) and not overwrite:
+        if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -2372,9 +2374,9 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         # write the updated dict to file
         if write_configuration_file(dict_out, config_file):
             self._app.logger.info(f"Json file {config_file} created correctly.")
-            return config_file
-        self._app.logger.error(f"Error creating json file {config_file}.")
-        return False
+            return str(config_file)
+
+        raise RuntimeError(f"An error occurred while creating json file {config_file}.")
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
