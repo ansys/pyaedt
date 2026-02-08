@@ -104,6 +104,7 @@ Below is the content that can be updated through the YAML file.
         ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
         ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
         ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
+        ANSYSEM_FEATURE_F1035460_EDDY_APHI_ENHANCEMENT_ENABLE: '1'
         # Environment variable used in Linux to skip the dependency check for speed
         # ANS_NODEPCHECK: '1'
 
@@ -123,7 +124,7 @@ Below is the content that can be updated through the YAML file.
         # Optional path for the EDB DLL file
         edb_dll_path: null
         # Enable or disable the internal PyAEDT error handling
-        enable_error_handler: true
+        enable_error_handler: false
         # Enable or disable the use of Pandas to export dictionaries and lists
         enable_pandas_output: false
         # Enable or disable the check of the project path
