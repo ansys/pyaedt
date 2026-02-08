@@ -207,6 +207,7 @@ def test_3dl_analyze_setup(hfss3dl_solve):
     assert profile[key0].product == "HFSS3DLayout"
     assert profile[key0].max_memory() > MemoryGB(0.01)
 
+
 def test_3dl_export_profile(hfss3dl_solved, test_tmp_dir):
     profile_file = test_tmp_dir / "temp.prof"
     profile_file = Path(hfss3dl_solved.export_profile("Setup1", output_file=profile_file))
