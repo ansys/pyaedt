@@ -144,30 +144,91 @@ def test_3dl_generate_mesh(hfss3dl_solve):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
 def test_3dl_analyze_setup(hfss3dl_solve):
+    logger = hfss3dl_solve.logger
+    logger.info("test_3dl_analyze_setup: START")
+    logger.info(f"test_3dl_analyze_setup: project_name={hfss3dl_solve.project_name}")
+    logger.info(f"test_3dl_analyze_setup: design_name={hfss3dl_solve.design_name}")
+    logger.info(f"test_3dl_analyze_setup: setup_names={hfss3dl_solve.setup_names}")
+    logger.info(f"test_3dl_analyze_setup: DESKTOP_VERSION={DESKTOP_VERSION}")
+    logger.info(f"test_3dl_analyze_setup: project_list={hfss3dl_solve.desktop_class.project_list}")
+
     assert hfss3dl_solve.export_touchstone_on_completion(export=False)
+    logger.info("test_3dl_analyze_setup: export_touchstone_on_completion(False) OK")
     assert hfss3dl_solve.export_touchstone_on_completion(export=True)
+    logger.info("test_3dl_analyze_setup: export_touchstone_on_completion(True) OK")
     if DESKTOP_VERSION > "2024.2":
         assert hfss3dl_solve.set_export_touchstone()
+        logger.info("test_3dl_analyze_setup: set_export_touchstone() OK")
     else:
         with pytest.raises(AEDTRuntimeError):
             hfss3dl_solve.set_export_touchstone()
-    assert hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
+        logger.info("test_3dl_analyze_setup: set_export_touchstone() raised AEDTRuntimeError as expected")
+
+    logger.info("test_3dl_analyze_setup: calling analyze_setup('Setup1', cores=4, blocking=False)")
+    analyze_result = hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
+    logger.info(f"test_3dl_analyze_setup: analyze_setup returned {analyze_result}")
+    assert analyze_result
+
     running = hfss3dl_solve.are_there_simulations_running
+    logger.info(f"test_3dl_analyze_setup: initial are_there_simulations_running={running}")
     start = time.time()
+    poll_count = 0
     while not running and time.time() - start < 10:
         time.sleep(0.5)
         running = hfss3dl_solve.are_there_simulations_running
-    assert running
-    assert hfss3dl_solve.stop_simulations()
+        poll_count += 1
+        logger.info(
+            f"test_3dl_analyze_setup: poll #{poll_count} at {time.time() - start:.1f}s, "
+            f"are_there_simulations_running={running}"
+        )
+    elapsed_poll = time.time() - start
+    logger.info(
+        f"test_3dl_analyze_setup: polling loop done after {elapsed_poll:.1f}s, "
+        f"poll_count={poll_count}, running={running}"
+    )
+
+    if not running:
+        setup_solved = hfss3dl_solve.setups[0].is_solved if hfss3dl_solve.setups else None
+        logger.warning(
+            f"test_3dl_analyze_setup: simulations NOT detected as running. "
+            f"setup_solved={setup_solved}, num_setups={len(hfss3dl_solve.setups)}"
+        )
+    assert running, (
+        f"Simulations not detected as running after {elapsed_poll:.1f}s "
+        f"(poll_count={poll_count}). Check AEDT logs for errors."
+    )
+
+    stop_result = hfss3dl_solve.stop_simulations()
+    logger.info(f"test_3dl_analyze_setup: stop_simulations returned {stop_result}")
+    assert stop_result
+
+    wait_start = time.time()
+    wait_count = 0
     while hfss3dl_solve.are_there_simulations_running:
         time.sleep(1)
+        wait_count += 1
+        logger.info(
+            f"test_3dl_analyze_setup: waiting for simulations to stop, "
+            f"iteration #{wait_count}, elapsed={time.time() - wait_start:.1f}s"
+        )
+    logger.info(
+        f"test_3dl_analyze_setup: simulations stopped after {time.time() - wait_start:.1f}s, "
+        f"wait_count={wait_count}"
+    )
+
     profile = hfss3dl_solve.setups[0].get_profile()
+    logger.info(f"test_3dl_analyze_setup: profile keys={list(profile.keys()) if profile else None}")
     key0 = list(profile.keys())[0]
     assert key0 == "Setup1"
     assert isinstance(profile[key0], SimulationProfile)
+    logger.info(
+        f"test_3dl_analyze_setup: elapsed_time={profile[key0].elapsed_time}, "
+        f"product={profile[key0].product}, max_memory={profile[key0].max_memory()}"
+    )
     assert profile[key0].elapsed_time > timedelta(0)
     assert profile[key0].product == "HFSS3DLayout"
     assert profile[key0].max_memory() > MemoryGB(0.01)
+    logger.info("test_3dl_analyze_setup: PASS")
 
 
 def test_3dl_export_profile(hfss3dl_solved, test_tmp_dir):
