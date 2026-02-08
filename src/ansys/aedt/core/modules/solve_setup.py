@@ -3079,7 +3079,9 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frequency, max_passes=6, max_delta_s=0.02):
+    def enable_adaptive_setup_broadband(
+        self, low_frequency: float | str, high_frequency: float | str, max_passes: int = 6, max_delta_s: float = 0.02
+    ) -> bool:
         """Enable HFSS broadband setup.
 
         Parameters
@@ -3087,7 +3089,7 @@ class SetupHFSS(Setup, PyAedtBase):
         low_frequency : float, str
             Lower Frequency at which set the adaptive convergence.
             It can be float (GHz) or str.
-        high_frquency : float, str
+        high_frequency : float, str
             Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
         max_passes : int, optional
             Maximum number of adaptive passes. The default is ``6``.
@@ -3458,7 +3460,9 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frequency, max_passes=6, max_delta_s=0.02):
+    def enable_adaptive_setup_broadband(
+        self, low_frequency: float | str, high_frequency: float | str, max_passes: int = 6, max_delta_s: float = 0.02
+    ) -> bool:
         """Enable HFSS broadband setup.
 
         Parameters
