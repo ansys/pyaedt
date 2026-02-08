@@ -7,6 +7,7 @@
 ## Individual Contributors
 
 * [A-Phamfam](https://github.com/A-Phamfam)
+* [Aarsh Patel](https://github.com/Aarshpatel12)
 * [Abdun Nur](https://github.com/anur7)
 * [Adam Anderson](https://github.com/AdamTheEngineer-dev)
 * [Alberto Di Maria](https://github.com/Alberto-DM)
