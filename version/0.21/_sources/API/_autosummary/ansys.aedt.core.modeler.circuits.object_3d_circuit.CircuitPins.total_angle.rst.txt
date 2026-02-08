@@ -1,0 +1,6 @@
+total\_angle
+============
+
+.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
+
+.. autoproperty:: CircuitPins.total_angle

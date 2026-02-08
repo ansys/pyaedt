@@ -1,0 +1,6 @@
+image\_height
+=============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. autoproperty:: VirtualCompliance.image_height

@@ -1,0 +1,34 @@
+﻿PCBSettingsPackageParts
+=======================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.layout_boundary
+
+.. autoclass:: PCBSettingsPackageParts
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      PCBSettingsPackageParts.set_connectors_modeling
+      
+      
+      PCBSettingsPackageParts.set_solderballs_modeling
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PCBSettingsPackageParts.public_dir
+   
+   

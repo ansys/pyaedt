@@ -1,0 +1,6 @@
+thinning\_points
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.standard
+
+.. autoproperty:: Standard.thinning_points

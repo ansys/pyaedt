@@ -1,0 +1,6 @@
+full\_parametrization\_enabled
+==============================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.full_parametrization_enabled
