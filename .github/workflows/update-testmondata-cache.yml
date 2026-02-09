@@ -67,12 +67,12 @@ jobs:
 
           # Get all running workflows for ci_cd.yml
           in_progress=$(gh api \
-            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=in_progress" \
+            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=in_progress&per_page=100" \
             --jq '.workflow_runs[].id')
 
           # Get all queued workflows for ci_cd.yml
           queued=$(gh api \
-            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=queued" \
+            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=queued&per_page=100" \
             --jq '.workflow_runs[].id')
 
           # Combine both lists
