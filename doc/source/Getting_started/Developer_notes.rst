@@ -39,7 +39,7 @@ your IDE's built-in coverage tools or the command line.
 
       pip install pytest-cov
 
-2. Run tests with coverage for the specific test suite(s) related to your changes:
+2. Run tests with coverage for the specific test suites related to your changes:
 
    .. code:: bash
 
@@ -89,8 +89,8 @@ Edge cases and considerations
 This section covers common edge cases and considerations when working with PyAEDT's CI/CD pipeline
 and Testmon integration.
 
-Multiple open PRs
-~~~~~~~~~~~~~~~~~
+Multiple open pull requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When multiple PRs are open simultaneously, each PR:
 
