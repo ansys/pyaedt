@@ -13,7 +13,7 @@ env:
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
-  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
@@ -324,13 +324,6 @@ jobs:
           source .venv/bin/activate
           xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-unit-tests
-          files: ./coverage.xml
-          flags: linux_unit
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -385,13 +378,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} tests/integration
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-integration-tests
-          files: ./coverage.xml
-          flags: linux_integration
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -464,12 +450,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-solvers-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_solvers
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -540,12 +520,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-solvers-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -621,12 +595,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-general-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_general
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -699,12 +667,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-general-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -782,12 +744,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-visualization-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_visualization
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -862,12 +818,6 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-visualization-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_visualization
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -938,12 +888,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-icepak-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_icepak
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -1016,12 +960,6 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-icepak-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_icepak
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1093,12 +1031,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-layout-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_layout
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1167,12 +1099,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-layout-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_layout
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -1248,12 +1174,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-extensions-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_extensions
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1327,12 +1247,6 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-extensions-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_extensions
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1404,12 +1318,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-filter-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_filter
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1480,12 +1388,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-emit-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_emit
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

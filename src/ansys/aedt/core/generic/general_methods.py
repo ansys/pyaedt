@@ -806,27 +806,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
             pyaedt_logger.debug("No matching processes found.")
 
     elif platform_system == "Windows":
-        # Use WMIC to get process information
         try:
-            for tgt in target_name:
-                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
-                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
-
-                current_cmd = []
-
-                for line in output.splitlines():
-                    line = line.strip()
-                    if line.startswith("CommandLine="):
-                        # Extract and parse command line
-                        cmdline_raw = line[len("CommandLine=") :]
-                        current_cmd = cmdline_raw.split()
-                    elif line.startswith("ProcessId="):
-                        current_pid = int(line[len("ProcessId=") :])
-                        if current_pid and current_cmd:
-                            found_data.append((current_pid, current_cmd))
-                            current_pid, current_cmd = None, []
-        # The system may not have WMIC available, fallback to PowerShell
-        except FileNotFoundError:
             import json
             from pathlib import Path
             import shutil
@@ -861,8 +841,28 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     # No processes found or invalid JSON
                     pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
                     pass
+        except FileNotFoundError:
+            for tgt in target_name:
+                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
+                print(cmd)
+                exit()
+                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
+
+                current_cmd = []
+
+                for line in output.splitlines():
+                    line = line.strip()
+                    if line.startswith("CommandLine="):
+                        # Extract and parse command line
+                        cmdline_raw = line[len("CommandLine=") :]
+                        current_cmd = cmdline_raw.split()
+                    elif line.startswith("ProcessId="):
+                        current_pid = int(line[len("ProcessId=") :])
+                        if current_pid and current_cmd:
+                            found_data.append((current_pid, current_cmd))
+                            current_pid, current_cmd = None, []
         except Exception as e:
-            pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
+            pyaedt_logger.debug(f"Failed to query Windows processes with Powershell and WMIC: {str(e)}")
 
     return found_data
 
