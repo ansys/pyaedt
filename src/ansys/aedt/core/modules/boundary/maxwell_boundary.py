@@ -717,3 +717,11 @@ class MaxwellTorque(MaxwellParameters):
     def __init__(self, app, name, props=None):
         super().__init__(app, name, props=props, boundarytype="Torque")
         self._app = app
+
+
+class MaxwellLayoutForce(MaxwellParameters):
+    """Initialize Maxwell layout force."""
+
+    def __init__(self, app, name, props=None):
+        super().__init__(app, name, props=props, boundarytype="LayoutForce")
+        self._app = app

@@ -45,6 +45,7 @@ from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
@@ -2618,6 +2619,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             bound = MaxwellForce(self, name, props)
         elif boundary_type == "Torque":
             bound = MaxwellTorque(self, name, props)
+        elif boundary_type == "LayoutForce":
+            bound = MaxwellLayoutForce(self, name, props)
 
         result = bound.create()
         if result:
