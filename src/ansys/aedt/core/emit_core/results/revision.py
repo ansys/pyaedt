@@ -1242,7 +1242,7 @@ class Revision:
         props = EmitNode.props_to_dict(props)
         node_type = props["Type"]
 
-        node_type.replace(" ", "_")
+        node_type = node_type.replace(" ", "_")
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 
