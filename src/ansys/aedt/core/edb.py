@@ -24,6 +24,7 @@
 
 
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 log = settings.logger
 
@@ -108,6 +109,9 @@ def Edb(
 
     """
     from pyedb import Edb
+
+    if not settings.aedt_version:  # pragma: no cover
+        settings.aedt_version = aedt_versions.current_version
 
     if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":  # pragma: no cover
         settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
