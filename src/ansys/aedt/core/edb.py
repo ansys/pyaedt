@@ -110,6 +110,7 @@ def Edb(
     from pyedb import Edb
 
     if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":  # pragma: no cover
+        settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
         settings.pyedb_use_grpc = True
 
     use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version > "2025.2" else False  # pragma: no cover

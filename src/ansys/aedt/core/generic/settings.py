@@ -111,9 +111,8 @@ ALLOWED_GENERAL_SETTINGS = [
     "use_local_example_data",
     "pyd_libraries_path",
     "pyd_libraries_user_path",
-    "pyedb_use_grpc",
 ]
-ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all"]
+ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all", "pyedb_use_grpc"]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
