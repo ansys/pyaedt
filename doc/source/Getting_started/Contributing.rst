@@ -631,73 +631,10 @@ Each test suite maintains its own separate cache:
 - ``testmondata-solvers-linux``: Solver tests on Linux.
 - And other test suites (general, visualization, icepak, layout, extensions, filter, emit).
 
-Edge cases and considerations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
 
-**Multiple open PRs:**
-
-When multiple PRs are open simultaneously, each PR:
-
-- Restores the same baseline cache from ``main``.
-- Runs only tests affected by its own changes.
-- Does not interfere with other PRs since no PR modifies the shared cache.
-
-This design ensures isolation between concurrent PR workflows.
-
-**Cache update in progress while PR runs:**
-
-If a PR workflow starts while the ``update-testmondata-cache.yml`` workflow is running on ``main``:
-
-- The PR workflow **waits** for up to 10 minutes for the cache update to complete.
-- If the cache update succeeds, the PR uses the fresh cache.
-- If the cache update fails or times out, the PR workflow **fails** with an error message instructing the user to relaunch the cache update workflow.
-
-This mechanism prevents PRs from running with stale or inconsistent cache data.
-
-**Cache update workflow fails:**
-
-If the ``update-testmondata-cache.yml`` workflow fails:
-
-- Subsequent PRs fail at the "Wait for master cache update" step.
-- The error message directs users to relaunch the workflow at:
-  ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
-- Once the cache update completes successfully, PR workflows can proceed.
-
-**Pruning Testmon caches:**
-
-A separate workflow (``prune-testmon-caches.yml``) can be manually triggered to delete all Testmon
-caches. This is useful when:
-
-- Cache corruption is suspected.
-- A major refactoring requires rebuilding the dependency graph from scratch.
-- Cache storage limits are approached.
-
-Keeping PRs updated with main
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. important::
-
-  **PRs must be updated to the latest ``main`` branch before merging.**
-
-This requirement ensures that:
-
-1. **Cache consistency**: The pull request's Testmon run is validated against the same codebase state that the cache was built from. If a PR is behind ``main``, its Testmon data may not accurately reflect which tests need to run.
-
-2. **Merge conflicts**: Updating ensures merge conflicts are resolved before merging.
-
-3. **Test coverage**: Tests that were added or modified in ``main`` since the PR was created are
-  executed against the pull request's changes.
-
-**How to update your PR:**
-
-.. code:: bash
-
-  git fetch origin main
-  git merge main
-  # Resolve any conflicts
-  git push
-
-Alternatively, use the GitHub UI "Update branch" button if available.
+   For detailed information about edge cases, keeping PRs updated, and tracking coverage locally,
+   see :ref:`developer_notes`.
 
 Workflow diagrams
 ~~~~~~~~~~~~~~~~~
