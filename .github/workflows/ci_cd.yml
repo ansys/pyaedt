@@ -14,6 +14,7 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS_EXTENSIONS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
@@ -1159,15 +1160,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -1181,10 +1173,10 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_EXTENSIONS: ${{ env.PYTEST_ARGUMENTS_EXTENSIONS }}
         run: |
           .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
+          $args = $env:PYTEST_ARGUMENTS_EXTENSIONS -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
@@ -1237,15 +1229,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -1259,7 +1242,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
+          pytest ${PYTEST_ARGUMENTS_EXTENSIONS} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
