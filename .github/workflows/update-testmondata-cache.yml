@@ -46,52 +46,6 @@ jobs:
           exit 1
 
   # ------------------------------------------------------------------
-  # CANCEL PR WORKFLOWS
-  # ------------------------------------------------------------------
-  cancel-pr-workflows:
-    name: Cancel all PR workflows
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write  # Required to cancel workflow runs
-    steps:
-      - name: Cancel all running PR workflows
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-        run: |
-          echo "Fetching all running and queued workflows for ci_cd.yml..."
-
-          # Get all running workflows for ci_cd.yml
-          in_progress=$(gh api \
-            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=in_progress&per_page=100" \
-            --jq '.workflow_runs[].id')
-
-          # Get all queued workflows for ci_cd.yml
-          queued=$(gh api \
-            "repos/${REPOSITORY}/actions/workflows/ci_cd.yml/runs?status=queued&per_page=100" \
-            --jq '.workflow_runs[].id')
-
-          # Combine both lists
-          all_runs=$(echo -e "$in_progress\n$queued" | grep -v '^$')
-
-          if [ -z "$all_runs" ]; then
-            echo "No running or queued workflows found to cancel"
-            exit 0
-          fi
-
-          echo "Found workflows to cancel:"
-          echo "$all_runs"
-
-          # Cancel each workflow run
-          for run_id in $all_runs; do
-            echo "Canceling workflow run $run_id..."
-            gh api --method POST \
-              "repos/${REPOSITORY}/actions/runs/$run_id/cancel"
-          done
-
-          echo "All PR workflows (running and queued) have been canceled"
-
-  # ------------------------------------------------------------------
   # ANALYZE CHANGES
   # ------------------------------------------------------------------
   analyze-changes:
@@ -171,6 +125,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -256,6 +211,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -339,6 +295,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -427,6 +384,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -510,6 +468,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -599,6 +558,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -678,6 +638,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -763,6 +724,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -843,6 +805,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -928,6 +891,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -1008,6 +972,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
@@ -1091,6 +1056,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
+          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Restore testmondata cache
