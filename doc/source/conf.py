@@ -164,6 +164,7 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
+
 toc_object_entries_show_parents = "hide"
 
 html_show_sourcelink = True
