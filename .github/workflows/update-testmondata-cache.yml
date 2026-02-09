@@ -136,7 +136,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
 
-
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -185,7 +184,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -207,7 +205,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -257,7 +254,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -279,7 +275,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -345,7 +340,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -367,7 +361,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -428,7 +421,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -453,7 +445,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -519,7 +510,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -544,7 +534,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -605,7 +594,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -630,7 +618,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -697,7 +684,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -722,7 +708,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -782,7 +767,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -804,7 +788,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -870,7 +853,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -892,7 +874,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -952,7 +933,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -1040,7 +1020,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -1062,7 +1041,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1123,7 +1101,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -1148,7 +1125,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1214,7 +1190,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -1239,7 +1214,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1299,7 +1273,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -1321,7 +1294,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1385,7 +1357,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -1407,7 +1378,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
