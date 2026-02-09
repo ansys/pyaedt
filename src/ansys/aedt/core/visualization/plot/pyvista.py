@@ -1501,10 +1501,13 @@ class ModelPlotter(CommonPlotter):
             self.pv.add_background_image(self.background_image)
         else:
             self.pv.background_color = [i / 255 for i in self.background_color]
+        
+        # Read mesh files including frames
         self._read_mesh_files(read_frames=True)
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
+        # Add static objects to the scene
         self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
         if self.show_axes:
             self.pv.show_axes()
@@ -1520,27 +1523,7 @@ class ModelPlotter(CommonPlotter):
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
 
-        self._animating = True
-
-        if self.gif_file:
-            self.pv.open_gif(self.gif_file)
-
-        def q_callback():
-            """Exit when user wants to leave."""
-            self._animating = False
-
-        self._pause = False
-
-        def p_callback():
-            """Exit when user wants to leave."""
-            self._pause = not self._pause
-
-        self.pv.add_text(
-            "Press p for Play/Pause, Press q to exit.", font_size=8, position="upper_left", color=tuple(axes_color)
-        )
-        self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
-        self.pv.add_key_event("q", q_callback)
-        self.pv.add_key_event("p", p_callback)
+        # Configure scalar bar
         if self.color_bar:
             sargs = dict(
                 title_font_size=10,
@@ -1557,6 +1540,7 @@ class ModelPlotter(CommonPlotter):
                 position_y=2,
             )
 
+        # Add static fields to the scene
         for field in self._fields:
             sargs["title"] = field.label
             field._cached_mesh = self.pv.add_mesh(
@@ -1569,8 +1553,7 @@ class ModelPlotter(CommonPlotter):
             )
 
         if self.range_min is not None and self.range_max is not None:
-            mins = self.range_min
-            maxs = self.range_max
+            clim = [self.range_min, self.range_max]
         else:
             mins = 1e20
             maxs = -1e20
@@ -1579,21 +1562,12 @@ class ModelPlotter(CommonPlotter):
                     mins = np.min(el._cached_polydata.point_data[el.scalar_name])
                 if np.max(el._cached_polydata.point_data[el.scalar_name]) > maxs:
                     maxs = np.max(el._cached_polydata.point_data[el.scalar_name])
+            clim = [mins, maxs]
 
-        self.frames[0]._cached_mesh = self.pv.add_mesh(
-            self.frames[0]._cached_polydata,
-            scalars=self.frames[0].scalar_name,
-            log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
-            scalar_bar_args=sargs,
-            cmap=self.frames[0].color_map,
-            clim=[mins, maxs],
-            show_edges=False,
-            pickable=True,
-            smooth_shading=True,
-            name="FieldPlot",
-            opacity=self.frames[0].opacity,
-        )
-        # run until q is pressed
+        sargs["clim"] = clim
+        if self.frames and hasattr(self.frames[0], "label"):
+            sargs["title"] = self.frames[0].label
+
         if self.pv.mesh:
             self.pv.set_focus(self.pv.mesh.center)
         if not self.isometric_view:
@@ -1615,74 +1589,36 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
-        self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
-        start = time.time()
-        try:
-            self.pv.update(1, force_redraw=True)
-        except Exception:
-            pyaedt_logger.debug("Something went wrong while updating plotter.")
+        # Prepare frame meshes for animation
+        frame_meshes = [frame._cached_polydata for frame in self.frames]
+        
+        # Prepare plot kwargs for animation
+        plot_kwargs = {
+            "scalars": self.frames[0].scalar_name if self.frames else None,
+            "log_scale": False if self.convert_fields_in_db else (self.frames[0].log_scale if self.frames else False),
+            "cmap": self.frames[0].color_map if self.frames else "jet",
+            "show_edges": False,
+            "pickable": True,
+            "smooth_shading": True,
+            "opacity": self.frames[0].opacity if self.frames else 1.0,
+        }
+
+        # Create and show animation using visualization interface
+        animation = self._vi_plotter.animate(
+            frames=frame_meshes,
+            fps=self.frame_per_seconds,
+            loop=False,
+            scalar_bar_args=sargs,
+            **plot_kwargs
+        )
+
+        if show:
+            animation.show()
+        
+        # Save to gif if specified
         if self.gif_file:
-            first_loop = True
-            self.pv.write_frame()
-        else:
-            first_loop = False
-        i = 1
-        while self._animating:
-            if self._pause:
-                time.sleep(1)
-                self.pv.update(1, force_redraw=True)
-                continue
-            # p.remove_actor("FieldPlot")
-            if i >= len(self.frames):
-                if self.off_screen or self.is_notebook:
-                    break
-                i = 0
-                first_loop = False
-
-            displayed_mesh = self.frames[0]._cached_polydata
-            new_mesh = self.frames[i]._cached_polydata
-
-            # If they have the same points just update the scalars
-            if displayed_mesh.n_points == new_mesh.n_points:
-                # Update the points just in case
-                displayed_mesh.points[:] = new_mesh.points
-
-                # Update scalars
-                displayed_mesh.point_data[self.frames[0].scalar_name] = new_mesh.point_data[self.frames[i].scalar_name]
-
-                # Notify VTK
-                displayed_mesh.Modified()
-            else:
-                # If the geometry has changed, updates everything
-                self.pv.remove_actor("FieldPlot")
-                self.frames[i]._cached_mesh = self.pv.add_mesh(
-                    new_mesh,
-                    scalars=self.frames[i].scalar_name,
-                    log_scale=False if self.convert_fields_in_db else self.frames[i].log_scale,
-                    scalar_bar_args=sargs,
-                    cmap=self.frames[i].color_map,
-                    clim=[mins, maxs],
-                    show_edges=False,
-                    pickable=True,
-                    smooth_shading=True,
-                    name="FieldPlot",
-                    opacity=self.frames[i].opacity,
-                )
-
-            if not hasattr(self.pv, "ren_win"):  # pragma: no cover
-                break
-            time.sleep(max(0, (1 / self.frame_per_seconds) - (time.time() - start)))
-            start = time.time()
-            if self.off_screen:
-                self.pv.render()
-            else:  # pragma: no cover
-                self.pv.update(1, force_redraw=True)
-            if first_loop:
-                self.pv.write_frame()
-            i += 1
-        self.pv.close()
-        if self.gif_file:
+            animation.save(self.gif_file)
             return self.gif_file
         else:
             return True
