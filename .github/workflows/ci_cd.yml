@@ -14,10 +14,9 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
-  TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
-  TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
   TESTMON_CACHE_KEY_GENERAL_WIN: 'testmondata-general-win'
@@ -28,8 +27,6 @@ env:
   TESTMON_CACHE_KEY_ICEPAK_LINUX: 'testmondata-icepak-linux'
   TESTMON_CACHE_KEY_LAYOUT_WIN: 'testmondata-layout-win'
   TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
-  TESTMON_CACHE_KEY_EXTENSIONS_WIN: 'testmondata-extensions-win'
-  TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
 
@@ -309,21 +306,12 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
-
       - name: Run unit tests
         env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           source .venv/bin/activate
-          xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
+          xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -365,21 +353,12 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
-
       - name: Run integration tests
         env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} tests/integration
+          pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -1159,15 +1138,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -1181,10 +1151,10 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
+          $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
@@ -1237,15 +1207,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -1259,7 +1220,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
+          pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
