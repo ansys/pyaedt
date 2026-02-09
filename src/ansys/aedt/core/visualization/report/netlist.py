@@ -50,18 +50,18 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class CircuitNetlistReport(CommonReport):
-    """pass"""
+    """Provides a reporting class that fits Circuit Netlist reports."""
 
-    def __init__(self, app, report_category, expressions):
-        CommonReport.__init__(self, app, report_category, expressions)
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
     def _did(self):
-        if self.domain == "Sweep":
+        if self.primary_sweep == "Freq" and self.domain == "Sweep":
             return 3
-        elif self.domain == "Time":
+        elif self.primary_sweep == "Time":
             return 1
-        elif self.domain == "Index":
+        elif self.primary_sweep == "Index":
             return 9
 
     @property
@@ -223,7 +223,7 @@ class CircuitNetlistReport(CommonReport):
         return ctxt
 
     @pyaedt_function_handler()
-    def create(self, name=None, solution=None):
+    def create(self, name=None):
         """Create a report.
 
         Parameters
@@ -231,9 +231,6 @@ class CircuitNetlistReport(CommonReport):
         name : str, optional
             Name for the plot. The default is ``None``, in which case the
             default name is used.
-        solution : str, optional
-            Solution type name. If not provided, the first available solution type
-            is used. The default is ``None``.
 
         Returns
         -------
@@ -261,13 +258,10 @@ class CircuitNetlistReport(CommonReport):
             self.plot_name = generate_unique_name("Plot")
         else:
             self.plot_name = name
-        if not solution:
-            if not self._app.post.available_report_solutions()[0]:
-                raise IndexError("No solutions available.")
-            else:
-                self.setup = self._app.post.available_report_solutions()[0]
+        if not self.setup:
+            raise ValueError("A setup must be specified to create a Circuit Netlist report.")
         else:
-            self.setup = CircuitNetlistConstants.solution_types[solution]["name"]
+            self.setup = CircuitNetlistConstants.solution_types[self.setup]["name"]
         self._post.oreportsetup.CreateReport(
             self.plot_name,
             self.report_category,

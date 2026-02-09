@@ -47,7 +47,6 @@ import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
 import ansys.aedt.core.visualization.report.netlist
-from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
 import ansys.aedt.core.visualization.report.standard
 
 if TYPE_CHECKING:
@@ -1415,7 +1414,6 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
-        solution=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
@@ -1424,7 +1422,9 @@ class PostProcessorCommon(PyAedtBase):
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
         setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
+            Setup name with the sweep. The default is ``None``, in which case the first setup and sweep is selected.
+            For Circuit Netlist designs only, specify the solution name as listed in
+            :class:`ansys.aedt.core.generic.aedt_constants.CircuitNetlistConstants`.
         domain : str, optional
             Plot Domain. Options are "Sweep", "Time", "DCIR".
         variations : dict, optional
@@ -1463,14 +1463,6 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        solution : str, optional
-            For Circuit Netlist designs only, specify the solution name to create the report for.
-            Possible values are ``"NexximLNA"`` , ``"NexximDC"`` , ``"NexximTransient"``,
-            ``"NexximVerifEye"``, ``"NexximQuickEye"``, ``"NexximAMI"``, ``"NexximOscillatorRSF"``,
-            ``"NexximOscillator1T"``, ``"NexximOscillatorNT"``, ``"NexximHarmonicBalance1T"``,
-            ``"NexximHarmonicBalanceNT"``, ``"NexximSystem"``, ``"NexximTVNoise"``, ``"HSPICE"``
-            ``"TR"``.
-            The default is ``None``.
 
         Returns
         -------
@@ -1542,7 +1534,7 @@ class PostProcessorCommon(PyAedtBase):
         >>> for quantity in quantities:
         ...     cir.post.create_report(
         ...         expressions=f"dB({quantity})",
-        ...         solution="NexximLNA",
+        ...         setup_sweep_name="NexximLNA",
         ...         plot_type="Rectangular Plot",
         ...         report_category="Noise",
         ...         domain="Sweep",
@@ -1550,6 +1542,14 @@ class PostProcessorCommon(PyAedtBase):
         ...     )
         >>> cir.desktop_class.release_desktop(False, False)
         """
+        if self._app.design_type == "Circuit Netlist" and (
+            not setup_sweep_name or setup_sweep_name not in CircuitNetlistConstants.solution_types
+        ):
+            raise ValueError(
+                f"For Circuit Netlist design, setup_sweep_name should be one of "
+                f"{CircuitNetlistConstants.solution_types.keys()}"
+            )
+
         report = self._get_report_object(
             expressions=expressions,
             setup_sweep_name=setup_sweep_name,
@@ -1563,9 +1563,8 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
-        result = (
-            report.create(plot_name, solution) if isinstance(report, CircuitNetlistReport) else report.create(plot_name)
-        )
+        result = report.create(plot_name)
+
         if result:
             if report.traces:
                 return report
@@ -2715,19 +2714,17 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def circuit_netlist(self, expressions=None, setup=None, domain=None):
+    def circuit_netlist(self, setup, expressions=None, domain=None):
         """Create a Circuit Netlist Report object.
 
         Parameters
         ----------
-        expressions : str or list, optional
-            One or more expressions to add into the report.
-        setup : str, optional
+        setup : str
             Name of the analysis type.
             Specify the name of the analysis as listed
-            in :class:`ansys.aedt.core.generic.aedt_constants.CircuitNetlistConstants` or
-            call the method `available_report_solutions()`.
-            The default value is ``None`` and the first available analysis type is used.
+            in :class:`ansys.aedt.core.generic.aedt_constants.CircuitNetlistConstants`.
+        expressions : str or list, optional
+            One or more expressions to add into the report.
         domain : str, optional
             Domain of the report. The default is ``None``, in which case
             the domain is set to ``"Sweep"`` or ``"Time"`` for transient analysis.
@@ -2752,15 +2749,20 @@ class Reports(PyAedtBase):
         >>> assert new_report.create()
         >>> cir.release_desktop(False, False)
         """
-        if not setup:
-            setup = self._post_app._app.available_report_solutions()[0]
-        else:
-            setup = CircuitNetlistConstants.solution_types[setup]["name"]
-        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(self._post_app, "Standard", expressions)
+        if setup not in CircuitNetlistConstants.solution_types:
+            raise ValueError(
+                f"For Circuit Netlist design, setup_sweep_name should be one of "
+                f"{CircuitNetlistConstants.solution_types.keys()}"
+            )
+
+        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(
+            self._post_app, "Standard", setup, expressions
+        )
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+
         if not domain:
             domain = "Sweep"
-            if setup == "Tran":
+            if setup == "NexximTransient":
                 domain = "Time"
         rep.domain = domain
         return rep

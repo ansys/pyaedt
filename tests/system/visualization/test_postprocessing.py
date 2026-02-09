@@ -931,12 +931,12 @@ def test_m2d_modify_inception_parameters(m2dtest):
 
 
 @pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_DC], indirect=True)
-def test_circuit_netlist_report_DC(circuit_netlist):
+def test_circuit_netlist_report_dc(circuit_netlist):
     solution = circuit_netlist.post.available_report_solutions()[0]
     quantities = circuit_netlist.post.available_report_quantities(solution=solution)
     report = circuit_netlist.post.create_report(
         expressions=f"dB({quantities[0]})",
-        solution="NexximDC",
+        setup_sweep_name="NexximDC",
         plot_type="Data Table",
         primary_sweep_variable="Index",
     )
@@ -946,12 +946,12 @@ def test_circuit_netlist_report_DC(circuit_netlist):
 
 
 @pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_LNA], indirect=True)
-def test_circuit_netlist_report_LNA(circuit_netlist):
+def test_circuit_netlist_report_lna(circuit_netlist):
     solution = CircuitNetlistConstants.solution_types["NexximLNA"]["name"]
     quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
     report = circuit_netlist.post.create_report(
         expressions=f"dB({quantities[0]})",
-        solution="NexximLNA",
+        setup_sweep_name="NexximLNA",
         plot_type="Rectangular Plot",
         domain="Sweep",
         primary_sweep_variable="Freq",
@@ -963,7 +963,7 @@ def test_circuit_netlist_report_LNA(circuit_netlist):
 
 
 @pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_TRAN], indirect=True)
-def test_circuit_netlist_report_TRAN(circuit_netlist):
+def test_circuit_netlist_report_tran(circuit_netlist):
     solution = CircuitNetlistConstants.solution_types["NexximTransient"]["name"]
     quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
     report = circuit_netlist.post.reports_by_category.circuit_netlist(
@@ -973,7 +973,7 @@ def test_circuit_netlist_report_TRAN(circuit_netlist):
     report.time_stop = "10us"
     assert report.create()
     report = circuit_netlist.post.create_report(
-        expressions=f"{quantities[0]}", primary_sweep_variable="Time", solution="NexximTransient", domain="Time"
+        expressions=f"{quantities[0]}", primary_sweep_variable="Time", setup_sweep_name="NexximTransient", domain="Time"
     )
     assert report.expressions == [f"{quantities[0]}"]
     assert report.primary_sweep == "Time"
@@ -982,8 +982,8 @@ def test_circuit_netlist_report_TRAN(circuit_netlist):
 
 
 @pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_INVALID], indirect=True)
-def test_circuit_netlist_report_INVALID(circuit_netlist):
-    with pytest.raises(IndexError):
+def test_circuit_netlist_report_invalid(circuit_netlist):
+    with pytest.raises(ValueError):
         circuit_netlist.post.create_report(
             expressions="V(Out)",
             report_category="Standard",
