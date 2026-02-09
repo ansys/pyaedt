@@ -918,8 +918,8 @@ jobs:
 
       - name: Prepare testmon data for caching
         run: |
-            source .venv/bin/activate
-            python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Delete old testmon caches
         shell: bash
