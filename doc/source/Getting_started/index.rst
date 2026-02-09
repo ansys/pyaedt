@@ -44,14 +44,14 @@ Getting started
             :margin: 2 2 0 0
 
             Discover the compatibility between PyAEDT and Ansys AEDT versions.
-    
+
    .. grid-item-card:: Contributing
             :link: Contributing
             :link-type: doc
             :margin: 2 2 0 0
 
             Learn how to contribute to the PyAEDT project.
-    
+
    .. grid-item-card:: Developer notes
             :link: Developer_notes
             :link-type: doc
