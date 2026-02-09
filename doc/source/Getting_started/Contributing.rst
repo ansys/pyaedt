@@ -573,7 +573,7 @@ For Testmon to work correctly, the following requirements must be met:
 - **No pytest markers for test selection**: Testmon relies on analyzing code dependencies to determine which tests to run.
   Using pytest markers (for example, ``-m "solvers"``) forces Testmon to run with `--testmon-noselect` argument and leads to all tests being run, negating the benefits of selective testing. Instead, the way to select specific test suites is by providing the path to the test files (for example, ``pytest tests/solvers``).
 
-If you want to learn more details about this implementation, check our `.github/workflows` files.
+If you want to learn more details about this implementation, check `.github/workflows` files inside the repository.
 
 Testmon workflow during pull requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
