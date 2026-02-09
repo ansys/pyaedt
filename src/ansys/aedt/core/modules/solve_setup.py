@@ -3079,7 +3079,9 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+    def enable_adaptive_setup_broadband(
+        self, low_frequency: float | str, high_frequency: float | str, max_passes: int = 6, max_delta_s: float = 0.02
+    ) -> bool:
         """Enable HFSS broadband setup.
 
         Parameters
@@ -3087,7 +3089,7 @@ class SetupHFSS(Setup, PyAedtBase):
         low_frequency : float, str
             Lower Frequency at which set the adaptive convergence.
             It can be float (GHz) or str.
-        high_frquency : float, str
+        high_frequency : float, str
             Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
         max_passes : int, optional
             Maximum number of adaptive passes. The default is ``6``.
@@ -3108,10 +3110,10 @@ class SetupHFSS(Setup, PyAedtBase):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         if isinstance(low_frequency, (int, float)):
             low_frequency = f"{low_frequency}GHz"
-        if isinstance(high_frquency, (int, float)):
-            high_frquency = f"{high_frquency}GHz"
+        if isinstance(high_frequency, (int, float)):
+            high_frequency = f"{high_frequency}GHz"
         self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
         self.props["MaximumPasses"] = max_passes
         self.props["MaxDeltaS"] = max_delta_s
         self.auto_update = True
@@ -3458,7 +3460,9 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frequency, max_passes=6, max_delta_s=0.02):
+    def enable_adaptive_setup_broadband(
+        self, low_frequency: float | str, high_frequency: float | str, max_passes: int = 6, max_delta_s: float = 0.02
+    ) -> bool:
         """Enable HFSS broadband setup.
 
         Parameters
