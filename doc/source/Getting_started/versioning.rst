@@ -33,6 +33,7 @@ gRPC interface for EDB
 ----------------------
 
 Starting with AEDT 2025 R2, PyEDB supports gRPC connections for database access.
+By default, gRPC is enabled from 2026R1.
 This can be enabled using the settings:
 
 .. code:: python

@@ -109,11 +109,11 @@ def Edb(
     """
     from pyedb import Edb
 
-    if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
+    if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":  # pragma: no cover
         settings.pyedb_use_grpc = True
 
-    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
-    grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"
+    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version > "2025.2" else False  # pragma: no cover
+    grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"  # pragma: no cover
     settings.logger.info(f"Loading EDB with {grpc_enabled}.")
 
     return Edb(
