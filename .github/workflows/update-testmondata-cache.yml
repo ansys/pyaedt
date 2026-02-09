@@ -16,10 +16,9 @@ env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   ON_CI: True
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
-  TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
-  TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
   TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
   TESTMON_CACHE_KEY_GENERAL_WIN: 'testmondata-general-win'
@@ -30,8 +29,6 @@ env:
   TESTMON_CACHE_KEY_ICEPAK_LINUX: 'testmondata-icepak-linux'
   TESTMON_CACHE_KEY_LAYOUT_WIN: 'testmondata-layout-win'
   TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
-  TESTMON_CACHE_KEY_EXTENSIONS_WIN: 'testmondata-extensions-win'
-  TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
 
@@ -144,27 +141,10 @@ jobs:
 
       - name: Run unit tests
         env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           source .venv/bin/activate
-          xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
-
-      - name: Prepare testmon data for caching
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}-main-${{ github.sha }}
+          xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
   # ------------------------------------------------------------------
   # INTEGRATION TESTS CACHE UPDATE (LINUX)
@@ -206,6 +186,7 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
 
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -214,27 +195,11 @@ jobs:
 
       - name: Run integration tests
         env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} tests/integration
+          pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
-      - name: Prepare testmon data for caching
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}-main-${{ github.sha }}
 
   # ------------------------------------------------------------------
   # SOLVERS TESTS CACHE UPDATE (WINDOWS)
@@ -1056,32 +1021,15 @@ jobs:
             kill -9 "$pid"
           done
 
+
       - name: Run tests marked with 'layout'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
+          pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/layout
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
 
   # ------------------------------------------------------------------
   # EXTENSIONS TESTS CACHE UPDATE (WINDOWS)
@@ -1145,30 +1093,12 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           PYTHONMALLOC: malloc
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+          PYTEST_ARGUMENTS_NON_TESTMON: ${{ env.PYTEST_ARGUMENTS_NON_TESTMON }}
         run: |
           .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
+          $args = $env:PYTEST_ARGUMENTS_NON_TESTMON -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}-main-${{ github.sha }}
 
   # ------------------------------------------------------------------
   # EXTENSIONS TESTS CACHE UPDATE (LINUX)
