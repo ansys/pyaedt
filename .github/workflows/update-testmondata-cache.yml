@@ -81,11 +81,10 @@ jobs:
           fi
           python .ci/scripts/analyze_changes.py --base "$BASE_REF"
 
-      - name: Exit when tests are skipped
+      - name: Log skip status
         if: ${{ steps.analyze.outputs.skip_tests == 'true' }}
         run: |
-          echo "skip_tests=true; stopping workflow."
-          exit 1
+          echo "Tests will be skipped - no relevant code changes detected."
 
 
   # ------------------------------------------------------------------
@@ -94,6 +93,7 @@ jobs:
   update-solvers-win:
     name: Update solvers test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -178,6 +178,7 @@ jobs:
   update-solvers-linux:
     name: Update solvers test cache (Linux)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -261,6 +262,7 @@ jobs:
   update-general-win:
     name: Update general test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -348,6 +350,7 @@ jobs:
   update-general-linux:
     name: Update general test cache (Linux)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -433,6 +436,7 @@ jobs:
   update-visualization-win:
     name: Update visualization test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -521,6 +525,7 @@ jobs:
   update-visualization-linux:
     name: Update visualization test cache (Linux)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -607,6 +612,7 @@ jobs:
   update-icepak-win:
     name: Update icepak test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -691,6 +697,7 @@ jobs:
   update-icepak-linux:
     name: Update icepak test cache (Linux)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -774,6 +781,7 @@ jobs:
   update-layout-win:
     name: Update layout test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -858,6 +866,7 @@ jobs:
   update-layout-linux:
     name: Update layout test cache (Linux)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -941,6 +950,7 @@ jobs:
   update-filter-win:
     name: Update filter test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1025,6 +1035,7 @@ jobs:
   update-emit-win:
     name: Update emit test cache (Windows)
     needs: [check-reference, analyze-changes]
+    if: ${{ needs.analyze-changes.outputs.skip_tests != 'true' }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
