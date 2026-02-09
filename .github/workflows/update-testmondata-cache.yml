@@ -1020,7 +1020,6 @@ jobs:
             kill -9 "$pid"
           done
 
-
       - name: Run tests marked with 'layout'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
