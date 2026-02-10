@@ -519,6 +519,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
         elif bound_type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
+        elif bound_type == "SurfaceGround":
+            self._app.oboundary.AssignSingleSurfaceGround(self._get_args())
         elif bound_type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
         elif bound_type == "Lumped Port":

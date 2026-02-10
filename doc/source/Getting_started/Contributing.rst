@@ -534,3 +534,201 @@ To replicate the CI/CD environment locally, set this environment variable on you
 .. code:: bash
 
   export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+
+Testmon in CI/CD
+----------------
+
+This section explains how PyAEDT uses `Testmon <https://testmon.org/>`_ to optimize test execution
+in the CI/CD pipeline by only running tests affected by code changes.
+
+What is Testmon?
+~~~~~~~~~~~~~~~~
+
+Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
+dependency information in a database file (``.testmondata``). On subsequent test runs, Testmon analyzes
+which files have changed and selectively runs only the tests that depend on the modified code.
+
+**Key benefits:**
+
+- **Faster CI pipelines**: Only tests affected by changes are executed, significantly reducing test runtime.
+- **Resource efficiency**: Reduces computational costs on self-hosted runners and GitHub Actions.
+- **Immediate feedback**: Developers get quicker feedback on their changes.
+
+**How it works:**
+
+1. Testmon creates a dependency graph mapping each test to the source files it uses.
+2. When code changes, Testmon compares the current state against the cached dependency data.
+3. Only tests with dependencies on changed files are selected for execution.
+4. The dependency database is cached between runs to maintain history.
+
+**Requirements and constraints:**
+
+For Testmon to work correctly, the following requirements must be met:
+
+- **Dependency consistency**: The Testmon cache must be built and used with the **exact same dependency versions**.
+  If the environment changes (for example, package updates, different Python versions), the cache becomes invalid and must
+  be regenerated. The CI/CD pipeline enforces this by using locked dependency files and consistent environments.
+
+- **No pytest markers for test selection**: Testmon relies on analyzing code dependencies to determine which tests to run.
+  Using pytest markers (for example, ``-m "solvers"``) forces Testmon to run with `--testmon-noselect` argument and leads to all tests being run, negating the benefits of selective testing. Instead, the way to select specific test suites is by providing the path to the test files (for example, ``pytest tests/solvers``).
+
+If you want to learn more details about this implementation, check `.github/workflows` files inside the repository.
+
+Testmon workflow during pull requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a pull request is created or updated, the CI/CD pipeline executes the following workflow:
+
+1. **Wait for cache update (if needed)**: Before running tests, the workflow checks if the
+  ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the pull request's base commit.
+  If so, the PR workflow waits for it to complete to ensure it uses the most
+  up-to-date cache data.
+
+2. **Restore Testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.
+  The cache key includes:
+
+  - The test suite identifier (for example, ``testmondata-unit-linux``).
+  - The branch name (``main``).
+  - The latest successful commit SHA (unique identifier of a commit) on ``main``.
+
+3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs Testmon to:
+
+  - Analyze which source files have changed compared to the cached state.
+  - Select only tests that depend on the changed files.
+  - Execute the selected tests.
+
+4. **Report results**: Test results and coverage are uploaded as artifacts without modifying the cache
+  (only the ``main`` branch can update the shared cache).
+
+.. note::
+
+  The PR workflow does **not** update the shared Testmon cache. This ensures that all PRs work from
+  a consistent baseline derived from the ``main`` branch.
+
+Testmon workflow during merge to main
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a pull request is merged to the ``main`` branch, the ``update-testmondata-cache.yml`` workflow triggers automatically:
+
+1. **Run all affected tests**: The workflow runs tests with Testmon to update the dependency data based on the newly merged code.
+
+2. **Delete old cache entries**: Before saving, old cache entries for the same test suite are deleted to prevent cache accumulation.
+
+3. **Save updated cache**: The updated ``.testmondata`` file is saved to GitHub Actions cache with a key that includes:
+
+- The test suite identifier (for example, `testmondata-unit-linux`).
+- The branch name (``main``).
+- The commit SHA.
+
+4. **Cache available for PRs**: The new cache becomes the baseline for all subsequent pull requests.
+
+Each test suite maintains its own separate cache:
+
+- ``testmondata-unit-linux``: Unit tests on Linux.
+- ``testmondata-integration-linux``: Integration tests on Linux.
+- ``testmondata-solvers-win``: Solver tests on Windows.
+- ``testmondata-solvers-linux``: Solver tests on Linux.
+- And other test suites (general, visualization, icepak, layout, extensions, filter, emit).
+
+.. note::
+
+   For detailed information about edge cases, keeping PRs updated, and tracking coverage locally,
+   see :ref:`developer_notes`.
+
+Workflow diagrams
+~~~~~~~~~~~~~~~~~
+
+The following diagrams illustrate the Testmon workflow in the CI/CD pipeline.
+
+**Diagram 1: PR workflow with Testmon**
+
+This diagram shows how the CI/CD pipeline handles a pull request with Testmon integration,
+including the cache waiting mechanism and selective test execution.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: PR Workflow with Testmon
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: PR Workflow with Testmon
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :alt: PR Workflow with Testmon
+
+**Diagram 2: Merge to main workflow**
+
+This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
+cache update workflow is triggered.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Merge to Main Cache Update Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: Merge to Main Cache Update Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :alt: Merge to Main Cache Update Workflow
+
+**Diagram 3: Multiple concurrent PRs**
+
+This diagram shows how multiple PRs can run concurrently, each restoring from the same
+baseline cache without interfering with each other.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Multiple Concurrent PRs Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :class: only-light
+      :alt: Multiple Concurrent PRs Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :alt: Multiple Concurrent PRs Workflow
+
+**Diagram 4: Cache update blocking scenario**
+
+This sequence diagram shows the timeline when a PR workflow starts while the cache update
+workflow is running, demonstrating the waiting and retry mechanism.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Cache Update Blocking Scenario
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :class: only-light
+      :alt: Cache Update Blocking Scenario
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :alt: Cache Update Blocking Scenario

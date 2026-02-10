@@ -26,6 +26,7 @@
 
 from pathlib import Path
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -46,6 +47,9 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
@@ -2506,9 +2510,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_single_conductor(
         self,
-        assignment: list,
+        assignment: "list[Object3d] | Object3d",
         name: str | None = "",
-        conductor_type: str = "SignalLine",
+        conductor_type: str | None = "SignalLine",
         solve_option: str | None = "SolveInside",
         thickness: float | None = None,
         units: str | None = "um",
@@ -2518,13 +2522,13 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of Object3D.
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
-        conductor_type : str
-            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"``. The default is
-            ``"SignalLine"``.
+        conductor_type : str, optional
+            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"`` and ``"SurfaceGround"``.
+            The default is ``"SignalLine"``.
         solve_option : str, optional
             Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
             The default is ``"SolveInside"``.
@@ -2544,6 +2548,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
+        >>> oModule.AssignSingleSurfaceGround
         """
         if not name:
             name = generate_unique_name(name)
