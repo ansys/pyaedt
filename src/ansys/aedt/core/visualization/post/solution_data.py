@@ -177,6 +177,8 @@ class SolutionData(PyAedtBase):
                 intr = [i for i in self._sweeps_names if i not in variation.GetDesignVariableNames()]
                 for el in intr:
                     values = np.array(variation.GetSweepValues(el, False), dtype=float)
+                    if len(intr) > 1:
+                        values = np.unique(values)
                     new_intrinsic[el] = values
                     if first:
                         try:
