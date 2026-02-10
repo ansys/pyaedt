@@ -3461,7 +3461,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(
-        self, low_frequency: float | str, high_frequency: float | str, max_passes: int = 6, max_delta_s: float = 0.02
+        self, low_frequency: float | str, high_frequency: float | str, max_passes: int | None = 6, max_delta_s: float | None = 0.02
     ) -> bool:
         """Enable HFSS broadband setup.
 
