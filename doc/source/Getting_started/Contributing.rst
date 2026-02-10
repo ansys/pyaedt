@@ -46,24 +46,25 @@ Code style
 PyAEDT complies with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_.
 `pre-commit <https://pre-commit.com/>`_ is applied within the CI/CD to ensure compliance.
-The ``pre-commit`` Python package can be installed
-and run as follows:
+However, for local development, you might want to use `prek <https://prek.j178.dev/>`_
+which is a drop-in alternative to ``pre-commit`` that is faster and more efficient in
+disk space usage. The ``prek`` Python package can be installed and run as follows:
 
 .. code:: bash
 
-  pip install pre-commit
-  pre-commit run --all-files
+  pip install prek
+  prek run --all-files
 
-You can also install this as a pre-commit hook with:
+You can also install this as a prek hook with:
 
 .. code:: bash
 
-  pre-commit install
+  prek install
 
 This way, it's not possible for you to push code that fails the style checks.
 For example::
 
-  $ pre-commit install
+  $ prek install
   $ git commit -am "Add my cool feature."
   black....................................................................Passed
   isort (python)...........................................................Passed
