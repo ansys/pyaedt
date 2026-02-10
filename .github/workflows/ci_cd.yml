@@ -404,8 +404,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -479,8 +479,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -551,8 +551,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -629,8 +629,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -702,8 +702,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -781,8 +781,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -849,8 +849,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -924,8 +924,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -993,8 +993,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1066,8 +1066,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1266,8 +1266,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1338,8 +1338,8 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-#      - name: Wait for master cache update
-#        uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
