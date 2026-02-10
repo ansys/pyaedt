@@ -262,7 +262,8 @@ def test_tmp_dir(file_tmp_root, request):
     if d.exists():
         shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True, exist_ok=True)
-    return d
+    yield d
+    shutil.rmtree(d, ignore_errors=True)
 
 
 @pytest.fixture
