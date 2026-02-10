@@ -2468,7 +2468,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         name: str | None = "",
         conductor_type: str | None = "SignalLine",
         solve_option: str | None = "SolveInside",
-        thickness: Optional[float] | None,
+        thickness: float | None = None,
         units: str | None = "um",
     ) -> BoundaryObject:
         """
