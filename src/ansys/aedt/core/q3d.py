@@ -2465,7 +2465,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_single_conductor(
         self,
-        assignment: Union[List["Object3d"], "Object3d"],
+        assignment: list[Object3d] | Object3d,
         name: str = "",
         conductor_type: str = "SignalLine",
         solve_option: str = "SolveInside",
