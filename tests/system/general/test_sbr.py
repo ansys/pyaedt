@@ -74,7 +74,7 @@ def aedt_sbr(add_app):
         solution_type="SBR+",
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    app.close_project(save=False)
 
 
 def test_open_source(aedt_app, add_app):
@@ -294,6 +294,8 @@ def test_create_custom_array(aedt_sbr):
 
 @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
 def test_read_hdm(aedt_sbr, test_tmp_dir):
+    aedt_sbr.save_project()
+
     hdm_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "freighter_rays.hdm"
     hdm_local = shutil.copy2(hdm_path, test_tmp_dir / "freighter_rays.hdm")
 
@@ -302,6 +304,7 @@ def test_read_hdm(aedt_sbr, test_tmp_dir):
 
     aedt_sbr.modeler.model_units = "meter"
     aedt_sbr.modeler.import_3d_cad(str(stl_local))
+
     assert aedt_sbr.parse_hdm_file(str(hdm_local))
     plotter = aedt_sbr.get_hdm_plotter(str(hdm_path))
     assert plotter

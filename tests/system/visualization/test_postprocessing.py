@@ -30,12 +30,14 @@ import pandas as pd
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -57,6 +59,10 @@ TEST_EMI_NAME = "EMI_RCV_251"
 IPK_POST_PROJ = "for_icepak_post_parasolid"
 IPK_MARKERS_PROJ = "ipk_markers"
 TB_SPECTRAL = "TB_excitation_model"
+CIRCUIT_NETLIST_DC = "circuit_netlist_DC"
+CIRCUIT_NETLIST_LNA = "circuit_netlist_LNA"
+CIRCUIT_NETLIST_TRAN = "circuit_netlist_TRAN"
+CIRCUIT_NETLIST_INVALID = "circuit_netlist_invalid"
 
 TEST_SUBFOLDER = "T12"
 
@@ -155,6 +161,13 @@ def m3d_app(add_app_example):
 @pytest.fixture()
 def tb_app(add_app_example):
     app = add_app_example(project=TB_SPECTRAL, application=TwinBuilder, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def circuit_netlist(request, add_app_example):
+    app = add_app_example(project=request.param, application=CircuitNetlist, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -915,3 +928,65 @@ def test_m2d_modify_inception_parameters(m2dtest):
     m2dtest.solution_type = "Magnetostatic"
     with pytest.raises(AEDTRuntimeError):
         m2dtest.post.modify_inception_parameters("my_plot", file_path, [1, 2, 4])
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_DC], indirect=True)
+def test_circuit_netlist_report_dc(circuit_netlist):
+    solution = circuit_netlist.post.available_report_solutions()[0]
+    quantities = circuit_netlist.post.available_report_quantities(solution=solution)
+    report = circuit_netlist.post.create_report(
+        expressions=f"dB({quantities[0]})",
+        setup_sweep_name="NexximDC",
+        plot_type="Data Table",
+        primary_sweep_variable="Index",
+    )
+    assert report.expressions == [f"dB({quantities[0]})"]
+    assert report.primary_sweep == "Index"
+    assert report.report_type == "Data Table"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_LNA], indirect=True)
+def test_circuit_netlist_report_lna(circuit_netlist):
+    solution = CircuitNetlistConstants.solution_types["NexximLNA"]["name"]
+    quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
+    report = circuit_netlist.post.create_report(
+        expressions=f"dB({quantities[0]})",
+        setup_sweep_name="NexximLNA",
+        plot_type="Rectangular Plot",
+        domain="Sweep",
+        primary_sweep_variable="Freq",
+    )
+    assert report.domain == "Sweep"
+    assert report.expressions == [f"dB({quantities[0]})"]
+    assert report.primary_sweep == "Freq"
+    assert report.report_type == "Rectangular Plot"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_TRAN], indirect=True)
+def test_circuit_netlist_report_tran(circuit_netlist):
+    solution = CircuitNetlistConstants.solution_types["NexximTransient"]["name"]
+    quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
+    report = circuit_netlist.post.reports_by_category.circuit_netlist(
+        expressions=f"{quantities[0]}", setup="NexximTransient"
+    )
+    report.time_start = "0us"
+    report.time_stop = "10us"
+    assert report.create()
+    report = circuit_netlist.post.create_report(
+        expressions=f"{quantities[0]}", primary_sweep_variable="Time", setup_sweep_name="NexximTransient", domain="Time"
+    )
+    assert report.expressions == [f"{quantities[0]}"]
+    assert report.primary_sweep == "Time"
+    assert report.report_type == "Rectangular Plot"
+    assert report.domain == "Time"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_INVALID], indirect=True)
+def test_circuit_netlist_report_invalid(circuit_netlist):
+    with pytest.raises(ValueError):
+        circuit_netlist.post.create_report(
+            expressions="V(Out)",
+            report_category="Standard",
+            plot_type="Rectangular Plot",
+            primary_sweep_variable="Freq",
+        )
