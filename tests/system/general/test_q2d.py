@@ -101,7 +101,6 @@ def test_assign_single_signal_line(aedt_app):
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
 
 
-
 def test_assign_surface_ground(aedt_app):
     # Set the solution type to "Closed" for this test
     aedt_app.solution_type = "Closed"
