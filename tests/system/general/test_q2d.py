@@ -101,24 +101,17 @@ def test_assign_single_signal_line(aedt_app):
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
 
 
-@pytest.fixture
-def aedtapp_closed(add_app):
-    """Q2d applies surface ground for open solution type so here is for closed solution type."""
-    app = add_app(application=Q2d, solution_type="Closed")
-    yield app
-    app.close_project(app.project_name, save=False)
 
-
-def test_assign_surface_ground(aedtapp_closed):
-    region = aedtapp_closed.modeler.create_region(
+def test_assign_surface_ground(aedt_app):
+    # Set the solution type to "Closed" for this test
+    aedt_app.solution_type = "Closed"
+    region = aedt_app.modeler.create_region(
         pad_value=[100, 100, 100, 100], pad_type="Percentage Offset", name="VacuumRegion"
     )
-    assert aedtapp_closed.assign_single_conductor(
+    assert aedt_app.assign_single_conductor(
         assignment=region,
-        name="",
         conductor_type="SurfaceGround",
         solve_option="SolveInside",
-        thickness="",
     )
 
 

@@ -2479,7 +2479,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
         conductor_type : str
-            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"``. The default is
+            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"`` and ``"SurfaceGround"``. The default is
             ``"SignalLine"``.
         solve_option : str, optional
             Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
@@ -2500,6 +2500,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
+        >>> oModule.AssignSingleSurfaceGround
         """
         if not name:
             name = generate_unique_name(name)
