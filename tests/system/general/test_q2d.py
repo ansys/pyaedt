@@ -96,20 +96,12 @@ def test_add_sweep(aedt_app):
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
 
-@pytest.fixture
-def aedtapp_closed(add_app):
-    """Fixture for Q2D app with closed solution type.
 
-    No sweeps can be added in closed solution type.
-    """
-    app = add_app(application=Q2d, solution_type="Closed")
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-def test_add_sweep_closed(aedtapp_closed):
+def test_add_sweep_closed(aedt_app):
+    # Set the solution type to "Closed" for this test
+    aedt_app.solution_type = "Closed"
     """Test sweep creation in closed solution type Q2D."""
-    setup = aedtapp_closed.create_setup()
+    setup = aedt_app.create_setup()
     setup.props["SaveFields"] = True
     assert setup.update()
     sweep = setup.add_sweep("Q2D_Sweep_Closed")
