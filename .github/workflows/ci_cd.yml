@@ -55,6 +55,7 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
+          use-prek: true
 
   testing-pre-commit:
     name: Testing pre-commit
@@ -63,7 +64,8 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check code style
-        uses: ansys/actions/code-style@main
+        uses: ansys/actions/code-style@refactor/use-prek-as-pre-commit-alternative
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
+          use-prek: false
