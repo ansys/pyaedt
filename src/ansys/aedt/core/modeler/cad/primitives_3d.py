@@ -294,8 +294,16 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_polyhedron(self, orientation=None, center=(0.0, 0.0, 0.0), origin=(0.0, 1.0, 0.0),
-                          height: float=1.0, num_sides: int=12, name: str | None=None, material: str | None=None, **kwargs):  # fmt: on
+    def create_polyhedron(
+        self,
+        orientation=None,
+        center=(0.0, 0.0, 0.0),
+        origin=(0.0, 1.0, 0.0),
+        height: float=1.0,
+        num_sides: int=12,
+        name: str | None=None,
+        material: str | None=None,
+        **kwargs):  # fmt: on
         """Create a regular polyhedron.
 
         Parameters
@@ -375,7 +383,17 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cone(self, orientation, origin, bottom_radius, top_radius, height, name: str | None=None, material: str | None=None, **kwargs):
+    def create_cone(
+        self,
+        orientation,
+        origin,
+        bottom_radius,
+        top_radius,
+        height,
+        name: str | None=None,
+        material: str | None=None,
+        **kwargs
+    ):
         """Create a cone.
 
         Parameters
@@ -519,7 +537,16 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_torus(self, origin, major_radius, minor_radius, axis=None, name: str | None=None, material: str | None=None, **kwargs):
+    def create_torus(
+        self,
+        origin,
+        major_radius,
+        minor_radius,
+        axis=None,
+        name: str | None=None,
+        material: str | None=None,
+        **kwargs
+    ):
         """Create a torus.
 
         Parameters
@@ -593,10 +620,23 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
-    # fmt: off
     @pyaedt_function_handler()
-    def create_bondwire(self, start, end, h1: float=0.2, h2: int=0, alpha: int=80, beta: int=5, bond_type: int=0,
-                        diameter: float=0.025, facets: int=6, name: str | None=None, material: str | None=None, orientation: str="Z", **kwargs):  # fmt: on
+    def create_bondwire(
+        self,
+        start,
+        end,
+        h1: float=0.2,
+        h2: int=0,
+        alpha: int=80,
+        beta: int=5,
+        bond_type: int=0,
+        diameter: float=0.025,
+        facets: int=6,
+        name: str | None=None,
+        material: str | None=None,
+        orientation: str="Z",
+        **kwargs
+    ):
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
@@ -983,11 +1023,25 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         new_object_name = self.oeditor.CreateEllipse(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
-    # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_curve(self, x_t: int=0, y_t: int=0, z_t: int=0, t_start: int=0, t_end: int=1, num_points: int=0, name: str | None=None,
-                                   xsection_type=None, xsection_orient=None, xsection_width: int=1, xsection_topwidth: int=1,
-                                   xsection_height: int=1, xsection_num_seg: int=0, xsection_bend_type=None, **kwargs):  # fmt: on
+    def create_equationbased_curve(
+        self,
+        x_t: int=0,
+        y_t: int=0,
+        z_t: int=0,
+        t_start: int=0,
+        t_end: int=1,
+        num_points: int=0,
+        name: str | None=None,
+        xsection_type=None,
+        xsection_orient=None,
+        xsection_width: int=1,
+        xsection_topwidth: int=1,
+        xsection_height: int=1,
+        xsection_num_seg: int=0,
+        xsection_bend_type=None,
+        **kwargs
+    ):
         """Create an equation-based curve.
 
         Parameters
@@ -1101,10 +1155,19 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         new_name = self.oeditor.CreateEquationCurve(arg_1, arg_2)
         return self._create_object(new_name, **kwargs)
 
-    # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_surface(self, x_uv: int=0, y_uv: int=0, z_uv: int=0, u_start: int=0, u_end: int=1, v_start: int=0, v_end: int=1,
-                                     name: str | None=None, **kwargs):  # fmt: on
+    def create_equationbased_surface(
+        self,
+        x_uv: int=0,
+        y_uv: int=0,
+        z_uv: int=0,
+        u_start: int=0,
+        u_end: int=1,
+        v_start: int=0,
+        v_end: int=1,
+        name: str | None=None,
+        **kwargs
+    ):
         """Create an equation-based surface.
 
         Parameters
@@ -1345,10 +1408,20 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         else:
             return False
 
-    # fmt: off
     @pyaedt_function_handler()
-    def create_spiral(self, internal_radius: int=10, spacing: int=1, faces: int=8, turns: int=10, width: int=2, thickness: int=1, elevation: int=0,
-                      material: str="copper", name: str | None=None, **kwargs):  # fmt: on
+    def create_spiral(
+        self,
+        internal_radius: int=10,
+        spacing: int=1,
+        faces: int=8,
+        turns: int=10,
+        width: int=2,
+        thickness: int=1,
+        elevation: int=0,
+        material: str="copper",
+        name: str | None=None,
+        **kwargs
+    ):
         """Create a spiral inductor from a polyline.
 
         Parameters
@@ -2790,7 +2863,19 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return returned_list
 
     @pyaedt_function_handler()
-    def _make_winding(self, name: str, material: str, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer):
+    def _make_winding(
+        self,
+        name: str,
+        material: str,
+        in_rad,
+        out_rad,
+        height,
+        port_line,
+        teta,
+        turns,
+        chamf,
+        sep_layer,
+    ):
         import math
 
         teta_r = radians(teta)

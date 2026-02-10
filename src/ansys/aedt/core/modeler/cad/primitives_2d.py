@@ -106,7 +106,11 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         --------
         >>> circle1 = aedtapp.modeler.create_circle([0, -2, -2], 3)
         >>> circle2 = aedtapp.modeler.create_circle(
-        ...     origin=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", material="Copper"
+        ...     origin=[0, -2, -2],
+        ...     radius=3,
+        ...     num_sides=6,
+        ...     name="MyCircle",
+        ...     material="Copper",
         ... )
 
 
@@ -132,7 +136,11 @@ class Primitives2D(GeometryModeler, PyAedtBase):
             "NumSegments:=",
             f"{num_sides}",
         ]
-        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        arg_2 = self._default_object_attributes(
+            name=name,
+            material=material,
+            flags="NonModel#" if non_model else "",
+        )
         new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -212,7 +220,15 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, is_covered: bool=True, name: str | None=None, material: str | None=None, non_model: bool=False, **kwargs):
+    def create_rectangle(
+        self,
+        origin,
+        sizes,
+        is_covered: bool=True,
+        name: str | None=None,
+        material: str | None=None,
+        non_model: bool=False,
+        **kwargs):
         """Create a rectangle.
 
         Parameters
@@ -270,7 +286,14 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides: int=6, name: str | None=None, material: str | None=None, non_model: bool=False, **kwargs
+        self,
+        origin,
+        start_point,
+        num_sides: int=6,
+        name: str | None=None,
+        material: str | None=None,
+        non_model: bool=False,
+        **kwargs
     ):
         """Create a rectangle.
 
