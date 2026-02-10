@@ -53,8 +53,11 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -2662,9 +2665,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         if boundary_type == "Matrix":
             bound = MaxwellMatrix(self, name, props, schema=schema)
-        else:
-            # Maxwell parameters Force and Torque
-            bound = MaxwellParameters(self, name, props, boundary_type)
+        elif boundary_type == "Force":
+            bound = MaxwellForce(self, name, props)
+        elif boundary_type == "Torque":
+            bound = MaxwellTorque(self, name, props)
+        elif boundary_type == "LayoutForce":
+            bound = MaxwellLayoutForce(self, name, props)
+
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound
