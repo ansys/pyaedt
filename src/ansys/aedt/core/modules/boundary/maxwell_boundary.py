@@ -701,3 +701,27 @@ class MaxwellReducedMatrixOperation:
         self.reduced_matrix = reduced_matrix
         self.name = name
         self.sources = sources
+
+
+class MaxwellForce(MaxwellParameters):
+    """Initialize Maxwell force."""
+
+    def __init__(self, app, name, props=None):
+        super().__init__(app, name, props=props, boundarytype="Force")
+        self._app = app
+
+
+class MaxwellTorque(MaxwellParameters):
+    """Initialize Maxwell torque."""
+
+    def __init__(self, app, name, props=None):
+        super().__init__(app, name, props=props, boundarytype="Torque")
+        self._app = app
+
+
+class MaxwellLayoutForce(MaxwellParameters):
+    """Initialize Maxwell layout force."""
+
+    def __init__(self, app, name, props=None):
+        super().__init__(app, name, props=props, boundarytype="LayoutForce")
+        self._app = app
