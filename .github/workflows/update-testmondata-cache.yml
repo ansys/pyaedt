@@ -101,6 +101,7 @@ jobs:
 
           if [ $failed_cancellations -gt 0 ]; then
             echo "::warning::$failed_cancellations workflow(s) could not be canceled"
+            echo "You may want to delete them manually, see https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#delete-a-workflow-run"
           fi
 
           echo "All cancelable PR workflows have been processed"
