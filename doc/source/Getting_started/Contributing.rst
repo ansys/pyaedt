@@ -55,7 +55,7 @@ disk space usage. The ``prek`` Python package can be installed and run as follow
   pip install prek
   prek run --all-files
 
-You can also install this as a pre commit hook with:
+You can also install this as a prek hook with:
 
 .. code:: bash
 
