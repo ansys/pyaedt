@@ -44,7 +44,10 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -383,6 +386,7 @@ def test_create_udm(m3d_app):
 def test_assign_torque(m3d_app):
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     torque = m3d_app.assign_torque(coil)
+    assert isinstance(torque, MaxwellTorque)
     assert torque.type == "Torque"
     assert torque.props["Objects"][0] == "Coil"
     assert torque.props["Is Positive"]
@@ -393,11 +397,15 @@ def test_assign_torque(m3d_app):
     torque = m3d_app.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
     assert not torque.props["Is Positive"]
     assert torque.name == "Torque_Test"
+    m3d_app.solution_type = SolutionsMaxwell3D.ACConduction
+    with pytest.raises(AEDTRuntimeError):
+        m3d_app.assign_torque(coil)
 
 
 def test_assign_force(m3d_app):
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     force = m3d_app.assign_force(coil)
+    assert isinstance(force, MaxwellForce)
     assert force.type == "Force"
     assert force.props["Objects"][0] == "Coil"
     assert force.props["Reference CS"] == "Global"
@@ -406,6 +414,9 @@ def test_assign_force(m3d_app):
     force = m3d_app.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
     assert force.name == "Force_Test"
     assert not force.props["Is Virtual"]
+    m3d_app.solution_type = SolutionsMaxwell3D.ACConduction
+    with pytest.raises(AEDTRuntimeError):
+        m3d_app.assign_torque(coil)
 
 
 def test_assign_translate_motion(m3d_app, maxwell_versioned):
@@ -1110,7 +1121,9 @@ def test_assign_layout_force(layout_comp):
         "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
         "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
     }
-    assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
+    layout_force = layout_comp.assign_layout_force(nets_layers, "LC1_1")
+    assert layout_force
+    assert isinstance(layout_force, MaxwellLayoutForce)
     with pytest.raises(AEDTRuntimeError, match="Provided component name doesn't exist in current design."):
         layout_comp.assign_layout_force(nets_layers, "LC1_3")
     nets_layers = {"1V0": "Bottom Solder"}
