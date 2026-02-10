@@ -845,7 +845,11 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.GetPath
         """
         if not self._project_path and self.oproject:
-            self._project_path = self.oproject.GetPath()
+            try:
+                self._project_path = self.oproject.GetPath()
+            except Exception:
+                # Project not saved yet, use temp directory
+                self._project_path = self.temp_directory
         return self._project_path
 
     @property
@@ -1092,7 +1096,7 @@ class Design(AedtObjects, PyAedtBase):
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not Path(working_directory).is_dir():
             try:
-                Path(working_directory).mkdir()
+                Path(working_directory).mkdir(parents=True, exist_ok=True)
             except FileNotFoundError:
                 working_directory = Path(self.toolkit_directory) / (name + ".results")
         return str(working_directory)
@@ -3288,8 +3292,10 @@ class Design(AedtObjects, PyAedtBase):
             name = self.project_name
             if self.design_type == "HFSS 3D Layout Design":
                 self._close_edb()
+
         self.logger.info(f"Closing the AEDT Project {name}")
         oproj = self.desktop_class.active_project(name)
+
         proj_path = oproj.GetPath()
         if not name:
             proj_path = oproj.GetName()
