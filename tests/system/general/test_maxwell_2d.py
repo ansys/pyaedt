@@ -33,7 +33,9 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -184,6 +186,7 @@ def test_generate_design_data(aedt_app):
 
 def test_assign_torque(aedt_app):
     torque = aedt_app.assign_torque("Rotor_Section1")
+    assert isinstance(torque, MaxwellTorque)
     assert torque.type == "Torque"
     assert torque.props["Objects"][0] == "Rotor_Section1"
     assert torque.props["Is Positive"]
@@ -196,6 +199,7 @@ def test_assign_torque(aedt_app):
 
 def test_assign_force(aedt_app):
     force = aedt_app.assign_force("Magnet2_Section1")
+    assert isinstance(force, MaxwellForce)
     assert force.type == "Force"
     assert force.props["Objects"][0] == "Magnet2_Section1"
     assert force.props["Reference CS"] == "Global"
