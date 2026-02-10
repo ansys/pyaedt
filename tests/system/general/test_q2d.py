@@ -96,7 +96,6 @@ def test_add_sweep(aedt_app):
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
 
-
 def test_add_sweep_closed(aedt_app):
     # Set the solution type to "Closed" for this test
     aedt_app.solution_type = "Closed"
