@@ -128,7 +128,8 @@ def environment_variables(oDesktop):
     os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
     if is_linux:
         edt_root = os.path.normpath(oDesktop.GetExeDir())
-        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        reduced_version = version[2:].replace(".", "")
+        os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
         ld_library_path_dirs_to_add = [
             "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
             "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),

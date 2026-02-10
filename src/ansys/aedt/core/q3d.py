@@ -1286,7 +1286,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -2392,7 +2391,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """Dimension."""
         return self.modeler.dimension
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

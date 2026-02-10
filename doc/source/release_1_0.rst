@@ -215,6 +215,31 @@ and `Install .NET <https://learn.microsoft.com/en-us/dotnet/core/install/linux-u
 
         sudo apt update && sudo apt install -y dotnet-sdk-6.0
 
+Error handler default behavior change
+--------------------------------------
+
+In release 1.0, the default value of the ``enable_error_handler`` parameter has been changed from ``True`` to ``False``
+for all application classes.
+
+This change provides users with more control over error handling and allows for better integration with custom
+error handling workflows.
+
+**Impact:**
+
+Previously, PyAEDT automatically enabled the error handler by default, which would catch and log errors from AEDT.
+With the new default behavior:
+
+- **Exception handling behavior**: When ``enable_error_handler=False`` (new default), PyAEDT methods **raise exceptions**
+  instead of returning ``False`` when errors occur. This means your code needs proper try-except blocks to handle errors.
+- **Return values**: With the error handler disabled, methods that encounter errors raise exceptions than
+  silently returning ``False``, making error detection more explicit.
+- **Error logging**: Errors from AEDT are still logged, but exceptions propagate to your code instead of being suppressed by the error handler.
+- **Migration requirement**: Users who want to maintain the previous behavior (where methods return ``False`` on error
+  instead of raising exceptions) must explicitly set ``enable_error_handler=True`` when initializing an application.
+- **Code robustness**: This change gives users more flexibility to implement their own error handling strategies and
+  encourages more robust error handling practices.
+
+
 Other changes in release 1.0
 ============================
 

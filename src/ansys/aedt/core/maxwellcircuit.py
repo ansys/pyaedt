@@ -107,7 +107,6 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
