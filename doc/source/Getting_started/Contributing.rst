@@ -46,7 +46,7 @@ Code style
 PyAEDT complies with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_.
 `pre-commit <https://pre-commit.com/>`_ is applied within the CI/CD to ensure compliance.
-However, for local development, we encourage you to use `prek <https://prek.j178.dev/>`_
+However, for local development, you might want to use `prek <https://prek.j178.dev/>`_
 which is a drop-in alternative to ``pre-commit`` that is faster and more efficient in
 disk space usage. The ``prek`` Python package can be installed and run as follows:
 
