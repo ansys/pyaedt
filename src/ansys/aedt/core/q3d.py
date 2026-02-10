@@ -2467,10 +2467,10 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: list[Object3d] | Object3d,
         name: str | None = "",
-        conductor_type: str = "SignalLine",
-        solve_option: str = "SolveInside",
+        conductor_type: str | None = "SignalLine",
+        solve_option: str | None = "SolveInside",
         thickness: Optional[float] | None,
-        units: str = "um",
+        units: str | None = "um",
     ) -> BoundaryObject:
         """
         Assign the conductor type to sheets.
@@ -2481,7 +2481,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             List of Object3D.
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
-        conductor_type : str
+        conductor_type : str, optional
             Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"`` and ``"SurfaceGround"``.
             The default is ``"SignalLine"``.
         solve_option : str, optional
