@@ -31,6 +31,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import NON_GRAPHICAL
 
@@ -107,11 +108,13 @@ def test_assign_surface_ground(aedt_app):
     region = aedt_app.modeler.create_region(
         pad_value=[100, 100, 100, 100], pad_type="Percentage Offset", name="VacuumRegion"
     )
-    assert aedt_app.assign_single_conductor(
+    b = aedt_app.assign_single_conductor(
         assignment=region,
         conductor_type="SurfaceGround",
         solve_option="SolveInside",
     )
+    assert isinstance(b, BoundaryObject)
+    assert b.properties["Type"] == "SurfaceGround"
 
 
 def test_assign_huray_finitecond_to_edges(aedt_app):

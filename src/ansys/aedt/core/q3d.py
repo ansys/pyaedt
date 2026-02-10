@@ -26,6 +26,8 @@
 
 from pathlib import Path
 import re
+from typing import TYPE_CHECKING
+from typing import List
 from typing import Optional
 from typing import Union
 
@@ -44,6 +46,9 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
@@ -2460,25 +2465,25 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_single_conductor(
         self,
-        assignment,
-        name="",
-        conductor_type="SignalLine",
-        solve_option="SolveInside",
-        thickness=None,
-        units="um",
-    ):
+        assignment: Union[List["Object3d"], "Object3d"],
+        name: str = "",
+        conductor_type: str = "SignalLine",
+        solve_option: str = "SolveInside",
+        thickness: Optional[float] = None,
+        units: str = "um",
+    ) -> BoundaryObject:
         """
         Assign the conductor type to sheets.
 
         Parameters
         ----------
-        assignment : list
+        assignment : list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of Object3D.
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
         conductor_type : str
-            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"`` and ``"SurfaceGround"``. The default is
-            ``"SignalLine"``.
+            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"`` and ``"SurfaceGround"``.
+            The default is ``"SignalLine"``.
         solve_option : str, optional
             Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
             The default is ``"SolveInside"``.
