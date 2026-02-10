@@ -1557,6 +1557,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
+
         if not export_path or isinstance(export_path, Path) and not export_path.name:
             export_path = self._app.working_directory
         export_path = Path(export_path)
@@ -1573,7 +1574,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                 assignment = [
                     i
                     for i in assignment
-                    if not self._app.modeler[i].is3d
+                    if not self._app.modeler[i].is_3d
                     or (
                         self._app.modeler[i].material_name.lower() != "vacuum"
                         and self._app.modeler[i].material_name.lower() != "air"
