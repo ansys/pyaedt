@@ -74,7 +74,7 @@ def aedt_sbr(add_app):
         solution_type="SBR+",
     )
     yield app
-    app.close_project(app.project_name, save=False)
+    app.close_project(save=False)
 
 
 def test_open_source(aedt_app, add_app):
