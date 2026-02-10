@@ -263,7 +263,10 @@ def test_tmp_dir(file_tmp_root, request):
         shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True, exist_ok=True)
     yield d
-    shutil.rmtree(d, ignore_errors=True)
+    try:
+        shutil.rmtree(d, ignore_errors=True)
+    except Exception:
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {d}")
 
 
 @pytest.fixture
