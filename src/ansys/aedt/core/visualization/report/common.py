@@ -2577,7 +2577,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         expr = copy.deepcopy(self.expressions)
+        trace_info = copy.deepcopy(self._trace_info)
         self.expressions = traces
+
+        # Modify trace and context in native API format for Maxwell cases
+        if self._app.design_type == "Maxwell 3D" or self._app.design_type == "Maxwell 2D":
+            trace_info = trace_info[:-1] + [traces]
+            if context:
+                context = ["Context:=", *context]
 
         try:
             self._post.oreportsetup.AddTraces(
@@ -2585,7 +2592,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 setup_name if setup_name else self.setup,
                 context if context else self._context,
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
-                self._trace_info,
+                trace_info,
             )
             self._initialize_tree_node()
             return True
