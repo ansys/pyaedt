@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import ast
-from typing import List
 from typing import TypeVar
-from typing import Union
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
@@ -44,7 +44,7 @@ T = TypeVar("T", bound="EmitNode")
 class EmitNode:
     """Emit node class for managing and interacting with EMIT nodes."""
 
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         self._emit_obj = emit_obj
         self._oDesign = emit_obj.odesign
         self._oRevisionData = self._oDesign.GetModule("EmitCom")
@@ -57,7 +57,7 @@ class EmitNode:
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @staticmethod
-    def props_to_dict(props: List[str]) -> dict:
+    def props_to_dict(props: list[str]) -> dict:
         """Converts a list of key/value pairs to a dictionary.
 
         Parameters
@@ -183,7 +183,7 @@ class EmitNode:
         return node_warnings
 
     @property
-    def allowed_child_types(self) -> List[str]:
+    def allowed_child_types(self) -> list[str]:
         """Child types allowed for this node.
 
         Returns
@@ -257,7 +257,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
         Parameters
@@ -296,7 +296,7 @@ class EmitNode:
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
-    def _set_property(self, prop, value, skipChecks=False):
+    def _set_property(self, prop, value, skipChecks: bool = False):
         try:
             self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:
@@ -418,7 +418,7 @@ class EmitNode:
             converted_value = consts.unit_converter(value, unit_system, EMIT_INTERNAL_UNITS[unit_system], units)
         return converted_value
 
-    def _delete(self):
+    def _delete(self) -> None:
         """Deletes the current node (component)."""
         if self.get_is_component():
             self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
@@ -557,7 +557,7 @@ class EmitNode:
             raise Exception(error_text)
         return self._get_node(node_id)
 
-    def _export_model(self, file_path: str):
+    def _export_model(self, file_path: str) -> None:
         """Exports an Emit node's model to a file.
 
         Parameters
@@ -592,7 +592,7 @@ class EmitNode:
         """
         return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
-    def _is_column_data_table(self):
+    def _is_column_data_table(self) -> bool:
         """Returns true if the node uses column data tables.
 
         Returns

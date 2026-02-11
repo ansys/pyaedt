@@ -28,7 +28,6 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
-from typing import List
 
 import ansys.aedt.core
 from ansys.aedt.core import Edb
@@ -70,8 +69,8 @@ class CutoutData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
-    signals: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
-    references: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
+    signals: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
+    references: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
     expansion_factor: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
 
@@ -79,7 +78,7 @@ class CutoutData(ExtensionCommonData):
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -95,7 +94,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         self.__execute_cutout = False
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -252,7 +251,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         else:  # pragma: no cover
             raise AEDTRuntimeError(f"Unknown selection type: {selection_type}")
 
-    def __reset_selection(self):
+    def __reset_selection(self) -> None:
         """Reset the selected nets."""
         if self.data is not None:
             self.data.signals = []

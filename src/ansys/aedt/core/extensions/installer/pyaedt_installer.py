@@ -32,9 +32,9 @@ from ansys.aedt.core.generic.file_utils import read_toml
 
 def add_pyaedt_to_aedt(
     personal_lib,
-    skip_version_manager=False,
+    skip_version_manager: bool=False,
     odesktop=None,
-):
+) -> bool:
     """Add PyAEDT tabs in AEDT.
 
     Parameters
@@ -62,7 +62,7 @@ def add_pyaedt_to_aedt(
     __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop)
 
 
-def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None):
+def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None) -> None:
     """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
         pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]

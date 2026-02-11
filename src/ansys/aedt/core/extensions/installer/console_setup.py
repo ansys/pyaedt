@@ -67,7 +67,7 @@ except ImportError:  # pragma: no cover
     from ansys.aedt.core.generic.file_utils import available_file_name
 
 
-def release(d):  # pragma: no cover
+def release(d) -> None:  # pragma: no cover
     d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False, False)
@@ -134,7 +134,7 @@ if not error:  # pragma: no cover
             import win32api
             import win32con
 
-            def handler(ctrl_type):
+            def handler(ctrl_type) -> bool:
                 if ctrl_type == win32con.CTRL_CLOSE_EVENT:
                     release(desktop)
                     return False
@@ -147,7 +147,7 @@ if not error:  # pragma: no cover
         try:
             import signal
 
-            def signal_handler(sig, frame):
+            def signal_handler(sig, frame) -> None:
                 release(desktop)
                 sys.exit(0)
 
@@ -167,7 +167,7 @@ if version > "2023.1":  # pragma: no cover
         f.write("import ansys.aedt.core\n")
         f.write("from ansys.aedt.core import *\n")
 
-    def log_successful_command(result):
+    def log_successful_command(result) -> None:
         """
         IPython Hook: Executes after every command (cell).
         Logs the input command only if 'result.error_in_exec' is False (no exception).

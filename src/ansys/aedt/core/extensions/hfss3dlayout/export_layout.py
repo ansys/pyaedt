@@ -64,7 +64,7 @@ class ExportLayoutExtensionData(ExtensionCommonData):
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting layout data in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
         super().__init__(
             EXTENSION_TITLE,
@@ -83,7 +83,7 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         # Trigger manually since add_extension_content requires it
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Export IPC2581 option
         label = ttk.Label(
@@ -142,7 +142,7 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         check3.grid(row=2, column=1, padx=15, pady=10)
         self.bom_check.set(1)
 
-        def callback(extension: ExportLayoutExtension):
+        def callback(extension: ExportLayoutExtension) -> None:
             data = ExportLayoutExtensionData()
             data.export_ipc = extension.ipc_check.get() == 1
             data.export_configuration = extension.configuration_check.get() == 1
@@ -161,7 +161,7 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         ok_button.grid(row=3, column=0, padx=15, pady=10)
 
 
-def main(data: ExportLayoutExtensionData):
+def main(data: ExportLayoutExtensionData) -> bool:
     """Main function to run the export layout extension."""
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

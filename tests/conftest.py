@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import fnmatch
 import inspect
 import json
@@ -30,7 +32,6 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
-from typing import List
 from unittest.mock import MagicMock
 
 import pytest
@@ -118,7 +119,7 @@ else:
     settings._update_settings()
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests
@@ -153,7 +154,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
 
 
 @pytest.fixture(scope="session", autouse=True)
-def clean_old_pytest_temps(tmp_path_factory):
+def clean_old_pytest_temps(tmp_path_factory) -> None:
     """Delete previous pytest temp dirs before starting a new session."""
     # Clean pytest temp dirs
     base = tmp_path_factory.getbasetemp().parent
@@ -273,7 +274,7 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
         design: str | None = None,
         solution_type: str | None = None,
         application=None,
-        close_projects=True,
+        close_projects: bool = True,
     ):
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
@@ -315,8 +316,8 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         design: str | None = None,
         solution_type: str | None = None,
         application=None,
-        is_edb=False,
-        close_projects=True,
+        is_edb: bool = False,
+        close_projects: bool = True,
     ):
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()

@@ -41,7 +41,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class Standard(CommonReport, PyAedtBase):
     """Provides a reporting class that fits most of the app's standard reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
@@ -56,7 +56,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
-    def sub_design_id(self, value):
+    def sub_design_id(self, value) -> None:
         self._legacy_props["context"]["Sub Design ID"] = value
 
     @property
@@ -71,7 +71,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("time_start", "0ps")
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -85,7 +85,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("thinning", 0)
 
     @thinning.setter
-    def thinning(self, value):
+    def thinning(self, value) -> None:
         self._legacy_props["context"]["thinning"] = value
 
     @property
@@ -99,7 +99,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("thinning_points", 500000000)
 
     @thinning_points.setter
-    def thinning_points(self, value):
+    def thinning_points(self, value) -> None:
         self._legacy_props["context"]["thinning_points"] = value
 
     @property
@@ -113,7 +113,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
 
     @dy_dx_tolerance.setter
-    def dy_dx_tolerance(self, value):
+    def dy_dx_tolerance(self, value) -> None:
         self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
@@ -128,11 +128,11 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("time_stop", "10ns")
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
-    def _did(self):
+    def _did(self) -> int:
         if self.domain == "Sweep":
             return 3
         elif self.domain == "Clock Times":
@@ -160,7 +160,7 @@ class Standard(CommonReport, PyAedtBase):
         )
 
     @pulse_rise_time.setter
-    def pulse_rise_time(self, val):
+    def pulse_rise_time(self, val) -> None:
         self._legacy_props["context"]["pulse_rise_time"] = val
 
     @property
@@ -175,7 +175,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
     @maximum_time.setter
-    def maximum_time(self, val):
+    def maximum_time(self, val) -> None:
         self._legacy_props["context"]["maximum_time"] = val
 
     @property
@@ -190,7 +190,7 @@ class Standard(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
     @step_time.setter
-    def step_time(self, val):
+    def step_time(self, val) -> None:
         self._legacy_props["context"]["step_time"] = val
 
     @property
@@ -217,7 +217,7 @@ class Standard(CommonReport, PyAedtBase):
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
-    def time_windowing(self, val):
+    def time_windowing(self, val) -> None:
         available_values = {
             "rectangular": 0,
             "bartlett": 1,
@@ -543,7 +543,7 @@ class Standard(CommonReport, PyAedtBase):
 class Spectral(CommonReport, PyAedtBase):
     """Provides for managing spectral reports from transient data."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Spectrum"
         self.algorithm = "FFT"
@@ -569,7 +569,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("time_start", "0s")
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -584,7 +584,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("time_stop", "100ns")
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
@@ -599,7 +599,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("window", "Rectangular")
 
     @window.setter
-    def window(self, value):
+    def window(self, value) -> None:
         self._legacy_props["context"]["window"] = value
 
     @property
@@ -614,7 +614,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("kaiser_coeff", 0)
 
     @kaiser_coeff.setter
-    def kaiser_coeff(self, value):
+    def kaiser_coeff(self, value) -> None:
         self._legacy_props["context"]["kaiser_coeff"] = value
 
     @property
@@ -629,7 +629,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("adjust_coherent_gain", False)
 
     @adjust_coherent_gain.setter
-    def adjust_coherent_gain(self, value):
+    def adjust_coherent_gain(self, value) -> None:
         self._legacy_props["context"]["adjust_coherent_gain"] = value
 
     @property
@@ -644,7 +644,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("plot_continous_spectrum", False)
 
     @plot_continous_spectrum.setter
-    def plot_continous_spectrum(self, value):
+    def plot_continous_spectrum(self, value) -> None:
         self._legacy_props["context"]["plot_continous_spectrum"] = value
 
     @property
@@ -659,7 +659,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("max_frequency", "10GHz")
 
     @max_frequency.setter
-    def max_frequency(self, value):
+    def max_frequency(self, value) -> None:
         self._legacy_props["context"]["max_frequency"] = value
 
     @property
@@ -674,7 +674,7 @@ class Spectral(CommonReport, PyAedtBase):
         return self._legacy_props["context"].get("noise_threshold", 0)
 
     @noise_threshold.setter
-    def noise_threshold(self, value):
+    def noise_threshold(self, value) -> None:
         self._legacy_props["context"]["noise_threshold"] = value
 
     @property
@@ -805,7 +805,7 @@ class Spectral(CommonReport, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters

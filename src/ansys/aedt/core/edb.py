@@ -23,6 +23,13 @@
 # SOFTWARE.
 
 
+from typing import TYPE_CHECKING
+from typing import Any
+
+if TYPE_CHECKING:
+    from pyedb import Edb
+    from pyedb import Siwave
+
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
@@ -31,16 +38,16 @@ log = settings.logger
 
 # lazy imports
 def Edb(
-    edbpath=None,
-    cellname=None,
-    isreadonly=False,
-    version=None,
-    isaedtowned=False,
-    oproject=None,
-    student_version=False,
-    use_ppe=False,
-    technology_file=None,
-):
+    edbpath: str | None = None,
+    cellname: str | None = None,
+    isreadonly: bool | None = False,
+    version: str | None = None,
+    isaedtowned: bool | None = False,
+    oproject: Any | None = None,
+    student_version: bool | None = False,
+    use_ppe: bool | None = False,
+    technology_file: str | None = None,
+) -> "Edb":
     """Provides the EDB application interface.
 
     This module inherits all objects that belong to EDB.
@@ -140,8 +147,8 @@ def Edb(
 
 
 def Siwave(
-    specified_version=None,
-):
+    specified_version: str | None = None,
+) -> "Siwave":
     """Siwave Class."""
     from pyedb.siwave import Siwave as app
 
