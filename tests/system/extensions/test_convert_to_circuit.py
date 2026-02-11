@@ -34,7 +34,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_no_design_name():
+def test_convert_to_circuit_main_no_design_name() -> None:
     """Test main function with no design name provided."""
     data = ConvertToCircuitExtensionData(design_name="")
 
@@ -43,7 +43,7 @@ def test_convert_to_circuit_main_no_design_name():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_invalid_validation():
+def test_convert_to_circuit_main_invalid_validation() -> None:
     """Test main function validation with invalid parameters."""
     # Test with empty design name
     data = ConvertToCircuitExtensionData(design_name="")
@@ -52,7 +52,7 @@ def test_convert_to_circuit_main_invalid_validation():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_with_components(add_app):
+def test_convert_to_circuit_with_components(add_app) -> None:
     """Test conversion with various component types."""
     tb = add_app(
         application=TwinBuilder,
@@ -74,7 +74,7 @@ def test_convert_to_circuit_with_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_exception_handling(add_app):
+def test_convert_to_circuit_exception_handling(add_app) -> None:
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
     tb = add_app(
@@ -93,7 +93,7 @@ def test_convert_to_circuit_exception_handling(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_wire_conversion(add_app):
+def test_convert_to_circuit_wire_conversion(add_app) -> None:
     """Test wire conversion functionality."""
     tb = add_app(
         application=TwinBuilder,
@@ -114,7 +114,7 @@ def test_convert_to_circuit_wire_conversion(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_fml_init_equations(add_app):
+def test_convert_to_circuit_fml_init_equations(add_app) -> None:
     """Test FML_INIT component equation processing."""
     tb = add_app(
         application=TwinBuilder,
@@ -152,7 +152,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_catalog_components(add_app):
+def test_convert_to_circuit_catalog_components(add_app) -> None:
     """Test conversion of components that exist in the catalog."""
     tb = add_app(
         application=TwinBuilder,
@@ -198,7 +198,7 @@ def test_convert_to_circuit_catalog_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_offset_calculations(add_app):
+def test_convert_to_circuit_offset_calculations(add_app) -> None:
     """Test component offset calculations with rotation."""
     tb = add_app(
         application=TwinBuilder,
@@ -241,7 +241,7 @@ def test_convert_to_circuit_offset_calculations(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_gport_components(add_app):
+def test_convert_to_circuit_gport_components(add_app) -> None:
     """Test conversion of GPort (ground) components."""
     tb = add_app(
         application=TwinBuilder,
@@ -274,7 +274,7 @@ def test_convert_to_circuit_gport_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_unconnected_pins(add_app):
+def test_convert_to_circuit_unconnected_pins(add_app) -> None:
     """Test handling of unconnected pins and wire creation."""
     tb = add_app(
         application=TwinBuilder,
@@ -310,7 +310,7 @@ def test_convert_to_circuit_unconnected_pins(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_property_mapping(add_app):
+def test_convert_to_circuit_property_mapping(add_app) -> None:
     """Test component property mapping from catalog."""
     tb = add_app(
         application=TwinBuilder,
@@ -351,7 +351,7 @@ def test_convert_to_circuit_property_mapping(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_component_naming(add_app):
+def test_convert_to_circuit_component_naming(add_app) -> None:
     """Test component name parsing and reference designator handling."""
     tb = add_app(
         application=TwinBuilder,

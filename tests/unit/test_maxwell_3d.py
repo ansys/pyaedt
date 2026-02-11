@@ -43,7 +43,7 @@ def maxwell_3d_setup():
 
 @patch.object(Maxwell3d, "solution_type", "Transient")
 @patch("ansys.aedt.core.mixins.BoundaryObject", autospec=True)
-def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell_3d_setup):
+def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell_3d_setup) -> None:
     settings.aedt_version = aedt_versions.current_version
     boundary_object = MagicMock()
     boundary_object.create.return_value = False

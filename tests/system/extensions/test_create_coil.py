@@ -46,7 +46,7 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_create_button(m3d_app):
+def test_create_button(m3d_app) -> None:
     """Test the Create button in the extension."""
     extension = CoilExtension(withdraw=True)
     notebook = extension.root.nametowidget("notebook")
@@ -63,7 +63,7 @@ def test_create_button(m3d_app):
     )
 
 
-def test_flat_coil_success(m3d_app):
+def test_flat_coil_success(m3d_app) -> None:
     """Test the Flat coil extension success."""
     data = CoilExtensionData(
         is_vertical=False,
@@ -89,7 +89,7 @@ def test_flat_coil_success(m3d_app):
     )
 
 
-def test_vertical_coil_success(m3d_app):
+def test_vertical_coil_success(m3d_app) -> None:
     """Test the Vertical coil extension success."""
     data = CoilExtensionData(
         is_vertical=True,
@@ -116,14 +116,14 @@ def test_vertical_coil_success(m3d_app):
     )
 
 
-def test_exception_invalid_data(m3d_app):
+def test_exception_invalid_data(m3d_app) -> None:
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
     with pytest.raises(ValueError):
         main(data)
 
 
-def test_invalid_solution_type(aedt_app):
+def test_invalid_solution_type(aedt_app) -> None:
     """Test that an exception is raised when the solution type is not Maxwell 3D."""
     data = CoilExtensionData(is_vertical=True, name="my_coil")
     with pytest.raises(AEDTRuntimeError):

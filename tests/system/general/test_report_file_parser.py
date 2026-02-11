@@ -32,12 +32,12 @@ TEST_SUBFOLDER = "TReport"
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-def test_report_file_parser():
+def test_report_file_parser() -> None:
     input_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test_report.rdat"
     data = parse_rdat_file(str(input_file))
     assert data == {

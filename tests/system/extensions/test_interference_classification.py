@@ -62,7 +62,7 @@ def emit_app_with_radios(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_extension_initialization(emit_app_with_radios):
+def test_extension_initialization(emit_app_with_radios) -> None:
     """Test that extension initializes correctly with an active EMIT design."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -75,7 +75,7 @@ def test_extension_initialization(emit_app_with_radios):
     extension.root.destroy()
 
 
-def test_radio_specific_protection_levels(emit_app_with_radios):
+def test_radio_specific_protection_levels(emit_app_with_radios) -> None:
     """Test enabling radio-specific protection levels."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -97,7 +97,7 @@ def test_radio_specific_protection_levels(emit_app_with_radios):
     extension.root.destroy()
 
 
-def test_generate_interference_results(emit_app_with_radios):
+def test_generate_interference_results(emit_app_with_radios) -> None:
     """Test generating interference type classification results."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -121,7 +121,7 @@ def test_generate_interference_results(emit_app_with_radios):
     extension.root.destroy()
 
 
-def test_generate_protection_results(emit_app_with_radios):
+def test_generate_protection_results(emit_app_with_radios) -> None:
     """Test generating protection level classification results."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -145,7 +145,7 @@ def test_generate_protection_results(emit_app_with_radios):
     extension.root.destroy()
 
 
-def test_export_to_excel(emit_app_with_radios, test_tmp_dir):
+def test_export_to_excel(emit_app_with_radios, test_tmp_dir) -> None:
     """Test exporting results matrix to Excel file."""
     extension = InterferenceClassificationExtension(withdraw=True)
 

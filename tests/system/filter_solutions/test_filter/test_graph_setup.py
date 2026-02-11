@@ -31,22 +31,22 @@ from tests.conftest import DESKTOP_VERSION
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_minimum_frequency(self, lumped_design):
+    def test_minimum_frequency(self, lumped_design) -> None:
         assert lumped_design.graph_setup.minimum_frequency == "200 MHz"
         lumped_design.graph_setup.minimum_frequency = "500 MHz"
         assert lumped_design.graph_setup.minimum_frequency == "500 MHz"
 
-    def test_maximum_frequency(self, lumped_design):
+    def test_maximum_frequency(self, lumped_design) -> None:
         assert lumped_design.graph_setup.maximum_frequency == "5 GHz"
         lumped_design.graph_setup.maximum_frequency = "2 GHz"
         assert lumped_design.graph_setup.maximum_frequency == "2 GHz"
 
-    def test_minimum_time(self, lumped_design):
+    def test_minimum_time(self, lumped_design) -> None:
         assert lumped_design.graph_setup.minimum_time == "0"
         lumped_design.graph_setup.minimum_time = "5 ns"
         assert lumped_design.graph_setup.minimum_time == "5 ns"
 
-    def test_maximum_time(self, lumped_design):
+    def test_maximum_time(self, lumped_design) -> None:
         assert lumped_design.graph_setup.maximum_time == "10 ns"
         lumped_design.graph_setup.maximum_time = "8 ns"
         assert lumped_design.graph_setup.maximum_time == "8 ns"

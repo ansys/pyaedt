@@ -53,7 +53,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, app, hfss_setup_name, name, props):
+    def __init__(self, app, hfss_setup_name, name: str, props) -> None:
         self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
@@ -83,7 +83,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a mesh.
 
         Returns
@@ -99,7 +99,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> bool:
         """Update the mesh.
 
         Returns
@@ -115,7 +115,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the mesh.
 
         Returns
@@ -147,7 +147,7 @@ class Mesh3d(PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
 
@@ -161,7 +161,7 @@ class Mesh3d(PyAedtBase):
         app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name: str) -> bool:
         """Generate the mesh for a design.
 
         Parameters
@@ -192,7 +192,7 @@ class Mesh3d(PyAedtBase):
         return self._app.omeshmodule
 
     @pyaedt_function_handler()
-    def delete_mesh_operations(self, setup, name):
+    def delete_mesh_operations(self, setup, name: str) -> bool:
         """Remove mesh operations from a setup.
 
         Parameters
@@ -240,7 +240,16 @@ class Mesh3d(PyAedtBase):
         return meshops
 
     @pyaedt_function_handler()
-    def assign_length_mesh(self, setup, layer, net, is_inside=True, maximum_length=1, maximum_elements=1000, name=None):
+    def assign_length_mesh(
+        self,
+        setup,
+        layer,
+        net,
+        is_inside: bool = True,
+        maximum_length: int = 1,
+        maximum_elements: int = 1000,
+        name: str | None = None,
+    ):
         """Assign mesh length.
 
         Parameters
@@ -330,11 +339,11 @@ class Mesh3d(PyAedtBase):
         setup,
         layer,
         net,
-        skin_depth=1,
+        skin_depth: int = 1,
         maximum_elements=None,
-        triangulation_max_length=0.1,
-        layers_number="2",
-        name=None,
+        triangulation_max_length: float = 0.1,
+        layers_number: str = "2",
+        name: str | None = None,
     ):
         """Assign skin depth to the mesh.
 
