@@ -29,7 +29,6 @@ import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
-from typing import Optional
 
 from matplotlib.colors import BoundaryNorm
 import matplotlib.pyplot as plt
@@ -49,10 +48,10 @@ EXTENSION_DEFAULT_ARGUMENTS = {}
 class EMIHeatmapExtensionData(ExtensionCommonData):
     """Data class containing EMI heat map analysis results."""
 
-    emi: Optional[np.ndarray] = None
-    rx_power: Optional[np.ndarray] = None
-    sensitivity: Optional[np.ndarray] = None
-    desense: Optional[np.ndarray] = None
+    emi: np.ndarray | None = None
+    rx_power: np.ndarray | None = None
+    sensitivity: np.ndarray | None = None
+    desense: np.ndarray | None = None
     victim: str = ""
     victim_band: str = ""
     aggressor: str = ""
