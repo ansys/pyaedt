@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -69,7 +69,7 @@ class CreateReportExtensionData(ExtensionCommonData):
 class CreateReportExtension(ExtensionProjectCommon):
     """Extension for creating PDF reports in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and
         # theme color
         super().__init__(
@@ -89,7 +89,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         self.generate_clicked = False  # Track if generate button was clicked
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Report name entry
         report_name_label = ttk.Label(
@@ -125,7 +125,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         self._widgets["save_path_entry"].insert(tkinter.END, "")
         self._widgets["save_path_entry"].grid(row=0, column=0, padx=(0, 5))
 
-        def browse_folder():
+        def browse_folder() -> None:
             folder_path = filedialog.askdirectory(title="Select folder to save report")
             if folder_path:
                 self._widgets["save_path_entry"].delete("1.0", tkinter.END)
@@ -150,7 +150,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         )
         open_report_checkbox.grid(row=2, column=0, columnspan=2, **DEFAULT_PADDING)
 
-        def callback(extension: CreateReportExtension):
+        def callback(extension: CreateReportExtension) -> None:
             extension.data = CreateReportExtensionData(
                 report_name=self._widgets["report_name_entry"].get("1.0", tkinter.END).strip(),
                 open_report=self._widgets["open_report_var"].get(),
@@ -170,7 +170,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         ok_button.grid(row=3, column=0, **DEFAULT_PADDING)
 
 
-def main(data: CreateReportExtensionData):
+def main(data: CreateReportExtensionData) -> bool:
     """Main function to run the create report extension."""
     if not data.report_name:
         raise AEDTRuntimeError("Report name cannot be empty.")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,7 +44,7 @@ def mock_hfss_app_with_objects_in_group(mock_hfss_app):
     yield mock_hfss_app
 
 
-def test_move_it_extension_default(mock_hfss_app_with_objects_in_group):
+def test_move_it_extension_default(mock_hfss_app_with_objects_in_group) -> None:
     """Test instantiation of the Advanced Fields Calculator extension."""
     extension = MoveItExtension(withdraw=True)
 
@@ -54,7 +54,7 @@ def test_move_it_extension_default(mock_hfss_app_with_objects_in_group):
     extension.root.destroy()
 
 
-def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group):
+def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group) -> None:
     """Test instantiation of the Move It extension."""
     extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
@@ -65,7 +65,7 @@ def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group):
     assert 1.4 == data.velocity
 
 
-def test_move_it_extension_exceptions(mock_hfss_app_with_objects_in_group):
+def test_move_it_extension_exceptions(mock_hfss_app_with_objects_in_group) -> None:
     """Test instantiation of the Move It extension."""
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
 

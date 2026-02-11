@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,10 +32,7 @@ from pathlib import Path
 import re
 import string
 import tempfile
-from typing import Dict
-from typing import List
 from typing import TextIO
-from typing import Union
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -50,8 +47,8 @@ is_windows = not is_linux
 
 
 # Path processing
-@pyaedt_function_handler(path_in="input_dir")
-def normalize_path(input_dir: Union[str, Path], sep: str = None) -> str:
+@pyaedt_function_handler()
+def normalize_path(input_dir: str | Path, sep: str = None) -> str:
     """Normalize path separators.
 
     Parameters
@@ -72,8 +69,8 @@ def normalize_path(input_dir: Union[str, Path], sep: str = None) -> str:
     return str(path)
 
 
-@pyaedt_function_handler(path="input_file")
-def get_filename_without_extension(input_file: Union[str, Path]) -> str:
+@pyaedt_function_handler()
+def get_filename_without_extension(input_file: str | Path) -> str:
     """Get the filename without its extension.
 
     Parameters
@@ -90,8 +87,8 @@ def get_filename_without_extension(input_file: Union[str, Path]) -> str:
     return str(path.stem)
 
 
-@pyaedt_function_handler(project_path="input_file")
-def is_project_locked(input_file: Union[str, Path]) -> bool:
+@pyaedt_function_handler()
+def is_project_locked(input_file: str | Path) -> bool:
     """Check if the AEDT project lock file exists.
 
     Parameters
@@ -113,8 +110,8 @@ def is_project_locked(input_file: Union[str, Path]) -> bool:
     return check_if_path_exists(str(input_file) + ".lock")
 
 
-@pyaedt_function_handler(project_path="input_file")
-def remove_project_lock(input_file: Union[str, Path]) -> bool:
+@pyaedt_function_handler()
+def remove_project_lock(input_file: str | Path) -> bool:
     """Check if the AEDT project exists and try to remove the lock file.
 
     .. note::
@@ -141,7 +138,7 @@ def remove_project_lock(input_file: Union[str, Path]) -> bool:
 
 
 @pyaedt_function_handler()
-def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = True) -> str:
+def check_and_download_file(remote_path: str | Path, overwrite: bool = True) -> str:
     """Check if a file is remote. Download it or return the path.
 
     Parameters
@@ -168,7 +165,7 @@ def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = Tru
 
 
 @pyaedt_function_handler()
-def check_if_path_exists(path: Union[str, Path]) -> bool:
+def check_if_path_exists(path: str | Path) -> bool:
     """Check whether a path exists on a local or on a remote machine (for remote sessions only).
 
     Parameters
@@ -188,9 +185,7 @@ def check_if_path_exists(path: Union[str, Path]) -> bool:
 
 
 @pyaedt_function_handler()
-def check_and_download_folder(
-    local_path: Union[str, Path], remote_path: Union[str, Path], overwrite: bool = True
-) -> str:
+def check_and_download_folder(local_path: str | Path, remote_path: str | Path, overwrite: bool = True) -> str:
     """Download remote folder.
 
     Parameters
@@ -218,7 +213,7 @@ def check_and_download_folder(
     return remote_path
 
 
-@pyaedt_function_handler(rootname="root_name")
+@pyaedt_function_handler()
 def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
     """Generate a new name given a root name and optional suffix.
 
@@ -248,7 +243,7 @@ def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
     return unique_name
 
 
-@pyaedt_function_handler(rootname="root_name")
+@pyaedt_function_handler()
 def generate_unique_folder_name(root_name: str = None, folder_name: str = None) -> str:
     """Generate a new AEDT folder name given a root name.
 
@@ -279,7 +274,7 @@ def generate_unique_folder_name(root_name: str = None, folder_name: str = None) 
     return str(temp_folder)
 
 
-@pyaedt_function_handler(rootname="root_name")
+@pyaedt_function_handler()
 def generate_unique_project_name(
     root_name: str = None, folder_name: str = None, project_name: str = None, project_format: str = "aedt"
 ):
@@ -316,7 +311,7 @@ def generate_unique_project_name(
 
 
 @pyaedt_function_handler()
-def available_file_name(full_file_name: Union[str, Path]) -> Path:
+def available_file_name(full_file_name: str | Path) -> Path:
     """Provide a file name that doesn't exist.
 
     If the input file name exists, increment the base
@@ -342,8 +337,8 @@ def available_file_name(full_file_name: Union[str, Path]) -> Path:
     return candidate
 
 
-@pyaedt_function_handler(startpath="path", filepattern="file_pattern")
-def recursive_glob(path: Union[str, Path], file_pattern: str):
+@pyaedt_function_handler()
+def recursive_glob(path: str | Path, file_pattern: str):
     """Get a list of files matching a pattern, searching recursively from a start path.
 
     Parameters
@@ -374,8 +369,8 @@ def recursive_glob(path: Union[str, Path], file_pattern: str):
 
 @pyaedt_function_handler()
 def open_file(
-    file_path: Union[str, Path], file_options: str = "r", encoding: str = None, override_existing: bool = True
-) -> Union[TextIO, None]:
+    file_path: str | Path, file_options: str = "r", encoding: str = None, override_existing: bool = True
+) -> TextIO | None:
     """Open a file and return the object.
 
     Parameters
@@ -423,8 +418,8 @@ def open_file(
         return None
 
 
-@pyaedt_function_handler(fn="input_file")
-def read_json(input_file: Union[str, Path]) -> dict:
+@pyaedt_function_handler()
+def read_json(input_file: str | Path) -> dict:
     """Load a JSON file to a dictionary.
 
     Parameters
@@ -447,8 +442,8 @@ def read_json(input_file: Union[str, Path]) -> dict:
     return json_data
 
 
-@pyaedt_function_handler(file_path="input_file")
-def read_toml(input_file: Union[str, Path]) -> dict:
+@pyaedt_function_handler()
+def read_toml(input_file: str | Path) -> dict:
     """Read a TOML file and return as a dictionary.
 
     Parameters
@@ -470,8 +465,8 @@ def read_toml(input_file: Union[str, Path]) -> dict:
         return tomllib.load(fb)
 
 
-@pyaedt_function_handler(file_name="input_file")
-def read_csv(input_file: Union[str, Path], encoding: str = "utf-8") -> list:
+@pyaedt_function_handler()
+def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
     """Read information from a CSV file and return a list.
 
     Parameters
@@ -496,8 +491,8 @@ def read_csv(input_file: Union[str, Path], encoding: str = "utf-8") -> list:
     return lines
 
 
-@pyaedt_function_handler(filename="input_file")
-def read_csv_pandas(input_file: Union[str, Path], encoding: str = "utf-8"):
+@pyaedt_function_handler()
+def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8"):
     """Read information from a CSV file and return a list.
 
     Parameters
@@ -523,7 +518,7 @@ def read_csv_pandas(input_file: Union[str, Path], encoding: str = "utf-8"):
         return None
 
 
-@pyaedt_function_handler(output="output_file", quotechar="quote_char")
+@pyaedt_function_handler()
 def write_csv(
     output_file: str, list_data: list, delimiter: str = ",", quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL
 ) -> bool:
@@ -564,8 +559,8 @@ def write_csv(
     return True
 
 
-@pyaedt_function_handler(file_name="input_file")
-def read_tab(input_file: Union[str, Path]) -> list:
+@pyaedt_function_handler()
+def read_tab(input_file: str | Path) -> list:
     """Read information from a TAB file and return a list.
 
     Parameters
@@ -583,8 +578,8 @@ def read_tab(input_file: Union[str, Path]) -> list:
     return lines
 
 
-@pyaedt_function_handler(file_name="input_file")
-def read_xlsx(input_file: Union[str, Path]):
+@pyaedt_function_handler()
+def read_xlsx(input_file: str | Path):
     """Read information from an XLSX file and return a list.
 
     Parameters
@@ -609,14 +604,14 @@ def read_xlsx(input_file: Union[str, Path]):
 
 
 @pyaedt_function_handler()
-def _check_path(path_to_check: Union[str, Path]) -> str:
+def _check_path(path_to_check: str | Path) -> str:
     path_to_check = str(path_to_check)
     return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
 
 
 # AEDT files parsing
 @pyaedt_function_handler()
-def read_component_file(input_file: Union[str, Path]) -> dict:
+def read_component_file(input_file: str | Path) -> dict:
     """Read the component file and extract variables.
 
     Parameters
@@ -654,9 +649,9 @@ def read_component_file(input_file: Union[str, Path]) -> dict:
     return variables
 
 
-@pyaedt_function_handler(file_name="input_file")
+@pyaedt_function_handler()
 def parse_excitation_file(
-    input_file: Union[str, Path],
+    input_file: str | Path,
     is_time_domain: bool = True,
     x_scale: float = 1.0,
     y_scale: float = 1,
@@ -665,7 +660,7 @@ def parse_excitation_file(
     encoding: str = "utf-8",
     out_mag: str = "Voltage",
     window: str = "hamming",
-) -> Union[tuple, bool]:
+) -> tuple | bool:
     """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
     Parameters
@@ -736,8 +731,8 @@ def parse_excitation_file(
     return freq, mag, phase
 
 
-@pyaedt_function_handler(file_path="input_file", unit="units", control_path="output_file")
-def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output_file: Union[str, Path] = None):
+@pyaedt_function_handler()
+def tech_to_control_file(input_file: str | Path, units: str = "nm", output_file: str | Path = None):
     """Convert a TECH file to an XML file for use in a GDS or DXF import.
 
     Parameters
@@ -797,7 +792,7 @@ def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output
 
 # CAD parsing
 @pyaedt_function_handler()
-def get_dxf_layers(input_file: Union[str, Path]) -> List[str]:
+def get_dxf_layers(input_file: str | Path) -> list[str]:
     """Read a DXF file and return all layer names.
 
     Parameters
@@ -830,8 +825,8 @@ def get_dxf_layers(input_file: Union[str, Path]) -> List[str]:
 
 
 # Configuration file
-@pyaedt_function_handler(file_path="input_file")
-def read_configuration_file(input_file: Union[str, Path]) -> Union[Dict, List]:
+@pyaedt_function_handler()
+def read_configuration_file(input_file: str | Path) -> dict | list:
     """Parse a file and return the information in a list or dictionary.
 
     Parameters
@@ -858,8 +853,8 @@ def read_configuration_file(input_file: Union[str, Path]) -> Union[Dict, List]:
         return read_json(file_path)
 
 
-@pyaedt_function_handler(dict_in="input_data", full_path="output_file")
-def write_configuration_file(input_data: dict, output_file: Union[str, Path]) -> bool:
+@pyaedt_function_handler()
+def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
     """Create a configuration file in JSON or TOML format from a dictionary.
 
     Parameters
@@ -882,8 +877,8 @@ def write_configuration_file(input_data: dict, output_file: Union[str, Path]) ->
 
 
 # Operators
-@pyaedt_function_handler(time_vals="time_values", value="data_values")
-def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  # pragma: no cover
+@pyaedt_function_handler()
+def compute_fft(time_values, data_values, window=None) -> tuple | bool:  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
@@ -931,7 +926,7 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
 
 @pyaedt_function_handler()
 def available_license_feature(
-    feature: str = "electronics_desktop", input_dir: Union[str, Path] = None, port: int = 1055, name: str = "127.0.0.1"
+    feature: str = "electronics_desktop", input_dir: str | Path = None, port: int = 1055, name: str = "127.0.0.1"
 ) -> int:  # pragma: no cover
     """Check available license feature.
 
@@ -1025,7 +1020,7 @@ def available_license_feature(
 
 
 @pyaedt_function_handler()
-def _check_installed_version(install_path, long_version):
+def _check_installed_version(install_path, long_version) -> bool:
     """Check installation folder to determine if it is for specified Ansys EM version.
 
     Parameters
@@ -1053,7 +1048,7 @@ def _check_installed_version(install_path, long_version):
 
 
 @pyaedt_function_handler()
-def _create_json_file(json_dict, full_json_path):
+def _create_json_file(json_dict, full_json_path) -> bool:
     full_json_path = Path(full_json_path)
     if not full_json_path.parent.exists():
         full_json_path.parent.mkdir(parents=True)
@@ -1065,7 +1060,7 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
-def _create_toml_file(input_dict, full_toml_path):
+def _create_toml_file(input_dict, full_toml_path) -> bool:
     import tomli_w
 
     full_toml_path = Path(full_toml_path)

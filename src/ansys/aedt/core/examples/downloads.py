@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,9 +29,6 @@ import shutil
 import ssl
 import tempfile
 from typing import Callable
-from typing import Optional
-from typing import Tuple
-from typing import Union
 from urllib.parse import quote
 from urllib.parse import urljoin
 from urllib.parse import urlparse
@@ -47,7 +44,7 @@ EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
-def delete_downloads():
+def delete_downloads() -> None:
     """Delete all downloaded examples to free space or update the files."""
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
@@ -81,8 +78,8 @@ def _build_safe_url(github_relative_path: str) -> str:
 
 def _download_file(
     github_relative_path: str,
-    local_path: Optional[Union[str, Path]] = None,
-    strip_prefix: Optional[Union[str, Path]] = None,
+    local_path: str | Path | None = None,
+    strip_prefix: str | Path | None = None,
 ) -> Path:
     """Download a file from a URL."""
     url = _build_safe_url(github_relative_path)
@@ -91,7 +88,7 @@ def _download_file(
     if strip_prefix:
         relative_path = relative_path.relative_to(Path(strip_prefix))
 
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH / relative_path
     else:
         local_path = Path(local_path) / relative_path
@@ -116,7 +113,7 @@ def _download_file(
 
 def _copy_local_example(
     source_relative_path: str,
-    target_path: Optional[Union[str, Path]] = None,
+    target_path: str | Path | None = None,
 ) -> Path:  # pragma: no cover
     """Copy a folder from a local copy of the examples repo."""
     dst = Path(target_path) / Path(source_relative_path).name
@@ -137,9 +134,9 @@ def _copy_local_example(
 
 def _download_folder(
     github_relative_path: str,
-    local_path: Optional[Union[str, Path]] = None,
-    filter_func: Optional[Callable[[str], bool]] = None,
-    strip_prefix: Optional[Union[str, Path]] = None,
+    local_path: str | Path | None = None,
+    filter_func: Callable[[str], bool] | None = None,
+    strip_prefix: str | Path | None = None,
 ) -> Path:
     """Download a folder from the example data repository."""
     import json
@@ -151,7 +148,7 @@ def _download_folder(
     if strip_prefix:
         relative_path = relative_path.relative_to(Path(strip_prefix))
 
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     else:
         local_path = Path(local_path)
@@ -188,8 +185,8 @@ def _download_folder(
 ###############################################################################
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_aedb(local_path: str | Path | None = None) -> str:
     """Download an example of AEDB file and return the def path.
 
     If example files have already been downloaded, the download is
@@ -220,8 +217,8 @@ def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(edbdef_path.parent)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_edb_merge_utility(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_edb_merge_utility(force_download: bool = False, local_path: str | Path | None = None) -> str:
     """Download an example of WPF Project which allows to merge 2aedb files.
 
     If example files have already been downloaded, the download is
@@ -247,7 +244,7 @@ def download_edb_merge_utility(force_download: bool = False, local_path: Optiona
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/wpf_edb_merge/merge_wizard.py'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -264,8 +261,8 @@ def download_edb_merge_utility(force_download: bool = False, local_path: Optiona
     return str(script_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_netlist(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_netlist(local_path: str | Path | None = None) -> str:
     """Download an example of netlist File and return the def path.
 
     If example files have already been downloaded, the download is
@@ -296,8 +293,8 @@ def download_netlist(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(cir_file_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_antenna_array(local_path: str | Path | None = None) -> str:
     """Download an example of Antenna Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -328,8 +325,8 @@ def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str
     return str(aedt_file_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_sbr(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_sbr(local_path: str | Path | None = None) -> str:
     """Download an example of SBR+ Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -358,8 +355,8 @@ def download_sbr(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_sbr_time(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_sbr_time(local_path: str | Path | None = None) -> str:
     """Download an example of SBR+ Time domain animation and return the def path.
 
     If example files have already been downloaded, the download is
@@ -388,8 +385,8 @@ def download_sbr_time(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_icepak(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_icepak(local_path: str | Path | None = None) -> str:
     """Download an example of Icepak Array and return the def path.
 
     If example files have already been downloaded, the download is
@@ -420,8 +417,8 @@ def download_icepak(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) -> str:  # pragma: no cover
+@pyaedt_function_handler()
+def download_icepak_3d_component(local_path: str | Path | None = None) -> str:  # pragma: no cover
     """Download an example of Icepak Array and return the def pathsw.
 
     If example files have already been downloaded, the download is
@@ -454,8 +451,8 @@ def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) 
     return str(folder_path / "PCBAssembly.aedt"), str(folder_path / "QFP2.aedt")
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_via_wizard(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_via_wizard(local_path: str | Path | None = None) -> str:
     """Download an example of Hfss Via Wizard and return the def path.
 
     If example files have already been downloaded, the download is
@@ -486,8 +483,8 @@ def download_via_wizard(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_touchstone(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_touchstone(local_path: str | Path | None = None) -> str:
     """Download an example of touchstone File and return the def path.
 
     If example files have already been downloaded, the download is
@@ -515,8 +512,8 @@ def download_touchstone(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(s6p_file)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_sherlock(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_sherlock(local_path: str | Path | None = None) -> str:
     """Download an example of sherlock needed files and return the def path.
 
     If example files have already been downloaded, the download is
@@ -547,8 +544,8 @@ def download_sherlock(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(folder_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_leaf(local_path: Optional[Union[str, Path]] = None) -> Tuple[str, str]:
+@pyaedt_function_handler()
+def download_leaf(local_path: str | Path | None = None) -> tuple[str, str]:
     """Download an example of Nissan leaf files and return the def path.
 
     If example files have already been downloaded, the download is
@@ -580,8 +577,8 @@ def download_leaf(local_path: Optional[Union[str, Path]] = None) -> Tuple[str, s
     return str(smooth_tab_path), str(magnetics_tab_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_custom_reports(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_custom_reports(force_download: bool = False, local_path: str | Path | None = None) -> str:
     """Download an example of CISPR25 with customer reports json template files.
 
     If example files have already been downloaded, the download is
@@ -608,7 +605,7 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/custom_reports'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -622,8 +619,8 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
     return str(folder_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_3dcomponent(force_download: bool = False, local_path: str | Path | None = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -649,7 +646,7 @@ def download_3dcomponent(force_download=False, local_path: Optional[Union[str, P
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/array_3d_component'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -663,8 +660,8 @@ def download_3dcomponent(force_download=False, local_path: Optional[Union[str, P
     return str(folder_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_fss_3dcomponent(force_download: bool = False, local_path: str | Path | None = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -690,7 +687,7 @@ def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[st
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/fss_3d_component'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -704,8 +701,8 @@ def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[st
     return str(fodler_path)
 
 
-@pyaedt_function_handler(destination="local_path")
-def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_multiparts(local_path: str | Path | None = None) -> str:
     """Download an example of 3DComponents Multiparts.
 
     If example files have already been downloaded, the download is
@@ -730,7 +727,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/multiparts/library'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -743,9 +740,9 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(local_path / "multiparts" / "library")
 
 
-@pyaedt_function_handler(destination="local_path")
+@pyaedt_function_handler()
 def download_twin_builder_data(
-    file_name: Optional[str] = None, force_download=False, local_path: Optional[Union[str, Path]] = None
+    file_name: str | None = None, force_download: bool = False, local_path: str | Path | None = None
 ) -> str:
     """Download a Twin Builder example data file.
 
@@ -774,7 +771,7 @@ def download_twin_builder_data(
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/twin_builder'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -788,7 +785,7 @@ def download_twin_builder_data(
 
     if file_name:
 
-        def filter_func(f):
+        def filter_func(f) -> bool:
             return not f.endswith(file_name)
 
     else:
@@ -803,8 +800,8 @@ def download_twin_builder_data(
     return str(folder_path)
 
 
-@pyaedt_function_handler(filename="name", directory="source")
-def download_file(source: str, name: Optional[str] = None, local_path: Optional[Union[str, Path]] = None) -> str:
+@pyaedt_function_handler()
+def download_file(source: str, name: str | None = None, local_path: str | Path | None = None) -> str:
     """Download a file or files from the online examples repository.
 
     Files are downloaded from the
@@ -861,7 +858,7 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     return str(path)
 
 
-def unzip(source_filename, dest_dir):
+def unzip(source_filename, dest_dir) -> None:
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
     print(dest_dir)

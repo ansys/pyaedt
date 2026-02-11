@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -59,7 +59,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting to 3D in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,
@@ -86,7 +86,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
             msg = "HFSS 3D Layout project is needed."
             raise AEDTRuntimeError(msg)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
@@ -101,7 +101,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         self.combo_choice.grid(row=0, column=1, columnspan=2, padx=15, pady=10)
         self.combo_choice.focus_set()
 
-        def callback(extension: ExportTo3DExtension):
+        def callback(extension: ExportTo3DExtension) -> None:
             choice = extension.combo_choice.get()
 
             export_data = ExportTo3DExtensionData(choice=choice)
@@ -119,7 +119,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         ok_button.grid(row=1, column=0, padx=15, pady=10)
 
 
-def main(data: ExportTo3DExtensionData):
+def main(data: ExportTo3DExtensionData) -> bool:
     """Main function to run the export to 3D extension."""
     if not data.choice:
         raise AEDTRuntimeError("No choice provided to the extension.")
@@ -149,7 +149,7 @@ def main(data: ExportTo3DExtensionData):
     h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = SUFFIXES[choice]
-
+    h3d.save_project()
     if choice == "Export to Q3D":
         project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
         setup.export_to_q3d(project_file, keep_net_name=True)

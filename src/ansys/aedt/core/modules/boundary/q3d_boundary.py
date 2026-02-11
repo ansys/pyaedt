@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,14 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import CATEGORIESQ3D
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class Matrix(PyAedtBase):
@@ -41,7 +41,7 @@ class Matrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, name, operations=None):
+    def __init__(self, app, name: str, operations=None) -> None:
         self._app = app
         self.omatrix = self._app.omatrix
         self.name = name
@@ -52,30 +52,18 @@ class Matrix(PyAedtBase):
             else:
                 self._operations = [operations]
 
-    # TODO: Remove for release 1.0.0
-    @property
-    def CATEGORIES(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants`` instead."""
-        warnings.warn(
-            "Usage of CATEGORIES is deprecated. "
-            "Use a plot category defined in ansys.aedt.core.generic.constants instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return CATEGORIESQ3D
-
     @pyaedt_function_handler()
-    def sources(self, is_gc_sources=True):
+    def sources(self, is_gc_sources: bool = True) -> list:
         """List of matrix sources.
 
         Parameters
         ----------
-        is_gc_sources : bool,
-            In Q3d, define if to return GC sources or RL sources. Default `True`.
+        is_gc_sources : bool
+            In Q3d, define if to return GC sources or RL sources. The default is ``True``.
 
         Returns
         -------
-        List
+        list
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             if self._app.design_type == "Q3D Extractor":
@@ -87,12 +75,12 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def get_sources_for_plot(
         self,
-        get_self_terms=True,
-        get_mutual_terms=True,
-        first_element_filter=None,
-        second_element_filter=None,
-        category="C",
-    ):
+        get_self_terms: bool = True,
+        get_mutual_terms: bool = True,
+        first_element_filter: str | None = None,
+        second_element_filter: str | None = None,
+        category: str | MatrixOperationsQ3D | None = "C",
+    ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
 
         Parameters
@@ -105,7 +93,7 @@ class Matrix(PyAedtBase):
             Filter to apply to first element of equation. It accepts `*` and `?` as special characters.
         second_element_filter : str, optional
             Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
-        category : str
+        category : str or :class:`ansys.aedt.core.generic.constants.MatrixOperationsQ3D`, optional
             Plot category name as in the report. Eg. "C" is category Capacitance.
             Matrix `CATEGORIES` property can be used to map available categories.
 
@@ -144,12 +132,12 @@ class Matrix(PyAedtBase):
         return list_output
 
     @property
-    def operations(self):
+    def operations(self) -> list:
         """List of matrix operations.
 
         Returns
         -------
-        List
+        list
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
@@ -158,17 +146,17 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        source_names=None,
-        new_net_name=None,
-        new_source_name=None,
-        new_sink_name=None,
-    ):
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
+    ) -> bool:
         """Create a new matrix.
 
         Parameters
         ----------
-        source_names : str, list
-            List or str containing the content of the matrix reduction (eg. source name).
+        source_names : str or list
+            List or str containing the content of the matrix reduction.
         new_net_name : str, optional
             Name of the new net. The default is ``None``.
         new_source_name : str, optional
@@ -189,7 +177,7 @@ class Matrix(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete current matrix.
 
         Returns
@@ -206,19 +194,19 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def add_operation(
         self,
-        operation_type,
-        source_names=None,
-        new_net_name=None,
-        new_source_name=None,
-        new_sink_name=None,
-    ):
+        operation_type: str | MatrixOperationsQ3D,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
+    ) -> bool:
         """Add a new operation to existing matrix.
 
         Parameters
         ----------
-        operation_type : str
+        operation_type : str or :class:`ansys.aedt.core.generic.constants.MatrixOperationsQ3D`
             Operation to perform
-        source_names : str, list
+        source_names : str or list, optional
             List or str containing the content of the matrix reduction (eg. source name).
         new_net_name : str, optional
             Name of the new net. The default is ``None``.
@@ -251,33 +239,38 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
-        if self._operations[-1] == "JoinSeries":
-            command = f"""{self._operations[-1]}('{new_name}', '{"', '".join(source_names)}')"""
-        elif self._operations[-1] == "JoinParallel":
-            command = (
-                f"""{self._operations[-1]}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
-            )
-        elif self._operations[-1] == "JoinSelectedTerminals":
-            command = f"""{self._operations[-1]}('', '{"', '".join(source_names)}')"""
-        elif self._operations[-1] == "FloatInfinity":
+        if not self._operations:  # pragma: no cover
+            raise AEDTRuntimeError("Operations list is empty.")
+        operation_name = self._operations[-1]
+        operation_name = (
+            str(operation_name.value) if isinstance(operation_name, MatrixOperationsQ3D) else operation_name
+        )
+
+        if operation_name == "JoinSeries":
+            command = f"""{operation_name}('{new_name}', '{"', '".join(source_names)}')"""
+        elif operation_name == "JoinParallel":
+            command = f"""{operation_name}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
+        elif operation_name == "JoinSelectedTerminals":
+            command = f"""{operation_name}('', '{"', '".join(source_names)}')"""
+        elif operation_name == "FloatInfinity":
             command = "FloatInfinity()"
-        elif self._operations[-1] == "AddGround":
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+        elif operation_name == "AddGround":
+            command = f"""{operation_name}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo())"""
         elif (
-            self._operations[-1] == "SetReferenceGround"
-            or self._operations[-1] == "SetReferenceGround"
-            or self._operations[-1] == "Float"
+            operation_name == "SetReferenceGround"
+            or operation_name == "SetReferenceGround"
+            or operation_name == "Float"
         ):
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            command = f"""{operation_name}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo())"""
-        elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
+        elif operation_name == "Parallel" or operation_name == "DiffPair":
             id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id_ = self._app.modeler[el.props["Objects"][0]].id
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            command = f"""{operation_name}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo({id_}, '{new_name}'))"""
         else:
-            command = f"""{self._operations[-1]}('{"', '".join(source_names)}')"""
+            command = f"""{operation_name}('{"', '".join(source_names)}')"""
         return command

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,6 @@ from ctypes import c_int
 from ctypes import create_string_buffer
 from enum import Enum
 import os
-from typing import Union
 
 import ansys.aedt.core
 
@@ -179,7 +178,7 @@ class ExportToAedt:
     This class allows you to define and modify the parameters for exporting a designed filter to ``AEDT``.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_export_to_desktop_dll_functions()
@@ -187,7 +186,7 @@ class ExportToAedt:
         if self._dll_interface.api_version() >= "2025.2":
             self.define_export_to_desktop_distributed_dll_functions()
 
-    def _define_export_to_desktop_dll_functions(self):
+    def _define_export_to_desktop_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setSchematicName.argtype = c_char_p
         self._dll.setSchematicName.restype = c_int
@@ -502,7 +501,7 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
-    def define_export_to_desktop_distributed_dll_functions(self):
+    def define_export_to_desktop_distributed_dll_functions(self) -> None:
         """Define C++ API DLL functions for distributed filter."""
         self._dll.setCircuitDesign.argtype = c_bool
         self._dll.setCircuitDesign.restype = c_int
@@ -563,7 +562,7 @@ class ExportToAedt:
         return schematic_name_string
 
     @schematic_name.setter
-    def schematic_name(self, schematic_name_string):
+    def schematic_name(self, schematic_name_string) -> None:
         self._dll_interface.set_string(self._dll.setSchematicName, schematic_name_string)
 
     @property
@@ -580,7 +579,7 @@ class ExportToAedt:
         return bool(simulate_after_export_enabled.value)
 
     @simulate_after_export_enabled.setter
-    def simulate_after_export_enabled(self, simulate_after_export_enabled: bool):
+    def simulate_after_export_enabled(self, simulate_after_export_enabled: bool) -> None:
         status = self._dll.setSimulateAfterExport(simulate_after_export_enabled)
         self._dll_interface.raise_error(status)
 
@@ -598,7 +597,7 @@ class ExportToAedt:
         return bool(include_group_delay_enabled.value)
 
     @include_group_delay_enabled.setter
-    def include_group_delay_enabled(self, include_group_delay_enabled: bool):
+    def include_group_delay_enabled(self, include_group_delay_enabled: bool) -> None:
         status = self._dll.setGroupDelay(include_group_delay_enabled)
         self._dll_interface.raise_error(status)
 
@@ -616,7 +615,7 @@ class ExportToAedt:
         return bool(include_gt_gain_enabled.value)
 
     @include_gt_gain_enabled.setter
-    def include_gt_gain_enabled(self, include_gt_gain_enabled: bool):
+    def include_gt_gain_enabled(self, include_gt_gain_enabled: bool) -> None:
         status = self._dll.setGTGain(include_gt_gain_enabled)
         self._dll_interface.raise_error(status)
 
@@ -634,7 +633,7 @@ class ExportToAedt:
         return bool(include_vgsl_enabled.value)
 
     @include_vgsl_enabled.setter
-    def include_vgsl_enabled(self, include_vgsl_enabled: bool):
+    def include_vgsl_enabled(self, include_vgsl_enabled: bool) -> None:
         status = self._dll.setVGSL(include_vgsl_enabled)
         self._dll_interface.raise_error(status)
 
@@ -652,7 +651,7 @@ class ExportToAedt:
         return bool(include_vgin_enabled.value)
 
     @include_vgin_enabled.setter
-    def include_vgin_enabled(self, include_vgin_enabled: bool):
+    def include_vgin_enabled(self, include_vgin_enabled: bool) -> None:
         status = self._dll.setVGIN(include_vgin_enabled)
         self._dll_interface.raise_error(status)
 
@@ -671,7 +670,7 @@ class ExportToAedt:
         return bool(include_input_return_loss_s11_enabled.value)
 
     @include_input_return_loss_s11_enabled.setter
-    def include_input_return_loss_s11_enabled(self, include_input_return_loss_s11_enabled: bool):
+    def include_input_return_loss_s11_enabled(self, include_input_return_loss_s11_enabled: bool) -> None:
         status = self._dll.setS11(include_input_return_loss_s11_enabled)
         self._dll_interface.raise_error(status)
 
@@ -689,7 +688,7 @@ class ExportToAedt:
         return bool(include_forward_transfer_s21_enabled.value)
 
     @include_forward_transfer_s21_enabled.setter
-    def include_forward_transfer_s21_enabled(self, include_forward_transfer_s21_enabled: bool):
+    def include_forward_transfer_s21_enabled(self, include_forward_transfer_s21_enabled: bool) -> None:
         status = self._dll.setS21(include_forward_transfer_s21_enabled)
         self._dll_interface.raise_error(status)
 
@@ -707,7 +706,7 @@ class ExportToAedt:
         return bool(include_reverse_transfer_s12_enabled.value)
 
     @include_reverse_transfer_s12_enabled.setter
-    def include_reverse_transfer_s12_enabled(self, include_reverse_transfer_s12_enabled: bool):
+    def include_reverse_transfer_s12_enabled(self, include_reverse_transfer_s12_enabled: bool) -> None:
         status = self._dll.setS12(include_reverse_transfer_s12_enabled)
         self._dll_interface.raise_error(status)
 
@@ -725,7 +724,7 @@ class ExportToAedt:
         return bool(include_output_return_loss_s22_enabled.value)
 
     @include_output_return_loss_s22_enabled.setter
-    def include_output_return_loss_s22_enabled(self, include_output_return_loss_s22_enabled: bool):
+    def include_output_return_loss_s22_enabled(self, include_output_return_loss_s22_enabled: bool) -> None:
         status = self._dll.setS22(include_output_return_loss_s22_enabled)
         self._dll_interface.raise_error(status)
 
@@ -743,7 +742,7 @@ class ExportToAedt:
         return bool(db_format_enabled.value)
 
     @db_format_enabled.setter
-    def db_format_enabled(self, db_format_enabled: bool):
+    def db_format_enabled(self, db_format_enabled: bool) -> None:
         status = self._dll.setDbFormat(db_format_enabled)
         self._dll_interface.raise_error(status)
 
@@ -762,7 +761,7 @@ class ExportToAedt:
         return bool(rectangular_plot_enabled.value)
 
     @rectangular_plot_enabled.setter
-    def rectangular_plot_enabled(self, rectangular_plot_enabled: bool):
+    def rectangular_plot_enabled(self, rectangular_plot_enabled: bool) -> None:
         status = self._dll.setRectPlot(rectangular_plot_enabled)
         self._dll_interface.raise_error(status)
 
@@ -781,7 +780,7 @@ class ExportToAedt:
         return bool(smith_plot_enabled.value)
 
     @smith_plot_enabled.setter
-    def smith_plot_enabled(self, smith_plot_enabled: bool):
+    def smith_plot_enabled(self, smith_plot_enabled: bool) -> None:
         status = self._dll.setSmithPlot(smith_plot_enabled)
         self._dll_interface.raise_error(status)
 
@@ -799,7 +798,7 @@ class ExportToAedt:
         return bool(polar_plot_enabled.value)
 
     @polar_plot_enabled.setter
-    def polar_plot_enabled(self, polar_plot_enabled: bool):
+    def polar_plot_enabled(self, polar_plot_enabled: bool) -> None:
         status = self._dll.setPolarPlot(polar_plot_enabled)
         self._dll_interface.raise_error(status)
 
@@ -817,7 +816,7 @@ class ExportToAedt:
         return bool(table_data_enabled.value)
 
     @table_data_enabled.setter
-    def table_data_enabled(self, table_data_enabled: bool):
+    def table_data_enabled(self, table_data_enabled: bool) -> None:
         status = self._dll.setTableData(table_data_enabled)
         self._dll_interface.raise_error(status)
 
@@ -835,7 +834,7 @@ class ExportToAedt:
         return bool(optimitrics_enabled.value)
 
     @optimitrics_enabled.setter
-    def optimitrics_enabled(self, optimitrics_enabled: bool):
+    def optimitrics_enabled(self, optimitrics_enabled: bool) -> None:
         status = self._dll.setOptimetrics(optimitrics_enabled)
         self._dll_interface.raise_error(status)
 
@@ -853,7 +852,7 @@ class ExportToAedt:
         return bool(optimize_after_export_enabled.value)
 
     @optimize_after_export_enabled.setter
-    def optimize_after_export_enabled(self, optimize_after_export_enabled: bool):
+    def optimize_after_export_enabled(self, optimize_after_export_enabled: bool) -> None:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         self._dll_interface.raise_error(status)
 
@@ -911,10 +910,10 @@ class ExportToAedt:
             )
             return design
 
-    def load_library_parts_config(self, load_library_parts_config_string):
+    def load_library_parts_config(self, load_library_parts_config_string) -> None:
         self._dll_interface.set_string(self._dll.loadLibraryPartsConf, load_library_parts_config_string)
 
-    def save_library_parts_config(self, save_library_parts_config_string):
+    def save_library_parts_config(self, save_library_parts_config_string) -> None:
         self._dll_interface.set_string(self._dll.saveLibraryPartsConf, save_library_parts_config_string)
 
     def import_tuned_variables(self):
@@ -943,7 +942,7 @@ class ExportToAedt:
         return part_libraries
 
     @part_libraries.setter
-    def part_libraries(self, library_type: PartLibraries):
+    def part_libraries(self, library_type: PartLibraries) -> None:
         status = self._dll.setPartLibraries(library_type.value)
         self._dll_interface.raise_error(status)
 
@@ -964,7 +963,7 @@ class ExportToAedt:
         return interconnect_length_to_width_ratio_string
 
     @interconnect_length_to_width_ratio.setter
-    def interconnect_length_to_width_ratio(self, interconnect_length_to_width_ratio_string):
+    def interconnect_length_to_width_ratio(self, interconnect_length_to_width_ratio_string) -> None:
         self._dll_interface.set_string(self._dll.setLengthToWidthRatio, interconnect_length_to_width_ratio_string)
 
     @property
@@ -986,7 +985,7 @@ class ExportToAedt:
         return interconnect_minimum_length_to_width_ratio_string
 
     @interconnect_minimum_length_to_width_ratio.setter
-    def interconnect_minimum_length_to_width_ratio(self, interconnect_minimum_length_to_width_ratio_string):
+    def interconnect_minimum_length_to_width_ratio(self, interconnect_minimum_length_to_width_ratio_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLowerLengthGeometricLimitRatio, interconnect_minimum_length_to_width_ratio_string
         )
@@ -1010,7 +1009,7 @@ class ExportToAedt:
         return interconnect_maximum_length_to_width_ratio_string
 
     @interconnect_maximum_length_to_width_ratio.setter
-    def interconnect_maximum_length_to_width_ratio(self, interconnect_maximum_length_to_width_ratio_string):
+    def interconnect_maximum_length_to_width_ratio(self, interconnect_maximum_length_to_width_ratio_string) -> None:
         self._dll_interface.set_string(
             self._dll.setUpperLengthGeometricLimitRatio, interconnect_maximum_length_to_width_ratio_string
         )
@@ -1035,7 +1034,7 @@ class ExportToAedt:
         return interconnect_line_to_termination_width_ratio_string
 
     @interconnect_line_to_termination_width_ratio.setter
-    def interconnect_line_to_termination_width_ratio(self, interconnect_line_to_termination_width_ratio_string):
+    def interconnect_line_to_termination_width_ratio(self, interconnect_line_to_termination_width_ratio_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLineWidthToTerminationWidthRatio, interconnect_line_to_termination_width_ratio_string
         )
@@ -1061,7 +1060,7 @@ class ExportToAedt:
     @interconnect_minimum_line_to_termination_width_ratio.setter
     def interconnect_minimum_line_to_termination_width_ratio(
         self, interconnect_minimum_line_to_termination_width_ratio_string
-    ):
+    ) -> None:
         self._dll_interface.set_string(
             self._dll.setLowerWidthGeometricLimitRatio, interconnect_minimum_line_to_termination_width_ratio_string
         )
@@ -1087,7 +1086,7 @@ class ExportToAedt:
     @interconnect_maximum_line_to_termination_width_ratio.setter
     def interconnect_maximum_line_to_termination_width_ratio(
         self, interconnect_maximum_line_to_termination_width_ratio_string
-    ):
+    ) -> None:
         self._dll_interface.set_string(
             self._dll.setUpperWidthGeometricLimitRatio, interconnect_maximum_line_to_termination_width_ratio_string
         )
@@ -1110,7 +1109,7 @@ class ExportToAedt:
         return interconnect_length_value_string
 
     @interconnect_length_value.setter
-    def interconnect_length_value(self, interconnect_length_value_string):
+    def interconnect_length_value(self, interconnect_length_value_string) -> None:
         self._dll_interface.set_string(self._dll.setLengthToWidthValue, interconnect_length_value_string)
 
     @property
@@ -1132,7 +1131,7 @@ class ExportToAedt:
         return interconnect_minimum_length_value_string
 
     @interconnect_minimum_length_value.setter
-    def interconnect_minimum_length_value(self, interconnect_minimum_length_value_string):
+    def interconnect_minimum_length_value(self, interconnect_minimum_length_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLowerLengthGeometricLimitValue, interconnect_minimum_length_value_string
         )
@@ -1155,7 +1154,7 @@ class ExportToAedt:
         return interconnect_maximum_length_value_string
 
     @interconnect_maximum_length_value.setter
-    def interconnect_maximum_length_value(self, interconnect_maximum_length_value_string):
+    def interconnect_maximum_length_value(self, interconnect_maximum_length_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setUpperLengthGeometricLimitValue, interconnect_maximum_length_value_string
         )
@@ -1180,7 +1179,7 @@ class ExportToAedt:
         return interconnect_line_width_value_string
 
     @interconnect_line_width_value.setter
-    def interconnect_line_width_value(self, interconnect_line_width_value_string):
+    def interconnect_line_width_value(self, interconnect_line_width_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLineWidthToTerminationWidthValue, interconnect_line_width_value_string
         )
@@ -1204,7 +1203,7 @@ class ExportToAedt:
         return interconnect_minimum_width_value_string
 
     @interconnect_minimum_width_value.setter
-    def interconnect_minimum_width_value(self, interconnect_minimum_width_value_string):
+    def interconnect_minimum_width_value(self, interconnect_minimum_width_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLowerWidthGeometricLimitValue, interconnect_minimum_width_value_string
         )
@@ -1228,7 +1227,7 @@ class ExportToAedt:
         return interconnect_maximum_width_value_string
 
     @interconnect_maximum_width_value.setter
-    def interconnect_maximum_width_value(self, interconnect_maximum_width_value_string):
+    def interconnect_maximum_width_value(self, interconnect_maximum_width_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setUpperWidthGeometricLimitValue, interconnect_maximum_width_value_string
         )
@@ -1249,7 +1248,7 @@ class ExportToAedt:
         return interconnect_inductor_tolerance_value_string
 
     @interconnect_inductor_tolerance_value.setter
-    def interconnect_inductor_tolerance_value(self, interconnect_inductor_tolerance_value_string):
+    def interconnect_inductor_tolerance_value(self, interconnect_inductor_tolerance_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setInterConnectInductorTolerance, interconnect_inductor_tolerance_value_string
         )
@@ -1270,7 +1269,7 @@ class ExportToAedt:
         return interconnect_capacitor_tolerance_value_string
 
     @interconnect_capacitor_tolerance_value.setter
-    def interconnect_capacitor_tolerance_value(self, interconnect_capacitor_tolerance_value_string):
+    def interconnect_capacitor_tolerance_value(self, interconnect_capacitor_tolerance_value_string) -> None:
         self._dll_interface.set_string(
             self._dll.setInterConnectCapacitorTolerance, interconnect_capacitor_tolerance_value_string
         )
@@ -1289,16 +1288,16 @@ class ExportToAedt:
         return bool(interconnect_geometry_optimization_enabled.value)
 
     @interconnect_geometry_optimization_enabled.setter
-    def interconnect_geometry_optimization_enabled(self, interconnect_geometry_optimization_enabled: bool):
+    def interconnect_geometry_optimization_enabled(self, interconnect_geometry_optimization_enabled: bool) -> None:
         status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
         self._dll_interface.raise_error(status)
 
-    def update_interconncet_parameters(self):  # pragma: no cover
+    def update_interconncet_parameters(self) -> None:  # pragma: no cover
         """Update interconnect geometry equations with entered and selected parameters"""
         status = self._dll.updateInterConnectParmeters()
         self._dll_interface.raise_error(status)
 
-    def update_inductor_capacitor_tolerances(self):  # pragma: no cover
+    def update_inductor_capacitor_tolerances(self) -> None:  # pragma: no cover
         """Update interconnect inductor and capacitor tolerances with entered values"""
         status = self._dll.updatePartsTolerances()
         self._dll_interface.raise_error(status)
@@ -1327,7 +1326,7 @@ class ExportToAedt:
             return self._dll_interface.string_to_enum(SubstrateType, type_string)
 
     @substrate_type.setter
-    def substrate_type(self, substrate_type: SubstrateType):
+    def substrate_type(self, substrate_type: SubstrateType) -> None:
         if self._dll_interface.api_version() >= "2025.2":
             # The 25R2 DLL is updated to accept the enum value directly
             status = self._dll.setSubstrateType(substrate_type.value)
@@ -1338,7 +1337,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_er(self) -> Union[SubstrateType, str]:
+    def substrate_er(self) -> SubstrateType | str:
         """Substrate's relative permittivity ``Er``.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
@@ -1373,7 +1372,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
+    def substrate_resistivity(self) -> SubstrateResistivity | str:
         """Substrate's resistivity.
 
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
@@ -1407,7 +1406,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
+    def substrate_loss_tangent(self) -> SubstrateEr | str:
         """Substrate's loss tangent.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
@@ -1454,7 +1453,7 @@ class ExportToAedt:
         return substrate_conductor_thickness_string
 
     @substrate_conductor_thickness.setter
-    def substrate_conductor_thickness(self, substrate_conductor_thickness_string):
+    def substrate_conductor_thickness(self, substrate_conductor_thickness_string) -> None:
         self._dll_interface.set_string(self._dll.setConductorThickness, substrate_conductor_thickness_string)
 
     @property
@@ -1471,7 +1470,7 @@ class ExportToAedt:
         return substrate_dielectric_height_string
 
     @substrate_dielectric_height.setter
-    def substrate_dielectric_height(self, substrate_dielectric_height_string):
+    def substrate_dielectric_height(self, substrate_dielectric_height_string) -> None:
         self._dll_interface.set_string(self._dll.setDielectricHeight, substrate_dielectric_height_string)
 
     @property
@@ -1490,7 +1489,7 @@ class ExportToAedt:
         return substrate_unbalanced_lower_dielectric_height_string
 
     @substrate_unbalanced_lower_dielectric_height.setter
-    def substrate_unbalanced_lower_dielectric_height(self, substrate_unbalanced_lower_dielectric_height_string):
+    def substrate_unbalanced_lower_dielectric_height(self, substrate_unbalanced_lower_dielectric_height_string) -> None:
         self._dll_interface.set_string(
             self._dll.setLowerDielectricHeight, substrate_unbalanced_lower_dielectric_height_string
         )
@@ -1511,7 +1510,7 @@ class ExportToAedt:
         return substrate_suspend_dielectric_height_string
 
     @substrate_suspend_dielectric_height.setter
-    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string):
+    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string) -> None:
         self._dll_interface.set_string(self._dll.setSuspendDielectricHeight, substrate_suspend_dielectric_height_string)
 
     @property
@@ -1527,7 +1526,7 @@ class ExportToAedt:
         return substrate_cover_height_string
 
     @substrate_cover_height.setter
-    def substrate_cover_height(self, substrate_cover_height_string):
+    def substrate_cover_height(self, substrate_cover_height_string) -> None:
         self._dll_interface.set_string(self._dll.setCoverHeight, substrate_cover_height_string)
 
     @property
@@ -1544,7 +1543,7 @@ class ExportToAedt:
         return bool(substrate_unbalanced_stripline_enabled.value)
 
     @substrate_unbalanced_stripline_enabled.setter
-    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
+    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool) -> None:
         status = self._dll.setUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1562,11 +1561,11 @@ class ExportToAedt:
         return bool(substrate_cover_height_enabled.value)
 
     @substrate_cover_height_enabled.setter
-    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
+    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool) -> None:
         status = self._dll.setGroundedCoverAboveLine(substrate_cover_height_enabled)
         self._dll_interface.raise_error(status)
 
-    def load_modelithics_models(self):
+    def load_modelithics_models(self) -> None:
         """Load ``Modelithics`` models from ``AEDT``."""
         status = self._dll.loadModelithicsModels()
         self._dll_interface.raise_error(status)
@@ -1585,7 +1584,7 @@ class ExportToAedt:
         return bool(modelithics_include_interconnect_enabled.value)
 
     @modelithics_include_interconnect_enabled.setter
-    def modelithics_include_interconnect_enabled(self, modelithics_include_interconnect_enabled: bool):
+    def modelithics_include_interconnect_enabled(self, modelithics_include_interconnect_enabled: bool) -> None:
         status = self._dll.setModelithicsIncludeInterconnect(modelithics_include_interconnect_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1627,7 +1626,7 @@ class ExportToAedt:
         return modelithics_inductor_selection_string
 
     @modelithics_inductor_selection.setter
-    def modelithics_inductor_selection(self, modelithics_inductor_selection_string):
+    def modelithics_inductor_selection(self, modelithics_inductor_selection_string) -> None:
         self._dll_interface.set_string(self._dll.setModelithicsInductors, modelithics_inductor_selection_string)
 
     @property
@@ -1719,7 +1718,7 @@ class ExportToAedt:
         return modelithics_capacitor_selection_string
 
     @modelithics_capacitor_selection.setter
-    def modelithics_capacitor_selection(self, modelithics_capacitor_selection_string):
+    def modelithics_capacitor_selection(self, modelithics_capacitor_selection_string) -> None:
         self._dll_interface.set_string(self._dll.setModelithicsCapacitors, modelithics_capacitor_selection_string)
 
     @property
@@ -1811,7 +1810,7 @@ class ExportToAedt:
         return modelithics_resistor_selection_string
 
     @modelithics_resistor_selection.setter
-    def modelithics_resistor_selection(self, modelithics_resistor_selection_string):
+    def modelithics_resistor_selection(self, modelithics_resistor_selection_string) -> None:
         self._dll_interface.set_string(self._dll.setModelithicsResistors, modelithics_resistor_selection_string)
 
     @property
@@ -1880,7 +1879,7 @@ class ExportToAedt:
         return bool(insert_circuit_design.value)
 
     @insert_circuit_design.setter
-    def insert_circuit_design(self, insert_circuit_design: bool):
+    def insert_circuit_design(self, insert_circuit_design: bool) -> None:
         status = self._dll.setCircuitDesign(insert_circuit_design)
         self._dll_interface.raise_error(status)
 
@@ -1898,7 +1897,7 @@ class ExportToAedt:
         return bool(insert_hfss_design.value)
 
     @insert_hfss_design.setter
-    def insert_hfss_design(self, insert_hfss_design: bool):
+    def insert_hfss_design(self, insert_hfss_design: bool) -> None:
         status = self._dll.setHFSSDesign(insert_hfss_design)
         self._dll_interface.raise_error(status)
 
@@ -1916,7 +1915,7 @@ class ExportToAedt:
         return bool(insert_hfss_3dl_design.value)
 
     @insert_hfss_3dl_design.setter
-    def insert_hfss_3dl_design(self, insert_hfss_3dl_design: bool):
+    def insert_hfss_3dl_design(self, insert_hfss_3dl_design: bool) -> None:
         status = self._dll.setHFSS3DLDesign(insert_hfss_3dl_design)
         self._dll_interface.raise_error(status)
 
@@ -1935,7 +1934,7 @@ class ExportToAedt:
         return bool(full_parametrization_enabled.value)
 
     @full_parametrization_enabled.setter
-    def full_parametrization_enabled(self, full_parametrization_enabled: bool):
+    def full_parametrization_enabled(self, full_parametrization_enabled: bool) -> None:
         status = self._dll.setFullParametrization(full_parametrization_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1953,7 +1952,7 @@ class ExportToAedt:
         return bool(ports_always_on_sides_enabled.value)
 
     @ports_always_on_sides_enabled.setter
-    def ports_always_on_sides_enabled(self, ports_always_on_sides_enabled: bool):
+    def ports_always_on_sides_enabled(self, ports_always_on_sides_enabled: bool) -> None:
         status = self._dll.setPortsOnSides(ports_always_on_sides_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1971,7 +1970,7 @@ class ExportToAedt:
         return bool(reverse_x_axis_enabled.value)
 
     @reverse_x_axis_enabled.setter
-    def reverse_x_axis_enabled(self, reverse_x_axis_enabled: bool):
+    def reverse_x_axis_enabled(self, reverse_x_axis_enabled: bool) -> None:
         status = self._dll.setFlipXAxis(reverse_x_axis_enabled)
         self._dll_interface.raise_error(status)
 
@@ -1989,7 +1988,7 @@ class ExportToAedt:
         return bool(reverse_y_axis_enabled.value)
 
     @reverse_y_axis_enabled.setter
-    def reverse_y_axis_enabled(self, reverse_y_axis_enabled: bool):
+    def reverse_y_axis_enabled(self, reverse_y_axis_enabled: bool) -> None:
         status = self._dll.setFlipYAxis(reverse_y_axis_enabled)
         self._dll_interface.raise_error(status)
 
@@ -2007,7 +2006,7 @@ class ExportToAedt:
         return bool(export_with_tuning_port_format_enabled.value)
 
     @export_with_tuning_port_format_enabled.setter
-    def export_with_tuning_port_format_enabled(self, export_with_tuning_port_format_enabled: bool):
+    def export_with_tuning_port_format_enabled(self, export_with_tuning_port_format_enabled: bool) -> None:
         status = self._dll.setIncludeTuningPorts(export_with_tuning_port_format_enabled)
         self._dll_interface.raise_error(status)
 
@@ -2025,31 +2024,31 @@ class ExportToAedt:
         return bool(use_series_horizontal_ports_enabled.value)
 
     @use_series_horizontal_ports_enabled.setter
-    def use_series_horizontal_ports_enabled(self, use_series_horizontal_ports_enabled: bool):
+    def use_series_horizontal_ports_enabled(self, use_series_horizontal_ports_enabled: bool) -> None:
         status = self._dll.setSeriesHorizontalPorts(use_series_horizontal_ports_enabled)
         self._dll_interface.raise_error(status)
 
-    def import_tuned_variables_port_tuning(self):
+    def import_tuned_variables_port_tuning(self) -> None:
         """Import tuned variables from the port tuning project."""
         status = self._dll.importPortTunedVariables()
         self._dll_interface.raise_error(status)
 
-    def import_and_reexport_over_port_tuning(self):
+    def import_and_reexport_over_port_tuning(self) -> None:
         """Import tuned variables and export back over the port tuning project."""
         status = self._dll.importReexportPortTunedVariables()
         self._dll_interface.raise_error(status)
 
-    def simulate_full_port_tuning(self):
+    def simulate_full_port_tuning(self) -> None:
         """Simulate the port tuning project and the linked circuits schematic."""
         status = self._dll.simulateFull()
         self._dll_interface.raise_error(status)
 
-    def simulate_tuning_circuit_port_tuning(self):
+    def simulate_tuning_circuit_port_tuning(self) -> None:
         """Simulate only the linked circuits schematic of the port tuning project."""
         status = self._dll.simulateTune()
         self._dll_interface.raise_error(status)
 
-    def optimize_port_tuning(self):
+    def optimize_port_tuning(self) -> None:
         """Simulate the ``HFSS Design`` or ``HFSS 3D Layout Design`` of the port tuning project."""
         status = self._dll.optimizerPortTunedVariables()
         self._dll_interface.raise_error(status)

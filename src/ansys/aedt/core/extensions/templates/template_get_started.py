@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -66,7 +66,7 @@ class ExtensionData:
 class TemplateExtension(ExtensionProjectCommon):
     """Extension template to help get started."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
@@ -76,7 +76,7 @@ class TemplateExtension(ExtensionProjectCommon):
             toggle_column=2,
         )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Origin x entry
         origin_x_label = ttk.Label(self.root, text="Origin X:", width=20, style="PyAEDT.TLabel")
@@ -133,7 +133,7 @@ class TemplateExtension(ExtensionProjectCommon):
             background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
-        def callback():
+        def callback() -> None:
             global result
             result = ExtensionData(
                 origin_x=float(origin_x_entry.get("1.0", tkinter.END).strip() or 0.0),
@@ -144,7 +144,7 @@ class TemplateExtension(ExtensionProjectCommon):
             )
             self.root.destroy()
 
-        def browse_files():
+        def browse_files() -> None:
             global result
             filename = filedialog.askopenfilename(
                 initialdir="/",
@@ -169,7 +169,7 @@ class TemplateExtension(ExtensionProjectCommon):
         create_button.grid(row=6, column=0, padx=15, pady=10)
 
 
-def main(extension_args):
+def main(extension_args) -> bool:
     origin_x = extension_args.get("origin_x", EXTENSION_DEFAULT_ARGUMENTS["origin_x"])
     origin_y = extension_args.get("origin_y", EXTENSION_DEFAULT_ARGUMENTS["origin_y"])
     origin_z = extension_args.get("origin_z", EXTENSION_DEFAULT_ARGUMENTS["origin_z"])

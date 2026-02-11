@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -66,7 +66,7 @@ class MoveItExtensionData(ExtensionCommonData):
 class MoveItExtension(ExtensionHFSSCommon):
     """Extension for move it in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -97,7 +97,7 @@ class MoveItExtension(ExtensionHFSSCommon):
             raise AEDTRuntimeError("No lines are defined in this design.")
         self.__assignments = aedt_lines
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         label = ttk.Label(self.root, text="Select line:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -171,7 +171,7 @@ class MoveItExtension(ExtensionHFSSCommon):
         ok_button.grid(row=4, column=0, padx=15, pady=10)
 
 
-def main(data: MoveItExtensionData):
+def main(data: MoveItExtensionData) -> bool:
     """Main function to run the move it extension."""
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")

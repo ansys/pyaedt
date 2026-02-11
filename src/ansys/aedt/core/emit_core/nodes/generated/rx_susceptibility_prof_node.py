@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,9 +28,9 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class RxSusceptibilityProfNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -62,10 +61,10 @@ class RxSusceptibilityProfNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class SensitivityUnitsOption(Enum):
@@ -82,7 +81,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return val
 
     @sensitivity_units.setter
-    def sensitivity_units(self, value: SensitivityUnitsOption):
+    def sensitivity_units(self, value: SensitivityUnitsOption) -> None:
         self._set_property("Sensitivity Units", f"{value.value}")
 
     @property
@@ -95,7 +94,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @min_receive_signal_pwr.setter
-    def min_receive_signal_pwr(self, value: float):
+    def min_receive_signal_pwr(self, value: float) -> None:
         self._set_property("Min. Receive Signal Pwr", f"{value}")
 
     @property
@@ -111,7 +110,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @snr_at_rx_signal_pwr.setter
-    def snr_at_rx_signal_pwr(self, value: float):
+    def snr_at_rx_signal_pwr(self, value: float) -> None:
         self._set_property("SNR at Rx Signal Pwr", f"{value}")
 
     @property
@@ -124,7 +123,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @processing_gain.setter
-    def processing_gain(self, value: float):
+    def processing_gain(self, value: float) -> None:
         self._set_property("Processing Gain", f"{value}")
 
     @property
@@ -140,7 +139,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return val == "true"
 
     @apply_pg_to_narrowband_only.setter
-    def apply_pg_to_narrowband_only(self, value: bool):
+    def apply_pg_to_narrowband_only(self, value: bool) -> None:
         self._set_property("Apply PG to Narrowband Only", f"{str(value).lower()}")
 
     @property
@@ -154,7 +153,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @saturation_level.setter
-    def saturation_level(self, value: float | str):
+    def saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Saturation Level", f"{value}")
 
@@ -168,7 +167,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @rx_noise_figure.setter
-    def rx_noise_figure(self, value: float):
+    def rx_noise_figure(self, value: float) -> None:
         self._set_property("Rx Noise Figure", f"{value}")
 
     @property
@@ -182,7 +181,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @receiver_sensitivity.setter
-    def receiver_sensitivity(self, value: float | str):
+    def receiver_sensitivity(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Receiver Sensitivity", f"{value}")
 
@@ -196,7 +195,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @snrsinad_at_sensitivity.setter
-    def snrsinad_at_sensitivity(self, value: float):
+    def snrsinad_at_sensitivity(self, value: float) -> None:
         self._set_property("SNR/SINAD at Sensitivity", f"{value}")
 
     @property
@@ -209,7 +208,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return val == "true"
 
     @perform_rx_intermod_analysis.setter
-    def perform_rx_intermod_analysis(self, value: bool):
+    def perform_rx_intermod_analysis(self, value: bool) -> None:
         self._set_property("Perform Rx Intermod Analysis", f"{str(value).lower()}")
 
     @property
@@ -223,7 +222,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @amplifier_saturation_level.setter
-    def amplifier_saturation_level(self, value: float | str):
+    def amplifier_saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Amplifier Saturation Level", f"{value}")
 
@@ -240,7 +239,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @p1_db_point_ref_input.setter
-    def p1_db_point_ref_input(self, value: float | str):
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input", f"{value}")
 
@@ -255,7 +254,7 @@ class RxSusceptibilityProfNode(EmitNode):
         return float(val)
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value: float | str):
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
@@ -269,5 +268,5 @@ class RxSusceptibilityProfNode(EmitNode):
         return int(val)
 
     @max_intermod_order.setter
-    def max_intermod_order(self, value: int):
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,6 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.application.design_solutions import solutions_types
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -44,6 +43,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
@@ -64,8 +64,9 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 # Extension batch arguments
+PASSWORD = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 EXTENSION_DEFAULT_ARGUMENTS = {
-    "password": "",
+    "password": PASSWORD,
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",
@@ -86,7 +87,7 @@ class KernelConverterExtensionData(ExtensionCommonData):
 class KernelConverterExtension(ExtensionProjectCommon):
     """Extension for kernel converter in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
         super().__init__(
             EXTENSION_TITLE,
@@ -106,7 +107,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         # Add extension content
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # File path selection
         file_label = ttk.Label(
@@ -184,11 +185,11 @@ class KernelConverterExtension(ExtensionProjectCommon):
             style="PyAEDT.TCombobox",
             state="readonly",
         )
-        self.solution_combo["values"] = tuple(solutions_types["HFSS"].keys())
+        self.solution_combo["values"] = tuple(DesignType.HFSS.solution_types.keys())
         self.solution_combo.current(0)
         self.solution_combo.grid(row=3, column=1, **DEFAULT_PADDING)
 
-        def callback(extension: KernelConverterExtension):
+        def callback(extension: KernelConverterExtension) -> None:
             """Callback function for the convert button."""
             file_path = extension.file_path_entry.get("1.0", tkinter.END).strip()
             password = extension.password_entry.get()
@@ -215,7 +216,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
         convert_button.grid(row=4, column=0, **DEFAULT_PADDING)
 
-    def _browse_files(self):
+    def _browse_files(self) -> None:
         """Browse for files or folders."""
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -229,12 +230,15 @@ class KernelConverterExtension(ExtensionProjectCommon):
             self.file_path_entry.delete("1.0", tkinter.END)
             self.file_path_entry.insert(tkinter.END, filename)
 
-    def _update_solutions(self, event=None):
+    def _update_solutions(self, event=None) -> None:
         """Update solution options based on selected application."""
         app_name = self.application_combo.get()
-        if app_name in solutions_types:
-            self.solution_combo["values"] = tuple(solutions_types[app_name].keys())
-            self.solution_combo.current(0)
+        for k in dir(DesignType):
+            if k.startswith("_"):
+                continue
+            if getattr(DesignType, k) == app_name:
+                self.solution_combo["values"] = tuple(getattr(DesignType, k).solution_types.keys())
+                self.solution_combo.current(0)
 
 
 def _check_missing(input_object, output_object, file_path):
@@ -249,7 +253,7 @@ def _check_missing(input_object, output_object, file_path):
         "2D Extractor",
         "Maxwell 3D",
         "Maxwell 2D",
-        "Mechanical",
+        DesignType.ICEPAKFEA,
     ]:
         return
 
@@ -295,7 +299,7 @@ def _check_missing(input_object, output_object, file_path):
     return output_csv, True
 
 
-def _convert_3d_component(extension_args, output_desktop, input_desktop):
+def _convert_3d_component(extension_args, output_desktop, input_desktop) -> None:
     """Convert 3D component files."""
     file_path = extension_args.file_path
     password = extension_args.password
@@ -346,7 +350,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop):
     print(f"3D Component {output_path} has been created.")
 
 
-def _convert_aedt(extension_args, output_desktop, input_desktop):
+def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
     """Convert AEDT project files."""
     file_path = extension_args.file_path
 
@@ -372,7 +376,7 @@ def _convert_aedt(extension_args, output_desktop, input_desktop):
     input_desktop.odesktop.CloseProject(os.path.splitext(os.path.split(file_path)[-1])[0])
 
 
-def main(data: KernelConverterExtensionData):  # pragma: no cover
+def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
     """Main function to run the kernel converter extension."""
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided to the extension.")

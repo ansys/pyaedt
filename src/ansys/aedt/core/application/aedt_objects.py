@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,10 +24,10 @@
 
 import sys
 import time
-import warnings
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -36,7 +36,9 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(PyAedtBase):
-    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+    def __init__(
+        self, desktop=None, project: str | None = None, design: str | None = None, is_inherithed: bool = False
+    ) -> None:
         self._odesign = design
         self._oproject = project
         if desktop:
@@ -89,7 +91,7 @@ class AedtObjects(PyAedtBase):
         self.__aedtunits = AedtUnits(self)
 
     @property
-    def units(self):
+    def units(self) -> AedtUnits:
         """PyAEDT default units.
 
         Returns
@@ -139,23 +141,6 @@ class AedtObjects(PyAedtBase):
         return
 
     @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """AEDT symbol manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        References
-        ----------
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.osymbol_manager
-
-    @property
     def opadstack_manager(self):
         """AEDT padstack manager.
 
@@ -168,23 +153,6 @@ class AedtObjects(PyAedtBase):
         return self._opadstack_manager
 
     @property
-    def opadstackmanager(self):  # pragma: no cover
-        """AEDT oPadstackManager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`opadstack_manager` property instead.
-
-        References
-        ----------
-        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
-        """
-        warnings.warn(
-            "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.opadstack_manager
-
-    @property
     def design_type(self):
         return self._odesign.GetDesignType()
 
@@ -192,7 +160,7 @@ class AedtObjects(PyAedtBase):
     def oboundary(self):
         """Boundary Object."""
         if not self._oboundary:
-            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            if self.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
                 return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oboundary = self.get_module("Excitations")
@@ -316,23 +284,6 @@ class AedtObjects(PyAedtBase):
         return self._omaxwell_parameters
 
     @property
-    def o_maxwell_parameters(self):  # pragma: no cover
-        """AEDT Maxwell Parameter Setup Object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omaxwell_parameters` property instead.
-
-        References
-        ----------
-        >>> oDesign.GetModule("MaxwellParameterSetup")
-        """
-        warnings.warn(
-            "`o_maxwell_parameters` is deprecated. Use `omaxwell_parameters` instead.",
-            DeprecationWarning,
-        )
-        return self.omaxwell_parameters
-
-    @property
     def omonitor(self):
         """AEDT Monitor Object."""
         if not self._odesign or not self.design_type == "Icepak":
@@ -352,7 +303,7 @@ class AedtObjects(PyAedtBase):
         if not self._osolution:
             if self.design_type in [
                 "RMxprt",
-                "RMxprtSolution",
+                "ModelCreation",
                 "Twin Builder",
                 "Circuit Design",
                 "Maxwell Circuit",
@@ -408,7 +359,7 @@ class AedtObjects(PyAedtBase):
             "Maxwell Circuit",
             "EMIT",
             "RMxprt",
-            "RMxprtSolution",
+            "ModelCreation",
         ]:
             return
         if not self._ofieldsreporter:
@@ -439,19 +390,8 @@ class AedtObjects(PyAedtBase):
         ----------
         >>> oDesign.GetModule("MeshRegion")
         """
-        meshers = {
-            "HFSS": "MeshSetup",
-            "Icepak": "MeshRegion",
-            "HFSS 3D Layout Design": "SolveSetups",
-            "HFSS3DLayout": "SolveSetups",
-            "Maxwell 2D": "MeshSetup",
-            "Maxwell 3D": "MeshSetup",
-            "Q3D Extractor": "MeshSetup",
-            "Mechanical": "MeshSetup",
-            "2D Extractor": "MeshSetup",
-        }
-        if not self._omeshmodule and self.design_type in meshers:
-            self._omeshmodule = self.get_module(meshers[self.design_type])
+        if not self._omeshmodule and hasattr(self._design_type, "mesher"):
+            self._omeshmodule = self.get_module(self._design_type.mesher)
         return self._omeshmodule
 
     @property
@@ -475,7 +415,7 @@ class AedtObjects(PyAedtBase):
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self._odesign.GetEditor("Layout")
-            elif self.design_type in ["RMxprt", "RMxprtSolution"]:
+            elif self.design_type in [DesignType.MODELCREATION.NAME, DesignType.RMXPRT.NAME]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
                 self._oeditor = None
@@ -503,38 +443,11 @@ class AedtObjects(PyAedtBase):
         return self._ocomponent_manager
 
     @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
-
-    @property
     def omodel_manager(self):
         """Model manager object."""
         if not self._omodel_manager and self.odefinition_manager:
             self._omodel_manager = self.odefinition_manager.GetManager("Model")
         return self._omodel_manager
-
-    @property
-    def o_model_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
 
     @property
     def onetwork_data_explorer(self):

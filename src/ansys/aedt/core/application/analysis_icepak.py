@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
@@ -89,17 +87,17 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         project: str,
         design: str,
         solution_type: str,
-        setup: Optional[str] = None,
-        version: Optional[Union[str, int, float]] = None,
-        non_graphical: bool = False,
-        new_desktop: bool = False,
-        close_on_exit: bool = False,
-        student_version=False,
-        machine: str = "",
-        port: int = 0,
-        aedt_process_id: Optional[int] = None,
-        remove_lock: bool = False,
-    ):
+        setup: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         FieldAnalysis3D.__init__(
             self,
             application,
@@ -191,7 +189,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         Icepak application that is to initialize the call.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
     def execute(self, k, v) -> str:

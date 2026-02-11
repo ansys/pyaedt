@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,12 +38,12 @@ class DistributedRadial:
     These parameter changes are applicable exclusively to low-pass filters that include stub resonators.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_radial_dll_functions()
 
-    def _define_radial_dll_functions(self):
+    def _define_radial_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setDistributedRadialStubs.argtype = c_bool
         self._dll.setDistributedRadialStubs.restype = c_int
@@ -130,7 +130,7 @@ class DistributedRadial:
         return radial_stubs.value
 
     @radial_stubs.setter
-    def radial_stubs(self, radial_stubs: bool):
+    def radial_stubs(self, radial_stubs: bool) -> None:
         status = self._dll.setDistributedRadialStubs(radial_stubs)
         self._dll_interface.raise_error(status)
 
@@ -148,7 +148,7 @@ class DistributedRadial:
         return fixed_angle_enabled.value
 
     @fixed_angle_enabled.setter
-    def fixed_angle_enabled(self, fixed_angle_enabled: bool):
+    def fixed_angle_enabled(self, fixed_angle_enabled: bool) -> None:
         status = self._dll.setEnableDistributedFixedAngle(fixed_angle_enabled)
         self._dll_interface.raise_error(status)
 
@@ -164,7 +164,7 @@ class DistributedRadial:
         return fixed_angle_string
 
     @fixed_angle.setter
-    def fixed_angle(self, fixed_angle_string: str):
+    def fixed_angle(self, fixed_angle_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedFixedAngle, fixed_angle_string)
 
     @property
@@ -182,7 +182,7 @@ class DistributedRadial:
         return delta_stubs.value
 
     @delta_stubs.setter
-    def delta_stubs(self, delta_stubs: bool):
+    def delta_stubs(self, delta_stubs: bool) -> None:
         status = self._dll.setDistributedDeltaStubs(delta_stubs)
         self._dll_interface.raise_error(status)
 
@@ -200,7 +200,7 @@ class DistributedRadial:
         return split_wide_angle_enabled.value
 
     @split_wide_angle_enabled.setter
-    def split_wide_angle_enabled(self, split_wide_angle_enabled: bool):
+    def split_wide_angle_enabled(self, split_wide_angle_enabled: bool) -> None:
         status = self._dll.setEnableDistributedSplitWideAngle(split_wide_angle_enabled)
         self._dll_interface.raise_error(status)
 
@@ -221,7 +221,7 @@ class DistributedRadial:
         return split_wide_angle_string
 
     @split_wide_angle.setter
-    def split_wide_angle(self, split_wide_angle_string: str):
+    def split_wide_angle(self, split_wide_angle_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedSplitWideAngle, split_wide_angle_string)
 
     @property
@@ -238,7 +238,7 @@ class DistributedRadial:
         return offset_from_feedline_enabled.value
 
     @offset_from_feedline_enabled.setter
-    def offset_from_feedline_enabled(self, offset_from_feedline_enabled: bool):
+    def offset_from_feedline_enabled(self, offset_from_feedline_enabled: bool) -> None:
         status = self._dll.setEnableDistributedOffsetFromFeedline(offset_from_feedline_enabled)
         self._dll_interface.raise_error(status)
 
@@ -254,7 +254,7 @@ class DistributedRadial:
         return offset_from_feedline_string
 
     @offset_from_feedline.setter
-    def offset_from_feedline(self, offset_from_feedline_string: str):
+    def offset_from_feedline(self, offset_from_feedline_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedOffsetFromFeedline, offset_from_feedline_string)
 
     @property
@@ -272,7 +272,7 @@ class DistributedRadial:
         return alternate_radial_delta_orientation.value
 
     @alternate_radial_delta_orientation.setter
-    def alternate_radial_delta_orientation(self, alternate_radial_delta_orientation: bool):
+    def alternate_radial_delta_orientation(self, alternate_radial_delta_orientation: bool) -> None:
         status = self._dll.setDistributedAlternateRadialDeltaOrientation(alternate_radial_delta_orientation)
         self._dll_interface.raise_error(status)
 
@@ -290,7 +290,7 @@ class DistributedRadial:
         return adjust_width_max.value
 
     @adjust_width_max.setter
-    def adjust_width_max(self, adjust_width_max: bool):
+    def adjust_width_max(self, adjust_width_max: bool) -> None:
         status = self._dll.setDistributedAdjustWidthMax(adjust_width_max)
         self._dll_interface.raise_error(status)
 
@@ -306,7 +306,7 @@ class DistributedRadial:
         return max_radial_delta_angle_string
 
     @max_radial_delta_angle.setter
-    def max_radial_delta_angle(self, max_radial_delta_angle_string: str):
+    def max_radial_delta_angle(self, max_radial_delta_angle_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedMaxRadialDeltaAngle, max_radial_delta_angle_string)
 
     @property
@@ -323,7 +323,7 @@ class DistributedRadial:
         return adjust_length_max.value
 
     @adjust_length_max.setter
-    def adjust_length_max(self, adjust_length_max: bool):
+    def adjust_length_max(self, adjust_length_max: bool) -> None:
         status = self._dll.setDistributedAdjustLengthMax(adjust_length_max)
         self._dll_interface.raise_error(status)
 
@@ -339,7 +339,7 @@ class DistributedRadial:
         return min_radial_delta_angle_string
 
     @min_radial_delta_angle.setter
-    def min_radial_delta_angle(self, min_radial_delta_angle_string: str):
+    def min_radial_delta_angle(self, min_radial_delta_angle_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedMinRadialDeltaAngle, min_radial_delta_angle_string)
 
     @property
@@ -356,6 +356,6 @@ class DistributedRadial:
         return apply_limits_radial_delta.value
 
     @apply_limits_radial_delta.setter
-    def apply_limits_radial_delta(self, apply_limits_radial_delta: bool):
+    def apply_limits_radial_delta(self, apply_limits_radial_delta: bool) -> None:
         status = self._dll.setDistributedApplyLimitsRadialDelta(apply_limits_radial_delta)
         self._dll_interface.raise_error(status)

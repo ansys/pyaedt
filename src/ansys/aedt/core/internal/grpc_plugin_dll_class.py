@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,14 +33,11 @@ from pathlib import Path
 import re
 import types
 
-import grpc
-
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
-
-logger = settings.logger
 
 
 class AedtBlockObj(list):
@@ -69,7 +66,7 @@ class AedtBlockObj(list):
                 return super().__getitem__(idx)
         return super().__getitem__(idxOrKey)
 
-    def __setitem__(self, idxOrKey, newVal):
+    def __setitem__(self, idxOrKey, newVal) -> None:
         if isinstance(idxOrKey, int):
             if idxOrKey >= 0 or idxOrKey < len(self):
                 oldItem = self.__getitem__(idxOrKey)
@@ -99,7 +96,7 @@ exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
 
 
 class AedtObjWrapper:
-    def __init__(self, objID, listFuncs, AedtAPI=None):
+    def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
         self.dllapi = AedtAPI
@@ -107,12 +104,12 @@ class AedtObjWrapper:
 
     # print(self.objectID)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Instance of an Aedt object:" + str(self.objectID)
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
-            settings.logger.debug(f" {funcName}{argv}")
+            pyaedt_logger.debug(f" {funcName}{argv}")
         try:
             if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
@@ -127,6 +124,8 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
+            pyaedt_logger.debug("Failed to execute gRPC AEDT command:")
+            pyaedt_logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
@@ -150,7 +149,7 @@ class AedtObjWrapper:
         except Exception:
             raise GrpcApiError(f"Failed to get gRPC API AEDT attribute {funcName}")
 
-    def __setattr__(self, attrName, val):
+    def __setattr__(self, attrName, val) -> None:
         if attrName == "objectID" or attrName == "__methodNames__":
             raise GrpcApiError("This attribute cannot be modified.")
         elif attrName in self.__methodNames__:
@@ -158,7 +157,7 @@ class AedtObjWrapper:
         else:
             super().__setattr__(attrName, val)
 
-    def __del__(self):
+    def __del__(self) -> None:
         if "ReleaseAedtObject" in dir(self.dllapi):
             self.dllapi.ReleaseAedtObject(self.objectID)
 
@@ -181,7 +180,7 @@ class AedtObjWrapper:
 
 
 class AedtPropServer(AedtObjWrapper):
-    def __init__(self, objID, listFuncs, aedtapi):
+    def __init__(self, objID, listFuncs, aedtapi) -> None:
         AedtObjWrapper.__init__(self, objID, listFuncs, aedtapi)
         self.__dict__["__propMap__"] = None
         self.__dict__["__propNames__"] = None
@@ -227,17 +226,17 @@ class AedtPropServer(AedtObjWrapper):
                 return self.GetPropValue(propMap[attrName])
             raise GrpcApiError(f"Failed to retrieve attribute {attrName} from gRPC API")
 
-    def __setattr__(self, attr, val):
+    def __setattr__(self, attr, val) -> None:
         if attr in self.__dict__:
             self.__dict__[attr] = val
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attr in propMap:
+            if attr not in ["dllapi", "is_linux"] and attr in propMap:
                 self.SetPropValue(propMap[attr], val)
                 return
         except Exception:
-            settings.logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
+            pyaedt_logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
         super().__setattr__(attr, val)
 
     def GetName(self):
@@ -246,17 +245,17 @@ class AedtPropServer(AedtObjWrapper):
     def GetObjPath(self):
         return self.__Invoke__("GetObjPath", ())
 
-    def GetChildNames(self, childType=""):
+    def GetChildNames(self, childType: str = ""):
         return self.__Invoke__("GetChildNames", (childType))
 
-    def GetPropNames(self, includeReadOnly=True):
+    def GetPropNames(self, includeReadOnly: bool = True):
         if includeReadOnly:
             if self.__propNames__ is None:
                 self.__propNames__ = self.__Invoke__("GetPropNames", (includeReadOnly,))
             return self.__propNames__
         return self.__Invoke__("GetPropNames", (includeReadOnly,))
 
-    def GetPropValue(self, propName=""):
+    def GetPropValue(self, propName: str = ""):
         return self.__Invoke__("GetPropValue", (propName,))
 
     def SetPropValue(self, propName, val):
@@ -264,7 +263,7 @@ class AedtPropServer(AedtObjWrapper):
 
 
 class AEDT:
-    def __init__(self, pathDir):
+    def __init__(self, pathDir) -> None:
         is_linux = os.name == "posix"
         is_windows = not is_linux
         pathDir = Path(pathDir)
@@ -324,7 +323,7 @@ class AEDT:
         self.aedt = None
         self.non_graphical = False
 
-    def SetPyObjCalbacks(self):
+    def SetPyObjCalbacks(self) -> None:
         self.callback_type = CFUNCTYPE(py_object, c_int, c_bool, py_object)
         self.callbackToCreateObj = self.callback_type(
             self.CreateAedtObj
@@ -334,18 +333,20 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
-        if not alwaysNew and port:
-            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
-            try:
-                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
-            except grpc.FutureTimeoutError:
-                settings.logger.error("Failed to connect to Desktop Session")
-                return
+    def CreateAedtApplication(self, machine, port: int | None = 0, NGmode: bool = False, alwaysNew: bool = True):
         try:
+            pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine.endswith("InsecureMode"):
+                target = machine.split(":")[0]
+                pyaedt_logger.warning(
+                    f"Starting gRPC client without TLS on {target}. This is INSECURE. "
+                    "Consider using a secure connection."
+                )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+            pyaedt_logger.debug("Client application successfully started.")
         except Exception:
-            settings.logger.warning("Failed to create AedtApplication.")
+            pyaedt_logger.warning("Failed to create AedtApplication.")
+            self.aedt = None
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
@@ -361,7 +362,7 @@ class AEDT:
     def odesktop(self):
         return self.recreate_application()
 
-    def recreate_application(self, force=False):
+    def recreate_application(self, force: bool = False):
         def run():
             self.ReleaseAedtObject(self.aedt.objectID)
             port = self.port
@@ -385,13 +386,13 @@ class AEDT:
     def InvokeAedtObjMethod(self, objectID, funcName, argv):
         return self.AedtAPI.InvokeAedtObjMethod(objectID, funcName, argv)
 
-    def ReleaseAedtObject(self, objectID):
+    def ReleaseAedtObject(self, objectID) -> None:
         self.AedtAPI.ReleaseAedtObject(objectID)
 
-    def ReleaseAll(self):
+    def ReleaseAll(self) -> None:
         self.AedtAPI.ReleaseAll()
 
-    def IsEmbedded(self):
+    def IsEmbedded(self) -> bool:
         return False
 
     def CreateAedtObj(self, objectID, bIsPropSvr, listFuncs):
@@ -442,5 +443,5 @@ class AEDT:
             return obj.objectID
         return None
 
-    def Release(self):
+    def Release(self) -> None:
         self.AedtAPI.ReleaseAll()

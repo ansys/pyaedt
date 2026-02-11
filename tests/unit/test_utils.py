@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,6 @@
 
 """Test utility functions of PyAEDT."""
 
-import logging
 import os
 import time
 from unittest.mock import MagicMock
@@ -36,6 +35,7 @@ import pytest
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_GRPC_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
@@ -54,13 +54,13 @@ PREVIOUS_YEAR_VERSION = f"{CURRENT_YEAR - 1}.2"
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-@pyaedt_function_handler(deprecated_arg="trigger_exception")
-def foo(trigger_exception=True):
+@pyaedt_function_handler()
+def foo(trigger_exception: bool = True):
     """Some dummy function used for testing."""
     if trigger_exception:
         raise Exception(ERROR_MESSAGE)
@@ -68,7 +68,7 @@ def foo(trigger_exception=True):
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
 @patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
-def test_handler_release_on_exception_called(mock_sessions, mock_logger):
+def test_handler_release_on_exception_called(mock_sessions, mock_logger) -> None:
     """Test handler while activating error handler."""
     mock_session = MagicMock()
     mock_sessions.values.return_value = [mock_session]
@@ -86,7 +86,7 @@ def test_handler_release_on_exception_called(mock_sessions, mock_logger):
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
 @patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
-def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
+def test_handler_release_on_exception_not_called(mock_sessions, mock_logger) -> None:
     """Test handler while deactivating error handler."""
     mock_session = MagicMock()
     mock_sessions.values.return_value = [mock_session]
@@ -104,7 +104,7 @@ def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-def test_handler_enable_error_handler(mock_logger):
+def test_handler_enable_error_handler(mock_logger) -> None:
     """Test handler while activating/deactivating error handler."""
     mock_logger.return_value = MagicMock()
     settings.enable_error_handler = True
@@ -119,45 +119,39 @@ def test_handler_enable_error_handler(mock_logger):
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
 
 
-def test_handler_deprecation_log_warning(caplog):
+def test_handler_deprecation_log_warning() -> None:
     """Test handler deprecation argument mechanism."""
-    EXPECTED_ARGUMENT = "Argument `deprecated_arg` is deprecated for method `foo`; use `trigger_exception` instead."
-
-    with caplog.at_level(logging.WARNING, logger="Global"):
-        foo(deprecated_arg=False)
-    assert len(caplog.records) == 1
-    assert "WARNING" == caplog.records[0].levelname
-    assert EXPECTED_ARGUMENT == caplog.records[0].message
-
-    foo(trigger_exception=False)
-    assert len(caplog.records) == 1
+    with pytest.raises(Exception, match=ERROR_MESSAGE):
+        foo(trigger_exception=True)
 
 
-def test_settings_load_yaml(tmp_path):
+def test_settings_load_yaml(test_tmp_dir) -> None:
     """Test loading a configure file with correct input."""
     default_settings = Settings()
 
     # Create temporary YAML configuration file
-    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path = test_tmp_dir / "pyaedt_settings.yaml"
     yaml_path.write_text(
         """
     log:
         global_log_file_name: 'dummy'
     lsf:
-        lsf_num_cores: 12
+        lsf_ram : 50
     general:
         desktop_launch_timeout: 12
+        num_cores: 12
     """
     )
 
     default_settings.load_yaml_configuration(str(yaml_path))
 
     assert default_settings.global_log_file_name == "dummy"
-    assert default_settings.lsf_num_cores == 12
+    assert default_settings.num_cores == 12
     assert default_settings.desktop_launch_timeout == 12
+    assert default_settings.lsf_ram == 50
 
 
-def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
+def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path) -> None:
     """Test loading a configuration file with invalid key."""
     default_settings = Settings()
 
@@ -182,7 +176,7 @@ def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
         assert str(excinfo) in "Key 'dummy' is not part of the allowed keys"
 
 
-def test_settings_load_yaml_with_non_allowed_env_variable_key(tmp_path):
+def test_settings_load_yaml_with_non_allowed_env_variable_key(tmp_path) -> None:
     """Test loading a configuration file with invalid key."""
     default_settings = Settings()
 
@@ -207,7 +201,7 @@ def test_settings_load_yaml_with_non_allowed_env_variable_key(tmp_path):
         assert str(excinfo) in "An environment variable key is not part of the allowed keys."
 
 
-def test_settings_attributes():
+def test_settings_attributes() -> None:
     """Test accessing settings attributes."""
     default_settings = Settings()
 
@@ -219,14 +213,18 @@ def test_settings_attributes():
         _ = getattr(default_settings, "aedt_environment_variables")[attr]
 
 
-def test_settings_check_allowed_properties():
+def test_settings_check_allowed_properties() -> None:
     """Test that every non python setting is an allowed settings."""
     import inspect
 
     default_settings = Settings()
     # All allowed attributes
     allowed_properties_expected = (
-        ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
+        ALLOWED_LOG_SETTINGS
+        + ALLOWED_GENERAL_SETTINGS
+        + ALLOWED_LSF_SETTINGS
+        + ALLOWED_GRPC_SETTINGS
+        + ["aedt_environment_variables"]
     )
     # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
     properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick", "public_dir"]
@@ -237,10 +235,10 @@ def test_settings_check_allowed_properties():
     settings_properties = get_properties(default_settings)
     settings_properties = filter(lambda attr: attr not in properties_ignored, settings_properties)
 
-    assert sorted(allowed_properties_expected) == sorted(settings_properties)
+    assert sorted(set(allowed_properties_expected)) == sorted(settings_properties)
 
 
-def test_settings_check_allowed_env_variables():
+def test_settings_check_allowed_env_variables() -> None:
     """Test that known environment variables are allowed."""
     default_settings = Settings()
     env_variables = default_settings.aedt_environment_variables.keys()
@@ -251,7 +249,7 @@ def test_settings_check_allowed_env_variables():
     assert sorted(allowed_env_var_expected) == sorted(env_variables)
 
 
-def test_read_toml(tmp_path):
+def test_read_toml(tmp_path) -> None:
     """Test loading a TOML file."""
     from ansys.aedt.core.generic.file_utils import read_toml
 
@@ -269,7 +267,7 @@ def test_read_toml(tmp_path):
     assert TOML_DATA == res
 
 
-def test_write_toml(tmp_path):
+def test_write_toml(tmp_path) -> None:
     """Test writing a TOML file."""
     from ansys.aedt.core.generic.file_utils import _create_toml_file
 
@@ -279,7 +277,7 @@ def test_write_toml(tmp_path):
     assert file_path.exists()
 
 
-def test_min_aedt_version_success_with_common_attributes_names():
+def test_min_aedt_version_success_with_common_attributes_names() -> None:
     class Dummy:
         """Dummy class to test min version with common attribute."""
 
@@ -287,14 +285,14 @@ def test_min_aedt_version_success_with_common_attributes_names():
         odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
-        def old_method(self):
+        def old_method(self) -> None:
             pass
 
     dummy = Dummy()
     dummy.old_method()
 
 
-def test_min_aedt_version_success_with_app_private_attribute():
+def test_min_aedt_version_success_with_app_private_attribute() -> None:
     class Dummy:
         """Dummy class to test min version with __app attribute."""
 
@@ -303,14 +301,14 @@ def test_min_aedt_version_success_with_app_private_attribute():
         __app = odesktop
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
-        def old_method(self):
+        def old_method(self) -> None:
             pass
 
     dummy = Dummy()
     dummy.old_method()
 
 
-def test_min_aedt_version_success_with_desktop_class():
+def test_min_aedt_version_success_with_desktop_class() -> None:
     class Dummy:
         """Dummy class to test min version with __app attribute."""
 
@@ -320,14 +318,14 @@ def test_min_aedt_version_success_with_desktop_class():
         desktop_class.odesktop = odesktop
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
-        def old_method(self):
+        def old_method(self) -> None:
             pass
 
     dummy = Dummy()
     dummy.old_method()
 
 
-def test_min_aedt_version_raise_error_on_future_version():
+def test_min_aedt_version_raise_error_on_future_version() -> None:
     class Dummy:
         """Dummy class to test min version."""
 
@@ -335,7 +333,7 @@ def test_min_aedt_version_raise_error_on_future_version():
         odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
 
         @min_aedt_version(NEXT_YEAR_VERSION)
-        def future_method(self):
+        def future_method(self) -> None:
             pass
 
     dummy = Dummy()
@@ -348,10 +346,10 @@ def test_min_aedt_version_raise_error_on_future_version():
         dummy.future_method()
 
 
-def test_min_aedt_version_raise_error_on_non_decorable_object():
+def test_min_aedt_version_raise_error_on_non_decorable_object() -> None:
     class Dummy:
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
-        def dummy_method(self):
+        def dummy_method(self) -> None:
             pass
 
     dummy = Dummy()

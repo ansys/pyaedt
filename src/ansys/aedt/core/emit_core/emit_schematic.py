@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,7 +31,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
-    def __init__(self, emit_instance):
+    def __init__(self, emit_instance) -> None:
         """Initialize the EmitSchematic class.
 
         Parameters
@@ -182,7 +182,8 @@ class EmitSchematic:
             new_antenna = self.create_component("Antenna", antenna_name, "Antennas")
             if new_radio and new_antenna:
                 self.connect_components(new_antenna.name, new_radio.name)  # Connect antenna to radio
-            return new_radio, new_antenna
+                return new_radio, new_antenna
+            raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna.")
         except Exception as e:
             self.emit_instance.logger.error(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")

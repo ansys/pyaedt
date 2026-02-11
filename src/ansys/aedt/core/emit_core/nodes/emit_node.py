@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,20 +22,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import List
-from typing import Union
+from __future__ import annotations
+
+import ast
+from typing import TypeVar
 import warnings
 
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_OPS
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
+from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
+
+# Type variable to be used in methods that might receive a subclass of EmitNode
+T = TypeVar("T", bound="EmitNode")
 
 
 class EmitNode:
     """Emit node class for managing and interacting with EMIT nodes."""
 
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         self._emit_obj = emit_obj
         self._oDesign = emit_obj.odesign
         self._oRevisionData = self._oDesign.GetModule("EmitCom")
@@ -48,7 +57,7 @@ class EmitNode:
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @staticmethod
-    def props_to_dict(props: List[str]) -> dict:
+    def props_to_dict(props: list[str]) -> dict:
         """Converts a list of key/value pairs to a dictionary.
 
         Parameters
@@ -91,6 +100,31 @@ class EmitNode:
         """
         return self._get_property("Name", True)
 
+    @name.setter
+    def name(self, requested_name: str):
+        """Renames the node/component.
+
+        Parameters
+        ----------
+        requested_name : str
+            New name for the node/component.
+
+        Raises
+        ------
+        ValueError
+            If the node is read-only or cannot be renamed.
+        """
+        if self._result_id > 0:
+            raise ValueError("This node is read-only for kept results.")
+
+        if self.get_is_component():
+            try:
+                self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+            except Exception:
+                raise ValueError(f"Failed to rename {self.name} to {requested_name}")
+        else:
+            _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+
     @property
     def _node_type(self) -> str:
         """Type of the node.
@@ -130,22 +164,6 @@ class EmitNode:
         return props
 
     @property
-    def node_warnings(self) -> str:
-        """Warnings for the node, if any.
-
-        .. deprecated: 0.21.3
-            Use warnings property instead
-
-        Returns
-        -------
-        str
-            Warning message(s).
-        """
-        warnings.warn("This property is deprecated in 0.21.3. Use the warnings property instead.", DeprecationWarning)
-
-        return self.warnings
-
-    @property
     def warnings(self) -> str:
         """Warnings for the node, if any.
 
@@ -165,7 +183,7 @@ class EmitNode:
         return node_warnings
 
     @property
-    def allowed_child_types(self) -> List[str]:
+    def allowed_child_types(self) -> list[str]:
         """Child types allowed for this node.
 
         Returns
@@ -239,7 +257,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks=False, isTable=False) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
         Parameters
@@ -257,7 +275,7 @@ class EmitNode:
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
-                return ""
+                raise ValueError(f"Property {prop} not found or not available for {self._node_type} configuration.")
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
@@ -273,12 +291,14 @@ class EmitNode:
                 return val.split("|")
             else:
                 return val
+        except ValueError:
+            raise
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
-    def _set_property(self, prop, value):
+    def _set_property(self, prop, value, skipChecks: bool = False):
         try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:
             error_text = None
             if len(self._emit_obj.logger.messages.error_level) > 0:
@@ -288,7 +308,7 @@ class EmitNode:
                     f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
                     f'{self.properties["Type"]} node "{self.name}"'
                 )
-            raise Exception(error_text)
+            raise ValueError(error_text)
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
@@ -398,7 +418,7 @@ class EmitNode:
             converted_value = consts.unit_converter(value, unit_system, EMIT_INTERNAL_UNITS[unit_system], units)
         return converted_value
 
-    def _delete(self):
+    def _delete(self) -> None:
         """Deletes the current node (component)."""
         if self.get_is_component():
             self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
@@ -407,6 +427,9 @@ class EmitNode:
 
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
+
+        .. deprecated: 0.21.3
+            Use name property instead
 
         Parameters
         ----------
@@ -423,18 +446,87 @@ class EmitNode:
         ValueError
             If the node is read-only and cannot be renamed.
         """
-        if self.get_is_component():
-            if self._result_id > 0:
-                raise ValueError("This node is read-only for kept results.")
-            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
-            new_name = requested_name
-        else:
-            new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
+        self.name = requested_name
 
-        return new_name
+        return self.name
 
-    def _duplicate(self, new_name):
-        raise NotImplementedError("This method is not implemented yet.")
+    def _duplicate(self: T, new_name: str = "") -> T:
+        """Duplicate component using oEditor's Copy/Paste.
+        New component is placed under existing components in the schematic window.
+
+        Parameters
+        ----------
+        self : EmitNode
+            The component node to duplicate
+        new_name : str, optional
+            Name for the duplicated component. If empty, AEDT auto-generates a name.
+            if new_name is the same as an existing component, adds an integer to differentiate from existing names.
+
+        Returns
+        -------
+        EmitNode
+            The duplicated component node
+
+        Raises
+        ------
+        NotImplementedError
+            when self is not a component.  Should avoid calls on BandNodes, or other non components
+        """
+        if not self.get_is_component():
+            raise NotImplementedError("This method is not implemented yet.")
+        emit_design = self._emit_obj
+        oEditor = emit_design._oeditor
+
+        self_bb = oEditor.GetComponentBoundingBox(self.name)  # [[xBottom,yBottom],[width,height]] in meters
+        offset_y = -0.00508 - self_bb[1][1]  # 0.00508meters == 200mil which is the height of a radio
+        offset_x = self_bb[1][0] / 2
+
+        # Get all components before duplication
+        all_components = oEditor.GetAllComponents()
+
+        # Get the original component location
+        orig_location = self_bb[0]
+
+        # offset for paste
+        min_y = float("inf")
+        for comp_name in all_components:
+            location = oEditor.GetComponentLocation(comp_name)
+            if location[1] < min_y:
+                min_y = location[1]
+
+        # Calculate paste position (using lowest y + offset)
+        paste_x = orig_location[0] + offset_x
+        paste_y = min_y + offset_y
+
+        # Copy the component
+        oEditor.Copy(self.name)
+
+        # Paste at new location
+        oEditor.Paste(paste_x, paste_y)
+
+        # Get the new component node
+        # The pasted component gets an auto-incremented name
+        all_components_after = oEditor.GetAllComponents()
+        new_comp_name = [c for c in all_components_after if c not in all_components][0]
+
+        # Optionally rename if new_name provided.  Avoids collisions with existing names by incrementing counter
+        if new_name:
+            increment = 1
+            incremented_new_name = new_name
+            while incremented_new_name in all_components:
+                incremented_new_name = f"{incremented_new_name} {increment}"
+                increment += 1
+            # increment format matches how Paste increments names so its possible arrive at the same value
+            if new_comp_name != incremented_new_name:
+                oEditor.RenameComponent(new_comp_name, incremented_new_name)
+                new_comp_name = incremented_new_name
+
+        # Get the component EmitNode from revision
+        revision = emit_design.results.get_revision()
+        new_component = revision.get_component_node(new_comp_name)
+
+        return new_component
 
     def _import(self, file_path: str, import_type: str):
         """Imports a file into an Emit node.
@@ -446,10 +538,26 @@ class EmitNode:
         import_type : str
             Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
             SpectralData, TouchstoneCoupling, CAD.
-        """
-        self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
 
-    def _export_model(self, file_path: str):
+        Returns
+        -------
+        node: EmitNode
+            The node.
+        """
+        try:
+            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        except Exception:
+            error_text = None
+            if len(self._emit_obj.logger.messages.error_level) > 0:
+                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
+            else:
+                error_text = (
+                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of node type: "{import_type}"'
+                )
+            raise Exception(error_text)
+        return self._get_node(node_id)
+
+    def _export_model(self, file_path: str) -> None:
         """Exports an Emit node's model to a file.
 
         Parameters
@@ -484,7 +592,7 @@ class EmitNode:
         """
         return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
-    def _is_column_data_table(self):
+    def _is_column_data_table(self) -> bool:
         """Returns true if the node uses column data tables.
 
         Returns
@@ -499,11 +607,225 @@ class EmitNode:
                 return False
             return True
 
-        table_title = self._get_property("CDTableTitle", True)
-        if table_title == "":
-            # No ColumnData Table Title, so it's a NodePropTable
+        try:
+            table_title = self._get_property("CDTableTitle", True)
+            if table_title == "":
+                # No ColumnData Table Title, so it's a NodePropTable
+                return False
+        except ValueError:
+            # Exception returned since "CDTableTitle" doesn't exist
+            # so it's a NodePropTable
             return False
         return True
+
+    def _check_column_table_data(self, data):
+        """Converts user inputted int or string table data to SI units.
+
+        The table nodes affected are:
+        TxHarmonicNode, TxNbEmissionNode,
+        TxBbEmissionNode (except equation table), RxMixerProductNode,
+        RxSaturationNode, RxSelectivityNode.
+
+        Parameters
+        ----------
+        data : list of tuples
+            User inputted table data.
+
+        Returns
+        -------
+        list of tuples
+            Data converted to SI units.
+        """
+        exceptions = {
+            "TxHarmonicNode": {"Absolute": [None, "PowerUnit"], "Relative": [None, "Power (dBc)"]},
+            "TxNbEmissionNode": {
+                "Absolute": ["FrequencyUnit", "PowerUnit"],
+                "RelativeBandwidth": ["FrequencyUnit", "Attenuation (dB)"],
+            },
+            "TxBbEmissionNode": {
+                "Absolute": ["FrequencyUnit", "Amplitude (dBm/Hz)"],
+                "RelativeBandwidth": ["FrequencyUnit", "Amplitude (dBm/Hz)"],
+                "RelativeOffset": ["FrequencyUnit", "Amplitude (dBm/Hz)"],
+                "BroadbandEquation": ["FrequencyUnit (MHz)", "Amplitude (dBm/Hz)"],
+            },
+            "RxMixerProductNode": {"Absolute": [None, None, "PowerUnit"], "Relative": [None, None, "Power (dBc)"]},
+            "RxSaturationNode": ["FrequencyUnit", "PowerUnit"],
+            "RxSelectivityNode": ["FrequencyUnit", "Attenuation (dB)"],
+        }
+
+        # Grab table behavior and units based on dropdown selection
+        node_type = self._node_type
+        if node_type in exceptions:
+            if node_type in ["TxHarmonicNode", "TxNbEmissionNode", "TxBbEmissionNode", "RxMixerProductNode"]:
+                behavior_key = ""
+                if node_type == "TxHarmonicNode":
+                    behavior_key = "Harmonic Table Units"
+                elif node_type == "TxNbEmissionNode":
+                    behavior_key = "Narrowband Behavior"
+                elif node_type == "TxBbEmissionNode":
+                    behavior_key = "Noise Behavior"
+                elif node_type == "RxMixerProductNode":
+                    behavior_key = "Mixer Product Table Units"
+                behavior = self._get_property(behavior_key)
+                units = exceptions[node_type][behavior]
+            else:
+                units = exceptions[node_type]
+        else:
+            raise ValueError(f"No table exceptions defined for node type {node_type}.")
+
+        data_return = []
+        for row in data:
+            row_list = list(row)
+            for i, value in enumerate(row):
+                valid_unit = False
+                if isinstance(value, str):
+                    val, unit = self._string_to_value_units(value)
+                    if units[i] is not None and "(" in units[i]:
+                        # Handle columns with specific units in header
+                        input_unit = units[i][units[i].find("(") + 1 : units[i].find(")")]
+                        if input_unit == "MHz":
+                            row_list[i] = consts.unit_converter(val, "Frequency", unit, input_unit)
+                        elif unit != input_unit:
+                            raise ValueError(f"{unit} are not valid units for this property.")
+                        elif isinstance(val, (float, int)):
+                            row_list[i] = val
+                        else:
+                            raise ValueError(f"{value} is not valid for this property.")
+                    else:
+                        # Handle columns with SI units
+                        for unit_type, valid_units_list in EMIT_VALID_UNITS.items():
+                            if unit in valid_units_list:
+                                valid_unit = True
+                                unit_system = unit_type
+                                break
+                        if valid_unit:
+                            row_list[i] = self._convert_to_internal_units(value, unit_system)
+                        else:
+                            raise ValueError(f"{unit} is not valid for this property.")
+                else:
+                    # Handle numeric inputs
+                    row_list[i] = value
+            data_return.append(tuple(row_list))
+        return data_return
+
+    def _check_valid_function(self, expr: str) -> None:
+        """Validates a function expression for use in table data.
+
+        Parameters
+        ----------
+        expr : str
+            The function expression to validate.
+
+        Raises
+        ------
+        ValueError
+            If the function expression is invalid.
+        """
+        try:
+            tree = ast.parse(expr, mode="eval")
+            validator = FunctionValidator()
+            validator.visit(tree)
+        except ValueError as e:
+            raise ValueError(f"Invalid function expression: {e}")
+        except Exception as e:
+            raise ValueError(f"Error parsing function expression: {e}")
+
+    def _check_node_prop_table_data(self, data):
+        """Converts user inputted int or string table data to SI units or ColumnUnits.
+
+        The table nodes affected are:
+        SamplingNode, TxSpurNode,
+        RxSpurNode, TxBbEmissionNode (equation table only).
+
+        Parameters
+        ----------
+        data : list of tuples
+            User inputted table data.
+
+        Returns
+        -------
+        list of tuples
+            Data converted to SI units or ColumnUnits.
+        """
+        units = self._get_property("TableUnitTypes", True)
+        cols = self._get_property("TableColumns", True)
+
+        data_return = []
+        for row in data:
+            row_list = list(row)
+            if len(row) > len(units):
+                raise ValueError(f"Row {row} has more columns than expected ({len(units)}).")
+            for i, val in enumerate(row):
+                # Extract column unit if present in column header
+                col_unit = None
+                if "(" in cols[i]:
+                    col_unit = cols[i][cols[i].find("(") + 1 : cols[i].find(")")]
+
+                    # Update unit type based on column unit
+                    if col_unit in EMIT_VALID_UNITS["Frequency"]:
+                        units[i] = "FrequencyUnit"
+                    elif col_unit in EMIT_VALID_UNITS["Power"]:
+                        units[i] = "PowerUnit"
+
+                if col_unit is None:
+                    # Process values that are stored in SI units
+                    if isinstance(val, str):
+                        value, unit = self._string_to_value_units(val)
+                        if unit == "dBc":
+                            row_list[i] = value
+                        elif unit not in EMIT_VALID_UNITS[units[i][:-4]]:
+                            raise ValueError(f"{unit} is not valid for this property.")
+                        else:
+                            # row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
+                            row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
+                    elif isinstance(val, (float, int)):
+                        row_list[i] = val
+                    else:
+                        raise ValueError(f"{val} is not valid for this property.")
+                else:
+                    input_unit = None
+                    if isinstance(val, str):
+                        # Check for function inputs (TxSpurNode, RxSpurNode, TxBbEmissionNode (equation table only))
+                        is_function = (
+                            any(op in val for op in EMIT_FN_ALLOWED_OPS)
+                            or any(fn in val for fn in EMIT_FN_ALLOWED_FUNCS)
+                            or any(var in val for var in EMIT_FN_ALLOWED_VARS)
+                        )
+                        if (
+                            i == 0
+                            and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"]
+                            and is_function
+                        ):
+                            try:
+                                self._check_valid_function(val)
+                                row_list[i] = val
+                                continue
+                            except Exception:
+                                raise ValueError(f"{val} is not a valid function expression.")
+
+                        # Process input values and units
+                        s = val.strip().replace(" ", "")
+                        unit_index = s.find(next(filter(str.isalpha, s)))
+                        value = float(s[:unit_index])
+                        input_unit = s[unit_index:]
+                    else:
+                        # Value is numeric, so assume SI units
+                        value = float(val)
+                        if units[i] == "FrequencyUnit":
+                            input_unit = "Hz"
+                        elif units[i] == "PowerUnit":
+                            input_unit = "W"
+
+                    # Handle dBc and dBm/Hz units
+                    if input_unit is None or input_unit == "dBc" or input_unit == "dBm/Hz":
+                        row_list[i] = value
+                    elif input_unit not in EMIT_VALID_UNITS[units[i][:-4]]:
+                        raise ValueError(f"{input_unit} is not valid for this property.")
+                    else:
+                        row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
+
+            data_return.append(tuple(row_list))
+        return data_return
 
     def _get_table_data(self):
         """Returns the node's table data.
@@ -522,7 +844,6 @@ class EmitNode:
                 data = self._oRevisionData.GetTableData(self._result_id, self._node_id)
                 rows = data.split("|")
                 string_table = [tuple(row.split(";")) for row in rows if row]
-                table = [tuple(float(x) for x in t) for t in string_table]
             else:
                 # Node Prop tables
                 # Data formatted using compact string serialization
@@ -530,13 +851,16 @@ class EmitNode:
                 table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
 
-                def try_float(val):
-                    try:
-                        return float(val)
-                    except ValueError:
-                        return val  # keep as string for non-numeric (e.g. equations)
+            if len(string_table) == 0 or string_table == "":
+                return None
 
-                table = [tuple(try_float(x) for x in t) for t in string_table]
+            def try_float(val):
+                try:
+                    return float(val)
+                except ValueError:
+                    return val  # keep as string for non-numeric (e.g. equations)
+
+            table = [tuple(try_float(x) for x in t) for t in string_table]
         except Exception as e:
             print(f"Failed to get table data for node {self.name}. Error: {e}")
         return table
@@ -555,17 +879,27 @@ class EmitNode:
                 # Column Data tables
                 # Data formatted using compact string serialization
                 # with '|' separating rows and ';' separating columns
+                if self._node_type in [
+                    "TxHarmonicNode",
+                    "TxNbEmissionNode",
+                    "TxBbEmissionNode",
+                    "RxMixerProductNode",
+                    "RxSaturationNode",
+                    "RxSelectivityNode",
+                ]:
+                    table = self._check_column_table_data(table)
                 data = "|".join(";".join(map(str, row)) for row in table)
                 self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
             else:
                 # Node Prop tables
                 # Data formatted using compact string serialization
                 # with ';' separating rows and '|' separating columns
+                table = self._check_node_prop_table_data(table)
                 table_key = self._get_property("TableKey", True)
                 data = ";".join("|".join(map(str, row)) for row in table)
-                self._set_property(table_key, data)
+                self._set_property(table_key, data, True)
         except Exception as e:
-            print(f"Failed to set table data for node {self.name}. Error: {e}")
+            raise ValueError(f"Failed to set table data for node {self.name}. Error: {e}")
 
     def _add_child_node(self, child_type, child_name=None):
         """Creates a child node of the given type and name.

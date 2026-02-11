@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -63,7 +63,7 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
 class ChokeDesignerExtension(ExtensionHFSSCommon):
     """Extension for Choke Designer in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
@@ -98,7 +98,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
 
         self.add_extension_content()
 
-    def validate_configuration(self, choke):
+    def validate_configuration(self, choke) -> bool:
         """Validate choke configuration parameters."""
         try:
             if choke.core["Outer Radius"] <= choke.core["Inner Radius"]:
@@ -127,7 +127,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             messagebox.showerror("Error", f"Validation error: {str(e)}")
             return False
 
-    def save_configuration(self):
+    def save_configuration(self) -> None:
         """Save choke configuration to JSON file."""
         if not self.validate_configuration(self.choke):
             messagebox.showerror(
@@ -149,7 +149,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                     f"Failed to save configuration: {str(e)}",
                 )
 
-    def load_configuration(self):
+    def load_configuration(self) -> None:
         """Load choke configuration from JSON file."""
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if file_path:
@@ -176,13 +176,13 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                     f"Failed to load configuration: {str(e)}",
                 )
 
-    def update_config(self, category, selected_option):
+    def update_config(self, category, selected_option) -> None:
         """Update boolean configuration options."""
         choke_options = getattr(self.choke, category)
         for key in choke_options:
             choke_options[key] = key == selected_option.get()
 
-    def update_parameter_config(self, attr_name, field, entry_widget):
+    def update_parameter_config(self, attr_name, field, entry_widget) -> None:
         """Update parameter configuration from entry widget."""
         try:
             entry_value = entry_widget.get()
@@ -191,7 +191,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         except (ValueError, AttributeError):
             pass
 
-    def update_radio_buttons(self):
+    def update_radio_buttons(self) -> None:
         """Update radio button selections based on current choke configuration."""
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
@@ -204,7 +204,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                     if category in self.selected_options:
                         self.selected_options[category].set(selected_option)
 
-    def update_entries(self):
+    def update_entries(self) -> None:
         """Update entry widgets based on current choke configuration."""
         for category_name, attr_name in self.category_map.items():
             if hasattr(self.choke, attr_name):
@@ -215,14 +215,14 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         entry_widget.delete(0, tkinter.END)
                         entry_widget.insert(0, str(value))
 
-    def callback(self):
+    def callback(self) -> None:
         """Callback function for Export to HFSS button."""
         self.flag = True
         if self.validate_configuration(self.choke):
             self.data = ChokeDesignerExtensionData(choke=self.choke)
             self.root.destroy()
 
-    def create_boolean_options(self, parent):
+    def create_boolean_options(self, parent) -> None:
         """Create boolean option radio buttons."""
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
@@ -252,7 +252,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         )
                         btn.pack(anchor=tkinter.W, padx=5)
 
-    def create_parameter_inputs(self, parent, category_name):
+    def create_parameter_inputs(self, parent, category_name) -> None:
         """Create parameter input widgets for a category."""
         # Get the attribute name from the category name
         attr_name = self.category_map.get(category_name)
@@ -274,7 +274,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 lambda e, attr=attr_name, fld=field, widget=entry: self.update_parameter_config(attr, fld, widget),
             )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         master = self.root
         # Main panel
@@ -336,7 +336,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         export_hfss.pack(side=tkinter.LEFT, padx=5)
 
 
-def main(data):
+def main(data) -> bool:
     """Main function to run the choke designer extension."""
     choke = data.choke
     app = ansys.aedt.core.Desktop(
@@ -385,7 +385,7 @@ def main(data):
     setup.props["MaximumPasses"] = 10
     hfss.create_linear_count_sweep(
         setup=setup.name,
-        units="MHz",
+        unit="MHz",
         start_frequency=0.1,
         stop_frequency=100,
         num_of_freq_points=100,

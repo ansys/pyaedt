@@ -40,18 +40,22 @@ The following code shows how to use report modules in standalone mode.
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.visualization.report.field import Fields
 
-    app = Hfss(specified_version="2025.2",
-               non_graphical=False,
-               new_desktop_session=False
-               )
-    test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
-                   ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    test_points = [
+        ["0mm", "0mm", "0mm"],
+        ["100mm", "20mm", "0mm"],
+        ["71mm", "71mm", "0mm"],
+        ["0mm", "100mm", "0mm"],
+    ]
     p1 = app.modeler.create_polyline(test_points)
     setup = app.create_setup()
 
-    report = Fields(app=app.post, report_category="Fields",
-                    setup_name=setup.name + " : LastAdaptive",
-                    expressions="Mag_E")
+    report = Fields(
+        app=app.post,
+        report_category="Fields",
+        setup_name=setup.name + " : LastAdaptive",
+        expressions="Mag_E",
+    )
     report.polyline = p1.name
     report.create()
 
@@ -66,16 +70,19 @@ You can use these classes directly from the application object:
 
     from ansys.aedt.core import Hfss
 
-    app = Hfss(specified_version="2025.2",
-               non_graphical=False,
-               new_desktop_session=False
-               )
-    test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
-                   ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    test_points = [
+        ["0mm", "0mm", "0mm"],
+        ["100mm", "20mm", "0mm"],
+        ["71mm", "71mm", "0mm"],
+        ["0mm", "100mm", "0mm"],
+    ]
     p1 = app.modeler.create_polyline(test_points)
     setup = app.create_setup()
 
-    report = app.post.reports_by_category.fields("Mag_E", setup.name + " : LastAdaptive", p1.name)
+    report = app.post.reports_by_category.fields(
+        "Mag_E", setup.name + " : LastAdaptive", p1.name
+    )
     report.create()
 
     app.release_desktop(False, False)

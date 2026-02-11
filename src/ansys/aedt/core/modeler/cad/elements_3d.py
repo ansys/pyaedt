@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,6 +28,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -82,8 +83,7 @@ class ModifiablePrimitive(PyAedtBase):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
@@ -199,7 +199,7 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, objid, position=None):
+    def __init__(self, object3d, objid, position=None) -> None:
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -235,10 +235,10 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
         except Exception:
             return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.id)
 
 
@@ -254,15 +254,15 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, edge_id):
+    def __init__(self, object3d, edge_id) -> None:
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.id)
 
     def __iter__(self):
@@ -445,7 +445,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected edge.
 
         Returns
@@ -462,7 +462,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
-    def move_along_normal(self, offset=1.0):
+    def move_along_normal(self, offset: float = 1.0):
         """Move this edge.
 
         This method moves an edge which belong to the same solid.
@@ -487,7 +487,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return self._object3d._primitives.move_edge(self, offset)
 
     @pyaedt_function_handler()
-    def fillet(self, radius=0.1, setback=0.0):
+    def fillet(self, radius: float = 0.1, setback: float = 0.0) -> bool:
         """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -516,8 +516,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
-                return False
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:FilletParameters"]
@@ -528,12 +527,11 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
-    def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+    def chamfer(self, left_distance: int = 1, right_distance=None, angle: int = 45, chamfer_type: int = 0) -> bool:
         """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -640,13 +638,13 @@ class FacePrimitive(PyAedtBase):
         obj_id : int
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.id)
 
-    def __init__(self, object3d, obj_id):
+    def __init__(self, object3d, obj_id) -> None:
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
@@ -789,7 +787,8 @@ class FacePrimitive(PyAedtBase):
             self._is_planar = True
             return True
         except Exception:
-            self.logger.clear_messages()
+            if self.logger and hasattr(self.logger, "clear_messages"):
+                self.logger.clear_messages()
             self._is_planar = False
             return False
 
@@ -957,8 +956,8 @@ class FacePrimitive(PyAedtBase):
         except Exception:
             return None
 
-    @pyaedt_function_handler(tol="tolerance")
-    def is_on_bounding(self, tolerance=1e-9):
+    @pyaedt_function_handler()
+    def is_on_bounding(self, tolerance: float = 1e-9) -> bool:
         """Check if the face is on bounding box or Not.
 
         Parameters
@@ -985,7 +984,7 @@ class FacePrimitive(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move_with_offset(self, offset=1.0):
+    def move_with_offset(self, offset: float = 1.0) -> bool:
         """Move the face along the normal.
 
         Parameters
@@ -1027,7 +1026,7 @@ class FacePrimitive(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def move_with_vector(self, vector):
+    def move_with_vector(self, vector) -> bool:
         """Move the face along a vector.
 
         Parameters
@@ -1128,7 +1127,7 @@ class FacePrimitive(PyAedtBase):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected face.
 
         Returns
@@ -1169,7 +1168,7 @@ class Point(PyAedtBase):
     >>> my_point = primitives.points[point.name]
     """
 
-    def __init__(self, primitives, name):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._point_coordinate_system = "Global"
         self._color = None
@@ -1213,7 +1212,7 @@ class Point(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, point_name):
+    def name(self, point_name) -> None:
         if point_name not in self._primitives.points.keys:
             if point_name != self._name:
                 name_property = []
@@ -1246,7 +1245,7 @@ class Point(PyAedtBase):
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    def set_color(self, color_value):
+    def set_color(self, color_value) -> None:
         """Set symbol color.
 
         Parameters
@@ -1316,13 +1315,13 @@ class Point(PyAedtBase):
             return self._point_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
+    def coordinate_system(self, new_coordinate_system) -> None:
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the point.
 
         References
@@ -1363,7 +1362,7 @@ class Plane(PyAedtBase):
     >>> my_plane = primitives.planes[plane.name]
     """
 
-    def __init__(self, primitives, name):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._plane_coordinate_system = "Global"
         self._color = None
@@ -1409,7 +1408,7 @@ class Plane(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, plane_name):
+    def name(self, plane_name) -> None:
         if plane_name not in self._primitives.planes.keys():
             plane_old_name = self._name
             if plane_name != self._name:
@@ -1446,7 +1445,7 @@ class Plane(PyAedtBase):
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
     @pyaedt_function_handler()
-    def set_color(self, color_value):
+    def set_color(self, color_value) -> None:
         """Set symbol color.
 
         Parameters
@@ -1516,14 +1515,14 @@ class Plane(PyAedtBase):
             return self._plane_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
+    def coordinate_system(self, new_coordinate_system) -> bool:
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._plane_coordinate_system = new_coordinate_system
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the plane.
 
         References
@@ -1543,7 +1542,7 @@ class Plane(PyAedtBase):
 class HistoryProps(dict):
     """Manages an object's history properties."""
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         value = _units_assignment(value)
         if self._pyaedt_child._app:
             value = _units_assignment(value)
@@ -1551,24 +1550,26 @@ class HistoryProps(dict):
         if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
-    def __init__(self, child_object, props):
+    def __init__(self, child_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
         self._pyaedt_child = child_object
 
-    def _setitem_without_update(self, key, value):
+    def _setitem_without_update(self, key, value) -> None:
         dict.__setitem__(self, key, value)
 
-    def pop(self, key, default=None):
+    def pop(self, key, default=None) -> None:
         dict.pop(self, key, default)
 
 
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None, app=None):
+    def __init__(
+        self, node, child_object, first_level: bool = False, get_child_obj_arg=None, root_name=None, app=None
+    ) -> None:
         self._props = None
         self._app = app
         if not root_name:
@@ -1583,7 +1584,7 @@ class BinaryTreeNode:
         if first_level:
             self._update_children()
 
-    def _update_children(self):
+    def _update_children(self) -> None:
         self._children = {}
         name = None
         try:
@@ -1725,7 +1726,7 @@ class BinaryTreeNode:
         return self._jsonalize_tree(binary_tree_node=self)
 
     @pyaedt_function_handler
-    def _suppress(self, node, app, suppress):
+    def _suppress(self, node, app, suppress) -> bool:
         if not node.command.startswith("Duplicate") and "Suppress Command" in node.properties:
             app.oeditor.ChangeProperty(
                 [

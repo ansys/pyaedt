@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,16 +26,16 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CouplingsNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def import_touchstone(self, file_name):
+    def import_touchstone(self, file_name: str):
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name, "TouchstoneCoupling")
 
@@ -89,7 +88,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @minimum_allowed_coupling.setter
-    def minimum_allowed_coupling(self, value: float):
+    def minimum_allowed_coupling(self, value: float) -> None:
         self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
@@ -102,7 +101,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @global_default_coupling.setter
-    def global_default_coupling(self, value: float):
+    def global_default_coupling(self, value: float) -> None:
         self._set_property("Global Default Coupling", f"{value}")
 
     @property

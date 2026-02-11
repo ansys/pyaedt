@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -60,7 +60,7 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
     """Extension for converting TwinBuilder designs to Circuit."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,
@@ -96,7 +96,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         except Exception as e:
             raise AEDTRuntimeError(f"Failed to load Twin Builder designs: {str(e)}")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Design selection
         label = ttk.Label(self.root, text="Select Twin Builder Design:", width=30, style="PyAEDT.TLabel")
@@ -124,7 +124,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         info_label.grid(row=1, column=0, columnspan=2, padx=15, pady=5)
         self._widgets["info_label"] = info_label
 
-        def callback(extension: ConvertToCircuitExtension):
+        def callback(extension: ConvertToCircuitExtension) -> None:
             data = ConvertToCircuitExtensionData()
             data.design_name = extension.combo_design.get()
             extension.data = data
@@ -142,7 +142,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         self._widgets["ok_button"] = ok_button
 
 
-def main(data: ConvertToCircuitExtensionData):
+def main(data: ConvertToCircuitExtensionData) -> bool:
     """Main function to run the convert to circuit extension."""
     if not data.design_name:
         raise AEDTRuntimeError("No design provided to the extension.")
@@ -181,13 +181,13 @@ def main(data: ConvertToCircuitExtensionData):
         pins_unconnected = []
 
         # Convert wires
-        for wire in tb.modeler.components.wires.values():
+        for wire in tb.modeler.schematic.wires.values():
             seg_vals = list(wire.points_in_segment.values())
             for points in seg_vals:
                 scaled_point = []
                 for p in points:
                     scaled_point.append([i * scale for i in p])
-                cir.modeler.components.create_wire(scaled_point, wire.name)
+                cir.modeler.schematic.create_wire(scaled_point, wire.name)
 
         # Copy variables
         for vname, var in tb.variable_manager.independent_variables.items():  # noqa: E501
@@ -196,7 +196,7 @@ def main(data: ConvertToCircuitExtensionData):
             cir[vname] = var.expression
 
         # Process equations from FML_INIT components
-        for cmp, el in tb.modeler.components.components.items():
+        for cmp, el in tb.modeler.schematic.components.items():
             if el.name in ["CompInst@FML_INIT"]:
                 for k, p in el.parameters.items():
                     if k.startswith("EQU"):
@@ -204,7 +204,7 @@ def main(data: ConvertToCircuitExtensionData):
                         cir[var[0]] = var[1]
 
         # Convert components
-        for cmp, el in tb.modeler.components.components.items():
+        for cmp, el in tb.modeler.schematic.components.items():
             cmp_name = el.name.split("@")[1]
 
             if cmp_name in catalog:
@@ -220,7 +220,7 @@ def main(data: ConvertToCircuitExtensionData):
                     refdes = el.parameters["InstanceName"]
 
                 # Create component in Circuit
-                cmpid = cir.modeler.components.create_component(
+                cmpid = cir.modeler.schematic.create_component(
                     refdes,
                     component_library=catalog[cmp_name]["component_library"],
                     component_name=catalog[cmp_name]["component_name"],
@@ -235,20 +235,20 @@ def main(data: ConvertToCircuitExtensionData):
                             origin = pin.location[:]
                             if pin.location[1] < cmpid.location[1]:
                                 origin[1] = origin[1] - abs(offsetx)
-                                cir.modeler.components.create_wire([pin.location[:], origin])
+                                cir.modeler.schematic.create_wire([pin.location[:], origin])
                             else:
                                 origin[1] = origin[1] + abs(offsetx)
-                                cir.modeler.components.create_wire([pin.location[:], origin])
+                                cir.modeler.schematic.create_wire([pin.location[:], origin])
                 else:
                     for pin in cmpid.pins:  # pragma: no cover
                         if pin.net == "":
                             origin = pin.location[:]
                             if pin.location[0] < cmpid.location[0]:
                                 origin[0] = origin[0] - abs(offsety)
-                                cir.modeler.components.create_wire([pin.location[:], origin])
+                                cir.modeler.schematic.create_wire([pin.location[:], origin])
                             else:
                                 origin[0] = origin[0] + abs(offsety)
-                                cir.modeler.components.create_wire([origin, pin.location[:]])
+                                cir.modeler.schematic.create_wire([origin, pin.location[:]])
 
                 # Map component properties
                 prop_mapping = catalog[cmp_name]["property_mapping"]
@@ -257,7 +257,7 @@ def main(data: ConvertToCircuitExtensionData):
 
             elif "GPort" in el.name:
                 # Create ground component
-                cmpid = cir.modeler.components.create_gnd([i * scale for i in el.location], el.angle)
+                cmpid = cir.modeler.schematic.create_gnd([i * scale for i in el.location], el.angle)
                 x1 = unit_converter(100, input_units="mil", output_units="meter")
                 offsetx = x1 * math.sin(el.angle * math.pi / 180)
                 offsety = x1 * math.cos(el.angle * math.pi / 180)

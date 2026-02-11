@@ -65,9 +65,14 @@ You can access these classes directly from the design object:
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the PostProcessor class
     post = app.post
@@ -98,9 +103,14 @@ User can get the properties of the default reports using the following class:
 
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.visualization.post.common import Reports
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
     reports = Reports(app.post, app.design_type)
     app.release_desktop(False, False)
 
@@ -138,12 +148,13 @@ The following classes manage all aspects of AEDT 3D post-processing and are util
 
     from ansys.aedt.core import Hfss
 
-    app = Hfss(specified_version="2025.2",
-               non_graphical=False,
-               new_desktop_session=False
-               )
-    test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
-                   ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    test_points = [
+        ["0mm", "0mm", "0mm"],
+        ["100mm", "20mm", "0mm"],
+        ["71mm", "71mm", "0mm"],
+        ["0mm", "100mm", "0mm"],
+    ]
     p1 = app.modeler.create_polyline(test_points)
     setup = app.create_setup()
 

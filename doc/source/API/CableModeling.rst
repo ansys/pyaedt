@@ -36,25 +36,32 @@ Cable bundle creation example:
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
     from ansys.aedt.core.modules.cable_modeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+    hfss = Hfss(
+        projectname=project_path,
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
     # This call returns a dictionary out of the JSON file
     cable_props = json_to_dict(json_path)
     # This example shows how to manually change from script the cable properties
     cable_props["Add_Cable"] = "True"
     cable_props["Cable_prop"]["CableType"] = "bundle"
     cable_props["Cable_prop"]["IsJacketTypeInsulation"] = "True"
-    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"]["InsulationJacketParams"][
-                "InsThickness"
-            ] = "3.66mm"
-    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"]["InsulationJacketParams"][
-                "JacketMaterial"
-            ] = "pec"
-    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"]["InsulationJacketParams"][
-                "InnerDiameter"
-            ] = "2.88mm"
-    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"]["Name"] = "Bundle_Cable_Insulation"
+    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"][
+        "InsulationJacketParams"
+    ]["InsThickness"] = "3.66mm"
+    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"][
+        "InsulationJacketParams"
+    ]["JacketMaterial"] = "pec"
+    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleParams"][
+        "InsulationJacketParams"
+    ]["InnerDiameter"] = "2.88mm"
+    cable_props["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"][
+        "Name"
+    ] = "Bundle_Cable_Insulation"
     # This call returns the Cable class
     cable = Cable(hfss, cable_props)
     # This call creates the cable bundle
@@ -68,9 +75,14 @@ Clock source creation example:
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
     from ansys.aedt.core.modules.cable_modeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+    hfss = Hfss(
+        projectname=project_path,
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
     # This call returns a dictionary out of the JSON file
     cable_props = json_to_dict(json_path)
     # This example shows how to manually change from script the clock source properties
@@ -80,13 +92,27 @@ Clock source creation example:
     cable_props["Remove_Cable"] = "False"
     cable_props["Add_Source"] = "True"
     cable_props["Source_prop"]["AddClockSource"] = "True"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["Period"] = "40us"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["LowPulseVal"] = "0.1V"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["HighPulseVal"] = "2V"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["Risetime"] = "5us"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["Falltime"] = "10us"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["PulseWidth"] = "23us"
-    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["TDSourceAttribs"]["Name"] = "clock_test_1"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "Period"
+    ] = "40us"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "LowPulseVal"
+    ] = "0.1V"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "HighPulseVal"
+    ] = "2V"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "Risetime"
+    ] = "5us"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "Falltime"
+    ] = "10us"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"][
+        "PulseWidth"
+    ] = "23us"
+    cable_props["CableManager"]["TDSources"]["ClockSourceDef"]["TDSourceAttribs"][
+        "Name"
+    ] = "clock_test_1"
     # This call returns the Cable class
     cable = Cable(hfss, cable_props)
     # This call creates the clock source
@@ -100,9 +126,14 @@ Cable harness creation example:
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
     from ansys.aedt.core.modules.cable_modeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+    hfss = Hfss(
+        projectname=project_path,
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
     # This call returns a dictionary out of the JSON file
     cable_props = json_to_dict(json_path)
     # This example shows how to manually change from script the cable harness properties
@@ -123,9 +154,15 @@ Cable harness creation example:
     cable_props["CableHarness_prop"]["XAxisOrigin"] = ["0mm", "0mm", "0mm"]
     cable_props["CableHarness_prop"]["XAxisEnd"] = ["0mm", "0mm", "0mm"]
     cable_props["CableHarness_prop"]["ReverseYAxisDirection"] = "True"
-    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][0]["CableName"] = "straight_wire_cable"
-    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][1]["CableName"] = "straight_wire_cable1"
-    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][2]["CableName"] = "straight_wire_cable2"
+    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][0][
+        "CableName"
+    ] = "straight_wire_cable"
+    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][1][
+        "CableName"
+    ] = "straight_wire_cable1"
+    cable_props["CableHarness_prop"]["CableTerminationsToInclude"][2][
+        "CableName"
+    ] = "straight_wire_cable2"
     # This call returns the Cable class
     cable = Cable(hfss, cable_props)
     # This call creates the cable harness

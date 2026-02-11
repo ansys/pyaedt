@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,6 +31,7 @@ import tempfile
 import time
 
 import rpyc
+from rpyc import Connection
 from rpyc.core import consts
 from rpyc.utils.server import OneShotServer
 from rpyc.utils.server import ThreadedServer
@@ -141,7 +142,9 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
+def pyaedt_service_manager(
+    port: int = 17878, aedt_version: str | None = None, student_version: bool | None = False
+) -> bool:
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
@@ -153,7 +156,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     port : int, optional
         Port that the RPyC server is to listen on.
     aedt_version : str, optional
-        Version of Aedt to instantiate with server. Default is latest available version installed on the machine.
+        Version of AEDT to instantiate with server. Default is latest available version installed on the machine.
     student_version : bool, optional
         Either to initialize Student version AEDT or Commercial version.
 
@@ -211,7 +214,9 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     t.start()
 
 
-def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=True):
+def launch_server(
+    port: int = 18000, ansysem_path: str | None = None, non_graphical: bool | None = False, threaded: bool = True
+) -> bool:
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
@@ -283,7 +288,13 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     t.start()
 
 
-def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=False):
+def create_session(
+    server_name: str,
+    client_port: int | None = None,
+    launch_aedt_on_server: bool | None = False,
+    aedt_port: int | None = None,
+    non_graphical: bool | None = False,
+) -> Connection:
     """
     Connect to an existing AEDT server session and create a new client session from it.
 
@@ -296,9 +307,9 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
     launch_aedt_on_server : bool, optional
         Either if the method has to start AEDT after the connection is established or not. Default is  `False`.
     aedt_port : int, optional
-        Aedt Grpc port on server.
+        AEDT gRPC port on server.
     non_graphical : bool, optional
-        Aedt Non Graphical Flag.
+        AEDT non-graphical glag.
 
     Returns
     -------
@@ -324,7 +335,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
             if not aedt_port:
                 aedt_port = client.root.check_port()
             cl.aedt(port=aedt_port, non_graphical=non_graphical)
-            logger.info("Aedt started on port %s", aedt_port)
+            logger.info("AEDT started on port %s", aedt_port)
             if not cl.aedt_port:
                 cl.aedt_port = aedt_port
         return cl
@@ -335,7 +346,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         return False
 
 
-def connect(server_name, aedt_client_port):
+def connect(server_name: str, aedt_client_port: int) -> Connection:
     """
     Connect to an existing AEDT server session.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,6 @@ import math
 import os
 import re
 import sys
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -62,7 +61,7 @@ class Materials(PyAedtBase):
     >>> materials = app.materials
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._color_id = 0
         self._mats = []
@@ -70,9 +69,14 @@ class Materials(PyAedtBase):
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        self.material_keys = {}
-        self._surface_material_keys = {}
+        self.__material_keys = {}
+        self.__surface_material_keys = {}
         self._load_from_project()
+
+    @property
+    def material_keys(self) -> dict[str, Material]:
+        """Material dictionary available in current project."""
+        return self.__material_keys
 
     @property
     def odefinition_manager(self):
@@ -84,13 +88,13 @@ class Materials(PyAedtBase):
         """Material Manager from AEDT."""
         return self._app.omaterial_manager
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.material_keys)
 
     def __iter__(self):
         return iter(self.material_keys.values()) if sys.version_info.major > 2 else self.material_keys.itervalues()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "Material":
         matobj = self.exists_material(item)
         if matobj:
             return matobj
@@ -99,19 +103,19 @@ class Materials(PyAedtBase):
         return
 
     @property
-    def surface_material_keys(self):
+    def surface_material_keys(self) -> dict[str, SurfaceMaterial]:
         """Dictionary of Surface Material in the project.
 
         Returns
         -------
         dict of :class:`ansys.aedt.core.modules.material.Material`
         """
-        if not self._surface_material_keys and self._app.design_type == "Icepak":
-            self._surface_material_keys = self._get_surface_materials()
-        return self._surface_material_keys
+        if not self.__surface_material_keys and self._app.design_type == "Icepak":
+            self.__surface_material_keys = self._get_surface_materials()
+        return self.__surface_material_keys
 
     @property
-    def liquids(self):
+    def liquids(self) -> list[str]:
         """Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
 
         Returns
@@ -164,7 +168,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def _read_materials(self):
-        def get_mat_list(file_name):
+        def get_mat_list(file_name: str):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
             with open_file(file_name, "rb") as aedt_fh:
@@ -237,36 +241,8 @@ class Materials(PyAedtBase):
             self.logger.debug("An error occurred while accessing surface materials.")  # pragma: no cover
         return mats
 
-    @pyaedt_function_handler(mat="material")
-    def checkifmaterialexists(self, material):
-        """Check if a material exists in AEDT or PyAEDT Definitions.
-
-        .. deprecated:: 0.11.4
-           Use :func:`exists_material` method instead.
-
-        Parameters
-        ----------
-        material : str
-            Name of the material. If the material exists and is not in the materials database,
-            it is added to this database.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.material.Material`
-            Material object if present, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDefinitionManager.GetProjectMaterialNames
-        >>> oMaterialManager.GetData
-        """
-        warnings.warn(
-            "`checkifmaterialexists` is deprecated. Use `exists_material` method instead.", DeprecationWarning
-        )
-        return self.exists_material(material=material)
-
     @pyaedt_function_handler()
-    def exists_material(self, material):
+    def exists_material(self, material: str):
         """Check if a material exists in AEDT or PyAEDT Definitions.
 
         Parameters
@@ -302,8 +278,8 @@ class Materials(PyAedtBase):
             return self._aedmattolibrary(material)
         return False
 
-    @pyaedt_function_handler(mat="material")
-    def check_thermal_modifier(self, material):
+    @pyaedt_function_handler()
+    def check_thermal_modifier(self, material: str) -> bool:
         """Check a material to see if it has any thermal modifiers.
 
         Parameters
@@ -325,8 +301,8 @@ class Materials(PyAedtBase):
                     return True
         return False
 
-    @pyaedt_function_handler(materialname="name", props="properties")
-    def add_material(self, name, properties=None):
+    @pyaedt_function_handler()
+    def add_material(self, name: str, properties=None):
         """Add a material with default values.
 
         When the added material object is returned, you can customize
@@ -375,8 +351,8 @@ class Materials(PyAedtBase):
                 return self.material_keys[name.casefold()]
         return False
 
-    @pyaedt_function_handler(material_name="name")
-    def add_surface_material(self, name, emissivity=None):
+    @pyaedt_function_handler()
+    def add_surface_material(self, name: str, emissivity=None):
         """Add a surface material.
 
         In AEDT, base properties are loaded from the XML database file ``amat.xml``
@@ -440,8 +416,8 @@ class Materials(PyAedtBase):
 
         return matprop
 
-    @pyaedt_function_handler(materials_list="assignment", material_name="name")
-    def add_material_sweep(self, assignment, name):
+    @pyaedt_function_handler()
+    def add_material_sweep(self, assignment, name: str):
         """Create a sweep material made of an array of materials.
 
         Parameters
@@ -491,8 +467,8 @@ class Materials(PyAedtBase):
         self.material_keys[name.casefold()] = newmat
         return index
 
-    @pyaedt_function_handler(material_name="material", new_name="name", props="properties")
-    def duplicate_material(self, material, name=None, properties=None):
+    @pyaedt_function_handler()
+    def duplicate_material(self, material: str, name: str | None = None, properties=None):
         """Duplicate a material.
 
         Parameters
@@ -575,8 +551,8 @@ class Materials(PyAedtBase):
         self.material_keys[name.casefold()] = new_material
         return new_material
 
-    @pyaedt_function_handler(new_name="name")
-    def duplicate_surface_material(self, material, name=None):
+    @pyaedt_function_handler()
+    def duplicate_surface_material(self, material: str, name: str | None = None):
         """Duplicate a surface material.
 
         Parameters
@@ -613,7 +589,7 @@ class Materials(PyAedtBase):
         return newmat
 
     @pyaedt_function_handler()
-    def remove_material(self, material, library="Project"):
+    def remove_material(self, material: str, library: str = "Project") -> bool:
         """Remove a material.
 
         Parameters
@@ -681,7 +657,7 @@ class Materials(PyAedtBase):
                 data.append(key)
         return data
 
-    def _load_from_project(self):
+    def _load_from_project(self) -> None:
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
             if not mats:
@@ -719,7 +695,7 @@ class Materials(PyAedtBase):
         self.material_keys[matname.casefold()] = newmat
         return self.material_keys[matname.casefold()]
 
-    @pyaedt_function_handler(full_json_path="output_file")
+    @pyaedt_function_handler()
     def export_materials_to_file(self, output_file):
         """Export all materials to a JSON or TOML file.
 
@@ -735,7 +711,7 @@ class Materials(PyAedtBase):
 
         """
 
-        def find_datasets(d, out_list):
+        def find_datasets(d, out_list) -> None:
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)
@@ -785,8 +761,8 @@ class Materials(PyAedtBase):
             json_dict["datasets"] = datasets
         return write_configuration_file(json_dict, output_file)
 
-    @pyaedt_function_handler(full_path="input_file")
-    def import_materials_from_file(self, input_file=None, **kwargs):
+    @pyaedt_function_handler()
+    def import_materials_from_file(self, input_file: str | None = None):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
@@ -798,13 +774,6 @@ class Materials(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
         """
-        if "full_json_path" in kwargs and kwargs["full_json_path"] is not None:  # pragma: no cover
-            warnings.warn(
-                "``full_json_path`` was deprecated in 0.8.1. Use ``full_path`` instead.",
-                DeprecationWarning,
-            )
-            input_file = kwargs["full_json_path"]
-
         if input_file is None or not os.path.exists(input_file):
             self.logger.error("Incorrect path provided.")
             return False
@@ -892,8 +861,8 @@ class Materials(PyAedtBase):
                 materials_added.append(newmat)
         return materials_added
 
-    @pyaedt_function_handler(material_file="input_file")
-    def import_materials_from_excel(self, input_file):
+    @pyaedt_function_handler()
+    def import_materials_from_excel(self, input_file: str):
         """Import and create materials from a csv or excel file.
 
         Parameters
@@ -960,7 +929,7 @@ class Materials(PyAedtBase):
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
     @pyaedt_function_handler
-    def import_materials_from_workbench(self, input_file, name_suffix=None):
+    def import_materials_from_workbench(self, input_file: str, name_suffix=None):
         """Import and create materials from Workbench Engineering Data XML file.
 
         Parameters

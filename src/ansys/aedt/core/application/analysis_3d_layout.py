@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -90,22 +89,22 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        ic_mode=None,
-        remove_lock=False,
-    ):
+        application: str,
+        projectname: str,
+        designname: str,
+        solution_type: str,
+        setup_name: str,
+        version: str,
+        non_graphical: bool,
+        close_on_exit: bool,
+        student_version: bool,
+        new_desktop: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        ic_mode: bool | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -173,28 +172,6 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._mesh
 
     @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
-
-    @property
     def excitation_names(self):
         """Get all excitation names.
 
@@ -211,7 +188,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return list(self.oboundary.GetAllPortsList())
 
     @pyaedt_function_handler()
-    def change_design_settings(self, settings):
+    def change_design_settings(self, settings) -> bool:
         """Set HFSS 3D Layout Design Settings.
 
         Parameters
@@ -230,8 +207,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    @pyaedt_function_handler()
+    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -254,7 +231,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, output_file)
+        self.odesign.ExportMeshStats(setup, variations, str(output_file))
         return output_file
 
     @property
@@ -284,28 +261,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         """
         return self.oexcitation.GetAllPortsList()
 
-    @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
-
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    @pyaedt_function_handler()
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
@@ -357,8 +314,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler(setupname="name")
-    def delete_setup(self, name):
+    @pyaedt_function_handler()
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -63,7 +63,7 @@ class COMParameters:
         "COM_100GBASE_KP4": "com_94_17.json",
     }
 
-    def __init__(self, standard):
+    def __init__(self, standard) -> None:
         self.table_93a1 = {}
         self.filter_and_eq = {}
         self.io_control = {}
@@ -82,7 +82,7 @@ class COMParameters:
         self.standard = standard
 
     @pyaedt_function_handler
-    def _init(self):
+    def _init(self) -> None:
         pass  # pragma: no cover
 
     @property
@@ -116,14 +116,14 @@ class COMParameters:
         return self._standard  # pragma: no cover
 
     @standard.setter
-    def standard(self, value):
+    def standard(self, value) -> None:
         std_table = self._STD_TABLE_MAPPING[COMStandards(value).name]
         cfg_path = self._CFG_DIR / std_table
         self.load(cfg_path)
         self._standard = value
 
     @pyaedt_function_handler
-    def set_parameter(self, keyword, value):
+    def set_parameter(self, keyword, value) -> None:
         """Set a COM parameter.
 
         Parameters
@@ -161,7 +161,7 @@ class COMParameters:
             self.other_parameters[keyword] = value
 
     @pyaedt_function_handler
-    def export(self, file_path):
+    def export(self, file_path) -> None:
         """Export COM parameter to a JSON file.
 
         Parameters
@@ -188,7 +188,7 @@ class COMParameters:
             f.write(json.dumps(temp, indent=4, ensure_ascii=False))
 
     @pyaedt_function_handler
-    def load(self, file_path):
+    def load(self, file_path) -> None:
         """Load COM parameters from a JSON file.
 
         Parameters
@@ -205,7 +205,7 @@ class COMParameters:
                 self.__getattribute__(k)[k2] = v2
 
     @pyaedt_function_handler
-    def export_spisim_cfg(self, file_path):
+    def export_spisim_cfg(self, file_path) -> bool:
         """Export COM parameter to a SPISim cfg file.
 
         Parameters
@@ -226,7 +226,7 @@ class COMParameters:
         return True
 
     @pyaedt_function_handler
-    def load_spisim_cfg(self, file_path):
+    def load_spisim_cfg(self, file_path) -> bool:
         """Load a SPIsim configuration file.
 
         Parameters
@@ -256,11 +256,11 @@ class COMParameters:
 class COMParametersVer3p4(COMParameters):
     """Manages COM parameters of version 3.4."""
 
-    def __init__(self, standard=1):
+    def __init__(self, standard: int = 1) -> None:
         super().__init__(standard)
 
     @pyaedt_function_handler
-    def _init(self):
+    def _init(self) -> None:
         """Initialize COM parameters."""
         self.table_93a1.update(
             {

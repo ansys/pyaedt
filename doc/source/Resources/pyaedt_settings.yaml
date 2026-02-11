@@ -51,7 +51,7 @@ lsf:
   # Command to launch the task in the LSF Scheduler
   lsf_aedt_command: 'ansysedt'
   # Number of LSF cores
-  lsf_num_cores: 4
+  num_cores: 4
   # Operating system string
   lsf_osrel: null
   # LSF queue name
@@ -65,7 +65,7 @@ lsf:
   # Enable or disable use LSF Scheduler
   use_lsf_scheduler: false
 
-# Settings related to environment variables thare are set before launching a new AEDT session
+# Settings related to environment variables that are set before launching a new AEDT session
 # This includes those that enable the beta features !
 aedt_env_var:
   ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE: '1'
@@ -79,6 +79,7 @@ aedt_env_var:
   ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
   ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
   ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
+  ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE: '1'
   # Environment variable useful in Linux to skip the dependency check which improves speed
   ANS_NODEPCHECK: '1'
 
@@ -98,7 +99,7 @@ general:
   # Optional path for the EDB DLL file
   edb_dll_path: null
   # Enable or disable the internal PyAEDT error handling
-  enable_error_handler: true
+  enable_error_handler: false
   # Enable or disable the use of Pandas to export dictionaries and lists
   enable_pandas_output: false
   # Enable or disable the check of the project path
@@ -127,3 +128,11 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+
+grpc:
+  # Enable or disable secure mode for gRPC connections
+  grpc_secure_mode: true
+  # Enable or disable local gRPC connections
+  grpc_local: true
+  # Enable or disable listening on all interfaces for gRPC connections
+  grpc_listen_all: false

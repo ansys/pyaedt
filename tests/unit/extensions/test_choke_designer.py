@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -114,7 +114,7 @@ def invalid_choke_config():
     }
 
 
-def test_choke_designer_extension_data_class():
+def test_choke_designer_extension_data_class() -> None:
     """Test ChokeDesignerExtensionData class."""
     choke = Choke()
     data = ChokeDesignerExtensionData(choke=choke)
@@ -123,7 +123,7 @@ def test_choke_designer_extension_data_class():
     assert isinstance(data.choke, Choke)
 
 
-def test_choke_designer_extension_with_custom_choke(mock_hfss_app):
+def test_choke_designer_extension_with_custom_choke(mock_hfss_app) -> None:
     """Test instantiation with a custom choke configuration."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -145,7 +145,7 @@ def test_choke_designer_extension_with_custom_choke(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_validate_configuration_valid(mock_hfss_app, sample_choke_config):
+def test_validate_configuration_valid(mock_hfss_app, sample_choke_config) -> None:
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke = Choke.from_dict(sample_choke_config)
     with patch("tkinter.messagebox.showerror") as mock_error:
@@ -156,7 +156,7 @@ def test_validate_configuration_valid(mock_hfss_app, sample_choke_config):
     extension.root.destroy()
 
 
-def test_validate_configuration_missing_attributes(mock_hfss_app):
+def test_validate_configuration_missing_attributes(mock_hfss_app) -> None:
     """Test validation with missing attributes."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -175,7 +175,7 @@ def test_validate_configuration_missing_attributes(mock_hfss_app):
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_hfss_app):
+def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_hfss_app) -> None:
     """Test successful configuration save."""
     with tempfile.NamedTemporaryFile(suffix=".json", prefix="test_config_", delete=False) as temp_file:
         temp_file_path = temp_file.name
@@ -195,7 +195,7 @@ def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_h
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_validation_failure(mock_filedialog, mock_hfss_app):
+def test_save_configuration_validation_failure(mock_filedialog, mock_hfss_app) -> None:
     """Test save configuration with validation failure."""
     with tempfile.NamedTemporaryFile(suffix=".json", prefix="test_config_", delete=False) as temp_file:
         temp_file_path = temp_file.name
@@ -215,7 +215,7 @@ def test_save_configuration_validation_failure(mock_filedialog, mock_hfss_app):
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_export_failure(mock_filedialog, sample_choke_config, mock_hfss_app):
+def test_save_configuration_export_failure(mock_filedialog, sample_choke_config, mock_hfss_app) -> None:
     """Test save configuration with export failure."""
     with tempfile.NamedTemporaryFile(suffix=".json", prefix="test_config_", delete=False) as temp_file:
         temp_file_path = temp_file.name
@@ -241,7 +241,7 @@ def test_save_configuration_export_failure(mock_filedialog, sample_choke_config,
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_load_configuration_no_file_selected(mock_filedialog, mock_hfss_app):
+def test_load_configuration_no_file_selected(mock_filedialog, mock_hfss_app) -> None:
     """Test load configuration when no file is selected."""
     mock_filedialog.return_value = ""  # User cancels file dialog
 
@@ -261,7 +261,7 @@ def test_load_configuration_validation_failure(
     mock_filedialog,
     invalid_choke_config,
     mock_hfss_app,
-):
+) -> None:
     """Test load configuration with validation failure."""
     with tempfile.NamedTemporaryFile(suffix=".json", prefix="test_config_", delete=False) as temp_file:
         temp_file_path = temp_file.name
@@ -279,7 +279,7 @@ def test_load_configuration_validation_failure(
     extension.root.destroy()
 
 
-def test_update_config(mock_hfss_app):
+def test_update_config(mock_hfss_app) -> None:
     """Test updating boolean configuration options."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -297,7 +297,7 @@ def test_update_config(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_update_parameter_config(mock_hfss_app):
+def test_update_parameter_config(mock_hfss_app) -> None:
     """Test updating parameter configuration from entry widget."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -326,7 +326,7 @@ def test_update_parameter_config(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_update_radio_buttons(mock_hfss_app):
+def test_update_radio_buttons(mock_hfss_app) -> None:
     """Test updating radio button selections."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -356,7 +356,7 @@ def test_update_radio_buttons(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_update_entries(mock_hfss_app):
+def test_update_entries(mock_hfss_app) -> None:
     """Test updating entry widgets."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -382,7 +382,7 @@ def test_update_entries(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_callback_success(mock_hfss_app):
+def test_callback_success(mock_hfss_app) -> None:
     """Test successful callback execution."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -397,7 +397,7 @@ def test_callback_success(mock_hfss_app):
             mock_destroy.assert_called_once()
 
 
-def test_callback_validation_failure(mock_hfss_app):
+def test_callback_validation_failure(mock_hfss_app) -> None:
     """Test callback with validation failure."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -410,7 +410,7 @@ def test_callback_validation_failure(mock_hfss_app):
             mock_destroy.assert_not_called()  # Root should not be destroyed
 
 
-def test_create_boolean_options(mock_hfss_app):
+def test_create_boolean_options(mock_hfss_app) -> None:
     """Test creation of boolean option radio buttons."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -434,7 +434,7 @@ def test_create_boolean_options(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_create_parameter_inputs(mock_hfss_app):
+def test_create_parameter_inputs(mock_hfss_app) -> None:
     """Test creation of parameter input widgets."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -452,7 +452,7 @@ def test_create_parameter_inputs(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_create_parameter_inputs_invalid_category(mock_hfss_app):
+def test_create_parameter_inputs_invalid_category(mock_hfss_app) -> None:
     """Test creation of parameter inputs with invalid category."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -469,7 +469,7 @@ def test_create_parameter_inputs_invalid_category(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_extension_ui_components(mock_hfss_app):
+def test_extension_ui_components(mock_hfss_app) -> None:
     """Test that the extension UI components are properly created."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -483,14 +483,14 @@ def test_extension_ui_components(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_choke_designer_extension_data_defaults(mock_hfss_app):
+def test_choke_designer_extension_data_defaults(mock_hfss_app) -> None:
     """Test ChokeDesignerExtensionData with default values."""
     data = ChokeDesignerExtensionData()
 
     assert data.choke is None
 
 
-def test_choke_configuration_persistence(mock_hfss_app):
+def test_choke_configuration_persistence(mock_hfss_app) -> None:
     """Test that choke configuration changes persist."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -504,7 +504,7 @@ def test_choke_configuration_persistence(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_category_map_completeness(mock_hfss_app):
+def test_category_map_completeness(mock_hfss_app) -> None:
     """Test that category map covers all expected categories."""
     extension = ChokeDesignerExtension(withdraw=True)
 
@@ -523,7 +523,7 @@ def test_category_map_completeness(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_boolean_categories_completeness(mock_hfss_app):
+def test_boolean_categories_completeness(mock_hfss_app) -> None:
     """Test that boolean categories list is complete."""
     extension = ChokeDesignerExtension(withdraw=True)
 

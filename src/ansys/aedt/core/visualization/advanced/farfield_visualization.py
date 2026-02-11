@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -81,7 +81,7 @@ class FfdSolutionData(PyAedtBase):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+    >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.desktop_class.close_desktop()
@@ -90,8 +90,14 @@ class FfdSolutionData(PyAedtBase):
     """
 
     def __init__(
-        self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
-    ):
+        self,
+        input_file: str,
+        frequency=None,
+        variation=None,
+        model_info=None,
+        incident_power=None,
+        touchstone_file=None,
+    ) -> None:
         if isinstance(input_file, Path):
             input_file = str(input_file)
 
@@ -279,7 +285,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phi_scan
 
     @phi_scan.setter
-    def phi_scan(self, value):
+    def phi_scan(self, value) -> None:
         self.__phi_scan = value
         self.__element_weight()
 
@@ -289,7 +295,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__theta_scan
 
     @theta_scan.setter
-    def theta_scan(self, value):
+    def theta_scan(self, value) -> None:
         self.__theta_scan = value
         self.__element_weight()
 
@@ -436,7 +442,7 @@ class FfdSolutionData(PyAedtBase):
         return self._frequency
 
     @frequency.setter
-    def frequency(self, val):
+    def frequency(self, val) -> None:
         if isinstance(val, str):
             frequency, units = decompose_variable_value(val)
             unit_converter(frequency, "Freq", units, "Hz")
@@ -453,7 +459,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phase
 
     @phase.setter
-    def phase(self, phases):
+    def phase(self, phases) -> None:
         if len(phases) != len(self.all_element_names):
             self.__logger.error("Number of phases must be equal to number of ports.")
         else:
@@ -465,7 +471,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__magnitude
 
     @magnitude.setter
-    def magnitude(self, mags):
+    def magnitude(self, mags) -> None:
         if len(mags) != len(self.all_element_names):
             self.__logger.error("Number of magnitude values must be equal to number of ports.")
         else:
@@ -486,7 +492,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__taper
 
     @taper.setter
-    def taper(self, val):
+    def taper(self, val) -> None:
         if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
             self.__taper = val
 
@@ -499,14 +505,14 @@ class FfdSolutionData(PyAedtBase):
         return self.__origin
 
     @origin.setter
-    def origin(self, vals):
+    def origin(self, vals) -> None:
         if len(vals) != 3:
             self.__logger.error("Origin is wrong.")
         else:
             self.__origin = vals
 
     @pyaedt_function_handler()
-    def combine_farfield(self, phi_scan=0.0, theta_scan=0.0):
+    def combine_farfield(self, phi_scan: float = 0.0, theta_scan: float = 0.0):
         """Compute the far field pattern calculated for a specific phi and theta scan angle requested.
 
         Parameters
@@ -719,7 +725,7 @@ class FfdSolutionData(PyAedtBase):
         return w1 * w2
 
     @pyaedt_function_handler()
-    def __phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
+    def __phase_shift_steering(self, a, b, theta: float = 0.0, phi: float = 0.0):
         """Shift element phase for a specific Theta and Phi scan angle in degrees.
 
         This method calculates phase shifts between array elements in A and B directions given the lattice vector.
@@ -759,7 +765,7 @@ class FfdSolutionData(PyAedtBase):
         return np.rad2deg(phase_shift)
 
     @pyaedt_function_handler()
-    def __element_weight(self):
+    def __element_weight(self) -> None:
         # Obtain weights for each element
         for element_name in self.all_element_names:
             amplitude = self.magnitude[element_name]
@@ -781,16 +787,16 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_contour(
         self,
-        quantity="RealizedGain",
-        phi=0,
-        theta=0,
+        quantity: str = "RealizedGain",
+        phi: int = 0,
+        theta: int = 0,
         title=None,
-        quantity_format="dB10",
+        quantity_format: str = "dB10",
         output_file=None,
-        levels=64,
-        polar=True,
-        max_theta=180,
-        show=True,
+        levels: int = 64,
+        polar: bool = True,
+        max_theta: int = 180,
+        show: bool = True,
     ):
         """Create a contour plot of a specified quantity in Matplotlib.
 
@@ -821,8 +827,8 @@ class FfdSolutionData(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. The default is ``180``, which plots the far-field data for
-            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            Maximum theta angle for plotting far-field data. The default value is ``180``, which
+            plots all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
         Returns
@@ -832,8 +838,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -874,7 +880,6 @@ class FfdSolutionData(PyAedtBase):
             trace=0,
             polar=polar,
             levels=levels,
-            max_theta=max_theta,
             color_bar=quantity_format,
             snapshot_path=output_file,
             show=show,
@@ -884,17 +889,17 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_cut(
         self,
-        quantity="RealizedGain",
-        primary_sweep="phi",
-        secondary_sweep_value=0,
-        phi=0,
-        theta=0,
-        title="Far Field Cut",
-        quantity_format="dB10",
+        quantity: str = "RealizedGain",
+        primary_sweep: str = "phi",
+        secondary_sweep_value: int = 0,
+        phi: int = 0,
+        theta: int = 0,
+        title: str = "Far Field Cut",
+        quantity_format: str = "dB10",
         output_file=None,
-        show=True,
-        is_polar=False,
-        show_legend=True,
+        show: bool = True,
+        is_polar: bool = False,
+        show_legend: bool = True,
     ):
         """Create a 2D plot of a specified quantity in Matplotlib.
 
@@ -938,8 +943,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1005,13 +1010,13 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_3d_chart(
         self,
-        quantity="RealizedGain",
-        phi=0,
-        theta=0,
-        title="3D Plot",
-        quantity_format="dB10",
+        quantity: str = "RealizedGain",
+        phi: int = 0,
+        theta: int = 0,
+        title: str = "3D Plot",
+        quantity_format: str = "dB10",
         output_file=None,
-        show=True,
+        show: bool = True,
     ):
         """Create a 3D chart of a specified quantity in Matplotlib.
 
@@ -1045,8 +1050,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1087,17 +1092,17 @@ class FfdSolutionData(PyAedtBase):
     @graphics_required
     def plot_3d(
         self,
-        quantity="RealizedGain",
-        quantity_format="dB10",
+        quantity: str = "RealizedGain",
+        quantity_format: str = "dB10",
         rotation=None,
         output_file=None,
-        show=True,
-        show_as_standalone=False,
+        show: bool = True,
+        show_as_standalone: bool = False,
         pyvista_object=None,
         background=None,
         scale_farfield=None,
-        show_beam_slider=True,
-        show_geometry=True,
+        show_beam_slider: bool = True,
+        show_geometry: bool = True,
     ):
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
@@ -1141,8 +1146,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1253,14 +1258,14 @@ class FfdSolutionData(PyAedtBase):
 
         if cad_mesh:  # pragma: no cover
 
-            def toggle_vis_ff(flag):
+            def toggle_vis_ff(flag) -> None:
                 ff_mesh_inst.SetVisibility(flag)
 
-            def toggle_vis_cad(flag):
+            def toggle_vis_cad(flag) -> None:
                 for i in cad:
                     i.SetVisibility(flag)
 
-            def scale(value=1):
+            def scale(value: int = 1) -> None:
                 ff_mesh_inst.SetScale(value, value, value)
                 sf = AEDT_UNITS["Length"][self.__model_units]
                 ff_mesh_inst.SetPosition(np.divide(self.origin, sf))
@@ -1310,7 +1315,7 @@ class FfdSolutionData(PyAedtBase):
         return p
 
     @pyaedt_function_handler()
-    def __init_ffd(self, element_info):
+    def __init_ffd(self, element_info) -> bool:
         """Load far field information.
 
         Parameters
@@ -1371,7 +1376,7 @@ class FfdSolutionData(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_far_field_mesh(self, quantity="RealizedGain", quantity_format="dB10"):
+    def get_far_field_mesh(self, quantity: str = "RealizedGain", quantity_format: str = "dB10"):
         """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
@@ -1407,7 +1412,7 @@ class FfdSolutionData(PyAedtBase):
         return mesh
 
     @pyaedt_function_handler()
-    def __get_geometry(self, off_screen=False):
+    def __get_geometry(self, off_screen: bool = False):
         """Get 3D meshes."""
         model_info = self.metadata["model_info"]
         obj_meshes = []
@@ -1594,8 +1599,8 @@ class UpdateBeamForm(PyAedtBase):
             and ``"real"``.
     """
 
-    @pyaedt_function_handler(farfield_quantity="quantity")
-    def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
+    @pyaedt_function_handler()
+    def __init__(self, ff, farfield_quantity: str = "RealizedGain", quantity_format: str = "abs") -> None:
         self.output = ff._mesh
         self.__phi = 0
         self.__theta = 0
@@ -1604,28 +1609,28 @@ class UpdateBeamForm(PyAedtBase):
         self.quantity_format = quantity_format
 
     @pyaedt_function_handler()
-    def __update_both(self):
+    def __update_both(self) -> None:
         """Update far field."""
         self.ff.__farfield_data = self.ff.combine_farfield(phi_scan=self.__phi, theta_scan=self.__theta)
         self.ff._mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
         self.output.copy_from(self.ff._mesh)
 
     @pyaedt_function_handler()
-    def update_phi(self, phi):
+    def update_phi(self, phi) -> None:
         """Update the Phi value."""
-        self.__phi = phi
+        self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
-    def update_theta(self, theta):
+    def update_theta(self, theta) -> None:
         """Update the Theta value."""
-        self.__theta = theta
+        self.__theta = theta * np.pi / 180
         self.__update_both()
 
 
 @pyaedt_function_handler()
 def export_pyaedt_antenna_metadata(
-    input_file, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
+    input_file: str, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
 ):
     """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 
@@ -1797,7 +1802,7 @@ def export_pyaedt_antenna_metadata(
 
 
 @pyaedt_function_handler()
-def antenna_metadata_from_xml(input_file):
+def antenna_metadata_from_xml(input_file: str):
     """Obtain metadata information from metadata XML file.
 
     Parameters

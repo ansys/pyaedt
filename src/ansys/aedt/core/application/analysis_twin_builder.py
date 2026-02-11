@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import warnings
+
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -42,22 +42,6 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
     """
 
     @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
-
-    @property
     def setup_names(self):
         """Setup names.
 
@@ -74,16 +58,16 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -136,8 +120,8 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             self._post = post_processor(self)
         return self._post
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    @pyaedt_function_handler()
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters

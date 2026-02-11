@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -60,7 +60,7 @@ class PushExcitationExtensionData(ExtensionCommonData):
 class PushExcitationExtension(ExtensionHFSSCommon):
     """Extension for push excitation from file in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
         # Initialize the common extension class
         super().__init__(
@@ -96,7 +96,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
 
         self.excitation_names = excitation_names
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add content to the extension UI."""
         # Port selection
         self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
@@ -150,7 +150,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         # Configure grid weights
         self.root.grid_columnconfigure(1, weight=1)
 
-    def browse_files(self):
+    def browse_files(self) -> None:
         """Open file dialog to browse for excitation files."""
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -162,7 +162,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
             self.file_entry.insert(tkinter.END, filename)
 
 
-def main(data: PushExcitationExtensionData):
+def main(data: PushExcitationExtensionData) -> bool:
     """Main function to run the push excitation extension."""
     if not data.choice:
         raise AEDTRuntimeError("No excitation selected.")

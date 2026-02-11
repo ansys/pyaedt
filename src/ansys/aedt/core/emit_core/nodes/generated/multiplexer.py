@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,9 +28,9 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Multiplexer(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
@@ -42,15 +41,11 @@ class Multiplexer(EmitNode):
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -64,7 +59,7 @@ class Multiplexer(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -77,7 +72,7 @@ class Multiplexer(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -87,28 +82,28 @@ class Multiplexer(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_PASS_BAND = "By Pass Band"  # nosec
-        BY_FILE = "By File"
+    class MultiplexerTypeOption(Enum):
+        BY_PASS_BAND = "Parametric"  # nosec
+        BY_FILE = "ByFile"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def multiplexer_type(self) -> MultiplexerTypeOption:
+        """Multiplexer Type.
 
         Type of multiplexer model. Options include: By File (one measured or
         simulated file for the device) or By Pass Band (parametric or file-based
         definition for each pass band).
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Multiplexer Type")
+        val = self.MultiplexerTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @multiplexer_type.setter
+    def multiplexer_type(self, value: MultiplexerTypeOption) -> None:
+        self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
     def ports(self):
@@ -117,7 +112,7 @@ class Multiplexer(EmitNode):
         return val
 
     @ports.setter
-    def ports(self, value):
+    def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")
 
     @property

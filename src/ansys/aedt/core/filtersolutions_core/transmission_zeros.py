@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -58,13 +58,13 @@ class TransmissionZeros:
     The position is defined automatically if no value is provided.
     """
 
-    def __init__(self, table_format):
+    def __init__(self, table_format) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_transmission_zeros_dll_functions()
         self.table_format = table_format
 
-    def _define_transmission_zeros_dll_functions(self):
+    def _define_transmission_zeros_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.getTransmissionZerosTableRowCount.argtypes = [POINTER(c_int), c_bool]
         self._dll.getTransmissionZerosTableRowCount.restype = c_int
@@ -110,7 +110,7 @@ class TransmissionZeros:
         self._dll.defaultPositionEnabled.argtype = c_bool
         self._dll.defaultPositionEnabled.restype = c_int
 
-    def table_format_to_bool(self):
+    def table_format_to_bool(self) -> bool:
         """Check if the entry format of the transmission zeros tables is ratio.
         If ``False``, the entry format is bandwidth.
 
@@ -172,7 +172,7 @@ class TransmissionZeros:
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
 
-    def update_row(self, row_index, zero=None, position=None):
+    def update_row(self, row_index, zero=None, position=None) -> None:
         """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
@@ -194,7 +194,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, zero=None, position=None):
+    def append_row(self, zero=None, position=None) -> None:
         """Append a new row that includes the ratio or bandwidth and position.
 
         Parameters
@@ -211,7 +211,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, zero=None, position=None):
+    def insert_row(self, row_index, zero=None, position=None) -> None:
         """Insert a new row that includes the ratio or bandwidth and the position.
 
         Parameters
@@ -231,7 +231,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index):
+    def remove_row(self, row_index) -> None:
         """Remove a row, including the ratio or bandwidth and the position.
 
         Parameters
@@ -242,12 +242,12 @@ class TransmissionZeros:
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
         self._dll_interface.raise_error(status)
 
-    def clear_table(self):
+    def clear_table(self) -> None:
         """Clear all entries in the transmission zeros table."""
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
         self._dll_interface.raise_error(status)
 
-    def restore_default_positions(self):
+    def restore_default_positions(self) -> None:
         """Restore default positions of transmissison zeros."""
         status = self._dll.defaultPositionEnabled(self.table_format_to_bool())
         self._dll_interface.raise_error(status)

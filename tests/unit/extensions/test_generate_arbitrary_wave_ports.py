@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 def test_arbitrary_wave_port_extension_default(
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test instantiation of the Arbitrary Wave Port extension."""
     extension = ArbitraryWavePortExtension(withdraw=True)
 
@@ -47,7 +47,7 @@ def test_arbitrary_wave_port_extension_default(
 
 def test_arbitrary_wave_port_extension_generate_button(
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test the Generate button in the Arbitrary Wave Port extension."""
     extension = ArbitraryWavePortExtension(withdraw=True)
 
@@ -68,7 +68,7 @@ def test_arbitrary_wave_port_extension_generate_button(
 
 def test_arbitrary_wave_port_extension_browse_functions(
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test the browse functions in the Arbitrary Wave Port extension."""
     extension = ArbitraryWavePortExtension(withdraw=True)
 
@@ -85,7 +85,7 @@ def test_arbitrary_wave_port_extension_browse_functions(
     extension.root.destroy()
 
 
-def test_arbitrary_wave_port_extension_data_validation():
+def test_arbitrary_wave_port_extension_data_validation() -> None:
     """Test data validation for the Arbitrary Wave Port extension."""
     # Test with empty working path
     data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
@@ -106,7 +106,7 @@ def test_arbitrary_wave_port_extension_data_validation():
 
 def test_arbitrary_wave_port_extension_widget_interaction(
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test widget interaction in the Arbitrary Wave Port extension."""
     extension = ArbitraryWavePortExtension(withdraw=True)
 
@@ -133,7 +133,7 @@ def test_arbitrary_wave_port_extension_widget_interaction(
 
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askdirectory")
-def test_arbitrary_wave_port_browse_work_dir(mock_askdirectory, mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_browse_work_dir(mock_askdirectory, mock_hfss_3d_layout_app) -> None:
     """Test the browse work directory function."""
     # Set up the mock to return a test directory path
     test_directory = "/test/work/directory"
@@ -152,7 +152,9 @@ def test_arbitrary_wave_port_browse_work_dir(mock_askdirectory, mock_hfss_3d_lay
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askdirectory")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askopenfilename")
-def test_arbitrary_wave_port_browse_source_file(mock_askopenfilename, mock_askdirectory, mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_browse_source_file(
+    mock_askopenfilename, mock_askdirectory, mock_hfss_3d_layout_app
+) -> None:
     """Test the browse source file function."""
     test_file_path = "/test/source/file.aedb"
     test_dir_path = "/test/source/folder.aedb"

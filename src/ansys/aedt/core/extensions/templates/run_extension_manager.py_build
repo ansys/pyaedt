@@ -46,7 +46,7 @@ def main():
         # Get AEDT version
         version_short = oDesktop.GetVersion()[2:6].replace(".", "")
         # Launch extension manager
-        python_exe = r"##PYTHON_EXE##" % version
+        python_exe = r"##PYTHON_EXE##"
         # Base extensions location
         base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
         script_basename = r"##PYTHON_SCRIPT##"
@@ -65,7 +65,6 @@ def main():
         pyaedt_utils.environment_variables(oDesktop)
         # Open extension manager
         if is_linux:
-            pyaedt_utils.set_ansys_em_environment(oDesktop)
             command = [python_exe, extension_pyaedt_script]
             my_env = os.environ.copy()
             subprocess.Popen(command, env=my_env)

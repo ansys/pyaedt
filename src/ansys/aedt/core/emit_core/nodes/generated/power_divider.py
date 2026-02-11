@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,24 +28,20 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class PowerDivider(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -60,7 +55,7 @@ class PowerDivider(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -73,7 +68,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -83,28 +78,28 @@ class PowerDivider(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
-        P3_DB = "P3 dB"
+    class PowerDividerTypeOption(Enum):
+        BY_FILE = "ByFile"
+        P3_DB = "3dB"
         RESISTIVE = "Resistive"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def power_divider_type(self) -> PowerDividerTypeOption:
+        """Power Divider Type.
 
         Type of Power Divider model to use. Options include: By File (measured
         or simulated), 3 dB (parametric), and Resistive (parametric).
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Power Divider Type")
+        val = self.PowerDividerTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @power_divider_type.setter
+    def power_divider_type(self, value: PowerDividerTypeOption) -> None:
+        self._set_property("Power Divider Type", f"{value.value}")
 
     @property
     def insertion_loss_above_ideal(self) -> float:
@@ -119,7 +114,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @insertion_loss_above_ideal.setter
-    def insertion_loss_above_ideal(self, value: float):
+    def insertion_loss_above_ideal(self, value: float) -> None:
         self._set_property("Insertion Loss Above Ideal", f"{value}")
 
     @property
@@ -135,7 +130,7 @@ class PowerDivider(EmitNode):
         return val == "true"
 
     @finite_isolation.setter
-    def finite_isolation(self, value: bool):
+    def finite_isolation(self, value: bool) -> None:
         self._set_property("Finite Isolation", f"{str(value).lower()}")
 
     @property
@@ -148,7 +143,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @isolation.setter
-    def isolation(self, value: float):
+    def isolation(self, value: float) -> None:
         self._set_property("Isolation", f"{value}")
 
     @property
@@ -164,7 +159,7 @@ class PowerDivider(EmitNode):
         return val == "true"
 
     @finite_bandwidth.setter
-    def finite_bandwidth(self, value: bool):
+    def finite_bandwidth(self, value: bool) -> None:
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
@@ -177,7 +172,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value: float):
+    def out_of_band_attenuation(self, value: float) -> None:
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
@@ -191,7 +186,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -206,7 +201,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -221,7 +216,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -236,7 +231,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

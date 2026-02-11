@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,9 +28,9 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class SamplingNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -55,13 +54,13 @@ class SamplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     class SamplingTypeOption(Enum):
-        SAMPLE_ALL_CHANNELS_IN_RANGES = "Sample All Channels in Range(s)"
-        RANDOM_SAMPLING = "Random Sampling"
-        UNIFORM_SAMPLING = "Uniform Sampling"
+        SAMPLE_ALL_CHANNELS_IN_RANGES = "SampleAllChannels"
+        RANDOM_SAMPLING = "RandomSampling"
+        UNIFORM_SAMPLING = "UniformSampling"
 
     @property
     def sampling_type(self) -> SamplingTypeOption:
@@ -71,7 +70,7 @@ class SamplingNode(EmitNode):
         return val
 
     @sampling_type.setter
-    def sampling_type(self, value: SamplingTypeOption):
+    def sampling_type(self, value: SamplingTypeOption) -> None:
         self._set_property("Sampling Type", f"{value.value}")
 
     @property
@@ -87,7 +86,7 @@ class SamplingNode(EmitNode):
         return val == "true"
 
     @specify_percentage.setter
-    def specify_percentage(self, value: bool):
+    def specify_percentage(self, value: bool) -> None:
         self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
@@ -100,7 +99,7 @@ class SamplingNode(EmitNode):
         return float(val)
 
     @percentage_of_channels.setter
-    def percentage_of_channels(self, value: float):
+    def percentage_of_channels(self, value: float) -> None:
         self._set_property("Percentage of Channels", f"{value}")
 
     @property
@@ -113,7 +112,7 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @max_channels_range_band.setter
-    def max_channels_range_band(self, value: int):
+    def max_channels_range_band(self, value: int) -> None:
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
@@ -126,7 +125,7 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @seed.setter
-    def seed(self, value: int):
+    def seed(self, value: int) -> None:
         self._set_property("Seed", f"{value}")
 
     @property

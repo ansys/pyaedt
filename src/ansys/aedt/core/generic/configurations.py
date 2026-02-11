@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +29,6 @@ import math
 import os
 from pathlib import Path
 import tempfile
-from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -62,7 +61,7 @@ from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
 
 
-def _find_datasets(d, out_list):
+def _find_datasets(d, out_list) -> None:
     for v in list(d.values()):
         if isinstance(v, dict):
             _find_datasets(v, out_list)
@@ -90,7 +89,7 @@ class ConfigurationsOptions(PyAedtBase):
     User can enable or disable import export components.
     """
 
-    def __init__(self, is_layout=False):
+    def __init__(self, is_layout: bool = False) -> None:
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -128,7 +127,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._object_mapping_tolerance
 
     @object_mapping_tolerance.setter
-    def object_mapping_tolerance(self, val):
+    def object_mapping_tolerance(self, val) -> None:
         self._object_mapping_tolerance = val
 
     @property
@@ -148,7 +147,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_variables
 
     @export_variables.setter
-    def export_variables(self, val):
+    def export_variables(self, val) -> None:
         self._export_variables = val
 
     @property
@@ -168,7 +167,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_setups
 
     @export_setups.setter
-    def export_setups(self, val):
+    def export_setups(self, val) -> None:
         self._export_setups = val
 
     @property
@@ -188,7 +187,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_optimizations
 
     @export_optimizations.setter
-    def export_optimizations(self, val):
+    def export_optimizations(self, val) -> None:
         self._export_optimizations = val
 
     @property
@@ -208,7 +207,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_parametrics
 
     @export_parametrics.setter
-    def export_parametrics(self, val):
+    def export_parametrics(self, val) -> None:
         self._export_parametrics = val
 
     @property
@@ -228,7 +227,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_boundaries
 
     @export_boundaries.setter
-    def export_boundaries(self, val):
+    def export_boundaries(self, val) -> None:
         self._export_boundaries = val
 
     @property
@@ -243,7 +242,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_datasets
 
     @import_datasets.setter
-    def import_datasets(self, val):
+    def import_datasets(self, val) -> None:
         self._import_datasets = val
 
     @property
@@ -258,7 +257,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_datasets
 
     @export_datasets.setter
-    def export_datasets(self, val):
+    def export_datasets(self, val) -> None:
         self._export_datasets = val
 
     @property
@@ -278,7 +277,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_mesh_operations
 
     @export_mesh_operations.setter
-    def export_mesh_operations(self, val):
+    def export_mesh_operations(self, val) -> None:
         self._export_mesh_operations = val
 
     @property
@@ -298,7 +297,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_coordinate_systems
 
     @export_coordinate_systems.setter
-    def export_coordinate_systems(self, val):
+    def export_coordinate_systems(self, val) -> None:
         self._export_coordinate_systems = val
 
     # @property
@@ -338,7 +337,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_materials
 
     @export_materials.setter
-    def export_materials(self, val):
+    def export_materials(self, val) -> None:
         self._export_materials = val
 
     @property
@@ -358,7 +357,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_object_properties
 
     @export_object_properties.setter
-    def export_object_properties(self, val):
+    def export_object_properties(self, val) -> None:
         self._export_object_properties = val
 
     @property
@@ -378,7 +377,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_variables
 
     @import_variables.setter
-    def import_variables(self, val):
+    def import_variables(self, val) -> None:
         self._import_variables = val
 
     @property
@@ -398,7 +397,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_setups
 
     @import_setups.setter
-    def import_setups(self, val):
+    def import_setups(self, val) -> None:
         self._import_setups = val
 
     @property
@@ -418,7 +417,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_optimizations
 
     @import_optimizations.setter
-    def import_optimizations(self, val):
+    def import_optimizations(self, val) -> None:
         self._import_optimizations = val
 
     @property
@@ -438,7 +437,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_parametrics
 
     @import_parametrics.setter
-    def import_parametrics(self, val):
+    def import_parametrics(self, val) -> None:
         self._import_parametrics = val
 
     @property
@@ -458,7 +457,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_boundaries
 
     @import_boundaries.setter
-    def import_boundaries(self, val):
+    def import_boundaries(self, val) -> None:
         self._import_boundaries = val
 
     @property
@@ -478,7 +477,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_mesh_operations
 
     @import_mesh_operations.setter
-    def import_mesh_operations(self, val):
+    def import_mesh_operations(self, val) -> None:
         self._import_mesh_operations = val
 
     @property
@@ -498,7 +497,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_coordinate_systems
 
     @import_coordinate_systems.setter
-    def import_coordinate_systems(self, val):
+    def import_coordinate_systems(self, val) -> None:
         self._import_coordinate_systems = val
 
     # @property
@@ -554,11 +553,11 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_output_variables
 
     @import_output_variables.setter
-    def import_output_variables(self, val):
+    def import_output_variables(self, val) -> None:
         self._import_output_variables = val
 
     @import_materials.setter
-    def import_materials(self, val):
+    def import_materials(self, val) -> None:
         self._import_materials = val
 
     @property
@@ -578,7 +577,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_object_properties
 
     @import_object_properties.setter
-    def import_object_properties(self, val):
+    def import_object_properties(self, val) -> None:
         self._import_object_properties = val
 
     @property
@@ -598,11 +597,11 @@ class ConfigurationsOptions(PyAedtBase):
         return self._skip_import_if_exists
 
     @skip_import_if_exists.setter
-    def skip_import_if_exists(self, val):
+    def skip_import_if_exists(self, val) -> None:
         self._skip_import_if_exists = val
 
     @property
-    def _is_any_import_set(self):
+    def _is_any_import_set(self) -> bool:
         """Returns ``True`` if any import setting is set to ``True``. It returns ``False`` otherwise.
 
         Returns
@@ -615,7 +614,7 @@ class ConfigurationsOptions(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def unset_all_export(self):
+    def unset_all_export(self) -> bool:
         """Set all export properties to `False`.
 
         Returns
@@ -628,7 +627,7 @@ class ConfigurationsOptions(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_all_export(self):
+    def set_all_export(self) -> bool:
         """Set all export properties to `True`.
 
         Returns
@@ -641,7 +640,7 @@ class ConfigurationsOptions(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def unset_all_import(self):
+    def unset_all_import(self) -> bool:
         """Set all import properties to `False`.
 
         Returns
@@ -654,7 +653,7 @@ class ConfigurationsOptions(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_all_import(self):
+    def set_all_import(self) -> bool:
         """Set all import properties to `True`.
 
         Returns
@@ -673,7 +672,7 @@ class ImportResults(PyAedtBase):
     Each result can be ``True`` or ``False``.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.import_units = None
         self.import_variables = None
         self.import_output_variables = None
@@ -692,11 +691,11 @@ class ImportResults(PyAedtBase):
         self.import_datasets = None
 
     @pyaedt_function_handler()
-    def _reset_results(self):
+    def _reset_results(self) -> None:
         self.__init__()
 
     @property
-    def global_import_success(self):
+    def global_import_success(self) -> bool:
         """Returns ``True`` if all imports are successful. It returns ``False`` otherwise.
 
         Returns
@@ -712,7 +711,7 @@ class ImportResults(PyAedtBase):
 class Configurations(PyAedtBase):
     """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
@@ -728,13 +727,13 @@ class Configurations(PyAedtBase):
         """
         if self._schema:
             return self._schema
-        pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
+        pyaedt_installed_path = Path(ansys.aedt.core.__file__).parent
 
         schema_bytes = None
 
-        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+        config_schema_path = Path(pyaedt_installed_path) / "misc" / "config.schema.json"
 
-        if os.path.exists(config_schema_path):
+        if Path(config_schema_path).exists():
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
@@ -749,11 +748,11 @@ class Configurations(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def _map_dict_value(dict_out, key, value):
+    def _map_dict_value(dict_out, key, value) -> None:
         dict_out["general"]["object_mapping"][str(key)] = value
 
     @pyaedt_function_handler()
-    def _map_object(self, props, dict_out):
+    def _map_object(self, props, dict_out) -> None:
         if "Objects" in props:
             for obj in props["Objects"]:
                 if isinstance(obj, int):
@@ -772,7 +771,7 @@ class Configurations(PyAedtBase):
                             self._map_dict_value(dict_out, edge, [obj.name, e.midpoint])
 
     @pyaedt_function_handler()
-    def _convert_objects(self, props, mapping):
+    def _convert_objects(self, props, mapping) -> None:
         if "Objects" in props:
             new_list = []
             for obj in props["Objects"]:
@@ -824,7 +823,7 @@ class Configurations(PyAedtBase):
             props["Edges"] = new_list
 
     @pyaedt_function_handler()
-    def _update_coordinate_systems(self, name, props):
+    def _update_coordinate_systems(self, name: str, props) -> bool:
         for cs in self._app.modeler.coordinate_systems:
             if cs.name == name:
                 if not self.options.skip_import_if_exists:
@@ -863,7 +862,7 @@ class Configurations(PyAedtBase):
     #         self._app.logger.warning("Failed to add CS {} ".format(name))
 
     @pyaedt_function_handler()
-    def _update_object_properties(self, name, val):
+    def _update_object_properties(self, name: str, val) -> bool:
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
@@ -890,7 +889,7 @@ class Configurations(PyAedtBase):
                 return False
 
     @pyaedt_function_handler()
-    def _update_boundaries(self, name, props):
+    def _update_boundaries(self, name: str, props) -> bool:
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
@@ -959,7 +958,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_mesh_operations(self, name, props):
+    def _update_mesh_operations(self, name: str, props) -> bool:
         for mesh_el in self._app.mesh.meshoperations:
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -976,7 +975,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_setup(self, name, props):
+    def _update_setup(self, name: str, props) -> bool:
         for setup_el in self._app.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -995,7 +994,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_optimetrics(self, name, props):
+    def _update_optimetrics(self, name: str, props) -> bool:
         for setup_el in self._app.optimizations.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -1012,7 +1011,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_parametrics(self, name, props):
+    def _update_parametrics(self, name: str, props) -> bool:
         for setup_el in self._app.parametrics.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -1029,7 +1028,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_datasets(self, data_dict):
+    def _update_datasets(self, data_dict) -> None:
         name = data_dict["Name"]
         is_project_dataset = False
         if name.startswith("$"):
@@ -1049,7 +1048,7 @@ class Configurations(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def validate(self, config):
+    def validate(self, config) -> bool:
         """Validate a configuration file against the schema.
 
         The default schema can be found in ``pyaedt/misc/config.schema.json``.
@@ -1086,7 +1085,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file: Union[str, Path], *args) -> dict:
+    def import_config(self, config_file: str | Path, *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
@@ -1241,7 +1240,7 @@ class Configurations(PyAedtBase):
         return dict_in
 
     @pyaedt_function_handler()
-    def _export_general(self, dict_out):
+    def _export_general(self, dict_out) -> None:
         dict_out["general"] = {}
         dict_out["general"]["pyaedt_version"] = __version__
         dict_out["general"]["model_units"] = self._app.modeler.model_units
@@ -1250,8 +1249,8 @@ class Configurations(PyAedtBase):
         dict_out["general"]["object_mapping"] = {}
         dict_out["general"]["output_variables"] = {}
         if list(self._app.output_variables):
-            oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
-            self._app.ooutput_variable.ExportOutputVariables(oo_out)
+            oo_out = Path(tempfile.gettempdir()) / f"{generate_unique_name('oo')}.txt"
+            self._app.ooutput_variable.ExportOutputVariables(str(oo_out))
             with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
@@ -1262,7 +1261,7 @@ class Configurations(PyAedtBase):
                         pass
 
     @pyaedt_function_handler()
-    def _export_variables(self, dict_out):
+    def _export_variables(self, dict_out) -> None:
         dict_out["general"]["variables"] = {}
         dict_out["general"]["postprocessing_variables"] = {}
         post_vars = self._app.variable_manager.post_processing_variables
@@ -1279,7 +1278,7 @@ class Configurations(PyAedtBase):
                 dict_out["general"]["postprocessing_variables"][k] = v.evaluated_value
 
     @pyaedt_function_handler()
-    def _export_setups(self, dict_out):
+    def _export_setups(self, dict_out) -> None:
         if self._app.setups:
             dict_out["setups"] = {}
             for setup in self._app.setups:
@@ -1293,7 +1292,7 @@ class Configurations(PyAedtBase):
                 setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
-    def _export_optimizations(self, dict_out):
+    def _export_optimizations(self, dict_out) -> None:
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
@@ -1304,7 +1303,7 @@ class Configurations(PyAedtBase):
                 setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
-    def _export_parametrics(self, dict_out):
+    def _export_parametrics(self, dict_out) -> None:
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
@@ -1315,8 +1314,8 @@ class Configurations(PyAedtBase):
                 setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
-    def _export_boundaries(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_boundaries(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.boundaries:
             dict_out["boundaries"] = {}
@@ -1330,8 +1329,8 @@ class Configurations(PyAedtBase):
                 boundary.auto_update = legacy_update
 
     @pyaedt_function_handler()
-    def _export_coordinate_systems(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_coordinate_systems(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
@@ -1353,8 +1352,8 @@ class Configurations(PyAedtBase):
     #                 dict_out["facecoordinatesystems"][cs.name] = cs.props
 
     @pyaedt_function_handler()
-    def _export_objects_properties(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_objects_properties(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
@@ -1369,12 +1368,12 @@ class Configurations(PyAedtBase):
             dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
 
     @pyaedt_function_handler()
-    def _export_object_properties(self, dict_out):
+    def _export_object_properties(self, dict_out) -> None:
         self._export_objects_properties(dict_out)
 
     @pyaedt_function_handler()
-    def _export_mesh_operations(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_mesh_operations(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
@@ -1383,7 +1382,7 @@ class Configurations(PyAedtBase):
                 self._map_object(mesh.props, dict_out)
 
     @pyaedt_function_handler()
-    def _export_datasets(self, dict_out):
+    def _export_datasets(self, dict_out) -> None:
         if self._app.project_datasets or self._app.design_datasets:
             if dict_out.get("datasets", None) is None:
                 dict_out["datasets"] = []
@@ -1405,8 +1404,8 @@ class Configurations(PyAedtBase):
                         )
 
     @pyaedt_function_handler()
-    def _export_monitor(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_monitor(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_monitors = []
         native_parts = [
@@ -1446,8 +1445,8 @@ class Configurations(PyAedtBase):
         dict_out["monitors"] = dict_monitors
 
     @pyaedt_function_handler()
-    def _export_materials(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+    def _export_materials(self, dict_out) -> None:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():
@@ -1476,7 +1475,7 @@ class Configurations(PyAedtBase):
             dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite=False):
+    def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
@@ -1496,9 +1495,10 @@ class Configurations(PyAedtBase):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(
-                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
-            )
+            config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
+        else:
+            config_file = Path(config_file)
+
         dict_out = {}
         self._export_general(dict_out)
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
@@ -1507,7 +1507,7 @@ class Configurations(PyAedtBase):
 
         # update the json if it exists already
 
-        if os.path.exists(config_file) and not overwrite:
+        if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -1524,13 +1524,13 @@ class Configurations(PyAedtBase):
         # write the updated dict to file
         if write_configuration_file(dict_out, config_file):
             self._app.logger.info(f"Json file {config_file} created correctly.")
-            return config_file
-        self._app.logger.error(f"Error creating json file {config_file}.")
-        return False
+            return str(config_file)
+
+        raise RuntimeError(f"An error occurred while creating json file {config_file}.")
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
         self._import_monitor = True
@@ -1542,7 +1542,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._import_monitor
 
     @import_monitor.setter
-    def import_monitor(self, val):
+    def import_monitor(self, val) -> None:
         self._import_monitor = val
 
     @property
@@ -1550,7 +1550,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._export_monitor
 
     @export_monitor.setter
-    def export_monitor(self, val):
+    def export_monitor(self, val) -> None:
         self._export_monitor = val
 
     @property
@@ -1558,7 +1558,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._import_native_components
 
     @import_native_components.setter
-    def import_native_components(self, val):
+    def import_native_components(self, val) -> None:
         self._import_native_components = val
 
     @property
@@ -1566,12 +1566,12 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._export_native_components
 
     @export_native_components.setter
-    def export_native_components(self, val):
+    def export_native_components(self, val) -> None:
         self._export_native_components = val
 
 
 class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
         self._export_coordinate_systems = False
@@ -1586,7 +1586,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
 class Configurations3DLayout(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         Configurations.__init__(self, app)
         self.options = ConfigurationOptions3DLayout(app)
 
@@ -1594,12 +1594,12 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 class ConfigurationsIcepak(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied on a new or existing design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         Configurations.__init__(self, app)
         self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
-    def _update_object_properties(self, name, val):
+    def _update_object_properties(self, name: str, val) -> bool:
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
@@ -1641,7 +1641,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 return False
 
     @pyaedt_function_handler()
-    def _update_mesh_operations(self, name, props):
+    def _update_mesh_operations(self, name: str, props):
         if name == "Settings":
             if not self.options.skip_import_if_exists:
                 for el in props:
@@ -1675,7 +1675,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _export_objects_properties(self, dict_out):
+    def _export_objects_properties(self, dict_out) -> None:
         dict_out["objects"] = {}
         udc_parts_id = []
         if hasattr(self._app.modeler, "user_defined_components"):
@@ -1695,7 +1695,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
 
     @pyaedt_function_handler()
-    def _export_mesh_operations(self, dict_out):
+    def _export_mesh_operations(self, dict_out) -> None:
         dict_out["mesh"] = {}
         args = ["NAME:Settings"]
         args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
@@ -1707,7 +1707,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if mesh.name in ["Settings", "Global"]:
                     args = ["NAME:Settings"]
                 else:
-                    args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
+                    args = ["NAME:" + mesh.name, "Enable:=", mesh.enable]
                 args += mesh.settings.parse_settings_as_args()
                 if mesh.name not in ["Settings", "Global"]:
                     args += getattr(mesh, "_parse_assignment_value")()
@@ -1728,7 +1728,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 self._map_object(mop, dict_out)
 
     @pyaedt_function_handler()
-    def update_monitor(self, m_case, m_object, m_quantity, m_name):
+    def update_monitor(self, m_case, m_object, m_quantity, m_name) -> bool:
         """Generic method for inserting monitor object
 
         Parameters
@@ -1760,7 +1760,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set):
+    def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set) -> None:
         idx = dict_in["monitors"].index(monitor_obj)
         if monitor_obj.get("Native Assignment", None):
             objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
@@ -1897,10 +1897,10 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        root_dir = os.path.join(self._app.toolkit_directory, self._app.design_name)
+        root_dir = Path(self._app.toolkit_directory) / self._app.design_name
         directory = generate_unique_folder_name(root_name=str(root_dir), folder_name="config_export_temp_project")
-        tempproj_name = os.path.join(directory, "temp_proj.aedt")
-        tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
+        tempproj_name = Path(directory) / "temp_proj.aedt"
+        tempproj = Icepak(str(tempproj_name), version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
         self._app.modeler.refresh()
         self._app.modeler.delete(
@@ -1915,14 +1915,14 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         tempproj.modeler.refresh_all_ids()
         tempproj.delete_design(empty_design)
         tempproj.close_project()
-        dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
+        dictionary = load_keyword_in_aedt_file(str(tempproj_name), "UserDefinedModels")["UserDefinedModels"]
         try:
             for root, dirs, files in os.walk(directory, topdown=False):
                 for name in files:
-                    os.remove(os.path.join(root, name))
+                    (Path(root) / name).unlink()
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(directory)
+                    (Path(root) / name).rmdir()
+            Path(directory).rmdir()
         except Exception:  # pragma: no cover
             self._app.logger.error(f"An error occurred while removing {directory}.")
 
@@ -1975,11 +1975,11 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         return duplicate_dict
 
     @pyaedt_function_handler
-    def _export_native_components(self, dict_out):
+    def _export_native_components(self, dict_out) -> None:
         dict_out["native components"] = {}
         duplicate_dict = self._get_duplicate_names()
 
-        def add_duplicate_dic_to_history(node_name, node, obj_name):
+        def add_duplicate_dic_to_history(node_name, node, obj_name) -> None:
             if node_name.startswith("Duplicate"):
                 node["Props"]["Duplicate Object"] = duplicate_dict[obj_name][node_name]
             if node["Children"] != {}:
@@ -2019,8 +2019,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             self._export_coordinate_systems(dict_out)
 
     @pyaedt_function_handler
-    def _update_native_components(self, native_name, native_dict):
-        def apply_operations_to_native_components(obj, operation_dict, native_dict):  # pragma: no cover
+    def _update_native_components(self, native_name, native_dict) -> bool:
+        def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
             new_objs = None
@@ -2187,7 +2187,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite=False):
+    def export_config(self, config_file: str | None = None, overwrite: bool | None = False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         Parameters
@@ -2205,9 +2205,10 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(
-                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
-            )
+            config_file = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".json")
+        else:
+            config_file = Path(config_file)
+
         # dict_out = {}
         # self._export_general(dict_out)
         dict_out = {}
@@ -2215,7 +2216,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
                 getattr(self, key)(dict_out)  # Call private export method to update dict_out.
-
+        dict_out["general"]["pages"] = copy.deepcopy(self._app.modeler.page_names)
         pin_mapping = defaultdict(list)
         data_instance = {}
         data_models = {}
@@ -2265,6 +2266,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             mirror = comp.mirror
             parameters = comp.parameters
             path = comp.component_path
+            page = comp.page
             pin_names = []
             if not path:
                 component_type = "Nexxim Component"
@@ -2309,6 +2311,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     "position": position,
                     "angle": angle,
                     "mirror": mirror,
+                    "page": page,
                 }
             }
             data_instance.update(temp_dict2)
@@ -2353,7 +2356,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
         # update the json if it exists already
 
-        if os.path.exists(config_file) and not overwrite:
+        if config_file.exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -2370,9 +2373,9 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         # write the updated dict to file
         if write_configuration_file(dict_out, config_file):
             self._app.logger.info(f"Json file {config_file} created correctly.")
-            return config_file
-        self._app.logger.error(f"Error creating json file {config_file}.")
-        return False
+            return str(config_file)
+
+        raise RuntimeError(f"An error occurred while creating json file {config_file}.")
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
@@ -2413,19 +2416,27 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 self.results.import_postprocessing_variables = False
             else:
                 self.results.import_postprocessing_variables = True
-
+        if "pages" in data["general"]:
+            page_num = self._app.oeditor.GetNumPages()
+            for idx, page in enumerate(data["general"]["pages"]):
+                if idx < page_num:
+                    if page != f"Page{idx + 1}":
+                        self._app.modeler.rename_page(idx + 1, page)
+                else:
+                    self._app.modeler.add_page(page)
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
                     component_type = value["component_type"]
                     new_comp = None
                     if component_type == "Nexxim Component":
-                        new_comp = self._app.modeler.components.create_component(
+                        new_comp = self._app.modeler.schematic.create_component(
                             name=i,
                             component_library="",
                             component_name=j["component"],
                             location=j["position"],
                             angle=j["angle"],
+                            page=j.get("page", 1),
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
@@ -2434,30 +2445,53 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"]:
+                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
                             )
-                        elif comp in ibis.buffers:
-                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
-                        else:
+                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
                             )
+                        elif comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(
+                                j["position"][0],
+                                j["position"][1],
+                                j["angle"],
+                                page=j.get("page", 1),
+                            )
+                        else:
+                            raise Exception("Component not found")
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            value["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"],
+                            location=j["position"],
+                            angle=j["angle"],
+                            page=j.get("page", 1),
+                            image_path=value.get("image_path", None),
                         )
                         if value.get("pin_names", None):
                             for pin in new_comp.pins:
                                 pin.name = value["pin_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=value["file_path"], location=j["position"]
+                            input_file=value["file_path"],
+                            location=j["position"],
+                            page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
@@ -2466,6 +2500,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),
+                            page=j.get("page", 1),
                         )
                     if not new_comp:  # pragma: no cover
                         continue
@@ -2477,7 +2512,9 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         and "left" in value["pin_locations"]
                         and "right" in value["pin_locations"]
                     ):  # pragma: no cover
-                        new_comp.change_symbol_pin_locations(value["pin_locations"])
+                        new_comp.change_symbol_pin_locations(
+                            value["pin_locations"], keep_original_size=True if value.get("image_path") else False
+                        )
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
@@ -2497,7 +2534,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
-                    self._app.modeler.schematic.create_gnd(location, page=i)
+                    self._app.modeler.schematic.create_gnd(location, page=gnd_pin._circuit_comp.page)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
@@ -2511,14 +2548,18 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if pin.name == value:
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
                                 ]
 
                                 if not created:
-                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    jj = self._app.modeler.schematic.create_interface_port(
+                                        name=i,
+                                        location=location,
+                                        page=j.get("page", 1),
+                                    )
                                     if "properties" in j:
                                         for k, v in j["properties"].items():
                                             jj._props[k] = v
@@ -2528,10 +2569,16 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     created = True
                                 else:
                                     self._app.modeler.schematic.create_page_port(
-                                        name=i, location=location, angle=pin.total_angle
+                                        name=i,
+                                        location=location,
+                                        angle=pin.total_angle,
+                                        page=j.get("page", 1),
                                     )
                                 if offset != 0:
-                                    self._app.modeler.schematic.create_wire([location, pin.location])
+                                    self._app.modeler.schematic.create_wire(
+                                        [location, pin.location],
+                                        page=j.get("page", 1),
+                                    )
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True

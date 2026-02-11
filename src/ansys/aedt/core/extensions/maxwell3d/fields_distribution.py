@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -72,7 +72,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
     objects_list: list = None
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.objects_list is None:
             self.objects_list = EXTENSION_DEFAULT_ARGUMENTS["objects_list"].copy()
 
@@ -80,7 +80,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 class FieldsDistributionExtension(ExtensionCommon):
     """Extension for fields distribution in Maxwell."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -128,17 +128,20 @@ class FieldsDistributionExtension(ExtensionCommon):
     def __load_aedt_info(self):
         """Load Maxwell design info."""
         # Get named expressions for field quantities
-        point = self.aedt_application.modeler.create_point([0, 0, 0])
-        self.__named_expressions = self.aedt_application.post.available_report_quantities(
-            report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
-        )
-
-        # Load vector fields from JSON
-        json_path = Path(__file__).resolve().parent / "vector_fields.json"
-        with open(json_path, "r") as f:
-            vector_fields = json.load(f)
-        self.__named_expressions.extend(vector_fields[self.aedt_application.design_type])
-        point.delete()
+        # make it backward compatible by implementing a check on AEDT version
+        if self.aedt_application._aedt_version < "2026.1":
+            point = self.aedt_application.modeler.create_point([0, 0, 0])
+            self.__named_expressions = self.aedt_application.post.available_report_quantities(
+                report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
+            )
+            # Load vector fields from JSON
+            json_path = Path(__file__).resolve().parent / "vector_fields.json"
+            with open(json_path, "r") as f:
+                vector_fields = json.load(f)
+            self.__named_expressions.extend(vector_fields[self.aedt_application.design_type])
+            point.delete()
+        else:
+            self.__named_expressions = self.aedt_application.post.fields_calculator.get_expressions()
 
         # Get objects list
         self.__objects_list = list(self.aedt_application.modeler.objects_by_name.keys())
@@ -152,7 +155,7 @@ class FieldsDistributionExtension(ExtensionCommon):
             self.release_desktop()
             raise AEDTRuntimeError("No solved analysis sweeps found.")
 
-    def _text_size(self, path, entry):
+    def _text_size(self, path, entry) -> None:
         """Adjust text widget size based on content."""
         text_length = len(path)
         height = 1
@@ -162,7 +165,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         entry.delete("1.0", tkinter.END)
         entry.insert(tkinter.END, path)
 
-    def _populate_listbox(self, frame, listbox, listbox_height, items_list):
+    def _populate_listbox(self, frame, listbox, listbox_height, items_list) -> None:
         """Populate listbox with items and add scrollbar if needed."""
         listbox.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         if len(items_list) > 6:
@@ -172,7 +175,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         for item in items_list:
             listbox.insert(tkinter.END, item)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Export options
         export_options_frame = tkinter.Frame(self.root, width=20)
@@ -268,7 +271,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["sample_points_entry"] = sample_points_entry
 
         # Points file button
-        def show_points_popup():
+        def show_points_popup() -> None:
             popup = tkinter.Toplevel(self.root)
             popup.title("Select an Option")
 
@@ -287,7 +290,7 @@ class FieldsDistributionExtension(ExtensionCommon):
                 anchor=tkinter.W
             )
 
-            def submit():
+            def submit() -> None:
                 if option_var.get() == "Option 1":
                     from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
                     from ansys.aedt.core.extensions.common.points_cloud import main as points_main
@@ -340,7 +343,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["export_file_entry"] = export_file_entry
 
         # Save as button
-        def save_as_files():
+        def save_as_files() -> None:
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
                 defaultextension="*.tab",
@@ -364,7 +367,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         buttons_frame.grid(row=5, column=0, pady=10, padx=15, sticky="ew")
         self._widgets["buttons_frame"] = buttons_frame
 
-        def callback_export():
+        def callback_export() -> None:
             points_file = self._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
             export_file = self._widgets["export_file_entry"].get("1.0", tkinter.END).strip()
             selected_export = self._widgets["export_options_lb"].curselection()
@@ -386,7 +389,7 @@ class FieldsDistributionExtension(ExtensionCommon):
             self.data = fields_data
             self.root.destroy()
 
-        def callback_preview():
+        def callback_preview() -> None:
             selected_export = self._widgets["export_options_lb"].curselection()
             if not selected_export:
                 messagebox.showerror("Error", "Please select an export option.")
@@ -424,7 +427,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["preview_button"] = preview_button
 
 
-def main(data: FieldsDistributionExtensionData):
+def main(data: FieldsDistributionExtensionData) -> bool:
     """Main function to run the fields distribution extension."""
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")

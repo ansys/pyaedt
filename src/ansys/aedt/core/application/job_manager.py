@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -50,7 +50,7 @@ def get_hpc_info(filename):
     return config_name, design_type
 
 
-def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True, separator="="):
+def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring: bool = True, separator: str = "=") -> bool:
     """Update an HPC option in the configuration file.
 
     Parameters
@@ -95,7 +95,7 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
         return False
 
 
-def update_simulation_cores(name, nc):
+def update_simulation_cores(name: str, nc) -> None:
     """Update the HPC number of cores in the configuration file.
 
     Parameters
@@ -117,7 +117,7 @@ def update_simulation_cores(name, nc):
         f.write(new_line)
 
 
-def update_simulation_engines(name, nc):
+def update_simulation_engines(name: str, nc) -> None:
     """Update the HPC number of simulaton engines in the configuration file.
 
     Parameters
@@ -139,7 +139,7 @@ def update_simulation_engines(name, nc):
         f.write(new_line)
 
 
-def update_machine_name(name, machinename):
+def update_machine_name(name: str, machinename) -> None:
     """Update the machine name.
 
     Parameters
@@ -161,7 +161,7 @@ def update_machine_name(name, machinename):
         f.write(new_line)
 
 
-def update_config_name(name, machinename):
+def update_config_name(name: str, machinename) -> None:
     """Update the name of the configuration.
 
     Parameters
@@ -185,7 +185,7 @@ def update_config_name(name, machinename):
         f.write(new_line)
 
 
-def update_cluster_cores(file_name, param_name, param_val):
+def update_cluster_cores(file_name: str, param_name, param_val) -> None:
     """Update the number of cluster cores in the configuration file.
 
     Parameters
@@ -209,7 +209,7 @@ def update_cluster_cores(file_name, param_name, param_val):
         f.write(new_line)
 
 
-def update_hpc_template(file_name, param_name, param_val):
+def update_hpc_template(file_name: str, param_name, param_val) -> None:
     """Update a parameter in the HPC template file.
 
     Parameters

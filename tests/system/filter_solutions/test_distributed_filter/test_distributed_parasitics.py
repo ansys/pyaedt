@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,7 +33,7 @@ from tests.system.filter_solutions.resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-    def test_distributed_capacitor_q_100(self, distributed_design):
+    def test_distributed_capacitor_q_100(self, distributed_design) -> None:
         distributed_design.topology.topology_type = TopologyType.INDUCTOR_TRANSLATION
         assert distributed_design.parasitics.capacitor_q == "Inf"
         distributed_design.parasitics.capacitor_q = "100"
@@ -42,7 +42,7 @@ class TestClass:
             "capacitor_q_100.ckt", "Distributed"
         )
 
-    def test_distributed_capacitor_rs_1(self, distributed_design):
+    def test_distributed_capacitor_rs_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.capacitor_rs == "0"
         distributed_design.parasitics.capacitor_rs = "1"
         assert distributed_design.parasitics.capacitor_rs == "1"
@@ -50,7 +50,7 @@ class TestClass:
             "capacitor_rs_1.ckt", "Distributed"
         )
 
-    def test_distributed_capacitor_rp_1000(self, distributed_design):
+    def test_distributed_capacitor_rp_1000(self, distributed_design) -> None:
         assert distributed_design.parasitics.capacitor_rp == "Inf"
         distributed_design.parasitics.capacitor_rp = "1000"
         assert distributed_design.parasitics.capacitor_rp == "1000"
@@ -58,7 +58,7 @@ class TestClass:
             "capacitor_rp_1000.ckt", "Distributed"
         )
 
-    def test_distributed_capacitor_ls_1n(self, distributed_design):
+    def test_distributed_capacitor_ls_1n(self, distributed_design) -> None:
         assert distributed_design.parasitics.capacitor_ls == "0"
         distributed_design.parasitics.capacitor_ls = "1n"
         assert distributed_design.parasitics.capacitor_ls == "1n"
@@ -66,7 +66,7 @@ class TestClass:
             "capacitor_ls_1n.ckt", "Distributed"
         )
 
-    def test_distributed_inductor_q_100(self, distributed_design):
+    def test_distributed_inductor_q_100(self, distributed_design) -> None:
         assert distributed_design.parasitics.inductor_q == "Inf"
         distributed_design.parasitics.inductor_q = "100"
         assert distributed_design.parasitics.inductor_q == "100"
@@ -74,7 +74,7 @@ class TestClass:
             "inductor_q_100.ckt", "Distributed"
         )
 
-    def test_distributed_inductor_rs_1(self, distributed_design):
+    def test_distributed_inductor_rs_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.inductor_rs == "0"
         distributed_design.parasitics.inductor_rs = "1"
         assert distributed_design.parasitics.inductor_rs == "1"
@@ -82,7 +82,7 @@ class TestClass:
             "inductor_rs_1.ckt", "Distributed"
         )
 
-    def test_distributed_inductor_rp_1000(self, distributed_design):
+    def test_distributed_inductor_rp_1000(self, distributed_design) -> None:
         assert distributed_design.parasitics.inductor_rp == "Inf"
         distributed_design.parasitics.inductor_rp = "1000"
         assert distributed_design.parasitics.inductor_rp == "1000"
@@ -90,7 +90,7 @@ class TestClass:
             "inductor_rp_1000.ckt", "Distributed"
         )
 
-    def test_distributed_inductor_cp_1n(self, distributed_design):
+    def test_distributed_inductor_cp_1n(self, distributed_design) -> None:
         assert distributed_design.parasitics.inductor_cp == "0"
         distributed_design.parasitics.inductor_cp = "1n"
         assert distributed_design.parasitics.inductor_cp == "1n"
@@ -98,7 +98,7 @@ class TestClass:
             "inductor_cp_1n.ckt", "Distributed"
         )
 
-    def test_line_odd_resistance_1(self, distributed_design):
+    def test_line_odd_resistance_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.line_odd_resistance == "0"
         distributed_design.parasitics.line_odd_resistance = "1"
         assert distributed_design.parasitics.line_odd_resistance == "1"
@@ -106,7 +106,7 @@ class TestClass:
             "line_odd_resistance_1.ckt", "Distributed"
         )
 
-    def test_line_even_resistance_1(self, distributed_design):
+    def test_line_even_resistance_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.line_even_resistance == "0"
         distributed_design.parasitics.line_even_resistance = "1"
         assert distributed_design.parasitics.line_even_resistance == "1"
@@ -114,7 +114,7 @@ class TestClass:
             "line_even_resistance_1.ckt", "Distributed"
         )
 
-    def test_line_odd_conductance_1(self, distributed_design):
+    def test_line_odd_conductance_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.line_odd_conductance == "0"
         distributed_design.parasitics.line_odd_conductance = "1"
         assert distributed_design.parasitics.line_odd_conductance == "1"
@@ -122,7 +122,7 @@ class TestClass:
             "line_odd_conductance_1.ckt", "Distributed"
         )
 
-    def test_line_even_conductance_1(self, distributed_design):
+    def test_line_even_conductance_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.line_even_conductance == "0"
         distributed_design.parasitics.line_even_conductance = "1"
         assert distributed_design.parasitics.line_even_conductance == "1"
@@ -130,7 +130,7 @@ class TestClass:
             "line_even_conductance_1.ckt", "Distributed"
         )
 
-    def test_line_min_segment_lengths_1(self, distributed_design):
+    def test_line_min_segment_lengths_1(self, distributed_design) -> None:
         assert distributed_design.parasitics.line_min_segment_lengths == "0"
         distributed_design.parasitics.line_min_segment_lengths = "1"
         assert distributed_design.parasitics.line_min_segment_lengths == "1"

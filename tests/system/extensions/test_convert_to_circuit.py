@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,7 +34,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_no_design_name():
+def test_convert_to_circuit_main_no_design_name() -> None:
     """Test main function with no design name provided."""
     data = ConvertToCircuitExtensionData(design_name="")
 
@@ -43,7 +43,7 @@ def test_convert_to_circuit_main_no_design_name():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_invalid_validation():
+def test_convert_to_circuit_main_invalid_validation() -> None:
     """Test main function validation with invalid parameters."""
     # Test with empty design name
     data = ConvertToCircuitExtensionData(design_name="")
@@ -52,12 +52,12 @@ def test_convert_to_circuit_main_invalid_validation():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_with_components(add_app):
+def test_convert_to_circuit_with_components(add_app) -> None:
     """Test conversion with various component types."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_components_test",
-        design_name="TBComponentsTest",
+        project="convert_components_test",
+        design="TBComponentsTest",
     )
 
     # Add variables that would be used by components
@@ -70,16 +70,17 @@ def test_convert_to_circuit_with_components(add_app):
     # Test conversion
     result = main(data)
     assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_exception_handling(add_app):
+def test_convert_to_circuit_exception_handling(add_app) -> None:
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
-    _ = add_app(
+    tb = add_app(
         application=TwinBuilder,
-        project_name="convert_exception_test",
-        design_name="TBExceptionTest",
+        project="convert_exception_test",
+        design="TBExceptionTest",
     )
 
     # Test with non-existent design
@@ -88,42 +89,44 @@ def test_convert_to_circuit_exception_handling(add_app):
     # This should raise AttributeError due to non-existent design
     with pytest.raises(AttributeError):
         main(data)
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_wire_conversion(add_app):
+def test_convert_to_circuit_wire_conversion(add_app) -> None:
     """Test wire conversion functionality."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_wire_test",
-        design_name="TBWireTest",
+        project="convert_wire_test",
+        design="TBWireTest",
     )
 
     points1 = [[0, 0, 0], [0.1, 0, 0], [0.1, 0.1, 0]]
-    tb.modeler.components.create_wire(points1, "TestWire1")
+    tb.modeler.schematic.create_wire(points1, "TestWire1")
 
     points2 = [[0.2, 0, 0], [0.3, 0, 0]]
-    tb.modeler.components.create_wire(points2, "TestWire2")
+    tb.modeler.schematic.create_wire(points2, "TestWire2")
 
     data = ConvertToCircuitExtensionData(design_name=tb.design_name)
     result = main(data)
     assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_fml_init_equations(add_app):
+def test_convert_to_circuit_fml_init_equations(add_app) -> None:
     """Test FML_INIT component equation processing."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_fml_init_test",
-        design_name="TBFMLInitTest",
+        project="convert_fml_init_test",
+        design="TBFMLInitTest",
     )
 
     # Create a mock FML_INIT component with equation parameters
     # This simulates the structure that would exist in a real Twin Builder design
     try:
         # Create a component that has FML_INIT in its name
-        comp = tb.modeler.components.create_resistor("R1", "1ohm", [0, 0])
+        comp = tb.modeler.schematic.create_resistor("R1", "1ohm", [0, 0])
 
         # Mock the component name to simulate FML_INIT
         # In real scenarios, this would be created by Twin Builder
@@ -145,22 +148,23 @@ def test_convert_to_circuit_fml_init_equations(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_catalog_components(add_app):
+def test_convert_to_circuit_catalog_components(add_app) -> None:
     """Test conversion of components that exist in the catalog."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_catalog_test",
-        design_name="TBCatalogTest",
+        project="convert_catalog_test",
+        design="TBCatalogTest",
     )
 
     # Create components that would be in the catalog
     # These component names should match what's in tb_nexxim_mapping.toml
     try:
         # Create a resistor component
-        resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
 
         # Set component properties that would be mapped
         if hasattr(resistor, "parameters"):
@@ -168,14 +172,14 @@ def test_convert_to_circuit_catalog_components(add_app):
             resistor.parameters["R"] = "100ohm"
 
         # Create a capacitor component
-        capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.1, 0])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "1uF"
 
         # Create an inductor component
-        inductor = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
+        inductor = tb.modeler.schematic.create_inductor("L1", "1mH", [0.2, 0])
 
         if hasattr(inductor, "parameters"):
             inductor.parameters["InstanceName"] = "L1"
@@ -190,26 +194,27 @@ def test_convert_to_circuit_catalog_components(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_offset_calculations(add_app):
+def test_convert_to_circuit_offset_calculations(add_app) -> None:
     """Test component offset calculations with rotation."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_offset_test",
-        design_name="TBOffsetTest",
+        project="convert_offset_test",
+        design="TBOffsetTest",
     )
 
     try:
         # Create components with different angles to test offset calculations
-        resistor1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor1 = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
         resistor1.angle = 0  # No rotation
 
-        resistor2 = tb.modeler.components.create_resistor("R2", "200ohm", [0.1, 0.1])
+        resistor2 = tb.modeler.schematic.create_resistor("R2", "200ohm", [0.1, 0.1])
         resistor2.angle = 90  # 90 degree rotation
 
-        resistor3 = tb.modeler.components.create_resistor("R3", "300ohm", [0.2, 0.2])
+        resistor3 = tb.modeler.schematic.create_resistor("R3", "300ohm", [0.2, 0.2])
         resistor3.angle = 180  # 180 degree rotation
 
         # Set instance names for proper reference designators
@@ -232,26 +237,27 @@ def test_convert_to_circuit_offset_calculations(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_gport_components(add_app):
+def test_convert_to_circuit_gport_components(add_app) -> None:
     """Test conversion of GPort (ground) components."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_gport_test",
-        design_name="TBGPortTest",
+        project="convert_gport_test",
+        design="TBGPortTest",
     )
 
     try:
         # Create a component and manually set its name to contain "GPort"
         # This simulates how ground ports appear in Twin Builder
-        ground_comp = tb.modeler.components.create_resistor("GND1", "0ohm", [0, 0])
+        ground_comp = tb.modeler.schematic.create_resistor("GND1", "0ohm", [0, 0])
         ground_comp._name = "CompInst@GPort"
         ground_comp.angle = 45  # Test with rotation
 
         # Create another ground component with different angle
-        ground_comp2 = tb.modeler.components.create_resistor("GND2", "0ohm", [0.1, 0.1])
+        ground_comp2 = tb.modeler.schematic.create_resistor("GND2", "0ohm", [0.1, 0.1])
         ground_comp2._name = "CompInst@GPortRef"
         ground_comp2.angle = 90
 
@@ -264,27 +270,28 @@ def test_convert_to_circuit_gport_components(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_unconnected_pins(add_app):
+def test_convert_to_circuit_unconnected_pins(add_app) -> None:
     """Test handling of unconnected pins and wire creation."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_pins_test",
-        design_name="TBPinsTest",
+        project="convert_pins_test",
+        design="TBPinsTest",
     )
 
     try:
         # Create components that will have unconnected pins
-        resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
 
         if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "100ohm"
 
         # Create a capacitor at a different location
-        capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.2, 0.2])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.2, 0.2])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
@@ -299,32 +306,33 @@ def test_convert_to_circuit_unconnected_pins(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_property_mapping(add_app):
+def test_convert_to_circuit_property_mapping(add_app) -> None:
     """Test component property mapping from catalog."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_properties_test",
-        design_name="TBPropertiesTest",
+        project="convert_properties_test",
+        design="TBPropertiesTest",
     )
 
     try:
         # Create components with various properties that should be mapped
-        resistor = tb.modeler.components.create_resistor("R1", "1kohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "1kohm", [0, 0])
 
         if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "1kohm"  # This should be mapped according to catalog
 
-        capacitor = tb.modeler.components.create_capacitor("C1", "10uF", [0.1, 0])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "10uF", [0.1, 0])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "10uF"  # This should be mapped according to catalog
 
-        inductor = tb.modeler.components.create_inductor("L1", "10mH", [0.2, 0])
+        inductor = tb.modeler.schematic.create_inductor("L1", "10mH", [0.2, 0])
 
         if hasattr(inductor, "parameters"):
             inductor.parameters["InstanceName"] = "L1"
@@ -339,27 +347,28 @@ def test_convert_to_circuit_property_mapping(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_component_naming(add_app):
+def test_convert_to_circuit_component_naming(add_app) -> None:
     """Test component name parsing and reference designator handling."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_naming_test",
-        design_name="TBNamingTest",
+        project="convert_naming_test",
+        design="TBNamingTest",
     )
 
     try:
         # Create components with different naming patterns
-        comp1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        comp1 = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
         comp1._name = "CompInst@R"  # This should be parsed to "R"
 
-        comp2 = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
+        comp2 = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.1, 0])
         comp2._name = "CompInst@C"  # This should be parsed to "C"
 
         # Test component without InstanceName parameter
-        comp3 = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
+        comp3 = tb.modeler.schematic.create_inductor("L1", "1mH", [0.2, 0])
         comp3._name = "CompInst@L"  # This should be parsed to "L"
 
         # Set parameters for first two components
@@ -384,3 +393,4 @@ def test_convert_to_circuit_component_naming(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)

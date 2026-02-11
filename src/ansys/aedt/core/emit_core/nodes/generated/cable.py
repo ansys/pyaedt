@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,24 +28,20 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Cable(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -60,7 +55,7 @@ class Cable(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -73,7 +68,7 @@ class Cable(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -83,28 +78,28 @@ class Cable(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
-        CONSTANT_LOSS = "Constant Loss"
-        COAXIAL_CABLE = "Coaxial Cable"
+    class CableTypeOption(Enum):
+        BY_FILE = "ByFile"
+        CONSTANT_LOSS = "Constant"
+        COAXIAL_CABLE = "Coaxial"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def cable_type(self) -> CableTypeOption:
+        """Cable Type.
 
         Type of cable to use. Options include: By File (measured or simulated),
         Constant Loss, or Coaxial Cable.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Cable Type")
+        val = self.CableTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @cable_type.setter
+    def cable_type(self, value: CableTypeOption) -> None:
+        self._set_property("Cable Type", f"{value.value}")
 
     @property
     def length(self) -> float:
@@ -117,7 +112,7 @@ class Cable(EmitNode):
         return float(val)
 
     @length.setter
-    def length(self, value: float | str):
+    def length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Length", f"{value}")
 
@@ -131,7 +126,7 @@ class Cable(EmitNode):
         return float(val)
 
     @loss_per_length.setter
-    def loss_per_length(self, value: float):
+    def loss_per_length(self, value: float) -> None:
         self._set_property("Loss Per Length", f"{value}")
 
     @property
@@ -145,7 +140,7 @@ class Cable(EmitNode):
         return float(val)
 
     @measurement_length.setter
-    def measurement_length(self, value: float | str):
+    def measurement_length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Measurement Length", f"{value}")
 
@@ -159,7 +154,7 @@ class Cable(EmitNode):
         return float(val)
 
     @resistive_loss_constant.setter
-    def resistive_loss_constant(self, value: float):
+    def resistive_loss_constant(self, value: float) -> None:
         self._set_property("Resistive Loss Constant", f"{value}")
 
     @property
@@ -172,7 +167,7 @@ class Cable(EmitNode):
         return float(val)
 
     @dielectric_loss_constant.setter
-    def dielectric_loss_constant(self, value: float):
+    def dielectric_loss_constant(self, value: float) -> None:
         self._set_property("Dielectric Loss Constant", f"{value}")
 
     @property

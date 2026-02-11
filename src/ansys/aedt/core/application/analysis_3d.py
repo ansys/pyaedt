@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import csv
 import os
 from pathlib import Path
-from typing import List
-from typing import Union
-import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -101,16 +100,16 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -216,8 +215,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         # libs = [syslib, userlib]
 
         libs = [
-            Path(self.syslib) / "3DComponents" / self._design_type,
-            Path(self.userlib) / "3DComponents" / self._design_type,
+            Path(self.syslib) / "3DComponents" / self.design_type,
+            Path(self.userlib) / "3DComponents" / self.design_type,
         ]
 
         for lib in libs:
@@ -226,22 +225,22 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                     components_dict[file.stem] = str(file)
         return components_dict
 
-    @pyaedt_function_handler(objects="assignment", export_path="output_file")
+    @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def plot(
         self,
         assignment=None,
-        show=True,
+        show: bool = True,
         output_file=None,
-        plot_as_separate_objects=True,
-        plot_air_objects=True,
+        plot_as_separate_objects: bool = True,
+        plot_air_objects: bool = True,
         force_opacity_value=None,
-        clean_files=False,
-        view="isometric",
-        show_legend=True,
-        dark_mode=False,
-        show_grid=False,
-        show_bounding=False,
+        clean_files: bool = False,
+        view: str = "isometric",
+        show_legend: bool = True,
+        dark_mode: bool = False,
+        show_grid: bool = False,
+        show_bounding: bool = False,
     ):
         """Plot the model or a subset of objects.
 
@@ -299,8 +298,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             show_grid=show_grid,
         )
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    @pyaedt_function_handler()
+    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -328,7 +327,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def get_component_variables(self, name: Union[str, Path]) -> dict:
+    def get_component_variables(self, name: str | Path) -> dict:
         """Read component file and extract variables.
 
         Parameters
@@ -349,30 +348,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         else:
             return read_component_file(self.components3d[name])
 
-    @pyaedt_function_handler(component3dname="component_name")
-    def get_components3d_vars(self, component_name):
-        """Read the A3DCOMP file and check for variables.
-
-        .. deprecated:: 0.15.1
-            Use :func:`get_component_variables` method instead.
-
-        Parameters
-        ----------
-        component_name :
-            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory. Otherwise,
-            you must specify the full absolute path to the AEDTCOMP file with the file name and the extension.
-
-        Returns
-        -------
-        dict
-            Dictionary of variables in the A3DCOMP file.
-        """
-        warnings.warn(
-            "`get_components3d_vars` is deprecated. Use `get_component_variables` method instead.", DeprecationWarning
-        )
-        return self.get_component_variables(component_name)
-
-    @pyaedt_function_handler(objectname="assignment", property="property_name", type="property_type")
+    @pyaedt_function_handler()
     def get_property_value(self, assignment, property_name, property_type=None):
         """Retrieve a property value.
 
@@ -395,48 +371,42 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oDesign.GetPropertyValue
         """
-        boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
-        mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        all = {
-            "HFSS": ["HfssTab", "MeshSetupTab"],
-            "Icepak": ["Icepak"],
-            "Q3D": ["Q3D", "General"],
-            "Maxwell3D": ["Maxwell3D", "General"],
-        }
-        if property_type == "Boundary":
-            propserv = boundary[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-        elif property_type == "Setup":
-            propserv = setup[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-
-        elif property_type == "Excitation":
-            propserv = excitation[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-
-        elif property_type == "Mesh":
-            propserv = mesh[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
+        if property_type:
+            property_type = property_type.lower()
+            if property_type not in self._design_type.property_tabs:
+                return None
+            if isinstance(self._design_type.property_tabs[property_type], str):
+                propserv = self._design_type.property_tabs[property_type]
+                val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                return val
+            elif isinstance(self._design_type.property_tabs[property_type], list):
+                for propserv in self._design_type.property_tabs[property_type]:
+                    properties = list(self.odesign.GetProperties(propserv, assignment))
+                    if property_name in properties:
+                        val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                        return val
         else:
-            propservs = all[self._design_type]
-            for propserv in propservs:
-                properties = list(self.odesign.GetProperties(propserv, assignment))
-                if property_name in properties:
+            for prop_types in self._design_type.property_tabs.values():
+                if isinstance(prop_types, str):
+                    propserv = prop_types
                     val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
                     return val
+                elif isinstance(prop_types, list):
+                    for propserv in prop_types:
+                        properties = list(self.odesign.GetProperties(propserv, assignment))
+                        if property_name in properties:
+                            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                            return val
         return None
 
-    @pyaedt_function_handler(object_list="assignment")
-    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
+    @pyaedt_function_handler()
+    def copy_solid_bodies_from(
+        self, design, assignment=None, no_vacuum: bool = True, no_pec: bool = True, include_sheets: bool = False
+    ) -> bool:
         """Copy a list of objects and user defined models from one design to the active design.
 
-        If user defined models are selected, the project will be saved automatically.
+        If user defined models are selected, the project will be saved automatically. If the destination design
+        is not the same application type, 3DComponents are not copied.
 
         Parameters
         ----------
@@ -517,29 +487,29 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self.modeler.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler(filename="input_file")
+    @pyaedt_function_handler()
     def import_3d_cad(
         self,
-        input_file,
-        healing=False,
-        refresh_all_ids=True,
-        import_materials=False,
-        create_lightweigth_part=False,
-        group_by_assembly=False,
-        create_group=True,
-        separate_disjoints_lumped_object=False,
-        import_free_surfaces=False,
-        point_coicidence_tolerance=1e-6,
-        reduce_stl=False,
-        reduce_percentage=0,
-        reduce_error=0,
-        merge_planar_faces=True,
-    ):
+        input_file: str | Path,
+        healing: bool = False,
+        refresh_all_ids: bool = True,
+        import_materials: bool = False,
+        create_lightweight_part: bool = False,
+        group_by_assembly: bool = False,
+        create_group: bool = True,
+        separate_disjoints_lumped_object: bool = False,
+        import_free_surfaces: bool = False,
+        point_coincidence_tolerance: float = 1e-6,
+        reduce_stl: bool = False,
+        reduce_percentage: int = 0,
+        reduce_error: int = 0,
+        merge_planar_faces: bool = True,
+    ) -> bool:
         """Import a CAD model.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``.
@@ -550,7 +520,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         import_materials : bool optional
             Whether to import material names from the file if present. The
             default is ``False``.
-        create_lightweigth_part : bool ,optional
+        create_lightweight_part : bool ,optional
             Whether to import a lightweight part. The default is ``True``.
         group_by_assembly : bool, optional
             Whether to import by subassembly. The default is ``False``, in which
@@ -561,7 +531,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             Whether to automatically separate disjoint parts. The default is ``False``.
         import_free_surfaces : bool, optional
             Whether to import free surfaces parts. The default is ``False``.
-        point_coicidence_tolerance : float, optional
+        point_coincidence_tolerance : float, optional
             Tolerance on the point. The default is ``1e-6``.
         reduce_stl : bool, optional
             Whether to reduce the STL file on import. The default is ``True``.
@@ -581,35 +551,31 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oEditor.Import
         """
+        input_file = Path(input_file)
+
         return self.modeler.import_3d_cad(
             input_file=input_file,
             healing=healing,
             refresh_all_ids=refresh_all_ids,
             import_materials=import_materials,
-            create_lightweigth_part=create_lightweigth_part,
+            create_lightweight_part=create_lightweight_part,
             group_by_assembly=group_by_assembly,
             create_group=create_group,
             separate_disjoints_lumped_object=separate_disjoints_lumped_object,
             import_free_surfaces=import_free_surfaces,
-            point_coicidence_tolerance=point_coicidence_tolerance,
+            point_coincidence_tolerance=point_coincidence_tolerance,
             reduce_stl=reduce_stl,
             reduce_percentage=reduce_percentage,
             reduce_error=reduce_error,
             merge_planar_faces=merge_planar_faces,
         )
 
-    @pyaedt_function_handler(
-        object_list="assignment_to_export",
-        removed_objects="assignment_to_remove",
-        fileName="file_name",
-        filePath="file_path",
-        fileFormat="file_format",
-    )
+    @pyaedt_function_handler()
     def export_3d_model(
         self,
-        file_name="",
-        file_path="",
-        file_format=".step",
+        file_name: str = "",
+        file_path: str = "",
+        file_format: str = ".step",
         assignment_to_export=None,
         assignment_to_remove=None,
         major_version=-1,
@@ -684,7 +650,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSourceModes())
 
     @pyaedt_function_handler()
-    def set_source_context(self, sources, number_of_modes=1):
+    def set_source_context(self, sources, number_of_modes: int = 1) -> bool:
         """Set the source context.
 
         Parameters
@@ -713,8 +679,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self.osolution.SetSourceContexts(contexts)
         return True
 
-    @pyaedt_function_handler(obj="assignment", mat="material")
-    def assign_material(self, assignment, material):
+    @pyaedt_function_handler()
+    def assign_material(self, assignment, material: str) -> bool:
         """Assign a material to one or more objects.
 
         Parameters
@@ -868,7 +834,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name: str = "Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -881,8 +847,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
         return nominal_val, "$" + ds_name
 
-    @pyaedt_function_handler(csv_component="component_file", csv_material="material_file")
-    def assignmaterial_from_sherlock_files(self, component_file, material_file):
+    @pyaedt_function_handler()
+    def assignmaterial_from_sherlock_files(self, component_file, material_file) -> bool:
         """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
@@ -995,7 +961,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+    def cleanup_solution(
+        self,
+        variations: list | str | None = "All",
+        entire_solution: bool = True,
+        field: bool = True,
+        mesh: bool = True,
+        linked_data: bool = True,
+    ) -> bool:
         """Delete a set of Solution Variations or part of them.
 
         Parameters
@@ -1033,15 +1006,15 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
             Stackup class.
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
         return Stackup3D(self)
 
-    @pyaedt_function_handler(component_name="components")
-    def flatten_3d_components(self, components=None, purge_history=True, password=None):
+    @pyaedt_function_handler()
+    def flatten_3d_components(self, components=None, purge_history: bool = True, password=None) -> bool:
         """Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.
@@ -1129,13 +1102,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.close_project()
+            app.close_project(save=False)
 
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
         return True
 
-    @pyaedt_function_handler(object_name="assignment")
+    @pyaedt_function_handler()
     @graphics_required
     @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment=None):
@@ -1220,35 +1193,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                     break
         return nets
 
-    @pyaedt_function_handler(file_path="input_file")
-    def get_dxf_layers(self, input_file: Union[str, Path]) -> List[str]:
-        """Read a DXF file and return all layer names.
-
-        .. deprecated:: 0.15.1
-            Use :func:`ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.
-
-        Parameters
-        ----------
-        input_file : str or :class:`pathlib.Path`
-            Full path to the DXF file.
-
-        Returns
-        -------
-        list
-            List of layers in the DXF file.
-        """
-        warnings.warn(
-            "`get_dxf_layers` is deprecated. Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
-            DeprecationWarning,
-        )
-
-        return get_dxf_layers(input_file)
-
-    @pyaedt_function_handler(layers_list="layers", file_path="input_file")
+    @pyaedt_function_handler()
     def import_dxf(
         self,
-        input_file: Union[str, Path],
-        layers: List[str],
+        input_file: str | Path,
+        layers: list[str],
         auto_detect_close: bool = True,
         self_stitch: bool = True,
         self_stitch_tolerance: float = 0.0,
@@ -1258,7 +1207,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         round_coordinates: bool = False,
         round_num_digits: int = 4,
         write_poly_with_width_as_filled_poly: bool = False,
-        import_method: Union[int, bool] = 1,
+        import_method: int | bool = 1,
     ) -> bool:  # pragma: no cover
         """Import a DXF file.
 
@@ -1351,7 +1300,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self.oeditor.ImportDXF(vArg1)
         return True
 
-    @pyaedt_function_handler(gds_file="input_file", gds_number="mapping_layers", unit="units")
+    @pyaedt_function_handler()
     def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
         """Import a GDSII file.
 

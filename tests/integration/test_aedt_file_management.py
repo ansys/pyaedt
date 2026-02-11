@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,31 +24,9 @@
 
 from ansys.aedt.core.application.aedt_file_management import change_model_orientation
 from ansys.aedt.core.application.aedt_file_management import change_objects_visibility
-from ansys.aedt.core.application.aedt_file_management import create_output_folder
 
 
-def test_create_output_folder(tmp_path):
-    # Create a temporary project directory.
-    proj_dir = tmp_path / "MyProject"
-    proj_dir.mkdir()
-
-    # Call the function.
-    picture_path, results_path = create_output_folder(proj_dir.as_posix())
-
-    # The output folder is defined as proj_dir / basename(proj_dir).
-    output_folder = proj_dir / proj_dir.name
-    assert output_folder.exists() and output_folder.is_dir()
-
-    # Verify the returned paths.
-    expected_picture = output_folder / "Pictures"
-    expected_results = output_folder / "Results"
-    assert picture_path == str(expected_picture)
-    assert results_path == str(expected_results)
-    assert expected_picture.is_dir()
-    assert expected_results.is_dir()
-
-
-def test_change_objects_visibility(tmp_path):
+def test_change_objects_visibility(tmp_path) -> None:
     content = (
         "$begin 'EditorWindow'\n"
         "Header info\n"
@@ -65,7 +43,7 @@ def test_change_objects_visibility(tmp_path):
     assert result is True
 
 
-def test_change_model_orientation(tmp_path):
+def test_change_model_orientation(tmp_path) -> None:
     content = (
         "$begin 'EditorWindow'\n"
         "Some header text\n"

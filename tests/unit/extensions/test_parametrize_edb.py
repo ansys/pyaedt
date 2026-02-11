@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -63,7 +63,7 @@ def mock_aedt_app(mock_hfss_3d_layout_app):
             yield mock_desktop
 
 
-def test_parametrize_edb_extension_default(mock_aedt_app):
+def test_parametrize_edb_extension_default(mock_aedt_app) -> None:
     """Test instantiation of the Parametrize EDB extension."""
     extension = ParametrizeEdbExtension(withdraw=True)
 
@@ -73,7 +73,7 @@ def test_parametrize_edb_extension_default(mock_aedt_app):
     extension.root.destroy()
 
 
-def test_parametrize_edb_extension_generate_button(mock_aedt_app):
+def test_parametrize_edb_extension_generate_button(mock_aedt_app) -> None:
     """Test Generate button in the Parametrize EDB extension."""
     extension = ParametrizeEdbExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
@@ -88,7 +88,7 @@ def test_parametrize_edb_extension_generate_button(mock_aedt_app):
     assert data.relative_parametric is True
 
 
-def test_parametrize_edb_extension_data_defaults():
+def test_parametrize_edb_extension_data_defaults() -> None:
     """Test default values in ParametrizeEdbExtensionData."""
     data = ParametrizeEdbExtensionData()
 
@@ -105,7 +105,7 @@ def test_parametrize_edb_extension_data_defaults():
     assert data.project_name == ""
 
 
-def test_parametrize_edb_extension_custom_values(mock_aedt_app):
+def test_parametrize_edb_extension_custom_values(mock_aedt_app) -> None:
     """Test setting custom values in the extension."""
     extension = ParametrizeEdbExtension(withdraw=True)
 
@@ -143,7 +143,7 @@ def test_parametrize_edb_extension_custom_values(mock_aedt_app):
 
 
 @patch("tkinter.messagebox.showerror")
-def test_parametrize_edb_extension_exceptions(mock_showerror, mock_aedt_app):
+def test_parametrize_edb_extension_exceptions(mock_showerror, mock_aedt_app) -> None:
     """Test exceptions in the Parametrize EDB extension."""
     # Test empty project name
     extension = ParametrizeEdbExtension(withdraw=True)
@@ -194,7 +194,7 @@ def test_parametrize_edb_extension_exceptions(mock_showerror, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.Desktop")
-def test_parametrize_edb_extension_no_active_project(mock_desktop_class, mock_aedt_app):
+def test_parametrize_edb_extension_no_active_project(mock_desktop_class, mock_aedt_app) -> None:
     """Test exception when no active project is found."""
     mock_desktop = MagicMock()
     mock_desktop.active_project.return_value = None
@@ -205,7 +205,7 @@ def test_parametrize_edb_extension_no_active_project(mock_desktop_class, mock_ae
 
 
 @patch("ansys.aedt.core.Desktop")
-def test_parametrize_edb_extension_no_active_design(mock_desktop_class, mock_aedt_app):
+def test_parametrize_edb_extension_no_active_design(mock_desktop_class, mock_aedt_app) -> None:
     """Test exception when no active design is found."""
     mock_active_project = MagicMock()
     mock_active_project.GetPath.return_value = "/path/to/project"
@@ -222,7 +222,7 @@ def test_parametrize_edb_extension_no_active_design(mock_desktop_class, mock_aed
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb.Edb")
 @patch("ansys.aedt.core.Desktop")
-def test_parametrize_edb_extension_edb_failure(mock_desktop_class, mock_edb_class, mock_aedt_app):
+def test_parametrize_edb_extension_edb_failure(mock_desktop_class, mock_edb_class, mock_aedt_app) -> None:
     """Test exception when EDB fails to load."""
     mock_active_project = MagicMock()
     mock_active_project.GetPath.return_value = "/path/to/project"
@@ -243,7 +243,7 @@ def test_parametrize_edb_extension_edb_failure(mock_desktop_class, mock_edb_clas
 
 
 @patch("tkinter.messagebox.showerror")
-def test_parametrize_edb_extension_show_error_message(mock_showerror, mock_aedt_app):
+def test_parametrize_edb_extension_show_error_message(mock_showerror, mock_aedt_app) -> None:
     """Test show_error_message method."""
     extension = ParametrizeEdbExtension(withdraw=True)
 
@@ -257,7 +257,7 @@ def test_parametrize_edb_extension_show_error_message(mock_showerror, mock_aedt_
 @patch("ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb.Hfss3dLayout")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb.Edb")
 @patch("ansys.aedt.core.Desktop")
-def test_main_function_with_valid_data(mock_desktop_class, mock_edb_class, mock_hfss3dlayout):
+def test_main_function_with_valid_data(mock_desktop_class, mock_edb_class, mock_hfss3dlayout) -> None:
     """Test main function with valid data."""
     data = ParametrizeEdbExtensionData(
         aedb_path="/path/to/test.aedb",
@@ -277,11 +277,11 @@ def test_main_function_with_valid_data(mock_desktop_class, mock_edb_class, mock_
 
     assert result is True
     mock_edb.auto_parametrize_design.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
+    mock_edb.close.assert_called_once()
+    mock_edb.close.assert_called_once()
 
 
-def test_main_function_negative_polygon_expansion():
+def test_main_function_negative_polygon_expansion() -> None:
     """Test main function with negative polygon expansion."""
     data = ParametrizeEdbExtensionData(
         expansion_polygon_mm=-1.0,
@@ -293,7 +293,7 @@ def test_main_function_negative_polygon_expansion():
     assert "Polygon expansion cannot be negative" in str(exc_info.value)
 
 
-def test_main_function_negative_void_expansion():
+def test_main_function_negative_void_expansion() -> None:
     """Test main function with negative void expansion."""
     data = ParametrizeEdbExtensionData(
         expansion_void_mm=-1.0,
@@ -305,7 +305,7 @@ def test_main_function_negative_void_expansion():
     assert "Void expansion cannot be negative" in str(exc_info.value)
 
 
-def test_main_function_empty_project_name():
+def test_main_function_empty_project_name() -> None:
     """Test main function with empty project name."""
     data = ParametrizeEdbExtensionData(
         project_name="",
@@ -320,7 +320,7 @@ def test_main_function_empty_project_name():
 @patch("ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb.Hfss3dLayout")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb.Edb")
 @patch("ansys.aedt.core.Desktop")
-def test_main_function_no_aedb_path(mock_desktop_class, mock_edb_class, mock_hfss3dlayout):
+def test_main_function_no_aedb_path(mock_desktop_class, mock_edb_class, mock_hfss3dlayout) -> None:
     """Test main function without aedb path."""
     data = ParametrizeEdbExtensionData(
         aedb_path="",
@@ -347,11 +347,11 @@ def test_main_function_no_aedb_path(mock_desktop_class, mock_edb_class, mock_hfs
 
     assert result is True
     mock_edb.auto_parametrize_design.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
+    mock_edb.close.assert_called_once()
 
 
 @patch("ansys.aedt.core.Desktop")
-def test_main_function_no_active_project(mock_desktop_class):
+def test_main_function_no_active_project(mock_desktop_class) -> None:
     """Test main function when no active project is found."""
     data = ParametrizeEdbExtensionData(
         aedb_path="",
@@ -369,7 +369,7 @@ def test_main_function_no_active_project(mock_desktop_class):
 
 
 @patch("ansys.aedt.core.Desktop")
-def test_main_function_no_active_design(mock_desktop_class):
+def test_main_function_no_active_design(mock_desktop_class) -> None:
     """Test main function when no active design is found."""
     data = ParametrizeEdbExtensionData(
         aedb_path="",

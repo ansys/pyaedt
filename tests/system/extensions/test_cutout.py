@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 
-from pathlib import Path
+import shutil
 
 import pytest
 
@@ -32,15 +32,19 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import CUTOUT_TYPES
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from tests.conftest import config
+from tests import TESTS_EXTENSIONS_PATH
+from tests.conftest import DESKTOP_VERSION
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"
-AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
-def test_cutout_success(add_app, local_scratch):
+def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
+    test_project = test_tmp_dir / (AEDB_FILE_NAME + ".aedb")
+    shutil.copytree(SI_VERSE_PATH, test_project)
+
     # All DDR4 nets are used as signal nets, GND is used as reference net.
     SIGNAL_NETS = [
         "DDR4_DQS1_P",
@@ -173,25 +177,27 @@ def test_cutout_success(add_app, local_scratch):
         expansion_factor=3.0,
         fix_disjoints=True,
     )
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
 
     # Check with Edb that nets exist in the original AEDB file.
-    edb_app = Edb(edbpath=str(file_path), edbversion=config["desktopVersion"])
+    edb_app = Edb(edbpath=str(test_project), edbversion=DESKTOP_VERSION)
     edb_app_nets = edb_app.nets
     assert all(net in edb_app_nets for net in SIGNAL_NETS + REFERENCE_NETS + OTHER_NETS)
     edb_app.close_edb()
 
     # Perform the cutout operation.
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+        application=Hfss3dLayout,
+        project=AEDB_FILE_NAME,
+        is_edb=True,
+    )
     cutout_path = main(DATA)
     app.close_project()
 
     # Check that the cutout AEDB file was created and contains the expected nets.
     assert cutout_path.exists()
     try:
-        cutout_app = Edb(edbpath=str(cutout_path), edbversion=config["desktopVersion"])
+        cutout_app = Edb(edbpath=str(cutout_path), edbversion=DESKTOP_VERSION)
     except IndexError as e:
         pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
     cutout_app_nets = cutout_app.nets

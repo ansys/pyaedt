@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,10 @@
 # SOFTWARE.
 
 
+from typing import Any
+
+from pyedb import Siwave
+
 from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
@@ -30,15 +34,15 @@ log = settings.logger
 
 # lazy imports
 def Edb(
-    edbpath=None,
-    cellname=None,
-    isreadonly=False,
-    edbversion=None,
-    isaedtowned=False,
-    oproject=None,
-    student_version=False,
-    use_ppe=False,
-    technology_file=None,
+    edbpath: str | None = None,
+    cellname: str | None = None,
+    isreadonly: bool | None = False,
+    edbversion: str | None = None,
+    isaedtowned: bool | None = False,
+    oproject: Any | None = None,
+    student_version: bool | None = False,
+    use_ppe: bool | None = False,
+    technology_file: str | None = None,
 ):
     """Provides the EDB application interface.
 
@@ -124,8 +128,8 @@ def Edb(
 
 
 def Siwave(
-    specified_version=None,
-):
+    specified_version: str | None = None,
+) -> Siwave:
     """Siwave Class."""
     from pyedb.siwave import Siwave as app
 

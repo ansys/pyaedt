@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -31,7 +32,7 @@ class ScatteringMethods(PyAedtBase):
     Hfss3dLayout classes.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     @property
@@ -63,8 +64,10 @@ class ScatteringMethods(PyAedtBase):
                 k += 1
         return spar
 
-    @pyaedt_function_handler(excitation_names="excitations", net_list="nets")
-    def get_all_return_loss_list(self, excitations=None, excitation_name_prefix="", math_formula="", nets=None):
+    @pyaedt_function_handler()
+    def get_all_return_loss_list(
+        self, excitations=None, excitation_name_prefix: str = "", math_formula: str = "", nets=None
+    ):
         """Get a list of all return losses for a list of excitations.
 
         Parameters
@@ -106,15 +109,15 @@ class ScatteringMethods(PyAedtBase):
                     spar.append(f"S({i},{i})")
         return spar
 
-    @pyaedt_function_handler(
-        trlist="drivers",
-        reclist="receivers",
-        tx_prefix="drivers_prefix_name",
-        rx_prefix="receivers_prefix_name",
-        net_list="nets",
-    )
+    @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, drivers=None, receivers=None, drivers_prefix_name="", receivers_prefix_name="", math_formula="", nets=None
+        self,
+        drivers=None,
+        receivers=None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets=None,
     ):
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
@@ -188,8 +191,8 @@ class ScatteringMethods(PyAedtBase):
                         spar.append(f"S({i},{j})")
         return spar
 
-    @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
-    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name="", math_formula="", nets=None):
+    @pyaedt_function_handler()
+    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name: str = "", math_formula: str = "", nets=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
@@ -229,21 +232,15 @@ class ScatteringMethods(PyAedtBase):
                     k += 1
         return next_xtalks
 
-    @pyaedt_function_handler(
-        trlist="drivers",
-        reclist="receivers",
-        tx_prefix="drivers_prefix_name",
-        rx_prefix="receivers_prefix_name",
-        net_list="nets",
-    )
+    @pyaedt_function_handler()
     def get_fext_xtalk_list(
         self,
         drivers=None,
         receivers=None,
-        drivers_prefix_name="",
-        receivers_prefix_name="",
-        skip_same_index_couples=True,
-        math_formula="",
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        skip_same_index_couples: bool = True,
+        math_formula: str = "",
         nets=None,
     ):
         """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
@@ -296,8 +293,8 @@ class ScatteringMethods(PyAedtBase):
                             fext.append(f"S({i},{k})")
         return fext
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
-    def get_touchstone_data(self, setup=None, sweep=None, variations=None):
+    @pyaedt_function_handler()
+    def get_touchstone_data(self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None):
         """
         Return a Touchstone data plot.
 
@@ -339,17 +336,17 @@ class ScatteringMethods(PyAedtBase):
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep", file_name="output_file")
+    @pyaedt_function_handler()
     def export_touchstone(
         self,
-        setup=None,
-        sweep=None,
+        setup: str | None = None,
+        sweep: str | None = None,
         output_file=None,
-        variations=None,
+        variations: list | None = None,
         variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
+        renormalization: bool = False,
+        impedance: float | None = None,
+        gamma_impedance_comments: bool = False,
     ):
         """Export a Touchstone file.
 

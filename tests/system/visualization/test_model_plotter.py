@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,20 +30,20 @@ import pytest
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from tests import TESTS_VISUALIZATION_PATH
 
-test_subfolder = "T50"
+TEST_SUBFOLDER = "T50"
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-@pytest.fixture(scope="class")
-def setup_test_data(request, local_scratch):
+@pytest.fixture
+def setup_test_data(request, test_tmp_dir):
     # vector field files
-    vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "vector_field"
-    vector_dir = Path(local_scratch.path) / "vector_files"
+    vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "vector_field"
+    vector_dir = test_tmp_dir / "vector_files"
     shutil.copytree(vector_field_path, vector_dir)
 
     vector_file_fld = vector_dir / "SurfaceAcForceDensity.fld"
@@ -57,8 +57,8 @@ def setup_test_data(request, local_scratch):
     request.cls.field_case = str(vector_file_case)
 
     # scalar field files
-    scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "scalar_field"
-    scalar_dir = Path(local_scratch.path) / "scalar_files"
+    scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "scalar_field"
+    scalar_dir = test_tmp_dir / "scalar_files"
     shutil.copytree(scalar_field_path, scalar_dir)
 
     scalar_file_fld = scalar_dir / "Ohmic_Loss.fld"
@@ -72,8 +72,8 @@ def setup_test_data(request, local_scratch):
     request.cls.scalar_case = str(scalar_file_case)
 
     # cartesian field files
-    cartesian_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
-    cartesian_dir = Path(local_scratch.path) / "cartesian_files"
+    cartesian_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER
+    cartesian_dir = test_tmp_dir / "cartesian_files"
     shutil.copytree(cartesian_field_path, cartesian_dir)
 
     cartesian_field_file = cartesian_dir / "E_xyz.fld"
@@ -83,7 +83,7 @@ def setup_test_data(request, local_scratch):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-    def test_add_field_file(self):
+    def test_add_field_file(self) -> None:
         # vector field
         model_pv_vector = ModelPlotter()
         assert not model_pv_vector.fields
@@ -105,7 +105,7 @@ class TestClass:
         model_pv_scalar.add_field_from_file(self.scalar_case)
         assert len(model_pv_scalar.fields) == 3
 
-    def test_populate_pyvista_object(self):
+    def test_populate_pyvista_object(self) -> None:
         # vector field
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_field_from_file(self.field_fld)
@@ -148,7 +148,7 @@ class TestClass:
         assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_scalars)
         assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_vectors)
 
-    def test_vector_field_scale(self):
+    def test_vector_field_scale(self) -> None:
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_field_from_file(self.field_fld)
         model_pv_vector.populate_pyvista_object()
@@ -156,12 +156,13 @@ class TestClass:
         model_pv_vector.vector_field_scale = 5
         assert model_pv_vector.vector_field_scale == 5
 
-    def test_animate(self, local_scratch):
+    @pytest.mark.avoid_ansys_load
+    def test_animate(self, test_tmp_dir) -> None:
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_fld])
         model_pv_vector.animate(show=False)
 
         model_pv_vector = ModelPlotter()
-        model_pv_vector.gif_file = Path(local_scratch.path, "field.gif")
+        model_pv_vector.gif_file = test_tmp_dir / "field.gif"
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_aedtplt])
         model_pv_vector.animate(show=False)

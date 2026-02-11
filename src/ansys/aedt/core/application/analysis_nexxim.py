@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import warnings
+
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -61,16 +61,16 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -108,8 +108,8 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         """
         return self._configurations
 
-    @pyaedt_function_handler(setupname="name")
-    def delete_setup(self, name):
+    @pyaedt_function_handler()
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -134,8 +134,8 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(component_name="component")
-    def push_down(self, component):
+    @pyaedt_function_handler()
+    def push_down(self, component) -> bool:
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
@@ -167,7 +167,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def pop_up(self):
+    def pop_up(self) -> bool:
         """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
@@ -197,26 +197,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
             self._post = post_processor(self)
         return self._post
-
-    @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
 
     @property
     def modeler(self):
@@ -317,28 +297,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
-
-    @property
     def excitation_names(self):
         """Get all excitation names.
 
@@ -396,8 +354,8 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    @pyaedt_function_handler()
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters

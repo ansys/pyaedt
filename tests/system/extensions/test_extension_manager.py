@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,13 +39,13 @@ def disable_pyaedt_update_check(monkeypatch):
     yield
 
 
-def test_extension_manager_initialization(add_app):
+def test_extension_manager_initialization(add_app) -> None:
     """Test that ExtensionManager initializes correctly in a real AEDT environment."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_extension_manager",
-        design_name="test_design",
+        project="test_extension_manager",
+        design="test_design",
     )
 
     # Create extension manager with withdraw=True to avoid showing window
@@ -70,16 +70,16 @@ def test_extension_manager_initialization(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_load_extensions(add_app):
+def test_extension_manager_load_extensions(add_app) -> None:
     """Test loading extensions for different categories."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_load_extensions",
-        design_name="test_design",
+        project="test_load_extensions",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -100,16 +100,16 @@ def test_extension_manager_load_extensions(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_log_buffer(add_app):
+def test_extension_manager_log_buffer(add_app) -> None:
     """Test log buffer functionality."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_log_buffer",
-        design_name="test_design",
+        project="test_log_buffer",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -131,16 +131,16 @@ def test_extension_manager_log_buffer(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_check_extension_pinned(add_app):
+def test_extension_manager_check_extension_pinned(add_app) -> None:
     """Test checking if extension is pinned."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_check_pinned",
-        design_name="test_design",
+        project="test_check_pinned",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -158,16 +158,16 @@ def test_extension_manager_check_extension_pinned(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_window_geometry(add_app):
+def test_extension_manager_window_geometry(add_app) -> None:
     """Test window dimensions and geometry settings."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_geometry",
-        design_name="test_design",
+        project="test_geometry",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -185,16 +185,16 @@ def test_extension_manager_window_geometry(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_multiple_categories(add_app):
+def test_extension_manager_multiple_categories(add_app) -> None:
     """Test switching between multiple extension categories."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_multiple_categories",
-        design_name="test_design",
+        project="test_multiple_categories",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -210,7 +210,7 @@ def test_extension_manager_multiple_categories(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_extension_manager_canvas_theme_application(add_app):
@@ -218,8 +218,8 @@ def test_extension_manager_canvas_theme_application(add_app):
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_canvas_theme",
-        design_name="test_design",
+        project="test_canvas_theme",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -244,16 +244,16 @@ def test_extension_manager_canvas_theme_application(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_toolkits_loaded(add_app):
+def test_extension_manager_toolkits_loaded(add_app) -> None:
     """Test that toolkits are properly loaded on initialization."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_toolkits",
-        design_name="test_design",
+        project="test_toolkits",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -268,16 +268,16 @@ def test_extension_manager_toolkits_loaded(add_app):
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_extension_manager_default_category(add_app):
+def test_extension_manager_default_category(add_app) -> None:
     """Test that default category is properly set."""
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_default_category",
-        design_name="test_design",
+        project="test_default_category",
+        design="test_design",
     )
 
     extension = ExtensionManager(withdraw=True)
@@ -285,8 +285,8 @@ def test_extension_manager_default_category(add_app):
     try:
         # Verify default category is set
         assert extension.current_category is not None
-        assert extension.current_category == "Common"
+        assert extension.current_category == "Project"
 
     finally:
         extension.root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)

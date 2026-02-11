@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import math
-from warnings import warn
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -39,7 +38,7 @@ class ModelerRMxprt(Modeler, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         Modeler.__init__(self, app)
         app.logger.info_timer("ModelerRMxprt class has been initialized!")
@@ -68,7 +67,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         Primitives2D.__init__(self, application)
         self._primitives = self
         self.logger.info("Modeler2D class has been initialized!")
@@ -77,25 +76,8 @@ class Modeler2D(Primitives2D, PyAedtBase):
         self._app = instance
         return self
 
-    @property
-    def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.primitives_2d.Primitives2D`
-
-        """
-        mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warn(mess, DeprecationWarning)
-        return self._primitives
-
-    @pyaedt_function_handler(object_name="assignment")
-    def calculate_radius_2D(self, assignment, inner=False):
+    @pyaedt_function_handler()
+    def calculate_radius_2D(self, assignment, inner: bool = False):
         """Calculate the extremity of an object in the radial direction.
 
         Parameters
@@ -138,7 +120,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return radius
 
     @pyaedt_function_handler()
-    def radial_split_2D(self, radius, name):
+    def radial_split_2D(self, radius, name: str) -> bool:
         """Split the stator and rotor for mesh refinement.
 
         Parameters
@@ -163,7 +145,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_in_bounding_box(self, bounding_box, check_lines=True, check_sheets=True):
+    def objects_in_bounding_box(self, bounding_box, check_lines: bool = True, check_sheets: bool = True):
         """Given a 2D bounding box, check if sheets and lines are inside it.
 
         Parameters

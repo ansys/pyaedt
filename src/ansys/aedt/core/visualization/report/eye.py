@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,7 +40,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class AMIConturEyeDiagram(CommonReport):
     """Provides for managing eye contour diagram reports in AMI analysis."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         self._legacy_props["report_type"] = "Rectangular Contour Plot"
@@ -95,7 +95,7 @@ class AMIConturEyeDiagram(CommonReport):
         return new_exprs
 
     @expressions.setter
-    def expressions(self, value):
+    def expressions(self, value) -> None:
         if isinstance(value, dict):
             self._legacy_props["expressions"].append = value
         elif isinstance(value, list):
@@ -120,10 +120,16 @@ class AMIConturEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
-    def quantity_type(self, value):
+    def quantity_type(self, value) -> None:
         self._legacy_props["quantity_type"] = value
 
     @property
@@ -282,7 +288,7 @@ class AMIConturEyeDiagram(CommonReport):
             return ["X Component:=", self.primary_sweep, "Y Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -316,20 +322,20 @@ class AMIConturEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
-        x_units="ns",
-        y_units="mV",
-        enable_limits=False,
-        upper_limit=500,
+        x_units: str = "ns",
+        y_units: str = "mV",
+        enable_limits: bool = False,
+        upper_limit: int = 500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset="0ns",
-        y_offset="0V",
-        transparency=0.3,
-    ):
+        x_offset: str = "0ns",
+        y_offset: str = "0V",
+        transparency: float = 0.3,
+    ) -> bool:
         """Create an eye diagram in the plot.
 
         Parameters
@@ -402,8 +408,8 @@ class AMIConturEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
-    def rectangular_plot(self, enable=True):
+    @pyaedt_function_handler()
+    def rectangular_plot(self, enable: bool = True) -> bool:
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
@@ -428,7 +434,7 @@ class AMIConturEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def add_all_eye_measurements(self):
+    def add_all_eye_measurements(self) -> bool:
         """Add all eye measurements to the plot.
 
         Returns
@@ -440,7 +446,7 @@ class AMIConturEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def clear_all_eye_measurements(self):
+    def clear_all_eye_measurements(self) -> bool:
         """Clear all eye measurements from the plot.
 
         Returns
@@ -451,7 +457,7 @@ class AMIConturEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
@@ -475,7 +481,7 @@ class AMIConturEyeDiagram(CommonReport):
 class AMIEyeDiagram(CommonReport):
     """Provides for managing eye diagram reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         if report_category == "Statistical Eye":
@@ -539,10 +545,16 @@ class AMIEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
-    def quantity_type(self, value):
+    def quantity_type(self, value) -> None:
         self._legacy_props["quantity_type"] = value
 
     @property
@@ -562,7 +574,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["report_category"]
 
     @report_category.setter
-    def report_category(self, value):
+    def report_category(self, value) -> None:
         self._legacy_props["report_category"] = value
         if self._legacy_props["report_category"] == "Statistical Eye" and self.report_type == "Rectangular Plot":
             self._legacy_props["report_type"] = "Statistical Eye Plot"
@@ -587,7 +599,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("unit_interval", None)
 
     @unit_interval.setter
-    def unit_interval(self, value):
+    def unit_interval(self, value) -> None:
         self._legacy_props["context"]["unit_interval"] = value
 
     @property
@@ -602,7 +614,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("offset", None)
 
     @offset.setter
-    def offset(self, value):
+    def offset(self, value) -> None:
         self._legacy_props["context"]["offset"] = value
 
     @property
@@ -617,7 +629,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_delay", None)
 
     @auto_delay.setter
-    def auto_delay(self, value):
+    def auto_delay(self, value) -> None:
         self._legacy_props["context"]["auto_delay"] = value
 
     @property
@@ -632,7 +644,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("manual_delay", None)
 
     @manual_delay.setter
-    def manual_delay(self, value):
+    def manual_delay(self, value) -> None:
         self._legacy_props["context"]["manual_delay"] = value
 
     @property
@@ -647,7 +659,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_cross_amplitude", None)
 
     @auto_cross_amplitude.setter
-    def auto_cross_amplitude(self, value):
+    def auto_cross_amplitude(self, value) -> None:
         self._legacy_props["context"]["auto_cross_amplitude"] = value
 
     @property
@@ -662,7 +674,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("cross_amplitude", None)
 
     @cross_amplitude.setter
-    def cross_amplitude(self, value):
+    def cross_amplitude(self, value) -> None:
         self._legacy_props["context"]["cross_amplitude"] = value
 
     @property
@@ -677,7 +689,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_compute_eye_meas", None)
 
     @auto_compute_eye_meas.setter
-    def auto_compute_eye_meas(self, value):
+    def auto_compute_eye_meas(self, value) -> None:
         self._legacy_props["context"]["auto_compute_eye_meas"] = value
 
     @property
@@ -692,7 +704,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("eye_measurement_point", None)
 
     @eye_measurement_point.setter
-    def eye_measurement_point(self, value):
+    def eye_measurement_point(self, value) -> None:
         self._legacy_props["context"]["eye_measurement_point"] = value
 
     @property
@@ -823,7 +835,7 @@ class AMIEyeDiagram(CommonReport):
         return ["Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -887,20 +899,20 @@ class AMIEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
-        x_units="ns",
-        y_units="mV",
-        enable_limits=False,
-        upper_limit=500,
+        x_units: str = "ns",
+        y_units: str = "mV",
+        enable_limits: bool = False,
+        upper_limit: int = 500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset="0ns",
-        y_offset="0V",
-        transparency=0.3,
-    ):
+        x_offset: str = "0ns",
+        y_offset: str = "0V",
+        transparency: float = 0.3,
+    ) -> bool:
         """Create an eye diagram in the plot.
 
         Parameters
@@ -967,8 +979,8 @@ class AMIEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
-    def rectangular_plot(self, enable=True):
+    @pyaedt_function_handler()
+    def rectangular_plot(self, enable: bool = True) -> bool:
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
@@ -992,7 +1004,7 @@ class AMIEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def add_all_eye_measurements(self):
+    def add_all_eye_measurements(self) -> bool:
         """Add all eye measurements to the plot.
 
         Returns
@@ -1004,7 +1016,7 @@ class AMIEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def clear_all_eye_measurements(self):
+    def clear_all_eye_measurements(self) -> bool:
         """Clear all eye measurements from the plot.
 
         Returns
@@ -1015,7 +1027,7 @@ class AMIEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
@@ -1039,7 +1051,7 @@ class AMIEyeDiagram(CommonReport):
 class EyeDiagram(AMIEyeDiagram):
     """Provides for managing eye diagram reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         AMIEyeDiagram.__init__(self, app, report_category, setup_name, expressions)
         self.time_start = "0ns"
         self.time_stop = "200ns"
@@ -1063,7 +1075,7 @@ class EyeDiagram(AMIEyeDiagram):
         return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
-    def expressions(self, value):
+    def expressions(self, value) -> None:
         if isinstance(value, dict):
             self._legacy_props["expressions"].append = value
         elif isinstance(value, list):
@@ -1091,7 +1103,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -1106,7 +1118,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
@@ -1121,7 +1133,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("thinning", None)
 
     @thinning.setter
-    def thinning(self, value):
+    def thinning(self, value) -> None:
         self._legacy_props["context"]["thinning"] = value
 
     @property
@@ -1136,7 +1148,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("dy_dx_tolerance", None)
 
     @dy_dx_tolerance.setter
-    def dy_dx_tolerance(self, value):
+    def dy_dx_tolerance(self, value) -> None:
         self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
@@ -1151,7 +1163,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("thinning_points", None)
 
     @thinning_points.setter
-    def thinning_points(self, value):
+    def thinning_points(self, value) -> None:
         self._legacy_props["context"]["thinning_points"] = value
 
     @property

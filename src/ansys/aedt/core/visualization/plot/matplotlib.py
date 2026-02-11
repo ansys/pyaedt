@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,7 @@ except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
-def is_notebook():
+def is_notebook() -> bool:
     """Check if pyaedt is running in Jupyter or not.
 
     Returns
@@ -66,7 +66,7 @@ def is_notebook():
         return False  # Probably standard Python interpreter
 
 
-def is_ipython():
+def is_ipython() -> bool:
     """Check if pyaedt is running in Jupyter or not.
 
     Returns
@@ -84,7 +84,7 @@ def is_ipython():
 
 
 class Note(PyAedtBase):
-    def __init__(self):
+    def __init__(self) -> None:
         self._position = (0, 0)
         self._text = ""
         self._back_color = None
@@ -108,7 +108,7 @@ class Note(PyAedtBase):
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value) -> None:
         self._text = value
 
     @property
@@ -122,7 +122,7 @@ class Note(PyAedtBase):
         return self._back_color
 
     @background_color.setter
-    def background_color(self, value):
+    def background_color(self, value) -> None:
         self._back_color = value
 
     @property
@@ -136,7 +136,7 @@ class Note(PyAedtBase):
         return self._background_visibility
 
     @background_visibility.setter
-    def background_visibility(self, value):
+    def background_visibility(self, value) -> None:
         self._background_visibility = value
 
     @property
@@ -150,7 +150,7 @@ class Note(PyAedtBase):
         return self._border_visibility
 
     @border_visibility.setter
-    def border_visibility(self, value):
+    def border_visibility(self, value) -> None:
         self._border_visibility = value
 
     @property
@@ -164,7 +164,7 @@ class Note(PyAedtBase):
         return self._border_width
 
     @border_width.setter
-    def border_width(self, value):
+    def border_width(self, value) -> None:
         self._border_width = value
 
     @property
@@ -178,7 +178,7 @@ class Note(PyAedtBase):
         return self._font
 
     @font.setter
-    def font(self, value):
+    def font(self, value) -> None:
         self._font = value
 
     @property
@@ -192,7 +192,7 @@ class Note(PyAedtBase):
         return self._font_size
 
     @font_size.setter
-    def font_size(self, value):
+    def font_size(self, value) -> None:
         self._font_size = value
 
     @property
@@ -206,7 +206,7 @@ class Note(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value):
+    def color(self, value) -> None:
         self._color = value
 
     @property
@@ -220,7 +220,7 @@ class Note(PyAedtBase):
         return self._bold
 
     @bold.setter
-    def bold(self, value):
+    def bold(self, value) -> None:
         self._bold = value
 
     @property
@@ -234,14 +234,14 @@ class Note(PyAedtBase):
         return self._italic
 
     @italic.setter
-    def italic(self, value):
+    def italic(self, value) -> None:
         self._italic = value
 
 
 class Trace(PyAedtBase):
     """Trace class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.name = ""
         self._cartesian_data = None
         self._spherical_data = None
@@ -306,23 +306,23 @@ class Trace(PyAedtBase):
         return self.__fill_symbol
 
     @trace_style.setter
-    def trace_style(self, val):
+    def trace_style(self, val) -> None:
         self.__trace_style = val
 
     @trace_width.setter
-    def trace_width(self, val):
+    def trace_width(self, val) -> None:
         self.__trace_width = val
 
     @trace_color.setter
-    def trace_color(self, val):
+    def trace_color(self, val) -> None:
         self.__trace_color = val
 
     @symbol_style.setter
-    def symbol_style(self, val):
+    def symbol_style(self, val) -> None:
         self.__symbol_style = val
 
     @fill_symbol.setter
-    def fill_symbol(self, val):
+    def fill_symbol(self, val) -> None:
         self.__fill_symbol = val
 
     @property
@@ -337,7 +337,7 @@ class Trace(PyAedtBase):
         return self._cartesian_data
 
     @cartesian_data.setter
-    def cartesian_data(self, val):
+    def cartesian_data(self, val) -> None:
         self._cartesian_data = []
         for el in val:
             if not isinstance(el, (float, int, str)):
@@ -360,7 +360,7 @@ class Trace(PyAedtBase):
         return self._spherical_data
 
     @spherical_data.setter
-    def spherical_data(self, rthetaphi):
+    def spherical_data(self, rthetaphi) -> None:
         self._spherical_data = []
         for el in rthetaphi:
             if not isinstance(el, (float, int, str)):
@@ -370,7 +370,7 @@ class Trace(PyAedtBase):
         self.spherical2car()
 
     @pyaedt_function_handler()
-    def car2polar(self, x, y, is_degree=False):
+    def car2polar(self, x, y, is_degree: bool = False):
         """Convert cartesian data to polar.
 
         Parameters
@@ -397,7 +397,7 @@ class Trace(PyAedtBase):
         return [rho, phi]
 
     @pyaedt_function_handler()
-    def car2spherical(self):
+    def car2spherical(self) -> None:
         """Convert cartesian data to spherical and assigns to property spherical data."""
         x = np.array(self.cartesian_data[0], dtype=float)
         y = np.array(self.cartesian_data[1], dtype=float)
@@ -411,7 +411,7 @@ class Trace(PyAedtBase):
         self._spherical_data = [r, theta, phi]
 
     @pyaedt_function_handler()
-    def spherical2car(self):
+    def spherical2car(self) -> None:
         """Convert spherical data to cartesian data and assign to cartesian data property."""
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
@@ -445,7 +445,7 @@ class Trace(PyAedtBase):
 class LimitLine(Trace):
     """Limit Line class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         Trace.__init__(self)
         self.hatch_above = True
 
@@ -453,7 +453,7 @@ class LimitLine(Trace):
 class ReportPlotter(PyAedtBase):
     """Matplotlib Report manager."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         rc_params = {
             "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
             "axes.labelsize": 20,  # Apply the settings only in this module.
@@ -528,7 +528,7 @@ class ReportPlotter(PyAedtBase):
         return self._limit_lines
 
     @pyaedt_function_handler()
-    def apply_style(self, style_name):
+    def apply_style(self, style_name) -> bool:
         """Apply a custom matplotlib style (eg. background_dark).
 
         Parameters
@@ -556,7 +556,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_style
 
     @grid_style.setter
-    def grid_style(self, val):
+    def grid_style(self, val) -> None:
         self.__grid_style = val
 
     @property
@@ -570,7 +570,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_x
 
     @grid_enable_major_x.setter
-    def grid_enable_major_x(self, val):
+    def grid_enable_major_x(self, val) -> None:
         self.__grid_enable_major_x = val
 
     @property
@@ -584,7 +584,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_y
 
     @grid_enable_major_y.setter
-    def grid_enable_major_y(self, val):
+    def grid_enable_major_y(self, val) -> None:
         self.__grid_enable_major_y = val
 
     @property
@@ -598,7 +598,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_x
 
     @grid_enable_minor_x.setter
-    def grid_enable_minor_x(self, val):
+    def grid_enable_minor_x(self, val) -> None:
         self.__grid_enable_minor_x = val
 
     @property
@@ -612,7 +612,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_y
 
     @grid_enable_minor_y.setter
-    def grid_enable_minor_y(self, val):
+    def grid_enable_minor_y(self, val) -> None:
         self.__grid_enable_minor_y = val
 
     @property
@@ -627,7 +627,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_color
 
     @grid_color.setter
-    def grid_color(self, val):
+    def grid_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -644,7 +644,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_back_color
 
     @general_back_color.setter
-    def general_back_color(self, val):
+    def general_back_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -661,7 +661,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_plot_color
 
     @general_plot_color.setter
-    def general_plot_color(self, val):
+    def general_plot_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -699,7 +699,7 @@ class ReportPlotter(PyAedtBase):
         return image_array  # Output
 
     @pyaedt_function_handler()
-    def _update_grid(self):
+    def _update_grid(self) -> None:
         if self._has_x_axis and self._has_y_axis:
             axis = "both"
         elif self._has_y_axis:
@@ -752,7 +752,7 @@ class ReportPlotter(PyAedtBase):
         return self.__y_scale
 
     @y_scale.setter
-    def y_scale(self, val):
+    def y_scale(self, val) -> None:
         self.__y_scale = val
 
     @property
@@ -766,7 +766,7 @@ class ReportPlotter(PyAedtBase):
         return self.__x_scale
 
     @x_scale.setter
-    def x_scale(self, val):
+    def x_scale(self, val) -> None:
         self.__x_scale = val
 
     @property
@@ -780,7 +780,7 @@ class ReportPlotter(PyAedtBase):
         return plt.isinteractive()
 
     @interactive.setter
-    def interactive(self, val):
+    def interactive(self, val) -> None:
         if val:
             plt.ion()
         else:
@@ -793,12 +793,12 @@ class ReportPlotter(PyAedtBase):
         back_color=None,
         background_visibility=None,
         border_width=None,
-        font="Arial",
-        font_size=12,
-        italic=False,
-        bold=False,
+        font: str = "Arial",
+        font_size: int = 12,
+        italic: bool = False,
+        bold: bool = False,
         color=(0.2, 0.2, 0.2),
-    ):
+    ) -> None:
         """Add a note to the report.
 
         Parameters
@@ -832,7 +832,7 @@ class ReportPlotter(PyAedtBase):
         self._notes.append(note)
 
     @pyaedt_function_handler()
-    def add_limit_line(self, plot_data, hatch_above=True, properties=None, name=""):
+    def add_limit_line(self, plot_data, hatch_above: bool = True, properties=None, name: str = "") -> bool:
         """Add a new limit_line to the chart.
 
         Parameters
@@ -873,7 +873,7 @@ class ReportPlotter(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_trace(self, plot_data, data_type=0, properties=None, name=""):
+    def add_trace(self, plot_data, data_type: int = 0, properties=None, name: str = "") -> bool:
         """Add a new trace to the chart.
 
         Parameters
@@ -931,7 +931,7 @@ class ReportPlotter(PyAedtBase):
         return [i * px for i in self.plt_params["figure.figsize"]]
 
     @size.setter
-    def size(self, val, is_pixel=True):
+    def size(self, val, is_pixel: bool = True) -> None:
         if is_pixel:
             px = 1 / self.plt_params["figure.dpi"]  # pixel in inches
             self.plt_params["figure.figsize"] = [i * px for i in val]
@@ -1012,7 +1012,15 @@ class ReportPlotter(PyAedtBase):
         return traces_to_plot
 
     @pyaedt_function_handler()
-    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True, figure=None):
+    def plot_polar(
+        self,
+        traces=None,
+        to_polar: bool = False,
+        snapshot_path=None,
+        show: bool = True,
+        is_degree: bool = True,
+        figure=None,
+    ):
         """Create a Matplotlib polar plot based on a list of data.
 
         Parameters
@@ -1073,7 +1081,9 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=None, is_polar=True):
+    def plot_3d(
+        self, trace: int = 0, snapshot_path=None, show: bool = True, color_map_limits=None, is_polar: bool = True
+    ):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1183,7 +1193,7 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_2d(self, traces=None, snapshot_path=None, show=True, figure=None):
+    def plot_2d(self, traces=None, snapshot_path=None, show: bool = True, figure=None):
         """Create a Matplotlib figure based on a list of data.
 
         Parameters
@@ -1259,7 +1269,7 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def animate_2d(self, traces=None, snapshot_path=None, show=True, figure=None):
+    def animate_2d(self, traces=None, snapshot_path=None, show: bool = True, figure=None):
         """Create an animated Matplotlib figure based on a list of data.
 
         Parameters
@@ -1315,7 +1325,7 @@ class ReportPlotter(PyAedtBase):
         return self.animation
 
     @pyaedt_function_handler()
-    def _plot_notes(self):
+    def _plot_notes(self) -> None:
         for note in self._notes:
             t = self.ax.text(
                 note.position[0],
@@ -1336,7 +1346,7 @@ class ReportPlotter(PyAedtBase):
                 t.set_bbox(bbox)
 
     @pyaedt_function_handler()
-    def _plot_limit_lines(self, convert_to_radians=False):
+    def _plot_limit_lines(self, convert_to_radians: bool = False) -> None:
         rate = 1
         if convert_to_radians:
             rate = np.pi / 180
@@ -1377,16 +1387,16 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_contour(
         self,
-        trace=0,
-        polar=False,
-        levels=64,
-        max_theta=180,
-        min_theta=0,
+        trace: int = 0,
+        polar: bool = False,
+        levels: int = 64,
+        max_theta: int = 360,
+        min_theta: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show=True,
+        show: bool = True,
         figure=None,
-        is_spherical=True,
+        is_spherical: bool = True,
         normalize=None,
     ):
         """Create a Matplotlib figure contour based on a list of data.
@@ -1399,14 +1409,12 @@ class ReportPlotter(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         levels : int, optional
-            Color map levels. The default is ``64``.
+            Number of color map levels. The default is ``64``.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. It applies only for polar plots.
-            The default is ``180``, which plots the data for all angles.
-            Setting ``max_theta`` to 90 limits the displayed data to the upper
-            hemisphere, that is (0 < theta < 90).
+            Maximum theta angle for plotting polar data.
+            The default is ``360``.
         min_theta : float or int, optional
-            Minimum theta angle for plotting. It applies only for polar plots. The default is ``0``.
+            Minimum theta angle for plotting polar data. The default is ``0``.
         color_bar : str, optional
             Color bar title. The default is ``None`` in which case the color bar is not included.
         snapshot_path : str, optional
@@ -1480,10 +1488,10 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_pcolor(
         self,
-        trace=0,
+        trace: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show=True,
+        show: bool = True,
         figure=None,
     ):
         """Create a Matplotlib figure pseudo color plot with a non-regular rectangular grid based on a list of data.
@@ -1546,16 +1554,16 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def animate_contour(
         self,
-        trace=0,
-        polar=False,
-        levels=64,
-        max_theta=180,
-        min_theta=0,
+        trace: int = 0,
+        polar: bool = False,
+        levels: int = 64,
+        max_theta: int = 180,
+        min_theta: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show=True,
+        show: bool = True,
         figure=None,
-        is_spherical=True,
+        is_spherical: bool = True,
         normalize=None,
     ):
         """Create an animated Matplotlib figure contour based on a list of data.
@@ -1663,169 +1671,19 @@ class ReportPlotter(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def plot_polar_chart(
-    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
-):
-    """Create a Matplotlib polar plot based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        ``[x points, y points, label]``.
-    size : tuple, optional
-        Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot title label.
-    snapshot_path : str
-        Full path to the image file if a snapshot is needed.
-    show : bool, optional
-        Whether to render the figure. The default is ``True``. If ``False``, the
-        figure is not drawn.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = show_legend
-    new.title = title
-    props = {"x_label": xlabel, "y_label": ylabel}
-    for pdata in plot_data:
-        name = pdata[2] if len(pdata) > 2 else "Trace"
-        new.add_trace(pdata[:2], 0, props, name=name)
-    _ = new.plot_polar(traces=None, snapshot_path=snapshot_path, show=show)
-    return new
-
-
-@pyaedt_function_handler()
-def plot_3d_chart(plot_data, size=(1920, 1440), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
-    """Create a Matplotlib 3D plot based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        ``[x points, y points, z points, label]``.
-    size : tuple, optional
-        Image size in pixel (width, height).
-    xlabel : str, optional
-        Plot X label.
-    ylabel : str, optional
-        Plot Y label.
-    title : str, optional
-        Plot Title label.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_3d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_3d` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = False
-    new.title = title
-    props = {"x_label": xlabel, "y_label": ylabel}
-    name = plot_data[3] if len(plot_data) > 3 else "Trace"
-    new.add_trace(plot_data[:3], 2, props, name)
-    _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
-    return new
-
-
-@pyaedt_function_handler()
-def plot_2d_chart(
-    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
-):
-    """Create a Matplotlib figure based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        `[x points, y points, label]`.
-    size : tuple, optional
-        Image size in pixel (width, height). The default is `(1920,1440)`.
-    show_legend : bool, optional
-        Either to show legend or not. The default value is ``True``.
-    xlabel : str, optional
-        Plot X label. The default value is ``""``.
-    ylabel : str, optional
-        Plot Y label. The default value is ``""``.
-    title : str, optional
-        Plot Title label. The default value is ``""``.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-        The default value is ``None``.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_2d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_2d` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = show_legend
-    new.title = title
-    from ansys.aedt.core.generic.constants import CSS4_COLORS
-
-    k = 0
-    for data in plot_data:
-        label = f"{xlabel}_{data[2]}" if len(data) == 3 else xlabel
-        props = {"x_label": label, "y_label": ylabel, "line_color": list(CSS4_COLORS.keys())[k]}
-        k += 1
-        if k == len(list(CSS4_COLORS.keys())):
-            k = 0
-        name = data[2] if len(data) > 2 else "Trace"
-        new.add_trace(data[:2], 0, props, name)
-    _ = new.plot_2d(None, snapshot_path, show)
-    return new
-
-
-@pyaedt_function_handler()
 def plot_matplotlib(
     plot_data,
     size=(1920, 1440),
-    show_legend=True,
-    xlabel="",
-    ylabel="",
-    title="",
+    show_legend: bool = True,
+    xlabel: str = "",
+    ylabel: str = "",
+    title: str = "",
     snapshot_path=None,
     x_limits=None,
     y_limits=None,
-    axis_equal=False,
+    axis_equal: bool = False,
     annotations=None,
-    show=True,
+    show: bool = True,
 ):  # pragma: no cover
     """Create a matplotlib plot based on a list of data.
 
@@ -1924,84 +1782,3 @@ def plot_matplotlib(
     if show:  # pragma: no cover
         plt.show()
     return fig
-
-
-@pyaedt_function_handler()
-def plot_contour(
-    plot_data,
-    size=(2000, 1600),
-    xlabel="",
-    ylabel="",
-    title="",
-    polar=False,
-    levels=64,
-    max_theta=180,
-    color_bar=None,
-    snapshot_path=None,
-    show=True,
-):
-    """Create a Matplotlib figure contour based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of np.ndarray
-        List of plot data. Each item of the list a numpy array. The list has the following format:
-        ``[data, x points, y points]``.
-    size : tuple, list, optional
-        Image size in pixel (width, height). The default is ``(2000,1600)``.
-    xlabel : str, optional
-        Plot X label. The default value is ``""``.
-    ylabel : str, optional
-        Plot Y label. The default value is ``""``.
-    title : str, optional
-        Plot Title label. The default value is ``""``.
-    polar : bool, optional
-        Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
-        generated is rectangular.
-    levels : int, optional
-        Color map levels. The default is ``64``.
-    max_theta : float or int, optional
-        Maximum theta angle for plotting. It applies only for polar plots.
-        The default is ``180``, which plots the data for all angles.
-        Setting ``max_theta`` to 90 limits the displayed data to the upper
-        hemisphere, that is (0 < theta < 90).
-    color_bar : str, optional
-        Color bar title. The default is ``None`` in which case the color bar is not included.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-        The default value is ``None``.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is ``True``.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_contour` is deprecated. Use class `ReportPlotter` to initialize and `plot_contour` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = False
-    new.title = title
-    props = {
-        "x_label": xlabel,
-        "y_label": ylabel,
-    }
-
-    new.add_trace(plot_data, 2, props)
-    _ = new.plot_contour(
-        trace=0,
-        polar=polar,
-        levels=levels,
-        max_theta=max_theta,
-        color_bar=color_bar,
-        snapshot_path=snapshot_path,
-        show=show,
-    )
-    return new

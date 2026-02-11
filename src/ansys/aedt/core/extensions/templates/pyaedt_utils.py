@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,13 +40,6 @@ from System.Windows.Forms import MessageBoxIcon
 is_linux = os.name == "posix"
 
 
-def set_ansys_em_environment(oDesktop):
-    """Set the ANSYS_EM_ROOT environment variable."""
-    variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
-    if variable not in os.environ:
-        os.environ[variable] = oDesktop.GetExeDir()
-
-
 def sanitize_interpreter_path(interpreter_path, version):
     """Sanitize the interpreter path."""
     python_version = "3_10" if version > "231" else "3_7"
@@ -57,7 +50,7 @@ def sanitize_interpreter_path(interpreter_path, version):
     return interpreter_path
 
 
-def check_file(file_path, oDesktop):
+def check_file(file_path, oDesktop) -> bool:
     """Check if a file exists."""
     if not os.path.isfile(file_path):
         show_error(
@@ -112,29 +105,31 @@ def which(program):
     return None
 
 
-def show_error(msg, oDesktop):
+def show_error(msg, oDesktop) -> None:
     """Display an error message in the AEDT console and a dialog box."""
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
-def environment_variables(oDesktop):
+def environment_variables(oDesktop) -> None:
     """Set environment variables for the AEDT process."""
-    os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+    os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
-    os.environ["PYAEDT_SCRIPT_VERSION"] = version
+    os.environ["PYAEDT_DESKTOP_VERSION"] = version
     if version > "2023.1":
-        os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(oDesktop.GetGrpcServerPort())
     else:
-        os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(0)
     if "Ansys Student" in str(oDesktop.GetExeDir()):
         os.environ["PYAEDT_STUDENT_VERSION"] = "True"
     else:
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
+    os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
     if is_linux:
         edt_root = os.path.normpath(oDesktop.GetExeDir())
-        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        reduced_version = version[2:].replace(".", "")
+        os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
         ld_library_path_dirs_to_add = [
             "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
             "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
@@ -165,7 +160,7 @@ def environment_variables(oDesktop):
             )
 
 
-def generate_unique_name(root_name, suffix="", n=6):
+def generate_unique_name(root_name, suffix: str = "", n: int = 6):
     char_set = string.ascii_uppercase + string.digits
     unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,7 +28,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 class AedtUnits(PyAedtBase):
     """Class containing all default AEDT units. All properties are read-only except length units."""
 
-    def __init__(self, aedt_object=None):
+    def __init__(self, aedt_object=None) -> None:
         self.__app = aedt_object
         self._frequency = self._get_model_unit("Frequency")
         self._length = None
@@ -69,13 +69,13 @@ class AedtUnits(PyAedtBase):
         return self._rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, val):
+    def rescale_model(self, val) -> None:
         self._rescale_model = val
 
     def _get_model_unit(self, unit_system):
         if self.__app:
             try:
-                return self.__app._odesktop.GetDefaultUnit(unit_system)
+                return self.__app.odesktop.GetDefaultUnit(unit_system)
             except Exception:
                 return
 

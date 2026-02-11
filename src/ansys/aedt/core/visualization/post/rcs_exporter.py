@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,6 +26,12 @@ import copy
 import json
 from pathlib import Path
 import shutil
+from typing import TYPE_CHECKING
+from typing import Any
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -33,7 +39,6 @@ from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
@@ -42,16 +47,18 @@ class MonostaticRCSExporter(PyAedtBase):
     """Class to enable export of radar cross-section (RCS) data from HFSS.
 
     An instance of this class is returned from the
-    :meth:`pyaedt.Hfss.get_monostatic_rcs` method. This class creates a
+    :meth:`ansys.aedt.core.Hfss.get_monostatic_rcs` method. This class creates a
     ``metadata_file`` that can be passed as argument to instantiate an instance of the
-    :class:`pyaedt.generic.rcs_visualization.MonostaticRCSData` class for subsequent analysis and postprocessing.
+    :class:`ansys.aedt.toolkits.radar_explorer.rcs_visualization.MonostaticRCSData` class for subsequent analysis and
+    postprocessing.
 
-    Note that this class is derived from the :class:`MonostaticRCSData` class and can be used directly for
-    RCS postprocessing, but it remains as a property of the :class:`pyaedt.Hfss` application.
+    .. note::
+        This class requires the Radar explorer toolkit for RCS data analysis.
+        Install it with: ``pip install ansys-aedt-toolkits-radar-explorer``
 
     Parameters
     ----------
-    app : :class:`pyaedt.Hfss`
+    app : :class:`ansys.aedt.core.Hfss`
         HFSS application instance.
     setup_name : str, optional
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
@@ -79,13 +86,13 @@ class MonostaticRCSExporter(PyAedtBase):
 
     def __init__(
         self,
-        app,
-        setup_name=None,
-        frequencies=None,
-        expression=None,
-        variations=None,
-        overwrite=True,
-    ):
+        app: "Hfss",
+        setup_name: str | None = None,
+        frequencies: list[float | int | str] | float | int | str | None = None,
+        expression: str | None = None,
+        variations: dict[str, Any] | None = None,
+        overwrite: bool = True,
+    ) -> None:
         # Public
         self.setup_name = setup_name
         self.solution = ""
@@ -94,7 +101,7 @@ class MonostaticRCSExporter(PyAedtBase):
             self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
-            variations = app.available_variations.get_independent_nominal_values()
+            variations = app.available_variations.nominal_variation(dependent_params=False)
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -113,39 +120,34 @@ class MonostaticRCSExporter(PyAedtBase):
         # Private
         self.__app = app
         self.__model_info = {}
-        self.__rcs_data = None
+
         self.__metadata_file = ""
         self.__frequency_unit = self.__app.units.frequency
 
         self.__column_name = copy.deepcopy(self.expression)
 
     @property
-    def model_info(self):
+    def model_info(self) -> dict[str, Any]:
         """List of models."""
         return self.__model_info
 
     @property
-    def rcs_data(self):
-        """Monostatic RCS data."""
-        return self.__rcs_data
-
-    @property
-    def metadata_file(self):
+    def metadata_file(self) -> str | Path:
         """Metadata file."""
         return self.__metadata_file
 
     @property
-    def column_name(self):
+    def column_name(self) -> str:
         """Column name."""
         return self.__column_name
 
     @column_name.setter
-    def column_name(self, value):
+    def column_name(self, value: str) -> None:
         """Column name."""
         self.__column_name = value
 
     @pyaedt_function_handler()
-    def get_monostatic_rcs(self):
+    def get_monostatic_rcs(self) -> "SolutionData":
         """Get RCS solution data.
 
         Returns
@@ -175,7 +177,9 @@ class MonostaticRCSExporter(PyAedtBase):
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", only_geometry=False):
+    def export_rcs(
+        self, name: str = "rcs_data", metadata_name: str = "pyaedt_rcs_metadata", only_geometry: bool = False
+    ) -> Path:
         """Export RCS solution data.
 
         Parameters
@@ -290,12 +294,11 @@ class MonostaticRCSExporter(PyAedtBase):
             raise AEDTRuntimeError("An error occurred when writing metadata") from e
 
         self.__metadata_file = pyaedt_metadata_file
-        if not only_geometry:
-            self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
+
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
-    def __create_geometries(self, export_path):
+    def __create_geometries(self, export_path: str | Path) -> dict[str, list[Any]]:
         """Export the geometry in OBJ format."""
         self.__app.logger.info("Exporting geometry...")
         export_path = Path(export_path).resolve()

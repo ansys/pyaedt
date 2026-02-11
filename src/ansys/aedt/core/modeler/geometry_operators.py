@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import math
 import re
 import sys
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
@@ -137,7 +138,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_axis_str(val):
+    def cs_plane_to_axis_str(val) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -160,7 +161,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_plane_str(val):
+    def cs_plane_to_plane_str(val) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -183,7 +184,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_axis_str(val):
+    def cs_axis_str(val) -> str:
         """Retrieve a string for a coordinate system axis.
 
         Parameters
@@ -207,7 +208,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def draft_type_str(val):
+    def draft_type_str(val) -> str:
         """Retrieve the draft type.
 
         Parameters
@@ -369,7 +370,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_rotate_about_axis(vector, angle, radians=False, axis="z"):
+    def v_rotate_about_axis(vector, angle, radians: bool = False, axis: str = "z"):
         """Evaluate rotation of a vector around an axis.
 
         Parameters
@@ -541,7 +542,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_point_on_plane(pointlists, direction=0):
+    def find_point_on_plane(pointlists, direction: int = 0):
         """Find a point on a plane.
 
         Parameters
@@ -602,7 +603,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_between_points(p, a, b, tol=1e-6):
+    def is_between_points(p, a, b, tol: float = 1e-6) -> bool:
         """Check if a point lies on the segment defined by two points.
 
         Parameters
@@ -635,7 +636,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_parallel(a1, a2, b1, b2, tol=1e-6):
+    def is_parallel(a1, a2, b1, b2, tol: float = 1e-6) -> bool:
         """Check if a segment defined by two points is parallel to a segment defined by two other points.
 
         Parameters
@@ -692,7 +693,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_collinear(a, b, tol=1e-6):
+    def is_collinear(a, b, tol: float = 1e-6) -> bool:
         """Check if two vectors are collinear (parallel or anti-parallel).
 
         Parameters
@@ -720,7 +721,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_projection_inside(a1, a2, b1, b2):
+    def is_projection_inside(a1, a2, b1, b2) -> bool:
         """Project a segment onto another segment and check if the projected segment is inside it.
 
         Parameters
@@ -801,141 +802,6 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def pointing_to_axis(*args, **kwargs):
-        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
-        the definition of the AEDT interface coordinate system.
-
-        Parameters
-        ----------
-        x_pointing : List
-            List of ``[x, y, z]`` coordinates for the X axis.
-
-        y_pointing : List
-            List of ``[x, y, z]`` coordinates for the Y pointing axis.
-
-        Returns
-        -------
-        tuple
-            ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
-        """
-        warnings.warn(
-            "GeometryOperators.pointing_to_axis is deprecated and has been moved to CoordinateSystem.pointing_to_axis.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem  # import here to avoid circular imports
-
-        return CoordinateSystem.pointing_to_axis(*args, **kwargs)
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def axis_to_euler_zxz(x, y, z):
-        """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
-
-        Provides an assumption for the gimbal lock problem.
-
-        Parameters
-        ----------
-        x : List
-            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : List
-            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : List
-            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        warnings.warn(
-            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
-            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
-            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
-            ">>> q = Quaternion.from_rotation_matrix(m)"
-            ">>> phi, theta, psi = q.to_euler('zxz')",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        tol = 1e-16
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
-        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = MathUtils.atan2(x2, x1)
-            theta = 0.0
-            psi = 0.0
-        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = MathUtils.atan2(x2, x1)
-            theta = math.pi
-            psi = 0.0
-        else:
-            phi = MathUtils.atan2(z1, -z2)
-            theta = math.acos(z3)
-            psi = MathUtils.atan2(x3, y3)
-        return phi, theta, psi
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def axis_to_euler_zyz(x, y, z):
-        """Retrieve Euler angles of a frame following the rotation sequence ZYZ.
-
-        Provides assumption for the gimbal lock problem.
-
-        Parameters
-        ----------
-        x : List
-            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : List
-            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : List
-            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        warnings.warn(
-            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
-            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
-            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
-            ">>> q = Quaternion.from_rotation_matrix(m)"
-            ">>> phi, theta, psi = q.to_euler('zyz')",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        tol = 1e-16
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
-        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = MathUtils.atan2(-x1, x2)
-            theta = 0.0
-            psi = math.pi / 2
-        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = MathUtils.atan2(-x1, x2)
-            theta = math.pi
-            psi = math.pi / 2
-        else:
-            phi = MathUtils.atan2(z2, z1)
-            theta = math.acos(z3)
-            psi = MathUtils.atan2(y3, -x3)
-        return phi, theta, psi
-
-    @staticmethod
-    @pyaedt_function_handler()
     def deg2rad(angle):
         """Convert the angle from degrees to radians.
 
@@ -974,7 +840,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthonormal_triplet(x, y, z, tol=None):
+    def is_orthonormal_triplet(x, y, z, tol=None) -> bool:
         """Check if three vectors are orthonormal.
 
         Parameters
@@ -1041,7 +907,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthogonal_matrix(matrix, tol=None):
+    def is_orthogonal_matrix(matrix, tol=None) -> bool:
         """
         Check if a given 3x3 matrix is orthogonal.
 
@@ -1250,7 +1116,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def orient_polygon(x, y, clockwise=True):
+    def orient_polygon(x, y, clockwise: bool = True):
         """Orient a polygon clockwise or counterclockwise.
 
         The vertices should be already ordered either way.
@@ -1327,7 +1193,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign(va, vb, vn, right_handed=True):
+    def v_angle_sign(va, vb, vn, right_handed: bool = True):
         """Evaluate the signed angle between two geometry vectors.
 
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
@@ -1372,7 +1238,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign_2D(va, vb, right_handed=True):
+    def v_angle_sign_2D(va, vb, right_handed: bool = True):
         """Evaluate the signed angle between two 2D geometry vectors.
 
         It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
@@ -1403,7 +1269,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_in_polygon(point, polygon, tolerance=1e-8):
+    def point_in_polygon(point, polygon, tolerance: float = 1e-8):
         """Determine if a point is inside, outside the polygon or at exactly at the border.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1463,7 +1329,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_point_in_polygon(point, polygon):
+    def is_point_in_polygon(point, polygon) -> bool:
         """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1487,7 +1353,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def are_segments_intersecting(a1, a2, b1, b2, include_collinear=True):
+    def are_segments_intersecting(a1, a2, b1, b2, include_collinear: bool = True):
         """
         Determine if the two segments a and b are intersecting.
 
@@ -1511,7 +1377,7 @@ class GeometryOperators(PyAedtBase):
         """
 
         # fmt: off
-        def on_segment(p, q, r):
+        def on_segment(p, q, r) -> bool:
             # Given three collinear points p, q, r, the function checks if point q lies on line-segment 'pr'
             if ((q[0] <= max(p[0], r[0])) and (q[0] >= min(p[0], r[0])) and
                (q[1] <= max(p[1], r[1])) and (q[1] >= min(p[1], r[1]))):
@@ -1577,7 +1443,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_segment_intersecting_polygon(a, b, polygon):
+    def is_segment_intersecting_polygon(a, b, polygon) -> bool:
         """Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
 
         Points on the vertices and on the polygon boundaries are not considered intersecting.
@@ -1615,7 +1481,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_perpendicular(a, b, tol=1e-6):
+    def is_perpendicular(a, b, tol: float = 1e-6) -> bool:
         """Check if two vectors are perpendicular.
 
         Parameters
@@ -1694,7 +1560,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_largest_rectangle_inside_polygon(polygon, partition_max_order=16):
+    def find_largest_rectangle_inside_polygon(polygon, partition_max_order: int = 16):
         """Find the largest area rectangles of arbitrary orientation in a polygon.
 
         Implements the algorithm described by Rubén Molano, et al.
@@ -1763,7 +1629,7 @@ class GeometryOperators(PyAedtBase):
                                 Umatrix[i][j] = GeometryOperators.v_points(S[i], S[j])
             return Umatrix
 
-        def inside(i, j):
+        def inside(i, j) -> bool:
             if U[i][j] == 0 and isinstance(U[i][j], int):
                 return False
             else:
@@ -1879,7 +1745,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_closest_points(points_list, reference_point, tol=1e-6):
+    def find_closest_points(points_list, reference_point, tol: float = 1e-6):
         """Given a list of points, finds the closest points to a reference point.
         It returns a list of points because more than one can be found.
         It works with 2D or 3D points. The tolerance used to evaluate the distance

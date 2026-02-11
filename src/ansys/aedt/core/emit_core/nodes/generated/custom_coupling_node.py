@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,9 +26,9 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CustomCouplingNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -41,19 +40,15 @@ class CustomCouplingNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name):
+    def import_csv_file(self, file_name: str):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -69,7 +64,7 @@ class CustomCouplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
@@ -82,7 +77,7 @@ class CustomCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -92,7 +87,7 @@ class CustomCouplingNode(EmitNode):
         return val
 
     @antenna_a.setter
-    def antenna_a(self, value: EmitNode):
+    def antenna_a(self, value: EmitNode) -> None:
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -102,41 +97,5 @@ class CustomCouplingNode(EmitNode):
         return val
 
     @antenna_b.setter
-    def antenna_b(self, value: EmitNode):
+    def antenna_b(self, value: EmitNode) -> None:
         self._set_property("Antenna B", f"{value}")
-
-    @property
-    def enable_refinement(self) -> bool:
-        """Enables/disables refined sampling of the frequency domain.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Enable Refinement")
-        return val == "true"
-
-    @enable_refinement.setter
-    def enable_refinement(self, value: bool):
-        self._set_property("Enable Refinement", f"{str(value).lower()}")
-
-    @property
-    def adaptive_sampling(self) -> bool:
-        """Enables/disables adaptive refinement the frequency domain sampling.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Adaptive Sampling")
-        return val == "true"
-
-    @adaptive_sampling.setter
-    def adaptive_sampling(self, value: bool):
-        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
-
-    @property
-    def refinement_domain(self):
-        """Points to use when refining the frequency domain."""
-        val = self._get_property("Refinement Domain")
-        return val
-
-    @refinement_domain.setter
-    def refinement_domain(self, value):
-        self._set_property("Refinement Domain", f"{value}")

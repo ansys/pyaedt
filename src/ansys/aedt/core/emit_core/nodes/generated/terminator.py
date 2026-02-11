@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,24 +28,20 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Terminator(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -64,7 +59,7 @@ class Terminator(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
@@ -77,7 +72,7 @@ class Terminator(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -90,7 +85,7 @@ class Terminator(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -100,27 +95,27 @@ class Terminator(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
+    class TerminatorTypeOption(Enum):
+        BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def terminator_type(self) -> TerminatorTypeOption:
+        """Terminator Type.
 
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Terminator Type")
+        val = self.TerminatorTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @terminator_type.setter
+    def terminator_type(self, value: TerminatorTypeOption) -> None:
+        self._set_property("Terminator Type", f"{value.value}")
 
     @property
     def vswr(self) -> float:
@@ -136,7 +131,7 @@ class Terminator(EmitNode):
         return float(val)
 
     @vswr.setter
-    def vswr(self, value: float):
+    def vswr(self, value: float) -> None:
         self._set_property("VSWR", f"{value}")
 
     @property

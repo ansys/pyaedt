@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,7 +43,7 @@ class DirectionOfArrival(PyAedtBase):
     with coordinates in meters and user-defined frequency.
     """
 
-    def __init__(self, x_position: np.array, y_position: np.array, frequency: float):
+    def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
         """
         Initialize with antenna element positions in meters and signal frequency in Hertz.
 

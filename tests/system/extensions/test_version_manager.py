@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -46,12 +46,10 @@ def test_version_manager_initialization(add_app):
     # Create HFSS application for testing environment
     aedtapp = add_app(
         application=Hfss,
-        project_name="test_version_manager",
-        design_name="test_design",
     )
 
     # Get desktop instance
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
 
     # Create tkinter root
     root = tkinter.Tk()
@@ -59,7 +57,7 @@ def test_version_manager_initialization(add_app):
     try:
         # Create version manager
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Verify basic initialization
             assert vm.root is not None
@@ -69,7 +67,6 @@ def test_version_manager_initialization(add_app):
             # Verify properties are accessible
             assert vm.venv_path is not None
             assert vm.python_exe is not None
-            assert vm.uv_exe is not None
             assert vm.python_version is not None
 
             # Verify theme initialization
@@ -90,18 +87,14 @@ def test_version_manager_initialization(add_app):
 def test_version_manager_venv_properties(add_app):
     """Test venv-related properties."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_venv_properties",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Test venv_path points to sys.prefix
             assert vm.venv_path == sys.prefix
@@ -124,18 +117,14 @@ def test_version_manager_venv_properties(add_app):
 def test_version_manager_theme_toggle(add_app):
     """Test theme toggling functionality."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_theme_toggle",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Verify initial theme
             assert vm.theme_color == "light"
@@ -151,24 +140,20 @@ def test_version_manager_theme_toggle(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_activate_venv(add_app):
     """Test venv activation."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_activate_venv",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Call activate_venv again
             vm.activate_venv()
@@ -183,29 +168,25 @@ def test_version_manager_activate_venv(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_get_installed_version(add_app):
     """Test getting installed package versions."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_get_version",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Test getting pyaedt version
             pyaedt_version = vm.get_installed_version("pyaedt")
             assert pyaedt_version is not None
-            assert pyaedt_version != "Unknown"
+            assert pyaedt_version != "Please restart"
 
             # Test getting version of non-existent package
             fake_version = vm.get_installed_version("nonexistent-package-xyz")
@@ -214,24 +195,20 @@ def test_version_manager_get_installed_version(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_version_properties(add_app):
     """Test version-related properties."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_version_properties",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Test pyaedt_version
             assert vm.pyaedt_version is not None
@@ -248,24 +225,20 @@ def test_version_manager_version_properties(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_is_git_available(add_app):
     """Test git availability check."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_git_available",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Test git availability
             is_available = vm.is_git_available()
@@ -282,18 +255,14 @@ def test_version_manager_is_git_available(add_app):
 def test_version_manager_clicked_refresh(add_app):
     """Test refresh functionality."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_clicked_refresh",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Call clicked_refresh without restart
             vm.clicked_refresh(need_restart=False)
@@ -306,24 +275,20 @@ def test_version_manager_clicked_refresh(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_platform_detection(add_app):
     """Test platform detection."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_platform",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Verify platform flags are set correctly
             assert isinstance(vm.is_linux, bool)
@@ -333,24 +298,20 @@ def test_version_manager_platform_detection(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)
 
 
 def test_version_manager_string_vars_initialization(add_app):
     """Test StringVar initialization."""
     # Create HFSS application for testing environment
-    aedtapp = add_app(
-        application=Hfss,
-        project_name="test_string_vars",
-        design_name="test_design",
-    )
+    aedtapp = add_app(application=Hfss)
 
-    desktop = aedtapp._desktop
+    desktop_aedt = aedtapp._desktop
     root = tkinter.Tk()
 
     try:
         with pytest.raises(tkinter.TclError):
-            vm = VersionManager(root, desktop)
+            vm = VersionManager(root, desktop_aedt)
 
             # Verify StringVar objects are initialized
             assert vm.venv_information is not None
@@ -364,4 +325,4 @@ def test_version_manager_string_vars_initialization(add_app):
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
-        aedtapp.close_project(aedtapp.project_name)
+        aedtapp.close_project(aedtapp.project_name, save=False)

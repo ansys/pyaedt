@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,14 +51,14 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    version=None,
-    non_graphical=False,
-    new_desktop=True,
-    close_on_exit=True,
-    student_version=False,
-    machine="",
-    port=0,
-    aedt_process_id=None,
+    version: str | None = None,
+    non_graphical: bool | None = False,
+    new_desktop: bool = True,
+    close_on_exit: bool = True,
+    student_version: bool | None = False,
+    machine: str | None = "",
+    port: int | None = 0,
+    aedt_process_id: int | None = None,
 ):
     """Initialize AEDT based on the inputs provided.
 
@@ -142,6 +142,7 @@ app_map = {
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,
     "Mechanical": Mechanical,
+    "IcepakFEA": Mechanical,
     "Icepak": Icepak,
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,
