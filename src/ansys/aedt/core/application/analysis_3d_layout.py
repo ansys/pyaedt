@@ -36,12 +36,12 @@ from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
     from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
-    from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
-    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-    from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-    from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
-    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
-    from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
 
 
 class FieldAnalysis3DLayout(Analysis, PyAedtBase):
