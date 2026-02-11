@@ -265,6 +265,12 @@ They are small automated workflows with a simple GUI.
 
             Classify results according to radio protection level or interference type.
 
+   .. grid-item-card:: EMI Heat Map
+            :link: pyaedt_extensions_doc/emit/emi_heat_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a 2D heat map of EMI results between two radio bands.
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
@@ -289,6 +295,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
    pyaedt_extensions_doc/maxwell/index
+   pyaedt_extensions_doc/emit/index
    pyaedt_extensions_doc/templates/index
 
 
