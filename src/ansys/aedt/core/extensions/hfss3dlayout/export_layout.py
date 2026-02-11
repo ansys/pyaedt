@@ -28,9 +28,8 @@ from pathlib import Path
 import tkinter
 from tkinter import ttk
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -178,7 +177,7 @@ def main(data: ExportLayoutExtensionData) -> bool:
     project_name = active_project.GetName()
     aedb_path = project_path / f"{project_name}.aedb"
     design_name = active_design.GetName().split(";")[1]
-    edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
+    edb = Edb(edbpath=str(aedb_path), cellname=design_name, version=VERSION)
 
     try:
         if data.export_ipc:
@@ -194,7 +193,7 @@ def main(data: ExportLayoutExtensionData) -> bool:
             edb.configuration.export(config_file)
     finally:
         # Ensure EDB is properly closed
-        edb.close_edb()
+        edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.logger.info("Project generated correctly.")

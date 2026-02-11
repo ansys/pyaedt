@@ -24,17 +24,10 @@ jobs:
     name: Documentation build
     runs-on: ubuntu-latest
     steps:
-      - name: Temporary handle broken package dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get --fix-broken install -y
-          sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
-
       - name: Documentation build
         uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
         with:
-          # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false

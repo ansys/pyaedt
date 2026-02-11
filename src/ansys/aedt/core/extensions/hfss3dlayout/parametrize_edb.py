@@ -28,9 +28,8 @@ from pathlib import Path
 import tkinter
 from tkinter import ttk
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
@@ -155,7 +154,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             app.release_desktop(False, False)
 
             # Load EDB to get nets information
-            edb = Edb(str(self.__aedb_path), self.__active_design_name, edbversion=VERSION)
+            edb = Edb(edbpath=str(self.__aedb_path), cellname=self.__active_design_name, version=VERSION)
             self.__available_nets = list(edb.nets.nets.keys())
             edb.close()
 
@@ -363,7 +362,7 @@ def main(data: ParametrizeEdbExtensionData) -> bool:
         design_name = active_design.GetName().split(";")[1]
 
     # Open EDB
-    edb = Edb(edbpath=str(aedb_path), cellname=design_name, edbversion=VERSION)
+    edb = Edb(edbpath=str(aedb_path), cellname=design_name, version=VERSION)
 
     # Convert expansion values from mm to meters
     poly_expansion_m = data.expansion_polygon_mm * 0.001 if data.expansion_polygon_mm > 0 else None
