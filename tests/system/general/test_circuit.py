@@ -906,14 +906,14 @@ def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir) -> None:
     target_path = test_tmp_dir / "test_multi_zone" / "multi_zone_project.aedb"
     shutil.copytree(source_path, target_path)
 
-    edb = Edb(edbpath=str(target_path), edbversion=DESKTOP_VERSION)
+    edb = Edb(edbpath=str(target_path), version=DESKTOP_VERSION)
     common_reference_net = "gnd"
     edb_zones = edb.copy_zones()
     assert edb_zones
 
     try:
         defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-        edb.close_edb()
+        edb.close()
         assert project_connexions
 
         app = add_app(application=Circuit)
@@ -922,7 +922,7 @@ def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir) -> None:
         assert app.remove_all_unused_definitions()
         app.close_project(save_project=False)
     except Exception as e:
-        edb.close_edb()
+        edb.close()
         print(e)
 
 

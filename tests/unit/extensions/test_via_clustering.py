@@ -318,7 +318,7 @@ def test_main_function_success() -> None:
 
                 # Verify EDB was saved and closed
                 mock_edb.save.assert_called_once()
-                mock_edb.close_edb.assert_called_once()
+                mock_edb.close.assert_called_once()
 
 
 def test_main_function_without_pytest_env() -> None:

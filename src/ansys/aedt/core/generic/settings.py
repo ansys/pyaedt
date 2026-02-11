@@ -111,7 +111,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
-ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all"]
+ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all", "pyedb_use_grpc"]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -237,6 +237,7 @@ class Settings(PyAedtBase):
         self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
+        self.__pyedb_use_grpc: bool | None = None
         self._update_settings()
 
     def _update_settings(self) -> None:
@@ -250,6 +251,17 @@ class Settings(PyAedtBase):
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## gRPC properties ##########################
+
+    @property
+    def pyedb_use_grpc(self) -> bool | None:
+        """Flag for whether to use PyEDB with gRPC or not.
+        The default is ``None``.
+        """
+        return self.__pyedb_use_grpc
+
+    @pyedb_use_grpc.setter
+    def pyedb_use_grpc(self, value: bool):
+        self.__pyedb_use_grpc = value
 
     @property
     def grpc_secure_mode(self):
