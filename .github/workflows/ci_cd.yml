@@ -222,7 +222,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
-          dependencies: "pandoc"
           check-links: false
           needs-quarto: true
 
