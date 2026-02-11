@@ -34,13 +34,13 @@ from tests.conftest import config
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-    def test_substrate_type(self, distributed_design):
+    def test_substrate_type(self, distributed_design) -> None:
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
             distributed_design.substrate.substrate_type = substrate
             assert distributed_design.substrate.substrate_type == substrate
 
-    def test_substrate_er(self, distributed_design):
+    def test_substrate_er(self, distributed_design) -> None:
         assert distributed_design.substrate.substrate_er == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
         with pytest.raises(ValueError) as info:
@@ -55,7 +55,7 @@ class TestClass:
             distributed_design.substrate.substrate_er = ""
             assert info.value.args[0] == "The substrate Er cannot be set to an empty string"
 
-    def test_substrate_resistivity(self, distributed_design):
+    def test_substrate_resistivity(self, distributed_design) -> None:
         assert distributed_design.substrate.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
         with pytest.raises(ValueError) as info:
@@ -70,7 +70,7 @@ class TestClass:
             distributed_design.substrate.substrate_resistivity = ""
             assert info.value.args[0] == "The substrate resistivity cannot be set to an empty string"
 
-    def test_substrate_loss_tangent(self, distributed_design):
+    def test_substrate_loss_tangent(self, distributed_design) -> None:
         assert distributed_design.substrate.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
         with pytest.raises(ValueError) as info:
@@ -85,17 +85,17 @@ class TestClass:
             distributed_design.substrate.substrate_loss_tangent = ""
             assert info.value.args[0] == "The substrate loss tangent cannot be set to an empty string"
 
-    def test_substrate_conductor_thickness(self, distributed_design):
+    def test_substrate_conductor_thickness(self, distributed_design) -> None:
         assert distributed_design.substrate.substrate_conductor_thickness == "2.54 um"
         distributed_design.substrate.substrate_conductor_thickness = "1.25 um"
         assert distributed_design.substrate.substrate_conductor_thickness == "1.25 um"
 
-    def test_substrate_dielectric_height(self, distributed_design):
+    def test_substrate_dielectric_height(self, distributed_design) -> None:
         assert distributed_design.substrate.substrate_dielectric_height == "1.27 mm"
         distributed_design.substrate.substrate_dielectric_height = "1.22 mm"
         assert distributed_design.substrate.substrate_dielectric_height == "1.22 mm"
 
-    def test_substrate_unbalanced_lower_dielectric_height(self, distributed_design):
+    def test_substrate_unbalanced_lower_dielectric_height(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_unbalanced_lower_dielectric_height = "2.5 mm"
         assert info.value.args[0] == "The Lower Dielectric Height is not available for MICROSTRIP substrate"
@@ -108,7 +108,7 @@ class TestClass:
         distributed_design.substrate.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
         assert distributed_design.substrate.substrate_unbalanced_lower_dielectric_height == "5.2 mm"
 
-    def test_substrate_suspend_dielectric_height(self, distributed_design):
+    def test_substrate_suspend_dielectric_height(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_suspend_dielectric_height = "2.5 mm"
         assert info.value.args[0] == "The Suspend Dielectric Height is not available for MICROSTRIP substrate"
@@ -117,7 +117,7 @@ class TestClass:
         distributed_design.substrate.substrate_suspend_dielectric_height = "3.2 mm"
         assert distributed_design.substrate.substrate_suspend_dielectric_height == "3.2 mm"
 
-    def test_substrate_cover_height(self, distributed_design):
+    def test_substrate_cover_height(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_cover_height = "2.5 mm"
         assert info.value.args[0] == "The Cover option for MICROSTRIP Substrate is not enabled"
@@ -126,7 +126,7 @@ class TestClass:
         distributed_design.substrate.substrate_cover_height = "2.5 mm"
         assert distributed_design.substrate.substrate_cover_height == "2.5 mm"
 
-    def test_substrate_unbalanced_stripline_enabled(self, distributed_design):
+    def test_substrate_unbalanced_stripline_enabled(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
         assert info.value.args[0] == "The Unbalanced Topolgy is not available for MICROSTRIP substrate"
@@ -135,7 +135,7 @@ class TestClass:
         distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
         assert distributed_design.substrate.substrate_unbalanced_stripline_enabled
 
-    def test_substrate_cover_height_enabled(self, distributed_design):
+    def test_substrate_cover_height_enabled(self, distributed_design) -> None:
         distributed_design.substrate.substrate_type = SubstrateType.STRIPLINE
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_cover_height_enabled = True

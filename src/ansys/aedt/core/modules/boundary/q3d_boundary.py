@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
@@ -43,7 +41,7 @@ class Matrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, name, operations=None):
+    def __init__(self, app, name: str, operations=None) -> None:
         self._app = app
         self.omatrix = self._app.omatrix
         self.name = name
@@ -79,9 +77,9 @@ class Matrix(PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: Optional[str] = None,
-        second_element_filter: Optional[str] = None,
-        category: Optional[Union[str, MatrixOperationsQ3D]] = "C",
+        first_element_filter: str | None = None,
+        second_element_filter: str | None = None,
+        category: str | MatrixOperationsQ3D | None = "C",
     ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
 
@@ -148,10 +146,10 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        source_names: Optional[Union[str, list]] = None,
-        new_net_name: Optional[str] = None,
-        new_source_name: Optional[str] = None,
-        new_sink_name: Optional[str] = None,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Create a new matrix.
 
@@ -196,11 +194,11 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def add_operation(
         self,
-        operation_type: Union[str, MatrixOperationsQ3D],
-        source_names: Optional[Union[str, list]] = None,
-        new_net_name: Optional[str] = None,
-        new_source_name: Optional[str] = None,
-        new_sink_name: Optional[str] = None,
+        operation_type: str | MatrixOperationsQ3D,
+        source_names: str | list | None = None,
+        new_net_name: str | None = None,
+        new_source_name: str | None = None,
+        new_sink_name: str | None = None,
     ) -> bool:
         """Add a new operation to existing matrix.
 

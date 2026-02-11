@@ -47,7 +47,7 @@ def circuit_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_create_hfss_setup(aedtapp):
+def test_create_hfss_setup(aedtapp) -> None:
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     assert setup1.name == "My_HFSS_Setup"
     assert aedtapp.setups[0].name == setup1.name
@@ -110,7 +110,7 @@ def test_create_hfss_setup(aedtapp):
     assert setup3.props["MaximumPasses"] == 3
 
 
-def test_create_hfss_sweep(aedtapp):
+def test_create_hfss_sweep(aedtapp) -> None:
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     assert aedtapp.get_setups()
     sweep1 = setup1.add_sweep("MyFrequencySweep")
@@ -144,7 +144,7 @@ def test_create_hfss_sweep(aedtapp):
     assert sweep5.props["RangeStep"] == range_step
 
 
-def test_create_hfss_setup_auto_open(aedtapp):
+def test_create_hfss_setup_auto_open(aedtapp) -> None:
     aedtapp.duplicate_design("auto_open")
     for setup in aedtapp.get_setups():
         aedtapp.delete_setup(setup)
@@ -157,7 +157,7 @@ def test_create_hfss_setup_auto_open(aedtapp):
     assert setup1.props["SolveType"] == "MultiFrequency"
 
 
-def test_create_circuit_setup(circuit_app):
+def test_create_circuit_setup(circuit_app) -> None:
     setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
     assert setup1.name == "circuit"
     setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
@@ -171,7 +171,7 @@ def test_create_circuit_setup(circuit_app):
     setup1.enable()
 
 
-def test_non_valid_setup(aedtapp):
+def test_non_valid_setup(aedtapp) -> None:
     aedtapp.set_active_design("HFSSDesign")
     aedtapp.duplicate_design("non_valid")
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
@@ -186,7 +186,7 @@ def test_non_valid_setup(aedtapp):
     aedtapp.solution_type = sol
 
 
-def test_delete_setup(aedtapp):
+def test_delete_setup(aedtapp) -> None:
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert len(aedtapp.setups) == 1
     assert setup1.delete()
@@ -194,13 +194,13 @@ def test_delete_setup(aedtapp):
     assert not aedtapp.get_setups()
 
 
-def test_sweep_auto(aedtapp):
+def test_sweep_auto(aedtapp) -> None:
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
 
-def test_delete_sweep(aedtapp):
+def test_delete_sweep(aedtapp) -> None:
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
     setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
     sweeps = setup1.get_sweep_names()
@@ -211,7 +211,7 @@ def test_delete_sweep(aedtapp):
     assert len(sweeps) == 0
 
 
-def test_sweep_sbr(aedtapp):
+def test_sweep_sbr(aedtapp) -> None:
     aedtapp.solution_type = "SBR+"
     aedtapp.insert_infinite_sphere()
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
@@ -219,7 +219,7 @@ def test_sweep_sbr(aedtapp):
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
 
-def test_create_parametrics(aedtapp, test_tmp_dir):
+def test_create_parametrics(aedtapp, test_tmp_dir) -> None:
     aedtapp.set_active_design("HFSSDesign")
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
@@ -254,7 +254,7 @@ def test_create_parametrics(aedtapp, test_tmp_dir):
     assert aedtapp.parametrics.delete("ParametricsfromFile")
 
 
-def test_create_parametrics_sync(aedtapp):
+def test_create_parametrics_sync(aedtapp) -> None:
     aedtapp["a1"] = "10mm"
     aedtapp["a2"] = "2mm"
     aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
@@ -267,7 +267,7 @@ def test_create_parametrics_sync(aedtapp):
     setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
 
 
-def test_create_optimization(aedtapp):
+def test_create_optimization(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     calculation = "db(S(1,1))"
     new_setup = aedtapp.create_setup("MyOptimSetup")
@@ -333,7 +333,7 @@ def test_create_optimization(aedtapp):
     assert aedtapp.optimizations.delete(setup3.name)
 
 
-def test_create_doe(aedtapp):
+def test_create_doe(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
     calculation = "db(S(1,1))"
@@ -363,7 +363,7 @@ def test_create_doe(aedtapp):
     assert setup2.delete()
 
 
-def test_create_optislang(aedtapp):
+def test_create_optislang(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
     aedtapp["a1"] = "10mm"
@@ -393,7 +393,7 @@ def test_create_optislang(aedtapp):
     )
 
 
-def test_create_dx(aedtapp):
+def test_create_dx(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
     aedtapp["a1"] = "10mm"
@@ -422,7 +422,7 @@ def test_create_dx(aedtapp):
     )
 
 
-def test_create_sensitivity(aedtapp):
+def test_create_sensitivity(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     calculation = "db(S(1,1))"
     new_setup = aedtapp.create_setup("MySensiSetup")
@@ -441,7 +441,7 @@ def test_create_sensitivity(aedtapp):
     )
 
 
-def test_create_statistical(aedtapp):
+def test_create_statistical(aedtapp) -> None:
     aedtapp["w1"] = "10mm"
     calculation = "db(S(1,1))"
     new_setup = aedtapp.create_setup("MyStatisticsetup")

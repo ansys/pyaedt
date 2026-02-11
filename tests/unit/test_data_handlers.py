@@ -29,12 +29,12 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-def test_str_to_bool():
+def test_str_to_bool() -> None:
     test_list_1 = ["one", "two", "five"]
     bool_values = list(map(dh.str_to_bool, test_list_1))
     assert all(isinstance(b, str) for b in bool_values)  # All strings
@@ -44,13 +44,13 @@ def test_str_to_bool():
     assert False in list(map(dh.str_to_bool, test_list_2))
 
 
-def test_normalize_string_format():
+def test_normalize_string_format() -> None:
     dirty = "-Hello Wòrld - Test---Strïng  -  With -  Múltiple    Spaces ç & Unsupport€d Ch@rachter$ £ike * "  # codespell:ignore  # noqa: E501
     clean = "Hello_World_Test_String_With_Multiple_Spaces_c_and_UnsupportEd_ChatrachterS_Like"  # codespell:ignore  # noqa: E501
     assert dh.normalize_string_format(dirty) == clean
 
 
-def test_numbers():
+def test_numbers() -> None:
     a = Quantity("1GHz")
     assert a == 1
     assert str(a) == "1GHz"

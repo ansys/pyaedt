@@ -31,6 +31,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import NON_GRAPHICAL
 
@@ -84,7 +85,7 @@ def q2d_solved_nominal_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_add_sweep(aedt_app):
+def test_add_sweep(aedt_app) -> None:
     setup = aedt_app.create_setup()
     setup.props["SaveFields"] = True
     assert setup.update()
@@ -96,9 +97,24 @@ def test_add_sweep(aedt_app):
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
 
-def test_assign_single_signal_line(aedt_app):
+def test_assign_single_signal_line(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle([0, 0, 0], [5, 3], name="Rectangle1")
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
+
+
+def test_assign_surface_ground(aedt_app):
+    # Set the solution type to "Closed" for this test
+    aedt_app.solution_type = "Closed"
+    region = aedt_app.modeler.create_region(
+        pad_value=[100, 100, 100, 100], pad_type="Percentage Offset", name="VacuumRegion"
+    )
+    b = aedt_app.assign_single_conductor(
+        assignment=region,
+        conductor_type="SurfaceGround",
+        solve_option="SolveInside",
+    )
+    assert isinstance(b, BoundaryObject)
+    assert b.properties["Type"] == "SurfaceGround"
 
 
 def test_assign_huray_finitecond_to_edges(aedt_app):
@@ -107,7 +123,7 @@ def test_assign_huray_finitecond_to_edges(aedt_app):
     assert aedt_app.assign_huray_finitecond_to_edges(rect.edges, radius=0.5, ratio=2.9)
 
 
-def test_auto_assign_conductors(aedt_app):
+def test_auto_assign_conductors(aedt_app) -> None:
     aedt_app.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
     aedt_app.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
     assert aedt_app.auto_assign_conductors()
@@ -118,7 +134,7 @@ def test_auto_assign_conductors(aedt_app):
     assert not aedt_app.toggle_conductor_type("Rectangle2", "ReferenceggGround")
 
 
-def test_matrix_reduction(q2d_solved):
+def test_matrix_reduction(q2d_solved) -> None:
     assert q2d_solved.matrices[0].name == "Original"
     assert len(q2d_solved.matrices[0].sources()) > 0
     assert len(q2d_solved.matrices[0].sources(False)) > 0
@@ -137,7 +153,7 @@ def test_matrix_reduction(q2d_solved):
     assert mm.name == "Test5_m"
 
 
-def test_edit_sources(q2d_matrix):
+def test_edit_sources(q2d_matrix) -> None:
     sources_cg = {"Circle2": ("10V", "45deg"), "Circle3": "4A"}
     assert q2d_matrix.edit_sources(sources_cg)
     sources_cg = {"Circle2": "1V", "Circle3": "4A"}
@@ -150,7 +166,7 @@ def test_edit_sources(q2d_matrix):
     assert not q2d_matrix.edit_sources(sources_cg, sources_ac)
 
 
-def test_get_all_conductors(aedt_app):
+def test_get_all_conductors(aedt_app) -> None:
     aedt_app.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
     aedt_app.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
     aedt_app.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
@@ -159,7 +175,7 @@ def test_get_all_conductors(aedt_app):
     assert aedt_app.get_all_dielectrics_names() == ["Rectangle3"]
 
 
-def test_export_matrix_data(q2d_solved, test_tmp_dir):
+def test_export_matrix_data(q2d_solved, test_tmp_dir) -> None:
     file_path = test_tmp_dir / "test_2d.txt"
     assert q2d_solved.export_matrix_data(file_path)
     assert q2d_solved.export_matrix_data(file_path, problem_type="CG")
@@ -199,7 +215,7 @@ def test_export_matrix_data(q2d_solved, test_tmp_dir):
     assert not q2d_solved.export_matrix_data(file_path, g_unit="A")
 
 
-def test_export_equivalent_circuit(q2d_solved, test_tmp_dir):
+def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
     q2d_solved.insert_reduced_matrix(MatrixOperationsQ2D.Float, "Circle2", "Test4")
     assert q2d_solved.matrices[-1].name == "Test4"
     assert len(q2d_solved.setups[0].sweeps[0].frequencies) > 0
@@ -292,20 +308,20 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir):
     assert q2d_solved.export_equivalent_circuit(output_file=str(test_tmp_dir / "test_export_circuit.sml"), model="test")
 
 
-def test_export_results(q2d_solved):
+def test_export_results(q2d_solved) -> None:
     exported_files = q2d_solved.export_results(analyze=False)
     assert len(exported_files) > 0
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
-def test_import_dxf(aedt_app):
+def test_import_dxf(aedt_app) -> None:
     dxf_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf1.dxf"
     dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
     assert aedt_app.import_dxf(dxf_file, dxf_layers)
 
 
-def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir):
+def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
     files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
     assert len(files) == 3
@@ -315,7 +331,7 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir):
         assert Path(file).is_file()
 
 
-def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir):
+def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
     files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
     assert len(files) == 1

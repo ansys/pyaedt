@@ -42,33 +42,33 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_save_project(aedt_app, test_tmp_dir):
+def test_save_project(aedt_app, test_tmp_dir) -> None:
     test_project = test_tmp_dir / "coax_Mech.aedt"
     aedt_app.save_project(test_project)
     assert Path(test_project).is_file()
 
 
-def test_create_primitive(aedt_app):
+def test_create_primitive(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_dimension = 30
     o = aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     assert isinstance(o.id, int)
 
 
-def test_assign_convection(aedt_app):
+def test_assign_convection(aedt_app) -> None:
     aedt_app.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20, name="MyCylinder")
     face = aedt_app.modeler["MyCylinder"].faces[0].id
     assert aedt_app.assign_uniform_convection(face, 3)
 
 
-def test_assign_temperature(aedt_app):
+def test_assign_temperature(aedt_app) -> None:
     aedt_app.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20, name="MyCylinder")
     face = aedt_app.modeler["MyCylinder"].faces[1].id
     bound = aedt_app.assign_uniform_temperature(face, "35deg")
     assert bound.props["Temperature"] == "35deg"
 
 
-def test_assign_load(aedt_app, add_app):
+def test_assign_load(aedt_app, add_app) -> None:
     app = add_app(application=Hfss, project=aedt_app.project_name, close_projects=False)
 
     udp = aedt_app.modeler.Position(0, 0, 0)
@@ -81,7 +81,7 @@ def test_assign_load(aedt_app, add_app):
     assert aedt_app.assign_em_losses(app.design_name, app.setups[0].name, "LastAdaptive", freq)
 
 
-def test_create_setup(aedt_app):
+def test_create_setup(aedt_app) -> None:
     assert not aedt_app.assign_2way_coupling()
     mysetup = aedt_app.create_setup()
     mysetup.props["Solver"] = "Direct"
@@ -89,7 +89,7 @@ def test_create_setup(aedt_app):
     assert aedt_app.assign_2way_coupling()
 
 
-def test_assign_thermal_loss(aedt_app, add_app):
+def test_assign_thermal_loss(aedt_app, add_app) -> None:
     ipk = add_app(application=Icepak, project=aedt_app.project_name, solution_type="SteadyState", close_projects=False)
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_dimension = 30
@@ -102,7 +102,7 @@ def test_assign_thermal_loss(aedt_app, add_app):
     assert aedt_app.assign_thermal_map("MyCylinder", ipk.design_name)
 
 
-def test_assign_mechanical_boundaries(aedt_app):
+def test_assign_mechanical_boundaries(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_dimension = 30
     aedt_app.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign2", "Modal", "")
@@ -120,12 +120,12 @@ def test_assign_mechanical_boundaries(aedt_app):
         aedt_app.assign_frictionless_support(aedt_app.modeler["MyCylinder"].faces[0].id)
 
 
-def test_mesh_settings(aedt_app):
+def test_mesh_settings(aedt_app) -> None:
     assert aedt_app.mesh.initial_mesh_settings
     assert aedt_app.mesh.initial_mesh_settings.props
 
 
-def test_assign_heat_flux(aedt_app):
+def test_assign_heat_flux(aedt_app) -> None:
     aedt_app.insert_design("Th1", "Thermal")
     aedt_app.modeler.create_box([0, 0, 0], [10, 10, 3], "box1", "copper")
     b2 = aedt_app.modeler.create_box([20, 20, 2], [10, 10, 3], "box2", "copper")
@@ -135,14 +135,14 @@ def test_assign_heat_flux(aedt_app):
     assert hf2.props["SurfaceFlux"] == "25mW_per_m2"
 
 
-def test_assign_heat_generation(aedt_app):
+def test_assign_heat_generation(aedt_app) -> None:
     aedt_app.insert_design("Th2", "Thermal")
     aedt_app.modeler.create_box([40, 40, 2], [10, 10, 3], "box3", "copper")
     hg1 = aedt_app.assign_heat_generation(["box3"], value="1W", name="heatgenBC")
     assert hg1.props["TotalPower"] == "1W"
 
 
-def test_add_mesh_link(aedt_app, test_tmp_dir):
+def test_add_mesh_link(aedt_app, test_tmp_dir) -> None:
     setup = aedt_app.create_setup()
     aedt_app.insert_design("MechanicalDesign2")
     aedt_app.create_setup()

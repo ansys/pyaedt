@@ -176,7 +176,7 @@ Note that PyAEDT uses semantic naming for pull requests (PR). This convention
 greatly simplifies the review process by providing meaningful
 information in the PR title. The
 following
-[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+[prefixes](https://github.com/ansys/actions/blob/main/check-pr-title/action.yml)
 should be used for pull request name:
 
 - "BUILD"
