@@ -33,7 +33,6 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
@@ -2022,6 +2021,8 @@ class PostProcessorCommon(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def __convert_dict_to_report_sel(sweeps):
+        from ansys.aedt.core import Quantity
+
         if isinstance(sweeps, list):
             return sweeps
         sweep_list = []
