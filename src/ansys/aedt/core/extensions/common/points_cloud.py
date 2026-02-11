@@ -29,7 +29,6 @@ import tkinter
 from tkinter import filedialog
 from tkinter import font
 from tkinter import ttk
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -62,7 +61,7 @@ EXTENSION_NB_COLUMN = 3
 class PointsCloudExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    choice: Union[str, list[str]] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
 
@@ -70,7 +69,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
 class PointsCloudExtension(ExtensionProjectCommon):
     """Extension for point cloud generator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -114,7 +113,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_solids = solids
         self.__aedt_sheets = sheets
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
@@ -198,7 +197,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         self._widgets["output_file_entry"] = output_file_entry
 
-        def browse_output_location():
+        def browse_output_location() -> None:
             """Define output file."""
             self._widgets["output_file_entry"].config(state="normal")
             # Clear content if an output file is already provided
@@ -255,7 +254,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         preview_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
-        def callback(extension: PointsCloudExtension):
+        def callback(extension: PointsCloudExtension) -> None:
             """Collect extension data."""
             selected_objects, num_points, output_file = self.check_and_format_extension_data()
 

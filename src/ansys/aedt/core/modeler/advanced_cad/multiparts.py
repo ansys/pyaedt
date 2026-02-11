@@ -91,7 +91,7 @@ class MultiPartComponent(PyAedtBase):
     modeler_units = "meter"
 
     @staticmethod
-    def start(app):
+    def start(app) -> bool:
         """Initialize app for SBR+ simulation.
 
         Parameters
@@ -112,15 +112,15 @@ class MultiPartComponent(PyAedtBase):
     def __init__(
         self,
         comp_folder,
-        name=None,
-        use_relative_cs=False,
+        name: str | None = None,
+        use_relative_cs: bool = False,
         relative_cs_name=None,
-        motion=False,
+        motion: bool = False,
         offset=("0", "0", "0"),
-        yaw="0deg",
-        pitch="0deg",
-        roll="0deg",
-    ):
+        yaw: str = "0deg",
+        pitch: str = "0deg",
+        roll: str = "0deg",
+    ) -> None:
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
         self._index = None  # Counter used to assign unique name.
@@ -288,7 +288,7 @@ class MultiPartComponent(PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw_str):
+    def yaw(self, yaw_str) -> None:
         # TODO: Need variable checking for yaw angle.
         # yaw is the rotation about the object z-axis.
         self._use_global_cs = False
@@ -318,7 +318,7 @@ class MultiPartComponent(PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch_str):
+    def pitch(self, pitch_str) -> None:
         # TODO: Need variable checking for pitch angle.
         # pitch is the rotation about the object y-axis.
         self._use_global_cs = False
@@ -348,7 +348,7 @@ class MultiPartComponent(PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll_str):
+    def roll(self, roll_str) -> None:
         # TODO: Need variable checking for pitch angle.
         # roll is the rotation about the object x-axis.
         self._use_global_cs = False
@@ -402,7 +402,7 @@ class MultiPartComponent(PyAedtBase):
         return self._offset_values
 
     @offset.setter
-    def offset(self, o):
+    def offset(self, o) -> None:
         # TODO: Add check for validity
         self._use_global_cs = False
         self._offset_values = o  # Expect tuple or list of strings
@@ -453,7 +453,7 @@ class MultiPartComponent(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def _insert(self, app, motion=False):
+    def _insert(self, app, motion: bool = False) -> bool:
         """Insert the multi-part 3D component.
 
         Parameters
@@ -485,7 +485,7 @@ class MultiPartComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=False):
+    def insert(self, app, motion: bool = False):
         """Insert the object in HFSS SBR+.
 
         Returns
@@ -512,11 +512,11 @@ class Environment(MultiPartComponent, PyAedtBase):
         global coordinate system is used.
     """
 
-    def __init__(self, env_folder, relative_cs_name=None):
+    def __init__(self, env_folder, relative_cs_name=None) -> None:
         super(Environment, self).__init__(env_folder, motion=False)
 
     @property
-    def cs_name(self):
+    def cs_name(self) -> str:
         """Coordinate system name.
 
         Returns
@@ -538,7 +538,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw_str):
+    def yaw(self, yaw_str) -> None:
         self._yaw = yaw_str
 
     @property
@@ -553,7 +553,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch_str):
+    def pitch(self, pitch_str) -> None:
         self._pitch = pitch_str
 
     @property
@@ -568,7 +568,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll_str):
+    def roll(self, roll_str) -> None:
         self._roll = roll_str
 
     @property
@@ -582,7 +582,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._offset_values
 
     @offset.setter
-    def offset(self, o):
+    def offset(self, o) -> None:
         if isinstance(o, list) or isinstance(o, tuple) and len(o) == 3:
             self._offset_values = o
 
@@ -606,7 +606,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         in which case the global coordinate system is used.
     """
 
-    def __init__(self, actor_folder, speed="0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.
@@ -634,11 +634,11 @@ class Actor(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s):  # TODO: Add validation of the expression.
+    def speed_expression(self, s) -> None:  # TODO: Add validation of the expression.
         self._speed_expression = s
 
     @pyaedt_function_handler()
-    def _add_speed(self, app):
+    def _add_speed(self, app) -> None:
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="object speed"
         )
