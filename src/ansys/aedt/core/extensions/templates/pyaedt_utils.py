@@ -160,7 +160,7 @@ def environment_variables(oDesktop):
             )
 
 
-def generate_unique_name(root_name, suffix, n):
+def generate_unique_name(root_name, suffix="", n=6):
     char_set = string.ascii_uppercase + string.digits
     unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:
