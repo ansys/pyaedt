@@ -47,7 +47,7 @@ def icepak_b(add_app):
     app.close_project(save=False, name=project_name)
 
 
-def test_configuration_file_1(icepak_a, add_app):
+def test_configuration_file_1(icepak_a, add_app) -> None:
     box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
     icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
     box1.surface_material_name = "Shellac-Dull-surface"
@@ -132,7 +132,7 @@ def test_configuration_file_1(icepak_a, add_app):
     app.close_project(save=False, name=app.project_name)
 
 
-def test_configuration_file_2(icepak_b, add_app):
+def test_configuration_file_2(icepak_b, add_app) -> None:
     box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
     box1.surface_material_name = "Shellac-Dull-surface"
     region = icepak_b.modeler["Region"]

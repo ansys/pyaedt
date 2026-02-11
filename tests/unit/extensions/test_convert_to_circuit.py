@@ -89,7 +89,7 @@ def mock_desktop_no_tb_designs():
             yield mock_desktop_instance
 
 
-def test_convert_to_circuit_extension_default(mock_twinbuilder_app, mock_desktop_with_tb_designs):
+def test_convert_to_circuit_extension_default(mock_twinbuilder_app, mock_desktop_with_tb_designs) -> None:
     """Test instantiation of the Convert to Circuit extension."""
     extension = ConvertToCircuitExtension(withdraw=True)
 
@@ -99,13 +99,13 @@ def test_convert_to_circuit_extension_default(mock_twinbuilder_app, mock_desktop
     extension.root.destroy()
 
 
-def test_convert_to_circuit_extension_no_tb_designs(mock_twinbuilder_app, mock_desktop_no_tb_designs):
+def test_convert_to_circuit_extension_no_tb_designs(mock_twinbuilder_app, mock_desktop_no_tb_designs) -> None:
     """Test extension when no TwinBuilder designs are found."""
     with pytest.raises(AEDTRuntimeError, match="No Twin Builder designs found"):
         ConvertToCircuitExtension(withdraw=True)
 
 
-def test_convert_to_circuit_extension_convert_button(mock_twinbuilder_app, mock_desktop_with_tb_designs):
+def test_convert_to_circuit_extension_convert_button(mock_twinbuilder_app, mock_desktop_with_tb_designs) -> None:
     """Test the Convert button in the Convert to Circuit extension."""
     extension = ConvertToCircuitExtension(withdraw=True)
 
@@ -122,7 +122,7 @@ def test_convert_to_circuit_extension_convert_button(mock_twinbuilder_app, mock_
     extension.root.destroy()
 
 
-def test_convert_to_circuit_extension_design_selection(mock_twinbuilder_app, mock_desktop_with_tb_designs):
+def test_convert_to_circuit_extension_design_selection(mock_twinbuilder_app, mock_desktop_with_tb_designs) -> None:
     """Test design selection in the Convert to Circuit extension."""
     extension = ConvertToCircuitExtension(withdraw=True)
 
@@ -135,7 +135,7 @@ def test_convert_to_circuit_extension_design_selection(mock_twinbuilder_app, moc
     extension.root.destroy()
 
 
-def test_convert_to_circuit_extension_data_class():
+def test_convert_to_circuit_extension_data_class() -> None:
     """Test the ConvertToCircuitExtensionData data class."""
     data = ConvertToCircuitExtensionData()
     assert data.design_name == ""
@@ -144,7 +144,7 @@ def test_convert_to_circuit_extension_data_class():
     assert data.design_name == "TestDesign"
 
 
-def test_convert_to_circuit_extension_ui_elements(mock_twinbuilder_app, mock_desktop_with_tb_designs):
+def test_convert_to_circuit_extension_ui_elements(mock_twinbuilder_app, mock_desktop_with_tb_designs) -> None:
     """Test that all UI elements are properly created."""
     extension = ConvertToCircuitExtension(withdraw=True)
 
@@ -163,7 +163,7 @@ def test_convert_to_circuit_extension_ui_elements(mock_twinbuilder_app, mock_des
     extension.root.destroy()
 
 
-def test_convert_to_circuit_extension_load_info_exception(mock_twinbuilder_app):
+def test_convert_to_circuit_extension_load_info_exception(mock_twinbuilder_app) -> None:
     """Test exception handling in __load_aedt_info method."""
     with patch.object(ExtensionCommon, "desktop", new_callable=PropertyMock) as mock_desktop_property:
         mock_desktop_instance = MagicMock()

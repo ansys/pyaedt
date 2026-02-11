@@ -38,7 +38,7 @@ test_subfolder = "FRTM"
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -59,7 +59,7 @@ def setup_test_data(request, test_tmp_dir):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-    def test_get_results_files_with_index(self):
+    def test_get_results_files_with_index(self) -> None:
         assert not get_results_files(self.input_dir)
         results_files = get_results_files(self.input_dir_with_index)
         assert isinstance(results_files, dict)
@@ -67,14 +67,14 @@ class TestClass:
         assert isinstance(results_files[0.0], pathlib.Path)
         assert Path(results_files[0.0]).is_file()
 
-    def test_get_results_files_without_index(self):
+    def test_get_results_files_without_index(self) -> None:
         results_files = get_results_files(self.input_dir_without_index)
         assert isinstance(results_files, dict)
         assert len(results_files) == 1
         assert isinstance(results_files[832], pathlib.Path)
         assert Path(results_files[832]).is_file()
 
-    def test_window(self):
+    def test_window(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_pulse = FRTMData(input_file=metadata_file_pulse)
@@ -89,7 +89,7 @@ class TestClass:
         assert len(win_hamming) == 128
 
     # Data
-    def test_frtm_data(self):
+    def test_frtm_data(self) -> None:
         with pytest.raises(FileNotFoundError, match="FRTM file does not exist."):
             FRTMData(input_file="invented")
 
@@ -180,7 +180,7 @@ class TestClass:
         frtm_chirp.data_conversion_function = "abs"
         assert frtm_chirp.data_conversion_function == "abs"
 
-    def test_range_profile(self):
+    def test_range_profile(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_data = FRTMData(input_file=metadata_file_pulse)
@@ -197,7 +197,7 @@ class TestClass:
         range_doppler_3 = frtm_data.range_profile(data_cpi_0, window="Flat", size=512)
         assert len(range_doppler_3) == 512
 
-    def test_range_doppler(self):
+    def test_range_doppler(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_data = FRTMData(input_file=metadata_file_pulse)
@@ -211,7 +211,7 @@ class TestClass:
         range_doppler_data_3 = frtm_data.range_doppler(range_bins=512, doppler_bins=512)
         assert range_doppler_data_3.shape == (512, 512)
 
-    def test_data_pulse(self):
+    def test_data_pulse(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_data = FRTMData(input_file=metadata_file_pulse)
@@ -224,7 +224,7 @@ class TestClass:
         with pytest.raises(ValueError):
             frtm_data.get_data_pulse(pulse_number + 1)
 
-    def test_convert_frequency_range(self):
+    def test_convert_frequency_range(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_data = FRTMData(input_file=metadata_file_pulse)
@@ -237,7 +237,7 @@ class TestClass:
         with pytest.raises(ValueError):
             frtm_data.convert_frequency_range(window="invented")
 
-    def test_range_angle_map(self):
+    def test_range_angle_map(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         metadata_file_pulse = results_files[0.0]
         frtm_data = FRTMData(input_file=metadata_file_pulse)
@@ -257,7 +257,7 @@ class TestClass:
             frtm_data.range_angle_map(doa_method="music2")
 
     # Plotter
-    def test_plotter(self):
+    def test_plotter(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
 
         doppler_data_frames = {}
@@ -274,7 +274,7 @@ class TestClass:
         assert len(frtm_data.all_data) == 11
         assert len(frtm_data.frames) == 11
 
-    def test_range_profile_plotter(self):
+    def test_range_profile_plotter(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         doppler_data_frames = {}
         for frame, data_frame in results_files.items():
@@ -300,7 +300,7 @@ class TestClass:
         range_profile3 = frtm_plotter.plot_range_profile(show=False, frame=frtm_plotter.frames[0])
         assert isinstance(range_profile3, ReportPlotter)
 
-    def test_range_doppler_plotter(self):
+    def test_range_doppler_plotter(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         doppler_data_frames = {}
         for frame, data_frame in results_files.items():
@@ -320,7 +320,7 @@ class TestClass:
         range_doppler2 = frtm_plotter.plot_range_doppler(show=False, frame=frtm_plotter.frames[0])
         assert isinstance(range_doppler2, ReportPlotter)
 
-    def test_range_angle_map_plotter(self):
+    def test_range_angle_map_plotter(self) -> None:
         results_files = get_results_files(self.input_dir_with_index)
         doppler_data_frames = {}
         for frame, data_frame in results_files.items():

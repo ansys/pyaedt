@@ -32,7 +32,7 @@ import pytest
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 
 
-def test_add_siwave_dynamic_link_failure_with_file_not_found():
+def test_add_siwave_dynamic_link_failure_with_file_not_found() -> None:
     file = Path("dummy")
     modeler = MagicMock()
     nexxim = NexximComponents(modeler)
@@ -42,7 +42,7 @@ def test_add_siwave_dynamic_link_failure_with_file_not_found():
 
 
 @patch.object(warnings, "warn")
-def test_add_subcircuit_link_warning_call(mock_warn):
+def test_add_subcircuit_link_warning_call(mock_warn) -> None:
     file = Path("dummy")
     modeler = MagicMock()
     nexxim = NexximComponents(modeler)

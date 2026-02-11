@@ -35,7 +35,7 @@ TEST_SUBFOLDER = "T45"
 CSV_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / CSV_FILENAME
 
 
-def test_power_map_success(add_app, test_tmp_dir):
+def test_power_map_success(add_app, test_tmp_dir) -> None:
     """Test the successful execution of the power map creation in Icepak."""
     file = test_tmp_dir / CSV_FILENAME
     shutil.copy2(CSV_FILE_PATH, file)

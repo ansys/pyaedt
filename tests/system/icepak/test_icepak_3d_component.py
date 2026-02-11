@@ -50,7 +50,7 @@ def ipk(add_app_example):
 
 
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_flatten_3d_components(aedt_app):
+def test_flatten_3d_components(aedt_app) -> None:
     file_name = "Advanced3DComp_T52.a3dcomp"
     aedt_app.create_fan(is_2d=True)
     box = aedt_app.modeler.create_box([5, 6, 7], [9, 7, 6])
@@ -118,7 +118,7 @@ def test_flatten_3d_components(aedt_app):
 
 
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_advanced_3d_component_export(ipk):
+def test_advanced_3d_component_export(ipk) -> None:
     # Filter board import
     proj_name = None
     design_name = "cutout3"

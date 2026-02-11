@@ -59,7 +59,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting to 3D in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,
@@ -86,7 +86,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
             msg = "HFSS 3D Layout project is needed."
             raise AEDTRuntimeError(msg)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
@@ -101,7 +101,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         self.combo_choice.grid(row=0, column=1, columnspan=2, padx=15, pady=10)
         self.combo_choice.focus_set()
 
-        def callback(extension: ExportTo3DExtension):
+        def callback(extension: ExportTo3DExtension) -> None:
             choice = extension.combo_choice.get()
 
             export_data = ExportTo3DExtensionData(choice=choice)
@@ -119,7 +119,7 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         ok_button.grid(row=1, column=0, padx=15, pady=10)
 
 
-def main(data: ExportTo3DExtensionData):
+def main(data: ExportTo3DExtensionData) -> bool:
     """Main function to run the export to 3D extension."""
     if not data.choice:
         raise AEDTRuntimeError("No choice provided to the extension.")
