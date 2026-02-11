@@ -54,7 +54,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
 
       - name: Run unit tests
@@ -106,7 +105,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
 
       - name: Run integration tests
@@ -162,7 +160,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -232,7 +229,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -299,7 +295,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -372,7 +367,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -440,7 +434,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -514,7 +507,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -577,7 +569,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -647,7 +638,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -711,7 +701,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -781,7 +770,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -849,7 +837,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -922,7 +909,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -986,7 +972,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
@@ -1054,7 +1039,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
