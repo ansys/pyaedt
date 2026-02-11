@@ -157,12 +157,12 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     def post(
         self,
     ) -> (
-        "PostProcessorIcepak"
-        | "PostProcessorCircuit"
-        | "PostProcessor3DLayout"
-        | "PostProcessorMaxwell"
-        | "PostProcessorHFSS"
-        | "PostProcessor3D"
+        PostProcessorIcepak
+        | PostProcessorCircuit
+        | PostProcessor3DLayout
+        | PostProcessorMaxwell
+        | PostProcessorHFSS
+        | PostProcessor3D
     ):
         """PostProcessor.
 
