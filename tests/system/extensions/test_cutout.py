@@ -40,7 +40,7 @@ TEST_SUBFOLDER = "T45"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
-def test_cutout_success(add_app_example, test_tmp_dir):
+def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
     test_project = test_tmp_dir / (AEDB_FILE_NAME + ".aedb")
     shutil.copytree(SI_VERSE_PATH, test_project)

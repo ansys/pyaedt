@@ -81,7 +81,7 @@ def hfss3dl_a(add_app):
     app.close_project(save=False, name=project_name)
 
 
-def test_hfss_export(aedt_app, add_app, test_tmp_dir):
+def test_hfss_export(aedt_app, add_app, test_tmp_dir) -> None:
     aedt_app.mesh.assign_length_mesh("sub")
     conf_file = aedt_app.configurations.export_config()
     assert aedt_app.configurations.validate(conf_file)
@@ -102,7 +102,7 @@ def test_hfss_export(aedt_app, add_app, test_tmp_dir):
     app.close_project(save=False, name=name)
 
 
-def test_q3d_export(q3d_app, add_app, test_tmp_dir):
+def test_q3d_export(q3d_app, add_app, test_tmp_dir) -> None:
     q3d_app.modeler.create_coordinate_system()
     q3d_app.setups[0].props["AdaptiveFreq"] = "100MHz"
     conf_file = q3d_app.configurations.export_config()
@@ -124,7 +124,7 @@ def test_q3d_export(q3d_app, add_app, test_tmp_dir):
     app.close_project(save=False, name=name)
 
 
-def test_q2d_export(q2d_app, add_app, test_tmp_dir):
+def test_q2d_export(q2d_app, add_app, test_tmp_dir) -> None:
     q2d_app.modeler.create_coordinate_system()
     q2d_app.modeler.create_rectangle([15, 20, 0], [5, 5])
     conf_file = q2d_app.configurations.export_config()
@@ -184,7 +184,7 @@ def test_q2d_export(q2d_app, add_app, test_tmp_dir):
     app.close_project(save=False, name=name)
 
 
-def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir):
+def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir) -> None:
     setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.
     assert setup2.props["ViaNumSides"] == 6  # Check the default value.
     export_path = test_tmp_dir / "export_setup_properties.json"  # Legacy.
@@ -198,7 +198,7 @@ def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir):
     assert hfss3dl_a.setups[0].props["ViaNumSides"] == 6
 
 
-def test_hfss3dlayout_existing_setup(hfss3dl_a, add_app, test_tmp_dir):
+def test_hfss3dlayout_existing_setup(hfss3dl_a, add_app, test_tmp_dir) -> None:
     setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
     export_path = test_tmp_dir / "export_setup_properties.json"
     assert setup2.export_to_json(str(export_path), overwrite=True)
@@ -211,7 +211,7 @@ def test_hfss3dlayout_existing_setup(hfss3dl_a, add_app, test_tmp_dir):
     assert setup3.update()
 
 
-def test_circuit(circuit_app, test_tmp_dir):
+def test_circuit(circuit_app, test_tmp_dir) -> None:
     path = circuit_app.configurations.export_config()
     assert Path(path).is_file()
     circuit_app.insert_design("new_import")
@@ -220,7 +220,7 @@ def test_circuit(circuit_app, test_tmp_dir):
     assert circuit_app.configurations.export_config(str(export_json))
 
 
-def test_circuit_import_config(add_app_example, test_tmp_dir):
+def test_circuit_import_config(add_app_example, test_tmp_dir) -> None:
     app = add_app_example(application=Circuit, project=AMI_PROJECT, subfolder="T01")
     path = app.configurations.export_config()
     assert Path(path).exists()

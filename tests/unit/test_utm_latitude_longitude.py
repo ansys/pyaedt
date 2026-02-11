@@ -30,7 +30,7 @@ from ansys.aedt.core.modeler.advanced_cad.oms import convert_latlon_to_utm
 from ansys.aedt.core.modeler.advanced_cad.oms import convert_utm_to_latlon
 
 
-def test_convert_latlon_to_utm():
+def test_convert_latlon_to_utm() -> None:
     latitude, longitude = 40.7128, -74.0060
     result = convert_latlon_to_utm(latitude, longitude)
 
@@ -38,7 +38,7 @@ def test_convert_latlon_to_utm():
     assert len(result) == 4
 
 
-def test_convert_utm_to_latlon():
+def test_convert_utm_to_latlon() -> None:
     east, north, zone_number = 500000, 4649776, 33
     result = convert_utm_to_latlon(east, north, zone_number, northern=True)
 
@@ -46,16 +46,16 @@ def test_convert_utm_to_latlon():
     assert len(result) == 2
 
 
-def test_invalid_latitude():
+def test_invalid_latitude() -> None:
     with pytest.raises(ValueError, match="Latitude out of range"):
         convert_latlon_to_utm(100.0, 50.0)
 
 
-def test_invalid_longitude():
+def test_invalid_longitude() -> None:
     with pytest.raises(ValueError, match="Longitude out of range"):
         convert_latlon_to_utm(40.0, 200.0)
 
 
-def test_invalid_zone_letter():
+def test_invalid_zone_letter() -> None:
     with pytest.raises(ValueError, match="Zone letter out of range"):
         convert_latlon_to_utm(40.0, -74.0, zone_letter="Z")

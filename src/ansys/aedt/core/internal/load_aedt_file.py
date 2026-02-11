@@ -150,7 +150,7 @@ def _separate_list_elements(v):
     return l2
 
 
-def _decode_recognized_subkeys(sk, d):
+def _decode_recognized_subkeys(sk, d) -> bool:
     """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
@@ -211,7 +211,7 @@ def _decode_recognized_subkeys(sk, d):
     return False
 
 
-def _decode_recognized_key(keyword, line, d):
+def _decode_recognized_key(keyword, line, d) -> bool:
     """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
@@ -313,7 +313,7 @@ def _decode_recognized_key(keyword, line, d):
     return True
 
 
-def _decode_subkey(line, d):
+def _decode_subkey(line, d) -> None:
     """
 
     Parameters
@@ -454,7 +454,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
     return _count
 
 
-def _read_aedt_file(filename):
+def _read_aedt_file(filename) -> None:
     """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters

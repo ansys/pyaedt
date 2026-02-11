@@ -40,12 +40,12 @@ class MultipleBandsTable:
     A valid multiple bands table must include both lower and upper frequencies for each band.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_multiple_bands_dll_functions()
 
-    def _define_multiple_bands_dll_functions(self):
+    def _define_multiple_bands_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.getMultipleBandsTableRowCount.argtype = POINTER(c_int)
         self._dll.getMultipleBandsTableRowCount.restype = c_int
@@ -110,7 +110,7 @@ class MultipleBandsTable:
         upper_value_string = upper_value_buffer.value.decode("utf-8")
         return lower_value_string, upper_value_string
 
-    def update_row(self, row_index, lower_frequency=None, upper_frequency=None):
+    def update_row(self, row_index, lower_frequency=None, upper_frequency=None) -> None:
         """Update lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
@@ -131,7 +131,7 @@ class MultipleBandsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, lower_frequency=None, upper_frequency=None):
+    def append_row(self, lower_frequency=None, upper_frequency=None) -> None:
         """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
 
         Parameters
@@ -147,7 +147,7 @@ class MultipleBandsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, lower_frequency=None, upper_frequency=None):
+    def insert_row(self, row_index, lower_frequency=None, upper_frequency=None) -> None:
         """Insert lower and upper frequencies in a given row.
 
         Parameters
@@ -166,7 +166,7 @@ class MultipleBandsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index):
+    def remove_row(self, row_index) -> None:
         """Remove a row specified by its index from the multiple bands table.
 
         Parameters
@@ -178,7 +178,7 @@ class MultipleBandsTable:
         status = self._dll.removeMultipleBandsTableRow(row_index)
         self._dll_interface.raise_error(status)
 
-    def clear_table(self):
+    def clear_table(self) -> None:
         """Remove all rows from the multiple bands table."""
         for i in range(self.row_count - 1, -1, -1):
             self.remove_row(i)

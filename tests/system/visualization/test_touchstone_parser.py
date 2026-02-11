@@ -52,7 +52,7 @@ def hfss3dl(add_app_example):
 
 
 @pytest.mark.skipif(is_linux, reason="Random fail in Linux.")
-def test_get_touchstone_data(hfss3dl):
+def test_get_touchstone_data(hfss3dl) -> None:
     all_ts_data = hfss3dl.get_touchstone_data("Setup1")
     assert isinstance(all_ts_data, list)
     ts_data = all_ts_data[0]
@@ -62,7 +62,7 @@ def test_get_touchstone_data(hfss3dl):
     assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
 
-def test_read_ts_file(test_tmp_dir):
+def test_read_ts_file(test_tmp_dir) -> None:
     src = TEST_DIR / SP8
     touchstone_file_path = shutil.copy2(src, test_tmp_dir / SP8)
 
@@ -75,7 +75,7 @@ def test_read_ts_file(test_tmp_dir):
     assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
 
 
-def test_check_touchstone_file(test_tmp_dir):
+def test_check_touchstone_file(test_tmp_dir) -> None:
     input_dir = shutil.copytree(TEST_DIR, test_tmp_dir / "touchstone_files")
     check = check_touchstone_files(input_dir=input_dir)
     assert check
@@ -86,7 +86,7 @@ def test_check_touchstone_file(test_tmp_dir):
             assert not v[1]
 
 
-def test_get_coupling_in_range(test_tmp_dir):
+def test_get_coupling_in_range(test_tmp_dir) -> None:
     touchstone_file_path_o = TEST_DIR / "si_verse_cutout.s16p"
     touchstone_file_path = shutil.copy2(touchstone_file_path_o, test_tmp_dir / "si_verse_cutout.s16p")
 
@@ -149,7 +149,7 @@ def test_get_coupling_in_range(test_tmp_dir):
     assert res[0] == (0, 1)
 
 
-def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
 
     assert not ts.get_mixed_mode_touchstone_data(port_ordering="12")
@@ -160,14 +160,14 @@ def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.
     ]
 
 
-def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
+def test_get_return_loss_index_with_dummy_prefix(touchstone_file) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.get_return_loss_index(excitation_name_prefix="dummy_prefix")
 
     assert not res
 
 
-def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: pytest.LogCaptureFixture) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.get_insertion_loss_index_from_prefix("Port", "Dummy")
 
@@ -179,14 +179,14 @@ def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: p
     ]
 
 
-def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
+def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.get_next_xtalk_index("Dummy")
 
     assert not res
 
 
-def test_reduce_touchstone_data(touchstone_file):
+def test_reduce_touchstone_data(touchstone_file) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.reduce([1, 0])
     assert res.endswith("s2p")
@@ -198,7 +198,7 @@ def test_reduce_touchstone_data(touchstone_file):
 
 
 @patch("os.path.exists", return_value=False)
-def test_find_touchstone_files_with_non_existing_directory(mock_exists):
+def test_find_touchstone_files_with_non_existing_directory(mock_exists) -> None:
     res = find_touchstone_files("dummy_path")
 
     assert res == {}
@@ -215,7 +215,7 @@ def _fake_path(name):
 @patch("pathlib.Path.is_file", return_value=True)
 @patch("pathlib.Path.exists", return_value=True)
 @patch("pathlib.Path.iterdir")
-def test_find_touchstone_files_success(mock_iterdir, mock_exists, mock_isfile):
+def test_find_touchstone_files_success(mock_iterdir, mock_exists, mock_isfile) -> None:
     mock_iterdir.return_value = [
         _fake_path("dummy.ts"),
         _fake_path("dummy.txt"),

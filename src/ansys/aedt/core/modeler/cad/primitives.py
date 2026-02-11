@@ -24,6 +24,8 @@
 
 """This module contains these Primitives classes: `Polyline` and `Primitives`."""
 
+from __future__ import annotations
+
 import copy
 import math
 import os
@@ -31,7 +33,6 @@ from pathlib import Path
 import secrets
 import string
 import time
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
@@ -73,7 +74,7 @@ aedt_wait_time = 0.1
 class Objects(dict):
     """AEDT object dictionary."""
 
-    def _parse_objs(self):
+    def _parse_objs(self) -> None:
         if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
             self.__refreshed = True
             if self.__obj_type == "o":
@@ -92,7 +93,7 @@ class Objects(dict):
             elif self.__obj_type == "u":
                 self.__parent.add_new_user_defined_component()
 
-    def __len__(self):
+    def __len__(self) -> int:
         if self.__refreshed:
             return dict.__len__(self)
         elif self.__obj_type == "o":
@@ -102,7 +103,7 @@ class Objects(dict):
         else:
             return len(self.__parent.user_defined_component_names)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         try:
             name = [i for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
             key = [k for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
@@ -123,7 +124,7 @@ class Objects(dict):
                 pass
             del self.__parent._object_names_to_ids[name]
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         if self.__refreshed:
             return True if (item in dict.keys(self) or item in self.__obj_names) else False
         elif isinstance(item, str):
@@ -153,7 +154,7 @@ class Objects(dict):
         self._parse_objs()
         return dict.__iter__(self)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
@@ -198,7 +199,7 @@ class Objects(dict):
             return self.__obj_names[item]
         raise KeyError(item)
 
-    def __init__(self, parent, obj_type="o", props=None):
+    def __init__(self, parent, obj_type: str = "o", props=None) -> None:
         dict.__init__(self)
         self.__obj_names = {}
         self.__parent = parent
@@ -273,7 +274,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 pass
         return
 
-    def __init__(self, app, is3d=True):
+    def __init__(self, app, is3d: bool = True) -> None:
         self._app = app
         self._model_data = {}
         Modeler.__init__(self, app)
@@ -305,7 +306,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, value):
+    def rescale_model(self, value) -> None:
         self._app.units.rescale_model = value
 
     class Position:
@@ -332,7 +333,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 raise IndexError
 
         @pyaedt_function_handler()
-        def __setitem__(self, item, value):
+        def __setitem__(self, item, value) -> None:
             if item == 0:
                 self.X = value
             elif item == 1:
@@ -340,10 +341,10 @@ class GeometryModeler(Modeler, PyAedtBase):
             elif item == 2:
                 self.Z = value
 
-        def __len__(self):
+        def __len__(self) -> int:
             return 3
 
-        def __init__(self, *args):
+        def __init__(self, *args) -> None:
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
@@ -387,7 +388,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
 
         @pyaedt_function_handler()
-        def __init__(self, draftType="Round", draftAngle="0deg", twistAngle="0deg"):
+        def __init__(self, draftType: str = "Round", draftAngle: str = "0deg", twistAngle: str = "0deg") -> None:
             self.DraftType = draftType
             self.DraftAngle = draftAngle
             self.TwistAngle = twistAngle
@@ -482,7 +483,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.length
 
     @model_units.setter
-    def model_units(self, units):
+    def model_units(self, units) -> None:
         self._app.units.length = units
 
     @property
@@ -506,7 +507,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.oeditor.GetModelBoundingBox()
 
     @property
-    def dimension(self):
+    def dimension(self) -> str:
         """Dimensions.
 
         Returns
@@ -845,7 +846,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return obj_dict
 
     @pyaedt_function_handler()
-    def refresh(self):
+    def refresh(self) -> None:
         """Refresh this object."""
         self._solids = []
         self._sheets = []
@@ -862,14 +863,14 @@ class GeometryModeler(Modeler, PyAedtBase):
             self.refresh_all_ids()
 
     @pyaedt_function_handler()
-    def _get_commands(self, name):
+    def _get_commands(self, name: str):
         try:
             return self.oeditor.GetChildObject(name).GetChildNames()
         except Exception:
             return []
 
     @pyaedt_function_handler()
-    def _create_user_defined_component(self, name):
+    def _create_user_defined_component(self, name: str):
         if name not in list(self.user_defined_components.keys()):
             native_component_properties = self._get_native_component_properties(name)
             if native_component_properties:
@@ -883,7 +884,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def _create_point(self, name):
+    def _create_point(self, name: str):
         point = Point(self, name)
         self.refresh_all_ids()
 
@@ -1005,7 +1006,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def cleanup_objects(self):
+    def cleanup_objects(self) -> None:
         """Clean up objects that no longer exist in the modeler because they were removed by previous operations.
 
         This method also updates object IDs that may have changed via
@@ -1022,7 +1023,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.cleanup_points()
 
     @pyaedt_function_handler()
-    def cleanup_solids(self):
+    def cleanup_solids(self) -> None:
         """Clean up solids that no longer exist in the modeler because
         they were removed by previous operations.
 
@@ -1050,7 +1051,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             self.objects = Objects(self, "o", new_object_dict)
 
     @pyaedt_function_handler()
-    def cleanup_points(self):
+    def cleanup_points(self) -> None:
         """Clean up points that no longer exist in the modeler because they were removed by previous operations.
 
         This method also updates object IDs that may have changed via
@@ -1171,7 +1172,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, material=None):
+    def get_objects_by_material(self, material: str | None = None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
@@ -1393,7 +1394,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self
 
     @pyaedt_function_handler()
-    def fit_all(self):
+    def fit_all(self) -> None:
         """Fit all.
 
         References
@@ -1441,7 +1442,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True, (origin, a_end, b_end)
 
     @pyaedt_function_handler()
-    def cover_lines(self, assignment):
+    def cover_lines(self, assignment) -> bool:
         """Cover closed lines and transform them to a sheet.
 
         Parameters
@@ -1463,7 +1464,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cover_faces(self, assignment):
+    def cover_faces(self, assignment) -> bool:
         """Cover a face.
 
         Parameters
@@ -1485,7 +1486,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def uncover_faces(self, assignment):
+    def uncover_faces(self, assignment) -> bool:
         """Uncover faces.
 
         Parameters
@@ -1547,15 +1548,15 @@ class GeometryModeler(Modeler, PyAedtBase):
     def create_coordinate_system(
         self,
         origin=None,
-        reference_cs="Global",
-        name=None,
-        mode="axis",
-        view="iso",
+        reference_cs: str = "Global",
+        name: str | None = None,
+        mode: str = "axis",
+        view: str = "iso",
         x_pointing=None,
         y_pointing=None,
-        psi=0,
-        theta=0,
-        phi=0,
+        psi: int = 0,
+        theta: int = 0,
+        phi: int = 0,
         u=None,
     ):
         """Create a coordinate system.
@@ -1655,7 +1656,15 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_face_coordinate_system(
-        self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+        self,
+        face,
+        origin,
+        axis_position,
+        axis: str = "X",
+        name: str | None = None,
+        offset=None,
+        rotation: int = 0,
+        always_move_to_end: bool = True,
     ):
         """Create a face coordinate system.
 
@@ -1732,10 +1741,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         origin,
         x_axis,
         y_axis,
-        move_to_end=True,
-        reverse_x_axis=False,
-        reverse_y_axis=False,
-        name=None,
+        move_to_end: bool = True,
+        reverse_x_axis: bool = False,
+        reverse_y_axis: bool = False,
+        name: str | None = None,
     ):
         """Create an object coordinate system.
 
@@ -1873,7 +1882,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return [round(p[i], 13) for i in range(3)]
 
     @pyaedt_function_handler()
-    def set_working_coordinate_system(self, name):
+    def set_working_coordinate_system(self, name: str) -> bool:
         """Set the working coordinate system to another coordinate system.
 
         Parameters
@@ -1917,7 +1926,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.oeditor.GetActiveCoordinateSystem()
 
     @pyaedt_function_handler()
-    def invert_cs(self, coordinate_system, to_global=False):
+    def invert_cs(self, coordinate_system, to_global: bool = False):
         """Get the inverse translation and the conjugate quaternion of the input coordinate system.
 
         By defining a new coordinate system with this information, the reference coordinate system
@@ -2160,7 +2169,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_objects_deformation(self, assignment):
+    def set_objects_deformation(self, assignment) -> bool:
         """Assign deformation objects to a Workbench link.
 
         Parameters
@@ -2188,7 +2197,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def set_objects_temperature(self, assignment, ambient_temperature=22, create_project_var=False):
+    def set_objects_temperature(
+        self, assignment, ambient_temperature: int = 22, create_project_var: bool = False
+    ) -> bool:
         """Assign temperatures to objects.
 
         The materials assigned to the objects must have a thermal modifier.
@@ -2342,7 +2353,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return position
 
     @pyaedt_function_handler()
-    def create_sheet_to_ground(self, assignment, ground_name=None, orientation=0, sheet_dim=1):
+    def create_sheet_to_ground(self, assignment, ground_name=None, orientation: int = 0, sheet_dim: int = 1):
         """Create a sheet between an object and a ground plane.
 
         The ground plane must be bigger than the object and perpendicular
@@ -2470,8 +2481,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         return face
 
     @pyaedt_function_handler()
-    def _create_microstrip_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, vfactor=3, hfactor=5):
-        def duplicate_and_unite(sheet_name, array1, array2, dup_factor):
+    def _create_microstrip_sheet_from_object_closest_edge(
+        self, startobj, endobject, axisdir, vfactor: int = 3, hfactor: int = 5
+    ):
+        def duplicate_and_unite(sheet_name, array1, array2, dup_factor) -> None:
             status, list = self.duplicate_along_line(sheet_name, array1, dup_factor + 1)
             status, list2 = self.duplicate_along_line(sheet_name, array2, dup_factor + 1)
             list_unite.extend(list)
@@ -2537,7 +2550,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return list(self._app.odesign.GetChildObject("Boundaries").GetChildNames())
 
     @pyaedt_function_handler()
-    def set_object_model_state(self, assignment, model=True):
+    def set_object_model_state(self, assignment, model: bool = True) -> bool:
         """Set a list of objects to either models or non-models.
 
         Parameters
@@ -2631,7 +2644,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return bounding
 
     @pyaedt_function_handler()
-    def convert_to_selections(self, assignment, return_list=False):
+    def convert_to_selections(self, assignment, return_list: bool = False):
         """Convert modeler objects.
 
         This method converts modeler object or IDs to the corresponding
@@ -2693,7 +2706,13 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def split(
-        self, assignment, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True
+        self,
+        assignment,
+        plane=None,
+        sides: str = "Both",
+        tool=None,
+        split_crossing_objs: bool = False,
+        delete_invalid_objs: bool = True,
     ):
         """Split a list of objects.
         In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
@@ -2853,8 +2872,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         assignment,
         origin,
         vector,
-        is_3d_comp=False,
-        duplicate_assignment=True,
+        is_3d_comp: bool = False,
+        duplicate_assignment: bool = True,
     ):
         """Duplicate and mirror a selection.
 
@@ -2888,7 +2907,15 @@ class GeometryModeler(Modeler, PyAedtBase):
         # selections = self.convert_to_selections(objid)
 
     @pyaedt_function_handler()
-    def mirror(self, assignment, origin, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
+    def mirror(
+        self,
+        assignment,
+        origin,
+        vector,
+        duplicate: bool = False,
+        is_3d_comp: bool = False,
+        duplicate_assignment: bool = True,
+    ):
         """Mirror a selection.
 
         Parameters
@@ -2971,7 +2998,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def move(self, assignment, vector):
+    def move(self, assignment, vector) -> bool:
         """Move objects from a list.
 
         Parameters
@@ -3014,11 +3041,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         self,
         assignment,
         axis,
-        angle=90,
-        clones=2,
-        create_new_objects=True,
-        is_3d_comp=False,
-        duplicate_assignment=True,
+        angle: int = 90,
+        clones: int = 2,
+        create_new_objects: bool = True,
+        is_3d_comp: bool = False,
+        duplicate_assignment: bool = True,
     ):
         """Duplicate a selection around an axis.
 
@@ -3091,10 +3118,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         self,
         assignment,
         vector,
-        clones=2,
-        attach=False,
-        is_3d_comp=False,
-        duplicate_assignment=True,
+        clones: int = 2,
+        attach: bool = False,
+        is_3d_comp: bool = False,
+        duplicate_assignment: bool = True,
     ):
         """Duplicate a selection along a line.
 
@@ -3149,7 +3176,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._duplicate_added_objects_tuple()
 
     @pyaedt_function_handler()
-    def thicken_sheet(self, assignment, thickness, both_sides=False):
+    def thicken_sheet(self, assignment, thickness, both_sides: bool = False):
         """Thicken the sheet of the selection.
 
         Parameters
@@ -3186,7 +3213,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.update_object(assignment)
 
     @pyaedt_function_handler()
-    def sweep_along_normal(self, assignment, faces, sweep_value=0.1):
+    def sweep_along_normal(self, assignment, faces, sweep_value: float = 0.1):
         """Sweep the selection along the vector.
 
         Parameters
@@ -3236,7 +3263,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def sweep_along_vector(self, assignment, sweep_vector, draft_angle=0, draft_type="Round"):
+    def sweep_along_vector(self, assignment, sweep_vector, draft_angle: int = 0, draft_type: str = "Round"):
         """Sweep the selection along a vector.
 
         Parameters
@@ -3287,10 +3314,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         self,
         assignment,
         sweep_object,
-        draft_angle=0,
-        draft_type="Round",
-        is_check_face_intersection=False,
-        twist_angle=0,
+        draft_angle: int = 0,
+        draft_type: str = "Round",
+        is_check_face_intersection: bool = False,
+        twist_angle: int = 0,
     ):
         """Sweep the selection along a path.
 
@@ -3338,7 +3365,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             return self.update_object(assignment)
 
     @pyaedt_function_handler()
-    def sweep_around_axis(self, assignment, axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
+    def sweep_around_axis(
+        self, assignment, axis, sweep_angle: int = 360, draft_angle: int = 0, number_of_segments: int = 0
+    ):
         """Sweep the selection around the axis.
 
         Parameters
@@ -3393,7 +3422,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return self.update_object(assignment)
 
     @pyaedt_function_handler()
-    def section(self, assignment, plane, create_new=True, section_cross_object=False):
+    def section(self, assignment, plane, create_new: bool = True, section_cross_object: bool = False) -> bool:
         """Section the selection.
 
         Parameters
@@ -3437,7 +3466,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def separate_bodies(self, assignment, create_group=False):
+    def separate_bodies(self, assignment, create_group: bool = False):
         """Separate bodies of the selection.
 
         Parameters
@@ -3476,7 +3505,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def rotate(self, assignment, axis, angle=90.0, units="deg"):
+    def rotate(self, assignment, axis, angle: float = 90.0, units: str = "deg") -> bool:
         """Rotate the selection.
 
         Parameters
@@ -3513,7 +3542,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def subtract(self, blank_list, tool_list, keep_originals=True):
+    def subtract(self, blank_list, tool_list, keep_originals: bool = True) -> bool:
         """Subtract objects.
 
         Parameters
@@ -3549,7 +3578,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def imprint(self, blank_list, tool_list, keep_originals=True):
+    def imprint(self, blank_list, tool_list, keep_originals: bool = True) -> bool:
         """Imprint an object list on another object list.
 
         Parameters
@@ -3584,7 +3613,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _imprint_projection(self, tool_list, keep_originals=True, normal=True, vector_direction=None, distance="1mm"):
+    def _imprint_projection(
+        self, tool_list, keep_originals: bool = True, normal: bool = True, vector_direction=None, distance: str = "1mm"
+    ) -> bool:
         szList1 = self.convert_to_selections(tool_list)
 
         varg1 = ["NAME:Selections", "Selections:=", szList1]
@@ -3614,7 +3645,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     def imprint_normal_projection(
         self,
         assignment,
-        keep_originals=True,
+        keep_originals: bool = True,
     ):
         """Imprint the normal projection of objects over a sheet.
 
@@ -3643,7 +3674,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         assignment,
         vector_points,
         distance,
-        keep_originals=True,
+        keep_originals: bool = True,
     ):
         """Imprint the projection of objects over a sheet with a specified vector and distance.
 
@@ -3671,7 +3702,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
 
     @pyaedt_function_handler()
-    def purge_history(self, assignment, non_model=False):
+    def purge_history(self, assignment, non_model: bool = False) -> bool:
         """Purge history objects from object names.
 
         Parameters
@@ -3727,7 +3758,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, assignment, purge=False, keep_originals=False):
+    def unite(self, assignment, purge: bool = False, keep_originals: bool = False):
         """Unite objects from a list.
 
         Parameters
@@ -3852,7 +3883,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return new_objects
 
     @pyaedt_function_handler()
-    def intersect(self, assignment, keep_originals=False):
+    def intersect(self, assignment, keep_originals: bool = False):
         """Intersect objects from a list.
 
         Parameters
@@ -4034,7 +4065,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return off1, off2, off3
 
     @pyaedt_function_handler()
-    def check_plane(self, assignment, face_location, offset=1):
+    def check_plane(self, assignment, face_location, offset: int = 1):
         """Check for the plane that is defined as the face for an object.
 
         Parameters
@@ -4110,7 +4141,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.oeditor.GetMatchedObjectName(search_string)
 
     @pyaedt_function_handler()
-    def clean_objects_name(self, main_part_name):
+    def clean_objects_name(self, main_part_name) -> bool:
         """Clean the names of the objects for a main part.
 
         Parameters
@@ -4141,7 +4172,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_airbox(self, offset=0, offset_type="Absolute", name="AirBox_Auto"):
+    def create_airbox(self, offset: int = 0, offset_type: str = "Absolute", name: str = "AirBox_Auto"):
         """Create an airbox that is as big as the bounding extension of the project.
 
         Parameters
@@ -4184,7 +4215,16 @@ class GeometryModeler(Modeler, PyAedtBase):
         return airid
 
     @pyaedt_function_handler()
-    def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0, is_percentage=True):
+    def create_air_region(
+        self,
+        x_pos: int = 0,
+        y_pos: int = 0,
+        z_pos: int = 0,
+        x_neg: int = 0,
+        y_neg: int = 0,
+        z_neg: int = 0,
+        is_percentage: bool = True,
+    ):
         """Create an air region.
 
         Parameters
@@ -4228,7 +4268,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
 
     @pyaedt_function_handler()
-    def edit_region_dimensions(self, values):
+    def edit_region_dimensions(self, values) -> bool:
         """Modify the dimensions of the region.
 
         Parameters
@@ -4262,7 +4302,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_face_list(self, assignment, name=None):
+    def create_face_list(self, assignment, name: str | None = None):
         """Create a list of faces given a list of face ID or a list of objects.
 
         Parameters
@@ -4302,7 +4342,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_object_list(self, assignment, name=None):
+    def create_object_list(self, assignment, name: str | None = None):
         """Create an object list given a list of object names.
 
         Parameters
@@ -4341,7 +4381,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def generate_object_history(self, assignment, non_model=False):
+    def generate_object_history(self, assignment, non_model: bool = False) -> bool:
         """Generate history for the object.
 
         Parameters
@@ -4381,7 +4421,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_faceted_bondwire_from_true_surface(self, assignment, direction, min_size=0.2, number_of_segments=8):
+    def create_faceted_bondwire_from_true_surface(
+        self, assignment, direction, min_size: float = 0.2, number_of_segments: int = 8
+    ):
         """Create a faceted bondwire from an existing true surface bondwire.
 
         Parameters
@@ -4504,7 +4546,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_entitylist_id(self, name):
+    def get_entitylist_id(self, name: str):
         """Retrieve the ID of an entity list.
 
         Parameters
@@ -4525,7 +4567,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_outer_facelist(self, assignment, name="outer_faces"):
+    def create_outer_facelist(self, assignment, name: str = "outer_faces") -> bool:
         """Create a face list from a list of outer objects.
 
         Parameters
@@ -4547,7 +4589,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def explicitly_subtract(self, tool_parts, blank_parts):
+    def explicitly_subtract(self, tool_parts, blank_parts) -> bool:
         """Explicitly subtract all elements in a SolveInside list and a SolveSurface list.
 
         Parameters
@@ -4775,14 +4817,14 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def export_3d_model(
         self,
-        file_name="",
-        file_path="",
-        file_format=".step",
+        file_name: str = "",
+        file_path: str = "",
+        file_format: str = ".step",
         assignment_to_export=None,
         assignment_to_remove=None,
         major_version=-1,
         minor_version=-1,
-    ):
+    ) -> bool:
         """Export the 3D model.
 
         Parameters
@@ -4869,7 +4911,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def import_3d_cad(
         self,
-        input_file: Union[str, Path],
+        input_file: str | Path,
         healing: bool = False,
         refresh_all_ids: bool = True,
         import_materials: bool = False,
@@ -4884,7 +4926,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         reduce_error: int = 0,
         merge_planar_faces: bool = True,
         merge_angle: float = 0.02,
-    ):
+    ) -> bool:
         """Import a CAD model.
 
         Parameters
@@ -4963,7 +5005,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_spaceclaim_document(self, input_file):  # pragma: no cover
+    def import_spaceclaim_document(self, input_file: str) -> bool:  # pragma: no cover
         """Import a SpaceClaim document.
 
         Parameters
@@ -5183,7 +5225,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.refresh_all_ids()
         return True
 
-    def import_discovery_model(self, input_file):
+    def import_discovery_model(self, input_file: str) -> bool:
         """Import a Discovery file.
 
         Parameters
@@ -5256,7 +5298,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_primitives_from_file(self, input_file=None, primitives=None):
+    def import_primitives_from_file(self, input_file: str | None = None, primitives: dict | None = None):
         """Import and create primitives from a JSON file or dictionary of properties.
 
         Parameters
@@ -5300,7 +5342,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def break_spaceclaim_connection(self):  # TODO: Need to change this name. Don't use "break".
+    def break_spaceclaim_connection(self) -> bool:  # TODO: Need to change this name. Don't use "break".
         """Disconnect from the running SpaceClaim instance.
 
         Returns
@@ -5317,7 +5359,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def load_scdm_in_hfss(self, input_file):
+    def load_scdm_in_hfss(self, input_file: str) -> bool:
         """Load a SpaceClaim file in HFSS.
 
         Parameters
@@ -5377,7 +5419,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return sel
 
     @pyaedt_function_handler()
-    def scale(self, assignment, x=2.0, y=2.0, z=2.0):
+    def scale(self, assignment, x: float = 2.0, y: float = 2.0, z: float = 2.0) -> bool:
         """Scale a list of objects.
 
         Parameters
@@ -5436,7 +5478,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return sel
 
     @pyaedt_function_handler()
-    def setunassigned_mats(self):
+    def setunassigned_mats(self) -> bool:
         """Find unassagned objects and set them to non-model.
 
         Returns
@@ -5456,7 +5498,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def automatic_thicken_sheets(self, assignment, value, extrude_internally=True, internal_extrusion=1):
+    def automatic_thicken_sheets(
+        self, assignment, value, extrude_internally: bool = True, internal_extrusion: int = 1
+    ) -> bool:
         """Create thickened sheets for a list of input faces.
 
         This method automatically checks the direction in which to thicken the sheets.
@@ -5559,7 +5603,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def move_face(self, assignment, offset=1.0):
+    def move_face(self, assignment, offset: float = 1.0) -> bool:
         """Move an input face or a list of input faces of a specific object.
 
         This method moves a face or a list of faces which belong to the same solid.
@@ -5619,7 +5663,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def move_edge(self, assignment, offset=1.0):
+    def move_edge(self, assignment, offset: float = 1.0) -> bool:
         """Move an input edge or a list of input edges of a specific object.
 
         This method moves an edge or a list of edges which belong to the same solid.
@@ -5753,7 +5797,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return assigned_name
 
     @pyaedt_function_handler()
-    def ungroup(self, groups):
+    def ungroup(self, groups) -> bool:
         """Ungroup one or more groups.
 
         Parameters
@@ -5776,7 +5820,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def flatten_assembly(self):
+    def flatten_assembly(self) -> bool:
         """Flatten the assembly, removing all group trees.
 
         Returns
@@ -5792,7 +5836,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def wrap_sheet(self, sheet, object, imprinted=False):
+    def wrap_sheet(self, sheet, object, imprinted: bool = False) -> bool:
         """Execute the sheet wrapping around an object.
 
         If wrapping produces an unclassified operation it will be reverted.
@@ -5834,7 +5878,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             self.cleanup_objects()
         return True
 
-    def project_sheet(self, sheet, object, thickness, draft_angle=0, angle_unit="deg", keep_originals=True):
+    def project_sheet(
+        self, sheet, object, thickness, draft_angle: int = 0, angle_unit: str = "deg", keep_originals: bool = True
+    ) -> bool:
         """Project sheet on an object.
 
         If projection produces an unclassified operation it will be reverted.
@@ -5897,34 +5943,34 @@ class GeometryModeler(Modeler, PyAedtBase):
     def heal_objects(
         self,
         assignment,
-        auto_heal=True,
-        tolerant_stitch=True,
-        simplify_geometry=True,
-        tighten_gaps=True,
-        heal_to_solid=False,
-        stop_after_first_stitch_error=False,
-        max_stitch_tolerance=0.001,
-        explode_and_stitch=True,
-        geometry_simplification_tolerance=1,
-        maximum_generated_radius=1,
-        simplify_type=0,
-        tighten_gaps_width=0.00001,
-        remove_silver_faces=True,
-        remove_small_edges=True,
-        remove_small_faces=True,
-        silver_face_tolerance=1,
-        small_edge_tolerance=1,
-        small_face_area_tolerance=1,
-        bounding_box_scale_factor=0,
-        remove_holes=True,
-        remove_chamfers=True,
-        remove_blends=True,
-        hole_radius_tolerance=1,
-        chamfer_width_tolerance=1,
-        blend_radius_tolerance=1,
-        allowable_surface_area_change=5,
-        allowable_volume_change=5,
-    ):
+        auto_heal: bool = True,
+        tolerant_stitch: bool = True,
+        simplify_geometry: bool = True,
+        tighten_gaps: bool = True,
+        heal_to_solid: bool = False,
+        stop_after_first_stitch_error: bool = False,
+        max_stitch_tolerance: float = 0.001,
+        explode_and_stitch: bool = True,
+        geometry_simplification_tolerance: int = 1,
+        maximum_generated_radius: int = 1,
+        simplify_type: int = 0,
+        tighten_gaps_width: float = 0.00001,
+        remove_silver_faces: bool = True,
+        remove_small_edges: bool = True,
+        remove_small_faces: bool = True,
+        silver_face_tolerance: int = 1,
+        small_edge_tolerance: int = 1,
+        small_face_area_tolerance: int = 1,
+        bounding_box_scale_factor: int = 0,
+        remove_holes: bool = True,
+        remove_chamfers: bool = True,
+        remove_blends: bool = True,
+        hole_radius_tolerance: int = 1,
+        chamfer_width_tolerance: int = 1,
+        blend_radius_tolerance: int = 1,
+        allowable_surface_area_change: int = 5,
+        allowable_volume_change: int = 5,
+    ) -> bool:
         """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
 
         Parameters
@@ -6089,17 +6135,17 @@ class GeometryModeler(Modeler, PyAedtBase):
     def simplify_objects(
         self,
         assignment,
-        simplify_type="Polygon Fit",
-        extrusion_axis="Auto",
-        clean_up=True,
-        allow_splitting=True,
-        separate_bodies=True,
-        clone_body=True,
-        generate_primitive_history=False,
-        interior_points_on_arc=5,
-        length_threshold_percentage=25,
-        create_group_for_new_objects=False,
-    ):
+        simplify_type: str = "Polygon Fit",
+        extrusion_axis: str = "Auto",
+        clean_up: bool = True,
+        allow_splitting: bool = True,
+        separate_bodies: bool = True,
+        clone_body: bool = True,
+        generate_primitive_history: bool = False,
+        interior_points_on_arc: int = 5,
+        length_threshold_percentage: int = 25,
+        create_group_for_new_objects: bool = False,
+    ) -> bool:
         """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
 
         Parameters
@@ -6218,7 +6264,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_point(self, position, name=None, color="(143 175 143)"):
+    def create_point(self, position, name: str | None = None, color: str = "(143 175 143)"):
         """Create a point.
 
         Parameters
@@ -6270,14 +6316,14 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_plane(
         self,
-        name=None,
-        plane_base_x="0mm",
-        plane_base_y="0mm",
-        plane_base_z="0mm",
-        plane_normal_x="0mm",
-        plane_normal_y="0mm",
-        plane_normal_z="0mm",
-        color="(143 175 143)",
+        name: str | None = None,
+        plane_base_x: str = "0mm",
+        plane_base_y: str = "0mm",
+        plane_base_z: str = "0mm",
+        plane_normal_x: str = "0mm",
+        plane_normal_y: str = "0mm",
+        plane_normal_z: str = "0mm",
+        color: str = "(143 175 143)",
     ):
         """Create a plane.
 
@@ -6346,7 +6392,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return plane
 
     @pyaedt_function_handler()
-    def _change_component_property(self, vPropChange, names_list):
+    def _change_component_property(self, vPropChange, names_list) -> bool:
         names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
@@ -6358,7 +6404,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_geometry_property(self, vPropChange, names_list):
+    def _change_geometry_property(self, vPropChange, names_list) -> bool:
         names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
@@ -6372,7 +6418,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_point_property(self, vPropChange, names_list):
+    def _change_point_property(self, vPropChange, names_list) -> bool:
         names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
@@ -6386,7 +6432,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_plane_property(self, vPropChange, names_list):
+    def _change_plane_property(self, vPropChange, names_list) -> bool:
         names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
@@ -6423,7 +6469,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def update_geometry_property(self, assignment, name=None, value=None):
+    def update_geometry_property(self, assignment, name: str | None = None, value=None):
         """Update property of assigned geometry objects.
 
         Parameters
@@ -6573,7 +6619,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def create_subregion(self, padding_values, padding_types, assignment, name=None):
+    def create_subregion(self, padding_values, padding_types, assignment, name: str | None = None):
         """Create a subregion.
 
         Parameters
@@ -6612,7 +6658,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.oeditor.CreateSubregion(arg, arg2)
         return self._create_object(name)
 
-    def reassign_subregion(self, region, parts):
+    def reassign_subregion(self, region, parts) -> bool:
         """Modify parts in the subregion.
 
         Parameters
@@ -6706,7 +6752,12 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def _create_region(
-        self, pad_value=300, pad_type="Percentage Offset", name="Region", parts=None, region_type="Region"
+        self,
+        pad_value: int = 300,
+        pad_type: str = "Percentage Offset",
+        name: str = "Region",
+        parts=None,
+        region_type: str = "Region",
     ):
         if name in self._app.modeler.objects_by_name:  # pragma: no cover
             self._app.logger.error(f"{name} object already exists")
@@ -6722,7 +6773,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_region(self, pad_value=300, pad_type="Percentage Offset", name="Region", **kwarg):
+    def create_region(self, pad_value: int = 300, pad_type: str = "Percentage Offset", name: str = "Region", **kwarg):
         """Create an air region.
 
         Parameters
@@ -6773,7 +6824,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._create_region(pad_value, pad_type, name, region_type="Region")
 
     @pyaedt_function_handler()
-    def create_object_from_edge(self, assignment, non_model=False):
+    def create_object_from_edge(self, assignment, non_model: bool = False):
         """Create an object from one or multiple edges.
 
         Parameters
@@ -6822,7 +6873,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return
 
     @pyaedt_function_handler()
-    def create_object_from_face(self, assignment, non_model=False):
+    def create_object_from_face(self, assignment, non_model: bool = False):
         """Create an object from one or multiple face.
 
         Parameters
@@ -6871,7 +6922,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         return
 
     @pyaedt_function_handler()
-    def polyline_segment(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
+    def polyline_segment(
+        self, type, num_seg: int = 0, num_points: int = 0, arc_angle: int = 0, arc_center=None, arc_plane=None
+    ):
         """New segment of a polyline.
 
         Parameters
@@ -6920,18 +6973,18 @@ class GeometryModeler(Modeler, PyAedtBase):
         self,
         points,
         segment_type=None,
-        cover_surface=False,
-        close_surface=False,
-        name=None,
-        material=None,
+        cover_surface: bool = False,
+        close_surface: bool = False,
+        name: str | None = None,
+        material: str | None = None,
         xsection_type=None,
         xsection_orient=None,
-        xsection_width=1,
-        xsection_topwidth=1,
-        xsection_height=1,
-        xsection_num_seg=0,
+        xsection_width: int = 1,
+        xsection_topwidth: int = 1,
+        xsection_height: int = 1,
+        xsection_num_seg: int = 0,
         xsection_bend_type=None,
-        non_model=False,
+        non_model: bool = False,
     ):
         """Draw a polyline object in the 3D modeler.
 
@@ -7109,7 +7162,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return new_polyline
 
     @pyaedt_function_handler()
-    def create_spiral_on_face(self, assignment, width, filling_factor=1.5):
+    def create_spiral_on_face(self, assignment, width, filling_factor: float = 1.5):
         """Create a Spiral Polyline inside a face.
 
         Parameters
@@ -7186,7 +7239,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return Polyline(self, src_object=assignment)
 
     @pyaedt_function_handler()
-    def create_udp(self, dll, parameters, library="syslib", name=None):
+    def create_udp(self, dll, parameters, library: str = "syslib", name: str | None = None):
         """Create a user-defined primitive (UDP).
 
         Parameters
@@ -7248,7 +7301,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._create_object(obj_name)
 
     @pyaedt_function_handler()
-    def update_udp(self, assignment, operation, parameters):
+    def update_udp(self, assignment, operation, parameters) -> bool:
         """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
 
         Parameters
@@ -7301,7 +7354,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self, assignment=None):
+    def delete(self, assignment=None) -> bool:
         """Delete objects or groups.
 
         Parameters
@@ -7356,7 +7409,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_objects_containing(self, contained_string, case_sensitive=True):
+    def delete_objects_containing(self, contained_string, case_sensitive: bool = True) -> bool:
         """Delete all objects with a given prefix.
 
         Parameters
@@ -7429,7 +7482,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return self.objects[assignment]
 
     @pyaedt_function_handler()
-    def get_objects_w_string(self, string_name, case_sensitive=True):
+    def get_objects_w_string(self, string_name, case_sensitive: bool = True):
         """Retrieve all objects with a given string in their names.
 
         Parameters
@@ -7456,7 +7509,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return list_objs
 
     @pyaedt_function_handler()
-    def find_closest_edges(self, start_object, end_object, direction=0):
+    def find_closest_edges(self, start_object, end_object, direction: int = 0):
         """Retrieve the two closest edges that are not perpendicular for two objects.
 
         Parameters
@@ -7627,7 +7680,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         return edge_list, is_parallel
 
     @pyaedt_function_handler()
-    def get_equivalent_parallel_edges(self, assignment, port_on_plane=True, axis=0, start_object="", end_object=""):
+    def get_equivalent_parallel_edges(
+        self, assignment, port_on_plane: bool = True, axis: int = 0, start_object: str = "", end_object: str = ""
+    ):
         """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
 
         Parameters
@@ -8041,7 +8096,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return
 
     @pyaedt_function_handler()
-    def get_bodynames_from_position(self, position, units=None, include_non_model=True):
+    def get_bodynames_from_position(self, position, units=None, include_non_model: bool = True):
         """Retrieve the names of the objects that are in contact with a given point.
 
         Parameters
@@ -8212,7 +8267,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 self.logger.debug(f"Cannot retrieve face id from {obj}")
 
     @pyaedt_function_handler()
-    def get_edges_on_bounding_box(self, assignment, return_colinear=True, tolerance=1e-6):
+    def get_edges_on_bounding_box(self, assignment, return_colinear: bool = True, tolerance: float = 1e-6):
         """Retrieve the edges of the sheets passed in the input that are lying on the bounding box.
 
         This method creates new lines for the detected edges and returns the IDs of these lines.
@@ -8283,7 +8338,13 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_edges_for_circuit_port_from_sheet(
-        self, assignment, xy_plane=True, yz_plane=True, xz_plane=True, allow_perpendicular=False, tolerance=1e-6
+        self,
+        assignment,
+        xy_plane: bool = True,
+        yz_plane: bool = True,
+        xz_plane: bool = True,
+        allow_perpendicular: bool = False,
+        tolerance: float = 1e-6,
     ):
         """Retrieve two edge IDs that are suitable for a circuit port from a sheet.
 
@@ -8431,7 +8492,13 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_edges_for_circuit_port(
-        self, assignment, xy_plane=True, yz_plane=True, xz_plane=True, allow_perpendicular=False, tolerance=1e-6
+        self,
+        assignment,
+        xy_plane: bool = True,
+        yz_plane: bool = True,
+        xz_plane: bool = True,
+        allow_perpendicular: bool = False,
+        tolerance: float = 1e-6,
     ):
         """Retrieve two edge IDs suitable for the circuit port.
 
@@ -8618,7 +8685,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return self[object]
 
     @pyaedt_function_handler()
-    def _get_model_objects(self, model=True):
+    def _get_model_objects(self, model: bool = True):
         """Retrieve all model objects.
 
         Parameters
@@ -8640,7 +8707,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return list_objs
 
     @pyaedt_function_handler()
-    def _check_material(self, material, default_material, threshold=100000):
+    def _check_material(self, material: str, default_material: str, threshold: int = 100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -8732,19 +8799,19 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
-    def _refresh_solids(self):
+    def _refresh_solids(self) -> None:
         self.__refresh_object_type("Solids")
 
     @pyaedt_function_handler()
-    def _refresh_sheets(self):
+    def _refresh_sheets(self) -> None:
         self.__refresh_object_type("Sheets")
 
     @pyaedt_function_handler()
-    def _refresh_lines(self):
+    def _refresh_lines(self) -> None:
         self.__refresh_object_type("Lines")
 
     @pyaedt_function_handler()
-    def _refresh_unclassified(self):
+    def _refresh_unclassified(self) -> None:
         self.__refresh_object_type("Unclassified")
 
     # TODO: Checks should be performed to check if all objects values are really reachable
@@ -8763,7 +8830,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
-    def _refresh_planes(self):
+    def _refresh_planes(self) -> None:
         self._planes = {}
         try:
             self._planes = {
@@ -8775,7 +8842,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
     @pyaedt_function_handler()
-    def _refresh_object_types(self):
+    def _refresh_object_types(self) -> None:
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
@@ -8785,7 +8852,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False, is_polyline=False, **kwargs):
+    def _create_object(self, name: str, pid: int = 0, use_cached: bool = False, is_polyline: bool = False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:
@@ -8833,7 +8900,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def _default_object_attributes(self, name=None, material=None, flags=""):
+    def _default_object_attributes(self, name: str | None = None, material: str | None = None, flags: str = ""):
         if not material:
             material = self.defaultmaterial
 
@@ -8988,7 +9055,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def _get_native_component_properties(self, name):
+    def _get_native_component_properties(self, name: str):
         """Get properties of native component.
 
         Returns
@@ -9023,7 +9090,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return native_comp_properties
 
     @pyaedt_function_handler()
-    def _get_object_dict_by_material(self, material):
+    def _get_object_dict_by_material(self, material: str):
         obj_dict = {}
         for mat in material:
             objs = []
@@ -9043,7 +9110,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return obj_dict
 
     @pyaedt_function_handler()
-    def convert_segments_to_line(self, assignment):
+    def convert_segments_to_line(self, assignment) -> bool:
         """Convert a CreatePolyline list of segments to lines.
 
         This method applies to splines and 3-point arguments.
@@ -9115,7 +9182,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp.desktop_class.close_desktop()
     """
 
-    def __init__(self, app, input_file=None, input_dict=None):
+    def __init__(self, app, input_file: str | None = None, input_dict=None) -> None:
         self._app = app
         props = {}
         if not input_dict and not input_file:  # pragma: no cover
@@ -9224,7 +9291,7 @@ class PrimitivesBuilder(PyAedtBase):
         return created_instances
 
     @pyaedt_function_handler()
-    def _create_instance(self, name, cs, origin, primitive_data):
+    def _create_instance(self, name: str, cs, origin, primitive_data):
         """Create a primitive instance.
 
         This method determines the primitive type and creates an instance based on this type.
@@ -9261,7 +9328,7 @@ class PrimitivesBuilder(PyAedtBase):
         return instance
 
     @pyaedt_function_handler()
-    def _create_cylinder_instance(self, name, cs, origin, data):
+    def _create_cylinder_instance(self, name: str, cs, origin, data):
         """Create a cylinder instance.
 
         Parameters
@@ -9319,7 +9386,7 @@ class PrimitivesBuilder(PyAedtBase):
 
         return cyl1
 
-    def _create_box_instance(self, name, cs, origin, data):
+    def _create_box_instance(self, name: str, cs, origin, data):
         """Create a box instance.
 
         Parameters
@@ -9543,7 +9610,7 @@ class PrimitivesBuilder(PyAedtBase):
         return converted_value
 
     @pyaedt_function_handler()
-    def _create_coordinate_system(self):
+    def _create_coordinate_system(self) -> bool:
         """Create a coordinate system defined in the object."""
         for cs in self.coordinate_systems:
             cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
