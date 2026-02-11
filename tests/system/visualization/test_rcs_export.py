@@ -38,14 +38,14 @@ def project_test(add_app_example):
     return app
 
 
-def test_get_rcs(project_test) -> None:
+def test_get_rcs(project_test):
     rcs_data = project_test.get_rcs_data(variation_name="hh_solution")
     assert isinstance(rcs_data, MonostaticRCSExporter)
 
     assert isinstance(rcs_data.model_info, dict)
 
 
-def test_get_rcs_geometry(project_test) -> None:
+def test_get_rcs_geometry(project_test):
     rcs_exporter = MonostaticRCSExporter(
         project_test,
         setup_name=None,
