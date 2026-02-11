@@ -182,20 +182,20 @@ wheels = [
 
 [[package]]
 name = "ansys-api-edb"
-version = "0.2.1"
+version = "0.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "grpcio" },
     { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e7/d9/6d9622f9ff895a398c8fd3d8e66df15afc3dc474da3072e9a50d1d6bdd07/ansys_api_edb-0.2.1.tar.gz", hash = "sha256:e7083e6451c352c4bf359a8e9e98821869b5f6e67cd0f85f5f78c2ea206a3112", size = 42619, upload-time = "2025-07-24T15:06:58.024Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/39/6faa39bf8dbfc19ef5a0ae89d6ba400e8f71837c709e91adc68706f47c65/ansys_api_edb-0.2.2.tar.gz", hash = "sha256:6ad056644f16a6b7b58e48868736114efbbf7d958316f3c49eefa97762f73260", size = 42639, upload-time = "2026-02-10T00:48:38.684Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/1d/186d962f0cafa40f69b856a5a15f3535e5d60d813b16dcaaf9f5d2bdeacb/ansys_api_edb-0.2.1-py3-none-any.whl", hash = "sha256:3df93c9773034a73eb8333c5267dc3f89ab29ae83b6f497b68292975ef38de27", size = 613693, upload-time = "2025-07-24T15:06:56.711Z" },
+    { url = "https://files.pythonhosted.org/packages/12/9f/8972c02c48d6325dface73cfc4e3211660308f2a663923a2d4c6c54a50e7/ansys_api_edb-0.2.2-py3-none-any.whl", hash = "sha256:480413575888d879feb43f30913fa75e73899eb5f3fcde6f9a573f1ef39ea9d9", size = 615173, upload-time = "2026-02-10T00:48:37.157Z" },
 ]
 
 [[package]]
 name = "ansys-edb-core"
-version = "0.2.5"
+version = "0.2.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-api-edb" },
@@ -204,9 +204,9 @@ dependencies = [
     { name = "grpcio" },
     { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8d/e7/2d553150e67ce9cf8343976ca6370dc79656eeca3fb0eba12e4fb5d8e91c/ansys_edb_core-0.2.5.tar.gz", hash = "sha256:da5730cc6e649305c91fc4dec752c02f4ab0759cfa15b9d69548a94c18fa0ff3", size = 151628, upload-time = "2026-01-08T06:32:40.821Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/70/ae55c9b5734bd675fd5267939c8f9f266f9502bd55b4b46cfe98aa050e43/ansys_edb_core-0.2.6.tar.gz", hash = "sha256:0f94e4dba7dbff6a6f6c6d254a0b52315c71e11c448e03bd5b3d245d500f0b91", size = 151618, upload-time = "2026-02-11T00:11:32.445Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9e/2b/68d517ab6ea101da2622ea8da03685d037bf90a1d0e77efbc27d8f5918e3/ansys_edb_core-0.2.5-py3-none-any.whl", hash = "sha256:986d91e3be04ab894e482170158c4582cb284b2f5cdc773ab81bcbb606c88567", size = 214553, upload-time = "2026-01-08T06:32:38.966Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/e6/9776ee6c01ec2c1d7593522a2758c22d877446ac06f5e139e96c410f6c60/ansys_edb_core-0.2.6-py3-none-any.whl", hash = "sha256:9efb6be6d226827b30b1228bab129503d92239c0fa80da3a64c1a2aefea1ac33", size = 214558, upload-time = "2026-02-11T00:11:31.043Z" },
 ]
 
 [[package]]
@@ -2652,7 +2652,7 @@ wheels = [
 
 [[package]]
 name = "nbconvert"
-version = "7.16.6"
+version = "7.17.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -2670,9 +2670,9 @@ dependencies = [
     { name = "pygments" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/59/f28e15fc47ffb73af68a8d9b47367a8630d76e97ae85ad18271b9db96fdf/nbconvert-7.16.6.tar.gz", hash = "sha256:576a7e37c6480da7b8465eefa66c17844243816ce1ccc372633c6b71c3c0f582", size = 857715, upload-time = "2025-01-28T09:29:14.724Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/38/47/81f886b699450d0569f7bc551df2b1673d18df7ff25cc0c21ca36ed8a5ff/nbconvert-7.17.0.tar.gz", hash = "sha256:1b2696f1b5be12309f6c7d707c24af604b87dfaf6d950794c7b07acab96dda78", size = 862855, upload-time = "2026-01-29T16:37:48.478Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/9a/cd673b2f773a12c992f41309ef81b99da1690426bd2f96957a7ade0d3ed7/nbconvert-7.16.6-py3-none-any.whl", hash = "sha256:1375a7b67e0c2883678c48e506dc320febb57685e5ee67faa51b18a90f3a712b", size = 258525, upload-time = "2025-01-28T09:29:12.551Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/4b/8d5f796a792f8a25f6925a96032f098789f448571eb92011df1ae59e8ea8/nbconvert-7.17.0-py3-none-any.whl", hash = "sha256:4f99a63b337b9a23504347afdab24a11faa7d86b405e5c8f9881cd313336d518", size = 261510, upload-time = "2026-01-29T16:37:46.322Z" },
 ]
 
 [[package]]
@@ -3428,16 +3428,16 @@ wheels = [
 
 [[package]]
 name = "protobuf"
-version = "4.25.8"
+version = "5.29.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/df/01/34c8d2b6354906d728703cb9d546a0e534de479e25f1b581e4094c4a85cc/protobuf-4.25.8.tar.gz", hash = "sha256:6135cf8affe1fc6f76cced2641e4ea8d3e59518d1f24ae41ba97bcad82d397cd", size = 380920, upload-time = "2025-05-28T14:22:25.153Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/57/394a763c103e0edf87f0938dafcd918d53b4c011dfc5c8ae80f3b0452dbb/protobuf-5.29.6.tar.gz", hash = "sha256:da9ee6a5424b6b30fd5e45c5ea663aef540ca95f9ad99d1e887e819cdf9b8723", size = 425623, upload-time = "2026-02-04T22:54:40.584Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/ff/05f34305fe6b85bbfbecbc559d423a5985605cad5eda4f47eae9e9c9c5c5/protobuf-4.25.8-cp310-abi3-win32.whl", hash = "sha256:504435d831565f7cfac9f0714440028907f1975e4bed228e58e72ecfff58a1e0", size = 392745, upload-time = "2025-05-28T14:22:10.524Z" },
-    { url = "https://files.pythonhosted.org/packages/08/35/8b8a8405c564caf4ba835b1fdf554da869954712b26d8f2a98c0e434469b/protobuf-4.25.8-cp310-abi3-win_amd64.whl", hash = "sha256:bd551eb1fe1d7e92c1af1d75bdfa572eff1ab0e5bf1736716814cdccdb2360f9", size = 413736, upload-time = "2025-05-28T14:22:13.156Z" },
-    { url = "https://files.pythonhosted.org/packages/28/d7/ab27049a035b258dab43445eb6ec84a26277b16105b277cbe0a7698bdc6c/protobuf-4.25.8-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:ca809b42f4444f144f2115c4c1a747b9a404d590f18f37e9402422033e464e0f", size = 394537, upload-time = "2025-05-28T14:22:14.768Z" },
-    { url = "https://files.pythonhosted.org/packages/bd/6d/a4a198b61808dd3d1ee187082ccc21499bc949d639feb948961b48be9a7e/protobuf-4.25.8-cp37-abi3-manylinux2014_aarch64.whl", hash = "sha256:9ad7ef62d92baf5a8654fbb88dac7fa5594cfa70fd3440488a5ca3bfc6d795a7", size = 294005, upload-time = "2025-05-28T14:22:16.052Z" },
-    { url = "https://files.pythonhosted.org/packages/d6/c6/c9deaa6e789b6fc41b88ccbdfe7a42d2b82663248b715f55aa77fbc00724/protobuf-4.25.8-cp37-abi3-manylinux2014_x86_64.whl", hash = "sha256:83e6e54e93d2b696a92cad6e6efc924f3850f82b52e1563778dfab8b355101b0", size = 294924, upload-time = "2025-05-28T14:22:17.105Z" },
-    { url = "https://files.pythonhosted.org/packages/0c/c1/6aece0ab5209981a70cd186f164c133fdba2f51e124ff92b73de7fd24d78/protobuf-4.25.8-py3-none-any.whl", hash = "sha256:15a0af558aa3b13efef102ae6e4f3efac06f1eea11afb3a57db2901447d9fb59", size = 156757, upload-time = "2025-05-28T14:22:24.135Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/88/9ee58ff7863c479d6f8346686d4636dd4c415b0cbeed7a6a7d0617639c2a/protobuf-5.29.6-cp310-abi3-win32.whl", hash = "sha256:62e8a3114992c7c647bce37dcc93647575fc52d50e48de30c6fcb28a6a291eb1", size = 423357, upload-time = "2026-02-04T22:54:25.805Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/66/2dc736a4d576847134fb6d80bd995c569b13cdc7b815d669050bf0ce2d2c/protobuf-5.29.6-cp310-abi3-win_amd64.whl", hash = "sha256:7e6ad413275be172f67fdee0f43484b6de5a904cc1c3ea9804cb6fe2ff366eda", size = 435175, upload-time = "2026-02-04T22:54:28.592Z" },
+    { url = "https://files.pythonhosted.org/packages/06/db/49b05966fd208ae3f44dcd33837b6243b4915c57561d730a43f881f24dea/protobuf-5.29.6-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:b5a169e664b4057183a34bdc424540e86eea47560f3c123a0d64de4e137f9269", size = 418619, upload-time = "2026-02-04T22:54:30.266Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/d7/48cbf6b0c3c39761e47a99cb483405f0fde2be22cf00d71ef316ce52b458/protobuf-5.29.6-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:a8866b2cff111f0f863c1b3b9e7572dc7eaea23a7fae27f6fc613304046483e6", size = 320284, upload-time = "2026-02-04T22:54:31.782Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/dd/cadd6ec43069247d91f6345fa7a0d2858bef6af366dbd7ba8f05d2c77d3b/protobuf-5.29.6-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:e3387f44798ac1106af0233c04fb8abf543772ff241169946f698b3a9a3d3ab9", size = 320478, upload-time = "2026-02-04T22:54:32.909Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/cb/e3065b447186cb70aa65acc70c86baf482d82bf75625bf5a2c4f6919c6a3/protobuf-5.29.6-py3-none-any.whl", hash = "sha256:6b9edb641441b2da9fa8f428760fc136a49cf97a52076010cf22a2ff73438a86", size = 173126, upload-time = "2026-02-04T22:54:39.462Z" },
 ]
 
 [[package]]
@@ -3879,7 +3879,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.68.3"
+version = "0.69.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3902,9 +3902,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f9/ee/13fd79799198d2889e36ace02ba05a324f3e7c68dd4f5dc0858e597b2a18/pyedb-0.68.3.tar.gz", hash = "sha256:8ae83acc8339e3eadf858f33607e73f3f4124619a88ce37c87b4cb37b22ed8ad", size = 755475, upload-time = "2026-02-07T08:11:52.337Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/d0/00e6398113278d3649ab9ed03d4436a6742b9bc9a294bdae8c206cca48a2/pyedb-0.69.0.tar.gz", hash = "sha256:0c2b0673d684005b23d5f5f83329676d23c09f12ac33f631fb933e75a1e78b7f", size = 755684, upload-time = "2026-02-11T11:12:09.146Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/d6/f984fe6a4e835b9b76aa459621f33cab0f735c77b4a7025b82653104db5a/pyedb-0.68.3-py3-none-any.whl", hash = "sha256:e3c6171b4319d6e2ebd48cdc9f40e8289cae8f7195afe422ed3a05e138b96494", size = 1037518, upload-time = "2026-02-07T08:11:50.261Z" },
+    { url = "https://files.pythonhosted.org/packages/49/54/1367dccab34756620c93a53cd875dcab80ce1d04903647d5685443f0aef0/pyedb-0.69.0-py3-none-any.whl", hash = "sha256:8aeb87f3ec131ef8ebd64702128e8a1b55291a62ed8db8a7b53aed173090b2a5", size = 1037581, upload-time = "2026-02-11T11:12:07.79Z" },
 ]
 
 [[package]]
