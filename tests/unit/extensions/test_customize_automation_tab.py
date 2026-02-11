@@ -81,7 +81,7 @@ def invalid_tabconfig_xml():
 
 def test_get_custom_extensions_from_tabconfig_success(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test successful parsing of custom extensions from TabConfig.xml."""
     toml_names = {"Standard Extension"}
     options = {}
@@ -98,7 +98,7 @@ def test_get_custom_extensions_from_tabconfig_success(
 
 def test_get_custom_extensions_from_tabconfig_with_existing_options(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test parsing with existing options dict."""
     toml_names = set()
     options = {"Existing Extension": "existing"}
@@ -112,7 +112,7 @@ def test_get_custom_extensions_from_tabconfig_with_existing_options(
 
 def test_get_custom_extensions_from_tabconfig_duplicate_prevention(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test that duplicates are not added to options."""
     toml_names = set()
     options = {"Custom Extension 1": "already_exists"}
@@ -125,7 +125,7 @@ def test_get_custom_extensions_from_tabconfig_duplicate_prevention(
 
 def test_get_custom_extensions_from_tabconfig_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling with invalid XML."""
     mock_logger = MagicMock()
     toml_names = set()
@@ -137,7 +137,7 @@ def test_get_custom_extensions_from_tabconfig_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extensions_from_tabconfig_nonexistent_file():
+def test_get_custom_extensions_from_tabconfig_nonexistent_file() -> None:
     """Test error handling with nonexistent file."""
     mock_logger = MagicMock()
     toml_names = set()
@@ -154,7 +154,7 @@ def test_get_custom_extensions_from_tabconfig_nonexistent_file():
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_script_success(sample_tabconfig_xml):
+def test_get_custom_extension_script_success(sample_tabconfig_xml) -> None:
     """Test successful retrieval of custom extension script."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Custom Extension 1")
     assert result == "custom_script1.py"
@@ -165,7 +165,7 @@ def test_get_custom_extension_script_success(sample_tabconfig_xml):
 
 def test_get_custom_extension_script_non_custom_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test script retrieval for non-custom extension returns None."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Standard Extension")
     assert result is None
@@ -176,7 +176,7 @@ def test_get_custom_extension_script_non_custom_extension(
 
 def test_get_custom_extension_script_nonexistent_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test script retrieval for nonexistent extension returns None."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Nonexistent Extension")
     assert result is None
@@ -184,7 +184,7 @@ def test_get_custom_extension_script_nonexistent_extension(
 
 def test_get_custom_extension_script_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling in script retrieval with invalid XML."""
     mock_logger = MagicMock()
 
@@ -198,7 +198,7 @@ def test_get_custom_extension_script_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_script_nonexistent_file():
+def test_get_custom_extension_script_nonexistent_file() -> None:
     """Test error handling in script retrieval with nonexistent file."""
     mock_logger = MagicMock()
 
@@ -212,7 +212,7 @@ def test_get_custom_extension_script_nonexistent_file():
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_image_success(sample_tabconfig_xml):
+def test_get_custom_extension_image_success(sample_tabconfig_xml) -> None:
     """Test successful retrieval of extension image."""
     result = get_custom_extension_image(sample_tabconfig_xml, "Custom Extension 1")
     assert result == "custom/icon1.png"
@@ -223,13 +223,13 @@ def test_get_custom_extension_image_success(sample_tabconfig_xml):
 
 def test_get_custom_extension_image_nonexistent_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test image retrieval for nonexistent extension returns empty string."""
     result = get_custom_extension_image(sample_tabconfig_xml, "Nonexistent Extension")
     assert result == ""
 
 
-def test_get_custom_extension_image_missing_image_attribute():
+def test_get_custom_extension_image_missing_image_attribute() -> None:
     """Test image retrieval when image attribute is missing."""
     xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <TabConfig>
@@ -248,7 +248,7 @@ def test_get_custom_extension_image_missing_image_attribute():
 
 def test_get_custom_extension_image_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling in image retrieval with invalid XML."""
     mock_logger = MagicMock()
 
@@ -262,7 +262,7 @@ def test_get_custom_extension_image_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_image_nonexistent_file():
+def test_get_custom_extension_image_nonexistent_file() -> None:
     """Test error handling in image retrieval with nonexistent file."""
     mock_logger = MagicMock()
 
@@ -278,7 +278,7 @@ def test_get_custom_extension_image_nonexistent_file():
 
 def test_get_custom_extensions_from_tabconfig_no_logger(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling without logger."""
     toml_names = set()
     options = {}
@@ -289,7 +289,7 @@ def test_get_custom_extensions_from_tabconfig_no_logger(
     assert result == options
 
 
-def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml):
+def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml) -> None:
     """Test error handling in script retrieval without logger."""
     # Should not raise exception when logger is None
     result = get_custom_extension_script(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
@@ -297,7 +297,7 @@ def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml):
     assert result is None
 
 
-def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml):
+def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml) -> None:
     """Test error handling in image retrieval without logger."""
     # Should not raise exception when logger is None
     result = get_custom_extension_image(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
@@ -313,7 +313,7 @@ def test_add_script_to_menu_success(
     mock_copy,
     mock_add_automation_tab,
     mock_desktop_session,
-):
+) -> None:
     """Test the successful addition of a script to the menu."""
     # Arrange
     toolkit_name = "MyTestToolkit"
@@ -359,7 +359,7 @@ def test_add_script_to_menu_success(
 
 @patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions", {})
 @patch("logging.getLogger")
-def test_add_script_to_menu_no_session_failure(mock_logger):
+def test_add_script_to_menu_no_session_failure(mock_logger) -> None:
     """Test failure when no desktop session is available and no paths are provided."""
     result = add_script_to_menu("Test")
     assert result is False
@@ -371,7 +371,7 @@ def test_add_script_to_menu_no_session_failure(mock_logger):
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
 @patch("sys.executable", "C:\\Python\\python.exe")
-def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_session):
+def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_session) -> None:
     """Test that the script is not copied when copy_to_personal_lib is False."""
     with patch("shutil.copy2") as mock_copy:
         template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
@@ -392,7 +392,7 @@ def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_sessio
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
 @patch("shutil.copy2")
 @patch("sys.executable", "C:\\Python\\python.exe")
-def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_desktop_session):
+def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_desktop_session) -> None:
     """Test that add_automation_tab is called with is_custom=True."""
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)

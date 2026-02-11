@@ -61,7 +61,7 @@ def toml_file_path(tmp_path):
     return file_path
 
 
-def conditional_open(file=None, mode="r", *args, **kwargs):
+def conditional_open(file=None, mode: str = "r", *args, **kwargs):
     """Open mocked TOML files, otherwise call real open."""
     if file is None or str(file).endswith(".toml"):
         return MOCK_CALL_OPEN(file, mode, *args, **kwargs)
@@ -70,7 +70,7 @@ def conditional_open(file=None, mode="r", *args, **kwargs):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_default(mock_desktop, mock_hfss_3d_layout_app):
+def test_via_design_extension_default(mock_desktop, mock_hfss_3d_layout_app) -> None:
     """Test instantiation of the Via Design extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -90,7 +90,7 @@ def test_via_design_extension_select_configuration_example(
     mock_file_open,
     mock_asksaveasfilename,
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test saving examples configuration success"""
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
@@ -123,7 +123,7 @@ def test_via_design_extension_create_design_failure(
     mock_file_open,
     mock_askopenfilename,
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test create design with non existing file"""
     extension = ViaDesignExtension(withdraw=True)
 
@@ -147,7 +147,7 @@ def test_via_design_extension_create_design_sucess(
     mock_hfss3dlayout_class,
     toml_file_path,
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test create design success"""
     EXPECTED_RESULT = {
         "signals": {
@@ -178,7 +178,7 @@ def test_via_design_examples_success(
     mock_asksaveasfilename,
     tmp_path,
     mock_hfss_3d_layout_app,
-):
+) -> None:
     """Test the examples provided in the via design extension."""
     extension = ViaDesignExtension(withdraw=True)
 

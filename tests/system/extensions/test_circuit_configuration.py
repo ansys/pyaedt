@@ -44,14 +44,14 @@ def aedt_app(add_app):
     app.close_project(name=project_name, save=False)
 
 
-def test_apply_configuration(aedt_app, test_tmp_dir):
+def test_apply_configuration(aedt_app, test_tmp_dir) -> None:
     """Test the successful execution of the circuit configuration file."""
     file_path = shutil.copy(JSON_FILE_PATH, test_tmp_dir / JSON_FILENAME)
     DATA = CircuitConfigurationData(file_path=[str(file_path)])
     assert main(DATA)
 
 
-def test_export_configuration(aedt_app, test_tmp_dir):
+def test_export_configuration(aedt_app, test_tmp_dir) -> None:
     """Test the successful execution of the circuit configuration file."""
     DATA = CircuitConfigurationData(output_dir=test_tmp_dir)
     _ = aedt_app.modeler.schematic.create_resistor()

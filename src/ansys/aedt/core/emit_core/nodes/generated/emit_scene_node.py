@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class EmitSceneNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -45,7 +45,7 @@ class EmitSceneNode(EmitNode):
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name):
+    def import_cad(self, file_name: str):
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
@@ -60,7 +60,7 @@ class EmitSceneNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
@@ -76,7 +76,7 @@ class EmitSceneNode(EmitNode):
         return val
 
     @ground_plane_normal.setter
-    def ground_plane_normal(self, value: GroundPlaneNormalOption):
+    def ground_plane_normal(self, value: GroundPlaneNormalOption) -> None:
         self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
@@ -91,6 +91,6 @@ class EmitSceneNode(EmitNode):
         return float(val)
 
     @gp_position_along_normal.setter
-    def gp_position_along_normal(self, value: float | str):
+    def gp_position_along_normal(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("GP Position Along Normal", f"{value}")
