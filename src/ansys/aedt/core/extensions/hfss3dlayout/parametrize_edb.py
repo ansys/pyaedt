@@ -80,7 +80,7 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
     relative_parametric: bool = EXTENSION_DEFAULT_ARGUMENTS["relative_parametric"]
     project_name: str = EXTENSION_DEFAULT_ARGUMENTS["project_name"]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.nets_filter is None:
             self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
 
@@ -88,7 +88,7 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for parametrizing EDB layouts in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -162,7 +162,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         except Exception as e:
             raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add extension content to the UI."""
         # Project name
         ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
@@ -273,7 +273,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message):
+    def show_error_message(self, message) -> None:
         """Show error message."""
         import tkinter.messagebox
 
@@ -324,7 +324,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             self.show_error_message(f"Error: {str(e)}")
 
 
-def main(data: ParametrizeEdbExtensionData):
+def main(data: ParametrizeEdbExtensionData) -> bool:
     """Main function to run the parametrize EDB extension."""
     if data.expansion_polygon_mm < 0:
         raise AEDTRuntimeError("Polygon expansion cannot be negative.")

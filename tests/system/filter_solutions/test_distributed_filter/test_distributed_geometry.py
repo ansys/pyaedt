@@ -30,13 +30,13 @@ from tests.conftest import DESKTOP_VERSION
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
-def test_fixed_width_to_height_ratio_capacitor_sections_enabled(distributed_design):
+def test_fixed_width_to_height_ratio_capacitor_sections_enabled(distributed_design) -> None:
     assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled
     distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = False
     assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled is False
 
 
-def test_fixed_width_to_height_ratio_capacitor_sections(distributed_design):
+def test_fixed_width_to_height_ratio_capacitor_sections(distributed_design) -> None:
     with pytest.raises(RuntimeError) as info:
         distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = False
         distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections = "0.5"
@@ -50,13 +50,13 @@ def test_fixed_width_to_height_ratio_capacitor_sections(distributed_design):
     assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections == "2"
 
 
-def test_fixed_width_to_height_ratio_inductor_sections_enabled(distributed_design):
+def test_fixed_width_to_height_ratio_inductor_sections_enabled(distributed_design) -> None:
     assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled
     distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = False
     assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled is False
 
 
-def test_fixed_width_to_height_ratio_inductor_sections(distributed_design):
+def test_fixed_width_to_height_ratio_inductor_sections(distributed_design) -> None:
     with pytest.raises(RuntimeError) as info:
         distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = False
         distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections = "0.5"
@@ -70,13 +70,13 @@ def test_fixed_width_to_height_ratio_inductor_sections(distributed_design):
     assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "2"
 
 
-def test_split_wide_stubs_enabled(distributed_design):
+def test_split_wide_stubs_enabled(distributed_design) -> None:
     assert distributed_design.geometry.split_wide_stubs_enabled is False
     distributed_design.geometry.split_wide_stubs_enabled = True
     assert distributed_design.geometry.split_wide_stubs_enabled
 
 
-def test_wide_stubs_width_to_substrate_height_ratio(distributed_design):
+def test_wide_stubs_width_to_substrate_height_ratio(distributed_design) -> None:
     with pytest.raises(RuntimeError) as info:
         distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio = "0.5"
     assert (
@@ -89,43 +89,43 @@ def test_wide_stubs_width_to_substrate_height_ratio(distributed_design):
     assert distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio == "1"
 
 
-def test_alternate_stub_orientation(distributed_design):
+def test_alternate_stub_orientation(distributed_design) -> None:
     assert distributed_design.geometry.alternate_stub_orientation is False
     distributed_design.geometry.alternate_stub_orientation = True
     assert distributed_design.geometry.alternate_stub_orientation
 
 
-def test_max_width(distributed_design):
+def test_max_width(distributed_design) -> None:
     assert distributed_design.geometry.max_width == "6.35 mm"
     distributed_design.geometry.max_width = "1.25mm"
     assert distributed_design.geometry.max_width == "1.25mm"
 
 
-def test_min_width(distributed_design):
+def test_min_width(distributed_design) -> None:
     assert distributed_design.geometry.min_width == "50 um"
     distributed_design.geometry.min_width = "200 um"
     assert distributed_design.geometry.min_width == "200 um"
 
 
-def test_max_gap(distributed_design):
+def test_max_gap(distributed_design) -> None:
     assert distributed_design.geometry.max_gap == "6.35 mm"
     distributed_design.geometry.max_gap = "1.25mm"
     assert distributed_design.geometry.max_gap == "1.25mm"
 
 
-def test_min_gap(distributed_design):
+def test_min_gap(distributed_design) -> None:
     assert distributed_design.geometry.min_gap == "50 um"
     distributed_design.geometry.min_gap = "200 um"
     assert distributed_design.geometry.min_gap == "200 um"
 
 
-def test_apply_limits(distributed_design):
+def test_apply_limits(distributed_design) -> None:
     assert distributed_design.geometry.apply_limits
     distributed_design.geometry.apply_limits = False
     assert distributed_design.geometry.apply_limits is False
 
 
-def test_adjust_length_on_limit(distributed_design):
+def test_adjust_length_on_limit(distributed_design) -> None:
     assert distributed_design.geometry.adjust_length_on_limit
     distributed_design.geometry.adjust_length_on_limit = False
     assert distributed_design.geometry.adjust_length_on_limit is False
