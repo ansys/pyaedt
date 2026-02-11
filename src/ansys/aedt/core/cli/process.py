@@ -44,7 +44,7 @@ app = typer.Typer(help="Process management commands")
 
 
 @app.command()
-def version():
+def version() -> None:
     """Display PyAEDT version."""
     import ansys.aedt.core
 
@@ -54,7 +54,7 @@ def version():
 
 
 @app.command()
-def processes():
+def processes() -> None:
     """Display all running AEDT-related processes."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
@@ -91,7 +91,7 @@ def start(
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start AEDT in non-graphical mode"),
     port: int = typer.Option(0, "--port", "-p", help="Port for AEDT connection (0 for auto)"),
     student_version: bool = typer.Option(False, "--student", help="Start AEDT Student version"),
-):
+) -> None:
     """Start a new AEDT process."""
     try:
         typer.echo("Starting AEDT ", nl=False)
@@ -161,7 +161,7 @@ def stop(
     pids: list[int] = typer.Option([], "--pid", help="Stop process by PID (can be used multiple times)"),
     ports: list[int] = typer.Option([], "--port", help="Stop process by port (can be used multiple times)"),
     stop_all: bool = typer.Option(False, "--all", "-a", help="Stop all running AEDT processes"),
-):
+) -> None:
     """Stop running AEDT process(es)."""
     import psutil
 
@@ -248,7 +248,7 @@ def stop(
 @app.command()
 def attach(
     pid: int = typer.Option(None, "--pid", "-p", help="Process ID to attach to directly"),
-):
+) -> None:
     """Attach to a running AEDT process and launch an interactive PyAEDT console."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 

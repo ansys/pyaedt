@@ -35,7 +35,7 @@ doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
 
 
 @doc_app.callback(invoke_without_command=True)
-def doc_callback(ctx: typer.Context):
+def doc_callback(ctx: typer.Context) -> None:
     """Open the home page and display help when no subcommand is provided."""
     if ctx.invoked_subcommand is None:
         from ansys.aedt.core.help import online_help
@@ -48,7 +48,7 @@ def doc_callback(ctx: typer.Context):
 
 
 @doc_app.command(name="examples", help="Open the online Examples section of the PyAEDT documentation")
-def examples():
+def examples() -> None:
     """Open Examples url."""
     from ansys.aedt.core.help import online_help
 
@@ -57,7 +57,7 @@ def examples():
 
 
 @doc_app.command(name="github", help="Open PyAEDT repository on GitHub")
-def github():
+def github() -> None:
     """Open Github url."""
     from ansys.aedt.core.help import online_help
 
@@ -66,7 +66,7 @@ def github():
 
 
 @doc_app.command(name="user-guide", help="Open the online user guide section of the PyAEDT documentation")
-def user_guide():
+def user_guide() -> None:
     """Open User guide url."""
     from ansys.aedt.core.help import online_help
 
@@ -75,7 +75,7 @@ def user_guide():
 
 
 @doc_app.command(name="getting-started", help="Open the online getting started section of the PyAEDT documentation")
-def getting_started():
+def getting_started() -> None:
     """Open Getting started url."""
     from ansys.aedt.core.help import online_help
 
@@ -84,7 +84,7 @@ def getting_started():
 
 
 @doc_app.command(name="installation", help="Open the online installation section of the PyAEDT documentation")
-def installation():
+def installation() -> None:
     """Open installation url."""
     from ansys.aedt.core.help import online_help
 
@@ -93,7 +93,7 @@ def installation():
 
 
 @doc_app.command(name="api", help="Open the online API reference section of the PyAEDT documentation")
-def api():
+def api() -> None:
     """Open api reference url."""
     from ansys.aedt.core.help import online_help
 
@@ -102,7 +102,7 @@ def api():
 
 
 @doc_app.command(name="changelog", help="Open the PyAEDT changelog")
-def changelog(pyaedt_version: str = typer.Argument(None)):
+def changelog(pyaedt_version: str = typer.Argument(None)) -> None:
     """Open API reference changelog."""
     from ansys.aedt.core.help import online_help
 
@@ -111,7 +111,7 @@ def changelog(pyaedt_version: str = typer.Argument(None)):
 
 
 @doc_app.command(name="issues", help="Open the PyAEDT issues")
-def issues():
+def issues() -> None:
     """Open api reference url."""
     from ansys.aedt.core.help import online_help
 
@@ -120,7 +120,7 @@ def issues():
 
 
 @doc_app.command(name="search", help="One or more search keywords for the documentation")
-def search(search_keys: List[str] = typer.Argument(None)):
+def search(search_keys: List[str] = typer.Argument(None)) -> None:
     """Search the online documentation."""
     if not search_keys:
         typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)

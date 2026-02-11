@@ -22,12 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class AnalysisTwinBuilder(Analysis, PyAedtBase):
@@ -41,7 +47,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
     """
 
     @property
-    def setup_names(self):
+    def setup_names(self) -> list[str]:
         """Setup names.
 
         References
@@ -52,20 +58,20 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        application: str,
+        projectname: str,
+        designname: str,
+        solution_type: str,
+        setup_name: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
@@ -91,7 +97,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerTwinBuilder:
         """Design Modeler.
 
         Returns
@@ -105,7 +111,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """Design Postprocessor.
 
         Returns
@@ -120,7 +126,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters

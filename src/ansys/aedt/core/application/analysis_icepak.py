@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
@@ -31,6 +31,11 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+    from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
 
 
 class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
@@ -89,15 +94,15 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         project: str,
         design: str,
         solution_type: str,
-        setup: Optional[str] = None,
-        version: Optional[Union[str, int, float]] = None,
+        setup: str | None = None,
+        version: str | int | float | None = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version=False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int] = None,
+        aedt_process_id: int | None = None,
         remove_lock: bool = False,
     ):
         FieldAnalysis3D.__init__(
@@ -129,7 +134,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
             self._monitor = self.monitor
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorIcepak:
         """Icepak post processor.
 
         Returns
@@ -144,7 +149,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         return self._post
 
     @property
-    def mesh(self):
+    def mesh(self) -> IcepakMesh:
         """Mesh.
 
         Returns
@@ -162,7 +167,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         return self._mesh
 
     @property
-    def monitor(self):
+    def monitor(self) -> Monitor:
         """Property to handle monitor objects.
 
         Returns
@@ -194,7 +199,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     def __init__(self, app):
         self.app = app
 
-    def execute(self, k, v) -> str:
+    def execute(self, k: str, v: float | int | str) -> str:
         """
         Modify the design settings for the given key with the specified value.
 

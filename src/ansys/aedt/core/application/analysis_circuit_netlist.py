@@ -25,6 +25,7 @@
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class AnalysisCircuitNetlist(Analysis, PyAedtBase):
@@ -71,17 +72,17 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        project,
-        design,
-        version,
-        non_graphical,
-        new_desktop,
-        close_on_exit,
-        student_version,
-        machine,
-        port,
-        aedt_process_id,
-        remove_lock,
+        project: str | None = None,
+        design: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
@@ -106,7 +107,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """PostProcessor.
 
         Returns
@@ -121,6 +122,6 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self):
+    def modeler(self) -> object:
         """Modeler object."""
         return self._modeler

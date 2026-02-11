@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
@@ -39,6 +41,10 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.boundary.common import BoundaryObject
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+
 
 class FieldAnalysisCircuit(Analysis, PyAedtBase):
     """FieldCircuitAnalysis class.
@@ -55,20 +61,20 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        application: str,
+        projectname: str,
+        designname: str,
+        solution_type: str,
+        setup_name: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
@@ -98,17 +104,17 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def configurations(self):
+    def configurations(self) -> ConfigurationsNexxim:
         """Property to import and export configuration files.
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.configurations.Configurations`
+        :class:`ansys.aedt.core.generic.configurations.ConfigurationsNexxim`
         """
         return self._configurations
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -134,7 +140,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def push_down(self, component):
+    def push_down(self, component: CircuitComponent | str) -> bool:
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
@@ -166,7 +172,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def pop_up(self):
+    def pop_up(self) -> bool:
         """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
@@ -183,7 +189,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return True
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """PostProcessor.
 
         Returns
@@ -198,7 +204,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self):
+    def modeler(self) -> object:
         """Modeler object.
 
         Returns
@@ -215,7 +221,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def setup_names(self):
+    def setup_names(self) -> list:
         """Setup names.
 
         References
@@ -225,7 +231,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
-    def source_names(self):
+    def source_names(self) -> list:
         """Get all source names.
 
         Returns
@@ -240,7 +246,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return list(self.odesign.GetChildObject("Excitations").GetChildNames())
 
     @property
-    def source_objects(self):
+    def source_objects(self) -> list:
         """Get all source objects.
 
         Returns
@@ -251,7 +257,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return [self.sources[name] for name in self.sources]
 
     @property
-    def sources(self):
+    def sources(self) -> list[Sources]:
         """Get all sources.
 
         Returns
@@ -296,7 +302,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @property
-    def excitation_names(self):
+    def excitation_names(self) -> list[str]:
         """Get all excitation names.
 
         Returns
@@ -312,7 +318,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
 
     @property
-    def design_excitations(self):
+    def design_excitations(self) -> dict[str, BoundaryObject]:
         """Get all excitation.
 
         Returns
@@ -354,7 +360,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters

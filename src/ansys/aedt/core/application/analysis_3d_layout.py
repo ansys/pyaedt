@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -31,6 +32,16 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
+    from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
+    from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+    from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+    from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+    from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
 
 
 class FieldAnalysis3DLayout(Analysis, PyAedtBase):
@@ -133,7 +144,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def configurations(self):
+    def configurations(self) -> Configurations3DLayout:
         """Property to import and export configuration files.
 
         Returns
@@ -143,7 +154,16 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._configurations
 
     @property
-    def post(self):
+    def post(
+        self,
+    ) -> (
+        "PostProcessorIcepak"
+        | "PostProcessorCircuit"
+        | "PostProcessor3DLayout"
+        | "PostProcessorMaxwell"
+        | "PostProcessorHFSS"
+        | "PostProcessor3D"
+    ):
         """PostProcessor.
 
         Returns
@@ -158,7 +178,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def mesh(self):
+    def mesh(self) -> "Mesh3d":
         """Mesh.
 
         Returns
@@ -172,7 +192,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._mesh
 
     @property
-    def excitation_names(self):
+    def excitation_names(self) -> list:
         """Get all excitation names.
 
         Returns
@@ -188,7 +208,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return list(self.oboundary.GetAllPortsList())
 
     @pyaedt_function_handler()
-    def change_design_settings(self, settings):
+    def change_design_settings(self, settings) -> bool:
         """Set HFSS 3D Layout Design Settings.
 
         Parameters
@@ -208,7 +228,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup: str, variations: str = "", output_file: str | None = None) -> str:
         """Export mesh statistics to a file.
 
         Parameters
@@ -235,7 +255,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return output_file
 
     @property
-    def modeler(self):
+    def modeler(self) -> "Modeler3DLayout":
         """Modeler object.
 
         Returns
@@ -252,7 +272,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def port_list(self):
+    def port_list(self) -> list:
         """Port list.
 
         References
@@ -262,7 +282,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> "Setup3DLayout":
         """Create a setup.
 
         Parameters
@@ -315,7 +335,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters

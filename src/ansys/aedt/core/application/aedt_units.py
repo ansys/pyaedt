@@ -49,7 +49,7 @@ class AedtUnits(PyAedtBase):
         self._rescale_model = False
         self._units_by_system = {}
 
-    def get_unit_by_system(self, unit_system):
+    def get_unit_by_system(self, unit_system: str) -> str | None:
         if unit_system in self._units_by_system:
             return self._units_by_system[unit_system]
         val = self._get_model_unit(unit_system)
@@ -59,7 +59,7 @@ class AedtUnits(PyAedtBase):
         return
 
     @property
-    def rescale_model(self):
+    def rescale_model(self) -> bool:
         """Whether to rescale the model to model units.
 
         Returns
@@ -69,10 +69,10 @@ class AedtUnits(PyAedtBase):
         return self._rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, val):
+    def rescale_model(self, val: bool) -> None:
         self._rescale_model = val
 
-    def _get_model_unit(self, unit_system):
+    def _get_model_unit(self, unit_system: str) -> str | None:
         if self.__app:
             try:
                 return self.__app.odesktop.GetDefaultUnit(unit_system)
@@ -80,7 +80,7 @@ class AedtUnits(PyAedtBase):
                 return
 
     @property
-    def frequency(self):
+    def frequency(self) -> str:
         """Default frequency units to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -92,7 +92,7 @@ class AedtUnits(PyAedtBase):
         return self._frequency
 
     @property
-    def length(self):
+    def length(self) -> str:
         """Default length unit to be used in active design.
         The setter changes AEDT default units.
 
@@ -111,7 +111,7 @@ class AedtUnits(PyAedtBase):
         return self._length
 
     @length.setter
-    def length(self, value):
+    def length(self, value: str) -> None:
         if value in AEDT_UNITS["Length"]:
             self._length = value
             if "SetModelUnits" in dir(self.__app.oeditor):
@@ -126,7 +126,7 @@ class AedtUnits(PyAedtBase):
             raise AttributeError(f"Unit {value} is incorrect.")
 
     @property
-    def angle(self):
+    def angle(self) -> str:
         """Default angle unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -138,7 +138,7 @@ class AedtUnits(PyAedtBase):
         return self._angle
 
     @property
-    def resistance(self):
+    def resistance(self) -> str:
         """Default resistance unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -151,7 +151,7 @@ class AedtUnits(PyAedtBase):
         return self._resistance
 
     @property
-    def power(self):
+    def power(self) -> str:
         """Default power unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -164,7 +164,7 @@ class AedtUnits(PyAedtBase):
         return self._power
 
     @property
-    def time(self):
+    def time(self) -> str:
         """Default time unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -177,7 +177,7 @@ class AedtUnits(PyAedtBase):
         return self._time
 
     @property
-    def temperature(self):
+    def temperature(self) -> str:
         """Default temperature unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -190,7 +190,7 @@ class AedtUnits(PyAedtBase):
         return self._temperature
 
     @property
-    def inductance(self):
+    def inductance(self) -> str:
         """Default inductance unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -203,7 +203,7 @@ class AedtUnits(PyAedtBase):
         return self._inductance
 
     @property
-    def voltage(self):
+    def voltage(self) -> str:
         """Default voltage unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -216,7 +216,7 @@ class AedtUnits(PyAedtBase):
         return self._voltage
 
     @property
-    def current(self):
+    def current(self) -> str:
         """Default current unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -229,7 +229,7 @@ class AedtUnits(PyAedtBase):
         return self._current
 
     @property
-    def angular_speed(self):
+    def angular_speed(self) -> str:
         """Default angular speed unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -242,7 +242,7 @@ class AedtUnits(PyAedtBase):
         return self._angular_speed
 
     @property
-    def capacitance(self):
+    def capacitance(self) -> str:
         """Default capacitance unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -255,7 +255,7 @@ class AedtUnits(PyAedtBase):
         return self._capacitance
 
     @property
-    def conductance(self):
+    def conductance(self) -> str:
         """Default conductance unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -268,7 +268,7 @@ class AedtUnits(PyAedtBase):
         return self._conductance
 
     @property
-    def mass(self):
+    def mass(self) -> str:
         """Default mass unit to be used in active design.
         The setter doesn't change AEDT default units.
 
@@ -281,7 +281,7 @@ class AedtUnits(PyAedtBase):
         return self._mass
 
     @property
-    def speed(self):
+    def speed(self) -> str:
         """Default speed unit to be used in active design.
         The setter doesn't change AEDT default units.
 

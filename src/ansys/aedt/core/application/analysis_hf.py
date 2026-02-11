@@ -35,7 +35,7 @@ class ScatteringMethods(PyAedtBase):
         self._app = app
 
     @property
-    def get_all_sparameter_list(self, excitation_names=None):
+    def get_all_sparameter_list(self, excitation_names: list | None = None) -> list:
         """List of all S parameters for a list of excitations.
 
         Parameters
@@ -64,7 +64,13 @@ class ScatteringMethods(PyAedtBase):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitations=None, excitation_name_prefix="", math_formula="", nets=None):
+    def get_all_return_loss_list(
+        self,
+        excitations: list | None = None,
+        excitation_name_prefix: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list:
         """Get a list of all return losses for a list of excitations.
 
         Parameters
@@ -108,8 +114,14 @@ class ScatteringMethods(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, drivers=None, receivers=None, drivers_prefix_name="", receivers_prefix_name="", math_formula="", nets=None
-    ):
+        self,
+        drivers: list | None = None,
+        receivers: list | None = None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -183,7 +195,13 @@ class ScatteringMethods(PyAedtBase):
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name="", math_formula="", nets=None):
+    def get_next_xtalk_list(
+        self,
+        drivers: list | None = None,
+        drivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
@@ -226,14 +244,14 @@ class ScatteringMethods(PyAedtBase):
     @pyaedt_function_handler()
     def get_fext_xtalk_list(
         self,
-        drivers=None,
-        receivers=None,
-        drivers_prefix_name="",
-        receivers_prefix_name="",
-        skip_same_index_couples=True,
-        math_formula="",
-        nets=None,
-    ):
+        drivers: list | None = None,
+        receivers: list | None = None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        skip_same_index_couples: bool = True,
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
@@ -285,13 +303,15 @@ class ScatteringMethods(PyAedtBase):
         return fext
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, setup=None, sweep=None, variations=None):
+    def get_touchstone_data(
+        self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None
+    ) -> list:
         """
         Return a Touchstone data plot.
 
         Parameters
         ----------
-        setup : list
+        setup : str, optional
             Name of the setup.
         sweep : str, optional
             Name of the sweep. The default value is ``None``.
@@ -330,15 +350,15 @@ class ScatteringMethods(PyAedtBase):
     @pyaedt_function_handler()
     def export_touchstone(
         self,
-        setup=None,
-        sweep=None,
-        output_file=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
-    ):
+        setup: str | None = None,
+        sweep: str | None = None,
+        output_file: str | None = None,
+        variations: list | None = None,
+        variations_value: list | None = None,
+        renormalization: bool = False,
+        impedance: float | None = None,
+        gamma_impedance_comments: bool = False,
+    ) -> str | bool:
         """Export a Touchstone file.
 
         Parameters

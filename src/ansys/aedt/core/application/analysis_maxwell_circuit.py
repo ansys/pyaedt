@@ -22,9 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
 
 
 class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
@@ -71,18 +76,18 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        project,
-        design,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        application: str,
+        project: str = None,
+        design: str = None,
+        version: str | int | float = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
@@ -106,7 +111,7 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
             self._modeler = self.modeler
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerMaxwellCircuit:
         """Design oModeler.
 
         Returns
