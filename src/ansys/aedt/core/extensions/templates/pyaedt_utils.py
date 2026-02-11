@@ -50,7 +50,7 @@ def sanitize_interpreter_path(interpreter_path, version):
     return interpreter_path
 
 
-def check_file(file_path, oDesktop) -> bool:
+def check_file(file_path, oDesktop):
     """Check if a file exists."""
     if not os.path.isfile(file_path):
         show_error(
@@ -105,14 +105,14 @@ def which(program):
     return None
 
 
-def show_error(msg, oDesktop) -> None:
+def show_error(msg, oDesktop):
     """Display an error message in the AEDT console and a dialog box."""
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
-def environment_variables(oDesktop) -> None:
+def environment_variables(oDesktop):
     """Set environment variables for the AEDT process."""
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
@@ -160,7 +160,7 @@ def environment_variables(oDesktop) -> None:
             )
 
 
-def generate_unique_name(root_name, suffix: str = "", n: int = 6):
+def generate_unique_name(root_name, suffix="", n=6):
     char_set = string.ascii_uppercase + string.digits
     unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:
