@@ -51,7 +51,7 @@ def get_hpc_info(filename: str) -> tuple[str, str]:
 
 
 def update_hpc_option(
-    filnename: str, propertyname: str, propertyvalue, isvaluestring: bool = True, separator: str = "="
+    filnename: str, propertyname: str, propertyvalue: str, isvaluestring: bool = True, separator: str = "="
 ) -> bool:
     """Update an HPC option in the configuration file.
 
@@ -97,7 +97,7 @@ def update_hpc_option(
         return False
 
 
-def update_simulation_cores(name: str, nc: int) -> None:
+def update_simulation_cores(name: str, nc: int | str) -> None:
     """Update the HPC number of cores in the configuration file.
 
     Parameters
@@ -119,7 +119,7 @@ def update_simulation_cores(name: str, nc: int) -> None:
         f.write(new_line)
 
 
-def update_simulation_engines(name: str, nc: int) -> None:
+def update_simulation_engines(name: str, nc: int | str) -> None:
     """Update the HPC number of simulaton engines in the configuration file.
 
     Parameters
@@ -187,7 +187,7 @@ def update_config_name(name: str, machinename: str) -> None:
         f.write(new_line)
 
 
-def update_cluster_cores(file_name: str, param_name: str, param_val: int) -> None:
+def update_cluster_cores(file_name: str, param_name, param_val) -> None:
     """Update the number of cluster cores in the configuration file.
 
     Parameters

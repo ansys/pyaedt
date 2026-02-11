@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import os
 import sys
 import threading
@@ -126,7 +128,7 @@ def start(
         progress_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         progress_running = True
 
-        def show_progress():
+        def show_progress() -> None:
             """Display animated progress indicator"""
             i = 0
             while progress_running:
@@ -291,7 +293,7 @@ def _extract_version_from_cmdline(cmd_line: list) -> str:
     return "unknown"
 
 
-def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
+def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]) -> None:
     """Attach to a specific AEDT process by PID.
 
     Parameters
@@ -318,7 +320,7 @@ def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
     _launch_console_setup(pid, version)
 
 
-def _attach_interactive(aedt_procs: list[psutil.Process]):
+def _attach_interactive(aedt_procs: list[psutil.Process]) -> None:
     """Interactive mode to select and attach to an AEDT process.
 
     Parameters
@@ -378,7 +380,7 @@ def _attach_interactive(aedt_procs: list[psutil.Process]):
     _launch_console_setup(selected["pid"], selected["version"])
 
 
-def _launch_console_setup(pid: int, version: str):
+def _launch_console_setup(pid: int, version: str) -> None:
     """Launch console_setup.py script to attach to an AEDT process.
 
     Parameters

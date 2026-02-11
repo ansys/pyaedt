@@ -129,7 +129,7 @@ def _update_string_config(key: str, value: str | None, display_name: str = None,
 def test_callback(
     ctx: typer.Context,
     show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
-):
+) -> None:
     """Create or modify local_config.json in the tests folder interactively."""
     if ctx.invoked_subcommand is not None:
         return

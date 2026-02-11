@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -31,7 +32,7 @@ class ScatteringMethods(PyAedtBase):
     Hfss3dLayout classes.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     @property

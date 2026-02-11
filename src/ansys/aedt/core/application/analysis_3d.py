@@ -864,7 +864,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name: str = "Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -1036,7 +1036,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
             Stackup class.
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D

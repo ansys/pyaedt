@@ -61,7 +61,7 @@ class Materials(PyAedtBase):
     >>> materials = app.materials
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._color_id = 0
         self._mats = []
@@ -88,7 +88,7 @@ class Materials(PyAedtBase):
         """Material Manager from AEDT."""
         return self._app.omaterial_manager
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.material_keys)
 
     def __iter__(self):
@@ -168,7 +168,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def _read_materials(self):
-        def get_mat_list(file_name):
+        def get_mat_list(file_name: str):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
             with open_file(file_name, "rb") as aedt_fh:
@@ -242,7 +242,7 @@ class Materials(PyAedtBase):
         return mats
 
     @pyaedt_function_handler()
-    def exists_material(self, material):
+    def exists_material(self, material: str):
         """Check if a material exists in AEDT or PyAEDT Definitions.
 
         Parameters
@@ -279,7 +279,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def check_thermal_modifier(self, material):
+    def check_thermal_modifier(self, material: str) -> bool:
         """Check a material to see if it has any thermal modifiers.
 
         Parameters
@@ -302,7 +302,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_material(self, name, properties=None):
+    def add_material(self, name: str, properties=None):
         """Add a material with default values.
 
         When the added material object is returned, you can customize
@@ -352,7 +352,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_surface_material(self, name, emissivity=None):
+    def add_surface_material(self, name: str, emissivity=None):
         """Add a surface material.
 
         In AEDT, base properties are loaded from the XML database file ``amat.xml``
@@ -417,7 +417,7 @@ class Materials(PyAedtBase):
         return matprop
 
     @pyaedt_function_handler()
-    def add_material_sweep(self, assignment, name):
+    def add_material_sweep(self, assignment, name: str):
         """Create a sweep material made of an array of materials.
 
         Parameters
@@ -468,7 +468,7 @@ class Materials(PyAedtBase):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material, name=None, properties=None):
+    def duplicate_material(self, material: str, name: str | None = None, properties=None):
         """Duplicate a material.
 
         Parameters
@@ -552,7 +552,7 @@ class Materials(PyAedtBase):
         return new_material
 
     @pyaedt_function_handler()
-    def duplicate_surface_material(self, material, name=None):
+    def duplicate_surface_material(self, material: str, name: str | None = None):
         """Duplicate a surface material.
 
         Parameters
@@ -589,7 +589,7 @@ class Materials(PyAedtBase):
         return newmat
 
     @pyaedt_function_handler()
-    def remove_material(self, material, library="Project"):
+    def remove_material(self, material: str, library: str = "Project") -> bool:
         """Remove a material.
 
         Parameters
@@ -657,7 +657,7 @@ class Materials(PyAedtBase):
                 data.append(key)
         return data
 
-    def _load_from_project(self):
+    def _load_from_project(self) -> None:
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
             if not mats:
@@ -711,7 +711,7 @@ class Materials(PyAedtBase):
 
         """
 
-        def find_datasets(d, out_list):
+        def find_datasets(d, out_list) -> None:
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)
@@ -762,7 +762,7 @@ class Materials(PyAedtBase):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler()
-    def import_materials_from_file(self, input_file=None):
+    def import_materials_from_file(self, input_file: str | None = None):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
@@ -862,7 +862,7 @@ class Materials(PyAedtBase):
         return materials_added
 
     @pyaedt_function_handler()
-    def import_materials_from_excel(self, input_file):
+    def import_materials_from_excel(self, input_file: str):
         """Import and create materials from a csv or excel file.
 
         Parameters
@@ -929,7 +929,7 @@ class Materials(PyAedtBase):
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
     @pyaedt_function_handler
-    def import_materials_from_workbench(self, input_file, name_suffix=None):
+    def import_materials_from_workbench(self, input_file: str, name_suffix=None):
         """Import and create materials from Workbench Engineering Data XML file.
 
         Parameters

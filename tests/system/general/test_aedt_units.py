@@ -51,7 +51,7 @@ def circuit_app(add_app):
     app.close_project(save=False)
 
 
-def test_circuit_length(circuit_app):
+def test_circuit_length(circuit_app) -> None:
     assert circuit_app.units.length in AEDT_UNITS["Length"]
     circuit_app.units.length = "mm"
     assert circuit_app.units.length == "mm"
@@ -59,7 +59,7 @@ def test_circuit_length(circuit_app):
         circuit_app.units.length = "GHz"
 
 
-def test_icepak_length(icepak_app):
+def test_icepak_length(icepak_app) -> None:
     icepak_app.units.rescale_model = False
     assert icepak_app.units.length in AEDT_UNITS["Length"]
     icepak_app.length = "mm"
@@ -68,7 +68,7 @@ def test_icepak_length(icepak_app):
         icepak_app.units.length = "GHz"
 
 
-def test_layout_length(layout_app):
+def test_layout_length(layout_app) -> None:
     assert layout_app.units.length in AEDT_UNITS["Length"]
     layout_app.length = "mm"
     assert layout_app.length == "mm"
@@ -76,7 +76,7 @@ def test_layout_length(layout_app):
         layout_app.units.length = "GHz"
 
 
-def test_aedt_units(icepak_app):
+def test_aedt_units(icepak_app) -> None:
     assert icepak_app.units.frequency in AEDT_UNITS["Frequency"]
     assert icepak_app.units.angle in AEDT_UNITS["Angle"]
     assert icepak_app.units.resistance in AEDT_UNITS["Resistance"]

@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Amplifier(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
 
@@ -39,7 +39,7 @@ class Amplifier(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -55,7 +55,7 @@ class Amplifier(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
@@ -68,7 +68,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -78,7 +78,7 @@ class Amplifier(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     @property
@@ -91,7 +91,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @gain.setter
-    def gain(self, value: float):
+    def gain(self, value: float) -> None:
         self._set_property("Gain", f"{value}")
 
     @property
@@ -105,7 +105,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @center_frequency.setter
-    def center_frequency(self, value: float | str):
+    def center_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Center Frequency", f"{value}")
 
@@ -120,7 +120,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @bandwidth.setter
-    def bandwidth(self, value: float | str):
+    def bandwidth(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Bandwidth", f"{value}")
 
@@ -134,7 +134,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @noise_figure.setter
-    def noise_figure(self, value: float):
+    def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
@@ -148,7 +148,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @saturation_level.setter
-    def saturation_level(self, value: float | str):
+    def saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Saturation Level", f"{value}")
 
@@ -163,7 +163,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @p1_db_point_ref_input.setter
-    def p1_db_point_ref_input(self, value: float | str):
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input", f"{value}")
 
@@ -178,7 +178,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value: float | str):
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
@@ -192,7 +192,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @shape_factor.setter
-    def shape_factor(self, value: float):
+    def shape_factor(self, value: float) -> None:
         self._set_property("Shape Factor", f"{value}")
 
     @property
@@ -205,7 +205,7 @@ class Amplifier(EmitNode):
         return float(val)
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value: float):
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -218,5 +218,5 @@ class Amplifier(EmitNode):
         return int(val)
 
     @max_intermod_order.setter
-    def max_intermod_order(self, value: int):
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

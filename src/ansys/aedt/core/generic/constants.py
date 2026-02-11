@@ -44,7 +44,7 @@ MILS2METER = 39370.078740157
 SpeedOfLight = 299792458.0
 
 
-def db20(x, inverse=True):
+def db20(x, inverse: bool = True):
     """Convert db20 to decimal and vice versa."""
     if inverse:
         return 20 * math.log10(x)
@@ -52,7 +52,7 @@ def db20(x, inverse=True):
         return math.pow(10, x / 20.0)
 
 
-def db10(x, inverse=True):
+def db10(x, inverse: bool = True):
     """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -60,7 +60,7 @@ def db10(x, inverse=True):
         return math.pow(10, x / 10.0)
 
 
-def dbw(x, inverse=True):
+def dbw(x, inverse: bool = True):
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -68,7 +68,7 @@ def dbw(x, inverse=True):
         return math.pow(10, x / 10.0)
 
 
-def dbm(x, inverse=True):
+def dbm(x, inverse: bool = True):
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x) + 30
@@ -76,7 +76,7 @@ def dbm(x, inverse=True):
         return math.pow(10, x / 10.0) / 1000
 
 
-def fah2kel(val, inverse=True):
+def fah2kel(val, inverse: bool = True):
     """Convert a temperature from Fahrenheit to Kelvin.
 
     Parameters
@@ -98,7 +98,7 @@ def fah2kel(val, inverse=True):
         return (val - 32) * 5 / 9 + 273.15
 
 
-def cel2kel(val, inverse=True):
+def cel2kel(val, inverse: bool = True):
     """Convert a temperature from Celsius to Kelvin.
 
     Parameters
@@ -170,7 +170,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(values, unit_system="Length", input_units="meter", output_units="mm"):
+def unit_converter(values, unit_system: str = "Length", input_units: str = "meter", output_units: str = "mm"):
     """Convert unit in specified unit system.
 
     Parameters
@@ -704,7 +704,7 @@ def deprecate_enum(new_enum):
             __name__ = cls.__name__
             __qualname__ = cls.__qualname__
 
-            def __getattr__(self, name):
+            def __getattr__(self, name: str):
                 warnings.warn(
                     f"{cls.__qualname__} is deprecated. Use {new_enum.__qualname__} instead.",
                     DeprecationWarning,
@@ -736,7 +736,7 @@ class DynamicMeta(type):
                     return member
         return super().__call__(value, *args, **kwargs)
 
-    def __getattribute__(cls, name):
+    def __getattribute__(cls, name: str):
         var = settings.aedt_version if settings.aedt_version else ""
         clname = super().__getattribute__("__name__")
         try:
@@ -757,19 +757,19 @@ class DynamicMeta(type):
             pass
         return super().__getattribute__(name)
 
-    def __repr__(cls):
+    def __repr__(cls) -> str:
         try:
             return cls.NAME
         except AttributeError:
             return super().__getattribute__("__name__")
 
-    def __str__(cls):
+    def __str__(cls) -> str:
         try:
             return cls.NAME
         except AttributeError:
             return super().__getattribute__("__name__")
 
-    def __contains__(cls, item):
+    def __contains__(cls, item) -> bool:
         try:
             super().__getattribute__(item)
             return True
@@ -1338,10 +1338,10 @@ class SymbolStyle(metaclass=DynamicMeta):
 
 
 class IntEnumProps(IntEnum):
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 

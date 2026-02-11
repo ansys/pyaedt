@@ -37,7 +37,7 @@ TEST_SUBFOLDER = "T45"
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_shielding_effectiveness_generate_button(add_app):
+def test_shielding_effectiveness_generate_button(add_app) -> None:
     """Test the Generate button in the Shielding Effectiveness extension."""
     data = ShieldingEffectivenessExtensionData(
         sphere_size=0.01,
@@ -70,7 +70,7 @@ def test_shielding_effectiveness_generate_button(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_shielding_effectiveness_exceptions(add_app):
+def test_shielding_effectiveness_exceptions(add_app) -> None:
     """Test exceptions thrown by the Shielding Effectiveness extension."""
     # Test with no sphere size
     data = ShieldingEffectivenessExtensionData(sphere_size=-0.01)

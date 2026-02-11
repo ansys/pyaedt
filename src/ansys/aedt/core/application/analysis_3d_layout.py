@@ -100,22 +100,22 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        ic_mode=None,
-        remove_lock=False,
-    ):
+        application: str,
+        projectname: str,
+        designname: str,
+        solution_type: str,
+        setup_name: str,
+        version: str,
+        non_graphical: bool,
+        close_on_exit: bool,
+        student_version: bool,
+        new_desktop: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        ic_mode: bool | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -282,7 +282,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> "Setup3DLayout":
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> Setup3DLayout:
         """Create a setup.
 
         Parameters

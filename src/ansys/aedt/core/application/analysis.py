@@ -1162,7 +1162,7 @@ class Analysis(Design, PyAedtBase):
         return name
 
     @pyaedt_function_handler()
-    def _create_setup(self, name="MySetupAuto", setup_type=None, props=None):
+    def _create_setup(self, name: str = "MySetupAuto", setup_type=None, props=None):
         if props is None:
             props = {}
 
@@ -1292,7 +1292,7 @@ class Analysis(Design, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _get_setup(self, name):
+    def _get_setup(self, name: str):
         setuptype = self.design_solutions.default_setup
         if self.solution_type == "SBR+":
             setuptype = 4
@@ -2362,7 +2362,7 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         """Contains available variations.
 
         Parameters
