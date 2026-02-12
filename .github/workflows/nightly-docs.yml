@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-build@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -41,7 +41,7 @@ jobs:
       contents: write   # Required to commit and push development documentation to gh-pages branch
     steps:
       - name: Upload development documentation
-        uses: ansys/actions/doc-deploy-dev@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-deploy-dev@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
