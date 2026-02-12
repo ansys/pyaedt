@@ -44,6 +44,10 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -75,12 +79,12 @@ def layout_comp(add_app_example):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test is failing on build machine")
-def test_display(m3d_app):
+def test_display(m3d_app) -> None:
     img = m3d_app.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
     assert isinstance(img, Image)
 
 
-def test_litz_wire(m3d_app):
+def test_litz_wire(m3d_app) -> None:
     m3d_app.materials["magnesium"].stacking_type = "Litz Wire"
     m3d_app.materials["magnesium"].wire_type = "Round"
     m3d_app.materials["magnesium"].strand_number = 3
@@ -107,7 +111,7 @@ def test_litz_wire(m3d_app):
     assert m3d_app.materials["magnesium"].wire_width_direction == "V(3)"
 
 
-def test_lamination(m3d_app):
+def test_lamination(m3d_app) -> None:
     m3d_app.materials["titanium"].stacking_type = "Lamination"
     m3d_app.materials["titanium"].stacking_factor = "0.99"
     m3d_app.materials["titanium"].stacking_direction = "V(3)"
@@ -117,7 +121,7 @@ def test_lamination(m3d_app):
     assert m3d_app.materials["titanium"].stacking_direction == "V(2)"
 
 
-def test_assign_winding(m3d_app):
+def test_assign_winding(m3d_app) -> None:
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     m3d_app.modeler.subtract([coil], [coil_hole])
@@ -141,7 +145,7 @@ def test_assign_winding(m3d_app):
     assert bounds_name == bounds.name
 
 
-def test_assign_coil(m3d_app):
+def test_assign_coil(m3d_app) -> None:
     coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     m3d_app.modeler.subtract([coil], [coil_hole])
@@ -162,12 +166,12 @@ def test_assign_coil(m3d_app):
     assert bound_name == bound.name
 
 
-def test_create_air_region(m3d_app):
+def test_create_air_region(m3d_app) -> None:
     region = m3d_app.modeler.create_air_region(*[300] * 6)
     assert region.material_name == "air"
 
 
-def test_eddy_effects_on(m3d_app, maxwell_versioned):
+def test_eddy_effects_on(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.EddyCurrent
     plate_vacuum = m3d_app.modeler.create_box([-3, -3, 0], [1.5, 1.5, 0.4], name="Plate_vaccum")
     with pytest.raises(AEDTRuntimeError, match="No conductors defined in active design."):
@@ -183,7 +187,7 @@ def test_eddy_effects_on(m3d_app, maxwell_versioned):
         assert not m3d_app.oboundary.GetDisplacementCurrent("Plate")
 
 
-def test_create_parametrics(m3d_app):
+def test_create_parametrics(m3d_app) -> None:
     m3d_app.create_setup()
     m3d_app["w1"] = "10mm"
     m3d_app["w2"] = "2mm"
@@ -199,7 +203,7 @@ def test_create_parametrics(m3d_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-def test_expression_cache(m3d_app):
+def test_expression_cache(m3d_app) -> None:
     setup = m3d_app.create_setup()
     setup.props["MaximumPasses"] = 12
     setup.props["MinimumPasses"] = 2
@@ -210,7 +214,7 @@ def test_expression_cache(m3d_app):
     assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
 
 
-def test_assign_length_mesh(m3d_app):
+def test_assign_length_mesh(m3d_app) -> None:
     plate = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
     assert m3d_app.mesh.assign_length_mesh(plate)
     assert m3d_app.mesh.assign_length_mesh(plate, maximum_length=1, maximum_elements=1200)
@@ -218,7 +222,7 @@ def test_assign_length_mesh(m3d_app):
     assert m3d_app.mesh.assign_length_mesh(plate, name="test_mesh")
 
 
-def test_assign_skin_depth(m3d_app):
+def test_assign_skin_depth(m3d_app) -> None:
     plate = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
     mesh = m3d_app.mesh.assign_skin_depth(plate, "1mm")
     assert mesh
@@ -233,21 +237,21 @@ def test_assign_skin_depth(m3d_app):
     assert mesh
 
 
-def test_assign_curvilinear_elements(m3d_app):
+def test_assign_curvilinear_elements(m3d_app) -> None:
     box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
     assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm")
     assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm", name="test")
     assert m3d_app.mesh.assign_curvilinear_elements(box, "1mm", name="test")
 
 
-def test_assign_edge_cut(m3d_app):
+def test_assign_edge_cut(m3d_app) -> None:
     m3d_app.modeler.model_units = "mm"
     box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
     assert m3d_app.mesh.assign_edge_cut(box)
     assert m3d_app.mesh.assign_edge_cut(box, name="edge_cute")
 
 
-def test_assign_density_control(m3d_app):
+def test_assign_density_control(m3d_app) -> None:
     box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
     assert m3d_app.mesh.assign_density_control(box, maximum_element_length="2mm", layers_number="3")
     assert m3d_app.mesh.assign_density_control(
@@ -258,23 +262,23 @@ def test_assign_density_control(m3d_app):
     )
 
 
-def test_assign_rotational_layer(m3d_app):
+def test_assign_rotational_layer(m3d_app) -> None:
     box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
     assert m3d_app.mesh.assign_rotational_layer(box)
     assert m3d_app.mesh.assign_rotational_layer(box, name="my_rotational")
     assert m3d_app.mesh.assign_rotational_layer(box, name="my_rotational")
 
 
-def test_assign_initial_mesh_slider(m3d_app):
+def test_assign_initial_mesh_slider(m3d_app) -> None:
     assert m3d_app.mesh.assign_initial_mesh_from_slider(4)
 
 
-def test_assign_initial_mesh(m3d_app):
+def test_assign_initial_mesh(m3d_app) -> None:
     assert m3d_app.mesh.assign_initial_mesh(surface_deviation="2mm")
 
 
 @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-def test_create_udp(m3d_app):
+def test_create_udp(m3d_app) -> None:
     my_udp = [
         ["DiaGap", "102mm"],
         ["Length", "100mm"],
@@ -357,7 +361,7 @@ def test_create_udp(m3d_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Feature not supported in Linux")
-def test_create_udm(m3d_app):
+def test_create_udm(m3d_app) -> None:
     my_udm = [
         ["ILD Thickness (ILD)", "0.006mm"],
         ["Line Spacing (LS)", "0.004mm"],
@@ -379,9 +383,10 @@ def test_create_udm(m3d_app):
     )
 
 
-def test_assign_torque(m3d_app):
+def test_assign_torque(m3d_app) -> None:
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     torque = m3d_app.assign_torque(coil)
+    assert isinstance(torque, MaxwellTorque)
     assert torque.type == "Torque"
     assert torque.props["Objects"][0] == "Coil"
     assert torque.props["Is Positive"]
@@ -392,11 +397,15 @@ def test_assign_torque(m3d_app):
     torque = m3d_app.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
     assert not torque.props["Is Positive"]
     assert torque.name == "Torque_Test"
+    m3d_app.solution_type = SolutionsMaxwell3D.ACConduction
+    with pytest.raises(AEDTRuntimeError):
+        m3d_app.assign_torque(coil)
 
 
-def test_assign_force(m3d_app):
+def test_assign_force(m3d_app) -> None:
     coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
     force = m3d_app.assign_force(coil)
+    assert isinstance(force, MaxwellForce)
     assert force.type == "Force"
     assert force.props["Objects"][0] == "Coil"
     assert force.props["Reference CS"] == "Global"
@@ -405,9 +414,12 @@ def test_assign_force(m3d_app):
     force = m3d_app.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
     assert force.name == "Force_Test"
     assert not force.props["Is Virtual"]
+    m3d_app.solution_type = SolutionsMaxwell3D.ACConduction
+    with pytest.raises(AEDTRuntimeError):
+        m3d_app.assign_torque(coil)
 
 
-def test_assign_translate_motion(m3d_app, maxwell_versioned):
+def test_assign_translate_motion(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.Transient
     m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
     m3d_app.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
@@ -416,70 +428,150 @@ def test_assign_translate_motion(m3d_app, maxwell_versioned):
     assert bound.props["Velocity"] == "1m_per_sec"
 
 
-def test_set_core_losses(m3d_app, maxwell_versioned):
+def test_set_core_losses(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.EddyCurrent
     m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="my_box", material="Material_3F3")
     assert m3d_app.set_core_losses(["my_box"])
     assert m3d_app.set_core_losses(["my_box"], True)
 
 
-def test_assign_matrix(m3d_app, maxwell_versioned):
+def test_assign_matrix_ac_magnetic_aphi(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
+
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5])
+
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    current4 = m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
+
+    rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+        signal_sources=[current1.name],
+        ground_sources=[current3.name],
+    )
+    gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+        signal_sources=[current2.name],
+        ground_sources=[current4.name],
+    )
+
+    args = MaxwellMatrix.MatrixACMagneticAPhi(
+        rl_sources=[rl_source],
+        gc_sources=[gc_source],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.rl_sources) == 1
+    assert len(matrix.gc_sources) == 1
+    assert matrix.rl_sources[0].signal_sources == [current1.name]
+    assert matrix.rl_sources[0].ground_sources == [current3.name]
+    assert matrix.gc_sources[0].signal_sources == [current2.name]
+    assert matrix.gc_sources[0].ground_sources == [current4.name]
+
+
+def test_assign_matrix_ac_magnetic(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
+
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
+
+    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        signal_sources=[signal_source_1, signal_source_2],
+    )
+    matrix = m3d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[1].name == current2.name
+
+
+def test_assign_matrix_magnetostatic(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
+
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
+    signal_source_1 = MaxwellMatrix.SourceMagnetostatic(
+        name=current1.name,
+        return_path=current3.name,
+        turns_number=5,
+    )
+
+    signal_source_2 = MaxwellMatrix.SourceMagnetostatic(
+        name=current2.name,
+        turns_number=2,
+    )
+
+    group_source = MaxwellMatrix.GroupSourcesMagnetostatic(
+        source_names=[current1.name, current2.name],
+        branches_number=7,
+        name="test_group",
+    )
+
+    matrix_args = MaxwellMatrix.MatrixMagnetostatic(
+        signal_sources=[signal_source_1, signal_source_2],
+        group_sources=[group_source],
+        matrix_name="test_matrix",
+    )
+    matrix = m3d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[0].return_path == current3.name
+    assert matrix.signal_sources[0].turns_number == 5
+    assert matrix.signal_sources[1].name == current2.name
+    assert matrix.group_sources[0].name == "test_group"
+    assert matrix.group_sources[0].branches_number == 7
+
+
+def test_available_quantities_categories(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.ElectroStatic
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-    rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-    rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
-    m3d_app.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
-    m3d_app.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    voltage1 = m3d_app.assign_voltage(box1.top_face_z, amplitude=1, name="Voltage1")
 
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
-    matrix = m3d_app.assign_matrix(assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources="Voltage2")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["NumberOfTurns"] == "1"
-    m3d_app.solution_type = maxwell_versioned.Transient
-    m3d_app.assign_winding("Sheet1", name="Current1")
-    with pytest.raises(AEDTRuntimeError, match="Solution type does not have matrix parameters"):
-        m3d_app.assign_matrix(assignment="Current1")
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name],
+        matrix_name="test_matrix",
+    )
 
-
-def test_available_quantities_categories(m3d_app, maxwell_versioned):
-    m3d_app.solution_type = maxwell_versioned.ElectroStatic
-
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
-
-    setup = m3d_app.create_setup(MaximumPasses=2)
-    m3d_app.analyze(setup=setup.name)
-
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+    matrix = m3d_app.assign_matrix(matrix_args)
     cat = m3d_app.post.available_quantities_categories(context=matrix.name)
     assert isinstance(cat, list)
     assert "C" in cat
 
 
-def test_available_report_quantities(m3d_app, maxwell_versioned):
+def test_available_report_quantities(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.ElectroStatic
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    voltage1 = m3d_app.assign_voltage(box1.top_face_z, amplitude=1, name="Voltage1")
 
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(matrix_args)
     quantities = m3d_app.post.available_report_quantities(
         display_type="Data Table", quantities_category="C", context=matrix.name
     )
@@ -497,59 +589,71 @@ def test_available_report_quantities(m3d_app, maxwell_versioned):
 
 
 def test_reduced_matrix(m3d_app, maxwell_versioned):
-    m3d_app.solution_type = maxwell_versioned.EddyCurrent
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
 
-    m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
-    m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
-    m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
-    m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box3 = m3d_app.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-    rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-    rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    current1 = m3d_app.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+    m3d_app.assign_current([box1.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+    m3d_app.assign_current([box2.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+    m3d_app.assign_current([box3.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
 
-    m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
-    m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
-    m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
 
-    matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(matrix_args)
     assert not matrix.reduced_matrices
-    m3d_app.solution_type = maxwell_versioned.Magnetostatic
-    out = matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix3")
-    assert not out[0]
-    assert not out[1]
-    m3d_app.solution_type = maxwell_versioned.EddyCurrent
-    out = matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-    assert matrix.reduced_matrices
-    assert matrix.reduced_matrices[0].name == "ReducedMatrix1"
-    assert matrix.reduced_matrices[0].parent_matrix == "Matrix1"
-    assert out[1] in matrix.reduced_matrices[0].sources.keys()
-    out = matrix.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
-    assert matrix.reduced_matrices[1].name == "ReducedMatrix2"
-    assert matrix.reduced_matrices[1].parent_matrix == "Matrix1"
-    assert out[1] in matrix.reduced_matrices[1].sources.keys()
-    reduced_matrix_1 = matrix.reduced_matrices[0]
-    assert reduced_matrix_1.parent_matrix == matrix.name
-    source_name = list(reduced_matrix_1.sources.keys())[0]
-    assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
-    assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
-    assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
-    assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
-    assert not reduced_matrix_1.delete(source="invalid")
-    assert reduced_matrix_1.delete(source="new_series")
+    m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
+    with pytest.raises(AEDTRuntimeError):
+        matrix.join_series(sources=["Current1", "Current2"], matrix_name="ReducedMatrix3")
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
+    reduced_matrix = matrix.join_series(sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1")
+    assert reduced_matrix.name == "ReducedMatrix1"
+    assert reduced_matrix.parent_matrix.name == matrix.name
+    assert "Current1" in reduced_matrix.operations_reduction[0].sources
+    reduced_matrix_1 = matrix.join_parallel(["Current1", "Current3"], matrix_name="ReducedMatrix2")
+    assert reduced_matrix_1.name == "ReducedMatrix2"
+    assert reduced_matrix_1.parent_matrix.name == matrix.name
+    sources = reduced_matrix_1.operations_reduction[0].sources
+    assert "Current1" in sources
+    # update name of join series operation
+    join_operation = reduced_matrix_1.update(
+        name=reduced_matrix_1.operations_reduction[0].name, operation_type="series", new_name="my_op"
+    )
+    assert join_operation.sources == sources
+    assert join_operation.name == "my_op"
+    # update sources of join series operation
+    new_sources = ["Current2", "Current3"]
+    join_operation_1 = reduced_matrix_1.update(
+        name=join_operation.name, operation_type="series", new_sources=new_sources
+    )
+    assert join_operation_1.sources == new_sources
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.update(name="invalid", operation_type="series")
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.update(name=join_operation.name, operation_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.delete(name="invalid")
+    assert reduced_matrix_1.delete(name="my_op")
     assert len(matrix.reduced_matrices) == 1
-    out = matrix.join_parallel(["Cur5"])
-    assert not out[0]
 
 
-def test_initial_mesh_settings(m3d_app):
+def test_initial_mesh_settings(m3d_app) -> None:
     assert m3d_app.mesh.initial_mesh_settings
     assert m3d_app.mesh.initial_mesh_settings.props
 
 
-def test_assign_voltage_drop(m3d_app, maxwell_versioned):
+def test_assign_voltage_drop(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.Magnetostatic
 
     circle = m3d_app.modeler.create_circle(origin=[10, 10, 0], radius=5, orientation="XY")
@@ -558,7 +662,7 @@ def test_assign_voltage_drop(m3d_app, maxwell_versioned):
     assert v_drop.props["Voltage Drop"] == "1mV"
 
 
-def test_assign_symmetry(m3d_app):
+def test_assign_symmetry(m3d_app) -> None:
     box = m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
     symmetry = m3d_app.assign_symmetry([box.faces[0]], "symmetry_test")
     assert symmetry
@@ -573,7 +677,7 @@ def test_assign_symmetry(m3d_app):
     assert all([bound.type == "Symmetry" for bound in m3d_app.boundaries])
 
 
-def test_set_bp_curve_loss(m3d_app):
+def test_set_bp_curve_loss(m3d_app) -> None:
     bp_curve_box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
     bp_curve_box.material = "magnesium"
     assert m3d_app.materials["magnesium"].set_bp_curve_coreloss(
@@ -587,7 +691,7 @@ def test_set_bp_curve_loss(m3d_app):
     )
 
 
-def test_assign_insulating(m3d_app):
+def test_assign_insulating(m3d_app) -> None:
     box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
     insulating_assignment = m3d_app.assign_insulating(box.name, "insulating")
     assert insulating_assignment.name == "insulating"
@@ -600,7 +704,7 @@ def test_assign_insulating(m3d_app):
     assert insulating_assignment_comb.name == "insulating_3"
 
 
-def test_assign_current_density(m3d_app, maxwell_versioned):
+def test_assign_current_density(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
     box1 = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box1")
 
@@ -641,7 +745,7 @@ def test_assign_current_density(m3d_app, maxwell_versioned):
         m3d_app.assign_current_density(box.name, "current_density_4", phase="5ang")
 
 
-def test_assign_current_density_terminal(m3d_app, maxwell_versioned):
+def test_assign_current_density_terminal(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
     density_name = "current_density_t_1"
     assert m3d_app.assign_current_density_terminal(box.faces[0], density_name)
@@ -653,7 +757,7 @@ def test_assign_current_density_terminal(m3d_app, maxwell_versioned):
         m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
 
 
-def test_assign_impedance(m3d_app, maxwell_versioned):
+def test_assign_impedance(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.Transient
 
     impedance_box = m3d_app.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
@@ -693,14 +797,14 @@ def test_assign_impedance(m3d_app, maxwell_versioned):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method implemented in AEDT 2023R1")
-def test_conduction_paths(m3d_app):
+def test_conduction_paths(m3d_app) -> None:
     m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
     m3d_app.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
     m3d_app.modeler.create_box([-50, -50, -50], [1, 1, 1], material="copper")
     assert len(m3d_app.get_conduction_paths()) == 2
 
 
-def test_assign_independent_dependent(m3d_app):
+def test_assign_independent_dependent(m3d_app) -> None:
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
     independent, dependent = m3d_app.assign_master_slave(
         independent=box.faces[1],
@@ -767,7 +871,7 @@ def test_assign_independent_dependent(m3d_app):
         )
 
 
-def test_add_mesh_link(m3d_app, test_tmp_dir, maxwell_versioned):
+def test_add_mesh_link(m3d_app, test_tmp_dir, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.Transient
     m3d_app.create_setup()
     m3d_app.duplicate_design(m3d_app.design_name)
@@ -790,14 +894,14 @@ def test_add_mesh_link(m3d_app, test_tmp_dir, maxwell_versioned):
     assert m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], project=str(example_project_copy))
 
 
-def test_set_variable(m3d_app):
+def test_set_variable(m3d_app) -> None:
     m3d_app.variable_manager.set_variable("var_test", expression="123")
     m3d_app["var_test"] = "234"
     assert "var_test" in m3d_app.variable_manager.design_variable_names
     assert m3d_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_cylindrical_gap(m3d_app):
+def test_cylindrical_gap(m3d_app) -> None:
     inner_cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "inner")
     outer_cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 7, 12, 0, "outer")
     assert m3d_app.mesh.assign_cylindrical_gap(outer_cylinder.name, name="cyl_gap_test")
@@ -825,7 +929,7 @@ def test_cylindrical_gap(m3d_app):
     )
 
 
-def test_objects_segmentation(m3d_app):
+def test_objects_segmentation(m3d_app) -> None:
     cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [0, 0, 0], 5, 10, 0, "cyl")
     segments_number = 5
     sheets = m3d_app.modeler.objects_segmentation(assignment=cylinder, segments=segments_number, apply_mesh_sheets=True)
@@ -872,7 +976,7 @@ def test_objects_segmentation(m3d_app):
     assert len(sheets[cylinder.name]) == segments_number - 1
 
 
-def test_import_dxf(m3d_app):
+def test_import_dxf(m3d_app) -> None:
     dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
     dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
@@ -880,7 +984,7 @@ def test_import_dxf(m3d_app):
     assert m3d_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=0.2)
 
 
-def test_assign_flux_tangential(m3d_app):
+def test_assign_flux_tangential(m3d_app) -> None:
     box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
     with pytest.raises(AEDTRuntimeError):
         m3d_app.assign_flux_tangential(box.faces[0])
@@ -889,7 +993,7 @@ def test_assign_flux_tangential(m3d_app):
     assert m3d_app.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
 
-def test_assign_tangential_h_field(m3d_app, maxwell_versioned):
+def test_assign_tangential_h_field(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     assert m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
     rect = m3d_app.modeler.create_rectangle(2, [0, 0, 0], [5, 5])
@@ -904,7 +1008,7 @@ def test_assign_tangential_h_field(m3d_app, maxwell_versioned):
         m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
 
 
-def test_assign_zero_tangential_h_field(m3d_app, maxwell_versioned):
+def test_assign_zero_tangential_h_field(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     with pytest.raises(
         AEDTRuntimeError,
@@ -915,7 +1019,7 @@ def test_assign_zero_tangential_h_field(m3d_app, maxwell_versioned):
     assert m3d_app.assign_zero_tangential_h_field(box.top_face_z)
 
 
-def test_assign_radiation(m3d_app, maxwell_versioned):
+def test_assign_radiation(m3d_app, maxwell_versioned) -> None:
     rect = m3d_app.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
     rect2 = m3d_app.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
     box = m3d_app.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
@@ -933,7 +1037,7 @@ def test_assign_radiation(m3d_app, maxwell_versioned):
     assert bound2.name != bound3.name
 
 
-def test_solution_types_setup(m3d_app, maxwell_versioned):
+def test_solution_types_setup(m3d_app, maxwell_versioned) -> None:
     setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
     assert setup
     setup.delete()
@@ -977,7 +1081,7 @@ def test_solution_types_setup(m3d_app, maxwell_versioned):
     setup.delete()
 
 
-def test_assign_floating(m3d_app, maxwell_versioned):
+def test_assign_floating(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
     with pytest.raises(
         AEDTRuntimeError,
@@ -993,7 +1097,7 @@ def test_assign_floating(m3d_app, maxwell_versioned):
     assert floating1
 
 
-def test_assign_resistive_sheet(m3d_app, maxwell_versioned):
+def test_assign_resistive_sheet(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.EddyCurrent
     m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
     my_rectangle = m3d_app.modeler.create_rectangle(orientation=1, origin=[0, 0, 0.8], sizes=[-1, 0.4], name="my_rect")
@@ -1011,13 +1115,15 @@ def test_assign_resistive_sheet(m3d_app, maxwell_versioned):
         m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
 
-def test_assign_layout_force(layout_comp):
+def test_assign_layout_force(layout_comp) -> None:
     nets_layers = {
         "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
         "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
         "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
     }
-    assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
+    layout_force = layout_comp.assign_layout_force(nets_layers, "LC1_1")
+    assert layout_force
+    assert isinstance(layout_force, MaxwellLayoutForce)
     with pytest.raises(AEDTRuntimeError, match="Provided component name doesn't exist in current design."):
         layout_comp.assign_layout_force(nets_layers, "LC1_3")
     nets_layers = {"1V0": "Bottom Solder"}
@@ -1025,7 +1131,7 @@ def test_assign_layout_force(layout_comp):
 
 
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
-def test_enable_harmonic_force_layout(layout_comp):
+def test_enable_harmonic_force_layout(layout_comp) -> None:
     comp = layout_comp.modeler.user_defined_components["LC1_1"]
     layers = list(comp.layout_component.layers.keys())
     nets = list(comp.layout_component.nets.keys())
@@ -1053,7 +1159,7 @@ def test_enable_harmonic_force_layout(layout_comp):
     DESKTOP_VERSION < "2025.1",
     reason="Not working in non-graphical in version lower than 2025.1",
 )
-def test_order_coil_terminals(m3d_app):
+def test_order_coil_terminals(m3d_app) -> None:
     m3d_app.solution_type = "TransientAPhiFormulation"
     c1 = m3d_app.modeler.create_cylinder(
         orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
@@ -1103,7 +1209,7 @@ def test_order_coil_terminals(m3d_app):
         m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
 
 
-def test_assign_sink(m3d_app, maxwell_versioned):
+def test_assign_sink(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.DCConduction
     m3d_app.modeler.create_cylinder(
         orientation="Z", origin=[0, 0, 0], radius=2, height=1, name="mycyl", material="copper"

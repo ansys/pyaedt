@@ -40,7 +40,7 @@ from tests.conftest import DESKTOP_VERSION
 )
 @patch.object(ViaDesignExtension, "check_design_type", return_value=None)
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app):
+def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app) -> None:
     """Test the creation of a design from examples in the via design extension."""
     app = add_app(application=Hfss3dLayout)
     extension = ViaDesignExtension(withdraw=True)

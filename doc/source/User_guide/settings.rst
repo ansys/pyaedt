@@ -104,6 +104,7 @@ Below is the content that can be updated through the YAML file.
         ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
         ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
         ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
+        ANSYSEM_FEATURE_F1035460_EDDY_APHI_ENHANCEMENT_ENABLE: '1'
         # Environment variable used in Linux to skip the dependency check for speed
         # ANS_NODEPCHECK: '1'
 
@@ -156,3 +157,6 @@ Below is the content that can be updated through the YAML file.
         pyd_libraries_path: null
         # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
         pyd_libraries_user_path: null
+        # Enable or disable gRPC API for the EDB module.
+        # If null, the gRPC API is used if AEDT version is 2026 R1 or later, otherwise the legacy COM object is used.
+        pyedb_use_grpc: null

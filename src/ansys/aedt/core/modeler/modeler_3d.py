@@ -57,7 +57,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     >>> my_modeler = hfss.modeler
     """
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         Primitives3D.__init__(self, application)
 
     def __get__(self, instance, owner):
@@ -67,29 +67,29 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_3dcomponent(
         self,
-        input_file,
-        name=None,
+        input_file: str,
+        name: str | None = None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_coordinate_system="Global",
-        is_encrypted=False,
-        allow_edit=False,
-        security_message="",
+        reference_coordinate_system: str = "Global",
+        is_encrypted: bool = False,
+        allow_edit: bool = False,
+        security_message: str = "",
         password=None,  # nosec
         edit_password=None,
-        password_type="UserSuppliedPassword",
-        hide_contents=False,
-        replace_names=False,
-        component_outline="BoundingBox",
-        export_auxiliary=False,
+        password_type: str = "UserSuppliedPassword",
+        hide_contents: bool = False,
+        replace_names: bool = False,
+        component_outline: str = "BoundingBox",
+        export_auxiliary: bool = False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
-        create_folder=True,
-    ):
+        create_folder: bool = True,
+    ) -> bool:
         """Create a 3D component file.
 
         Parameters
@@ -396,13 +396,13 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name=None,
+        name: str | None = None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_coordinate_system="Global",
+        reference_coordinate_system: str = "Global",
     ):
         """Replace with 3D component.
 
@@ -558,13 +558,13 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self,
         origin,
         axis,
-        inner_radius=1,
-        outer_radius=2,
-        diel_radius=1.8,
-        length=10,
-        mat_inner="copper",
-        mat_outer="copper",
-        mat_diel="teflon_based",
+        inner_radius: int = 1,
+        outer_radius: int = 2,
+        diel_radius: float = 1.8,
+        length: int = 10,
+        mat_inner: str = "copper",
+        mat_outer: str = "copper",
+        mat_diel: str = "teflon_based",
     ):
         """Create a coaxial.
 
@@ -632,14 +632,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self,
         origin,
         wg_direction_axis,
-        wgmodel="WG0",
-        wg_length=100,
+        wgmodel: str = "WG0",
+        wg_length: int = 100,
         wg_thickness=None,
-        wg_material="aluminum",
-        parametrize_w=False,
-        parametrize_h=False,
-        create_sheets_on_openings=False,
-        name=None,
+        wg_material: str | None = "aluminum",
+        parametrize_w: bool = False,
+        parametrize_h: bool = False,
+        create_sheets_on_openings: bool = False,
+        name: str | None = None,
     ):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
@@ -821,7 +821,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         cone_height,
         ring_height,
         thickness=None,
-        name=None,
+        name: str | None = None,
     ):
         """Create rings in a conical shape.
 
@@ -915,7 +915,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
         return solids
 
     @pyaedt_function_handler()
-    def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):
+    def objects_in_bounding_box(
+        self, bounding_box, check_solids: bool = True, check_lines: bool = True, check_sheets: bool = True
+    ):
         """Given a bounding box checks if objects, sheets and lines are inside it.
 
         Parameters
@@ -983,16 +985,16 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def import_nastran(
         self,
         file_path,
-        import_lines=True,
-        lines_thickness=0,
-        import_as_light_weight=False,
-        decimation=0,
-        group_parts=True,
-        enable_planar_merge="True",
-        save_only_stl=False,
-        preview=False,
-        merge_angle=1e-3,
-        remove_multiple_connections=False,
+        import_lines: bool = True,
+        lines_thickness: int = 0,
+        import_as_light_weight: bool = False,
+        decimation: int = 0,
+        group_parts: bool = True,
+        enable_planar_merge: str = "True",
+        save_only_stl: bool = False,
+        preview: bool = False,
+        merge_angle: float = 1e-3,
+        remove_multiple_connections: bool = False,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
@@ -1167,16 +1169,16 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def import_from_openstreet_map(
         self,
         latitude_longitude,
-        env_name="default",
-        terrain_radius=500,
-        include_osm_buildings=True,
-        including_osm_roads=True,
-        import_in_aedt=True,
-        plot_before_importing=False,
-        z_offset=2,
-        road_step=3,
-        road_width=8,
-        create_lightweigth_part=True,
+        env_name: str = "default",
+        terrain_radius: int = 500,
+        include_osm_buildings: bool = True,
+        including_osm_roads: bool = True,
+        import_in_aedt: bool = True,
+        plot_before_importing: bool = False,
+        z_offset: int = 2,
+        road_step: int = 3,
+        road_width: int = 8,
+        create_lightweigth_part: bool = True,
     ):
         """Import OpenStreet Maps into AEDT.
 
@@ -1326,8 +1328,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         assignment,
         segmentation_thickness=None,
         segments=None,
-        apply_mesh_sheets=False,
-        mesh_sheets=2,
+        apply_mesh_sheets: bool = False,
+        mesh_sheets: int = 2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1411,7 +1413,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return segment_objects
 
     @pyaedt_function_handler
-    def change_region_padding(self, padding_data, padding_type, direction=None, region_name="Region"):
+    def change_region_padding(self, padding_data, padding_type, direction=None, region_name: str = "Region") -> bool:
         """
         Change region padding settings.
 
@@ -1503,7 +1505,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_region_coordinate_system(self, assignment="Global", name="Region"):
+    def change_region_coordinate_system(self, assignment: str = "Global", name: str = "Region"):
         """
         Change region coordinate system.
 

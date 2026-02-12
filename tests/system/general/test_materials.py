@@ -79,11 +79,11 @@ def maxwell_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_vacuum(aedt_app):
+def test_vacuum(aedt_app) -> None:
     assert "vacuum" in list(aedt_app.materials.material_keys.keys())
 
 
-def test_create_material(aedt_app):
+def test_create_material(aedt_app) -> None:
     mat1 = aedt_app.materials.add_material("new_copper2")
     assert mat1
     mat1.conductivity = 59000000000
@@ -164,7 +164,7 @@ def test_create_material(aedt_app):
         mat1.material_appearance = [11, 22]
 
 
-def test_create_modifiers(aedt_app):
+def test_create_modifiers(aedt_app) -> None:
     aedt_app.materials.add_material("new_copper")
     assert aedt_app.materials["new_copper"].mass_density.add_thermal_modifier_free_form(
         "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
@@ -212,19 +212,19 @@ def test_create_modifiers(aedt_app):
     assert aedt_app.materials["new_mat3"].mass_density.add_thermal_modifier_closed_form()
 
 
-def test_duplicate_material(aedt_app):
+def test_duplicate_material(aedt_app) -> None:
     aedt_app.materials.add_material("copper")
     assert aedt_app.materials.duplicate_material("copper", "copper2")
     assert not aedt_app.materials.duplicate_material("nonexistent_copper", "copper2")
 
 
-def test_delete_material(aedt_app):
+def test_delete_material(aedt_app) -> None:
     aedt_app.materials.add_material("copper")
     assert aedt_app.materials.remove_material("copper")
     assert not aedt_app.materials.remove_material("copper2")
 
 
-def test_surface_material(icepak_app):
+def test_surface_material(icepak_app) -> None:
     mat2 = icepak_app.materials.add_surface_material("Steel")
     mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
     mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(aedtname="surface_diffuse_absorptance")
@@ -241,12 +241,12 @@ def test_surface_material(icepak_app):
     assert icepak_app.materials.duplicate_surface_material("Steel")
 
 
-def test_export_materials(aedt_app, test_tmp_dir):
+def test_export_materials(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.materials.export_materials_to_file(test_tmp_dir / "materials.json")
     assert (test_tmp_dir / "materials.json").exists()
 
 
-def test_import_materials(aedt_app):
+def test_import_materials(aedt_app) -> None:
     assert aedt_app.materials.import_materials_from_file(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.json"
     )
@@ -269,7 +269,7 @@ def test_import_materials(aedt_app):
     )
 
 
-def test_import_materials_from_excel(aedt_app):
+def test_import_materials_from_excel(aedt_app) -> None:
     mats = aedt_app.materials.import_materials_from_excel(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.xlsx"
     )
@@ -283,7 +283,7 @@ def test_import_materials_from_excel(aedt_app):
     assert len(mats) == 2
 
 
-def test_non_linear_materials(maxwell_app, test_tmp_dir):
+def test_non_linear_materials(maxwell_app, test_tmp_dir) -> None:
     mat1 = maxwell_app.materials.add_material("myMat")
     mat1.permeability = [[0, 0], [1, 12], [10, 30]]
     mat1.permeability.set_non_linear(x_unit="Oe", y_unit="gauss")
@@ -307,7 +307,7 @@ def test_non_linear_materials(maxwell_app, test_tmp_dir):
     assert maxwell_app.materials.material_keys["mymat2"].is_used
 
 
-def test_add_material_sweep(aedt_app):
+def test_add_material_sweep(aedt_app) -> None:
     material_name = "sweep_material"
     assert aedt_app.materials.add_material_sweep(["copper", "aluminum", "FR4_epoxy"], material_name)
     assert material_name in list(aedt_app.materials.material_keys.keys())
@@ -335,13 +335,13 @@ def test_add_material_sweep(aedt_app):
         assert mat_prop == var_name + "[$ID" + material_name + "]"
 
 
-def test_material_case(aedt_app):
+def test_material_case(aedt_app) -> None:
     assert aedt_app.materials["Aluminum"] == aedt_app.materials["aluminum"]
     assert aedt_app.materials["Aluminum"].name == "aluminum"
     assert aedt_app.materials.add_material("AluMinum") == aedt_app.materials["aluminum"]
 
 
-def test_material_model(aedt_app):
+def test_material_model(aedt_app) -> None:
     mat = aedt_app.materials.add_material("ds_material")
     aedt_app["$dk"] = 3
     aedt_app["$df"] = 0.01
@@ -349,14 +349,14 @@ def test_material_model(aedt_app):
 
 
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_get_materials_in_project(aedt_app):
+def test_get_materials_in_project(aedt_app) -> None:
     used_materials = aedt_app.materials.get_used_project_material_names()
     assert isinstance(used_materials, list)
     for m in [mat for mat in aedt_app.materials if mat.is_used]:
         assert m.name in used_materials
 
 
-def test_get_coreloss_coefficients(aedt_app):
+def test_get_coreloss_coefficients(aedt_app) -> None:
     aedt_app.materials.add_material("mat_test")
     # Test points_list_at_freq
     coeff = aedt_app.materials["mat_test"].get_core_loss_coefficients(
@@ -406,7 +406,7 @@ def test_get_coreloss_coefficients(aedt_app):
         )
 
 
-def test_set_core_loss(maxwell_app):
+def test_set_core_loss(maxwell_app) -> None:
     # Testing in time harmonic solver
     maxwell_app.solution_type = "AC Magnetic"
 
@@ -533,7 +533,7 @@ def test_set_core_loss(maxwell_app):
     )
 
 
-def test_thermalmodifier_and_spatialmodifier(aedt_app):
+def test_thermalmodifier_and_spatialmodifier(aedt_app) -> None:
     assert aedt_app.materials["vacuum"].conductivity.thermalmodifier is None
     assert aedt_app.materials["vacuum"].conductivity.spatialmodifier is None
 
@@ -573,7 +573,7 @@ def test_thermalmodifier_and_spatialmodifier(aedt_app):
     aedt_app.materials["vacuum"].conductivity.spatialmodifier = None
 
 
-def test_import_materials_from_workbench(aedt_app):
+def test_import_materials_from_workbench(aedt_app) -> None:
     assert aedt_app.materials.import_materials_from_workbench("not_existing.xml") is False
 
     imported_mats = aedt_app.materials.import_materials_from_workbench(
@@ -652,7 +652,7 @@ def test_import_materials_from_workbench(aedt_app):
     new_callable=mock_open,
     read_data=MISSING_RGB_MATERIALS,
 )
-def test_json_missing_rgb(mock_file, aedt_app, caplog):
+def test_json_missing_rgb(mock_file, aedt_app, caplog) -> None:
     input_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.json"
     with pytest.raises(KeyError):
         aedt_app.materials.import_materials_from_file(input_path)
