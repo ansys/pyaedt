@@ -46,7 +46,7 @@ class DesignSolution(PyAedtBase):
         self._solution_type = None
 
     @property
-    def solution_type(self):
+    def solution_type(self) -> str:
         """Get/Set the Solution Type of the active Design."""
         if self._design_type in [
             DesignType.CIRCUIT,
@@ -67,7 +67,7 @@ class DesignSolution(PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value) -> None:
+    def solution_type(self, value: str) -> None:
         if value is None:
             if self._design_type in [
                 DesignType.CIRCUIT,
@@ -98,32 +98,32 @@ class DesignSolution(PyAedtBase):
                         self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
-    def report_type(self):
+    def report_type(self) -> str:
         """Return the default report type of the selected solution if present."""
         return self._solution_options[self.solution_type]["report_type"]
 
     @property
-    def default_setup(self):
+    def default_setup(self) -> str:
         """Return the default setup id of the selected solution if present."""
         return self._solution_options[self.solution_type]["default_setup"]
 
     @property
-    def default_adaptive(self):
+    def default_adaptive(self) -> str:
         """Return the default adaptive name of the selected solution if present."""
         return self._solution_options[self.solution_type]["default_adaptive"]
 
     @property
-    def solution_types(self):
+    def solution_types(self) -> list[str]:
         """Return the list of all available solutions."""
         return list(self._solution_options.keys())
 
     @property
-    def design_types(self):
+    def design_types(self) -> list[str]:
         """Return the list of all available designs."""
         return [str(getattr(DesignType, i)) for i in dir(DesignType) if not i.startswith("_")]
 
     @property
-    def intrinsics(self):
+    def intrinsics(self) -> list[str]:
         """Get list of intrinsics for that specified setup."""
         if "intrinsics" in self._solution_options[self.solution_type]:
             return self._solution_options[self.solution_type]["intrinsics"]
@@ -137,7 +137,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self._hybrid = False
 
     @property
-    def solution_type(self):
+    def solution_type(self) -> str:
         """Get/Set the Solution Type of the active Design."""
         if self._odesign:
             try:
@@ -153,7 +153,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value) -> None:
+    def solution_type(self, value: str) -> None:
         if self._aedt_version < "2021.2":
             if not value:
                 self._solution_type = "DrivenModal"
@@ -207,7 +207,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
                     self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
-    def hybrid(self):
+    def hybrid(self) -> bool:
         """HFSS hybrid mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
@@ -216,7 +216,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._hybrid
 
     @hybrid.setter
-    def hybrid(self, value) -> None:
+    def hybrid(self, value: bool) -> None:
         if self._aedt_version < "2021.2":
             return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
@@ -231,7 +231,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @property
-    def composite(self):
+    def composite(self) -> bool:
         """HFSS composite mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
@@ -240,7 +240,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._composite
 
     @composite.setter
-    def composite(self, val) -> None:
+    def composite(self, val: bool) -> None:
         if self._aedt_version < "2021.2":
             return
         if val:
@@ -286,7 +286,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         self._geometry_mode = "XY"
 
     @property
-    def xy_plane(self):
+    def xy_plane(self) -> bool:
         """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`."""
         return self._geometry_mode == "XY"
 
@@ -310,7 +310,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value) -> None:
+    def solution_type(self, value: str) -> None:
         if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
@@ -346,7 +346,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         self._problem_type = "TemperatureAndFlow"
 
     @property
-    def problem_type(self):
+    def problem_type(self) -> str:
         """Get/Set the problem type of the icepak Design.
 
         It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
@@ -356,7 +356,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._problem_type
 
     @problem_type.setter
-    def problem_type(self, value: str = "TemperatureAndFlow"):
+    def problem_type(self, value: str = "TemperatureAndFlow") -> None:
         if value == "TemperatureAndFlow":
             self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type
@@ -383,7 +383,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @property
-    def solution_type(self):
+    def solution_type(self) -> str:
         """Get/Set the Solution Type of the active Design."""
         if self._odesign:
             try:
@@ -393,7 +393,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type) -> None:
+    def solution_type(self, solution_type: str) -> None:
         if solution_type:
             if "SteadyState" in solution_type:
                 self._solution_type = "SteadyState"
@@ -424,14 +424,14 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
 
     @property
-    def solution_type(self):
+    def solution_type(self) -> str:
         """Get/Set the Machine Type of the active Design."""
         if self._solution_type is None and "GetMachineType" in dir(self._odesign):
             self._solution_type = self._odesign.GetMachineType()
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type) -> None:
+    def solution_type(self, solution_type: str) -> None:
         if solution_type:
             try:
                 self._odesign.SetDesignFlow(self._design_type.NAME, solution_type)
@@ -440,12 +440,12 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
                 logger.error("Failed to set design flow.")
 
     @property
-    def design_type(self):
+    def design_type(self) -> str:
         """Get/Set the Machine Design Type."""
         return self._design_type
 
     @design_type.setter
-    def design_type(self, value) -> None:
+    def design_type(self, value: str) -> None:
         if value:
             self._design_type = value
             self.solution_type = self._solution_type

@@ -51,7 +51,7 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
-):
+) -> None:
     """Add PyAEDT panels to AEDT installation.
 
     TThis command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,

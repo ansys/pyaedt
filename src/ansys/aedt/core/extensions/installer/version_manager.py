@@ -42,7 +42,12 @@ import PIL.Image
 import PIL.ImageTk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
+from ansys.aedt.core.extensions.misc import ToolTip
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_latest_version
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.help import Help
 
@@ -209,7 +214,7 @@ class VersionManager:
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
-            
+
             loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
             loading_label.pack(side="left", padx=5)
             self.loading_labels["update_all"] = loading_label
@@ -224,7 +229,7 @@ class VersionManager:
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
-            
+
             loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
             loading_label.pack(side="left", padx=5)
             self.loading_labels["pyaedt"] = loading_label
@@ -239,7 +244,7 @@ class VersionManager:
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
-            
+
             loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
             loading_label.pack(side="left", padx=5)
             self.loading_labels["pyedb"] = loading_label
@@ -276,7 +281,7 @@ class VersionManager:
                 button.pack(side="left", padx=10, pady=10)
             entry = ttk.Entry(frame, width=30, textvariable=self.pyaedt_branch_name)
             entry.pack(side="left")
-            
+
             loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
             loading_label.pack(side="left", padx=5)
             self.loading_labels["pyaedt_branch"] = loading_label
@@ -293,7 +298,7 @@ class VersionManager:
                 button.pack(side="left", padx=10, pady=10)
             entry = ttk.Entry(frame, width=30, textvariable=self.pyedb_branch_name)
             entry.pack(side="left")
-            
+
             loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
             loading_label.pack(side="left", padx=5)
             self.loading_labels["pyedb_branch"] = loading_label

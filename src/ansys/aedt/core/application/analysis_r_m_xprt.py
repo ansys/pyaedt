@@ -21,12 +21,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.maxwell import Maxwell2d
+    from ansys.aedt.core.maxwell import Maxwell3d
+    from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class FieldAnalysisRMxprt(Analysis, PyAedtBase):
@@ -45,21 +53,21 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
-        aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
-    ) -> None:
+        application: str,
+        projectname: str,
+        designname: str,
+        solution_type: str,
+        setup_name: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
+    ):
         Analysis.__init__(
             self,
             application,
@@ -84,7 +92,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """Post Object.
 
         Returns
@@ -99,7 +107,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerRMxprt:
         """Modeler.
 
         Returns
@@ -153,7 +161,9 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_maxwell_design(self, setup_name, variation: str = "", maxwell_2d: bool = True):
+    def create_maxwell_design(
+        self, setup_name: str, variation: str = "", maxwell_2d: bool = True
+    ) -> bool | Maxwell2d | Maxwell3d:
         """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters
@@ -184,7 +194,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_material_threshold(self, conductivity: int = 100000, permeability: int = 100) -> bool:
+    def set_material_threshold(self, conductivity: float = 100000, permeability: float = 100) -> bool:
         """Set material threshold.
 
         Parameters
@@ -208,7 +218,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _check_solution_consistency(self):
+    def _check_solution_consistency(self) -> bool:
         """Check solution consistency."""
         if self.design_solutions:
             return self._odesign.GetSolutionType() == self.design_solutions._solution_type
@@ -216,7 +226,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def _check_design_consistency(self):
+    def _check_design_consistency(self) -> bool:
         """Check design consistency."""
         consistent = False
         destype = self._odesign.GetDesignType()
