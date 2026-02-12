@@ -1,31 +1,37 @@
 [Console]
+icon = "console.png"
 name = "PyAEDT Console"
 script = "console_setup.py"
-icon = "console.png"
 template = "pyaedt_console"
 
+[ConsoleCLI]
+icon = "console.png"
+name = "PyAEDT CLI"
+script = "cli_setup.py"
+template = "pyaedt_cli"
+
 [Jupyter]
+icon = "jupyter.png"
 name = "Jupyter Notebook"
 script = "jupyter_template.ipynb"
-icon = "jupyter.png"
 template = "jupyter"
 
 [Run_Script]
+icon = "run_script.png"
 name = "Run PyAEDT Script"
 script = ""
-icon = "run_script.png"
 template = "run_pyaedt_script"
 
 [ExtensionManager]
+icon = "extension_manager.png"
 name = "Extension Manager"
 script = "extension_manager.py"
-icon = "extension_manager.png"
 template = "run_extension_manager"
 
 [VersionManager]
+icon = "version_manager.png"
 name = "Version Manager"
 script = "version_manager.py"
-icon = "version_manager.png"
 template = "run_pyaedt_toolkit_script"
 
 [GenerateReport] # All

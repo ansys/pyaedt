@@ -71,15 +71,19 @@ def add_automation_tab(
     template: str = "Run PyAEDT Toolkit Script",
     overwrite: bool = False,
     panel: str = "Panel_PyAEDT_Extensions",
-    is_custom: bool = False,  # new argument for custom flag
-    odesktop=None,
+    is_custom: bool = False,  # new argument for custom flagº
+    odesktop: object = None,
+    group_name: str | None = None,
+    group_icon: str | None = None,
+    gallery_imagewidth: int = 80,
+    gallery_imageheight: int = 72,
 ):
     """Add an automation tab in AEDT.
 
     Parameters
     ----------
     name : str
-        Toolkit name.
+        Toolkit name to add.
     lib_dir : str
         Path to the library directory.
     icon_file : str
@@ -87,7 +91,7 @@ def add_automation_tab(
     product : str, optional
         Product directory to install the toolkit.
     template : str, optional
-        Script template name to use
+        Script template name to use.
     overwrite : bool, optional
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
@@ -95,6 +99,14 @@ def add_automation_tab(
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     is_custom : bool, optional
         Whether the automation tab is for custom extensions. The default is ``False``.
+    group_name : str, optional
+        Group name to create grouped buttons. The default is ``None``.
+    group_icon : str, optional
+        Group icon to use when creating grouped buttons. The default is ``None``.
+    gallery_imagewidth : int, optional
+        Gallery image width when creating grouped buttons. The default is ``32``.
+    gallery_imageheight : int, optional
+        Gallery image height when creating grouped buttons. The default is ``32``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
 
@@ -103,10 +115,8 @@ def add_automation_tab(
     str
         Automation tab path.
     """
+    logger = logging.getLogger("Global")
     product = tab_map(product)
-    toolkit_name = name
-    if "/" in name:
-        toolkit_name = name.replace("/", "_")
     lib_dir = Path(lib_dir)
     tab_config_file_path = lib_dir / product / "TabConfig.xml"
     if not tab_config_file_path.is_file() or overwrite:
@@ -127,59 +137,112 @@ def add_automation_tab(
             panel_element = ET.SubElement(root, "panel", label=panel)
     else:
         panel_element = ET.SubElement(root, "panel", label=panel)
-    buttons = panel_element.findall("./button")
-    if buttons:  # pragma: no cover
-        button_names = [button.attrib["label"] for button in buttons]
-        if name in button_names:
-            b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel_element.remove(b)
-    # For custom extensions, use 'image' and 'script' fields (relative paths)
-    if is_custom:
-        script = Path(name) / "run_pyaedt_toolkit_script"
-        button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=str(Path(icon_file).as_posix()),
-            script=str(script.as_posix()),
-            custom_extension="true",
-            type="custom",
-        )
-    else:
-        if not icon_file:
-            icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
-        else:
-            icon_file = Path(icon_file)
+    _remove_button_from_panel(panel_element, name)
 
-        # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
-        if is_linux:  # pragma: no cover
-            images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
-            images_target = lib_dir / product / "images"
-            if not images_target.exists() and images_source.exists():
-                try:
-                    images_target.symlink_to(images_source)
-                except Exception:
-                    logging.getLogger("Global").warning(
-                        f"Could not create symlink from {images_source} to {images_target}"
+    def _resolve_icon_path(icon_path):
+        if not icon_path:
+            return None
+        return Path(icon_path)
+
+    default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
+
+    if not is_custom and is_linux:  # pragma: no cover
+        images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
+        images_target = lib_dir / product / "images"
+        if not images_target.exists() and images_source.exists():
+            try:
+                images_target.symlink_to(images_source)
+            except Exception:
+                logging.getLogger("Global").warning(f"Could not create symlink from {images_source} to {images_target}")
+                if odesktop:
+                    odesktop.AddMessage(
+                        "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
                     )
-                    if odesktop:
-                        odesktop.AddMessage(
-                            "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
-                        )
-            icon_relative = f"images/{icon_file.name}"
-            button_kwargs = dict(
-                label=name,
-                isLarge="1",
-                image=icon_relative,
-                script=f"{toolkit_name}/{template}",
+
+    def _build_image_value(path_value: Path | None):
+        if not path_value:
+            return None
+        if is_linux and not is_custom:
+            return f"images/{path_value.name}"
+        return path_value.as_posix()
+
+    if group_name:
+        group_element, gallery_element = _find_group_in_panel(panel_element, group_name)
+        if gallery_element is None:
+            gallery_element = ET.SubElement(
+                panel_element,
+                "gallery",
+                imagewidth=str(gallery_imagewidth),
+                imageheight=str(gallery_imageheight),
             )
         else:
+            gallery_element.set("imagewidth", str(gallery_imagewidth))
+            gallery_element.set("imageheight", str(gallery_imageheight))
+        icon_path = _resolve_icon_path(icon_file) or default_icon_path
+        image_value = _build_image_value(icon_path)
+        group_icon_path = _resolve_icon_path(group_icon)
+        if group_icon_path is None:
+            logger.error("Group icon is required when group_name is provided.")
+            return
+        group_image_value = _build_image_value(group_icon_path)
+
+        gallery_button = None
+        for gallery_child in list(gallery_element):
+            if gallery_child.tag == "button" and gallery_child.attrib.get("label") == group_name:
+                gallery_button = gallery_child
+                break
+        if gallery_button is None:
+            gallery_button = ET.SubElement(gallery_element, "button", label=group_name)
+        if group_image_value:
+            gallery_button.set("image", image_value)
+        elif "image" in gallery_button.attrib:
+            del gallery_button.attrib["image"]
+        if group_element is None:
+            group_kwargs = {"label": group_name}
+            if group_image_value:
+                group_kwargs["image"] = group_image_value
+            group_element = ET.SubElement(gallery_element, "group", **group_kwargs)
+        elif group_icon:
+            if group_image_value:
+                group_element.set("image", group_image_value)
+
+        if is_custom:
+            script = Path(name) / "run_pyaedt_toolkit_script"
+            button_kwargs = dict(
+                label=name,
+                script=str(script.as_posix()),
+                custom_extension="true",
+                type="custom",
+            )
+        else:
+            toolkit_name = name.replace("/", "_")
+            button_kwargs = dict(
+                label=name,
+                script=f"{toolkit_name}/{template}",
+            )
+        ET.SubElement(group_element, "button", **button_kwargs)
+    else:
+        if is_custom:
+            script = Path(name) / "run_pyaedt_toolkit_script"
             button_kwargs = dict(
                 label=name,
                 isLarge="1",
-                image=str(icon_file.as_posix()),
+                image=str(Path(icon_file).as_posix()),
+                script=str(script.as_posix()),
+                custom_extension="true",
+                type="custom",
+            )
+        else:
+            icon_path = _resolve_icon_path(icon_file) or default_icon_path
+            image_value = _build_image_value(icon_path)
+            toolkit_name = name.replace("/", "_")
+            button_kwargs = dict(
+                label=name,
+                isLarge="1",
+                image=image_value,
                 script=f"{toolkit_name}/{template}",
             )
-    ET.SubElement(panel_element, "button", **button_kwargs)
+        ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
     if tab_config_file_path.is_file():
         shutil.copy(str(tab_config_file_path), str(tab_config_file_path) + ".orig")
@@ -202,6 +265,45 @@ def create_xml_tab(root, output_file) -> None:
 
     with open(output_file, "w") as f:
         f.write(xml_str)
+
+
+def _find_group_in_panel(panel_element, group_label: str):
+    for gallery in panel_element.findall("./gallery"):
+        for group in gallery.findall("./group"):
+            if group.attrib.get("label") == group_label:
+                return group, gallery
+    return None, None
+
+
+def _find_button_with_parents(panel_element, label: str):
+    for child in list(panel_element):
+        if child.tag == "button" and child.attrib.get("label") == label:
+            return child, panel_element, None
+        if child.tag == "gallery":
+            for gallery_child in list(child):
+                if gallery_child.tag == "button" and gallery_child.attrib.get("label") == label:
+                    return gallery_child, child, None
+                if gallery_child.tag == "group":
+                    for group_child in list(gallery_child):
+                        if group_child.tag == "button" and group_child.attrib.get("label") == label:
+                            return group_child, gallery_child, child
+    return None, None, None
+
+
+def _remove_button_from_panel(panel_element, label: str) -> bool:
+    button, parent, gallery = _find_button_with_parents(panel_element, label)
+    if not button:
+        return False
+    parent.remove(button)
+    if parent.tag == "group" and not parent.findall("./button"):
+        if gallery is not None:
+            gallery.remove(parent)
+    if parent.tag == "gallery" and not parent.findall("./button") and not parent.findall("./group"):
+        panel_element.remove(parent)
+    if parent.tag == "group" and gallery is not None:
+        if not gallery.findall("./button") and not gallery.findall("./group"):
+            panel_element.remove(gallery)
+    return True
 
 
 def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
@@ -245,12 +347,12 @@ def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_P
 
     # Get the specific panel
     panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-    buttons = panel_element.findall("./button")
+    buttons = panel_element.findall(".//button")
 
     if not buttons:
         return False
 
-    button_names = [button.attrib["label"] for button in buttons]
+    button_names = [button.attrib.get("label") for button in buttons]
     return name in button_names
 
 
@@ -290,17 +392,13 @@ def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_E
 
     # Find the panel
     panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-    buttons = panel_element.findall("./button")
 
-    # Find and remove the button
-    button_names = [button.attrib["label"] for button in buttons]
-    if name in button_names:
-        b = [button for button in buttons if button.attrib["label"] == name][0]
-        panel_element.remove(b)
+    _remove_button_from_panel(panel_element, name)
 
     # If panel is now empty, remove it
-    remaining_buttons = panel_element.findall("./button")
-    if not remaining_buttons:
+    remaining_buttons = panel_element.findall(".//button")
+    remaining_galleries = panel_element.findall("./gallery")
+    if not remaining_buttons and not remaining_galleries:
         root.remove(panel_element)
 
     create_xml_tab(root, str(tab_config_file_path))
@@ -328,6 +426,8 @@ def add_script_to_menu(
     personal_lib=None,
     is_custom: bool = False,
     odesktop=None,
+    group_name: str | None = None,
+    group_icon=None,
 ) -> bool:
     """Add a script to the ribbon menu.
 
@@ -357,6 +457,10 @@ def add_script_to_menu(
     personal_lib : str, optional
     is_custom : bool, optional
     odesktop : oDesktop, optional
+    group_name : str, optional
+        Group name to create grouped buttons. The default is ``None``.
+    group_icon : str, optional
+        Group icon to use when creating grouped buttons. The default is ``None``.
 
     Returns
     -------
@@ -423,16 +527,21 @@ def add_script_to_menu(
             build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
+    names = name
+    icons = icon_file
+    templates = template_file
 
     add_automation_tab(
-        name,
+        names,
         toolkit_dir,
-        icon_file=icon_file,
+        icon_file=icons,
         product=product,
-        template=template_file,
+        template=templates,
         panel=panel,
         is_custom=is_custom,
         odesktop=odesktop,
+        group_name=group_name,
+        group_icon=group_icon,
     )
     logger.info(f"{name} installed")
     if odesktop:
@@ -728,7 +837,7 @@ def get_custom_extensions_from_tabconfig(tabconfig_path, toml_names, options, lo
         tree = defused_parse(str(tabconfig_path))
         root = tree.getroot()
         for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
+            for button in panel.findall(".//button"):
                 label = button.attrib.get("label")
                 is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
                 if label and is_custom and label not in toml_names and label not in options:
@@ -745,7 +854,7 @@ def get_custom_extension_script(tabconfig_path, label, logger=None):
         tree = defused_parse(str(tabconfig_path))
         root = tree.getroot()
         for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
+            for button in panel.findall(".//button"):
                 btn_label = button.attrib.get("label")
                 is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
                 if btn_label == label and is_custom:
@@ -763,7 +872,7 @@ def get_custom_extension_image(tabconfig_path, label, logger=None):
         tree = defused_parse(str(tabconfig_path))
         root = tree.getroot()
         for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
+            for button in panel.findall(".//button"):
                 btn_label = button.attrib.get("label")
                 if btn_label == label:
                     return button.attrib.get("image", "")
