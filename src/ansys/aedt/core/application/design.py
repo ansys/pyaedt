@@ -42,12 +42,14 @@ import sys
 import threading
 import time
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
 from ansys.aedt.core.application.design_solutions import HFSSDesignSolution
@@ -264,6 +266,11 @@ class Design(AedtObjects, PyAedtBase):
 
         if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
             self.design_settings = DesignSettings(self)
+
+        if self._aedt_version >= "2026.1":
+            self.__get_props: Callable[[Any], Any] = _get_obj_data
+        else:
+            self.__get_props = lambda obj: None
 
     @property
     def _pyaedt_details(self) -> Dict[str, str]:
@@ -512,16 +519,26 @@ class Design(AedtObjects, PyAedtBase):
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
-
-                self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
+                child_obj = self.get_oo_object(self.odesign, f"Parameters\\{boundary}")
+                props = self.__get_props(child_obj)
+                self._boundaries[boundary] = MaxwellParameters(
+                    self, boundary, props=props, boundarytype=maxwell_parameter_type
+                )
             elif boundarytype == "MotionSetup":
                 maxwell_motion_type = self.get_oo_property_value(self.odesign, f"Model\\{boundary}", "Type")
-
-                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=maxwell_motion_type)
+                child_obj = self.get_oo_object(self.odesign, f"Model\\{boundary}")
+                props = self.__get_props(child_obj)
+                self._boundaries[boundary] = BoundaryObject(
+                    self, boundary, props=props, boundarytype=maxwell_motion_type
+                )
             elif boundarytype == "Network":
-                self._boundaries[boundary] = NetworkObject(self, boundary)
+                child_obj = self.get_oo_object(self.odesign, f"Thermal\\{boundary}")
+                props = self.__get_props(child_obj)
+                self._boundaries[boundary] = NetworkObject(self, boundary, props=props)
             else:
-                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                child_obj = self.get_oo_object(self.odesign, f"Boundaries\\{boundary}")
+                props = self.__get_props(child_obj)
+                self._boundaries[boundary] = BoundaryObject(self, boundary, props=props, boundarytype=boundarytype)
 
         try:
             for k, v in zip(current_excitations, current_excitation_types):
@@ -2339,7 +2356,7 @@ class Design(AedtObjects, PyAedtBase):
             design = DesignType.ICEPAKFEA
         if not setup:
             setup = self.nominal_adaptive
-        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
+        self.odesign.CreateEMLossTarget(design.NAME, setup, design_setup_args)
         return True
 
     @pyaedt_function_handler()
