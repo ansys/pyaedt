@@ -499,6 +499,7 @@ at the top level of the repository. Below is an example configuration with descr
       "use_local_example_data": false,
       "local_example_folder": "",
       "skip_modelithics": true
+      "use_pyedb_grpc": true
   }
 
 Parameter descriptions:
@@ -512,6 +513,7 @@ Parameter descriptions:
 - ``use_local_example_data``: When ``true``, uses local example data for tests.
 - ``local_example_folder``: Path to the local example data folder.
 - ``skip_modelithics``: When ``true``, skips Modelithics-related tests.
+- ``use_pyedb_grpc``: When ``true``, use PyEDB with gRPC for database access.
 
 Replicating CI/CD environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

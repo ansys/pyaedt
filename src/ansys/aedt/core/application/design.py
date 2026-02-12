@@ -2674,7 +2674,7 @@ class Design(AedtObjects, PyAedtBase):
     def _close_edb(self) -> None:
         if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
             if self.modeler and self.modeler._edb:
-                self.modeler._edb.close_edb()
+                self.modeler._edb.close()
 
     @pyaedt_function_handler()
     def create_dataset1d_design(

@@ -357,7 +357,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
             edbpath=edbpath,
             cellname=cellname,
             isreadonly=isreadonly,
-            edbversion=edbversion,
+            version=edbversion,
             isaedtowned=False,
             oproject=None,
             student_version=False,
@@ -1074,7 +1074,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
             edbpath=edbpath,
             cellname=cellname,
             isreadonly=isreadonly,
-            edbversion=edbversion,
+            version=edbversion,
             isaedtowned=isaedtowned,
             oproject=oproject,
             student_version=student_version,
@@ -1150,7 +1150,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             sys.stdout = sys.__stdout__
         for edb in self._edb:
             try:
-                edb.close_edb()
+                edb.close()
             except Exception:
                 logger.warning("Error when trying to close EDB.")
 
