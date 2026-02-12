@@ -776,6 +776,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         solid: bool | None = True,
         swap_direction: bool | None = False,
         name: str | None = None,
+        excitation_model: str = "Single Potential",
     ) -> BoundaryObject:
         """Assign current excitation.
 
@@ -798,6 +799,19 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the current excitation.
             The default is ``None`` in which case a generic name will be given.
+        excitation_model : str, optional
+            The excitation model to apply for this current excitation. Valid only for A-Phi solvers.
+            Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
+            ``"Double Potentials with Ground"``.
+            The default is ``Single Potential``.
+        initial_current : float, optional
+            Initial current in Amperes. Valid only for the A-Phi transient solver. The default is ``0``.
+        swap_direction : bool, optional
+            Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
+        phase : float, optional
+            Voltage phase. Valid only for the A-Phi AC magnetic solver. The default is ``0``.
+        has_initial_current : bool, optional
+            Whether there is an initial current. Valid only for the A-Phi transient solver. The default is ``False``..
 
         Returns
         -------
@@ -857,6 +871,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
+
+            if self.solution_type in [maxwell_solutions.ACMagneticAPhi, maxwell_solutions.TransientAPhi]:
+                props["CurrentExcitationModel"] = excitation_model
+
         else:
             if type(assignment[0]) is str:
                 props = {"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction}
@@ -1081,7 +1099,17 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler()
-    def assign_voltage(self, assignment: list, amplitude: float | None = 1, name: str | None = None) -> BoundaryObject:
+    def assign_voltage(
+        self,
+        assignment: list,
+        amplitude: float | None = 1,
+        name: str | None = None,
+        excitation_model: str = "Single Potential",
+        initial_current: float | None = 0,
+        swap_direction: bool | None = False,
+        phase: float | None = 0,
+        has_initial_current: bool | None = False,
+    ) -> BoundaryObject:
         """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
@@ -1093,6 +1121,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the excitation.
             If not provided, a random name with prefix ``Voltage`` will be generated.
+        excitation_model : str, optional
+            The excitation model to apply for this current excitation. Valid only A-Phi solvers.
+            Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
+             ``"Double Potentials with Ground"``.
+            The default is ``Single Potential``.
 
         Returns
         -------
@@ -1125,26 +1158,39 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if isinstance(amplitude, (int, float)):
             amplitude = f"{amplitude}mV"
 
+        if isinstance(initial_current, (int, float)):
+            initial_current = f"{initial_current}A"
+
         name = name or generate_unique_name("Voltage")
         assignment = self.modeler.convert_to_selections(assignment, True)
         is_maxwell_2d = self.design_type == "Maxwell 2D"
         object_names_set = set(self.modeler.object_names)
+        assiment_key = "Edges" if is_maxwell_2d else "Faces"
+        voltage_boundary_type = "Voltage"
 
-        props = {
-            "Voltage" if not is_maxwell_2d else "Value": amplitude,
-            "Objects": [],
-            "Faces": [] if not is_maxwell_2d else None,
-            "Edges": [] if is_maxwell_2d else None,
-        }
+        props = {"Voltage" if not is_maxwell_2d else "Value": amplitude, "Objects": [], assiment_key: []}
+
+        if self.solution_type == SolutionsMaxwell3D.TransientAPhi:
+            voltage_boundary_type = "VoltageAPhi"
+            props.pop("Voltage")
+            props["VoltageAPhi"] = amplitude
+            props["VoltageAPhiInitialCurrent"] = initial_current
+            props["VoltageAPhiHasInitialCurrent"] = has_initial_current
+            props["VoltageAPhiExcitationModel"] = excitation_model
+            props["VoltageAPhi_Point_out_of_terminal"] = swap_direction
+
+        elif self.solution_type == SolutionsMaxwell3D.ACMagneticAPhi:
+            props["phase"] = phase
+            props["VoltageAPhi_Point_out_of_terminal"] = swap_direction
+            props["VoltageAPhiExcitationModel"] = excitation_model
 
         for element in assignment:
             if isinstance(element, str) and element in object_names_set:
                 props["Objects"].append(element)
             else:
-                key = "Edges" if is_maxwell_2d else "Faces"
-                props[key].append(element)
+                props[assiment_key].append(element)
 
-        return self._create_boundary(name, props, "Voltage")
+        return self._create_boundary(name, props, voltage_boundary_type)
 
     @pyaedt_function_handler()
     def assign_voltage_drop(
