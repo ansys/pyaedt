@@ -28,6 +28,7 @@ import os
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -2581,7 +2582,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self.expressions = traces
 
         # Modify trace and context in native API format for Maxwell cases
-        if self._app.design_type == "Maxwell 3D" or self._app.design_type == "Maxwell 2D":
+        if (
+            self._app.design_type in [DesignType.MAXWELL2D, DesignType.MAXWELL3D]
+            and self._app.solution_type in ["Magnetostatic"]  # ["EddyCurrent", "Electrostatic", "AC Magnetic"]
+        ):
             trace_info = trace_info[:-1] + [traces]
             if context:
                 context = ["Context:=", *context]
