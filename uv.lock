@@ -3697,9 +3697,9 @@ requires-dist = [
     { name = "rpyc", marker = "extra == 'doc'", specifier = ">=6.0.0,<6.1" },
     { name = "rpyc", marker = "extra == 'examples'", specifier = ">=6.0.0,<6.1" },
     { name = "rpyc", marker = "extra == 'unit-tests'", specifier = ">=6.0.0,<6.1" },
-    { name = "scikit-rf", marker = "extra == 'all'", specifier = ">=0.30.0,<1.10" },
-    { name = "scikit-rf", marker = "extra == 'examples'", specifier = ">=0.30.0,<1.10" },
-    { name = "scikit-rf", marker = "extra == 'tests'", specifier = ">=0.30.0,<1.10" },
+    { name = "scikit-rf", marker = "extra == 'all'", specifier = ">=0.30.0,<1.11" },
+    { name = "scikit-rf", marker = "extra == 'examples'", specifier = ">=0.30.0,<1.11" },
+    { name = "scikit-rf", marker = "extra == 'tests'", specifier = ">=0.30.0,<1.11" },
     { name = "sphinx", marker = "extra == 'doc'", specifier = ">=7.1.0,<8.3" },
     { name = "sphinx-autobuild", marker = "extra == 'doc'", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", marker = "extra == 'doc'", specifier = ">=0.5.0,<0.6" },
@@ -4657,7 +4657,7 @@ wheels = [
 
 [[package]]
 name = "scikit-rf"
-version = "1.9.0"
+version = "1.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
@@ -4667,9 +4667,9 @@ dependencies = [
     { name = "scipy", version = "1.17.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/c9/143d506c650ed1ef2f0d7c5d34f224fa7e9bb8c579e67b5450f5a0e12a56/scikit_rf-1.9.0.tar.gz", hash = "sha256:a8e163d1fedb8314341868f093c62ff5cc6a5e95229b18d831169a35d2064171", size = 573537, upload-time = "2025-11-30T13:17:01.217Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/3a/e4f2c83d4a1fd29028d00227a965df5228adaa70aacbb4ce94936e2e2db8/scikit_rf-1.10.0.tar.gz", hash = "sha256:41330d89bd06e5a39f0796b2bf6c363ca35d22193f54759a68338c129a426200", size = 575160, upload-time = "2026-02-01T12:00:02.762Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/36/5c68c6c878482f372a5d4d1ab98b95ccd65c51502c00aed4c92a385f82f2/scikit_rf-1.9.0-py3-none-any.whl", hash = "sha256:285ccbff0471a6a21fde9eadcb39b1f86e1fb85bb11f6e61a65ba681f1fdb4a0", size = 620960, upload-time = "2025-11-30T13:16:59.708Z" },
+    { url = "https://files.pythonhosted.org/packages/66/a2/b8fce2f1096854b1b2cb87dfd337c5d954e3b0030b7f85318bc1e2c7fe94/scikit_rf-1.10.0-py3-none-any.whl", hash = "sha256:6278c38142e8329af5dafccd8325579099b97df62744357c1fb98d0ee7e8f594", size = 623979, upload-time = "2026-02-01T12:00:00.753Z" },
 ]
 
 [[package]]
