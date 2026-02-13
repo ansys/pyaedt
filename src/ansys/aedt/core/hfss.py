@@ -1724,7 +1724,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_linear_count_sweep(
         self,
         setup: str,
-        units: str,
+        unit: str,
         start_frequency: float,
         stop_frequency: float,
         num_of_freq_points: int | None = None,
@@ -1741,7 +1741,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         setup : str
             Name of the setup.
-        units : str
+        unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         start_frequency : float
             Starting frequency of the sweep, such as ``1``.
@@ -1786,7 +1786,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> linear_count_sweep = hfss.create_linear_count_sweep(
         ...     setup="LinearCountSetup",
         ...     sweep="LinearCountSweep",
-        ...     units="MHz",
+        ...     unit="MHz",
         ...     start_frequency=1.1e3,
         ...     stop_frequency=1200.1,
         ...     num_of_freq_points=1658,
@@ -1824,8 +1824,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     raise AEDTRuntimeError(f"Failed to add sweep '{name}' with type {sweep_type}")
 
                 sweepdata.props["RangeType"] = "LinearCount"
-                sweepdata.props["RangeStart"] = str(start_frequency) + units
-                sweepdata.props["RangeEnd"] = str(stop_frequency) + units
+                sweepdata.props["RangeStart"] = str(start_frequency) + unit
+                sweepdata.props["RangeEnd"] = str(stop_frequency) + unit
                 sweepdata.props["RangeCount"] = num_of_freq_points
                 sweepdata.props["Type"] = sweep_type
                 if sweep_type == "Interpolating":

@@ -618,7 +618,7 @@ class PostProcessorCommon(PyAedtBase):
     @property
     def _desktop(self):
         """Desktop."""
-        return self._app._desktop
+        return self._app.odesktop
 
     @property
     def _odesign(self):

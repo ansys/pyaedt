@@ -294,7 +294,7 @@ def test_create_custom_array(aedt_sbr) -> None:
 
 @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
 def test_read_hdm(aedt_sbr, test_tmp_dir):
-    aedt_sbr.save_project()
+    aedt_sbr.save_project(str(test_tmp_dir / "test_hdm.aedt"))
 
     hdm_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "freighter_rays.hdm"
     hdm_local = shutil.copy2(hdm_path, test_tmp_dir / "freighter_rays.hdm")
