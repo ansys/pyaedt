@@ -44,7 +44,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 # NOTE: Create a base class that conditionally inherits from skrf.Network.
 # This is to avoid case sceario where scikit-rf is not installed, but
 # TouchstoneData is still imported for type hinting or other purposes.
-# This work around is mainly due to
+# For more information on this workaround, see https://github.com/ansys/pyaedt/pull/7255
 try:
     import skrf as rf
 
