@@ -808,7 +808,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
         phase : float, optional
             Voltage phase. Valid only for the A-Phi AC magnetic solver. The default is ``0``.
-      
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
@@ -858,7 +858,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
-  
+
             if self.solution_type not in (
                 maxwell_solutions.DCConduction,
                 maxwell_solutions.ElectricTransient,
