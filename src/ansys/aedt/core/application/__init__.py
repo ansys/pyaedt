@@ -31,7 +31,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 def _get_data_model(child_object, level=-1):
     import json
 
-    def _fix_dict(p_list, p_out):
+    def _fix_dict(p_list, p_out) -> None:
         for p, val in p_list.items():
             if p == "properties":
                 for prop in val:

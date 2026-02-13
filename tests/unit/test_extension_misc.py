@@ -47,7 +47,7 @@ DUMMY_ENV_VARS = {
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -59,23 +59,23 @@ def mock_env_vars():
         yield
 
 
-def test_get_process_id(mock_env_vars):
+def test_get_process_id(mock_env_vars) -> None:
     assert get_process_id() == 12345
 
 
-def test_get_port(mock_env_vars):
+def test_get_port(mock_env_vars) -> None:
     assert get_port() == 6789
 
 
-def test_get_aedt_version(mock_env_vars):
+def test_get_aedt_version(mock_env_vars) -> None:
     assert get_aedt_version() == "3024.2"
 
 
-def test_is_student(mock_env_vars):
+def test_is_student(mock_env_vars) -> None:
     assert is_student() is True
 
 
-def test_get_arguments_with_default_values():
+def test_get_arguments_with_default_values() -> None:
     """Test `get_arguments` when no command-line arguments are passed."""
     mock_argv = ["script_name"]
     with patch("sys.argv", mock_argv):
@@ -84,7 +84,7 @@ def test_get_arguments_with_default_values():
         assert result["is_test"] is False
 
 
-def test_get_arguments_with_custom_values():
+def test_get_arguments_with_custom_values() -> None:
     """Test `get_arguments` with custom command-line arguments."""
     mock_argv = ["script_name", "--is_batch", "true", "--is_test", "false"]
     with patch("sys.argv", mock_argv):
@@ -93,7 +93,7 @@ def test_get_arguments_with_custom_values():
         assert result["is_test"] is False
 
 
-def test_get_arguments_with_invalid_arguments():
+def test_get_arguments_with_invalid_arguments() -> None:
     """Test `get_arguments` with invalid command-line arguments."""
     mock_argv = ["script_name", "--invalid_arg", "true"]
     with patch("sys.argv", mock_argv):
@@ -105,11 +105,11 @@ def test_get_arguments_with_invalid_arguments():
     "input_value, expected",
     [("true", True), ("false", False), ("1", True), ("0", False), (True, True), (False, False)],
 )
-def test_string_to_bool(input_value, expected):
+def test_string_to_bool(input_value, expected) -> None:
     assert __string_to_bool(input_value) == expected
 
 
-def test_extension_theme():
+def test_extension_theme() -> None:
     mock_style = MagicMock()
     theme = ExtensionTheme()
 

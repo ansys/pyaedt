@@ -49,14 +49,14 @@ def aedt_app(add_app_example):
     app.close_project(save=False)
 
 
-def test_working_dir(aedt_app, test_tmp_dir):
+def test_working_dir(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
     Cable(aedt_app, data)
     assert (Path(aedt_app.toolkit_directory) / "export_cable_library_as_json_test.json").is_file()
 
 
-def test_invalid_cable_type(aedt_app, test_tmp_dir):
+def test_invalid_cable_type(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
     data["Add_Cable"] = "True"
@@ -64,7 +64,7 @@ def test_invalid_cable_type(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).create_cable()
 
 
-def test_create_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
+def test_create_cables_bundle_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -177,7 +177,7 @@ def test_create_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
     assert Cable(aedt_app, data).create_cable()
 
 
-def test_update_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
+def test_update_cables_bundle_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -317,7 +317,7 @@ def test_update_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).update_shielding()
 
 
-def test_create_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir):
+def test_create_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -354,7 +354,7 @@ def test_create_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skip(reason="Unable to update if it's not done before manually.")
-def test_update_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir):
+def test_update_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -381,7 +381,7 @@ def test_update_cables_straight_wire_check_definitions(aedt_app, test_tmp_dir):
     assert cable.cable_definitions["StWireCable"]["StWireParams"]["InsType"] == "Thin Wall"
 
 
-def test_create_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir):
+def test_create_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
     Cable(aedt_app, data)
@@ -415,7 +415,7 @@ def test_create_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir):
     assert cable.cable_definitions["TwistedPairCable"][1]["TwistedPairParams"]["LayLength"] == "34mm"
 
 
-def test_update_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir):
+def test_update_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -438,7 +438,7 @@ def test_update_cables_twisted_pair_check_definitions(aedt_app, test_tmp_dir):
     assert cable.cable_definitions["TwistedPairCable"][1]["TwistedPairParams"]["TurnsPerMeter"] == "97"
 
 
-def test_add_cables_to_bundle(aedt_app, test_tmp_dir):
+def test_add_cables_to_bundle(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
     data["Add_Cable"] = "False"
@@ -464,7 +464,7 @@ def test_add_cables_to_bundle(aedt_app, test_tmp_dir):
     assert Cable(aedt_app, data).add_cable_to_bundle()
 
 
-def test_remove_cables(aedt_app, test_tmp_dir):
+def test_remove_cables(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -478,7 +478,7 @@ def test_remove_cables(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).remove_cables()
 
 
-def test_add_clock_source(aedt_app, test_tmp_dir):
+def test_add_clock_source(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -521,7 +521,7 @@ def test_add_clock_source(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).create_clock_source()
 
 
-def test_update_clock_source(aedt_app, test_tmp_dir):
+def test_update_clock_source(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -555,7 +555,7 @@ def test_update_clock_source(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).update_clock_source()
 
 
-def test_add_pwl_source(aedt_app, test_tmp_dir):
+def test_add_pwl_source(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -692,7 +692,7 @@ def test_add_pwl_source(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).create_pwl_source_from_file()
 
 
-def test_remove_source(aedt_app, test_tmp_dir):
+def test_remove_source(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -713,7 +713,7 @@ def test_remove_source(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).remove_source()
 
 
-def test_add_cable_harness(aedt_app, test_tmp_dir):
+def test_add_cable_harness(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     data = read_json(file)
 
@@ -782,11 +782,11 @@ def test_add_cable_harness(aedt_app, test_tmp_dir):
     assert not Cable(aedt_app, data).create_cable_harness()
 
 
-def test_empty_json(aedt_app):
+def test_empty_json(aedt_app) -> None:
     data = {}
     assert not Cable(aedt_app, data).create_cable()
 
 
-def test_json_file_path(aedt_app, test_tmp_dir):
+def test_json_file_path(aedt_app, test_tmp_dir) -> None:
     file = shutil.copy2(CABLE_PROPERTIES, test_tmp_dir / "set_cable_properties.json")
     assert Cable(aedt_app, str(file)).create_cable()

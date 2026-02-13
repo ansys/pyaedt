@@ -72,7 +72,7 @@ class ImportNastranExtensionData(ExtensionCommonData):
 class ImportNastranExtension(ExtensionProjectCommon):
     """Extension for importing Nastran or STL files in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
@@ -107,7 +107,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
                 "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."
             )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # File path selection
         ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
@@ -200,7 +200,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             name="import_button",
         ).grid(row=5, column=1, pady=10, padx=10)
 
-    def __browse_files(self):
+    def __browse_files(self) -> None:
         """Open the file dialog to select Nastran or STL file."""
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -264,7 +264,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         self.root.destroy()
 
 
-def main(data: ImportNastranExtensionData):
+def main(data: ImportNastranExtensionData) -> bool:
     """Main function to run the import nastran extension."""
     # Input validation
     if not data.file_path:

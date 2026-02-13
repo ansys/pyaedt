@@ -38,7 +38,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters."""
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_boundary.auto_update:
@@ -49,7 +49,7 @@ class BoundaryProps(dict):
             if not res:
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, boundary, props):
+    def __init__(self, boundary, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -67,17 +67,17 @@ class BoundaryProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
 
-    def _setitem_without_update(self, key, value):
+    def _setitem_without_update(self, key, value) -> None:
         dict.__setitem__(self, key, value)
 
 
 class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @pyaedt_function_handler()
@@ -102,7 +102,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def _initialize_tree_node(self):
+    def _initialize_tree_node(self) -> bool:
         if self._child_object:
             # _get_obj_data
             BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
@@ -110,7 +110,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the boundary.
 
         Returns
@@ -228,7 +228,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):
+    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
         self.auto_update = False
         self._app = app
         self._name = name
@@ -333,7 +333,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return self._type
 
     @type.setter
-    def type(self, value):
+    def type(self, value) -> None:
         self._type = value
 
     @property
@@ -344,7 +344,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if getattr(self, "child_object", None):
             try:
                 self.properties["Name"] = value
@@ -565,7 +565,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the boundary.
 
         Returns
@@ -711,7 +711,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_assignment(self):
+    def update_assignment(self) -> bool:
         """Update the boundary assignment.
 
         Returns
