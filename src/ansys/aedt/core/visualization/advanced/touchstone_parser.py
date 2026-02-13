@@ -41,14 +41,27 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+# NOTE: Create a base class that conditionally inherits from skrf.Network.
+# This is to avoid case sceario where scikit-rf is not installed, but
+# TouchstoneData is still imported for type hinting or other purposes.
+# This work around is mainly due to
 try:
     import skrf as rf
+
+    _TouchstoneBase = rf.Network
 except ImportError:
     warnings.warn(
         "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
         "Install with \n\npip install scikit-rf"
     )
-    rf = None
+
+    # If scikit-rf is not available, create an empty base class
+    # This avoids MRO (Method Resolution Order) conflicts with PyAedtBase
+    class _TouchstoneBase:
+        """Dummy base class when scikit-rf is not available."""
+
+        pass
+
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -57,7 +70,7 @@ DB_ANGLE = "DB"
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
 
 
-class TouchstoneData(rf.Network, PyAedtBase):
+class TouchstoneData(_TouchstoneBase, PyAedtBase):
     """Contains data information from Touchstone Read call.
 
     Parameters
@@ -69,6 +82,12 @@ class TouchstoneData(rf.Network, PyAedtBase):
     """
 
     def __init__(self, solution_data=None, touchstone_file=None) -> None:
+        # Check if scikit-rf is available by inspecting the base class
+        if _TouchstoneBase.__name__ == "_TouchstoneBase":
+            raise ImportError(
+                "The Scikit-rf module is required to use TouchstoneData.\nInstall with: pip install scikit-rf"
+            )
+
         if touchstone_file is not None:
             touchstone_file = Path(touchstone_file)
 
