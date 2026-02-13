@@ -166,26 +166,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Install PyAEDT
-        shell: bash
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
       - name: Analyze changes
         id: analyze
         shell: bash
         run: |
-          source .venv/bin/activate
           # Run the analyze-changes script in CI mode
           python .ci/scripts/analyze_changes.py --base origin/main
 
@@ -295,7 +279,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra unit-tests
+          uv sync --frozen --group unit-tests
 
       - name: Run unit tests
         env:
@@ -341,7 +325,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra integration-tests
+          uv sync --frozen --group integration-tests
 
       - name: Run integration tests
         env:
@@ -391,7 +375,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -465,7 +449,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -536,7 +520,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -613,7 +597,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -685,7 +669,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -763,7 +747,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -830,7 +814,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -904,7 +888,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -972,7 +956,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1044,7 +1028,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1115,7 +1099,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1183,7 +1167,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1241,7 +1225,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1312,7 +1296,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
