@@ -804,15 +804,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
             ``"Double Potentials with Ground"``.
             The default is ``Single Potential``.
-        initial_current : float, optional
-            Initial current in Amperes. Valid only for the A-Phi transient solver. The default is ``0``.
         swap_direction : bool, optional
             Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
         phase : float, optional
             Voltage phase. Valid only for the A-Phi AC magnetic solver. The default is ``0``.
-        has_initial_current : bool, optional
-            Whether there is an initial current. Valid only for the A-Phi transient solver. The default is ``False``..
-
+      
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
@@ -862,7 +858,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
-            # TO CHECK FOR AC MAGNETIC A-PHI
+  
             if self.solution_type not in (
                 maxwell_solutions.DCConduction,
                 maxwell_solutions.ElectricTransient,
@@ -1126,6 +1122,18 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
              ``"Double Potentials with Ground"``.
             The default is ``Single Potential``.
+        initial_current : float, optional
+            The excitation's initial current. Only valid for Transient A-Phi solver.
+            The default is ``0``.
+        swap_direction : bool, optional
+            Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
+        phase : float, optional
+            The excitation phase. Only valid for AC solvers.
+            The default is ``0``.
+        has_initial_current : bool, optional
+            Whether the excitation has an initial current.
+            The default is ``False``.
+
 
         Returns
         -------
@@ -1165,10 +1173,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         assignment = self.modeler.convert_to_selections(assignment, True)
         is_maxwell_2d = self.design_type == "Maxwell 2D"
         object_names_set = set(self.modeler.object_names)
-        assiment_key = "Edges" if is_maxwell_2d else "Faces"
+        assignment_key = "Edges" if is_maxwell_2d else "Faces"
         voltage_boundary_type = "Voltage"
 
-        props = {"Voltage" if not is_maxwell_2d else "Value": amplitude, "Objects": [], assiment_key: []}
+        props = {"Voltage" if not is_maxwell_2d else "Value": amplitude, "Objects": [], assignment_key: []}
 
         if self.solution_type == SolutionsMaxwell3D.TransientAPhi:
             voltage_boundary_type = "VoltageAPhi"
@@ -1188,7 +1196,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             if isinstance(element, str) and element in object_names_set:
                 props["Objects"].append(element)
             else:
-                props[assiment_key].append(element)
+                props[assignment_key].append(element)
 
         return self._create_boundary(name, props, voltage_boundary_type)
 
