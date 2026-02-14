@@ -43,7 +43,6 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import graphics_required
-from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
@@ -245,6 +244,8 @@ class FfdSolutionData(PyAedtBase):
             touchstone_file = metadata_touchstone
 
         if Path(touchstone_file).exists() and Path(touchstone_file).is_file():
+            from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
+
             self.__touchstone_data = read_touchstone(touchstone_file)
 
         required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
