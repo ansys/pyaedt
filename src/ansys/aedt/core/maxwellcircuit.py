@@ -247,7 +247,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

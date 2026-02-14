@@ -536,7 +536,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         >>> model = "Thermal_ROM_SML"
         >>> pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
         >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, pins_names=pins_names)
-        >>> tb.desktop_class.release_desktop(False, False)
+        >>> tb.desktop.release_desktop(False, False)
         """
         pins_names_str = ",".join(pins_names)
         arg = ["NAME:Options", "Mode:=", 1]
@@ -581,7 +581,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
         >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])
         >>> tb.modeler.schematic.update_quantity_value(source1.composed_name, "PERIO", "0")
-        >>> tb.desktop_class.release_desktop(False, False)
+        >>> tb.desktop.release_desktop(False, False)
         """
         try:
             self.oeditor.ChangeProperty(

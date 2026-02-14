@@ -1969,16 +1969,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-        pj_names = self.desktop_class.project_list
+        pj_names = self.desktop.project_list
 
         if source_project_name == self.project_name or source_project_name is None:
-            active_project = self.desktop_class.active_project()
+            active_project = self.desktop.active_project()
         else:
             self.oproject = source_project_path
             # self._desktop.OpenProject(source_project_path)
-            active_project = self.desktop_class.active_project(source_project_name)
+            active_project = self.desktop.active_project(source_project_name)
 
-        active_design = self.desktop_class.active_design(active_project, source_design)
+        active_design = self.desktop.active_design(active_project, source_design)
         active_editor = active_design.SetActiveEditor("3D Modeler")
         active_editor.Copy(["NAME:Selections", "Selections:=", group_name])
 
@@ -2462,7 +2462,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oDesign.ImportIDF
         """
-        active_design_name = self.desktop_class.active_design(self.oproject).GetName()
+        active_design_name = self.desktop.active_design(self.oproject).GetName()
         if not library_path:
             if board_path.endswith(".emn"):
                 library_path = board_path[:-3] + "emp"
@@ -2554,7 +2554,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
         self.modeler.add_new_objects()
         if active_design_name:
-            self.desktop_class.active_design(self.oproject, active_design_name)
+            self.desktop.active_design(self.oproject, active_design_name)
         return True
 
     @pyaedt_function_handler()

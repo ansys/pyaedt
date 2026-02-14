@@ -1829,7 +1829,7 @@ class Analysis(Design, PyAedtBase):
             )
         if name is None:
             try:
-                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                if self.desktop.aedt_version_id > "2023.1" and self.design_type not in [
                     "RMxprt",
                     "ModelCreation",
                 ]:
@@ -1848,7 +1848,7 @@ class Analysis(Design, PyAedtBase):
                 self.logger.warning("Failed to revert to initial design mesh.")
             try:
                 self.logger.info("Solving design setup %s", name)
-                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                if self.desktop.aedt_version_id > "2023.1" and self.design_type not in [
                     "RMxprt",
                     "ModelCreation",
                 ]:
@@ -1889,7 +1889,7 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oDesktop.AreThereSimulationsRunning
         """
-        return self.desktop_class.are_there_simulations_running
+        return self.desktop.are_there_simulations_running
 
     @pyaedt_function_handler()
     def get_monitor_data(self):
@@ -1906,7 +1906,7 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oDesktop.GetMonitorData
         """
-        return self.desktop_class.get_monitor_data()
+        return self.desktop.get_monitor_data()
 
     @pyaedt_function_handler()
     def stop_simulations(self, clean_stop: bool = True):
@@ -1923,7 +1923,7 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oDesktop.StopSimulations
         """
-        return self.desktop_class.stop_simulations(clean_stop=clean_stop)
+        return self.desktop.stop_simulations(clean_stop=clean_stop)
 
     # flake8: noqa: E501
     @pyaedt_function_handler()
@@ -2103,7 +2103,7 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oDesktop.SubmitJob
         """
-        return self.desktop_class.submit_job(
+        return self.desktop.submit_job(
             self.project_file, cluster_name, aedt_full_exe_path, nodes, cores, wait_for_license, setting_file
         )
 

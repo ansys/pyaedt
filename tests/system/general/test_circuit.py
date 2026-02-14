@@ -510,7 +510,7 @@ def test_push_down(aedt_app) -> None:
     active_project = aedt_app.oproject.GetActiveDesign()
     if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedt_app.desktop_class.close_windows()
+        aedt_app.desktop.close_windows()
     active_project_name_1 = active_project.GetName()
     aedt_app.pop_up()
     subcircuit_2 = aedt_app.modeler.schematic.create_subcircuit(
@@ -519,7 +519,7 @@ def test_push_down(aedt_app) -> None:
     active_project = aedt_app.oproject.GetActiveDesign()
     if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedt_app.desktop_class.close_windows()
+        aedt_app.desktop.close_windows()
     active_project_name_3 = active_project.GetName()
     assert active_project_name_1 == active_project_name_3
     assert subcircuit_2.component_info["RefDes"] == "U2"
@@ -531,14 +531,14 @@ def test_pop_up(aedt_app) -> None:
     active_project = aedt_app.oproject.GetActiveDesign()
     if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedt_app.desktop_class.close_windows()
+        aedt_app.desktop.close_windows()
     active_project_name_1 = active_project.GetName()
     aedt_app.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
     assert aedt_app.pop_up()
     active_project = aedt_app.oproject.GetActiveDesign()
     if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedt_app.desktop_class.close_windows()
+        aedt_app.desktop.close_windows()
     active_project_name_2 = active_project.GetName()
     assert active_project_name_1 == active_project_name_2
 

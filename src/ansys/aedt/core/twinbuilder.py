@@ -458,9 +458,9 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         >>> tb.add_q3d_dynamic_component(
         ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
         ... )
-        >>> tb.desktop_class.close_desktop()
+        >>> tb.desktop.close_desktop()
         """
-        dkp = self.desktop_class
+        dkp = self.desktop
         is_loaded = False
         if Path(source_project).is_file():
             project_path = source_project
@@ -714,14 +714,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         --------
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(specified_version="2025.2")
-        >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
+        >>> maxwell_app = tb.desktop[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
-        >>> tb.desktop_class.release_desktop(False, False)
+        >>> tb.desktop.release_desktop(False, False)
         """
-        dkp = self.desktop_class
+        dkp = self.desktop
         project_selection = 0
         if Path(project).is_file():
             project_path = project
@@ -731,7 +731,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             else:
                 maxwell_app = dkp.load_project(project_path, design)
                 project_selection = 1
-        elif project in self.desktop_class.project_list:
+        elif project in self.desktop.project_list:
             project_name = "$PROJECTDIR/{}.aedt".format(project)
             maxwell_app = dkp[[project, design]]
         else:
