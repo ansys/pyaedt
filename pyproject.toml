@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.77",
+    "grpcio>=1.50.0,<1.79",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
