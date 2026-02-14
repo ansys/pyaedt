@@ -1,0 +1,6 @@
+﻿write\_csv
+==========
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: write_csv

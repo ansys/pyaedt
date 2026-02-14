@@ -1,0 +1,6 @@
+GRAVITY
+=======
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.GRAVITY

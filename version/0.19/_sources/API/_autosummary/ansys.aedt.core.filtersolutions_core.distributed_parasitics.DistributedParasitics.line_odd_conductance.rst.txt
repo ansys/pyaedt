@@ -1,0 +1,6 @@
+line\_odd\_conductance
+======================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoproperty:: DistributedParasitics.line_odd_conductance

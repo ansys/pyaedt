@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.public_dir

@@ -1,0 +1,6 @@
+range\_doppler
+==============
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. automethod:: FRTMData.range_doppler
