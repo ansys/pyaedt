@@ -22,11 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import csv
 import os
 from pathlib import Path
-from typing import List
-from typing import Union
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -100,16 +100,16 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -230,17 +230,17 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def plot(
         self,
         assignment=None,
-        show=True,
+        show: bool = True,
         output_file=None,
-        plot_as_separate_objects=True,
-        plot_air_objects=True,
+        plot_as_separate_objects: bool = True,
+        plot_air_objects: bool = True,
         force_opacity_value=None,
-        clean_files=False,
-        view="isometric",
-        show_legend=True,
-        dark_mode=False,
-        show_grid=False,
-        show_bounding=False,
+        clean_files: bool = False,
+        view: str = "isometric",
+        show_legend: bool = True,
+        dark_mode: bool = False,
+        show_grid: bool = False,
+        show_bounding: bool = False,
     ):
         """Plot the model or a subset of objects.
 
@@ -299,7 +299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -327,7 +327,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def get_component_variables(self, name: Union[str, Path]) -> dict:
+    def get_component_variables(self, name: str | Path) -> dict:
         """Read component file and extract variables.
 
         Parameters
@@ -400,7 +400,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
+    def copy_solid_bodies_from(
+        self, design, assignment=None, no_vacuum: bool = True, no_pec: bool = True, include_sheets: bool = False
+    ) -> bool:
         """Copy a list of objects and user defined models from one design to the active design.
 
         If user defined models are selected, the project will be saved automatically. If the destination design
@@ -488,7 +490,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def import_3d_cad(
         self,
-        input_file: Union[str, Path],
+        input_file: str | Path,
         healing: bool = False,
         refresh_all_ids: bool = True,
         import_materials: bool = False,
@@ -571,9 +573,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def export_3d_model(
         self,
-        file_name="",
-        file_path="",
-        file_format=".step",
+        file_name: str = "",
+        file_path: str = "",
+        file_format: str = ".step",
         assignment_to_export=None,
         assignment_to_remove=None,
         major_version=-1,
@@ -648,7 +650,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSourceModes())
 
     @pyaedt_function_handler()
-    def set_source_context(self, sources, number_of_modes=1):
+    def set_source_context(self, sources, number_of_modes: int = 1) -> bool:
         """Set the source context.
 
         Parameters
@@ -678,7 +680,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_material(self, assignment, material):
+    def assign_material(self, assignment, material: str) -> bool:
         """Assign a material to one or more objects.
 
         Parameters
@@ -832,7 +834,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name: str = "Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -846,7 +848,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return nominal_val, "$" + ds_name
 
     @pyaedt_function_handler()
-    def assignmaterial_from_sherlock_files(self, component_file, material_file):
+    def assignmaterial_from_sherlock_files(self, component_file, material_file) -> bool:
         """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
@@ -959,7 +961,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+    def cleanup_solution(
+        self,
+        variations: list | str | None = "All",
+        entire_solution: bool = True,
+        field: bool = True,
+        mesh: bool = True,
+        linked_data: bool = True,
+    ) -> bool:
         """Delete a set of Solution Variations or part of them.
 
         Parameters
@@ -997,7 +1006,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
             Stackup class.
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
@@ -1005,7 +1014,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return Stackup3D(self)
 
     @pyaedt_function_handler()
-    def flatten_3d_components(self, components=None, purge_history=True, password=None):
+    def flatten_3d_components(self, components=None, purge_history: bool = True, password=None) -> bool:
         """Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.
@@ -1187,8 +1196,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def import_dxf(
         self,
-        input_file: Union[str, Path],
-        layers: List[str],
+        input_file: str | Path,
+        layers: list[str],
         auto_detect_close: bool = True,
         self_stitch: bool = True,
         self_stitch_tolerance: float = 0.0,
@@ -1198,7 +1207,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         round_coordinates: bool = False,
         round_num_digits: int = 4,
         write_poly_with_width_as_filled_poly: bool = False,
-        import_method: Union[int, bool] = 1,
+        import_method: int | bool = 1,
     ) -> bool:  # pragma: no cover
         """Import a DXF file.
 
@@ -1249,7 +1258,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         """
         input_file = Path(input_file)
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
+        if self.desktop.non_graphical and self.desktop.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = get_dxf_layers(input_file)
@@ -1329,7 +1338,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+        if self.desktop.non_graphical and self.desktop.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         if not check_if_path_exists(input_file):

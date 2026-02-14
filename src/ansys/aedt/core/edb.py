@@ -23,23 +23,31 @@
 # SOFTWARE.
 
 
+from typing import TYPE_CHECKING
+from typing import Any
+
+if TYPE_CHECKING:
+    from pyedb import Edb
+    from pyedb import Siwave
+
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 log = settings.logger
 
 
 # lazy imports
 def Edb(
-    edbpath=None,
-    cellname=None,
-    isreadonly=False,
-    edbversion=None,
-    isaedtowned=False,
-    oproject=None,
-    student_version=False,
-    use_ppe=False,
-    technology_file=None,
-):
+    edbpath: str | None = None,
+    cellname: str | None = None,
+    isreadonly: bool | None = False,
+    version: str | None = None,
+    isaedtowned: bool | None = False,
+    oproject: Any | None = None,
+    student_version: bool | None = False,
+    use_ppe: bool | None = False,
+    technology_file: str | None = None,
+) -> "Edb":
     """Provides the EDB application interface.
 
     This module inherits all objects that belong to EDB.
@@ -57,7 +65,7 @@ def Edb(
     isreadonly : bool, optional
         Whether to open EBD in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
-    edbversion : str, optional
+    version : str, optional
         Version of EDB to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
         Whether to launch EDB from HFSS 3D Layout. The
@@ -107,25 +115,40 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    # Use EDB legacy (default choice)
     from pyedb import Edb
 
+    if not settings.aedt_version:  # pragma: no cover
+        # If no version is specified, use the passed version or current stable version of AEDT.
+        if version:
+            settings.aedt_version = version
+        else:
+            settings.aedt_version = aedt_versions.current_version
+
+    if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":  # pragma: no cover
+        settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
+        settings.pyedb_use_grpc = True
+
+    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version > "2025.2" else False  # pragma: no cover
+    grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"  # pragma: no cover
+    settings.logger.info(f"Loading EDB with {grpc_enabled}.")
+
     return Edb(
-        edbpath=edbpath,
+        edbpath=str(edbpath),
         cellname=cellname,
         isreadonly=isreadonly,
-        edbversion=edbversion,
+        version=version,
         isaedtowned=isaedtowned,
         oproject=oproject,
         student_version=student_version,
         use_ppe=use_ppe,
         technology_file=technology_file,
+        grpc=use_grpc,
     )
 
 
 def Siwave(
-    specified_version=None,
-):
+    specified_version: str | None = None,
+) -> "Siwave":
     """Siwave Class."""
     from pyedb.siwave import Siwave as app
 

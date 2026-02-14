@@ -27,12 +27,10 @@ from pathlib import Path
 import tempfile
 import tkinter
 from tkinter import ttk
-from typing import Union
 import webbrowser
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import AedtInfo
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import ExportOptions
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import create_tab_example
@@ -49,7 +47,7 @@ INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extens
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html"
 
 
-def create_new_edb_name(name):
+def create_new_edb_name(name: str):
     suffix = name.split("_")[-1]
     is_int = True
     try:
@@ -83,10 +81,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             return self.__selected_design
 
     @selected_edb.setter
-    def selected_edb(self, value: Union[str, Path]):
+    def selected_edb(self, value: str | Path) -> None:
         self.__selected_design = value
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
@@ -102,10 +100,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
         return
 
-    def add_toggle_theme_button_(self, parent):
+    def add_toggle_theme_button_(self, parent) -> None:
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -125,7 +123,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.pack(anchor="e", **{"padx": 15, "pady": 10})
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         self.var_active_design = tkinter.IntVar()
         self.var_load_overwrite = tkinter.BooleanVar()
         self.var_active_design.set(0)
@@ -173,7 +171,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         settings.logger.info("Applying configuration to EDB")
         selected_edb = self.selected_edb
         settings.logger.info(f"target EDB: {selected_edb}")
-        app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
+        app = Edb(edbpath=str(selected_edb), version=self.aedt_info.version)
 
         temp_dir = test_folder
         if test_folder is None:
@@ -189,15 +187,15 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         return app.edbpath
 
     def export_config_from_edb(self):
-        app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
+        app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
         data = app.configuration.get_data_from_db(**self.export_options.model_dump())
         app.close()
         return data
 
-    def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
+    def load_edb_into_hfss3dlayout(self, edb_path: str | Path):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            app.desktop_class.release_desktop(False, False)
+            app.desktop.release_desktop(False, False)
         else:
             app.close_project(save=False)
         return app

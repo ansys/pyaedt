@@ -28,11 +28,9 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import ttk
-from typing import List
-
-from pyedb import Edb
 
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 import ansys.aedt.core.extensions.hfss3dlayout
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
@@ -71,8 +69,8 @@ class CutoutData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     cutout_type: str = EXTENSION_DEFAULT_ARGUMENTS["cutout_type"]
-    signals: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
-    references: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
+    signals: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["signals"])
+    references: list[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["references"])
     expansion_factor: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
 
@@ -80,7 +78,7 @@ class CutoutData(ExtensionCommonData):
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -96,7 +94,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         self.__execute_cutout = False
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -216,7 +214,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
             res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():
             res[net_obj.net_name].append(net_obj.aedt_name)
-        self.aedt_application.modeler.edb.close_edb()
+        self.aedt_application.modeler.edb.close()
         res = dict(res)
         return res
 
@@ -253,7 +251,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         else:  # pragma: no cover
             raise AEDTRuntimeError(f"Unknown selection type: {selection_type}")
 
-    def __reset_selection(self):
+    def __reset_selection(self) -> None:
         """Reset the selected nets."""
         if self.data is not None:
             self.data.signals = []
@@ -290,8 +288,8 @@ def main(data: CutoutData) -> Path:
     aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
     new_path = aedb_path.with_stem(aedb_path.stem + generate_unique_name("_cutout", n=2))
 
-    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], edbversion=VERSION)
-    edb.save_edb_as(str(new_path))
+    edb = Edb(edbpath=str(aedb_path), cellname=active_design.GetName().split(";")[1], version=VERSION)
+    edb.save_as(str(new_path))
     edb.cutout(
         signal_list=data.signals,
         reference_list=data.references,
@@ -318,8 +316,10 @@ def main(data: CutoutData) -> Path:
         keep_lines_as_path=False,
     )
     if data.fix_disjoints:
-        edb.nets.find_and_fix_disjoint_nets(data.references)
-    edb.close_edb()
+        edb.layout_validation.disjoint_nets(
+            net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+        )
+    edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:
         Hfss3dLayout(str(new_path))

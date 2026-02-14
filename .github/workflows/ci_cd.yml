@@ -102,7 +102,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+      - uses: ansys/actions/check-vulnerabilities@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -117,7 +117,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+      - uses: ansys/actions/check-actions-security@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/check-pr-title@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -166,26 +166,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Install PyAEDT
-        shell: bash
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
       - name: Analyze changes
         id: analyze
         shell: bash
         run: |
-          source .venv/bin/activate
           # Run the analyze-changes script in CI mode
           python .ci/scripts/analyze_changes.py --base origin/main
 
@@ -204,7 +188,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-style@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -214,24 +198,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [doc-style]
     steps:
-      - name: Temporary handle broken package dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get --fix-broken install -y
-          sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
-
       - name: Documentation build
-        uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-build@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
-          # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
-          dependencies: "pandoc"
           check-links: false
           needs-quarto: true
+          group-dependencies-name: 'doc'
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
@@ -250,7 +227,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/build-wheelhouse@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -303,8 +280,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra unit-tests
+          uv sync --frozen --group unit-tests
 
       - name: Run unit tests
         env:
@@ -350,8 +326,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra integration-tests
+          uv sync --frozen --group integration-tests
 
       - name: Run integration tests
         env:
@@ -401,8 +376,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -476,8 +450,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -548,8 +521,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -626,8 +598,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -699,8 +670,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -778,8 +748,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -846,8 +815,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -921,8 +889,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -990,8 +957,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1063,8 +1029,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1135,8 +1100,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1204,8 +1168,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1263,8 +1226,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1335,8 +1297,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1401,7 +1362,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/build-library@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}

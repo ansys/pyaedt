@@ -80,7 +80,7 @@ class FieldsCalculator(PyAedtBase):
     ...     "report": ["Data Table", "Rectangular Plot"],
     ... }
     >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
-    >>> hfss.desktop_class.release_desktop(False, False)
+    >>> hfss.desktop.release_desktop(False, False)
 
     or they can be added from the ``expression_catalog.toml``:
 
@@ -88,11 +88,11 @@ class FieldsCalculator(PyAedtBase):
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-    >>> hfss.desktop_class.release_desktop(False, False)
+    >>> hfss.desktop.release_desktop(False, False)
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.expression_catalog = read_configuration_file(
             PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml"
         )
@@ -115,7 +115,7 @@ class FieldsCalculator(PyAedtBase):
         return list(self.expression_catalog.keys())
 
     @pyaedt_function_handler()
-    def add_expression(self, calculation, assignment, name=None):
+    def add_expression(self, calculation, assignment, name: str | None = None):
         """Add named expression.
 
         Parameters
@@ -163,7 +163,7 @@ class FieldsCalculator(PyAedtBase):
         ...     "report": ["Data Table", "Rectangular Plot"],
         ... }
         >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
@@ -250,7 +250,7 @@ class FieldsCalculator(PyAedtBase):
         return expression_info["name"]
 
     @pyaedt_function_handler()
-    def create_expression_file(self, name, operations):
+    def create_expression_file(self, name: str, operations):
         """Create a calculator expression file.
 
         Parameters
@@ -283,7 +283,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation, assignment, names, setup=None):
+    def expression_plot(self, calculation, assignment, names, setup: str | None = None):
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -309,7 +309,7 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
@@ -376,7 +376,7 @@ class FieldsCalculator(PyAedtBase):
         return reports
 
     @pyaedt_function_handler()
-    def delete_expression(self, name=None):
+    def delete_expression(self, name: str | None = None) -> bool:
         """Delete a named expression.
 
         Parameters
@@ -396,7 +396,7 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> hfss.post.fields_calculator.delete_expression(expr_name)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not name:
             self.ofieldsreporter.ClearAllNamedExpr()
@@ -407,7 +407,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def is_expression_defined(self, name):
+    def is_expression_defined(self, name: str) -> bool:
         """Check if a named expression exists.
 
         Parameters
@@ -426,7 +426,7 @@ class FieldsCalculator(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def is_general_expression(self, name):
+    def is_general_expression(self, name: str):
         """Check if a named expression is general.
 
         Parameters
@@ -450,7 +450,7 @@ class FieldsCalculator(PyAedtBase):
         return is_general
 
     @pyaedt_function_handler()
-    def load_expression_file(self, input_file):
+    def load_expression_file(self, input_file: str):
         """Load expressions from an external TOML file.
 
         Parameters
@@ -469,7 +469,7 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
@@ -515,7 +515,7 @@ class FieldsCalculator(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def write(self, expression, output_file, setup=None, intrinsics=None):
+    def write(self, expression, output_file, setup: str | None = None, intrinsics=None) -> bool:
         """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
@@ -552,7 +552,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
@@ -592,7 +592,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression, setup=None, intrinsics=None):
+    def evaluate(self, expression, setup: str | None = None, intrinsics=None):
         """Evaluate an expression and return the value.
 
         Parameters
@@ -639,24 +639,24 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity,
-        solution=None,
-        variations=None,
+        solution: str | None = None,
+        variations: dict | None = None,
         output_file=None,
         intrinsics=None,
         phase=None,
         sample_points=None,
-        export_with_sample_points=True,
-        reference_coordinate_system="Global",
-        export_in_si_system=True,
-        export_field_in_reference=True,
+        export_with_sample_points: bool = True,
+        reference_coordinate_system: str = "Global",
+        export_in_si_system: bool = True,
+        export_field_in_reference: bool = True,
         grid_type=None,
         grid_center=None,
         grid_start=None,
         grid_stop=None,
         grid_step=None,
-        is_vector=False,
-        assignment="AllObjects",
-        objects_type="Vol",
+        is_vector: bool = False,
+        assignment: str = "AllObjects",
+        objects_type: str = "Vol",
     ):
         """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
@@ -838,7 +838,7 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> exprs = hfss.post.fields_calculator.get_expressions()
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         expressions = {}
         field_type = field_type or ""
@@ -850,14 +850,14 @@ class FieldsCalculator(PyAedtBase):
         return expressions
 
     @staticmethod
-    def __has_integer(lst):  # pragma: no cover
+    def __has_integer(lst) -> bool:  # pragma: no cover
         """Check if a list has integers."""
         for item in lst:
             if isinstance(item, int):
                 return True
         return False
 
-    def __has_lines(self, lst):  # pragma: no cover
+    def __has_lines(self, lst) -> bool:  # pragma: no cover
         """Check if a list has lines."""
         for item in lst:
             if item not in self.__app.modeler.line_names:

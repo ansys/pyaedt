@@ -60,7 +60,7 @@ def circuit_test(add_app_example):
     app.close_project(save=False)
 
 
-def test_create_pdf(test_tmp_dir):
+def test_create_pdf(test_tmp_dir) -> None:
     report = AnsysReport(design_name="Design1", project_name="Coaxial")
     report.aedt_version = DESKTOP_VERSION
     assert "AnsysTemplate" in report.template_name
@@ -92,13 +92,13 @@ def test_create_pdf(test_tmp_dir):
     assert output.exists()
 
 
-def test_create_pdf_schematic(circuit_test):
+def test_create_pdf_schematic(circuit_test) -> None:
     report = AnsysReport()
     report.create()
     assert report.add_project_info(circuit_test)
 
 
-def test_virtual_compliance(aedt_app, test_tmp_dir):
+def test_virtual_compliance(aedt_app, test_tmp_dir) -> None:
     example_template = (
         TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "general_compliance_template.json"
     )
@@ -179,11 +179,11 @@ def test_virtual_compliance(aedt_app, test_tmp_dir):
     )
     vc.save_configuration(compliance_folder / "main.json")
     assert (compliance_folder / "main.json").exists()
-    v = VirtualCompliance(aedt_app.desktop_class, compliance_folder / "main.json")
+    v = VirtualCompliance(aedt_app.desktop, compliance_folder / "main.json")
     assert v.create_compliance_report(close_project=False)
 
 
-def test_spisim_raw_read(test_tmp_dir):
+def test_spisim_raw_read(test_tmp_dir) -> None:
     from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
     example_raw_file = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "SerDes_Demo_02_Thru.s4p_ERL.raw"

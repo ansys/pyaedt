@@ -39,7 +39,7 @@ TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
-def cleanup_files(*files):
+def cleanup_files(*files) -> None:
     # Remove any existing files
     for export_file in files:
         if export_file.exists():
@@ -47,7 +47,7 @@ def cleanup_files(*files):
 
 
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_all_options(add_app_example, test_tmp_dir):
+def test_export_layout_all_options(add_app_example, test_tmp_dir) -> None:
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
         export_ipc=True,
@@ -90,7 +90,7 @@ def test_export_layout_all_options(add_app_example, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_ipc_only(add_app_example, test_tmp_dir):
+def test_export_layout_ipc_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only IPC2581 option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
     bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
@@ -123,7 +123,7 @@ def test_export_layout_ipc_only(add_app_example, test_tmp_dir):
     assert ipc_file.stat().st_size > 0
 
 
-def test_export_layout_bom_only(add_app_example, test_tmp_dir):
+def test_export_layout_bom_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only BOM option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
     bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
@@ -157,7 +157,7 @@ def test_export_layout_bom_only(add_app_example, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_config_only(add_app_example, test_tmp_dir):
+def test_export_layout_config_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only configuration option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
     bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
@@ -195,7 +195,7 @@ def test_export_layout_config_only(add_app_example, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_no_options(add_app_example, test_tmp_dir):
+def test_export_layout_no_options(add_app_example, test_tmp_dir) -> None:
     """Test export layout with all options disabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
     bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
@@ -226,7 +226,7 @@ def test_export_layout_no_options(add_app_example, test_tmp_dir):
     assert not config_file.exists()
 
 
-def test_export_layout_default_arguments():
+def test_export_layout_default_arguments() -> None:
     """Test that default arguments are properly set."""
     data = ExportLayoutExtensionData()
 

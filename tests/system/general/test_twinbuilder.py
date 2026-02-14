@@ -43,71 +43,71 @@ def aedt_app(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_resistor(aedt_app):
+def test_create_resistor(aedt_app) -> None:
     resistor = aedt_app.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
     assert resistor.parameters["R"] == "10"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_inductor(aedt_app):
+def test_create_inductor(aedt_app) -> None:
     inductor = aedt_app.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
     assert inductor.parameters["L"] == "1.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_capacitor(aedt_app):
+def test_create_capacitor(aedt_app) -> None:
     capacitor = aedt_app.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
     assert capacitor.parameters["C"] == "7.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_diode(aedt_app):
+def test_create_diode(aedt_app) -> None:
     diode = aedt_app.modeler.schematic.create_diode("Diode1")
     assert diode.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_npn(aedt_app):
+def test_create_npn(aedt_app) -> None:
     name = aedt_app.modeler.schematic.create_npn("NPN")
     # Get component info by part name
     assert name.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_pnp(aedt_app):
+def test_create_pnp(aedt_app) -> None:
     pnp = aedt_app.modeler.schematic.create_pnp("PNP")
     assert pnp.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_import_netlist(aedt_app, test_tmp_dir):
+def test_import_netlist(aedt_app, test_tmp_dir) -> None:
     file_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "netlist_small.cir"
     netlist_file1 = shutil.copy2(file_o, test_tmp_dir / "netlist_small.cir")
     assert aedt_app.create_schematic_from_netlist(str(netlist_file1))
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmax(aedt_app):
+def test_set_hmax(aedt_app) -> None:
     assert aedt_app.set_hmax("5ms")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmin(aedt_app):
+def test_set_hmin(aedt_app) -> None:
     assert aedt_app.set_hmin("0.2ms")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmin_alternate(aedt_app):
+def test_set_hmin_alternate(aedt_app) -> None:
     assert aedt_app.set_hmin("2s")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_end_time(aedt_app):
+def test_set_end_time(aedt_app) -> None:
     assert aedt_app.set_end_time("5s")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_catalog(aedt_app):
+def test_catalog(aedt_app) -> None:
     comp_catalog = aedt_app.modeler.components.components_catalog
     assert not comp_catalog["Capacitors"]
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
@@ -115,14 +115,14 @@ def test_catalog(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_periodic_pulse_wave(aedt_app):
+def test_create_periodic_pulse_wave(aedt_app) -> None:
     waveform = aedt_app.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
     assert waveform.parameters["AMPL"] == "200"
     assert waveform.parameters["FREQ"] == "20"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_variable(aedt_app):
+def test_set_variable(aedt_app) -> None:
     aedt_app.variable_manager.set_variable("var_test", expression="123")
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
@@ -130,7 +130,7 @@ def test_set_variable(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_add_dynamic_link(add_app, test_tmp_dir):
+def test_add_dynamic_link(add_app, test_tmp_dir) -> None:
     file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Q2D_ArmouredCableExample.aedt"
     dynamic_link = shutil.copy2(file1_o, test_tmp_dir / "Q2D_ArmouredCableExample.aedt")
 
@@ -203,7 +203,7 @@ def test_add_dynamic_link(add_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_add_sml_component(aedt_app, test_tmp_dir):
+def test_add_sml_component(aedt_app, test_tmp_dir) -> None:
     file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Thermal_ROM_SML.sml"
     input_file = shutil.copy2(file1_o, test_tmp_dir / "Thermal_ROM_SML.sml")
 
@@ -217,7 +217,7 @@ def test_add_sml_component(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_subsheet(aedt_app):
+def test_create_subsheet(aedt_app) -> None:
     aedt_app.create_subsheet("subsheet", "parentsheet")
     assert "parentsheet" in aedt_app.design_list
     assert len(aedt_app.odesign.GetSubDesigns()) > 0
@@ -225,7 +225,7 @@ def test_create_subsheet(aedt_app):
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Feature not available before 2025R1")
-def test_add_excitation_model(add_app, test_tmp_dir):
+def test_add_excitation_model(add_app, test_tmp_dir) -> None:
     file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "TB_excitation_model.aedt"
     excitation_model = shutil.copy2(file1_o, test_tmp_dir / "TB_excitation_model.aedt")
 
@@ -235,7 +235,7 @@ def test_add_excitation_model(add_app, test_tmp_dir):
         design="2 simplorer circuit",
     )
     project_name = tb.project_name
-    dkp = tb.desktop_class
+    dkp = tb.desktop
     maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
 
     assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")

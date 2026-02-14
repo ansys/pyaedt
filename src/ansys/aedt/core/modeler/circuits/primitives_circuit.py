@@ -75,7 +75,7 @@ class CircuitComponents(PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
@@ -90,7 +90,7 @@ class CircuitComponents(PyAedtBase):
         self.limits_mils = 20000
 
     @pyaedt_function_handler()
-    def get_wire_by_name(self, name):
+    def get_wire_by_name(self, name: str):
         """Wire class by name.
 
         Parameters
@@ -172,7 +172,7 @@ class CircuitComponents(PyAedtBase):
         return self._modeler.schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value) -> None:
         self._modeler.schematic_units = value
 
     @property
@@ -233,7 +233,7 @@ class CircuitComponents(PyAedtBase):
         return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
 
     @pyaedt_function_handler()
-    def _get_location(self, location=None, update_current_location=True):
+    def _get_location(self, location=None, update_current_location: bool = True):
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
@@ -274,7 +274,7 @@ class CircuitComponents(PyAedtBase):
         return comp_id
 
     @pyaedt_function_handler()
-    def add_pin_iports(self, name, id_num):
+    def add_pin_iports(self, name: str, id_num) -> bool:
         """Add ports on pins.
 
         Parameters
@@ -300,7 +300,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=None, angle=0, page=1):
+    def create_interface_port(self, name: str, location=None, angle: int = 0, page: int = 1):
         """Create an interface port.
 
         Parameters
@@ -344,7 +344,7 @@ class CircuitComponents(PyAedtBase):
         return self._app.design_excitations[name]
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=None, angle=0, label_position="Auto", page=1):
+    def create_page_port(self, name: str, location=None, angle: int = 0, label_position: str = "Auto", page: int = 1):
         """Create a page port.
 
         Parameters
@@ -423,7 +423,7 @@ class CircuitComponents(PyAedtBase):
         return self.components[comp_id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=None, angle=0, page=1):
+    def create_gnd(self, location=None, angle: int = 0, page: int = 1):
         """Create a ground.
 
         Parameters
@@ -462,7 +462,9 @@ class CircuitComponents(PyAedtBase):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True, image_path=None):
+    def create_model_from_touchstone(
+        self, input_file: str | Path, model_name=None, show_bitmap: bool = True, image_path=None
+    ):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -721,7 +723,7 @@ class CircuitComponents(PyAedtBase):
         return model_name
 
     @pyaedt_function_handler()
-    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
+    def create_model_from_nexxim_state_space(self, input_file: str, num_terminal, model_name=None, port_names=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -964,9 +966,9 @@ class CircuitComponents(PyAedtBase):
         self,
         model_name,
         location=None,
-        angle=0,
-        show_bitmap=True,
-        page=1,
+        angle: int = 0,
+        show_bitmap: bool = True,
+        page: int = 1,
         image_path=None,
     ):
         """Create a component from a Touchstone model.
@@ -1032,9 +1034,9 @@ class CircuitComponents(PyAedtBase):
         model_name,
         num_terminal,
         location=None,
-        angle=0,
+        angle: int = 0,
         port_names=None,
-        page=1,
+        page: int = 1,
     ):
         """Create a component from a Touchstone model.
 
@@ -1083,14 +1085,14 @@ class CircuitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_component(
         self,
-        name=None,
-        component_library="Resistors",
-        component_name="RES_",
+        name: str | None = None,
+        component_library: str = "Resistors",
+        component_name: str = "RES_",
         location=None,
-        angle=0,
-        use_instance_id_netlist=False,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
         global_netlist_list=None,
-        page=1,
+        page: int = 1,
     ):
         """Create a component from a library.
 
@@ -1130,7 +1132,7 @@ class CircuitComponents(PyAedtBase):
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         >>> cmp.set_property("ShowPin", True)
-        >>> aedtapp.desktop_class.close_desktop()
+        >>> aedtapp.desktop.close_desktop()
         """
         # id = self.create_unique_id()
         if component_library:
@@ -1154,7 +1156,7 @@ class CircuitComponents(PyAedtBase):
         return self.components[comp_id]
 
     @pyaedt_function_handler()
-    def disable_data_netlist(self, assignment):
+    def disable_data_netlist(self, assignment) -> bool:
         """Disable the Nexxim global net list.
 
         Parameters
@@ -1188,7 +1190,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_global_netlist(self, assignment, global_netlist_list=None):
+    def enable_global_netlist(self, assignment, global_netlist_list=None) -> bool:
         """Enable Nexxim global net list.
 
         Parameters
@@ -1228,7 +1230,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_symbol(self, name, pins):
+    def create_symbol(self, name: str, pins) -> bool:
         """Create a symbol.
 
         Parameters
@@ -1307,7 +1309,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_use_instance_name(self, component_library="", component_name="RES_"):
+    def enable_use_instance_name(self, component_library: str = "", component_name: str = "RES_") -> bool:
         """Enable the use of the instance name.
 
         Parameters
@@ -1390,7 +1392,7 @@ class CircuitComponents(PyAedtBase):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, component_id, name=None):
+    def add_id_to_component(self, component_id, name: str | None = None):
         """Add an ID to a component.
 
         Parameters
@@ -1533,7 +1535,7 @@ class CircuitComponents(PyAedtBase):
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
-    def create_line(self, points, color=0, width=0, page=1):
+    def create_line(self, points, color: int = 0, width: int = 0, page: int = 1):
         """Draw a graphical line.
 
         Parameters
@@ -1563,7 +1565,7 @@ class CircuitComponents(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_wire(self, points, name="", page=1):
+    def create_wire(self, points, name: str = "", page: int = 1):
         """Create a wire.
 
         Parameters
@@ -1608,7 +1610,7 @@ class CircuitComponents(PyAedtBase):
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, file_name, component_library):
+    def __init__(self, name: str, component_manager, file_name: str, component_library) -> None:
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name
@@ -1623,7 +1625,9 @@ class ComponentInfo(PyAedtBase):
         return self._props
 
     @pyaedt_function_handler()
-    def place(self, assignment=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
+    def place(
+        self, assignment=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False, page: int = 1
+    ):
         """Create a component from a library.
 
         Parameters
@@ -1696,14 +1700,14 @@ class ComponentCatalog(PyAedtBase):
                 self._component_manager._logger.warning("Component not found.")
                 return None
 
-    def __init__(self, component_manager):
+    def __init__(self, component_manager) -> None:
         self._component_manager = component_manager
         self._app = self._component_manager._app
         self.components = {}
         self._index_components()
 
     @pyaedt_function_handler()
-    def _index_components(self, library_path=None):
+    def _index_components(self, library_path=None) -> None:
         if library_path:
             sys_files = recursive_glob(library_path, "*.aclb")
             root = Path(library_path).name
@@ -1727,7 +1731,7 @@ class ComponentCatalog(PyAedtBase):
                 )
 
     @pyaedt_function_handler()
-    def find_components(self, filter_str="*"):
+    def find_components(self, filter_str: str = "*"):
         """Find all components with given filter wildcards.
 
         Parameters

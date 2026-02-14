@@ -47,7 +47,7 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj):
+    def __init__(self, emit_obj) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -57,13 +57,13 @@ class Results:
         self.revisions = []
         """List of all result revisions. Only one loaded at a time"""
 
-        self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
+        self.design = emit_obj.desktop.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):
+    def _add_revision(self, name: str | None = None):
         """Add a new revision or get the current revision if it already exists.
 
         Parameters
@@ -99,7 +99,7 @@ class Results:
             return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name):
+    def delete_revision(self, revision_name) -> None:
         """Delete the specified revision from the results.
 
         Parameters
@@ -160,7 +160,7 @@ class Results:
         return domain
 
     @pyaedt_function_handler
-    def _unload_revisions(self):
+    def _unload_revisions(self) -> None:
         """Convenience function to set all revisions as ``unloaded``
 
         Parameters
@@ -271,9 +271,7 @@ class Results:
             # no changes since last created revision, load it
             elif (
                 self.revisions[-1].revision_number
-                == self.emit_project.desktop_class.active_design(
-                    self.emit_project.desktop_class.active_project()
-                ).GetRevision()
+                == self.emit_project.desktop.active_design(self.emit_project.desktop.active_project()).GetRevision()
             ):
                 self.get_revision(self.revisions[-1].name)
             else:

@@ -30,8 +30,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
-from pyedb import Edb
-
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.extensions.misc import ExtensionCommon
@@ -74,7 +73,7 @@ class ViaClusteringExtensionData(ExtensionCommonData):
     stop_layer: str = EXTENSION_DEFAULT_ARGUMENTS["stop_layer"]
     contour_list: list = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.nets_filter is None:
             self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
         if self.contour_list is None:
@@ -84,7 +83,7 @@ class ViaClusteringExtensionData(ExtensionCommonData):
 class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for via clustering in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -123,7 +122,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             self.__active_project_name + ".aedb",
         )
 
-        edb = Edb(aedb_path, active_design_name, edbversion=VERSION)
+        edb = Edb(edbpath=aedb_path, cellname=active_design_name, version=VERSION)
         self.__layers = list(edb.stackup.signal_layers.keys())
         edb.close()
 
@@ -131,7 +130,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             self.release_desktop()
             raise AEDTRuntimeError("No signal layers are defined in this design.")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Project name label and entry
         project_label = ttk.Label(
@@ -203,7 +202,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["stop_layer_combo"] = self.stop_layer_combo
 
         # Buttons
-        def add_drawing_layer():
+        def add_drawing_layer() -> None:
             """Add a drawing layer for via merging."""
             hfss = Hfss3dLayout(
                 new_desktop=False,
@@ -214,7 +213,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             )
             layer = hfss.modeler.stackup.add_layer("via_merging")
             layer.usp = True
-            hfss.desktop_class.release_desktop(False, False)
+            hfss.desktop.release_desktop(False, False)
 
         def callback_merge_vias(extension: ViaClusteringExtension):
             """Callback for merging via instances."""
@@ -229,7 +228,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             primitives = hfss.modeler.objects_by_layer(layer="via_merging")
             if not primitives:
                 messagebox.showwarning(message="No primitives found on layer defined for merging padstack instances.")
-                hfss.desktop_class.release_desktop(False, False)
+                hfss.desktop.release_desktop(False, False)
                 extension.release_desktop()
                 raise AEDTRuntimeError("No primitives found on layer defined for merging padstack instances.")
 
@@ -261,7 +260,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
                 contour_list=contour_list,
             )
             extension.data = via_clustering_data
-            hfss.desktop_class.release_desktop(False, False)
+            hfss.desktop.release_desktop(False, False)
             extension.root.destroy()
 
         button_add_layer = ttk.Button(
@@ -287,7 +286,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["button_merge_vias"] = button_merge_vias
 
 
-def main(data: ViaClusteringExtensionData):
+def main(data: ViaClusteringExtensionData) -> bool:
     """Main function to run the via clustering extension."""
     if not data.aedb_path:
         raise AEDTRuntimeError("No AEDB path provided to the extension.")
@@ -309,7 +308,7 @@ def main(data: ViaClusteringExtensionData):
     shutil.copytree(aedb_path, new_aedb_path)
 
     # Perform via clustering
-    edb = Edb(new_aedb_path, design_name, edbversion=VERSION)
+    edb = Edb(new_aedb_path, design_name, version=VERSION)
     edb.padstacks.merge_via(
         contour_boxes=contour_list,
         net_filter=None,
@@ -322,12 +321,12 @@ def main(data: ViaClusteringExtensionData):
         prim.delete()
 
     edb.save()
-    edb.close_edb()
+    edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         h3d = Hfss3dLayout(new_aedb_path)
         h3d.logger.info("Project generated correctly.")
-        h3d.desktop_class.release_desktop(False, False)
+        h3d.desktop.release_desktop(False, False)
 
     return True
 

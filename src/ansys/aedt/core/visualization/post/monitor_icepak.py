@@ -91,11 +91,11 @@ quantities_type_dict = {  # pragma: no cover
 class Monitor(PyAedtBase):
     """Provides Icepak monitor methods."""
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
-        if self._app.desktop_class.aedt_version_id > "2023.2":  # pragma: no cover
+        if self._app.desktop.aedt_version_id > "2023.2":  # pragma: no cover
             self.quantities_dict = quantities_dict_2
         else:
             self.quantities_dict = quantities_dict_1
@@ -134,7 +134,7 @@ class Monitor(PyAedtBase):
             return []
 
     @pyaedt_function_handler
-    def _generate_monitor_names(self, name, n):
+    def _generate_monitor_names(self, name: str, n):
         """Create a list of names for monitor objects following Icepak naming rules.
 
         Parameters
@@ -171,7 +171,7 @@ class Monitor(PyAedtBase):
             return names
 
     @pyaedt_function_handler
-    def _load_monitor_objects(self, aedtfile_monitor_dict):
+    def _load_monitor_objects(self, aedtfile_monitor_dict) -> bool:
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
             if "Faces" in monitor_prop.keys():
                 self._face_monitors[monitor_name] = FaceMonitor(
@@ -271,7 +271,7 @@ class Monitor(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def assign_point_monitor(self, point_position, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor(self, point_position, monitor_quantity: str = "Temperature", monitor_name=None):
         """Create and assign a point monitor.
 
         Parameters
@@ -351,7 +351,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity: str = "Temperature", monitor_name=None):
         """Create and assign a point monitor to a vertex.
 
         Parameters
@@ -397,7 +397,7 @@ class Monitor(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def assign_surface_monitor(self, surface_name, monitor_quantity="Temperature", monitor_name=None):
+    def assign_surface_monitor(self, surface_name, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a surface monitor.
 
         Parameters
@@ -452,7 +452,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_face_monitor(self, face_id, monitor_quantity="Temperature", monitor_name=None):
+    def assign_face_monitor(self, face_id, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a face monitor.
 
         Parameters
@@ -498,7 +498,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_in_object(self, name, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor_in_object(self, name: str, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a point monitor in the centroid of a specific object.
 
         Parameters
@@ -563,7 +563,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete_monitor(self, monitor_name):
+    def delete_monitor(self, monitor_name) -> bool:
         """Delete monitor object.
 
         Parameters
@@ -616,7 +616,7 @@ class Monitor(PyAedtBase):
         else:
             return monitor.id
 
-    def _delete_removed_monitors(self):
+    def _delete_removed_monitors(self) -> None:
         existing_monitors = self._app.odesign.GetChildObject("Monitor").GetChildNames()
         for j in [self._face_monitors, self._point_monitors]:
             for i in list(j):
@@ -627,7 +627,7 @@ class Monitor(PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
+    def insert_monitor_object_from_dict(self, monitor_dict, mode: int = 0):
         """Insert a monitor.
 
         Parameters
@@ -681,7 +681,7 @@ class Monitor(PyAedtBase):
 class ObjectMonitor(PyAedtBase):
     """Provides Icepak Monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app) -> None:
         self._name = monitor_name
         self._type = monitor_type
         self._id = monitor_id
@@ -741,7 +741,7 @@ class ObjectMonitor(PyAedtBase):
         }
 
     @pyaedt_function_handler
-    def delete(self):
+    def delete(self) -> bool:
         """
         Delete a monitor object.
 
@@ -776,7 +776,7 @@ class ObjectMonitor(PyAedtBase):
         return self._type
 
     @pyaedt_function_handler()
-    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
+    def value(self, quantity=None, setup: str | None = None, design_variation_dict=None, si_out: bool = True):
         """Get a list of values obtained from the monitor object.
 
         If the simulation is steady state, the list will contain just one element.
@@ -849,7 +849,7 @@ class ObjectMonitor(PyAedtBase):
 class PointMonitor(ObjectMonitor):
     """Provides Icepak point monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
@@ -874,7 +874,7 @@ class PointMonitor(ObjectMonitor):
 class FaceMonitor(ObjectMonitor):
     """Provides Icepak face monitor properties and methods."""
 
-    def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, face_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property

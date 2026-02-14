@@ -109,19 +109,19 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
 
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        version: str | None = None,
+        solution_type: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
@@ -139,11 +139,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -212,7 +212,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_netlist_from_schematic(self, output_file):
+    def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
         """Create netlist from schematic circuit.
 
         Parameters
@@ -247,7 +247,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

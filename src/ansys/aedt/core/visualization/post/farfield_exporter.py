@@ -91,11 +91,11 @@ class FfdSolutionDataExporter(PyAedtBase):
         sphere_name,
         setup_name,
         frequencies,
-        variations=None,
-        overwrite=True,
-        export_touchstone=True,
-        set_phase_center_per_port=True,
-    ):
+        variations: dict | None = None,
+        overwrite: bool = True,
+        export_touchstone: bool = True,
+        set_phase_center_per_port: bool = True,
+    ) -> None:
         # Public
         self.sphere_name = sphere_name
         self.setup_name = setup_name
@@ -122,7 +122,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         self.__farfield_data = None
         self.__metadata_file = ""
 
-        if self.__app.desktop_class.is_grpc_api and set_phase_center_per_port:
+        if self.__app.desktop.is_grpc_api and set_phase_center_per_port:
             self.__app.set_phase_center_per_port()
         else:  # pragma: no cover
             self.__app.logger.warning("Set phase center in port location manually.")
@@ -159,7 +159,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         file_path_txt = os.path.join(export_path, exported_name_map)
 
         input_file = file_path_xml
-        if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+        if self.__app.desktop.aedt_version_id < "2024.1":  # pragma: no cover
             input_file = file_path_txt
 
         # Create directory or check if files already exist
@@ -176,7 +176,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
         # Export far field
         if self.overwrite or not file_exists:
-            if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+            if self.__app.desktop.aedt_version_id < "2024.1":  # pragma: no cover
                 is_exported = self.__app.export_element_pattern(
                     frequencies=self.frequencies,
                     setup=self.setup_name,
@@ -245,7 +245,7 @@ class FfdSolutionDataExporter(PyAedtBase):
 
         power = {}
 
-        if self.__app.desktop_class.aedt_version_id < "2024.1":
+        if self.__app.desktop.aedt_version_id < "2024.1":
             available_categories = self.__app.post.available_quantities_categories()
             excitations = []
             is_power = True

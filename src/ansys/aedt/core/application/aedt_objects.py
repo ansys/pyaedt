@@ -36,7 +36,9 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(PyAedtBase):
-    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+    def __init__(
+        self, desktop=None, project: str | None = None, design: str | None = None, is_inherithed: bool = False
+    ) -> None:
         self._odesign = design
         self._oproject = project
         if desktop:
@@ -89,7 +91,7 @@ class AedtObjects(PyAedtBase):
         self.__aedtunits = AedtUnits(self)
 
     @property
-    def units(self):
+    def units(self) -> AedtUnits:
         """PyAEDT default units.
 
         Returns
@@ -112,7 +114,7 @@ class AedtObjects(PyAedtBase):
             SolutionsHfss.CharacteristicMode,
         ]:
             return self._odesign.GetModule("RadField")
-        if self.desktop_class.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
+        if self.desktop.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
             return self._odesign.GetModule("RadField")
         return None
 
@@ -405,12 +407,12 @@ class AedtObjects(PyAedtBase):
                 self._oeditor = self._odesign.GetEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
-                    self.desktop_class.close_windows()
+                    self.desktop.close_windows()
             elif self.design_type in ["Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
-                    self.desktop_class.close_windows()
+                    self.desktop.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self._odesign.GetEditor("Layout")
             elif self.design_type in [DesignType.MODELCREATION.NAME, DesignType.RMXPRT.NAME]:
