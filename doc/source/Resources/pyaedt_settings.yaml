@@ -79,6 +79,7 @@ aedt_env_var:
   ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
   ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
   ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
+  ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE: '1'
   # Environment variable useful in Linux to skip the dependency check which improves speed
   ANS_NODEPCHECK: '1'
 
@@ -98,7 +99,7 @@ general:
   # Optional path for the EDB DLL file
   edb_dll_path: null
   # Enable or disable the internal PyAEDT error handling
-  enable_error_handler: true
+  enable_error_handler: false
   # Enable or disable the use of Pandas to export dictionaries and lists
   enable_pandas_output: false
   # Enable or disable the check of the project path
@@ -127,6 +128,9 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+  # Enable or disable gRPC API for the EDB module.
+  # If null, the gRPC API is used if AEDT version is 2026 R1 or later, otherwise the legacy COM object is used.
+  pyedb_use_grpc: null
 
 grpc:
   # Enable or disable secure mode for gRPC connections

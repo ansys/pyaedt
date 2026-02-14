@@ -72,7 +72,7 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
 class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for generating arbitrary wave ports in HFSS 3D Layout."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -95,7 +95,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         # Trigger manually since add_extension_content
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Working directory
         work_dir_label = ttk.Label(self.root, text="Working directory:", width=20, style="PyAEDT.TLabel")
@@ -153,7 +153,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         )
         import_edb_check.grid(row=3, column=0, padx=15, pady=10, sticky="w")
 
-        def callback(extension: ArbitraryWavePortExtension):
+        def callback(extension: ArbitraryWavePortExtension) -> None:
             extension.data.working_path = extension.work_dir_entry.get("1.0", tkinter.END).strip()
             extension.data.source_path = extension.source_file_entry.get("1.0", tkinter.END).strip()
             extension.data.mounting_side = extension.mounting_side_combo.get()
@@ -170,14 +170,14 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         )
         ok_button.grid(row=4, column=0, padx=15, pady=10)
 
-    def __browse_work_dir(self):
+    def __browse_work_dir(self) -> None:
         """Browse for working directory."""
         work_dir_path = filedialog.askdirectory()
         if work_dir_path:
             self.work_dir_entry.delete("1.0", tkinter.END)
             self.work_dir_entry.insert(tkinter.END, work_dir_path)
 
-    def __browse_source_file(self):
+    def __browse_source_file(self) -> None:
         """Browse for source file."""
         if not self.import_edb_variable.get():
             file_type = (
@@ -195,7 +195,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
             self.source_file_entry.insert(tkinter.END, source_path)
 
 
-def main(data: ArbitraryWavePortExtensionData):
+def main(data: ArbitraryWavePortExtensionData) -> bool:
     """Main function to run the arbitrary wave port extension."""
     # Validate input data
     if not data.working_path:
@@ -223,7 +223,7 @@ def main(data: ArbitraryWavePortExtensionData):
                 if res == "no":
                     return False
 
-    edb = Edb(edbpath=rf"{edb_file}", edbversion=VERSION)
+    edb = Edb(edbpath=rf"{edb_file}", version=VERSION)
     if not edb.create_model_for_arbitrary_wave_ports(
         temp_directory=str(working_dir),
         mounting_side=mounting_side_variable,
@@ -255,9 +255,9 @@ def main(data: ArbitraryWavePortExtensionData):
     hfss3d.close_project()
 
     hfss = Hfss(
-        projectname=str(out_3d_project),
-        specified_version=VERSION,
-        new_desktop_session=False,
+        project=str(out_3d_project),
+        version=VERSION,
+        new_desktop=False,
     )
     hfss.solution_type = "Terminal"
 

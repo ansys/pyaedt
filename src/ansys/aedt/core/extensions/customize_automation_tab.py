@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import logging
 import os
 from pathlib import Path
@@ -29,7 +31,6 @@ import re
 import shutil
 import subprocess  # nosec
 import sys
-from typing import List
 import warnings
 import xml.etree.ElementTree as ET  # nosec
 
@@ -63,14 +64,14 @@ AEDT_APPLICATIONS = {
 
 
 def add_automation_tab(
-    name,
+    name: str,
     lib_dir,
     icon_file=None,
-    product="Project",
-    template="Run PyAEDT Toolkit Script",
-    overwrite=False,
-    panel="Panel_PyAEDT_Extensions",
-    is_custom=False,  # new argument for custom flag
+    product: str = "Project",
+    template: str = "Run PyAEDT Toolkit Script",
+    overwrite: bool = False,
+    panel: str = "Panel_PyAEDT_Extensions",
+    is_custom: bool = False,  # new argument for custom flag
     odesktop=None,
 ):
     """Add an automation tab in AEDT.
@@ -186,7 +187,7 @@ def add_automation_tab(
     return str(tab_config_file_path)
 
 
-def create_xml_tab(root, output_file):
+def create_xml_tab(root, output_file) -> None:
     """Write the XML file to create the automation tab.
 
     Parameters
@@ -203,7 +204,7 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
     """Check if a toolkit configuration exists in the panel.
 
     Parameters
@@ -253,7 +254,7 @@ def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extens
     return name in button_names
 
 
-def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
     """Remove a toolkit configuration from the panel.
 
     Parameters
@@ -317,19 +318,17 @@ def available_toolkits():
 
 
 def add_script_to_menu(
-    name,
+    name: str,
     script_file=None,
-    template_file="run_pyaedt_toolkit_script",
+    template_file: str = "run_pyaedt_toolkit_script",
     icon_file=None,
-    product="Project",
-    copy_to_personal_lib=True,
-    executable_interpreter=None,
-    panel="Panel_PyAEDT_Extensions",
+    product: str = "Project",
+    copy_to_personal_lib: bool = True,
+    panel: str = "Panel_PyAEDT_Extensions",
     personal_lib=None,
-    aedt_version="",
-    is_custom=False,
+    is_custom: bool = False,
     odesktop=None,
-):
+) -> bool:
     """Add a script to the ribbon menu.
 
     .. note::
@@ -353,12 +352,9 @@ def add_script_to_menu(
         it applies to all designs. You can also specify a product, such as ``"HFSS"``.
     copy_to_personal_lib : bool, optional
         Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
-    executable_interpreter : str, optional
-        Executable python path. The default is the one current interpreter.
     panel : str, optional
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
-    aedt_version : str, optional
     is_custom : bool, optional
     odesktop : oDesktop, optional
 
@@ -368,15 +364,14 @@ def add_script_to_menu(
 
     """
     logger = logging.getLogger("Global")
-    if not personal_lib or not aedt_version:
+    if not personal_lib:
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:  # pragma: no cover
-            logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
+            logger.error("Personallib is not provided. There is no available desktop session.")
             return False
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
-        aedt_version = d.aedt_version_id
 
     if script_file and not Path(script_file).exists():  # pragma: no cover
         logger.error("Script does not exist.")
@@ -388,11 +383,6 @@ def add_script_to_menu(
         file_name = file_name.replace("/", "_")
     tool_dir = toolkit_dir / tool_map / file_name
     lib_dir = tool_dir / "Lib"
-    toolkit_rel_lib_dir = lib_dir.relative_to(tool_dir)
-    if is_linux and aedt_version <= "2023.1":  # pragma: no cover
-        toolkit_rel_lib_dir = Path("Lib") / file_name
-        lib_dir = toolkit_dir / toolkit_rel_lib_dir
-        toolkit_rel_lib_dir = Path("..") / ".." / toolkit_rel_lib_dir
     if copy_to_personal_lib:
         lib_dir.mkdir(parents=True, exist_ok=True)
     tool_dir.mkdir(parents=True, exist_ok=True)
@@ -401,36 +391,26 @@ def add_script_to_menu(
         dest_script_path = lib_dir / Path(script_file).name
         shutil.copy2(script_file, str(dest_script_path))
 
-    version_agnostic = True
-    if aedt_version[2:6].replace(".", "") in sys.executable:  # pragma: no cover
-        executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
-        version_agnostic = False
-    else:
-        executable_version_agnostic = sys.executable
-
-    if executable_interpreter:  # pragma: no cover
-        version_agnostic = True
-        executable_version_agnostic = executable_interpreter
-
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
+
+    executable_interpreter = sys.executable
 
     ipython_executable = re.sub(
         r"python" + __exe() + r"$",
         "ipython" + __exe(),
-        executable_version_agnostic,
+        executable_interpreter,
     )
     jupyter_executable = re.sub(
         r"python" + __exe() + r"$",
         "jupyter" + __exe(),
-        executable_version_agnostic,
+        executable_interpreter,
     )
 
     with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
         build_file_data = build_file.read()
         # Ensure replacement values are strings
-        build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", str(toolkit_rel_lib_dir))
         build_file_data = build_file_data.replace("##IPYTHON_EXE##", str(ipython_executable))
-        build_file_data = build_file_data.replace("##PYTHON_EXE##", str(executable_version_agnostic))
+        build_file_data = build_file_data.replace("##PYTHON_EXE##", str(executable_interpreter))
         build_file_data = build_file_data.replace("##JUPYTER_EXE##", str(jupyter_executable))
         build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
@@ -441,8 +421,6 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##BASE_EXTENSION_LOCATION##", str(extension_dir))
         if script_file:
             build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
-        if version_agnostic:
-            build_file_data = build_file_data.replace(" % version", "")
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
 
@@ -480,7 +458,7 @@ def tab_map(product):  # pragma: no cover
         return product
 
 
-def run_command(command: List[str], desktop_object):  # pragma: no cover
+def run_command(command: list[str], desktop_object):  # pragma: no cover
     """Run a command through subprocess.
 
     .. warning::
@@ -499,7 +477,7 @@ def run_command(command: List[str], desktop_object):  # pragma: no cover
     return 0
 
 
-def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
+def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install: bool = True):  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 
     .. warning::
@@ -566,7 +544,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
-        python_exe = venv_dir.joinpath("Scripts", "python.exe")
         pip_exe = venv_dir.joinpath("Scripts", "pip.exe")
         package_dir = venv_dir.joinpath("Lib")
     else:
@@ -574,7 +551,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
-        python_exe = venv_dir.joinpath("bin", "python")
         pip_exe = venv_dir.joinpath("bin", "pip")
         package_dir = venv_dir.joinpath("lib")
         edt_root = Path(desktop_object.odesktop.GetExeDir())
@@ -693,9 +669,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 product=product_name,
                 template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
-                executable_interpreter=str(python_exe),
                 personal_lib=desktop_object.personallib,
-                aedt_version=desktop_object.aedt_version_id,
             )
             desktop_object.logger.info(f"{toolkit_info['name']} installed")
             if version > "232":
@@ -711,7 +685,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
-def remove_script_from_menu(desktop_object, name, product="Project"):
+def remove_script_from_menu(desktop_object, name: str, product: str = "Project") -> bool:
     """Remove a toolkit script from the menu.
 
     Parameters
@@ -742,7 +716,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     return True
 
 
-def __exe():
+def __exe() -> str:
     if not is_linux:
         return ".exe"
     return ""

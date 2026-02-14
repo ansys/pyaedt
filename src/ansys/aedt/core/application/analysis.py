@@ -35,10 +35,6 @@ import re
 import shutil
 import tempfile
 import time
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 import warnings
 
 from ansys.aedt.core.application.design import Design
@@ -134,12 +130,12 @@ class Analysis(Design, PyAedtBase):
         new_desktop,
         close_on_exit,
         student_version,
-        machine="",
-        port=0,
-        aedt_process_id=None,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
         ic_mode=None,
-        remove_lock=False,
-    ):
+        remove_lock: bool | None = False,
+    ) -> None:
         Design.__init__(
             self,
             application,
@@ -338,7 +334,7 @@ class Analysis(Design, PyAedtBase):
 
     @active_setup.setter
     @pyaedt_function_handler()
-    def active_setup(self, name):
+    def active_setup(self, name: str):
         setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
@@ -595,11 +591,11 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
-        get_self_terms=True,
-        get_mutual_terms=True,
+        get_self_terms: bool = True,
+        get_mutual_terms: bool = True,
         first_element_filter=None,
         second_element_filter=None,
-        category="dB(S",
+        category: str = "dB(S",
         differential_pairs=None,
     ):
         # type: (bool, bool, str, str, str, list) -> list
@@ -666,7 +662,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def list_of_variations(self, setup=None, sweep=None):
+    def list_of_variations(self, setup: str | None = None, sweep: str | None = None):
         """Retrieve a list of active variations for input setup.
 
         Parameters
@@ -719,17 +715,17 @@ class Analysis(Design, PyAedtBase):
     )
     def export_results(
         self,
-        analyze=False,
+        analyze: bool = False,
         export_folder=None,
-        matrix_name="Original",
-        matrix_type="S",
-        touchstone_format="MagPhase",
-        touchstone_number_precision=15,
-        length="1meter",
-        impedance=50,
-        include_gamma_comment=True,
-        support_non_standard_touchstone_extension=False,
-        variations=None,
+        matrix_name: str = "Original",
+        matrix_type: str = "S",
+        touchstone_format: str = "MagPhase",
+        touchstone_number_precision: int = 15,
+        length: str = "1meter",
+        impedance: int = 50,
+        include_gamma_comment: bool = True,
+        support_non_standard_touchstone_extension: bool = False,
+        variations: list | None = None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -970,7 +966,7 @@ class Analysis(Design, PyAedtBase):
         return exported_files
 
     @pyaedt_function_handler()
-    def export_convergence(self, setup, variations="", output_file=None):
+    def export_convergence(self, setup, variations: str = "", output_file=None):
         """Export a solution convergence to a file.
 
         Parameters
@@ -1088,7 +1084,7 @@ class Analysis(Design, PyAedtBase):
         return list(setups)
 
     @pyaedt_function_handler()
-    def get_nominal_variation(self, with_values=False):
+    def get_nominal_variation(self, with_values: bool = False):
         """Retrieve the nominal variation.
 
         Parameters
@@ -1112,7 +1108,7 @@ class Analysis(Design, PyAedtBase):
         return variation
 
     @pyaedt_function_handler()
-    def get_sweeps(self, name):
+    def get_sweeps(self, name: str):
         """Retrieve all sweeps for a setup.
 
         Parameters
@@ -1133,7 +1129,7 @@ class Analysis(Design, PyAedtBase):
         return list(sweeps)
 
     @pyaedt_function_handler()
-    def export_parametric_results(self, sweep, output_file, export_units=True):
+    def export_parametric_results(self, sweep: str, output_file, export_units: bool = True) -> bool:
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
@@ -1159,7 +1155,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def generate_unique_setup_name(self, name=None):
+    def generate_unique_setup_name(self, name: str | None = None):
         """Generate a new setup with a unique name.
 
         Parameters
@@ -1182,7 +1178,7 @@ class Analysis(Design, PyAedtBase):
         return name
 
     @pyaedt_function_handler()
-    def _create_setup(self, name="MySetupAuto", setup_type=None, props=None):
+    def _create_setup(self, name: str = "MySetupAuto", setup_type=None, props=None):
         if props is None:
             props = {}
 
@@ -1276,7 +1272,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -1312,7 +1308,7 @@ class Analysis(Design, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _get_setup(self, name):
+    def _get_setup(self, name: str):
         setuptype = self.design_solutions.default_setup
         if self.solution_type == "SBR+":
             setuptype = 4
@@ -1344,7 +1340,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def get_setup(self, name):
+    def get_setup(self, name: str):
         """Get the setup from the current design.
 
         Parameters
@@ -1360,7 +1356,9 @@ class Analysis(Design, PyAedtBase):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential=False):
+    def create_output_variable(
+        self, variable, expression, solution: str | None = None, context=None, is_differential: bool = False
+    ) -> bool:
         """Create or modify an output variable.
 
         Parameters
@@ -1470,7 +1468,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable, solution=None):
+    def get_output_variable(self, variable, solution: str | None = None):
         """Retrieve the value of the output variable.
 
         Parameters
@@ -1546,17 +1544,17 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze(
         self,
-        setup=None,
+        setup: str | None = None,
         cores=None,
         tasks=None,
         gpus=None,
         acf_file=None,
-        use_auto_settings=True,
-        solve_in_batch=False,
-        machine="localhost",
-        run_in_thread=False,
-        revert_to_initial_mesh=False,
-        blocking=True,
+        use_auto_settings: bool = True,
+        solve_in_batch: bool = False,
+        machine: str = "localhost",
+        run_in_thread: bool = False,
+        revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
     ):
         """Solve the active design.
 
@@ -1624,7 +1622,7 @@ class Analysis(Design, PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def set_hpc_from_file(self, acf_file: Union[str, Path] = None, configuration_name: Optional[str] = None) -> bool:
+    def set_hpc_from_file(self, acf_file: str | Path = None, configuration_name: str | None = None) -> bool:
         """Set custom HPC options from ACF file.
 
         Parameters
@@ -1660,11 +1658,11 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def set_custom_hpc_options(
         self,
-        cores: Optional[int] = None,
-        gpus: Optional[int] = None,
-        tasks: Optional[int] = None,
-        num_variations_to_distribute: Optional[int] = None,
-        allowed_distribution_types: Optional[list] = None,
+        cores: int | None = None,
+        gpus: int | None = None,
+        tasks: int | None = None,
+        num_variations_to_distribute: int | None = None,
+        allowed_distribution_types: list | None = None,
         use_auto_settings: bool = True,
     ) -> bool:
         """Set custom HPC options.
@@ -1766,16 +1764,16 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name=None,
+        name: str | None = None,
         cores=None,
         tasks=None,
         gpus=None,
         acf_file=None,
-        use_auto_settings=True,
+        use_auto_settings: bool = True,
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
-        revert_to_initial_mesh=False,
-        blocking=True,
+        revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
     ):
         """Analyze a design setup.
 
@@ -1911,7 +1909,7 @@ class Analysis(Design, PyAedtBase):
         return self.desktop.get_monitor_data()
 
     @pyaedt_function_handler()
-    def stop_simulations(self, clean_stop=True):
+    def stop_simulations(self, clean_stop: bool = True):
         """Check if there are simulation running and stops them.
 
         .. note::
@@ -1931,14 +1929,14 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def solve_in_batch(
         self,
-        file_name=None,
-        machine="localhost",
-        run_in_thread=False,
-        cores=4,
-        tasks=1,
-        setup=None,
-        revert_to_initial_mesh=False,
-    ):  # pragma: no cover
+        file_name: str | None = None,
+        machine: str = "localhost",
+        run_in_thread: bool = False,
+        cores: int = 4,
+        tasks: int = 1,
+        setup: str | None = None,
+        revert_to_initial_mesh: bool = False,
+    ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -2070,7 +2068,13 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def submit_job(
-        self, cluster_name, aedt_full_exe_path=None, nodes=1, cores=32, wait_for_license=True, setting_file=None
+        self,
+        cluster_name,
+        aedt_full_exe_path: str | None = None,
+        nodes: int = 1,
+        cores: int = 32,
+        wait_for_license: bool = True,
+        setting_file: str | None = None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2108,12 +2112,12 @@ class Analysis(Design, PyAedtBase):
         self,
         setup_name=None,
         sweep_name=None,
-        file_name=None,
-        variations=None,
+        file_name: str | None = None,
+        variations: list | None = None,
         variations_value=None,
-        renormalization=False,
-        impedance=None,
-        comments=False,
+        renormalization: bool = False,
+        impedance: float | None = None,
+        comments: bool = False,
     ):
         """Export the Touchstone file to a local folder.
 
@@ -2246,7 +2250,7 @@ class Analysis(Design, PyAedtBase):
         self,
         value,
         units=None,
-        units_system="Length",
+        units_system: str = "Length",
     ):
         """Combine a number and a string containing the modeler length unit in a single
         string e.g. "1.2mm".
@@ -2301,13 +2305,13 @@ class Analysis(Design, PyAedtBase):
             return str(f"{value}{units}")
 
     @pyaedt_function_handler()
-    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
+    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value) -> bool:
         """Change a property.
 
         Parameters
         ----------
         aedt_object :
-            Aedt object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
         tab_name : str
             Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
             ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
@@ -2372,7 +2376,7 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         """Contains available variations.
 
         Parameters
@@ -2443,7 +2447,7 @@ class AvailableVariations(PyAedtBase):
         return variation_str
 
     @pyaedt_function_handler()
-    def variations(self, setup_sweep: str, output_as_dict: bool = False) -> Union[List[List], List[Dict]]:
+    def variations(self, setup_sweep: str, output_as_dict: bool = False) -> list[list] | list[dict]:
         """Retrieve variations for a given setup.
 
         Parameters
@@ -2505,7 +2509,7 @@ class AvailableVariations(PyAedtBase):
         return families
 
     @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> Dict:  # pragma: no cover
+    def get_independent_nominal_values(self) -> dict:  # pragma: no cover
         """Retrieve variations for a given setup.
 
         .. deprecated:: 0.22.0
@@ -2524,7 +2528,7 @@ class AvailableVariations(PyAedtBase):
         return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
-    def nominal_variation(self, dependent_params=True, expressions=False) -> Dict:
+    def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:
         """Retrieve variations for a given setup.
 
         Parameters

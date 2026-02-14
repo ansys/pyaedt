@@ -37,7 +37,7 @@ from tests.system.filter_solutions.resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_frequency_response_getter(self, lumped_design):
+    def test_frequency_response_getter(self, lumped_design) -> None:
         mag_db = lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
         assert len(mag_db) == 500
         assert mag_db[100] == pytest.approx(-0.0002779395744451339)
@@ -99,7 +99,7 @@ class TestClass:
             else:
                 assert info.value.args[0] == misspelled_error
 
-    def test_time_response_getter(self, lumped_design):
+    def test_time_response_getter(self, lumped_design) -> None:
         step_response = lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
         assert len(step_response) == 300
         assert step_response[100] == pytest.approx(1.0006647872833518)
@@ -146,7 +146,7 @@ class TestClass:
         else:
             assert info.value.args[0] == misspelled_error
 
-    def test_sparameters_response_getter(self, lumped_design):
+    def test_sparameters_response_getter(self, lumped_design) -> None:
         s11_response_db = lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
         assert len(s11_response_db) == 500
         assert s11_response_db[100] == pytest.approx(-41.93847819973562)
@@ -186,7 +186,7 @@ class TestClass:
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
-    def test_pole_zeros_response_getter(self, lumped_design):
+    def test_pole_zeros_response_getter(self, lumped_design) -> None:
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
         )
@@ -308,12 +308,12 @@ class TestClass:
             lumped_design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_X)
         assert info.value.args[0] == "The reflection zero data is not available for diplexer filters"
 
-    def test_filter_vsg_analysis_enabled(self, lumped_design):
+    def test_filter_vsg_analysis_enabled(self, lumped_design) -> None:
         assert lumped_design.ideal_response.vsg_analysis_enabled is False
         lumped_design.ideal_response.vsg_analysis_enabled = True
         assert lumped_design.ideal_response.vsg_analysis_enabled
 
-    def test_frequency_response(self, lumped_design):
+    def test_frequency_response(self, lumped_design) -> None:
         freq, mag_db = lumped_design.ideal_response.frequency_response(
             y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
             minimum_frequency=None,
@@ -339,7 +339,7 @@ class TestClass:
         assert mag_db[0] == pytest.approx(-4.342896962104627e-10)
         assert mag_db[-1] == pytest.approx(-47.41677994558435)
 
-    def test_time_response(self, lumped_design):
+    def test_time_response(self, lumped_design) -> None:
         time, step_response = lumped_design.ideal_response.time_response(
             y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
             minimum_time=None,
@@ -365,7 +365,7 @@ class TestClass:
         assert step_response[0] == pytest.approx(1.127711560082254)
         assert step_response[-1] == pytest.approx(0.9999962734156826)
 
-    def test_s_parameters(self, lumped_design):
+    def test_s_parameters(self, lumped_design) -> None:
         freq, s21_db = lumped_design.ideal_response.s_parameters(
             y_axis_parameter=SParametersResponseColumn.S21_DB,
             minimum_frequency=None,
@@ -392,7 +392,7 @@ class TestClass:
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
-    def test_pole_zero_locations(self, lumped_design):
+    def test_pole_zero_locations(self, lumped_design) -> None:
         tx_zero_den_x, tx_zero_den_y = lumped_design.ideal_response.pole_zero_locations(
             x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
             y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
@@ -410,7 +410,7 @@ class TestClass:
         assert tx_zero_den_y[3] == pytest.approx(951056516.2951534)
         assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
-    def test_transfer_function_response(self, lumped_design):
+    def test_transfer_function_response(self, lumped_design) -> None:
         assert lumped_design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
             "transferfunction.ckt", "Lumped"
         )

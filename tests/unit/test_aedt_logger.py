@@ -26,6 +26,7 @@ import io
 import logging
 import sys
 import tempfile
+from types import TracebackType
 import unittest.mock
 
 import pytest
@@ -33,11 +34,11 @@ import pytest
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
 
-settings.enable_desktop_logs = True
-settings.enable_local_log_file = True
+# settings.enable_desktop_logs = True
+# settings.enable_local_log_file = True
 
 
-def test_formatter(test_tmp_dir):
+def test_formatter(test_tmp_dir) -> None:
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
     path = test_tmp_dir / "test01.txt"
     logger = AedtLogger(filename=str(path))
@@ -47,8 +48,10 @@ def test_formatter(test_tmp_dir):
     path.unlink(missing_ok=True)
 
 
-def test_output_file_with_app_filter(test_tmp_dir):
+def test_output_file_with_app_filter(test_tmp_dir) -> None:
     settings.enable_debug_logger = True
+    settings.enable_desktop_logs = True
+    settings.enable_local_log_file = True
     path = test_tmp_dir / "test02.txt"
     logger = AedtLogger(filename=str(path))
     logger.info("Info for Global")
@@ -95,9 +98,11 @@ def test_output_file_with_app_filter(test_tmp_dir):
     assert ":ERROR   :Error for Design" in content[11]
     assert "Elapsed time:" in content[12]
     path.unlink(missing_ok=True)
+    settings.enable_desktop_logs = False
+    settings.enable_local_log_file = False
 
 
-def test_stdout_with_app_filter():
+def test_stdout_with_app_filter() -> None:
     capture = CaptureStdOut()
     settings.logger_file_path = ""
     with capture:
@@ -111,7 +116,9 @@ def test_stdout_with_app_filter():
     assert "PyAEDT ERROR: Error for Global" in capture.content
 
 
-def test_disable_output_file_handler(test_tmp_dir):
+def test_disable_output_file_handler(test_tmp_dir) -> None:
+    settings.enable_desktop_logs = True
+    settings.enable_local_log_file = True
     tempfile.gettempdir()
     path = test_tmp_dir / "test04.txt"
 
@@ -147,6 +154,8 @@ def test_disable_output_file_handler(test_tmp_dir):
         if "Info for Global after disabling the log file handler." in line:
             disablement_succeeded = False
     assert disablement_succeeded
+    settings.enable_desktop_logs = False
+    settings.enable_local_log_file = False
 
     # Enable log on file.
     logger.enable_log_on_file()
@@ -169,7 +178,7 @@ def test_disable_output_file_handler(test_tmp_dir):
     path.unlink(missing_ok=True)
 
 
-def test_disable_stdout(test_tmp_dir):
+def test_disable_stdout(test_tmp_dir) -> None:
     temp_file = test_tmp_dir / "dummy.tmp"
     with temp_file.open("w+") as fp:
         stream = unittest.mock.MagicMock()
@@ -210,16 +219,21 @@ def test_disable_stdout(test_tmp_dir):
 class CaptureStdOut:
     """Capture standard output with a context manager."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._stream = io.StringIO()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         sys.stdout = self._stream
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
+    ) -> None:
         sys.stdout = sys.__stdout__
 
-    def release(self):
+    def release(self) -> None:
         self._stream.close()
 
     @property

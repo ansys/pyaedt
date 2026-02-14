@@ -47,7 +47,7 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj):
+    def __init__(self, emit_obj) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -63,7 +63,7 @@ class Results:
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):
+    def _add_revision(self, name: str | None = None):
         """Add a new revision or get the current revision if it already exists.
 
         Parameters
@@ -99,7 +99,7 @@ class Results:
             return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name):
+    def delete_revision(self, revision_name) -> None:
         """Delete the specified revision from the results.
 
         Parameters
@@ -160,7 +160,7 @@ class Results:
         return domain
 
     @pyaedt_function_handler
-    def _unload_revisions(self):
+    def _unload_revisions(self) -> None:
         """Convenience function to set all revisions as ``unloaded``
 
         Parameters

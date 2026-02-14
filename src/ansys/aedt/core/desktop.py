@@ -34,6 +34,7 @@ import datetime
 from difflib import get_close_matches
 from enum import Enum
 import gc
+from logging import Logger
 import os
 from pathlib import Path
 import pkgutil
@@ -46,8 +47,7 @@ import sys
 import tempfile
 import time
 import traceback
-from typing import Optional
-from typing import Union
+from types import TracebackType
 import warnings
 
 from ansys.aedt.core import __version__
@@ -56,6 +56,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import _get_target_processes
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -63,6 +64,7 @@ from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
+from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -73,6 +75,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import GrpcApiError
 
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 """Tuple of loopback host names."""
@@ -95,7 +98,7 @@ class _ServerArgs:
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
-    def __init__(self, mode, host=None, port=None):
+    def __init__(self, mode, host=None, port=None) -> None:
         """Initialize server arguments.
 
         Parameters
@@ -140,7 +143,7 @@ class _ServerArgs:
         return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
 
 
-def _get_grpcsrv_args(host: Optional[str], port: int) -> _ServerArgs:
+def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
     def check_mtls():
         """Perform checks for remote mTLS connections."""
         certs_folder = os.environ.get("ANSYS_GRPC_CERTIFICATES")
@@ -169,19 +172,80 @@ def _get_grpcsrv_args(host: Optional[str], port: int) -> _ServerArgs:
 
 @pyaedt_function_handler()
 def launch_aedt(
-    full_path: Union[str, Path],
+    full_path: str | Path,
     non_graphical: bool,
     port: int,
     student_version: bool,
-    host: Optional[str] = None,
+    host: str | None = None,
 ):  # pragma: no cover
     """Launch AEDT in gRPC mode.
+
+    This function starts an AEDT session with gRPC communication enabled. It supports
+    multiple transport modes (INSECURE, UDS, MTLS, WNUA) based on the current settings
+    and environment configuration.
 
     .. warning::
 
         Do not execute this function with untrusted function argument, environment
         variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
+
+    Parameters
+    ----------
+    full_path : str or Path
+        Full path to the AEDT executable file.
+        The path must point to a valid AEDT executable.
+    non_graphical : bool
+        Whether to launch AEDT in non-graphical mode (``True``) or graphical mode (``False``).
+        Non-graphical mode is useful for batch processing and automation.
+    port : int
+        The port number on which the gRPC server will listen.
+    student_version : bool
+        Whether to launch the student version of AEDT (``True``) or the commercial version (``False``).
+    host : str, optional
+        The host address for the gRPC server. The default is ``None``, which uses ``"127.0.0.1"``.
+        For remote connections, specify the appropriate host address.
+
+    Returns
+    -------
+    tuple[bool, int]
+        A tuple containing:
+        - ``bool``: ``True`` if AEDT launched successfully, ``False`` otherwise.
+        - ``int``: The port number on which AEDT is listening, or ``0`` if launch failed.
+
+    Raises
+    ------
+    ValueError
+        If the provided ``full_path`` does not exist or is not a valid AEDT executable.
+    AEDTRuntimeError
+        If both ``settings.grpc_local`` and ``settings.grpc_listen_all`` are set to ``True``.
+
+    Notes
+    -----
+    - The function waits up to ``settings.desktop_launch_timeout`` seconds for AEDT to start.
+    - It checks for available licenses unless ``settings.skip_license_check`` is ``True``.
+    - Environment variables from ``settings.aedt_environment_variables`` are applied before launch.
+    - The gRPC transport mode is determined by ``settings.grpc_secure_mode`` and ``settings.grpc_local``.
+
+    Examples
+    --------
+    Launch AEDT 2025 R2 in non-graphical mode on port 50051:
+
+    >>> from ansys.aedt.core import desktop
+    >>> from pathlib import Path
+    >>> aedt_path = Path("C:/Program Files/AnsysEM/v252/Win64/ansysedt.exe")
+    >>> success, port = launch_aedt(full_path=aedt_path, non_graphical=True, port=50051, student_version=False)
+    >>> print(f"AEDT started: {success}, Port: {port}")
+    AEDT started: True, Port: 50051
+
+    Launch AEDT student version in graphical mode:
+
+    >>> success, port = launch_aedt(
+    ...     full_path="C:/Program Files/AnsysEM/v252/Win64/ansysedtsv.exe",
+    ...     non_graphical=False,
+    ...     port=50052,
+    ...     student_version=True,
+    ... )
     """
     if settings.grpc_local and settings.grpc_listen_all:
         raise AEDTRuntimeError(
@@ -228,8 +292,7 @@ def launch_aedt(
     pyaedt_logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
     subprocess.Popen(command, **kwargs)  # nosec
 
-    on_ci = os.getenv("ON_CI", "False")
-    if not student_version and on_ci != "True" and not settings.skip_license_check:
+    if not student_version and "PYTEST_CURRENT_TEST" not in os.environ and not settings.skip_license_check:
         available_licenses = available_license_feature()
         if available_licenses > 0:
             pyaedt_logger.info("Electronics Desktop license available.")
@@ -239,13 +302,28 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        active_s = active_sessions(student_version=student_version)
-        if port in active_s.values():
+        if is_grpc_session_active(port):
             break
         timeout -= 1
         time.sleep(1)
 
     if timeout == 0:
+        if student_version:
+            target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
+        else:
+            target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+        target_processes = _get_target_processes(target)
+        for process in target_processes:
+            if "-grpcsrv" in process:
+                try:
+                    prt_str = process[process.index("-grpcsrv") + 1].split(":")
+                    prt = int(prt_str[0]) if len(prt_str) == 1 else int(prt_str[1])
+                    if prt == port:
+                        pyaedt_logger.warning(f"Failed to retrieve connection but found AEDT executable on {port}")
+                        return True, port
+                except Exception as e:
+                    pyaedt_logger.debug(f"Skipping process entry due to parsing error: {e}")
+                    continue
         pyaedt_logger.error(f"Failed to start on gRPC port: {port}.")
         return False, 0
 
@@ -255,7 +333,7 @@ def launch_aedt(
 
 
 @pyaedt_function_handler()
-def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
+def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):  # pragma: no cover
     """Launch AEDT in LSF in gRPC mode.
 
     .. warning::
@@ -333,7 +411,7 @@ def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
             aedt_startup_timeout = 120
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
-            while not _is_port_occupied(port, machine_name=m.group(1)):
+            while not _is_port_occupied(port, host=m.group(1)):
                 if k > aedt_startup_timeout:
                     pyaedt_logger.error("LSF allocated resources, but AEDT was unable to start due to a timeout.")
                     return False, err
@@ -388,13 +466,13 @@ def _find_free_port():
 
     while True:
         new_port = _find(host)
-        if new_port not in list(active_sessions().values()) and new_port not in range(50051, 50070, 1):
+        if not is_grpc_session_active(new_port):
             pyaedt_logger.debug(f"Port selected: {new_port}")
             return new_port
         time.sleep(0.1)
 
 
-def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
+def exception_to_desktop(ex_value: str, tb_data: str) -> None:  # pragma: no cover
     """Write the trace stack to AEDT when a Python error occurs.
 
     The message is added to the AEDT global logger and to the log file (if present).
@@ -414,7 +492,7 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
         pyaedt_logger.error(el)
 
 
-def is_student_version(oDesktop):
+def is_student_version(oDesktop: object) -> bool:
     edt_root = Path(oDesktop.GetExeDir())
     if is_windows and Path(edt_root).is_dir():
         if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):  # pragma no cover
@@ -532,18 +610,17 @@ class Desktop(PyAedtBase):
             pyaedt_logger.info(message)
             return object.__new__(cls)
 
-    @pyaedt_function_handler()
     def __init__(
         self,
-        version=None,
-        non_graphical=False,
-        new_desktop=True,
-        close_on_exit=True,
-        student_version=False,
-        machine=None,
-        port=0,
-        aedt_process_id=None,
-    ):
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = True,
+        close_on_exit: bool | None = True,
+        student_version: bool | None = False,
+        machine: str | None = None,
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+    ) -> None:
         """Initialize desktop."""
         # Check if already initialized and returning object if so.
         result = self._check_if_initialized()
@@ -562,7 +639,7 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t") else non_graphical
         )
         self.__close_on_exit = close_on_exit
-        self.__machine = machine
+        self.__machine = machine if machine else None
         self.__port = port
         self.__is_grpc_api = True
         self.__student_version = False
@@ -629,7 +706,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_version_id
 
     @aedt_version_id.setter
-    def aedt_version_id(self, value):
+    def aedt_version_id(self, value: str) -> None:
         if isinstance(value, int):
             value = f"20{str(value)[:2]}.{str(value)[2:3]}"
         elif isinstance(value, float):
@@ -642,16 +719,12 @@ class Desktop(PyAedtBase):
         return self.__aedt_process_id
 
     @aedt_process_id.setter
-    def aedt_process_id(self, value):
+    def aedt_process_id(self, value: int) -> None:
         self.__aedt_process_id = value
 
     @pyaedt_function_handler()
     def _check_if_initialized(self) -> bool:
-        if getattr(self, "_initialized", None) is not None and self._initialized:
-            try:
-                self.grpc_plugin.recreate_application(True)
-            except Exception:
-                pyaedt_logger.debug("Failed to recreate application.")
+        if getattr(self, "_initialized", None) is not None and self._initialized and self.odesktop:
             return True
         else:
             self._initialized = True
@@ -665,7 +738,7 @@ class Desktop(PyAedtBase):
         return self.__launched_by_pyaedt
 
     @launched_by_pyaedt.setter
-    def launched_by_pyaedt(self, value):
+    def launched_by_pyaedt(self, value: bool) -> None:
         self.__launched_by_pyaedt = value
 
     @property
@@ -674,7 +747,7 @@ class Desktop(PyAedtBase):
         return self.__non_graphical
 
     @non_graphical.setter
-    def non_graphical(self, value):
+    def non_graphical(self, value: bool) -> None:
         self.__non_graphical = value
 
     @property
@@ -683,7 +756,7 @@ class Desktop(PyAedtBase):
         return self.__close_on_exit
 
     @close_on_exit.setter
-    def close_on_exit(self, value):
+    def close_on_exit(self, value: bool) -> None:
         self.__close_on_exit = value
 
     @property
@@ -694,7 +767,7 @@ class Desktop(PyAedtBase):
         return self.__machine
 
     @machine.setter
-    def machine(self, value):
+    def machine(self, value: str) -> None:
         self.__machine = value
 
     @property
@@ -705,7 +778,7 @@ class Desktop(PyAedtBase):
         return self.__port
 
     @port.setter
-    def port(self, value):
+    def port(self, value: int) -> None:
         self.__port = value
 
     @property
@@ -714,7 +787,7 @@ class Desktop(PyAedtBase):
         return self.__is_grpc_api
 
     @is_grpc_api.setter
-    def is_grpc_api(self, value):
+    def is_grpc_api(self, value: bool) -> None:
         self.__is_grpc_api = value
 
     @property
@@ -723,7 +796,7 @@ class Desktop(PyAedtBase):
         return self.__student_version
 
     @student_version.setter
-    def student_version(self, value):
+    def student_version(self, value: bool) -> None:
         self.__student_version = value
 
     @property
@@ -732,7 +805,7 @@ class Desktop(PyAedtBase):
         return self.__new_desktop
 
     @new_desktop.setter
-    def new_desktop(self, value):
+    def new_desktop(self, value: bool) -> None:
         self.__new_desktop = value
 
     @property
@@ -741,11 +814,11 @@ class Desktop(PyAedtBase):
         return self.__aedt_version_string
 
     @aedt_version_string.setter
-    def aedt_version_string(self, value):
+    def aedt_version_string(self, value: str) -> None:
         self.__aedt_version_string = value
 
     @pyaedt_function_handler()
-    def check_starting_mode(self):
+    def check_starting_mode(self) -> None:
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
         if "oDesktop" in dir(sys.modules["__main__"]):  # pragma: no cover
@@ -803,7 +876,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_install_dir
 
     @aedt_install_dir.setter
-    def aedt_install_dir(self, value):
+    def aedt_install_dir(self, value) -> None:
         self.__aedt_install_dir = value
 
     @pyaedt_function_handler()
@@ -824,7 +897,12 @@ class Desktop(PyAedtBase):
     def __enter__(self):
         return self
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):  # pragma no cover
+    def __exit__(
+        self,
+        ex_type: type[BaseException] | None,
+        ex_value: BaseException | None,
+        ex_traceback: TracebackType | None,
+    ) -> None:  # pragma no cover
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             self.__exception(ex_value, ex_traceback)
@@ -880,7 +958,7 @@ class Desktop(PyAedtBase):
 
     @property
     @min_aedt_version("2023.2")
-    def are_there_simulations_running(self):
+    def are_there_simulations_running(self) -> float:
         """Check if there are simulation running.
 
         Returns
@@ -891,22 +969,22 @@ class Desktop(PyAedtBase):
         return self.odesktop.AreThereSimulationsRunning()
 
     @property
-    def current_version(self):
+    def current_version(self) -> str:
         """Current AEDT version."""
         return aedt_versions.current_version
 
     @property
-    def current_student_version(self):
+    def current_student_version(self) -> str:
         """Current AEDT student  version."""
         return aedt_versions.current_student_version
 
     @property
-    def installed_versions(self):
+    def installed_versions(self) -> dict:
         """Dictionary of AEDT versions installed on the system and their installation paths."""
         return aedt_versions.installed_versions
 
     @property
-    def install_path(self):
+    def install_path(self) -> str:
         """Installation path for AEDT."""
         version_key = settings.aedt_version
         try:
@@ -915,7 +993,7 @@ class Desktop(PyAedtBase):
             return self.installed_versions[version_key + "CL"]
 
     @pyaedt_function_handler()
-    def get_example(self, example_name, folder_name="."):
+    def get_example(self, example_name: str, folder_name: str | None = ".") -> Path:
         """Retrieve the path to a built-in example project.
 
         Parameters
@@ -966,7 +1044,7 @@ class Desktop(PyAedtBase):
                     return file.resolve()
 
     @property
-    def logger(self):
+    def logger(self) -> Logger:
         """AEDT logger."""
         if self.__logger is None:
             self.__logger = pyaedt_logger
@@ -985,7 +1063,7 @@ class Desktop(PyAedtBase):
         return self.__logger
 
     @property
-    def odesktop(self):
+    def odesktop(self) -> object:
         """AEDT instance containing all projects and designs.
 
         Examples
@@ -1001,6 +1079,8 @@ class Desktop(PyAedtBase):
             while tries < 5:
                 try:
                     self.__desktop = self.grpc_plugin.odesktop
+                    if self.__desktop is None:
+                        raise Exception("No Desktop")
                     return self.__desktop
                 except Exception:
                     self.grpc_plugin.recreate_application(True)
@@ -1009,16 +1089,16 @@ class Desktop(PyAedtBase):
         return self.__desktop
 
     @odesktop.setter
-    def odesktop(self, val):
+    def odesktop(self, val: object) -> None:
         self.__desktop = val
 
     @property
-    def messenger(self):
+    def messenger(self) -> Logger:
         """Messenger manager for the AEDT logger."""
         return pyaedt_logger
 
     @property
-    def personallib(self):
+    def personallib(self) -> str:
         """PersonalLib directory.
 
         Returns
@@ -1030,7 +1110,7 @@ class Desktop(PyAedtBase):
         return self.odesktop.GetPersonalLibDirectory()
 
     @property
-    def src_dir(self):
+    def src_dir(self) -> str:
         """Python source directory.
 
         Returns
@@ -1042,7 +1122,7 @@ class Desktop(PyAedtBase):
         return Path(__file__)
 
     @property
-    def syslib(self):
+    def syslib(self) -> str:
         """SysLib directory.
 
         Returns
@@ -1054,7 +1134,7 @@ class Desktop(PyAedtBase):
         return self.odesktop.GetLibraryDirectory()
 
     @property
-    def pyaedt_dir(self):
+    def pyaedt_dir(self) -> str:
         """PyAEDT directory.
 
         Returns
@@ -1066,7 +1146,7 @@ class Desktop(PyAedtBase):
         return Path(__file__).parent
 
     @property
-    def userlib(self):
+    def userlib(self) -> str:
         """UserLib directory.
 
         Returns
@@ -1078,7 +1158,7 @@ class Desktop(PyAedtBase):
         return self.odesktop.GetUserLibDirectory()
 
     @property
-    def grpc_mode(self):
+    def grpc_mode(self) -> str:
         server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
         return server_args.mode
 
@@ -1087,7 +1167,9 @@ class Desktop(PyAedtBase):
     # ############################################ #
 
     @pyaedt_function_handler()
-    def active_design(self, project_object=None, name=None, design_type=None):
+    def active_design(
+        self, project_object: object | None = None, name: str | None = None, design_type: str | None = None
+    ) -> object | None:
         """Get the active design.
 
         Parameters
@@ -1134,7 +1216,7 @@ class Desktop(PyAedtBase):
         return active_design
 
     @pyaedt_function_handler()
-    def active_project(self, name=None):
+    def active_project(self, name: str | None = None) -> object | None:
         """Get the active project.
 
         Parameters
@@ -1165,7 +1247,7 @@ class Desktop(PyAedtBase):
         return active_project
 
     @pyaedt_function_handler()
-    def close_windows(self):
+    def close_windows(self) -> bool:
         """Close all windows.
 
         Returns
@@ -1193,7 +1275,7 @@ class Desktop(PyAedtBase):
         return list(self.odesktop.GetProjectList())
 
     @pyaedt_function_handler()
-    def analyze_all(self, project=None, design=None):  # pragma: no cover
+    def analyze_all(self, project: str | None = None, design: str | None = None) -> bool:  # pragma: no cover
         """Analyze all setups in a project.
 
         Parameters
@@ -1224,7 +1306,7 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def clear_messages(self):
+    def clear_messages(self) -> bool:
         """Clear all AEDT messages.
 
         Returns
@@ -1236,7 +1318,7 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def save_project(self, project_name=None, project_path=None):
+    def save_project(self, project_name: str | None = None, project_path: str | Path | None = None) -> bool:
         """Save the project.
 
         Parameters
@@ -1271,7 +1353,7 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def project_path(self, project_name=None):
+    def project_path(self, project_name: str | None = None) -> str | None:
         """Get the path to the project.
 
         Parameters
@@ -1295,7 +1377,7 @@ class Desktop(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def design_list(self, project=None):
+    def design_list(self, project: str | None = None) -> list[str]:
         """Get a list of the designs.
 
         Parameters
@@ -1322,7 +1404,7 @@ class Desktop(PyAedtBase):
         return updateddeslist
 
     @pyaedt_function_handler()
-    def design_type(self, project_name=None, design_name=None):
+    def design_type(self, project_name: str | None = None, design_name: str | None = None) -> str:
         """Get the type of design.
 
         Parameters
@@ -1380,7 +1462,7 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file, design_name=None):
+    def load_project(self, project_file: str, design_name: str | None = None) -> bool | object:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -1415,12 +1497,12 @@ class Desktop(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def __release_aedt_application(self, pid, is_grpc_api):
+    def __release_aedt_application(self, pid, is_grpc_api) -> bool:
         """Release the AEDT API.
 
         Parameters
         ----------
-        desktop : :class:ansys.aedt.core.desktop.Desktop
+        desktop_class : :class:ansys.aedt.core.desktop.Desktop
             Desktop class.
         pid : int
             Process ID of the desktop app that is being closed.
@@ -1436,7 +1518,8 @@ class Desktop(PyAedtBase):
         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api):
             for k, d in _desktop_sessions.items():
                 if k == pid:
-                    d.grpc_plugin.recreate_application(True)
+                    if settings.use_multi_desktop:
+                        d.grpc_plugin.recreate_application(True)
                     d.grpc_plugin.Release()
                     return True
         elif not inside_desktop_ironpython_console:  # pragma: no cover
@@ -1452,12 +1535,12 @@ class Desktop(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def __close_aedt_application(self, pid, is_grpc_api):
+    def __close_aedt_application(self, pid, is_grpc_api) -> bool:
         """Close the AEDT application.
 
         Parameters
         ----------
-        desktop : :class:ansys.aedt.core.desktop.Desktop
+        desktop_class : :class:ansys.aedt.core.desktop.Desktop
             Desktop class.
         pid : int
             Process ID of the desktop app that is being closed.
@@ -1535,9 +1618,14 @@ class Desktop(PyAedtBase):
         # Handle case were the desktop has been released and properties have already been deleted
         if self.__closed is True:  # pragma no cover
             return True
-        if self.is_grpc_api:
-            self.grpc_plugin.recreate_application(True)
-        self.logger._desktop_instance = None
+        if self.is_grpc_api and settings.use_multi_desktop:
+            try:
+                self.grpc_plugin.recreate_application(True)
+            except GrpcApiError:  # pragma no cover
+                self.logger.warning("Desktop is already closed.")
+                return False
+
+        self.logger._desktop_class = None
         self.logger._oproject = None
         self.logger._odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
@@ -1587,7 +1675,7 @@ class Desktop(PyAedtBase):
         message="The ``close_on_exit`` argument will be removed in future versions. "
         "Use ``close_desktop`` method to close the desktop.",
     )
-    def release_desktop(self, close_projects=True, close_on_exit=True):
+    def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
         """Release AEDT.
 
         Parameters
@@ -1622,7 +1710,7 @@ class Desktop(PyAedtBase):
 
         return self.__release_and_close_desktop(close_projects, close_on_exit)
 
-    def close_desktop(self):
+    def close_desktop(self) -> bool:
         """Close all projects and shut down AEDT.
 
         Returns
@@ -1641,7 +1729,7 @@ class Desktop(PyAedtBase):
         """
         return self.__release_and_close_desktop(close_projects=True, close_aedt_app=True)
 
-    def enable_autosave(self):
+    def enable_autosave(self) -> None:
         """Enable the autosave option.
 
         Examples
@@ -1655,7 +1743,7 @@ class Desktop(PyAedtBase):
         """
         self.odesktop.EnableAutoSave(True)
 
-    def disable_autosave(self):
+    def disable_autosave(self) -> None:
         """Disable the autosave option.
 
         Examples
@@ -1669,7 +1757,7 @@ class Desktop(PyAedtBase):
         """
         self.odesktop.EnableAutoSave(False)
 
-    def change_license_type(self, license_type="Pool"):  # pragma: no cover
+    def change_license_type(self, license_type: str | None = "Pool") -> bool:  # pragma: no cover
         """Change the license type.
 
         Parameters
@@ -1693,7 +1781,7 @@ class Desktop(PyAedtBase):
         except Exception:
             return False
 
-    def enable_optimetrics(self):  # pragma: no cover
+    def enable_optimetrics(self) -> bool:  # pragma: no cover
         """Enable optimetrics.
 
         Returns
@@ -1708,7 +1796,7 @@ class Desktop(PyAedtBase):
             self.logger.error("Failed to enable optimetrics.")
             return False
 
-    def disable_optimetrics(self):  # pragma: no cover
+    def disable_optimetrics(self) -> bool:  # pragma: no cover
         """Disable optimetrics.
 
         Returns
@@ -1723,7 +1811,7 @@ class Desktop(PyAedtBase):
             self.logger.error("Failed to disable optimetrics.")
             return False
 
-    def change_registry_key(self, key_full_name, key_value):
+    def change_registry_key(self, key_full_name: str, key_value: str | int) -> bool:
         """Change an AEDT registry key to a new value.
 
         Parameters
@@ -1758,7 +1846,9 @@ class Desktop(PyAedtBase):
             self.logger.warning("Key value must be an integer or string.")
             return False
 
-    def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):  # pragma: no cover
+    def change_active_dso_config_name(
+        self, product_name: str | None = "HFSS", config_name: str | None = "Local"
+    ) -> bool:  # pragma: no cover
         """Change a specific registry key to a new value.
 
         Parameters
@@ -1783,7 +1873,9 @@ class Desktop(PyAedtBase):
             self.logger.warning(f"Error Setting Up Configuration {config_name} for {product_name}.")
             return False
 
-    def change_registry_from_file(self, registry_file, make_active=True):  # pragma: no cover
+    def change_registry_from_file(
+        self, registry_file: str, make_active: bool | None = True
+    ) -> bool:  # pragma: no cover
         """Apply desktop registry settings from an ACF file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
@@ -1819,7 +1911,7 @@ class Desktop(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_available_toolkits():
+    def get_available_toolkits() -> list[str]:
         """Get toolkit ready for installation.
 
         Returns
@@ -1834,25 +1926,25 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        project_file,
-        clustername,
-        aedt_full_exe_path=None,
-        numnodes=1,
-        numcores=32,
-        wait_for_license=True,
-        setting_file=None,
-    ):  # pragma: no cover
+        clustername: str,
+        project_file: str | Path | None = None,
+        aedt_full_exe_path: str | None = None,
+        numnodes: int | None = 1,
+        numcores: int | None = 32,
+        wait_for_license: bool | None = True,
+        setting_file: str | None = None,
+    ) -> int:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
         ----------
+        clustername : str
+            Name of the cluster to submit the job to.
         project_file : str or :class:`pathlib.Path`, optional
             Full path to the project. The path should be visible from the server where the
             simulation will run.
             If the client path is used then the
             mapping between the client and server path must be specified in the `setting_file``.
-        clustername : str
-            Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file on the server. The default is ``None``, in which
             case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used. On linux
@@ -1947,15 +2039,15 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_ansys_cloud_job(
         self,
-        project_file,
-        config_name,
-        region,
-        numnodes=1,
-        numcores=32,
-        wait_for_license=True,
-        setting_file=None,
-        job_name=None,
-    ):  # pragma: no cover
+        project_file: str,
+        config_name: str,
+        region: str,
+        job_name: str,
+        numnodes: int | None = 1,
+        numcores: int | None = 32,
+        wait_for_license: bool | None = True,
+        setting_file: str | None = None,
+    ) -> tuple[str, str]:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
@@ -2059,7 +2151,9 @@ class Desktop(PyAedtBase):
             return "", ""
 
     @pyaedt_function_handler()
-    def get_ansyscloud_job_info(self, job_id=None, job_name=None):  # pragma: no cover
+    def get_ansyscloud_job_info(
+        self, job_id: str | None = None, job_name: str | None = None
+    ) -> dict:  # pragma: no cover
         """Monitor a job submitted to Ansys Cloud.
 
         .. warning::
@@ -2121,8 +2215,12 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def select_scheduler(
-        self, scheduler_type, address=None, username=None, force_password_entry=False
-    ):  # pragma: no cover
+        self,
+        scheduler_type: str,
+        address: str | None = None,
+        username: str | None = None,
+        force_password_entry: bool | None = False,
+    ) -> str:  # pragma: no cover
         """Select a scheduler to submit the job.
 
         Parameters
@@ -2172,7 +2270,7 @@ class Desktop(PyAedtBase):
             return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
 
     @pyaedt_function_handler()
-    def get_available_cloud_config(self, region="westeurope"):  # pragma: no cover
+    def get_available_cloud_config(self, region: str = "westeurope") -> dict:  # pragma: no cover
         """Get available Ansys Cloud machines configuration.
 
         .. warning::
@@ -2240,7 +2338,9 @@ class Desktop(PyAedtBase):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, filter="*"):  # pragma: no cover
+    def download_job_results(
+        self, job_id: str, project_path: str, results_folder: str, file_type_filter: str | None = "*"
+    ) -> bool:  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters
@@ -2251,7 +2351,7 @@ class Desktop(PyAedtBase):
             Project path to aedt file. The ".q" file will be created there to monitor download status.
         results_folder : str
             Folder where the simulation results will be downloaded.
-        filter : str, optional
+        file_type_filter : str, optional
             A string containing filters to download. The delimiter of file types is ";". If no filter
             specified, the default filter "*" will be applied, which requests all files for download
 
@@ -2259,12 +2359,12 @@ class Desktop(PyAedtBase):
         -------
         bool
         """
-        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, filter)
+        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, file_type_filter)
         return True if download_status == 1 else False
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def get_monitor_data(self):  # pragma: no cover
+    def get_monitor_data(self) -> dict:  # pragma: no cover
         """Check and get monitor data of an existing analysis.
 
         Returns
@@ -2295,7 +2395,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def stop_simulations(self, clean_stop=True):
+    def stop_simulations(self, clean_stop: bool = True) -> str:
         """Check if there are simulation running and stops them.
 
         Returns
@@ -2309,7 +2409,7 @@ class Desktop(PyAedtBase):
     #                Private methods                #
     # ############################################# #
 
-    def __init_desktop(self):
+    def __init_desktop(self) -> None:
         # run it after the settings.non_graphical is set
         self.pyaedt_version = __version__
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
@@ -2376,7 +2476,7 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
-    def __dispatch_win32(self, version):  # pragma: no cover
+    def __dispatch_win32(self, version) -> None:  # pragma: no cover
         from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)
@@ -2451,6 +2551,52 @@ class Desktop(PyAedtBase):
     def __initialize(
         self,
     ):
+        """Initialize connection to a new or existing AEDT desktop instance.
+
+        This internal method handles the initialization of AEDT desktop connections,
+        supporting both COM (Windows) and gRPC (cross-platform) modes. It manages:
+        - Creation of new AEDT instances via COM or gRPC
+        - Connection to existing AEDT sessions
+        - Process ID tracking and session management
+        - Desktop object retrieval and validation
+
+        The method's behavior depends on the connection mode:
+
+        **COM Mode (Windows only):**
+        - Uses .NET interop via ``StandalonePyScriptWrapper``
+        - Creates new COM instance (graphical or non-graphical)
+        - Attaches to existing COM sessions when available
+
+        **gRPC Mode (cross-platform):**
+        - Connects to gRPC server already launched by ``launch_aedt()``
+        - Retrieves desktop stub from gRPC channel
+        - Validates connection to AEDT instance
+
+        Returns
+        -------
+        object
+            Desktop object (COM or gRPC stub) representing the AEDT instance.
+            Returns ``None`` if initialization fails.
+
+        Notes
+        -----
+        - Sets ``launched_by_pyaedt`` to ``True`` when creating new instances
+        - Process ID tracking enables multi-session management
+        - For gRPC mode, the AEDT process must be launched before calling this method
+        - COM mode requires Windows and .NET runtime
+
+        Warnings
+        --------
+        This method should not be called directly. Use the ``Desktop`` constructor
+        or ``__init_grpc()`` method instead.
+
+        See Also
+        --------
+        __init_grpc : gRPC-specific initialization orchestrator
+        __init_dotnet : COM initialization for existing instances
+        __dispatch_win32 : Fallback COM dispatch method
+        launch_aedt : Function that spawns AEDT process with gRPC server
+        """
         if not self.is_grpc_api:  # pragma: no cover
             from ansys.aedt.core.internal.clr_module import _clr
 
@@ -2502,7 +2648,7 @@ class Desktop(PyAedtBase):
             return oapp
 
     @pyaedt_function_handler()
-    def _check_machine(self):
+    def _check_machine(self) -> None:
         if settings.remote_rpc_session:  # pragma: no cover
             settings.remote_api = True
             self.logger.warning(
@@ -2521,11 +2667,11 @@ class Desktop(PyAedtBase):
     def _validate_port(self, port):
         if port == 0:
             return port
-        active_ports = grpc_active_sessions()
-        if self.new_desktop and port in active_ports:
+        active_ports = is_grpc_session_active(port)
+        if self.new_desktop and active_ports:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
-        elif not settings.remote_rpc_session and not self.new_desktop and port not in active_ports:
+        elif not settings.remote_rpc_session and not self.new_desktop and not active_ports:
             self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
             self.new_desktop = True
         return port
@@ -2558,24 +2704,71 @@ class Desktop(PyAedtBase):
                     self.logger.warning(
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
-            elif self.aedt_version_id < "2024.2" or is_linux:
+            else:
                 self.__port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
 
     def __init_grpc(self):
+        """Initialize AEDT connection using gRPC API.
+
+        This internal method manages the gRPC connection process, including:
+        - Starting a new AEDT instance with gRPC server (if needed)
+        - Connecting to an existing gRPC session (if available)
+        - Handling LSF scheduler on Linux systems
+        - Port validation and assignment
+
+        The method uses different connection strategies based on:
+        - Platform (Linux/Windows)
+        - Scheduler type (LSF/local)
+        - Desktop mode (new session vs. reuse existing)
+
+        Notes
+        -----
+        - On Linux with LSF: Launches AEDT via LSF job scheduler
+        - On other platforms: Uses direct process launch via ``launch_aedt()``
+        - Port selection priority:
+          1. User-specified port (validated)
+          2. Existing active gRPC session port
+          3. Auto-assigned free port
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If gRPC server fails to start or connection cannot be established.
+
+        Warnings
+        --------
+        This method should not be called directly. It's invoked automatically by
+        the ``Desktop`` constructor when ``settings.use_grpc_api == True``.
+
+        See Also
+        --------
+        launch_aedt : Function that spawns the AEDT process with gRPC arguments
+        launch_aedt_in_lsf : LSF-specific AEDT launcher for Linux HPC clusters
+        _assign_port : Port selection and validation logic
+        """
         result = False
+
+        # Linux LSF cluster: Use job scheduler to launch AEDT
         if self.new_desktop and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
-            out, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
+
+            # Submit LSF job and get remote machine hostname
+            is_launched, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
+
+            # LSF handles the new instance
             self.new_desktop = False
-            if out:
+            if is_launched:
                 self.launched_by_pyaedt = True
                 result = self.__initialize()
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
+
+        # Standard launch path (Windows or Linux without LSF)
         else:
+            # Determine AEDT installer path
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
                 installer = Path(self.aedt_install_dir) / "ansysedtsv"
@@ -2601,16 +2794,19 @@ class Desktop(PyAedtBase):
             except Exception:
                 self.logger.warning(f"Could not create lock file {lock_file}.")
 
+            # Validate port availability/compatibility
             self.__port = self._validate_port(self.port)
-
+            is_launched = True
+            # Launch new AEDT instance if needed
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
-                # Only provide host if user provided a machine name
-                out, self.port = launch_aedt(
+                # Spawn AEDT process with gRPC server arguments
+                is_launched, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
-            self.new_desktop = False
+            self.new_desktop = not is_launched
             self.launched_by_pyaedt = True
+            # Establish gRPC connection (implementation details)
             result = self.__initialize()
 
             # Remove lock file
@@ -2634,7 +2830,7 @@ class Desktop(PyAedtBase):
             self.logger.error("Check installation, license and environment variables.")
         return result
 
-    def __set_logger_file(self):
+    def __set_logger_file(self) -> bool:
         # Set up the log file in the AEDT project directory
         if settings.logger_file_path:
             self.__logfile = settings.logger_file_path
@@ -2646,7 +2842,7 @@ class Desktop(PyAedtBase):
             else:
                 project_dir = tempfile.gettempdir()
             self.__logfile = Path(project_dir) / f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        self.logger._desktop_instance = self
+        self.logger._desktop_class = self
         if self.aedt_version_id >= "2024.2":
             messages = self.odesktop.GetMessages("", "", 0)
             check_message = f" {self.port}."

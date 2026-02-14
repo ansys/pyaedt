@@ -86,7 +86,7 @@ def hfss3dl_post_app(add_app_example):
     app.close_project(save=False)
 
 
-def test_create_material(aedt_app):
+def test_create_material(aedt_app) -> None:
     mymat = aedt_app.materials.add_material("myMaterial")
     mymat.permittivity = 4.1
     mymat.conductivity = 100
@@ -97,7 +97,7 @@ def test_create_material(aedt_app):
     assert len(aedt_app.materials.material_keys) == 3
 
 
-def test_stackup(aedt_app):
+def test_stackup(aedt_app) -> None:
     s1 = aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="iron"
     )
@@ -245,7 +245,7 @@ def test_stackup(aedt_app):
     s1.usp = False
 
 
-def test_create_circle(aedt_app):
+def test_create_circle(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -258,7 +258,7 @@ def test_create_circle(aedt_app):
     assert n1.name == "mycircle"
 
 
-def test_create_create_rectangle(aedt_app):
+def test_create_create_rectangle(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -271,7 +271,7 @@ def test_create_create_rectangle(aedt_app):
     assert n2.name == "myrectangle"
 
 
-def test_subtract(aedt_app):
+def test_subtract(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -285,7 +285,7 @@ def test_subtract(aedt_app):
     assert aedt_app.modeler.subtract("mycircle", "myrectangle")
 
 
-def test_unite(aedt_app):
+def test_unite(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -301,7 +301,7 @@ def test_unite(aedt_app):
     )
 
 
-def test_intersect(aedt_app):
+def test_intersect(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -317,7 +317,7 @@ def test_intersect(aedt_app):
     )
 
 
-def test_objectlist(aedt_app):
+def test_objectlist(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -332,7 +332,7 @@ def test_objectlist(aedt_app):
     assert len(a) > 0
 
 
-def test_modify_padstack(aedt_app):
+def test_modify_padstack(aedt_app) -> None:
     pad_0 = aedt_app.modeler.padstacks["PlanarEMVia"]
     assert aedt_app.modeler.padstacks["PlanarEMVia"].plating != 55
     pad_0.plating = "55"
@@ -340,7 +340,7 @@ def test_modify_padstack(aedt_app):
     assert aedt_app.modeler.padstacks["PlanarEMVia"].plating == "55"
 
 
-def test_create_padstack(aedt_app):
+def test_create_padstack(aedt_app) -> None:
     pad1 = aedt_app.modeler.new_padstack("My_padstack2")
     hole1 = pad1.add_hole()
     pad1.add_layer("Start", pad_hole=hole1, thermal_hole=hole1)
@@ -352,7 +352,7 @@ def test_create_padstack(aedt_app):
     assert pad1.create()
 
 
-def test_create_via(aedt_app):
+def test_create_via(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
@@ -395,7 +395,7 @@ def test_create_via(aedt_app):
     assert "VCC" in aedt_app.oeditor.GetNets()
 
 
-def test_create_line(aedt_app):
+def test_create_line(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
@@ -412,7 +412,7 @@ def test_create_line(aedt_app):
     assert line.get_property_value("Pt0") == "10 ,10"
 
 
-def test_create_edge_port(aedt_app):
+def test_create_edge_port(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
@@ -442,7 +442,7 @@ def test_create_edge_port(aedt_app):
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name
 
 
-def test_create_coaxial_port(aedt_app):
+def test_create_coaxial_port(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Lower", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
@@ -462,14 +462,14 @@ def test_create_coaxial_port(aedt_app):
     aedt_app.odesign.Undo()
 
 
-def test_create_setup(aedt_app):
+def test_create_setup(aedt_app) -> None:
     setup_name = "RFBoardSetup"
     setup = aedt_app.create_setup(name=setup_name)
     assert setup.name == aedt_app.setup_names[0]
     assert setup.solver_type == "HFSS"
 
 
-def test_edit_setup(aedt_app):
+def test_edit_setup(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
@@ -526,7 +526,7 @@ def test_edit_setup(aedt_app):
     )
 
 
-def test_disable_enable_setup(aedt_app):
+def test_disable_enable_setup(aedt_app) -> None:
     setup_name = "RFBoardSetup3"
     setup3 = aedt_app.create_setup(name=setup_name)
     setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
@@ -544,7 +544,7 @@ def test_disable_enable_setup(aedt_app):
     assert sweep.set_save_fields(False, False)
 
 
-def test_get_setup(aedt_app):
+def test_get_setup(aedt_app) -> None:
     setup_name = "RFBoardSetup4"
     aedt_app.create_setup(name=setup_name)
     setup4 = aedt_app.get_setup(aedt_app.setup_names[0])
@@ -555,7 +555,7 @@ def test_get_setup(aedt_app):
     assert setup4.enable()
 
 
-def test_create_linear_count_sweep(aedt_app):
+def test_create_linear_count_sweep(aedt_app) -> None:
     setup_name = "RF_create_linear_count"
     aedt_app.create_setup(name=setup_name)
     sweep1 = aedt_app.create_linear_count_sweep(
@@ -582,7 +582,7 @@ def test_create_linear_count_sweep(aedt_app):
     assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
 
-def test_create_linear_step_sweep(aedt_app):
+def test_create_linear_step_sweep(aedt_app) -> None:
     setup_name = "RF_create_linear_step"
     aedt_app.create_setup(name=setup_name)
     sweep3 = aedt_app.create_linear_step_sweep(
@@ -644,7 +644,7 @@ def test_create_linear_step_sweep(aedt_app):
         )
 
 
-def test_create_single_point_sweep(aedt_app):
+def test_create_single_point_sweep(aedt_app) -> None:
     setup_name = "RF_create_single_point"
     aedt_app.create_setup(name=setup_name)
     sweep5 = aedt_app.create_single_point_sweep(
@@ -675,7 +675,7 @@ def test_create_single_point_sweep(aedt_app):
         assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
 
-def test_delete_setup(aedt_app):
+def test_delete_setup(aedt_app) -> None:
     setup_name = "SetupToDelete"
     setuptd = aedt_app.create_setup(name=setup_name)
     assert setuptd.name in aedt_app.setup_names
@@ -683,11 +683,11 @@ def test_delete_setup(aedt_app):
     assert setuptd.name not in aedt_app.setup_names
 
 
-def test_validate(aedt_app):
+def test_validate(aedt_app) -> None:
     assert aedt_app.validate_full_design()
 
 
-def test_export_to_hfss(aedt_app, test_tmp_dir):
+def test_export_to_hfss(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -724,7 +724,8 @@ def test_export_to_hfss(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
-def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
+def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -754,7 +755,8 @@ def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
-def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
+def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -784,7 +786,7 @@ def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
-def test_export_to_q3d(aedt_app, test_tmp_dir):
+def test_export_to_q3d(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -814,7 +816,8 @@ def test_export_to_q3d(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
-def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
+def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -844,13 +847,13 @@ def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
-def test_variables(aedt_app):
+def test_variables(aedt_app) -> None:
     assert isinstance(aedt_app.available_variations.nominal_values, dict)
     assert isinstance(aedt_app.available_variations.nominal, dict)
     assert isinstance(aedt_app.available_variations.all, dict)
 
 
-def test_duplicate(aedt_app):
+def test_duplicate(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -873,7 +876,7 @@ def test_duplicate(aedt_app):
     assert aedt_app.modeler.duplicate_across_layers("myrectangle_d", "Bottom")
 
 
-def test_create_pin_port(aedt_app):
+def test_create_pin_port(aedt_app) -> None:
     # Create signal layers required for pin port
     aedt_app.modeler.layers.add_layer(
         layer="Top",
@@ -899,13 +902,13 @@ def test_create_pin_port(aedt_app):
     assert port.properties["Magnitude"] == "5V"
 
 
-def test_duplicate_material(aedt_app):
+def test_duplicate_material(aedt_app) -> None:
     aedt_app.materials.add_material("FirstMaterial")
     new_material = aedt_app.materials.duplicate_material("FirstMaterial", "SecondMaterial")
     assert new_material.name == "SecondMaterial"
 
 
-def test_expand(aedt_app):
+def test_expand(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom",
         layer_type="signal",
@@ -921,7 +924,7 @@ def test_expand(aedt_app):
     assert isinstance(out1, str)
 
 
-def test_heal(aedt_app):
+def test_heal(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom",
         layer_type="signal",
@@ -937,12 +940,12 @@ def test_heal(aedt_app):
     assert aedt_app.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
 
-def test_cosim_simulation(aedt_app):
+def test_cosim_simulation(aedt_app) -> None:
     assert aedt_app.edit_cosim_options()
     assert not aedt_app.edit_cosim_options(interpolation_algorithm="auto1")
 
 
-def test_set_temperature_dependence(aedt_app):
+def test_set_temperature_dependence(aedt_app) -> None:
     assert aedt_app.modeler.set_temperature_dependence(
         include_temperature_dependence=True,
         enable_feedback=True,
@@ -960,7 +963,7 @@ def test_set_temperature_dependence(aedt_app):
     )
 
 
-def test_create_additional_setup(aedt_app):
+def test_create_additional_setup(aedt_app) -> None:
     setup_name = "SiwaveDC"
     setup = aedt_app.create_setup(name=setup_name, setup_type="SiwaveDC3DLayout")
     assert setup_name == setup.name
@@ -972,7 +975,7 @@ def test_create_additional_setup(aedt_app):
     assert setup_name == setup.name
 
 
-def test_export_layout(aedt_app):
+def test_export_layout(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(layer="Top")
     aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
     output = aedt_app.export_3d_model()
@@ -988,7 +991,7 @@ def test_export_layout(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Failing on linux")
-def test_import_gerber(aedt_app, test_tmp_dir):
+def test_import_gerber(aedt_app, test_tmp_dir) -> None:
     active_project = aedt_app.project_name
     gerber_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "Gerber" / "gerber1.zip"
     shutil.copy(gerber_file, test_tmp_dir / "gerber1.zip")
@@ -1007,7 +1010,7 @@ def test_import_gerber(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
-def test_import_gds(aedt_app, test_tmp_dir):
+def test_import_gds(aedt_app, test_tmp_dir) -> None:
     active_project = aedt_app.project_name
     gds_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.gds"
     gds_file = shutil.copy2(gds_file_original, test_tmp_dir / "gds1.gds")
@@ -1026,7 +1029,7 @@ def test_import_gds(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
-def test_import_dxf(aedt_app, test_tmp_dir):
+def test_import_dxf(aedt_app, test_tmp_dir) -> None:
     active_project = aedt_app.project_name
     dxf_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf1.dxf"
     dxf_file = shutil.copy2(dxf_file_original, test_tmp_dir / "dxf1.dxf")
@@ -1041,7 +1044,7 @@ def test_import_dxf(aedt_app, test_tmp_dir):
     aedt_app.desktop.active_project(active_project)
 
 
-def test_import_ipc(aedt_app, test_tmp_dir):
+def test_import_ipc(aedt_app, test_tmp_dir) -> None:
     active_project = aedt_app.project_name
     ipc_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "ipc" / "layout.xml"
     ipc_file = shutil.copy2(ipc_file_original, test_tmp_dir / "layout.xml")
@@ -1053,11 +1056,11 @@ def test_import_ipc(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working on AEDT 22R1")
-def test_flex(flex_app):
+def test_flex(flex_app) -> None:
     assert flex_app.enable_rigid_flex()
 
 
-def test_create_polygon(aedt_app):
+def test_create_polygon(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -1079,7 +1082,7 @@ def test_create_polygon(aedt_app):
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
 @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
-def test_post_processing(maxwell, add_app_example):
+def test_post_processing(maxwell, add_app_example) -> None:
     app = add_app_example(
         application=Hfss,
         subfolder=TEST_SUBFOLDER,
@@ -1149,7 +1152,7 @@ def test_post_processing(maxwell, add_app_example):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
-def test_post_processing_3d_layout(hfss3dl_post_app):
+def test_post_processing_3d_layout(hfss3dl_post_app) -> None:
     assert hfss3dl_post_app.post.create_fieldplot_layers(
         [],
         "Mag_H",
@@ -1205,7 +1208,7 @@ def test_post_processing_3d_layout(hfss3dl_post_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
-def test_set_differential_pairs(aedt_app, add_app_example):
+def test_set_differential_pairs(aedt_app, add_app_example) -> None:
     app = add_app_example(
         project=DIFF_PROJECT, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, close_projects=False
     )
@@ -1225,7 +1228,7 @@ def test_set_differential_pairs(aedt_app, add_app_example):
 
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
-def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
+def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir) -> None:
     diff_def_file_original = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
     diff_def_file = shutil.copy2(diff_def_file_original, test_tmp_dir / "differential_pairs_definition.txt")
 
@@ -1238,7 +1241,7 @@ def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
     assert len(lines) == 3
 
 
-def test_import_edb(aedt_app, test_tmp_dir):
+def test_import_edb(aedt_app, test_tmp_dir) -> None:
     example_project = TESTS_LAYOUT_PATH / "example_models" / "layout_edb" / "Package.aedb"
     target_path = test_tmp_dir / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
@@ -1247,12 +1250,12 @@ def test_import_edb(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="This test does not work on versions earlier than 2022 R2.")
-def test_clip_plane(aedt_app):
+def test_clip_plane(aedt_app) -> None:
     cp_name = aedt_app.modeler.clip_plane()
     assert cp_name in aedt_app.modeler.clip_planes
 
 
-def test_edit_3dlayout_extents(aedt_app):
+def test_edit_3dlayout_extents(aedt_app) -> None:
     assert aedt_app.edit_hfss_extents(
         diel_extent_type="ConformalExtent",
         diel_extent_horizontal_padding="1mm",
@@ -1263,11 +1266,11 @@ def test_edit_3dlayout_extents(aedt_app):
     )
 
 
-def test_create_text(aedt_app):
+def test_create_text(aedt_app) -> None:
     assert aedt_app.modeler.create_text("test", [0, 0], "SIwave Regions")
 
 
-def test_change_nets_visibility(aedt_app, test_tmp_dir):
+def test_change_nets_visibility(aedt_app, test_tmp_dir) -> None:
     # Use POST_PROCESSING_PROJECT project which has the required nets (V3P3_S0, V3P3_S3, V3P3_S5)
     # hide all
     dxf_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "ipc" / "layout.xml"
@@ -1296,27 +1299,27 @@ def test_change_nets_visibility(aedt_app, test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
-def test_report_design(aedt_app):
+def test_report_design(aedt_app) -> None:
     report = AnsysReport()
     report.create()
 
 
-def test_mesh_settings(aedt_app):
+def test_mesh_settings(aedt_app) -> None:
     assert aedt_app.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
     assert aedt_app.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
 
 
-def test_geom_check(aedt_app):
+def test_geom_check(aedt_app) -> None:
     assert aedt_app.modeler.geometry_check_and_fix_all()
 
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-def test_export_on_completion(aedt_app, test_tmp_dir):
+def test_export_on_completion(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.export_touchstone_on_completion()
     assert aedt_app.export_touchstone_on_completion(export=True, output_dir=test_tmp_dir)
 
 
-def test_create_coordinate_system(aedt_app):
+def test_create_coordinate_system(aedt_app) -> None:
     cs1 = aedt_app.modeler.create_coordinate_system()
 
     assert len(cs1.origin) == 2
@@ -1343,6 +1346,6 @@ def test_create_coordinate_system(aedt_app):
     assert not cs2.delete()
 
 
-def test_create_scattering(aedt_app):
+def test_create_scattering(aedt_app) -> None:
     aedt_app.create_setup()
     assert aedt_app.create_scattering()

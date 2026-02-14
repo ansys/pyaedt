@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from enum import Enum
 import inspect
 import os
@@ -62,9 +64,14 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
+    from ansys.aedt.core.emit_core.nodes.generated import Cable
+    from ansys.aedt.core.emit_core.nodes.generated import Circulator
     from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
     from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
+    from ansys.aedt.core.emit_core.nodes.generated import Isolator
+    from ansys.aedt.core.emit_core.nodes.generated import Multiplexer
+    from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
     from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
@@ -74,6 +81,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import TouchstoneCouplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import TR_Switch
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
@@ -133,7 +141,7 @@ def emit_app(add_app):
     (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
-def test_objects(emit_app):
+def test_objects(emit_app) -> None:
     assert emit_app.solution_type
     assert isinstance(emit_app.modeler.components, EmitComponents)
     assert emit_app.modeler
@@ -147,7 +155,7 @@ def test_objects(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_create_components(emit_app):
+def test_create_components(emit_app) -> None:
     radio = emit_app.modeler.components.create_component("New Radio", "TestRadio")
     assert radio.name == "TestRadio"
     assert radio.composed_name == "TestRadio"
@@ -219,8 +227,129 @@ def test_create_components(emit_app):
     assert isinstance(terminator, EmitComponent)
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
+def test_duplicate_components(emit_app):
+    """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
+    # Test Radio duplication
+    radio: RadioNode = emit_app.schematic.create_component("New Radio", name="TestRadio")
+    dup_radio = radio.duplicate("DuplicatedRadio")
+    assert dup_radio is not None
+    assert dup_radio.name == "DuplicatedRadio"
+    assert isinstance(dup_radio, RadioNode)
+
+    # Test Antenna duplication
+    antenna: AntennaNode = emit_app.schematic.create_component("Antenna", name="TestAntenna")
+    dup_antenna = antenna.duplicate("DuplicatedAntenna")
+    assert dup_antenna is not None
+    assert dup_antenna.name == "DuplicatedAntenna"
+    assert isinstance(dup_antenna, AntennaNode)
+
+    # Test trying to create a component with the same name as existing
+    radio_homonym = radio.duplicate(new_name=radio.name)
+    assert radio_homonym.name != radio.name
+    assert radio_homonym.name.startswith(radio.name)
+
+    # Rename test that ensures the Pasted increment doesn't match the desired name increment but still colides
+    radio_named_antenna = radio.duplicate(new_name="TestAntenna")
+    assert radio_named_antenna.name == "TestAntenna 1"
+
+    # Test Amplifier duplication
+    amplifier: Amplifier = emit_app.schematic.create_component("Amplifier", name="TestAmplifier")
+    dup_amplifier = amplifier.duplicate("DuplicatedAmplifier")
+    assert dup_amplifier is not None
+    assert dup_amplifier.name == "DuplicatedAmplifier"
+    assert isinstance(dup_amplifier, Amplifier)
+
+    # Test Filter duplication
+    filter_bpf: Filter = emit_app.schematic.create_component("Band Pass", name="TestBPF")
+    dup_filter = filter_bpf.duplicate("DuplicatedBPF")
+    assert dup_filter is not None
+    assert dup_filter.name == "DuplicatedBPF"
+    assert isinstance(dup_filter, Filter)
+
+    # Test Terminator duplication
+    terminator: Terminator = emit_app.schematic.create_component("Terminator", name="TestTerminator")
+    dup_terminator = terminator.duplicate("DuplicatedTerminator")
+    assert dup_terminator is not None
+    assert dup_terminator.name == "DuplicatedTerminator"
+    assert isinstance(dup_terminator, Terminator)
+
+    # Test auto-generated name (no name parameter)
+    auto_named_dup = radio.duplicate()
+    assert auto_named_dup is not None
+    assert auto_named_dup.name != "TestRadio"
+    assert isinstance(auto_named_dup, RadioNode)
+    # Test Cable duplication
+    cable: Cable = emit_app.schematic.create_component("Cable", name="new Cable")
+    dup_cable = cable.duplicate("dup Cable")
+    assert dup_cable is not None
+    assert dup_cable.name == "dup Cable"
+    assert isinstance(dup_cable, Cable)
+
+    # Test Circulator duplication
+    circulator: Circulator = emit_app.schematic.create_component("Circulator", name="new Circulator")
+    dup_circulator = circulator.duplicate("dup Circulator")
+    assert dup_circulator is not None
+    assert dup_circulator.name == "dup Circulator"
+    assert isinstance(dup_circulator, Circulator)
+
+    # Test Isolator duplication
+    isolator: Isolator = emit_app.schematic.create_component("Isolator", name="new Isolator")
+    dup_isolator = isolator.duplicate("dup Isolator")
+    assert dup_isolator is not None
+    assert dup_isolator.name == "dup Isolator"
+    assert isinstance(dup_isolator, Isolator)
+
+    # Test Multiplexer duplication
+    multiplexer: Multiplexer = emit_app.schematic.create_component("3 Port", name="new 3 Port Multiplexer")
+    dup_multiplexer = multiplexer.duplicate("dup 3 Port Multiplexer")
+    assert dup_multiplexer is not None
+    assert dup_multiplexer.name == "dup 3 Port Multiplexer"
+    assert isinstance(dup_multiplexer, Multiplexer)
+
+    # Test 4 Port Multiplexer duplication
+    multiplexer4: Multiplexer = emit_app.schematic.create_component("4 Port", name="new 4 Port Multiplexer")
+    dup_multiplexer4 = multiplexer4.duplicate("dup 4 Port Multiplexer")
+    assert dup_multiplexer4 is not None
+    assert dup_multiplexer4.name == "dup 4 Port Multiplexer"
+    assert isinstance(dup_multiplexer4, Multiplexer)
+
+    # Test 5 Port Multiplexer duplication
+    multiplexer5: Multiplexer = emit_app.schematic.create_component("5 Port", name="new 5 Port Multiplexer")
+    dup_multiplexer5 = multiplexer5.duplicate("dup 5 Port Multiplexer")
+    assert dup_multiplexer5 is not None
+    assert dup_multiplexer5.name == "dup 5 Port Multiplexer"
+    assert isinstance(dup_multiplexer5, Multiplexer)
+
+    # Test 6 Port Multiplexer duplication
+    multiplexer6: Multiplexer = emit_app.schematic.create_component("6 Port", name="new 6 Port Multiplexer")
+    dup_multiplexer6 = multiplexer6.duplicate("dup 6 Port Multiplexer")
+    assert dup_multiplexer6 is not None
+    assert dup_multiplexer6.name == "dup 6 Port Multiplexer"
+    assert isinstance(dup_multiplexer6, Multiplexer)
+
+    # Test PowerDivider duplication
+    power_divider: PowerDivider = emit_app.schematic.create_component("Divider", name="new Divider")
+    dup_power_divider = power_divider.duplicate("dup Divider")
+    assert dup_power_divider is not None
+    assert dup_power_divider.name == "dup Divider"
+    assert isinstance(dup_power_divider, PowerDivider)
+
+    # Test TR_Switch duplication
+    tr_switch: TR_Switch = emit_app.schematic.create_component("TR Switch", name="new TR Switch")
+    dup_tr_switch = tr_switch.duplicate("dup TR Switch")
+    assert dup_tr_switch is not None
+    assert dup_tr_switch.name == "dup TR Switch"
+    assert isinstance(dup_tr_switch, TR_Switch)
+
+    # Test NotImplementedException
+    band: Band = [b for b in radio.children if isinstance(b, Band)][0]
+    with pytest.raises(NotImplementedError):
+        band.duplicate("DuplicatedBand")
+
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_connect_components(emit_app):
+def test_connect_components(emit_app) -> None:
     radio = emit_app.modeler.components.create_component("New Radio")
     antenna = emit_app.modeler.components.create_component("Antenna")
     antenna.move_and_connect_to(radio)
@@ -248,7 +377,7 @@ def test_connect_components(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_create_radio_antenna(emit_app):
+def test_create_radio_antenna(emit_app) -> None:
     new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
     assert isinstance(new_radio, EmitNode)
     assert isinstance(new_antenna, EmitNode)
@@ -262,7 +391,7 @@ def test_create_radio_antenna(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_30_connect_components(emit_app):
+def test_30_connect_components(emit_app) -> None:
     emit_app.logger.info = MagicMock()
     new_radio = emit_app.schematic.create_component("MICS")
     new_antenna = emit_app.schematic.create_component("Antenna")
@@ -276,7 +405,7 @@ def test_30_connect_components(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-def test_radio_component(emit_app):
+def test_radio_component(emit_app) -> None:
     radio = emit_app.modeler.components.create_component("New Radio")
     # default radio has 1 Tx channel and 1 Rx channel
     assert radio.has_rx_channels()
@@ -375,7 +504,7 @@ def test_radio_component(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-def test_emit_power_conversion():
+def test_emit_power_conversion() -> None:
     # Test power unit conversions (dBm to user_units)
     powers = [10, 20, 30, 40, 50]
     converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBm")
@@ -428,7 +557,7 @@ def test_emit_power_conversion():
     DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
     reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.",
 )
-def test_units_getters(emit_app):
+def test_units_getters(emit_app) -> None:
     # Set a single unit
     valid = emit_app.set_units("Frequency", "Hz")
     units = emit_app.get_units("Frequency")
@@ -474,7 +603,7 @@ def test_units_getters(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
-def test_antenna_component(emit_app):
+def test_antenna_component(emit_app) -> None:
     antenna = emit_app.modeler.components.create_component("Antenna")
     # Default pattern filename is empty string
     pattern_filename = antenna.get_pattern_filename()
@@ -491,7 +620,7 @@ def test_antenna_component(emit_app):
     (DESKTOP_VERSION <= "2023.1") or (DESKTOP_VERSION > "2025.1"),
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
-def test_revision_generation_2024(emit_app):
+def test_revision_generation_2024(emit_app) -> None:
     assert len(emit_app.results.revisions) == 0
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("UE - Handheld")
@@ -561,7 +690,7 @@ def test_revision_generation_2024(emit_app):
     DESKTOP_VERSION < "2025.2",
     reason="Skipped on versions earlier than 2025.2",
 )
-def test_revision_generation(emit_app):
+def test_revision_generation(emit_app) -> None:
     assert len(emit_app.results.revisions) == 0
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("UE - Handheld")
@@ -598,7 +727,7 @@ def test_revision_generation(emit_app):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_manual_revision_access_test_getters(emit_app):
+def test_manual_revision_access_test_getters(emit_app) -> None:
     rad1 = emit_app.modeler.components.create_component("UE - Handheld")
     ant1 = emit_app.modeler.components.create_component("Antenna")
     rad2 = emit_app.modeler.components.create_component("Bluetooth")
@@ -688,7 +817,7 @@ def test_manual_revision_access_test_getters(emit_app):
     reason="Skipped on versions earlier than 2023.2",
 )
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Not stable test")
-def test_radio_band_getters(emit_app):
+def test_radio_band_getters(emit_app) -> None:
     rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
     rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
     rad3, _ = emit_app.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
@@ -709,7 +838,7 @@ def test_radio_band_getters(emit_app):
     # Set up the results
     rev = emit_app.results.analyze()
 
-    def enable_all_bands(revision, radio_name):
+    def enable_all_bands(revision, radio_name) -> None:
         mod = revision._emit_com
         radio_id = mod.GetComponentNodeID(0, radio_name)
 
@@ -809,7 +938,7 @@ def test_radio_band_getters(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_sampling_getters(emit_app):
+def test_sampling_getters(emit_app) -> None:
     rad, ant = emit_app.modeler.components.create_radio_antenna("New Radio")
 
     # Check type
@@ -863,7 +992,7 @@ def test_sampling_getters(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_radio_getters(emit_app):
+def test_radio_getters(emit_app) -> None:
     rad, _ = emit_app.modeler.components.create_radio_antenna("New Radio")
     rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth")
     emitter = emit_app.modeler.components.create_component("USB_3.x")
@@ -884,7 +1013,7 @@ def test_radio_getters(emit_app):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_static_type_generation(emit_app):
+def test_static_type_generation(emit_app) -> None:
     domain = emit_app.results.interaction_domain()
     py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
     assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
@@ -901,7 +1030,7 @@ def test_static_type_generation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023.2")
-def test_version(emit_app):
+def test_version(emit_app) -> None:
     less_info = emit_app.version(False)
     more_info = emit_app.version(True)
     if less_info:
@@ -914,7 +1043,7 @@ def test_version(emit_app):
     DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
-def test_basic_run(emit_app):
+def test_basic_run(emit_app) -> None:
     assert len(emit_app.results.revisions) == 0
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("UE - Handheld")
@@ -996,7 +1125,7 @@ def test_basic_run(emit_app):
     DESKTOP_VERSION < "2024.1",
     reason="Skipped on versions earlier than 2024.1",
 )
-def test_optimal_n_to_1_feature(emit_app):
+def test_optimal_n_to_1_feature(emit_app) -> None:
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("Bluetooth")
     ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -1052,7 +1181,7 @@ def test_optimal_n_to_1_feature(emit_app):
     DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
-def test_availability_1_to_1(emit_app):
+def test_availability_1_to_1(emit_app) -> None:
     # Make sure there are no components in the schematic
     # (possibly left from previous test if run sequentially?)
     rev = emit_app.results.analyze()
@@ -1117,7 +1246,7 @@ def test_availability_1_to_1(emit_app):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_interference_scripts_no_filter(interference):
+def test_interference_scripts_no_filter(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
 
@@ -1156,7 +1285,7 @@ def test_interference_scripts_no_filter(interference):
     assert pro_power_matrix == expected_protection_power
 
 
-def test_radio_protection_levels(interference):
+def test_radio_protection_levels(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
     domain = interference.results.interaction_domain()
@@ -1186,7 +1315,7 @@ def test_radio_protection_levels(interference):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_interference_filtering(interference):
+def test_interference_filtering(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
 
@@ -1224,7 +1353,7 @@ def test_interference_filtering(interference):
         assert interference_power_matrix == expected_interference_power
 
 
-def test_protection_filtering(interference):
+def test_protection_filtering(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
 
@@ -1271,7 +1400,7 @@ that the AEDT app functions as intended.
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_couplings_1(cell_phone):
+def test_couplings_1(cell_phone) -> None:
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
     for link in cell_phone.couplings.coupling_names:
@@ -1292,7 +1421,7 @@ def test_couplings_1(cell_phone):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_couplings_2(tutorial):
+def test_couplings_2(tutorial) -> None:
     # test CAD nodes
     cad_nodes = tutorial.couplings.cad_nodes
     assert len(cad_nodes) == 1
@@ -1313,7 +1442,7 @@ def test_couplings_2(tutorial):
     DESKTOP_VERSION < "2024.1" or DESKTOP_VERSION > "2025.1",
     reason="Skipped on versions earlier than 2024.1 or later than 2025.1",
 )
-def test_result_categories(emit_app):
+def test_result_categories(emit_app) -> None:
     # set up project and run
     rad1 = emit_app.modeler.components.create_component("GPS Receiver")
     ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -1360,12 +1489,12 @@ def test_result_categories(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
-def test_license_session(interference):
+def test_license_session(interference) -> None:
     # Generate a revision
     results = interference.results
     revision = interference.results.analyze()
 
-    def do_run():
+    def do_run() -> None:
         domain = results.interaction_domain()
         rev = results.current_revision
         rev.run(domain)
@@ -1445,7 +1574,7 @@ def test_license_session(interference):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_emit_nodes(interference):
+def test_emit_nodes(interference) -> None:
     # Generate and run a revision
     results = interference.results
     revision = results.analyze()
@@ -1478,7 +1607,7 @@ def test_emit_nodes(interference):
 
 # @profile
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2025 R2.")
-def test_all_generated_emit_node_properties(emit_app):
+def test_all_generated_emit_node_properties(emit_app) -> None:
     # change this to limit the number of iterations for each node
     # if None, each node will iterate over all bool and enum combos
     # to verify that every property can be set
@@ -1694,12 +1823,14 @@ def test_all_generated_emit_node_properties(emit_app):
                                     continue
 
                                 if member.startswith("duplicate"):
-                                    with pytest.raises(NotImplementedError) as e:
+                                    try:
                                         attr = getattr(node, member)
                                         values = [f"TestString{next_int}"]
                                         next_int = next_int + 1
                                         result = attr(*values)
-                                    mem_results[mem_key] = (Result.VALUE, str(e.value))
+                                        mem_results[mem_key] = (Result.VALUE, result)
+                                    except NotImplementedError as e:
+                                        mem_results[mem_key] = (Result.VALUE, str(e))
                                     continue
 
                                 # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
@@ -1802,7 +1933,7 @@ def test_all_generated_emit_node_properties(emit_app):
                                 mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
         return mem_results
 
-    def test_nodes_from_top_level(nodes, add_untested_children=True, max_node_iterations=None):
+    def test_nodes_from_top_level(nodes, add_untested_children: bool = True, max_node_iterations=None):
         # Test every method on every node, but add node children to list while iterating
         nodes_tested = []
         node_types = []
@@ -1923,7 +2054,7 @@ def test_all_generated_emit_node_properties(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_bp_bs_filters(emit_app):
+def test_bp_bs_filters(emit_app) -> None:
     # create a BP filter and modify it's bandpass frequencies
     bp_filter_name = "BP Filter"
     _ = emit_app.modeler.components.create_component("Band Pass", name=bp_filter_name)
@@ -1962,7 +2093,7 @@ def test_bp_bs_filters(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_imports(emit_app, file_tmp_root):
+def test_imports(emit_app, file_tmp_root) -> None:
     rev = emit_app.results.analyze()
 
     scene_node: EmitSceneNode = rev.get_scene_node()
@@ -2003,7 +2134,7 @@ def test_imports(emit_app, file_tmp_root):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_fm_fsk_freq_deviation(emit_app):
+def test_fm_fsk_freq_deviation(emit_app) -> None:
     # create a radio
     radio_name = "Test"
     _ = emit_app.modeler.components.create_component("New Radio", name=radio_name)
@@ -2037,7 +2168,7 @@ def test_fm_fsk_freq_deviation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_table_inputs(emit_app):
+def test_table_inputs(emit_app) -> None:
     # Testing table input conversions
     radio = emit_app.schematic.create_component("New Radio")
     radio = cast(RadioNode, radio)
@@ -2203,7 +2334,7 @@ def test_table_inputs(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_tables(emit_app):
+def test_tables(emit_app) -> None:
     # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
     # this test confirms that the table_data properties work for both
     radio = emit_app.schematic.create_component("New Radio")
@@ -2278,7 +2409,7 @@ def test_tables(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_table_inputs_invalid_units(emit_app):
+def test_table_inputs_invalid_units(emit_app) -> None:
     """Test table inputs with invalid units to ensure proper error handling."""
     radio = emit_app.schematic.create_component("New Radio")
     radio = cast(RadioNode, radio)
@@ -2348,7 +2479,7 @@ def test_table_inputs_invalid_units(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_emitters_radios(emit_app):
+def test_emitters_radios(emit_app) -> None:
     # Make sure there are no components in the schematic
     # (possibly left from previous test if run sequentially?)
     rev = emit_app.results.analyze()
@@ -2486,7 +2617,7 @@ def test_emitters_radios(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-def test_exceptions_bad_values(emit_app):
+def test_exceptions_bad_values(emit_app) -> None:
     radio: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
     try:
@@ -2521,7 +2652,7 @@ def test_exceptions_bad_values(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
-def test_units(emit_app):
+def test_units(emit_app) -> None:
     new_radio = emit_app.schematic.create_component("New Radio")
     band_node = [band for band in new_radio.children if "Band" == band.node_type][0]
     band_node = cast(Band, band_node)
@@ -2565,7 +2696,7 @@ def test_units(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
-def test_27_components_catalog(emit_app):
+def test_27_components_catalog(emit_app) -> None:
     comp_list = emit_app.modeler.components.components_catalog["LTE"]
     assert len(comp_list) == 14
     assert comp_list[12].name == "LTE BTS"

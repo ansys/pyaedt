@@ -37,11 +37,6 @@ import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
@@ -91,7 +86,7 @@ def is_student():
     return res
 
 
-def get_latest_version(package_name, timeout=3):
+def get_latest_version(package_name, timeout: int = 3):
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
@@ -104,7 +99,7 @@ def get_latest_version(package_name, timeout=3):
         return UNKNOWN_VERSION
 
 
-def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
     """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
 
     Returns
@@ -133,7 +128,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return False
 
-    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+    def read_version_file(file_path: Path) -> tuple[str | None, bool]:
         """Read version file and return (last_known_version, show_updates).
 
         File format:
@@ -158,7 +153,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return None, True
 
-    def write_version_file(file_path: Path, version: str, show_updates: bool):
+    def write_version_file(file_path: Path, version: str, show_updates: bool) -> None:
         """Write version and preference to file."""
         try:
             file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -232,9 +227,9 @@ class ExtensionCommon(PyAedtBase):
         theme_color: str = "light",
         withdraw: bool = False,
         add_custom_content: bool = True,
-        toggle_row: Optional[int] = None,
-        toggle_column: Optional[int] = None,
-    ):
+        toggle_row: int | None = None,
+        toggle_column: int | None = None,
+    ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
         This function creates a Tkinter root window, applies a theme, sets the
@@ -266,7 +261,7 @@ class ExtensionCommon(PyAedtBase):
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
-        self.__data: Optional[ExtensionCommonData] = None
+        self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
@@ -278,7 +273,7 @@ class ExtensionCommon(PyAedtBase):
 
         self.check_design_type()
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent,
@@ -306,7 +301,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent, row, column):
+    def add_logger(self, parent, row, column) -> None:
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
@@ -364,7 +359,7 @@ class ExtensionCommon(PyAedtBase):
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
-    def log_message(self, message: str):
+    def log_message(self, message: str) -> None:
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
             widget = self._widgets["log_text_widget"]
@@ -376,7 +371,7 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+        def show_error_with_details(self, exc, val, tb) -> None:  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
@@ -403,7 +398,7 @@ class ExtensionCommon(PyAedtBase):
             details_frame.grid_columnconfigure(0, weight=1)
             details_frame.grid_rowconfigure(0, weight=1)
 
-            def toggle_details():
+            def toggle_details() -> None:
                 nonlocal details_shown
                 details_shown = not details_shown
                 if details_shown:
@@ -446,7 +441,7 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str):
+    def __apply_theme(self, theme_color: str) -> None:
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
@@ -495,8 +490,8 @@ class ExtensionCommon(PyAedtBase):
     def __find_all_widgets(
         self,
         widget: tkinter.Widget,
-        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
-    ) -> List[tkinter.Widget]:
+        widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
+    ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
         if isinstance(widget, widget_classes):
@@ -505,7 +500,7 @@ class ExtensionCommon(PyAedtBase):
             res.extend(self.__find_all_widgets(child, widget_classes))
         return res
 
-    def __on_close(self):
+    def __on_close(self) -> None:
         self.release_desktop()
         self.root.destroy()
 
@@ -527,15 +522,16 @@ class ExtensionCommon(PyAedtBase):
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
+
             aedt_active_sessions = active_sessions(
                 version=version,
                 student_version=False,
-                non_graphical=False,
+                non_graphical=None,
             )
             student_active_sessions = active_sessions(
                 version=version,
                 student_version=True,
-                non_graphical=False,
+                non_graphical=None,
             )
 
             if not aedt_active_sessions and not student_active_sessions:
@@ -570,14 +566,14 @@ class ExtensionCommon(PyAedtBase):
             self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
         return self.__aedt_application
 
-    def release_desktop(self):
+    def release_desktop(self) -> bool:
         """Release AEDT desktop instance."""
         if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             self.desktop.release_desktop(False, False)
         return True
 
     @property
-    def data(self) -> Optional[ExtensionCommonData]:
+    def data(self) -> ExtensionCommonData | None:
         return self.__data
 
     @data.setter
@@ -717,7 +713,7 @@ class ExtensionEMITCommon(ExtensionCommon):
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check the active design type.
 
         Not required for extension at project level.
@@ -725,7 +721,7 @@ class ExtensionProjectCommon(ExtensionCommon):
         pass
 
 
-def create_default_ui(title, withdraw=False):
+def create_default_ui(title, withdraw: bool = False):
     import tkinter
     from tkinter import ttk
 
@@ -735,7 +731,7 @@ def create_default_ui(title, withdraw=False):
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb):
+    def report_callback_exception(self, exc, val, tb) -> None:
         showerror("Error", message=str(val))
 
     def report_callback_exception_withdraw(self, exc, val, tb):
@@ -775,7 +771,7 @@ def create_default_ui(title, withdraw=False):
     return root, theme, style
 
 
-def get_arguments(args=None, description=""):  # pragma: no cover
+def get_arguments(args=None, description: str = ""):  # pragma: no cover
     """Get extension arguments."""
     output_args = {"is_batch": False, "is_test": False}
 
@@ -793,7 +789,7 @@ def get_arguments(args=None, description=""):  # pragma: no cover
 
 
 class ExtensionTheme(PyAedtBase):  # pragma: no cover
-    def __init__(self):
+    def __init__(self) -> None:
         # Define light and dark theme colors
         self.light = {
             "widget_bg": "#FFFFFF",
@@ -861,15 +857,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         # Set default font
         self.default_font = ("Arial", 12)
 
-    def apply_light_theme(self, style):
+    def apply_light_theme(self, style) -> None:
         """Apply light theme."""
         self._apply_theme(style, self.light)
 
-    def apply_dark_theme(self, style):
+    def apply_dark_theme(self, style) -> None:
         """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
-    def _apply_theme(self, style, colors):
+    def _apply_theme(self, style, colors) -> None:
         # Apply the colors and font to the style
         style.theme_use("clam")
 
@@ -1099,7 +1095,7 @@ def __string_to_bool(v):  # pragma: no cover
     return v
 
 
-def __parse_arguments(args=None, description=""):  # pragma: no cover
+def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
     """Parse arguments."""
     parser = argparse.ArgumentParser(description=description)
     if args:
@@ -1112,22 +1108,22 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
 class ToolTip:
     """Create a tooltip for a given widget."""
 
-    def __init__(self, widget, text="Widget info"):
+    def __init__(self, widget, text: str = "Widget info") -> None:
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)
         self.widget.bind("<Leave>", self.leave)
         self.tipwindow = None
 
-    def enter(self, event=None):
+    def enter(self, event=None) -> None:
         """Show tooltip on mouse enter."""
         self.show_tooltip()
 
-    def leave(self, event=None):
+    def leave(self, event=None) -> None:
         """Hide tooltip on mouse leave."""
         self.hide_tooltip()
 
-    def show_tooltip(self):  # pragma: no cover
+    def show_tooltip(self) -> None:  # pragma: no cover
         """Display tooltip."""
         if self.tipwindow or not self.text:
             return
@@ -1147,7 +1143,7 @@ class ToolTip:
         )
         label.pack(ipadx=1)
 
-    def hide_tooltip(self):  # pragma: no cover
+    def hide_tooltip(self) -> None:  # pragma: no cover
         """Hide tooltip."""
         tw = self.tipwindow
         self.tipwindow = None
@@ -1155,7 +1151,7 @@ class ToolTip:
             tw.destroy()
 
 
-def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
+def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None:
     """Record that the user declined the update notification."""
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)

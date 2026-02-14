@@ -32,6 +32,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfMatProperties
@@ -78,11 +79,11 @@ def maxwell_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_vacuum(aedt_app):
+def test_vacuum(aedt_app) -> None:
     assert "vacuum" in list(aedt_app.materials.material_keys.keys())
 
 
-def test_create_material(aedt_app):
+def test_create_material(aedt_app) -> None:
     mat1 = aedt_app.materials.add_material("new_copper2")
     assert mat1
     mat1.conductivity = 59000000000
@@ -163,7 +164,7 @@ def test_create_material(aedt_app):
         mat1.material_appearance = [11, 22]
 
 
-def test_create_modifiers(aedt_app):
+def test_create_modifiers(aedt_app) -> None:
     aedt_app.materials.add_material("new_copper")
     assert aedt_app.materials["new_copper"].mass_density.add_thermal_modifier_free_form(
         "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
@@ -211,19 +212,19 @@ def test_create_modifiers(aedt_app):
     assert aedt_app.materials["new_mat3"].mass_density.add_thermal_modifier_closed_form()
 
 
-def test_duplicate_material(aedt_app):
+def test_duplicate_material(aedt_app) -> None:
     aedt_app.materials.add_material("copper")
     assert aedt_app.materials.duplicate_material("copper", "copper2")
     assert not aedt_app.materials.duplicate_material("nonexistent_copper", "copper2")
 
 
-def test_delete_material(aedt_app):
+def test_delete_material(aedt_app) -> None:
     aedt_app.materials.add_material("copper")
     assert aedt_app.materials.remove_material("copper")
     assert not aedt_app.materials.remove_material("copper2")
 
 
-def test_surface_material(icepak_app):
+def test_surface_material(icepak_app) -> None:
     mat2 = icepak_app.materials.add_surface_material("Steel")
     mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
     mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(aedtname="surface_diffuse_absorptance")
@@ -240,12 +241,12 @@ def test_surface_material(icepak_app):
     assert icepak_app.materials.duplicate_surface_material("Steel")
 
 
-def test_export_materials(aedt_app, test_tmp_dir):
+def test_export_materials(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.materials.export_materials_to_file(test_tmp_dir / "materials.json")
     assert (test_tmp_dir / "materials.json").exists()
 
 
-def test_import_materials(aedt_app):
+def test_import_materials(aedt_app) -> None:
     assert aedt_app.materials.import_materials_from_file(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.json"
     )
@@ -268,7 +269,7 @@ def test_import_materials(aedt_app):
     )
 
 
-def test_import_materials_from_excel(aedt_app):
+def test_import_materials_from_excel(aedt_app) -> None:
     mats = aedt_app.materials.import_materials_from_excel(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.xlsx"
     )
@@ -282,7 +283,7 @@ def test_import_materials_from_excel(aedt_app):
     assert len(mats) == 2
 
 
-def test_non_linear_materials(maxwell_app, test_tmp_dir):
+def test_non_linear_materials(maxwell_app, test_tmp_dir) -> None:
     mat1 = maxwell_app.materials.add_material("myMat")
     mat1.permeability = [[0, 0], [1, 12], [10, 30]]
     mat1.permeability.set_non_linear(x_unit="Oe", y_unit="gauss")
@@ -306,7 +307,7 @@ def test_non_linear_materials(maxwell_app, test_tmp_dir):
     assert maxwell_app.materials.material_keys["mymat2"].is_used
 
 
-def test_add_material_sweep(aedt_app):
+def test_add_material_sweep(aedt_app) -> None:
     material_name = "sweep_material"
     assert aedt_app.materials.add_material_sweep(["copper", "aluminum", "FR4_epoxy"], material_name)
     assert material_name in list(aedt_app.materials.material_keys.keys())
@@ -334,13 +335,13 @@ def test_add_material_sweep(aedt_app):
         assert mat_prop == var_name + "[$ID" + material_name + "]"
 
 
-def test_material_case(aedt_app):
+def test_material_case(aedt_app) -> None:
     assert aedt_app.materials["Aluminum"] == aedt_app.materials["aluminum"]
     assert aedt_app.materials["Aluminum"].name == "aluminum"
     assert aedt_app.materials.add_material("AluMinum") == aedt_app.materials["aluminum"]
 
 
-def test_material_model(aedt_app):
+def test_material_model(aedt_app) -> None:
     mat = aedt_app.materials.add_material("ds_material")
     aedt_app["$dk"] = 3
     aedt_app["$df"] = 0.01
@@ -348,14 +349,14 @@ def test_material_model(aedt_app):
 
 
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
-def test_get_materials_in_project(aedt_app):
+def test_get_materials_in_project(aedt_app) -> None:
     used_materials = aedt_app.materials.get_used_project_material_names()
     assert isinstance(used_materials, list)
     for m in [mat for mat in aedt_app.materials if mat.is_used]:
         assert m.name in used_materials
 
 
-def test_get_coreloss_coefficients(aedt_app):
+def test_get_coreloss_coefficients(aedt_app) -> None:
     aedt_app.materials.add_material("mat_test")
     # Test points_list_at_freq
     coeff = aedt_app.materials["mat_test"].get_core_loss_coefficients(
@@ -405,54 +406,134 @@ def test_get_coreloss_coefficients(aedt_app):
         )
 
 
-def test_set_core_loss(aedt_app):
-    aedt_app.materials.add_material("mat_test")
+def test_set_core_loss(maxwell_app) -> None:
+    # Testing in time harmonic solver
+    maxwell_app.solution_type = "AC Magnetic"
+
+    # Define frequency dependent bh curves
+    bh_mat_test_60hz = [[0, 0], [1, 3.5], [2, 7.4]]
+    bh_mat_test_80hz = [[0, 0], [1, 3.5], [2, 7.4]]
+    bh_mat_test_100hz = [[0, 0], [1, 8], [2, 9]]
+    bh_mat_test_150hz = [[0, 0], [1, 10], [2, 19]]
+
+    # Create custom material for testing
+    mat_test = maxwell_app.materials.add_material("mat_test")
+
     # Test points_list_at_freq
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz})
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={"60Hz": bh_mat_test_60hz})
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={"0.06kHz": bh_mat_test_60hz})
+
     with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]])
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        mat_test.set_coreloss_at_frequency(points_at_frequency=bh_mat_test_60hz)
+
+    assert mat_test.set_coreloss_at_frequency(
         points_at_frequency={
-            60: [[0, 0], [1, 3.5], [2, 7.4]],
-            100: [[0, 0], [1, 8], [2, 9]],
-            150: [[0, 0], [1, 10], [2, 19]],
+            60: bh_mat_test_60hz,
+            100: bh_mat_test_100hz,
+            150: bh_mat_test_150hz,
         }
     )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert mat_test.get_curve_coreloss_type() == "Electrical Steel"
+
+    assert mat_test.set_coreloss_at_frequency(
         points_at_frequency={
-            60: [[0, 0], [1, 3.5], [2, 7.4]],
-            100: [[0, 0], [1, 8], [2, 9]],
-            150: [[0, 0], [1, 10], [2, 19]],
+            60: bh_mat_test_60hz,
+            100: bh_mat_test_100hz,
+            150: bh_mat_test_150hz,
         },
         core_loss_model_type="Power Ferrite",
     )
+    assert mat_test.get_curve_coreloss_type() == "Power Ferrite"
+
     with pytest.raises(ValueError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
+        mat_test.set_coreloss_at_frequency(
+            points_at_frequency={80: bh_mat_test_80hz}, core_loss_model_type="Power Ferrite"
         )
     # Test thickness
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="0.6mm")
+    # check that if you modify set_coreloss_at_frequency, it defaults to Electrical steel, if loss model not provided
+    # Note that prior to this step, it was set to Power Ferrite
+    assert mat_test.get_curve_coreloss_type() == "Electrical Steel"
+
+    with pytest.raises(TypeError):
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="invalid")
+    with pytest.raises(TypeError):
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness=50)
+
+    # flatten bh curves from list of lists to list as shown in native api
+    flattened_bh_60hz = [item for sublist in bh_mat_test_60hz for item in sublist]
+    flattened_bh_100hz = [item for sublist in bh_mat_test_100hz for item in sublist]
+    flattened_bh_150hz = [item for sublist in bh_mat_test_150hz for item in sublist]
+
+    # compare loss values curves
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kh"]), 4), 0.0000, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kc"]), 4), 0.0000, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_ke"]), 4), 0.0058, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kdc"]), 4), 0.0000, 1e-6)
+
+    # save project before checking project properties
+    maxwell_app.save_project()
+
+    # compare bh curve entries in multiple frequency curve loss model
+    assert (
+        flattened_bh_60hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][0]["Coordinates"]["Points"]
     )
-    with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
-        )
-    with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
-        )
+    assert (
+        "60Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][0]["Frequency"]
+    )
+
+    assert (
+        flattened_bh_100hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][1]["Coordinates"]["Points"]
+    )
+    assert (
+        "100Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][1]["Frequency"]
+    )
+
+    assert (
+        flattened_bh_150hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][2]["Coordinates"]["Points"]
+    )
+    assert (
+        "150Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][2]["Frequency"]
+    )
+
+    # check single bh curves at a single frequency
+
+    # save project before checking project properties
+    maxwell_app.save_project()
+    assert (
+        "60Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoefficientSetupData"
+        ]["Frequency"]
+    )
+    assert (
+        flattened_bh_60hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoefficientSetupData"
+        ]["Coordinates"]["Points"]
+    )
 
 
-def test_thermalmodifier_and_spatialmodifier(aedt_app):
+def test_thermalmodifier_and_spatialmodifier(aedt_app) -> None:
     assert aedt_app.materials["vacuum"].conductivity.thermalmodifier is None
     assert aedt_app.materials["vacuum"].conductivity.spatialmodifier is None
 
@@ -492,7 +573,7 @@ def test_thermalmodifier_and_spatialmodifier(aedt_app):
     aedt_app.materials["vacuum"].conductivity.spatialmodifier = None
 
 
-def test_import_materials_from_workbench(aedt_app):
+def test_import_materials_from_workbench(aedt_app) -> None:
     assert aedt_app.materials.import_materials_from_workbench("not_existing.xml") is False
 
     imported_mats = aedt_app.materials.import_materials_from_workbench(
@@ -571,7 +652,7 @@ def test_import_materials_from_workbench(aedt_app):
     new_callable=mock_open,
     read_data=MISSING_RGB_MATERIALS,
 )
-def test_json_missing_rgb(mock_file, aedt_app, caplog):
+def test_json_missing_rgb(mock_file, aedt_app, caplog) -> None:
     input_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.json"
     with pytest.raises(KeyError):
         aedt_app.materials.import_materials_from_file(input_path)
