@@ -35,7 +35,7 @@ FIELDS_DISTRIBUTION = "transformer_loss_distribution"
 TEST_SUBFOLDER = "T45"
 
 
-def test_fields_distribution_basic_export(add_app_example, test_tmp_dir):
+def test_fields_distribution_basic_export(add_app_example, test_tmp_dir) -> None:
     """Test basic fields distribution export functionality."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -62,7 +62,7 @@ def test_fields_distribution_basic_export(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir):
+def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export with custom points file."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -91,7 +91,7 @@ def test_fields_distribution_with_points_file(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_multiple_objects(add_app_example, test_tmp_dir):
+def test_fields_distribution_multiple_objects(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export with multiple objects."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -118,7 +118,7 @@ def test_fields_distribution_multiple_objects(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_all_objects(add_app_example, test_tmp_dir):
+def test_fields_distribution_all_objects(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export with all objects."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -145,7 +145,7 @@ def test_fields_distribution_all_objects(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_surface_ac_force_density(add_app_example, test_tmp_dir):
+def test_fields_distribution_surface_ac_force_density(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export with SurfaceAcForceDensity option."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -172,7 +172,7 @@ def test_fields_distribution_surface_ac_force_density(add_app_example, test_tmp_
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_npy_export(add_app_example, test_tmp_dir):
+def test_fields_distribution_npy_export(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export to numpy format."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -199,7 +199,7 @@ def test_fields_distribution_npy_export(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_tab_export(add_app_example, test_tmp_dir):
+def test_fields_distribution_tab_export(add_app_example, test_tmp_dir) -> None:
     """Test fields distribution export to tab-delimited format."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -226,7 +226,7 @@ def test_fields_distribution_tab_export(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_error_no_export_file(add_app_example):
+def test_fields_distribution_error_no_export_file(add_app_example) -> None:
     """Test error handling when no export file is specified."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -253,7 +253,7 @@ def test_fields_distribution_error_no_export_file(add_app_example):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_error_wrong_design_type(add_app, test_tmp_dir):
+def test_fields_distribution_error_wrong_design_type(add_app, test_tmp_dir) -> None:
     """Test error handling when design type is not Maxwell."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -279,7 +279,7 @@ def test_fields_distribution_error_wrong_design_type(add_app, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_data_class_initialization():
+def test_fields_distribution_data_class_initialization() -> None:
     """Test FieldsDistributionExtensionData initialization."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
 
@@ -306,7 +306,7 @@ def test_fields_distribution_data_class_initialization():
     assert data.solution_option == "Setup1 : LastAdaptive"
 
 
-def test_fields_distribution_file_validation(add_app_example, test_tmp_dir):
+def test_fields_distribution_file_validation(add_app_example, test_tmp_dir) -> None:
     """Test that exported files contain expected data structure."""
     import csv
 
@@ -355,7 +355,7 @@ def test_fields_distribution_file_validation(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution(add_app_example, test_tmp_dir):
+def test_fields_distribution(add_app_example, test_tmp_dir) -> None:
     """Test comprehensive fields distribution functionality."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -452,7 +452,7 @@ def test_fields_distribution(add_app_example, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_comprehensive_scenarios(add_app_example, test_tmp_dir):
+def test_fields_distribution_comprehensive_scenarios(add_app_example, test_tmp_dir) -> None:
     """Test comprehensive fields distribution functionality with various scenarios."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main

@@ -67,7 +67,7 @@ def mock_emit_environment():
         }
 
 
-def test_interference_classification_widgets_created(mock_emit_environment):
+def test_interference_classification_widgets_created(mock_emit_environment) -> None:
     """Test that UI widgets are correctly created."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -105,7 +105,7 @@ def test_interference_classification_widgets_created(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_get_legend_values(mock_emit_environment):
+def test_get_legend_values(mock_emit_environment) -> None:
     """Test retrieving protection level values from the legend."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -122,7 +122,7 @@ def test_get_legend_values(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_radio_specific_toggle(mock_emit_environment):
+def test_radio_specific_toggle(mock_emit_environment) -> None:
     """Test toggling radio-specific protection levels."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
@@ -160,7 +160,7 @@ def test_radio_specific_toggle(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_radio_dropdown_changed(mock_emit_environment):
+def test_radio_dropdown_changed(mock_emit_environment) -> None:
     """Test changing selected radio updates legend values."""
     # Create a fresh extension instance to avoid Tk conflicts
     mock_aedt_app = MagicMock()
@@ -206,7 +206,7 @@ def test_radio_dropdown_changed(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_build_interf_filters(mock_emit_environment):
+def test_build_interf_filters(mock_emit_environment) -> None:
     """Test building interference filter list from UI selections."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -224,7 +224,7 @@ def test_build_interf_filters(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_compute_interference(mock_emit_environment):
+def test_compute_interference(mock_emit_environment) -> None:
     """Test computing interference type classification matrix."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -261,7 +261,7 @@ def test_compute_interference(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_compute_interference_insufficient_radios(mock_emit_environment):
+def test_compute_interference_insufficient_radios(mock_emit_environment) -> None:
     """Test that compute_interference raises error with insufficient radios."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -280,7 +280,7 @@ def test_compute_interference_insufficient_radios(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_compute_protection(mock_emit_environment):
+def test_compute_protection(mock_emit_environment) -> None:
     """Test computing protection level classification matrix."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -317,7 +317,7 @@ def test_compute_protection(mock_emit_environment):
     extension.root.destroy()
 
 
-def test_on_run_interference(mock_emit_environment):
+def test_on_run_interference(mock_emit_environment) -> None:
     """Test the interference results generation button handler."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -356,7 +356,7 @@ def test_on_run_interference(mock_emit_environment):
 
 
 @patch("tkinter.messagebox.showerror")
-def test_on_run_interference_error_handling(mock_showerror, mock_emit_environment):
+def test_on_run_interference_error_handling(mock_showerror, mock_emit_environment) -> None:
     """Test error handling in interference results generation."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -377,7 +377,7 @@ def test_on_run_interference_error_handling(mock_showerror, mock_emit_environmen
     extension.root.destroy()
 
 
-def test_on_run_protection(mock_emit_environment):
+def test_on_run_protection(mock_emit_environment) -> None:
     """Test the protection level results generation button handler."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -414,7 +414,7 @@ def test_on_run_protection(mock_emit_environment):
 
 
 @patch("tkinter.messagebox.showwarning")
-def test_export_excel_no_data(mock_showwarning, mock_emit_environment):
+def test_export_excel_no_data(mock_showwarning, mock_emit_environment) -> None:
     """Test export to Excel with no data shows warning."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -436,7 +436,7 @@ def test_export_excel_no_data(mock_showwarning, mock_emit_environment):
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment):
+def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment) -> None:
     """Test export to Excel with valid data."""
     from ansys.aedt.core.extensions.emit.interference_classification import _MatrixData
 
@@ -468,7 +468,7 @@ def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment):
 
 
 @patch("tkinter.messagebox.showerror")
-def test_on_run_protection_error_handling(mock_showerror, mock_emit_environment):
+def test_on_run_protection_error_handling(mock_showerror, mock_emit_environment) -> None:
     """Test error handling in protection level results generation."""
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_modeler = MagicMock()
@@ -489,7 +489,7 @@ def test_on_run_protection_error_handling(mock_showerror, mock_emit_environment)
     extension.root.destroy()
 
 
-def test_render_matrix(mock_emit_environment):
+def test_render_matrix(mock_emit_environment) -> None:
     """Test rendering matrix on canvas."""
     from ansys.aedt.core.extensions.emit.interference_classification import _MatrixData
 

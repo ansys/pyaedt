@@ -49,7 +49,7 @@ except ImportError:
 class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
-    def __init__(self, aedtdata):
+    def __init__(self, aedtdata) -> None:
         start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata
@@ -83,7 +83,7 @@ class SolutionData(PyAedtBase):
         return self._active_variation
 
     @active_variation.setter
-    def active_variation(self, value):
+    def active_variation(self, value) -> None:
         if value in self.variations:
             self._active_variation = value
             self.nominal_variation = self.variations.index(value)
@@ -105,13 +105,13 @@ class SolutionData(PyAedtBase):
         return True if self._enable_pandas_output and pd else False
 
     @enable_pandas_output.setter
-    def enable_pandas_output(self, val):
+    def enable_pandas_output(self, val) -> None:
         if val != self._enable_pandas_output and pd:
             self._enable_pandas_output = val
             self.init_solutions_data()
 
     @pyaedt_function_handler()
-    def set_active_variation(self, var_id=0):
+    def set_active_variation(self, var_id: int = 0) -> bool:
         """Set the active variations to one of available variations in self.variations.
 
         Parameters
@@ -168,7 +168,7 @@ class SolutionData(PyAedtBase):
                     vars_vals.append(el[variation])
             return vars_vals
 
-    def _compute_intrinsics(self):
+    def _compute_intrinsics(self) -> bool:
         if not self._intrinsics:
             self._intrinsics = []
             first = True
@@ -211,7 +211,7 @@ class SolutionData(PyAedtBase):
         return self._nominal_variation
 
     @nominal_variation.setter
-    def nominal_variation(self, val):
+    def nominal_variation(self, val) -> None:
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
         else:
@@ -229,7 +229,7 @@ class SolutionData(PyAedtBase):
         return self._primary_sweep
 
     @primary_sweep.setter
-    def primary_sweep(self, ps):
+    def primary_sweep(self, ps) -> None:
         if ps in self._sweeps_names:
             self._primary_sweep = ps
 
@@ -242,7 +242,7 @@ class SolutionData(PyAedtBase):
         return self._expressions
 
     @pyaedt_function_handler()
-    def update_sweeps(self):
+    def update_sweeps(self) -> None:
         """Update sweeps.
 
         Returns
@@ -280,7 +280,7 @@ class SolutionData(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def init_solutions_data(self):
+    def init_solutions_data(self) -> None:
         """Initialize the database and store info in variables."""
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
@@ -509,7 +509,12 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_expression_data(
-        self, expression=None, formula="real", convert_to_SI=False, use_quantity=False, sweeps=None
+        self,
+        expression=None,
+        formula: str = "real",
+        convert_to_SI: bool = False,
+        use_quantity: bool = False,
+        sweeps=None,
     ):
         """Retrieve the real part of the data for an expression.
 
@@ -612,7 +617,7 @@ class SolutionData(PyAedtBase):
         return x_axis, sol
 
     @pyaedt_function_handler()
-    def data_real(self, expression=None, convert_to_SI=False):
+    def data_real(self, expression=None, convert_to_SI: bool = False):
         """Retrieve the real part of the data for an expression.
 
         .. deprecated:: 0.20.0
@@ -655,7 +660,7 @@ class SolutionData(PyAedtBase):
         return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
-    def export_data_to_csv(self, output, delimiter=";"):
+    def export_data_to_csv(self, output, delimiter: str = ";"):
         """Save to output csv file the Solution Data.
 
         Parameters
@@ -714,7 +719,7 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
-    def get_report_plotter(self, curves=None, formula=None, to_radians=False, props=None):
+    def get_report_plotter(self, curves=None, formula=None, to_radians: bool = False, props=None):
         """Get the `ReportPlotter` on the specified curves.
 
         Parameters
@@ -761,13 +766,13 @@ class SolutionData(PyAedtBase):
         curves=None,
         formula=None,
         size=(1920, 1440),
-        show_legend=True,
-        x_label="",
-        y_label="",
-        title="",
+        show_legend: bool = True,
+        x_label: str = "",
+        y_label: str = "",
+        title: str = "",
         snapshot_path=None,
-        is_polar=False,
-        show=True,
+        is_polar: bool = False,
+        show: bool = True,
     ):
         """Create a matplotlib figure based on a list of data.
 
@@ -832,16 +837,16 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_3d(
         self,
-        curve=None,
-        primary_sweep="Theta",
-        secondary_sweep="Phi",
-        x_label="",
-        y_label="",
-        title="",
-        formula=None,
-        size=(1920, 1440),
-        snapshot_path=None,
-        show=True,
+        curve: str = None,
+        primary_sweep: str = "Theta",
+        secondary_sweep: str = "Phi",
+        x_label: str = "",
+        y_label: str = "",
+        title: str = "",
+        formula: str | None = None,
+        size: tuple | None = (1920, 1440),
+        snapshot_path: str | None = None,
+        show: bool = True,
     ):
         """Create a matplotlib 3D figure based on a list of data.
 
@@ -941,7 +946,7 @@ class SolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
+    def ifft(self, curve_header: str = "NearE", u_axis: str = "_u", v_axis: str = "_v", window: bool = False):
         """Create IFFT of given complex data.
 
         Parameters
@@ -1005,13 +1010,13 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def ifft_to_file(
         self,
-        u_axis="_u",
-        v_axis="_v",
+        u_axis: str = "_u",
+        v_axis: str = "_v",
         coord_system_center=None,
-        db_val=False,
+        db_val: bool = False,
         num_frames=None,
         csv_path=None,
-        csv_file_header="res_",
+        csv_file_header: str = "res_",
     ):
         """Save IFFT matrix to a list of CSV files (one per time step).
 

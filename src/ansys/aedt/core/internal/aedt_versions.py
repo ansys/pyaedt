@@ -46,7 +46,7 @@ class AedtVersions(PyAedtBase):
     It caches the data to avoid inspecting the environment variables multiple times.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._list_installed_ansysem = None
         self._installed_versions = None
         self._stable_versions = None

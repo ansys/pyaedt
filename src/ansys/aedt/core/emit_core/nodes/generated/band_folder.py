@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class BandFolder(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -48,6 +48,6 @@ class BandFolder(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
