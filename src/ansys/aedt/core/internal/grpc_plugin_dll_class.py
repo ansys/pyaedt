@@ -364,7 +364,8 @@ class AEDT:
 
     def recreate_application(self, force: bool = False):
         def run():
-            self.ReleaseAedtObject(self.aedt.objectID)
+            if self.aedt:
+                self.ReleaseAedtObject(self.aedt.objectID)
             port = self.port
             machine = self.machine
             self.__init__(self.original_path)
