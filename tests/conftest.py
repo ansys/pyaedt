@@ -259,9 +259,6 @@ def desktop(tmp_path_factory, request):
 def test_tmp_dir(file_tmp_root, request):
     d = file_tmp_root / request.node.name.split("[", 1)[0]
 
-    if d.exists():
-        shutil.rmtree(d, ignore_errors=True)
-    d.mkdir(parents=True, exist_ok=True)
     yield d
     try:
         shutil.rmtree(d, ignore_errors=True)
