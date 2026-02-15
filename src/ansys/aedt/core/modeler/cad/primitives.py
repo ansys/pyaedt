@@ -7469,7 +7469,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Parameters
         ----------
         assignment : str
-            String used to filter by object names..
+            String used to filter by object names.
         case_sensitive : bool, optional
             Whether the string is case-sensitive. The default is ``True``.
 
