@@ -166,7 +166,7 @@ class Object3d(PyAedtBase):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
-        if not self._primitives._app.desktop_class.non_graphical:
+        if not self._primitives._app.desktop.non_graphical:
             self._primitives._app.odesktop.ClearMessages(
                 self._primitives._app.project_name, self._primitives._app.design_name, 1
             )

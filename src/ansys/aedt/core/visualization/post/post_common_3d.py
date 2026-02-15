@@ -978,13 +978,13 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
 
-        self._app.desktop_class.close_windows()
+        self._app.desktop.close_windows()
         try:
             self._app.modeler.fit_all()
         except Exception:
             self.logger.debug("Something went wrong with `fit_all` while creating field plot.")  # pragma: no cover
         self._desktop.TileWindows(0)
-        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
+        self._app.desktop.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -1504,7 +1504,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             full_name = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if not self._app.desktop_class.non_graphical:  # pragma: no cover
+        if not self._app.desktop.non_graphical:  # pragma: no cover
             if self._app.design_type not in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
@@ -1548,7 +1548,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                 height = 1080
             self.oeditor.ExportImage(str(full_name), width, height)
         else:
-            if self._app.desktop_class.non_graphical:
+            if self._app.desktop.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:

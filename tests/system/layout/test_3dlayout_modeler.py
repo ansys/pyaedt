@@ -1006,7 +1006,7 @@ def test_import_gerber(aedt_app, test_tmp_dir) -> None:
     )
     assert aedt_app.modeler.polygons
     aedt_app.close_project(save=False)
-    aedt_app.desktop_class.active_project(active_project)
+    aedt_app.desktop.active_project(active_project)
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
@@ -1025,7 +1025,7 @@ def test_import_gds(aedt_app, test_tmp_dir) -> None:
 
     assert aedt_app.import_gds(str(gds_file), output_dir=str(aedb_file), control_file=str(control_file))
     aedt_app.close_project(save=False)
-    aedt_app.desktop_class.active_project(active_project)
+    aedt_app.desktop.active_project(active_project)
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
@@ -1041,7 +1041,7 @@ def test_import_dxf(aedt_app, test_tmp_dir) -> None:
 
     assert aedt_app.import_gerber(str(dxf_file), output_dir=str(aedb_file), control_file=str(control_file))
     aedt_app.close_project(save=False)
-    aedt_app.desktop_class.active_project(active_project)
+    aedt_app.desktop.active_project(active_project)
 
 
 def test_import_ipc(aedt_app, test_tmp_dir) -> None:
@@ -1052,7 +1052,7 @@ def test_import_ipc(aedt_app, test_tmp_dir) -> None:
 
     assert aedt_app.import_ipc2581(str(ipc_file), output_dir=str(aedb_file), control_file="")
     aedt_app.close_project(save=False)
-    aedt_app.desktop_class.active_project(active_project)
+    aedt_app.desktop.active_project(active_project)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working on AEDT 22R1")

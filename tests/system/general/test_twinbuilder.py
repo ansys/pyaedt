@@ -235,7 +235,7 @@ def test_add_excitation_model(add_app, test_tmp_dir) -> None:
         design="2 simplorer circuit",
     )
     project_name = tb.project_name
-    dkp = tb.desktop_class
+    dkp = tb.desktop
     maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
 
     assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")

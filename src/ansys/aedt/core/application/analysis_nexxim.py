@@ -160,7 +160,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         else:
             out_name = component
         try:
-            self.desktop_class.active_design(self.oproject, out_name, self.design_type)
+            self.desktop.active_design(self.oproject, out_name, self.design_type)
             self.__init__(project=self.project_name, design=out_name)
         except Exception:  # pragma: no cover
             return False
@@ -177,7 +177,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         """
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
-            self.desktop_class.active_design(self.oproject, parent_name, self.design_type)
+            self.desktop.active_design(self.oproject, parent_name, self.design_type)
             self.__init__(project=self.project_name, design=parent_name)
         except Exception:
             return False

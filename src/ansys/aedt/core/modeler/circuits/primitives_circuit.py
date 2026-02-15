@@ -1132,7 +1132,7 @@ class CircuitComponents(PyAedtBase):
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         >>> cmp.set_property("ShowPin", True)
-        >>> aedtapp.desktop_class.close_desktop()
+        >>> aedtapp.desktop.close_desktop()
         """
         # id = self.create_unique_id()
         if component_library:

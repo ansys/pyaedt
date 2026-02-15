@@ -195,7 +195,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     def load_edb_into_hfss3dlayout(self, edb_path: str | Path):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            app.desktop_class.release_desktop(False, False)
+            app.desktop.release_desktop(False, False)
         else:
             app.close_project(save=False)
         return app

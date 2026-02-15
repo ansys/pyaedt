@@ -83,7 +83,7 @@ class FfdSolutionData(PyAedtBase):
     >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
-    >>> app.desktop_class.close_desktop()
+    >>> app.desktop.close_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
     >>> farfield_data.plot_3d(quantity_format="dB10")
     """

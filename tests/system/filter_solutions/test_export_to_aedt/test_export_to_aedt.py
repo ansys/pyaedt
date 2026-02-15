@@ -483,7 +483,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
             "imported_netlist.ckt", "Lumped"
         )
-        app.desktop_class.close_desktop()
+        app.desktop.close_desktop()
 
     def test_part_libraries(self, lumped_design) -> None:
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED

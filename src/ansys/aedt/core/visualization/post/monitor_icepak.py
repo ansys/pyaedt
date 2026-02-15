@@ -95,7 +95,7 @@ class Monitor(PyAedtBase):
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
-        if self._app.desktop_class.aedt_version_id > "2023.2":  # pragma: no cover
+        if self._app.desktop.aedt_version_id > "2023.2":  # pragma: no cover
             self.quantities_dict = quantities_dict_2
         else:
             self.quantities_dict = quantities_dict_1

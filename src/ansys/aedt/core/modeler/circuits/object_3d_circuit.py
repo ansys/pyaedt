@@ -855,7 +855,7 @@ class CircuitComponent(PyAedtBase):
             angle = self._circuit_components._app.value_with_units(self._angle, "deg")
             vMaterial = ["NAME:Component Angle", "Value:=", angle]
             self.change_property(vMaterial)
-        elif not self._circuit_components._app.desktop_class.is_grpc_api:
+        elif not self._circuit_components._app.desktop.is_grpc_api:
             if not angle:
                 angle = str(self._angle) + "°"
             else:
