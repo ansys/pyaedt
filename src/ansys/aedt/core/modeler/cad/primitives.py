@@ -7463,23 +7463,29 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_object_from_name(self, assignment):
-        """Return the object from an object name.
+    def get_objects_by_name(self, assignment,  case_sensitive: bool = True):
+        """Return the objects given a search string.
 
         Parameters
         ----------
         assignment : str
-            Name of the object.
+            String used to filter by object names..
+        case_sensitive : bool, optional
+            Whether the string is case-sensitive. The default is ``True``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            3D object returned.
+        list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Returns a list of objects whose names contain the
+            search string..
 
         """
-        if assignment in self.object_names:
-            # object_id = self.get_obj_id(objname)
-            return self.objects[assignment]
+        if case_sensitive:
+            return [o for name, o in self.objects_by_name.items() if assignment in name]
+        else:
+            return [o for name, o in self.objects_by_name.items()
+                    if assignment.lower() in name.lower()]
+        return None
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, string_name, case_sensitive: bool = True):
