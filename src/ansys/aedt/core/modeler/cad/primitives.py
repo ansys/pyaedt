@@ -7477,7 +7477,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         -------
         list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Returns a list of objects whose names contain the
-            search string..
+            search string.
 
         """
         if case_sensitive:
