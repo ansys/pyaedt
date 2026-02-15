@@ -4443,7 +4443,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         str
             Name of the bondwire created.
         """
-        old_bondwire = self.get_object_from_name(assignment)
+        old_bondwire = self.get_objects_by_name(assignment)[0]
         if not old_bondwire:
             return False
         edges = old_bondwire.edges
@@ -7486,6 +7486,25 @@ class GeometryModeler(Modeler, PyAedtBase):
             return [o for name, o in self.objects_by_name.items()
                     if assignment.lower() in name.lower()]
         return None
+
+    @pyaedt_function_handler()
+    def get_object_from_name(self, assignment):
+        """Return the object from an object name.
+
+        Parameters
+        ----------
+        assignment : str
+            Name of the object.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            3D object returned.
+
+        """
+        if assignment in self.object_names:
+            # object_id = self.get_obj_id(objname)
+            return self.objects[assignment]
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, string_name, case_sensitive: bool = True):
