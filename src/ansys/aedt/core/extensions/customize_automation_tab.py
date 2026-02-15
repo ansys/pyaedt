@@ -32,20 +32,14 @@ import shutil
 import subprocess  # nosec
 import sys
 import warnings
-import xml.etree.ElementTree as ET  # nosec
-
-from defusedxml.ElementTree import ParseError
-from defusedxml.ElementTree import parse as defused_parse
-import defusedxml.minidom
-from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+from ansys.aedt.core.extensions.tabconfig_parser import TabConfigParser
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
-
-defusedxml.defuse_stdlib()
 
 AEDT_APPLICATIONS = {
     "circuit": "CircuitDesign",
@@ -61,6 +55,27 @@ AEDT_APPLICATIONS = {
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
 }
+
+
+def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = None):
+    for panel_spec in parser.to_model():
+        if panel_label and panel_spec.label != panel_label:
+            continue
+        yield from panel_spec.buttons
+        for gallery in panel_spec.galleries:
+            if gallery.header_button:
+                yield gallery.header_button
+            for group in gallery.groups:
+                yield from group.buttons
+
+
+def _safe_parse_tabconfig(tabconfig_path, logger=None):
+    try:
+        return TabConfigParser(tabconfig_path)
+    except Exception as exc:
+        if logger:
+            logger.warning(f"Failed to parse {tabconfig_path}: {exc}")
+        return None
 
 
 def add_automation_tab(
@@ -119,25 +134,15 @@ def add_automation_tab(
     product = tab_map(product)
     lib_dir = Path(lib_dir)
     tab_config_file_path = lib_dir / product / "TabConfig.xml"
-    if not tab_config_file_path.is_file() or overwrite:
-        root = ET.Element("TabConfig")
-    else:
+    parser = TabConfigParser()
+    if tab_config_file_path.is_file() and not overwrite:
         try:
-            tree = defused_parse(str(tab_config_file_path))
-        except ParseError as e:  # pragma: no cover
+            parser.load(tab_config_file_path)
+        except ValueError as e:  # pragma: no cover
             warnings.warn(f"Unable to parse {tab_config_file_path}\nError received = {str(e)}")
             return
-        root = tree.getroot()
-    panels = root.findall("./panel")
-    if panels:
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        if panel in panel_names:
-            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-        else:
-            panel_element = ET.SubElement(root, "panel", label=panel)
-    else:
-        panel_element = ET.SubElement(root, "panel", label=panel)
-    _remove_button_from_panel(panel_element, name)
+    parser.ensure_panel(panel)
+    parser.remove_button_anywhere(panel, name)
 
     def _resolve_icon_path(icon_path):
         if not icon_path:
@@ -167,17 +172,6 @@ def add_automation_tab(
         return path_value.as_posix()
 
     if group_name:
-        group_element, gallery_element = _find_group_in_panel(panel_element, group_name)
-        if gallery_element is None:
-            gallery_element = ET.SubElement(
-                panel_element,
-                "gallery",
-                imagewidth=str(gallery_imagewidth),
-                imageheight=str(gallery_imageheight),
-            )
-        else:
-            gallery_element.set("imagewidth", str(gallery_imagewidth))
-            gallery_element.set("imageheight", str(gallery_imageheight))
         icon_path = _resolve_icon_path(icon_file) or default_icon_path
         image_value = _build_image_value(icon_path)
         group_icon_path = _resolve_icon_path(group_icon)
@@ -185,125 +179,58 @@ def add_automation_tab(
             logger.error("Group icon is required when group_name is provided.")
             return
         group_image_value = _build_image_value(group_icon_path)
-
-        gallery_button = None
-        for gallery_child in list(gallery_element):
-            if gallery_child.tag == "button" and gallery_child.attrib.get("label") == group_name:
-                gallery_button = gallery_child
-                break
-        if gallery_button is None:
-            gallery_button = ET.SubElement(gallery_element, "button", label=group_name)
+        gallery_button_attrs = {}
         if group_image_value:
-            gallery_button.set("image", image_value)
-        elif "image" in gallery_button.attrib:
-            del gallery_button.attrib["image"]
-        if group_element is None:
-            group_kwargs = {"label": group_name}
-            if group_image_value:
-                group_kwargs["image"] = group_image_value
-            group_element = ET.SubElement(gallery_element, "group", **group_kwargs)
-        elif group_icon:
-            if group_image_value:
-                group_element.set("image", group_image_value)
-
+            gallery_button_attrs["image"] = image_value
+        gallery_button = (
+            ButtonSpec(group_name, gallery_button_attrs) if gallery_button_attrs else ButtonSpec(group_name)
+        )
         if is_custom:
             script = Path(name) / "run_pyaedt_toolkit_script"
-            button_kwargs = dict(
-                label=name,
-                script=str(script.as_posix()),
-                custom_extension="true",
-                type="custom",
-            )
+            button_kwargs = {
+                "script": str(script.as_posix()),
+                "custom_extension": "true",
+                "type": "custom",
+            }
         else:
             toolkit_name = name.replace("/", "_")
-            button_kwargs = dict(
-                label=name,
-                script=f"{toolkit_name}/{template}",
-            )
-        ET.SubElement(group_element, "button", **button_kwargs)
+            button_kwargs = {
+                "script": f"{toolkit_name}/{template}",
+            }
+        parser.add_group_button(
+            panel_label=panel,
+            group_label=group_name,
+            button=ButtonSpec(name, button_kwargs),
+            group_image=group_image_value,
+            gallery_button=gallery_button,
+            imagewidth=gallery_imagewidth,
+            imageheight=gallery_imageheight,
+        )
     else:
         if is_custom:
             script = Path(name) / "run_pyaedt_toolkit_script"
-            button_kwargs = dict(
-                label=name,
-                isLarge="1",
-                image=str(Path(icon_file).as_posix()),
-                script=str(script.as_posix()),
-                custom_extension="true",
-                type="custom",
-            )
+            button_kwargs = {
+                "isLarge": "1",
+                "image": str(Path(icon_file).as_posix()),
+                "script": str(script.as_posix()),
+                "custom_extension": "true",
+                "type": "custom",
+            }
         else:
             icon_path = _resolve_icon_path(icon_file) or default_icon_path
             image_value = _build_image_value(icon_path)
             toolkit_name = name.replace("/", "_")
-            button_kwargs = dict(
-                label=name,
-                isLarge="1",
-                image=image_value,
-                script=f"{toolkit_name}/{template}",
-            )
-        ET.SubElement(panel_element, "button", **button_kwargs)
+            button_kwargs = {
+                "isLarge": "1",
+                "image": image_value,
+                "script": f"{toolkit_name}/{template}",
+            }
+        parser.add_button(panel, ButtonSpec(name, button_kwargs))
     # Backup any existing file if present
     if tab_config_file_path.is_file():
         shutil.copy(str(tab_config_file_path), str(tab_config_file_path) + ".orig")
-    create_xml_tab(root, str(tab_config_file_path))
+    parser.save(tab_config_file_path)
     return str(tab_config_file_path)
-
-
-def create_xml_tab(root, output_file) -> None:
-    """Write the XML file to create the automation tab.
-
-    Parameters
-    ----------
-    root : :class:xml.etree.ElementTree
-        Root element of the main panel.
-    output_file : str
-        Full name of the file to save the XML tab.
-    """
-    lines = [line for line in parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n") if line.strip()]
-    xml_str = "\n".join(lines)
-
-    with open(output_file, "w") as f:
-        f.write(xml_str)
-
-
-def _find_group_in_panel(panel_element, group_label: str):
-    for gallery in panel_element.findall("./gallery"):
-        for group in gallery.findall("./group"):
-            if group.attrib.get("label") == group_label:
-                return group, gallery
-    return None, None
-
-
-def _find_button_with_parents(panel_element, label: str):
-    for child in list(panel_element):
-        if child.tag == "button" and child.attrib.get("label") == label:
-            return child, panel_element, None
-        if child.tag == "gallery":
-            for gallery_child in list(child):
-                if gallery_child.tag == "button" and gallery_child.attrib.get("label") == label:
-                    return gallery_child, child, None
-                if gallery_child.tag == "group":
-                    for group_child in list(gallery_child):
-                        if group_child.tag == "button" and group_child.attrib.get("label") == label:
-                            return group_child, gallery_child, child
-    return None, None, None
-
-
-def _remove_button_from_panel(panel_element, label: str) -> bool:
-    button, parent, gallery = _find_button_with_parents(panel_element, label)
-    if not button:
-        return False
-    parent.remove(button)
-    if parent.tag == "group" and not parent.findall("./button"):
-        if gallery is not None:
-            gallery.remove(parent)
-    if parent.tag == "gallery" and not parent.findall("./button") and not parent.findall("./group"):
-        panel_element.remove(parent)
-    if parent.tag == "group" and gallery is not None:
-        if not gallery.findall("./button") and not gallery.findall("./group"):
-            panel_element.remove(gallery)
-    return True
 
 
 def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
@@ -330,30 +257,13 @@ def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_P
         return False
 
     try:
-        tree = defused_parse(str(tab_config_file_path))
-    except ParseError as e:  # pragma: no cover
+        parser = TabConfigParser(tab_config_file_path)
+    except (FileNotFoundError, ValueError) as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
-
-    root = tree.getroot()
-    panels = root.findall("./panel")
-
-    if not panels:
-        return False
-
-    panel_names = [panel_element.attrib["label"] for panel_element in panels]
-    if panel not in panel_names:
-        return False
-
-    # Get the specific panel
-    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-    buttons = panel_element.findall(".//button")
-
-    if not buttons:
-        return False
-
-    button_names = [button.attrib.get("label") for button in buttons]
+    button_names = [btn.label for btn in _iter_panel_button_specs(parser, panel_label=panel)]
     return name in button_names
+    return False
 
 
 def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
@@ -382,26 +292,15 @@ def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_E
 
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     try:
-        tree = defused_parse(str(tab_config_file_path))
-    except ParseError as e:  # pragma: no cover
+        parser = TabConfigParser(tab_config_file_path)
+    except (FileNotFoundError, ValueError) as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
-
-    root = tree.getroot()
-    panels = root.findall("./panel")
-
-    # Find the panel
-    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-
-    _remove_button_from_panel(panel_element, name)
-
-    # If panel is now empty, remove it
-    remaining_buttons = panel_element.findall(".//button")
-    remaining_galleries = panel_element.findall("./gallery")
-    if not remaining_buttons and not remaining_galleries:
-        root.remove(panel_element)
-
-    create_xml_tab(root, str(tab_config_file_path))
+    parser.remove_button_anywhere(panel, name)
+    panel_spec = next((p for p in parser.to_model() if p.label == panel), None)
+    if panel_spec and not panel_spec.buttons and not panel_spec.galleries:
+        parser.remove_panel(panel)
+    parser.save(tab_config_file_path)
     return True
 
 
@@ -833,50 +732,34 @@ def __exe() -> str:
 
 def get_custom_extensions_from_tabconfig(tabconfig_path, toml_names, options, logger=None):
     """Add custom extensions from TabConfig.xml not in TOML."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall(".//button"):
-                label = button.attrib.get("label")
-                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                if label and is_custom and label not in toml_names and label not in options:
-                    options[label] = label
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return options
+    for button in _iter_panel_button_specs(parser):
+        is_custom = button.attributes.get("custom_extension", "false").lower() == "true"
+        if button.label and is_custom and button.label not in toml_names and button.label not in options:
+            options[button.label] = button.label
     return options
 
 
 def get_custom_extension_script(tabconfig_path, label, logger=None):
     """Get script path for a custom extension from TabConfig.xml."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall(".//button"):
-                btn_label = button.attrib.get("label")
-                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                if btn_label == label and is_custom:
-                    script_field = button.attrib.get("script", None)
-                    return script_field
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return None
+    for button in _iter_panel_button_specs(parser):
+        is_custom = button.attributes.get("custom_extension", "false").lower() == "true"
+        if button.label == label and is_custom:
+            return button.attributes.get("script", None)
     return None
 
 
 def get_custom_extension_image(tabconfig_path, label, logger=None):
     """Get image path for a custom extension from TabConfig.xml."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall(".//button"):
-                btn_label = button.attrib.get("label")
-                if btn_label == label:
-                    return button.attrib.get("image", "")
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return ""
+    for button in _iter_panel_button_specs(parser):
+        if button.label == label:
+            return button.attributes.get("image", "")
     return ""

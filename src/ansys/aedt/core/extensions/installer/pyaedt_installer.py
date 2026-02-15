@@ -59,11 +59,6 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop)
-
-
-def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None) -> None:
-    """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
         pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
     else:
@@ -74,57 +69,64 @@ def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None) -> None
 
     project_workflows_dir = os.path.dirname(__file__)
 
-    for extension in pyaedt_tabs:
-        if extension in extensions_catalog.keys():
-            extension_info = extensions_catalog[extension]
-            script_path = None
-            if extension_info["script"]:
-                script_path = os.path.join(project_workflows_dir, extension_info["script"])
+    def _install_console_tools(console_info, console_script, icon_file_path, group_icon_path):
+        customize_automation_tab.add_script_to_menu(
+            console_info["name"],
+            console_script,
+            console_info["template"],
+            icon_file=icon_file_path,
+            product="Project",
+            copy_to_personal_lib=False,
+            panel="Panel_PyAEDT_Installer",
+            personal_lib=personal_lib,
+            odesktop=odesktop,
+            group_name=utilities_title,
+            group_icon=group_icon_path,
+        )
 
-            icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
-            template_name = extension_info["template"]
-            if extension == "Console":
-                group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "console.png")
-                customize_automation_tab.add_script_to_menu(
-                    extension_info["name"],
-                    script_path,
-                    template_name,
-                    icon_file=icon_file,
-                    product="Project",
-                    copy_to_personal_lib=False,
-                    panel="Panel_PyAEDT_Installer",
-                    personal_lib=personal_lib,
-                    odesktop=odesktop,
-                    group_name=utilities_title,
-                    group_icon=group_icon_file,
-                )
-                console_cli_info = extensions_catalog.get("ConsoleCLI")
-                if console_cli_info:
-                    console_cli_script = None
-                    if console_cli_info["script"]:
-                        console_cli_script = os.path.join(project_workflows_dir, console_cli_info["script"])
-                    customize_automation_tab.add_script_to_menu(
-                        console_cli_info["name"],
-                        console_cli_script,
-                        console_cli_info["template"],
-                        icon_file=icon_file,
-                        product="Project",
-                        copy_to_personal_lib=False,
-                        panel="Panel_PyAEDT_Installer",
-                        personal_lib=personal_lib,
-                        odesktop=odesktop,
-                        group_name=utilities_title,
-                        group_icon=group_icon_file,
-                    )
-            else:
-                customize_automation_tab.add_script_to_menu(
-                    extension_info["name"],
-                    script_path,
-                    template_name,
-                    icon_file=icon_file,
-                    product="Project",
-                    copy_to_personal_lib=False,
-                    panel="Panel_PyAEDT_Installer",
-                    personal_lib=personal_lib,
-                    odesktop=odesktop,
-                )
+        console_cli_info = extensions_catalog.get("ConsoleCLI")
+        if not console_cli_info:
+            return
+        console_cli_script = None
+        if console_cli_info["script"]:
+            console_cli_script = os.path.join(project_workflows_dir, console_cli_info["script"])
+        customize_automation_tab.add_script_to_menu(
+            console_cli_info["name"],
+            console_cli_script,
+            console_cli_info["template"],
+            icon_file=icon_file_path,
+            product="Project",
+            copy_to_personal_lib=False,
+            panel="Panel_PyAEDT_Installer",
+            personal_lib=personal_lib,
+            odesktop=odesktop,
+            group_name=utilities_title,
+            group_icon=group_icon_path,
+        )
+
+    for extension in pyaedt_tabs:
+        if extension not in extensions_catalog:
+            continue
+        extension_info = extensions_catalog[extension]
+        script_path = None
+        if extension_info["script"]:
+            script_path = os.path.join(project_workflows_dir, extension_info["script"])
+
+        icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+        template_name = extension_info["template"]
+        if extension == "Console":
+            group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "console.png")
+            _install_console_tools(extension_info, script_path, icon_file, group_icon_file)
+            continue
+
+        customize_automation_tab.add_script_to_menu(
+            extension_info["name"],
+            script_path,
+            template_name,
+            icon_file=icon_file,
+            product="Project",
+            copy_to_personal_lib=False,
+            panel="Panel_PyAEDT_Installer",
+            personal_lib=personal_lib,
+            odesktop=odesktop,
+        )
