@@ -7463,7 +7463,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_objects_by_name(self, assignment,  case_sensitive: bool = True):
+    def get_objects_by_name(self, assignment, case_sensitive: bool = True):
         """Return the objects given a search string.
 
         Parameters
@@ -7483,8 +7483,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         if case_sensitive:
             return [o for name, o in self.objects_by_name.items() if assignment in name]
         else:
-            return [o for name, o in self.objects_by_name.items()
-                    if assignment.lower() in name.lower()]
+            return [o for name, o in self.objects_by_name.items() if assignment.lower() in name.lower()]
         return None
 
     @pyaedt_function_handler()
