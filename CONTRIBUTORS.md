@@ -46,6 +46,7 @@
 * [Franklin Wei](https://github.com/built1n)
 * [Franz](https://github.com/FranzForstmayr)
 * [fwlfHS](https://github.com/fwlfHS)
+* [Garima Chaturvedi](https://github.com/gchaturve)
 * [GarrStau](https://github.com/GarrStau)
 * [German](https://github.com/germa89)
 * [gkorompi](https://github.com/gkorompi)
