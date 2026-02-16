@@ -132,7 +132,7 @@ def add_pyaedt_to_aedt(
 
     for extension in pyaedt_tabs:
         if extension == "Utilities":
-            group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "utilities.png")
+            group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "console.png")
             _install_utilities_group(group_icon_file)
             continue
         if extension not in extensions_catalog:
