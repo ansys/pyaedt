@@ -179,10 +179,10 @@ def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     )
 
     # Check with Edb that nets exist in the original AEDB file.
-    edb_app = Edb(edbpath=str(test_project), edbversion=DESKTOP_VERSION)
+    edb_app = Edb(edbpath=str(test_project), version=DESKTOP_VERSION)
     edb_app_nets = edb_app.nets
     assert all(net in edb_app_nets for net in SIGNAL_NETS + REFERENCE_NETS + OTHER_NETS)
-    edb_app.close_edb()
+    edb_app.close()
 
     # Perform the cutout operation.
     app = add_app_example(
@@ -197,10 +197,10 @@ def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     # Check that the cutout AEDB file was created and contains the expected nets.
     assert cutout_path.exists()
     try:
-        cutout_app = Edb(edbpath=str(cutout_path), edbversion=DESKTOP_VERSION)
+        cutout_app = Edb(edbpath=str(cutout_path), version=DESKTOP_VERSION)
     except IndexError as e:
         pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
     assert not any(net in cutout_app_nets for net in OTHER_NETS)
-    cutout_app.close_edb()
+    cutout_app.close()

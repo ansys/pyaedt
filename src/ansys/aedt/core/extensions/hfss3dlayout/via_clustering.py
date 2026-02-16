@@ -30,8 +30,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
-from pyedb import Edb
-
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.extensions.misc import ExtensionCommon
@@ -123,7 +122,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             self.__active_project_name + ".aedb",
         )
 
-        edb = Edb(aedb_path, active_design_name, edbversion=VERSION)
+        edb = Edb(edbpath=aedb_path, cellname=active_design_name, version=VERSION)
         self.__layers = list(edb.stackup.signal_layers.keys())
         edb.close()
 
@@ -309,7 +308,7 @@ def main(data: ViaClusteringExtensionData) -> bool:
     shutil.copytree(aedb_path, new_aedb_path)
 
     # Perform via clustering
-    edb = Edb(new_aedb_path, design_name, edbversion=VERSION)
+    edb = Edb(new_aedb_path, design_name, version=VERSION)
     edb.padstacks.merge_via(
         contour_boxes=contour_list,
         net_filter=None,
@@ -322,7 +321,7 @@ def main(data: ViaClusteringExtensionData) -> bool:
         prim.delete()
 
     edb.save()
-    edb.close_edb()
+    edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         h3d = Hfss3dLayout(new_aedb_path)
