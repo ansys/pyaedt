@@ -53,9 +53,14 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrixSchema
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -306,10 +311,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_matrix(
         self,
-        args: MaxwellMatrix.MatrixElectric
-        | MaxwellMatrix.MatrixACMagnetic
-        | MaxwellMatrix.MatrixACMagneticAPhi
-        | MaxwellMatrix.MatrixMagnetostatic,
+        args: MaxwellMatrixSchema,
     ) -> MaxwellParameters:
         """Assign sources to a matrix.
 
@@ -329,36 +331,34 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix
-        .MatrixElectric`, :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`,
-        :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi` or
-        :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+        args : MaxwellMatrixSchema
             Structured argument container describing the sources to assign.
+            Can be one of: :class:`MatrixElectric`, :class:`MatrixACMagnetic`,
+            :class:`MatrixACMagneticAPhi`, or :class:`MatrixMagnetostatic`.
             The expected dataclass type depends on the active solver:
 
             * **Electric solvers** (Electrostatic, AC Conduction, DC Conduction):
-            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix
-        .MatrixElectric`
+            :class:`MatrixElectric`
 
                 - ``signal_sources``: list
                 - ``ground_sources``: list
                 - ``matrix_name``: str (optional)
 
             * **AC Magnetic solver**:
-            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`
+            :class:`MatrixACMagnetic`
 
                 - ``sources``: list or dict
                 - ``matrix_name``: str (optional)
 
             * **AC Magnetic A-Phi**:
-            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi`
+            :class:`MatrixACMagneticAPhi`
 
                 - ``rl_sources``: dict
                 - ``gc_sources``: dict
                 - ``matrix_name``: str (optional)
 
             * **Magnetostatic**:
-            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+            :class:`MatrixMagnetostatic`
 
                 - ``sources``: dict
                 - ``group_sources``: dict
@@ -390,7 +390,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Define matrix assignments by instantiating the MaxwellElectric class.
 
-        >>> matrix_args = MaxwellMatrix.MatrixElectric(
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
+        >>> matrix_args = MatrixElectric(
         >>>             signal_sources=[voltage1.name, voltage2.name],
         >>>             ground_sources=[voltage3.name],
         >>>             matrix_name="test_matrix",
@@ -404,6 +405,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Setup a Maxwell 3D model in AC Magnetic A-Phi.
 
         >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
         >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet1", material="copper")
         >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], name="Sheet2", material="copper")
@@ -415,16 +419,16 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Define matrix assignments by instantiating the MatrixACMagneticAPhi class.
 
-        >>> rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+        >>> rl_source = RLSourceACMagneticAPhi(
         >>>                 signal_sources=[current1.name],
         >>>                 ground_sources=[current3.name],
         >>>             )
-        >>> gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+        >>> gc_source = GCSourceACMagneticAPhi(
         >>>                 signal_sources=[current2.name],
         >>>                 ground_sources=[current4.name],
         >>>             )
 
-        >>> matrix_args = MaxwellMatrix.MatrixACMagneticAPhi(
+        >>> matrix_args = MatrixACMagneticAPhi(
         >>>                 rl_sources=[rl_source],
         >>>                 gc_sources=[gc_source],
         >>>                 matrix_name="test_matrix",
@@ -436,14 +440,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> m3d.release_desktop(True, True)
         """
         dispatcher = {
-            SolutionsMaxwell3D.ElectroStatic: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
-            SolutionsMaxwell3D.ACConduction: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
-            SolutionsMaxwell3D.DCConduction: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
-            SolutionsMaxwell3D.Magnetostatic: (self.__assign_matrix_magnetostatic, MaxwellMatrix.MatrixMagnetostatic),
-            SolutionsMaxwell3D.ACMagnetic: (self.__assign_matrix_ac_magnetic, MaxwellMatrix.MatrixACMagnetic),
+            SolutionsMaxwell3D.ElectroStatic: (self.__assign_matrix_electric_solvers, MatrixElectric),
+            SolutionsMaxwell3D.ACConduction: (self.__assign_matrix_electric_solvers, MatrixElectric),
+            SolutionsMaxwell3D.DCConduction: (self.__assign_matrix_electric_solvers, MatrixElectric),
+            SolutionsMaxwell3D.Magnetostatic: (self.__assign_matrix_magnetostatic, MatrixMagnetostatic),
+            SolutionsMaxwell3D.ACMagnetic: (self.__assign_matrix_ac_magnetic, MatrixACMagnetic),
             SolutionsMaxwell3D.ACMagneticAPhi: (
                 self.__assign_matrix_ac_magnetic_aphi,
-                MaxwellMatrix.MatrixACMagneticAPhi,
+                MatrixACMagneticAPhi,
             ),
         }
 
@@ -464,13 +468,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return handler(args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_electric_solvers(self, args: MaxwellMatrix.MatrixElectric) -> MaxwellParameters:
+    def __assign_matrix_electric_solvers(self, args: MatrixElectric) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``Electrostatic``,``DC Conduction`` and ``AC Conduction``.
 
 
         Parameters
         ----------
-        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixElectric`
+        args : MatrixElectric
             Arguments for the matrix assignment.
 
         Returns
@@ -492,13 +496,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(matrix_name, props, "Matrix", schema=args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_ac_magnetic(self, args: MaxwellMatrix.MatrixACMagnetic) -> MaxwellParameters:
+    def __assign_matrix_ac_magnetic(self, args: MatrixACMagnetic) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``AC Magnetic``.
 
 
         Parameters
         ----------
-        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`
+        args : MatrixACMagnetic
             Arguments for the matrix assignment.
 
         Returns
@@ -523,13 +527,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_ac_magnetic_aphi(self, args: MaxwellMatrix.MatrixACMagneticAPhi) -> MaxwellParameters:
+    def __assign_matrix_ac_magnetic_aphi(self, args: MatrixACMagneticAPhi) -> MaxwellParameters:
         """Assign a matrix to the source selection for``AC Magnetic APhi``.
 
 
         Parameters
         ----------
-        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi`
+        args : MatrixACMagneticAPhi
             Arguments for the matrix assignment.
 
         Returns
@@ -563,13 +567,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_magnetostatic(self, args: MaxwellMatrix.MatrixMagnetostatic) -> MaxwellParameters:
+    def __assign_matrix_magnetostatic(self, args: MatrixMagnetostatic) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``Magnetostatic``.
 
 
         Parameters
         ----------
-        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+        args : MatrixMagnetostatic
             Arguments for the matrix assignment.
 
         Returns
