@@ -27,6 +27,7 @@
 import os
 import shutil
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -151,41 +152,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def props(self):
         """Properties of the mesh operation."""
         if not self._legacy_props:
-            props = {}
-            for k, v in self.properties.items():
-                props[k] = v
-            if "Assignment" in props:
-                assignment = props["Assignment"]
-                if "Face_" in assignment:
-                    props["Faces"] = [
-                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                elif "Edge_" in assignment:
-                    props["Edges"] = [
-                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
-                    ]
-                else:
-                    props["Objects"] = assignment
-            else:
-                props["Objects"] = []
-                props["Faces"] = []
-                props["Edges"] = []
-                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
-                for comp_id in assigned_id:
-                    if int(comp_id) in self._app.modeler.objects.keys():
-                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
-                        continue
-                    for comp in self._app.modeler.object_list:
-                        faces = comp.faces
-                        face_ids = [face.id for face in faces]
-                        if int(comp_id) in face_ids:
-                            props["Faces"].append(int(comp_id))
-                            continue
-                        edges = comp.edges
-                        edge_ids = [edge.id for edge in edges]
-                        if int(comp_id) in edge_ids:
-                            props["Edges"].append(int(comp_id))
-                            continue
+            props = _get_obj_data(self._child_object)
             self._legacy_props = MeshProps(self, props)
         return self._legacy_props
 
