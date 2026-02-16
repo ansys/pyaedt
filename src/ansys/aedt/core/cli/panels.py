@@ -146,7 +146,8 @@ def add_panels(
 
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
-        typer.secho("  • Console", fg=typer.colors.GREEN)
+        typer.secho("  • PyAEDT Console", fg=typer.colors.GREEN)
+        typer.secho("  • PyAEDT CLI", fg=typer.colors.GREEN)
         typer.secho("  • Jupyter", fg=typer.colors.GREEN)
         typer.secho("  • Run Script", fg=typer.colors.GREEN)
         typer.secho("  • Extension Manager", fg=typer.colors.GREEN)

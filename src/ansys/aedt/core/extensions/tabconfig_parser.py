@@ -260,19 +260,30 @@ class TabConfigParser:
         panel = self.get_panel(panel_label)
         if panel is None:
             return False
-        button, parent, gallery = self._find_button_with_parents(panel, label)
-        if not button:
+        removed = False
+        while True:
+            button, parent, gallery = self._find_button_with_parents(panel, label)
+            if button is None:
+                break
+            parent.remove(button)
+            removed = True
+            if parent.tag == "group" and not parent.findall("./button"):
+                if gallery is not None:
+                    gallery.remove(parent)
+            if parent.tag == "gallery" and not parent.findall("./button") and not parent.findall("./group"):
+                panel.remove(parent)
+            if parent.tag == "group" and gallery is not None:
+                if not gallery.findall("./button") and not gallery.findall("./group"):
+                    panel.remove(gallery)
+        return removed
+
+    def has_button(self, panel_label: str, label: str) -> bool:
+        """Return True if a button label exists anywhere in a panel."""
+        panel = self.get_panel(panel_label)
+        if panel is None:
             return False
-        parent.remove(button)
-        if parent.tag == "group" and not parent.findall("./button"):
-            if gallery is not None:
-                gallery.remove(parent)
-        if parent.tag == "gallery" and not parent.findall("./button") and not parent.findall("./group"):
-            panel.remove(parent)
-        if parent.tag == "group" and gallery is not None:
-            if not gallery.findall("./button") and not gallery.findall("./group"):
-                panel.remove(gallery)
-        return True
+        button, _, _ = self._find_button_with_parents(panel, label)
+        return button is not None
 
     def add_gallery_group(
         self,
@@ -384,11 +395,12 @@ class TabConfigParser:
         return None, None, None
 
     def _remove_button_from_panel(self, panel_el: ET.Element, label: str) -> bool:
+        removed = False
         for child in list(panel_el):
             if child.tag == "button" and child.attrib.get("label") == label:
                 panel_el.remove(child)
-                return True
-        return False
+                removed = True
+        return removed
 
     def _remove_button_from_group(self, group_el: ET.Element, label: str) -> bool:
         for child in list(group_el):

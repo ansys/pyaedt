@@ -142,12 +142,7 @@ def add_automation_tab(
             warnings.warn(f"Unable to parse {tab_config_file_path}\nError received = {str(e)}")
             return
     parser.ensure_panel(panel)
-    parser.remove_button_anywhere(panel, name)
-
-    def _resolve_icon_path(icon_path):
-        if not icon_path:
-            return None
-        return Path(icon_path)
+    parser.remove_button(panel, name)
 
     default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
 
@@ -164,7 +159,7 @@ def add_automation_tab(
                         "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
                     )
 
-    def _build_image_value(path_value: Path | None):
+    def _resolve_image_path(path_value: Path | None):
         if not path_value:
             return None
         if is_linux and not is_custom:
@@ -172,13 +167,13 @@ def add_automation_tab(
         return path_value.as_posix()
 
     if group_name:
-        icon_path = _resolve_icon_path(icon_file) or default_icon_path
-        image_value = _build_image_value(icon_path)
-        group_icon_path = _resolve_icon_path(group_icon)
+        icon_path = Path(icon_file) or default_icon_path
+        image_value = _resolve_image_path(icon_path)
+        group_icon_path = Path(group_icon)
         if group_icon_path is None:
             logger.error("Group icon is required when group_name is provided.")
             return
-        group_image_value = _build_image_value(group_icon_path)
+        group_image_value = _resolve_image_path(group_icon_path)
         gallery_button_attrs = {}
         if group_image_value:
             gallery_button_attrs["image"] = image_value
@@ -217,8 +212,8 @@ def add_automation_tab(
                 "type": "custom",
             }
         else:
-            icon_path = _resolve_icon_path(icon_file) or default_icon_path
-            image_value = _build_image_value(icon_path)
+            icon_path = Path(icon_file) or default_icon_path
+            image_value = _resolve_image_path(icon_path)
             toolkit_name = name.replace("/", "_")
             button_kwargs = {
                 "isLarge": "1",
@@ -261,47 +256,7 @@ def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_P
     except (FileNotFoundError, ValueError) as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
-    button_names = [btn.label for btn in _iter_panel_button_specs(parser, panel_label=panel)]
-    return name in button_names
-    return False
-
-
-def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
-    """Remove a toolkit configuration from the panel.
-
-    Parameters
-    ----------
-        toolkit_dir : str
-            Path to the toolkit directory.
-        product : str
-            Name of the product to check.
-        name : str
-            Name of the toolkit to remove.
-        panel : str, optional
-            Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
-    s
-
-    Returns
-    -------
-        bool
-            True if removal was successful or extension was not found, False if error occurred.
-    """
-    # Check if extension exists in panel first
-    if not is_extension_in_panel(toolkit_dir, tab_map(product), name, panel):
-        return True  # Already removed or doesn't exist
-
-    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
-    try:
-        parser = TabConfigParser(tab_config_file_path)
-    except (FileNotFoundError, ValueError) as e:  # pragma: no cover
-        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-        return False
-    parser.remove_button_anywhere(panel, name)
-    panel_spec = next((p for p in parser.to_model() if p.label == panel), None)
-    if panel_spec and not panel_spec.buttons and not panel_spec.galleries:
-        parser.remove_panel(panel)
-    parser.save(tab_config_file_path)
-    return True
+    return parser.has_button(panel, name)
 
 
 def available_toolkits():
@@ -714,11 +669,17 @@ def remove_script_from_menu(desktop_object, name: str, product: str = "Project")
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
     aedt_version = desktop_object.aedt_version_id
     tool_dir = toolkit_dir / product / name
-
+    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     # Check if extension exists in panel before attempting removal
     if aedt_version >= "2023.2":
-        remove_xml_tab(toolkit_dir, product, name)
-
+        try:
+            parser = TabConfigParser(tab_config_file_path)
+        except (FileNotFoundError, ValueError) as e:  # pragma: no cover
+            warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
+            return False
+        if parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
+            parser.remove_button(panel_label="Panel_PyAEDT_Extensions", label=name)
+    parser.save(tab_config_file_path)
     shutil.rmtree(str(tool_dir), ignore_errors=True)
     desktop_object.logger.info(f"{name} extension removed successfully.")
     return True
