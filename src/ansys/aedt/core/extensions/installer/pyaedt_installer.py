@@ -78,7 +78,7 @@ def add_pyaedt_to_aedt(
                 console_script = os.path.join(project_workflows_dir, console_info["script"])
             console_icon_file = os.path.join(project_workflows_dir, "images", "large", console_info["icon"])
             customize_automation_tab.add_script_to_menu(
-                "", # Empty string to just display image
+                console_info["name"],
                 console_script,
                 console_info["template"],
                 icon_file=console_icon_file,
@@ -97,7 +97,7 @@ def add_pyaedt_to_aedt(
             if console_cli_info["script"]:
                 console_cli_script = os.path.join(project_workflows_dir, console_cli_info["script"])
             customize_automation_tab.add_script_to_menu(
-                "", # Empty string to just display image
+                console_cli_info["name"],
                 console_cli_script,
                 console_cli_info["template"],
                 icon_file=console_icon_file,
@@ -116,12 +116,11 @@ def add_pyaedt_to_aedt(
         jupyter_script = None
         if jupyter_info["script"]:
             jupyter_script = os.path.join(project_workflows_dir, jupyter_info["script"])
-        jupyter_icon_file = os.path.join(project_workflows_dir, "images", "large", jupyter_info["icon"])
         customize_automation_tab.add_script_to_menu(
-            "", # Empty string to just display image
+            jupyter_info["name"],
             jupyter_script,
             jupyter_info["template"],
-            icon_file=jupyter_icon_file,
+            icon_file=console_icon_file,
             product="Project",
             copy_to_personal_lib=False,
             panel="Panel_PyAEDT_Installer",
@@ -133,7 +132,7 @@ def add_pyaedt_to_aedt(
 
     for extension in pyaedt_tabs:
         if extension == "Utilities":
-            group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "console.png")
+            group_icon_file = os.path.join(project_workflows_dir, "images", "large", "gallery", "utilities.png")
             _install_utilities_group(group_icon_file)
             continue
         if extension not in extensions_catalog:
