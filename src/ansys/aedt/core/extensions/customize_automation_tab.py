@@ -672,13 +672,11 @@ def remove_script_from_menu(desktop_object, name: str, product: str = "Project")
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     # Check if extension exists in panel before attempting removal
     if aedt_version >= "2023.2":
-        try:
-            parser = TabConfigParser(tab_config_file_path)
-        except (FileNotFoundError, ValueError) as e:  # pragma: no cover
-            warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-            return False
-        if parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
+        parser = _safe_parse_tabconfig(tab_config_file_path, logger=desktop_object.logger)
+        if parser and parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
             parser.remove_button(panel_label="Panel_PyAEDT_Extensions", label=name)
+        elif not parser:
+            return False
     parser.save(tab_config_file_path)
     shutil.rmtree(str(tool_dir), ignore_errors=True)
     desktop_object.logger.info(f"{name} extension removed successfully.")

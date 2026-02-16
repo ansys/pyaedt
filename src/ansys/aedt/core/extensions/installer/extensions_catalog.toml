@@ -11,7 +11,7 @@ script = "cli_setup.py"
 template = "pyaedt_cli"
 
 [Jupyter]
-icon = "jupyter.png"
+icon = "console.png"
 name = "Jupyter Notebook"
 script = "jupyter_template.ipynb"
 template = "jupyter"
