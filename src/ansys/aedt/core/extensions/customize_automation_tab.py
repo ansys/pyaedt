@@ -159,10 +159,12 @@ def add_automation_tab(
                         "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
                     )
 
-    def _resolve_image_path(path_value: Path | None):
+    def _resolve_image_path(path_value: Path | None, is_group_icon: bool = False) -> str | None:
         if not path_value:
             return None
-        if is_linux and not is_custom:
+        if is_linux and not is_custom and is_group_icon:
+            return f"images/gallery/{path_value.name}"
+        elif is_linux and not is_custom:
             return f"images/{path_value.name}"
         return path_value.as_posix()
 
@@ -173,7 +175,7 @@ def add_automation_tab(
         if group_icon_path is None:
             logger.error("Group icon is required when group_name is provided.")
             return
-        group_image_value = _resolve_image_path(group_icon_path)
+        group_image_value = _resolve_image_path(group_icon_path, is_group_icon=True)
         gallery_button_attrs = {}
         if group_image_value:
             gallery_button_attrs["image"] = image_value
