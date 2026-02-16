@@ -379,7 +379,7 @@ def main(data: ShieldingEffectivenessExtensionData) -> bool:
 
     aedtapp.create_linear_count_sweep(
         setup_name,
-        units=data.frequency_units,
+        unit=data.frequency_units,
         start_frequency=data.start_frequency,
         stop_frequency=data.stop_frequency,
         num_of_freq_points=data.points,

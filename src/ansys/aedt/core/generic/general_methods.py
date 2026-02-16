@@ -1056,6 +1056,8 @@ def active_sessions(
 
     # Normalize version format
     if version and "." in version:
+        if student_version and version.endswith("SV"):
+            version = version[:-2]
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]

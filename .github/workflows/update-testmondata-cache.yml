@@ -125,8 +125,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -212,8 +211,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -297,8 +295,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -387,8 +384,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -472,8 +468,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -563,8 +558,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -644,8 +638,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -731,8 +724,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -813,8 +805,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -900,8 +891,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -982,8 +972,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1067,8 +1056,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache

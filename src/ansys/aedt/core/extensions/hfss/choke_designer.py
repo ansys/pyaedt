@@ -385,7 +385,7 @@ def main(data) -> bool:
     setup.props["MaximumPasses"] = 10
     hfss.create_linear_count_sweep(
         setup=setup.name,
-        units="MHz",
+        unit="MHz",
         start_frequency=0.1,
         stop_frequency=100,
         num_of_freq_points=100,
