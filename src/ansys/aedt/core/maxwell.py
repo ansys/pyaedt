@@ -1501,7 +1501,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         coordinate_system: str | None = "Global",
         is_virtual: bool | None = True,
         force_name: str | None = None,
-    ) -> bool:
+    ) -> MaxwellForce:
         """Assign a force to one or more objects.
 
         Force assignment can be calculated based upon the solver type.
@@ -1524,8 +1524,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        MaxwellForce
+            MaxwellForce object when successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the method in creating the boundary fails.
 
         References
         ----------
@@ -1541,7 +1546,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
         >>> m3d.assign_material(iron_object, "iron")
         >>> m3d.assign_material(magnet_object, "NdFe30")
-        >>> m3d.assign_force("iron", is_virtual=True, force_name="force_iron")
+        >>> m3d.assign_force([iron_object.name], is_virtual=True, force_name="force_iron")
+        >>> m3d.release_desktop()
 
         Assign Lorentz force to a conductor:
 
@@ -1549,8 +1555,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> conductor2 = m3d.modeler.create_box([10, 0, 0], [1, 1, 10], name="conductor2")
         >>> m3d.assign_material(conductor1, "copper")
         >>> m3d.assign_material(conductor2, "copper")
-        >>> m3d.assign_force("conductor1", is_virtual=False, force_name="force_copper")  # conductor, use Lorentz force
-        >>> m3d.desktop_class.close_desktop()
+        >>> m3d.assign_force([conductor1.name], is_virtual=False, force_name="force_copper")
+        >>> m3d.release_desktop()
         """
         if self.solution_type in (SolutionsMaxwell3D.ACConduction, SolutionsMaxwell3D.DCConduction):
             raise AEDTRuntimeError("Solution type has no 'Matrix' parameter.")
@@ -1586,7 +1592,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         is_virtual: bool | None = True,
         axis: str | None = "Z",
         torque_name: str | None = None,
-    ) -> bool:
+    ) -> MaxwellTorque:
         """Assign a torque to one or more objects.
 
         Torque assignment can be calculated based upon the solver type.
@@ -1613,8 +1619,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        MaxwellTorque
+            MaxwellTorque object when successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the method in creating the boundary fails.
 
         References
         ----------
@@ -1627,8 +1638,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="Transient")
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
-        >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
-        >>> m3d.desktop_class.close_desktop()
+        >>> m3d.assign_torque(assignment=[cylinder.name], axis="Z", is_virtual=True, torque_name="torque")
+        >>> m3d.release_desktop()
         """
         if self.solution_type in (SolutionsMaxwell3D.ACConduction, SolutionsMaxwell3D.DCConduction):
             raise AEDTRuntimeError("Solution Type has not Matrix Parameter")
