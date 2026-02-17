@@ -1,6 +1,6 @@
 [Console]
 icon = "console.png"
-name = "PyAEDT Console"
+name = "Console"
 script = "console_setup.py"
 template = "pyaedt_console"
 
@@ -12,7 +12,7 @@ template = "pyaedt_cli"
 
 [Jupyter]
 icon = "console.png"
-name = "Jupyter Notebook"
+name = "Jupyter"
 script = "jupyter_template.ipynb"
 template = "jupyter"
 
