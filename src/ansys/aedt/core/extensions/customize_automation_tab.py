@@ -130,7 +130,6 @@ def add_automation_tab(
     str
         Automation tab path.
     """
-    logger = logging.getLogger("Global")
     product = tab_map(product)
     lib_dir = Path(lib_dir)
     tab_config_file_path = lib_dir / product / "TabConfig.xml"
@@ -173,8 +172,7 @@ def add_automation_tab(
         image_value = _resolve_image_path(icon_path)
         group_icon_path = Path(group_icon) if group_icon else None
         if group_icon_path is None:
-            logger.error("Group icon is required when group_name is provided.")
-            return
+            raise TypeError("Group icon is required when group_name is provided.")
         group_image_value = _resolve_image_path(group_icon_path, is_group_icon=True)
         gallery_button_attrs = {}
         if group_image_value:
