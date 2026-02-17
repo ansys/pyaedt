@@ -355,17 +355,28 @@ def add_script_to_menu(
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
 
     executable_interpreter = sys.executable
-
-    ipython_executable = re.sub(
-        r"python" + __exe() + r"$",
-        "ipython" + __exe(),
-        executable_interpreter,
-    )
-    jupyter_executable = re.sub(
-        r"python" + __exe() + r"$",
-        "jupyter" + __exe(),
-        executable_interpreter,
-    )
+    if is_linux:
+        ipython_executable = re.sub(
+            r"python3" + __exe() + r"$",
+            "ipython" + __exe(),
+            executable_interpreter,
+        )
+        jupyter_executable = re.sub(
+            r"python3" + __exe() + r"$",
+            "jupyter" + __exe(),
+            executable_interpreter,
+        )
+    else:
+        ipython_executable = re.sub(
+            r"python" + __exe() + r"$",
+            "ipython" + __exe(),
+            executable_interpreter,
+        )
+        jupyter_executable = re.sub(
+            r"python" + __exe() + r"$",
+            "jupyter" + __exe(),
+            executable_interpreter,
+        )
 
     with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
         build_file_data = build_file.read()
