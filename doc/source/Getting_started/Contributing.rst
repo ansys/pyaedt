@@ -24,6 +24,35 @@ development mode, run:
     python -m pip install --upgrade pip
     pip install -e .
 
+Development environment setup
+------------------------------
+
+PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
+This is a modern approach that replaces the older ``[project.optional-dependencies]``
+mechanism for development-only dependencies.
+
+Dependency groups vs optional dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PyAEDT uses two mechanisms for managing dependencies:
+
+- **Optional dependencies** (``[project.optional-dependencies]``): Used for runtime features
+  that users can optionally install (e.g., ``dotnet``, ``graphics``, ``jupyter``, ``all``).
+  These are installed with ``pip install pyaedt[graphics]`` or ``uv sync --extra graphics``.
+
+- **Dependency groups** (``[dependency-groups]``): Used for development-only dependencies
+  (e.g., ``dev``, ``doc``, ``tests``). These are NOT included in the package distribution
+  and are only used during development. They are installed with ``pip install --group dev``
+  or ``uv sync --group dev``.
+
+.. note::
+
+  After with PyAEDT 0.25, development dependencies have been migrated from
+  ``[project.optional-dependencies]`` to ``[dependency-groups]`` following PEP 735.
+  This ensures development dependencies are not accidentally included in package
+  distributions. When using pip, ensure you have ``pip`` version 25.1 or later to use the
+  new dependency group syntax.
+
 Post issues
 -----------
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
