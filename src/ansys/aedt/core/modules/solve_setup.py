@@ -2951,8 +2951,6 @@ class SetupHFSS(Setup, PyAedtBase):
             name = generate_unique_name("Sweep")
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
-        elif self.setuptype in [30, 31]:  # Open and Close Q2D
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
         else:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
         sweep_n.create()
