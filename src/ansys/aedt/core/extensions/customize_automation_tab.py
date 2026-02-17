@@ -169,9 +169,9 @@ def add_automation_tab(
         return path_value.as_posix()
 
     if group_name:
-        icon_path = Path(icon_file) or default_icon_path
+        icon_path = Path(icon_file) if icon_file else default_icon_path
         image_value = _resolve_image_path(icon_path)
-        group_icon_path = Path(group_icon)
+        group_icon_path = Path(group_icon) if group_icon else None
         if group_icon_path is None:
             logger.error("Group icon is required when group_name is provided.")
             return
@@ -205,16 +205,17 @@ def add_automation_tab(
         )
     else:
         if is_custom:
+            icon_path = Path(icon_file) if icon_file else default_icon_path
             script = Path(name) / "run_pyaedt_toolkit_script"
             button_kwargs = {
                 "isLarge": "1",
-                "image": str(Path(icon_file).as_posix()),
+                "image": str(icon_path.as_posix()),
                 "script": str(script.as_posix()),
                 "custom_extension": "true",
                 "type": "custom",
             }
         else:
-            icon_path = Path(icon_file) or default_icon_path
+            icon_path = Path(icon_file) if icon_file else default_icon_path
             image_value = _resolve_image_path(icon_path)
             toolkit_name = name.replace("/", "_")
             button_kwargs = {
