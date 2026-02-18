@@ -205,7 +205,7 @@ def _get_tests_requirements(lockfile_content=None):
 
     try:
         result = subprocess.run(  # nosec B603 - controlled uv args
-            ["uv", "export", "--group", "tests", "--no-hashes", "--no-header", "--frozen"],
+            ["uv", "export", "--no-dev", "--group", "tests", "--no-hashes", "--no-header", "--frozen"],
             capture_output=True,
             text=True,
             check=True,
