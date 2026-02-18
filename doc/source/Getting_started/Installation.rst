@@ -37,11 +37,11 @@ In order to do that you can:
   :width: 800
   :alt: PyAEDT run script
 
-Starting from 2023R2, buttons are available in the Automation Tab as in the example below.
+Starting from 2023R2, panels are available in the Automation Tab as in the example below.
 
 .. image:: ../Resources/toolkits_ribbon.png
   :width: 800
-  :alt: PyAEDT toolkit buttons available in AEDT
+  :alt: PyAEDT toolkit panels available in AEDT
 
 If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
 
