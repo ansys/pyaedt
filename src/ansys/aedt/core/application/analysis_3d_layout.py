@@ -67,7 +67,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
