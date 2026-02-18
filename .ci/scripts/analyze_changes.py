@@ -346,7 +346,7 @@ def analyze_changes(base_ref: str = "origin/main"):
         _write_github_output("skip_tests", "true")
         raise SystemExit(0)
 
-    if not python_files and other_files:
+    if not python_files and (other_files or uv_lock_changed):
         print("No Python files changed, but non-doc files were modified.")
         print(f"Changed files: {', '.join(all_files)}")
         _set_ci_env("RUN_ALL", "true")
