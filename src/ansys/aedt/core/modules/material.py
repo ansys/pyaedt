@@ -39,7 +39,6 @@ This module contains these data classes for creating a material library:
 
 import copy
 import csv
-from typing import Union
 from pathlib import Path
 
 from ansys.aedt.core.base import PyAedtBase
@@ -433,7 +432,7 @@ class MatProperty(PyAedtBase):
             return [i.value for i in self._property_value]
 
     @value.setter
-    def value(self, val: Union[str, list, Path, float, int]) -> None:
+    def value(self, val: str | list | Path | float | int) -> None:
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
             self.set_non_linear()
