@@ -286,14 +286,14 @@ By default, the Version Manager panel is installed. To skip it:
 
     pyaedt panels add --skip-version-manager
 
-**Reboot Option**
+**Reset option**
 
-If you want to clean up existing installations before adding panels, use the ``--reboot`` option.
+If you want to clean up existing installations before adding panels, use the ``--reset`` option.
 This deletes the existing ``Toolkits`` directory inside PersonalLib before installing:
 
 .. code-block:: bash
 
-    pyaedt panels add --reboot
+    pyaedt panels add --reset
     pyaedt panels add -r
 
 This is useful for:
@@ -306,7 +306,7 @@ You can combine options:
 
 .. code-block:: bash
 
-    pyaedt panels add --personal-lib "path/to/PersonalLib" --reboot --skip-version-manager
+    pyaedt panels add --personal-lib "path/to/PersonalLib" --reset --skip-version-manager
     pyaedt panels add -p "path/to/PersonalLib" -r
 
 **Installed Panels**
@@ -456,7 +456,7 @@ Here are some common workflows using the CLI:
     pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
 
     # Clean install
-    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reboot
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reset
 
 **Quick Documentation Access**
 

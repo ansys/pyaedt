@@ -1149,13 +1149,13 @@ def test_panels_add_no_versions_installed(mock_installed_versions, cli_runner) -
     assert "Please install AEDT before running this command." in (result.stdout)
 
 
-# PANELS ADD WITH REBOOT OPTION TESTS
+# PANELS ADD WITH RESET OPTION TESTS
 
 
-def test_panels_add_with_reboot_success(
+def test_panels_add_with_reset_success(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test successful panel installation with reboot option."""
+    """Test successful panel installation with reset option."""
     # Create existing Toolkits directory
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
@@ -1164,7 +1164,7 @@ def test_panels_add_with_reboot_success(
 
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reboot"],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
         input="1\n",
     )
 
@@ -1172,10 +1172,10 @@ def test_panels_add_with_reboot_success(
     mock_add_pyaedt_to_aedt.assert_called_once()
 
 
-def test_panels_add_with_reboot_short_option(
+def test_panels_add_with_reset_short_option(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with reboot short option."""
+    """Test panel installation with reset short option."""
     # Create existing Toolkits directory
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
@@ -1189,13 +1189,13 @@ def test_panels_add_with_reboot_short_option(
     assert result.exit_code == 0
 
 
-def test_panels_add_with_reboot_no_toolkits(
+def test_panels_add_with_reset_no_toolkits(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with reboot when Toolkits doesn't exist."""
+    """Test panel installation with reset when Toolkits doesn't exist."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reboot"],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
         input="1\n",
     )
 
@@ -1203,10 +1203,10 @@ def test_panels_add_with_reboot_no_toolkits(
     mock_add_pyaedt_to_aedt.assert_called_once()
 
 
-def test_panels_add_with_reboot_nested_content(
+def test_panels_add_with_reset_nested_content(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with reboot when Toolkits has nested content."""
+    """Test panel installation with reset when Toolkits has nested content."""
     # Create Toolkits directory with nested content
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
@@ -1218,7 +1218,7 @@ def test_panels_add_with_reboot_nested_content(
 
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reboot"],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
         input="1\n",
     )
 
@@ -1227,17 +1227,17 @@ def test_panels_add_with_reboot_nested_content(
 
 
 @patch("shutil.rmtree", side_effect=PermissionError("Permission denied"))
-def test_panels_add_with_reboot_permission_error(
+def test_panels_add_with_reset_permission_error(
     mock_rmtree, cli_runner, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with reboot when permission error occurs."""
+    """Test panel installation with reset when permission error occurs."""
     # Create Toolkits directory
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
 
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reboot"],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
         input="1\n",
     )
 
@@ -1245,27 +1245,27 @@ def test_panels_add_with_reboot_permission_error(
 
 
 @patch("shutil.rmtree", side_effect=Exception("Unexpected error"))
-def test_panels_add_with_reboot_generic_exception(
+def test_panels_add_with_reset_generic_exception(
     mock_rmtree, cli_runner, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with reboot when generic exception occurs."""
+    """Test panel installation with reset when generic exception occurs."""
     # Create Toolkits directory
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
 
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reboot"],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
         input="1\n",
     )
 
     assert result.exit_code == 1
 
 
-def test_panels_add_with_reboot_and_skip_version_manager(
+def test_panels_add_with_reset_and_skip_version_manager(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
-    """Test panel installation with both reboot and skip version manager options."""
+    """Test panel installation with both reset and skip version manager options."""
     # Create existing Toolkits directory
     toolkits_dir = temp_personal_lib / "Toolkits"
     toolkits_dir.mkdir()
@@ -1277,7 +1277,7 @@ def test_panels_add_with_reboot_and_skip_version_manager(
             "add",
             "--personal-lib",
             str(temp_personal_lib),
-            "--reboot",
+            "--reset",
             "--skip-version-manager",
         ],
         input="1\n",

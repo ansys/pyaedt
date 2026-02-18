@@ -52,9 +52,9 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
-    reboot: bool = typer.Option(
+    reset: bool = typer.Option(
         False,
-        "--reboot",
+        "--reset",
         "-r",
         help="Delete existing Toolkits directory before installing",
     ),
@@ -68,7 +68,7 @@ def add_panels(
     --------
         pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
-        pyaedt panels add --personal-lib "..." --reboot  # Delete Toolkits before installing
+        pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
     """
     try:
@@ -130,12 +130,12 @@ def add_panels(
             )
             raise typer.Exit(code=1)
 
-        # Handle reboot option - delete Toolkits directory if requested
-        if reboot:
+        # Handle reset option - delete Toolkits directory if requested
+        if reset:
             toolkits_path = personal_lib_path / "Toolkits"
             if toolkits_path.exists():
                 typer.secho(
-                    "Rebooting: Deleting existing Toolkits directory...",
+                    "Deleting existing Toolkits directory...",
                     fg=typer.colors.YELLOW,
                     bold=True,
                 )

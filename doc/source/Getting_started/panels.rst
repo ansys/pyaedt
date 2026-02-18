@@ -36,13 +36,13 @@ You can also install panels programmatically:
 
     add_pyaedt_to_aedt(r"C:\Users\username\AppData\Roaming\Ansoft\PersonalLib")
 
-**Reboot Option**
+**Reset Option**
 
-If you need to perform a clean installation (removing existing panels before installing), use the ``--reboot`` option:
+If you need to perform a clean installation (removing existing panels before installing), use the ``--reset`` option:
 
 .. code-block:: bash
 
-    pyaedt panels add --personal-lib "path/to/PersonalLib" --reboot
+    pyaedt panels add --personal-lib "path/to/PersonalLib" --reset
 
 This deletes the existing ``Toolkits`` directory inside PersonalLib before installing fresh panels.
 This is useful for troubleshooting installation issues or cleaning up corrupted installations.
@@ -134,7 +134,7 @@ If panels don't appear after installation:
 1. Ensure you restarted AEDT after installation
 2. Check that the correct PersonalLib path was used
 3. Verify that the Toolkits directory exists in PersonalLib
-4. Try a clean installation using the ``--reboot`` option
+4. Try a clean installation using the ``--reset`` option
 
 **Permission Errors**
 
@@ -150,7 +150,7 @@ To fix a corrupted installation:
 
 .. code-block:: bash
 
-    pyaedt panels add --personal-lib "path/to/PersonalLib" --reboot
+    pyaedt panels add --personal-lib "path/to/PersonalLib" --reset
 
 This removes the old installation and installs fresh panels.
 
