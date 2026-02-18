@@ -37,12 +37,12 @@ from IPython import get_ipython
 import tempfile
 
 
-aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))  
-version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)  
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) 
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) 
 print("Loading the PyAEDT Console.")
 
 try:
-    from ansys.aedt.core import *
+    from ansys.aedt.core import * # noqa: F401
     import ansys.aedt.core  # noqa: F401
     from ansys.aedt.core import Desktop
     from ansys.aedt.core.generic.general_methods import active_sessions
