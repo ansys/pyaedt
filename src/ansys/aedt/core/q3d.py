@@ -44,7 +44,6 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
@@ -2922,9 +2921,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(
-        self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs
-    ) -> SetupHFSS:
+    def create_setup(self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs) -> SetupQ3D:
         """Create an analysis setup for 2D Extractor.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``
@@ -2945,7 +2942,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
             Solver Setup object.
 
         References
