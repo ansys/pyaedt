@@ -203,10 +203,8 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                if v.launched_by_pyaedt:
-                    v.close_desktop()
-                else:
-                    v.release_desktop(False, False)
+                v.release_desktop(close_projects=v.close_on_exit, close_on_exit=v.close_on_exit)
+
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return

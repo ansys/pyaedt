@@ -40,6 +40,7 @@ import sys
 from IPython import get_ipython
 import tempfile
 
+
 aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))  # pragma: no cover
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)  # pragma: no cover
 print("Loading the PyAEDT Console.")
@@ -51,6 +52,8 @@ try:  # pragma: no cover
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
     from ansys.aedt.core.generic.file_utils import available_file_name
+    from ansys.aedt.core import settings
+    settings.release_on_exception = False
 
 except ImportError:  # pragma: no cover
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
@@ -65,6 +68,8 @@ except ImportError:  # pragma: no cover
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
     from ansys.aedt.core.generic.file_utils import available_file_name
+    from ansys.aedt.core import settings
+    settings.release_on_exception = False
 
 
 def release(d) -> None:  # pragma: no cover
