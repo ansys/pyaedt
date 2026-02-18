@@ -2828,37 +2828,41 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        input_file = Path(input_file)
-        with open_file(input_file, "r") as f:
-            lines = f.read().splitlines()
-        header = lines[0]
-        points = lines[1:]
+        in_file = Path(input_file)
+        if in_file.is_file():
+            with in_file.open(encoding="utf-8") as f:
+                lines = f.read().splitlines()
+            header = lines[0]
+            points = lines[1:]
 
-        header_list = header.split("\t")
-        units = ["", ""]
-        cont = 0
-        for h in header_list:
-            result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
-            if result:
-                units[cont] = result.group(1)
-            cont += 1
+            header_list = header.split("\t")
+            units = ["", ""]
+            cont = 0
+            for h in header_list:
+                result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
+                if result:
+                    units[cont] = result.group(1)
+                cont += 1
 
-        xlist = []
-        ylist = []
-        for item in points:
-            xlist.append(float(item.split()[0]))
-            ylist.append(float(item.split()[1]))
+            xlist = []
+            ylist = []
+            for item in points:
+                xlist.append(float(item.split()[0]))
+                ylist.append(float(item.split()[1]))
 
-        if not name:
-            name = input_file.stem
+            if not name:
+                name = input_file.stem
 
-        if name[0] == "$":
-            name = name[1:]
-            is_project_dataset = True
+            if name[0] == "$":
+                name = name[1:]
+                is_project_dataset = True
 
-        return self.create_dataset(
-            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
-        )
+            return self.create_dataset(
+                name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
+            )
+        else:
+            self.logger.error("Input file does not exist.")
+            return None
 
     @pyaedt_function_handler()
     def import_dataset3d(
