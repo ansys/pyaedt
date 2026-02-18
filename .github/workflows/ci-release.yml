@@ -91,6 +91,7 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
+          group-dependencies-name: 'doc'
 
   smoke-tests:
     name: Build wheelhouse and smoke tests

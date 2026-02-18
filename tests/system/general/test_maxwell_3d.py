@@ -44,10 +44,19 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
+from ansys.aedt.core.modules.boundary.maxwell_boundary import GroupSourcesMagnetostatic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellLayoutForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
+from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
+from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -446,16 +455,16 @@ def test_assign_matrix_ac_magnetic_aphi(m3d_app):
     current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
     current4 = m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
 
-    rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+    rl_source = RLSourceACMagneticAPhi(
         signal_sources=[current1.name],
         ground_sources=[current3.name],
     )
-    gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+    gc_source = GCSourceACMagneticAPhi(
         signal_sources=[current2.name],
         ground_sources=[current4.name],
     )
 
-    args = MaxwellMatrix.MatrixACMagneticAPhi(
+    args = MatrixACMagneticAPhi(
         rl_sources=[rl_source],
         gc_sources=[gc_source],
         matrix_name="test_matrix",
@@ -482,9 +491,9 @@ def test_assign_matrix_ac_magnetic(m3d_app):
     m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
     m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
 
-    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
-    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
-    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+    signal_source_1 = SourceACMagnetic(name=current1.name)
+    signal_source_2 = SourceACMagnetic(name=current2.name)
+    matrix_args = MatrixACMagnetic(
         signal_sources=[signal_source_1, signal_source_2],
     )
     matrix = m3d_app.assign_matrix(matrix_args)
@@ -504,24 +513,24 @@ def test_assign_matrix_magnetostatic(m3d_app):
     current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
     current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
     m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
-    signal_source_1 = MaxwellMatrix.SourceMagnetostatic(
+    signal_source_1 = SourceMagnetostatic(
         name=current1.name,
         return_path=current3.name,
         turns_number=5,
     )
 
-    signal_source_2 = MaxwellMatrix.SourceMagnetostatic(
+    signal_source_2 = SourceMagnetostatic(
         name=current2.name,
         turns_number=2,
     )
 
-    group_source = MaxwellMatrix.GroupSourcesMagnetostatic(
+    group_source = GroupSourcesMagnetostatic(
         source_names=[current1.name, current2.name],
         branches_number=7,
         name="test_group",
     )
 
-    matrix_args = MaxwellMatrix.MatrixMagnetostatic(
+    matrix_args = MatrixMagnetostatic(
         signal_sources=[signal_source_1, signal_source_2],
         group_sources=[group_source],
         matrix_name="test_matrix",
@@ -546,7 +555,7 @@ def test_available_quantities_categories(m3d_app, maxwell_versioned) -> None:
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix_args = MaxwellMatrix.MatrixElectric(
+    matrix_args = MatrixElectric(
         signal_sources=[voltage1.name],
         matrix_name="test_matrix",
     )
@@ -566,7 +575,7 @@ def test_available_report_quantities(m3d_app, maxwell_versioned) -> None:
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix_args = MaxwellMatrix.MatrixElectric(
+    matrix_args = MatrixElectric(
         signal_sources=[voltage1.name],
         matrix_name="test_matrix",
     )
@@ -602,11 +611,11 @@ def test_reduced_matrix(m3d_app, maxwell_versioned):
     m3d_app.assign_current([box2.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
     m3d_app.assign_current([box3.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
 
-    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
-    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
-    signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+    signal_source_1 = SourceACMagnetic(name=current1.name)
+    signal_source_2 = SourceACMagnetic(name=current2.name)
+    signal_source_3 = SourceACMagnetic(name=current3.name)
 
-    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+    matrix_args = MatrixACMagnetic(
         signal_sources=[signal_source_1, signal_source_2, signal_source_3],
         matrix_name="test_matrix",
     )
