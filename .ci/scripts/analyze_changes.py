@@ -283,7 +283,7 @@ def analyze_changes(base_ref: str = "origin/main"):
     # Separate Python files and doc files
     python_files = [f for f in all_files if f.endswith(".py") and (f.startswith("tests/") or f.startswith("src/"))]
     doc_files = [f for f in all_files if f.startswith("doc/") or f.startswith("doc\\")]
-    uv_lock_changed = any(f.replace("\\", "/") == "uv.lock" for f in all_files)
+    uv_lock_changed = any(file == "uv.lock" for f in all_files)
     other_files = [
         f for f in all_files if f not in python_files and f not in doc_files and f.replace("\\", "/") != "uv.lock"
     ]
