@@ -7469,7 +7469,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Parameters
         ----------
         assignment : str
-            String used to filter by object names..
+            String used to filter by object names.
         case_sensitive : bool, optional
             Whether the string is case-sensitive. The default is ``True``.
 
@@ -7477,7 +7477,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         -------
         list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Returns a list of objects whose names contain the
-            search string..
+            search string.
 
         """
         if case_sensitive:
