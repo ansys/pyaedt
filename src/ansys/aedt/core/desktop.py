@@ -2804,8 +2804,10 @@ class Desktop(PyAedtBase):
                 is_launched, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
+                self.launched_by_pyaedt = True
+
             self.new_desktop = not is_launched
-            self.launched_by_pyaedt = True
+
             # Establish gRPC connection (implementation details)
             result = self.__initialize()
 
