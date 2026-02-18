@@ -29,11 +29,10 @@ This file can also serve as a template to modify PyAEDT scripts to take advantag
 provided by the launcher
 """
 
-import os
 import atexit
+import os
 from pathlib import Path
 import sys
-from IPython import get_ipython
 import tempfile
 
 
@@ -44,9 +43,9 @@ print("Loading the PyAEDT Console.")
 try:
     from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 
@@ -59,9 +58,9 @@ except ImportError:
 
     from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 
