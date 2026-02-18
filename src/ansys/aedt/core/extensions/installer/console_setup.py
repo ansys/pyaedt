@@ -25,10 +25,6 @@
 """
 Launches an interactive shell with an instance of HFSS.
 
-Omitting the .py in the name of this file hides it from the Electronics Desktop Toolkit menu.
-It should be hidden from this menu because the scripts in that menu are meant to be executed using IronPython
-cpython_console.py should be run instead of this script.
-
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
 """
