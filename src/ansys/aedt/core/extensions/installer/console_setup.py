@@ -42,8 +42,7 @@ version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
 print("Loading the PyAEDT Console.")
 
 try:
-    from ansys.aedt.core import * # noqa: F401
-    import ansys.aedt.core  # noqa: F401
+    from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
@@ -59,7 +58,6 @@ except ImportError:
         sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
 
     from ansys.aedt.core import *  # noqa: F401
-    import ansys.aedt.core  # noqa: F401
     from ansys.aedt.core import Desktop
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
