@@ -913,6 +913,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
             gRPC port on which the AEDT session has started.
         """
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions, active_sessions
+        from ansys.aedt.core.generic.settings import settings
 
         sessions = grpc_active_sessions()
         if not port:
@@ -959,16 +960,17 @@ class GlobalService(rpyc.Service, PyAedtBase):
             command.append("-ng")
 
         process = subprocess.Popen(command)  # nosec
-        timeout = 60
+        timeout = settings.desktop_launch_timeout
+
         while timeout > 0:
             active_s = active_sessions()
             if port in active_s.values():
-                break
+                return True
             timeout -= 1
             time.sleep(1)
 
         process.terminate()
-        logger.error("Service did not start within the timeout of 60 seconds.")
+        logger.error(f"Service did not start within the timeout of {settings.desktop_launch_timeout} seconds.")
         return False
 
     @property
