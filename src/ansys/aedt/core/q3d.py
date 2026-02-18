@@ -53,16 +53,69 @@ if TYPE_CHECKING:
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
-    """Extracts a 2D or 3D field analysis.
+    """Provides the Q3D and Q2D application interface.
+
+    This class is the base class for Q3D and Q2D applications. It allows you to
+    create an interactive instance and connect to an existing design or create
+    a new design if one does not exist.
 
     Parameters
     ----------
-    FieldAnalysis3D :
-
-    FieldAnalysis2D :
-
-    object :
-
+    application : str
+        Type of extractor. Options are ``"Q3D"`` for Q3D Extractor or
+        ``"EXTRACTOR2D"`` for 2D Extractor.
+    project : str, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no
+        projects are present, an empty project is created.
+    design : str, optional
+        Name of the design to select. The default is ``None``, in
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or
+        nothing is used.
+    version : str, int, float, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+        This parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+    non_graphical : bool, optional
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
+    new_desktop : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
+    close_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when a script is launched
+        within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This parameter works only on
+        2022 R2 or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        starts if it is not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     """
 
@@ -74,11 +127,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
     def __init__(
         self,
-        Q3DType,
+        application: str,
         project: str | None = None,
         design: str | None = None,
         solution_type: str | None = None,
-        setup_name: str | None = None,
+        setup: str | None = None,
         version: str | None = None,
         non_graphical: bool | None = False,
         new_desktop: bool | None = False,
@@ -91,11 +144,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
-            Q3DType,
+            application,
             project,
             design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
@@ -1260,7 +1313,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
         Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
@@ -1301,6 +1354,47 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     >>> from ansys.aedt.core import Q3d
     >>> app = Q3d()
+    PyAEDT INFO: No project is defined...
+    PyAEDT INFO: Active design is set to...
+
+    Create an instance of Q3D and link to a project named
+    ``Q3dProject``. If this project does not exist, create one with
+    this name.
+
+    >>> app = Q3d("Q3dProject")
+    PyAEDT INFO: Project Q3dProject has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design ...
+
+    Create an instance of Q3D and link to a design named
+    ``Q3dDesign1`` in a project named ``Q3dProject``.
+
+    >>> app = Q3d("Q3dProject", "Q3dDesign1")
+    PyAEDT INFO: Added design 'Q3dDesign1' of type Q3D Extractor.
+
+    Create an instance of Q3D and open the specified project,
+    which is named ``"myfile.aedt"``.
+
+    >>> app = Q3d("myfile.aedt")
+    PyAEDT INFO: Project myfile has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
+
+    Create an instance of Q3D using the 2025 R1 release and open
+    the specified project, which is named ``"myfile2.aedt"``.
+
+    >>> app = Q3d(version=252, project="myfile2.aedt")
+    PyAEDT INFO: Project myfile2 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
+
+    Create an instance of Q3D using the 2025 R1 student version and open
+    the specified project, which is named ``"myfile3.aedt"``.
+
+    >>> app = Q3d(version="252", project="myfile3.aedt", student_version=True)
+    PyAEDT INFO: Project myfile3 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
 
     """
 
@@ -2417,22 +2511,52 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     Examples
     --------
-    Create an instance of Q2D and link to a project named
-    ``projectname``. If this project does not exist, create one with
-    this name.
+    Create an instance of Q2D and connect to an existing Q2D
+    design or create a new Q2D design if one does not exist.
 
     >>> from ansys.aedt.core import Q2d
-    >>> app = Q2d(projectname)
+    >>> app = Q2d()
+    PyAEDT INFO: No project is defined...
+    PyAEDT INFO: Active design is set to...
+
+    Create an instance of Q2D and link to a project named
+    ``Q2dProject``. If this project does not exist, create one with
+    this name.
+
+    >>> app = Q2d("Q2dProject")
+    PyAEDT INFO: Project Q2dProject has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design ...
 
     Create an instance of Q2D and link to a design named
-    ``designname`` in a project named ``projectname``.
+    ``Q2dDesign1`` in a project named ``Q2dProject``.
 
-    >>> app = Q2d(projectname, designame)
+    >>> app = Q2d("Q2dProject", "Q2dDesign1")
+    PyAEDT INFO: Added design 'Q2dDesign1' of type 2D Extractor.
 
     Create an instance of Q2D and open the specified project,
-    which is named ``myfile.aedt``.
+    which is named ``"myfile.aedt"``.
 
     >>> app = Q2d("myfile.aedt")
+    PyAEDT INFO: Project myfile has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
+
+    Create an instance of Q2D using the 2025 R1 release and open
+    the specified project, which is named ``"myfile2.aedt"``.
+
+    >>> app = Q2d(version=252, project="myfile2.aedt")
+    PyAEDT INFO: Project myfile2 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
+
+    Create an instance of Q2D using the 2025 R1 student version and open
+    the specified project, which is named ``"myfile3.aedt"``.
+
+    >>> app = Q2d(version="252", project="myfile3.aedt", student_version=True)
+    PyAEDT INFO: Project myfile3 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
 
     """
 

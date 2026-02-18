@@ -54,19 +54,19 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     ----------
     application : str
         3D application that is to initialize the call.
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
@@ -101,10 +101,10 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     def __init__(
         self,
         application: str,
-        projectname: str,
-        designname: str,
+        project: str,
+        design: str,
         solution_type: str,
-        setup_name: str,
+        setup: str,
         version: str,
         non_graphical: bool,
         new_desktop: bool = False,
@@ -119,10 +119,10 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,

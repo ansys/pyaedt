@@ -91,18 +91,18 @@ class Analysis(Design, PyAedtBase):
     ----------
     application : str
         Application that is to initialize the call.
-    projectname : str
+    project : str
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.
-    designname : str
+    design : str
         Name of the design to select.
     solution_type : str
         Solution type to apply to the design.
-    setup_name : str
+    setup : str
         Name of the setup to use as the nominal.
-    specified_version : str
-        Version of AEDT  to use.
-    NG : bool
+    version : str
+        Version of AEDT to use.
+    non_graphical : bool
         Whether to run AEDT in the non-graphical mode.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -127,11 +127,11 @@ class Analysis(Design, PyAedtBase):
     def __init__(
         self,
         application: str,
-        projectname: str,
-        designname: str,
+        project: str,
+        design: str,
         solution_type: str,
-        setup_name: str,
-        specified_version: str,
+        setup: str,
+        version: str,
         non_graphical: bool,
         new_desktop: bool,
         close_on_exit: bool,
@@ -145,10 +145,10 @@ class Analysis(Design, PyAedtBase):
         Design.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            specified_version,
+            version,
             non_graphical,
             new_desktop,
             close_on_exit,
@@ -161,8 +161,8 @@ class Analysis(Design, PyAedtBase):
         )
         self._excitation_objects = {}
         self._setup = None
-        if setup_name:
-            self.active_setup = setup_name
+        if setup:
+            self.active_setup = setup
         self._materials = None
         self._available_variations = None
         self._setups = []

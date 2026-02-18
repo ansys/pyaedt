@@ -48,25 +48,74 @@ if TYPE_CHECKING:
 
 
 class FieldAnalysisCircuit(Analysis, PyAedtBase):
-    """FieldCircuitAnalysis class.
+    """Provides the Field Analysis Circuit interface for Nexxim.
 
-    This class is for circuit analysis setup in Nexxim.
-
-    It is automatically initialized by a call from an application,
-    such as HFSS or Q3D. See the application function for its
-    parameter definitions.
+    This class is for circuit analysis setup in Nexxim. It is automatically
+    initialized by a call from an application such as Circuit, Twin Builder,
+    or Maxwell Circuit.
 
     Parameters
     ----------
+    application : str
+        Name of the application. Options are ``"Circuit Design"``,
+        ``"Twin Builder"``, or ``"Maxwell Circuit"``.
+    project : str
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.
+    design : str
+        Name of the design to select.
+    solution_type : str
+        Solution type to apply to the design.
+    setup : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or
+        nothing is used.
+    version : str, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+        This parameter is ignored when a script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
+    new_desktop : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
+    close_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when a script is launched
+        within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This parameter works only on
+        2022 R2 or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        starts if it is not present. The default is ``""``.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        The default is ``0``.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
+
     """
 
     def __init__(
         self,
         application: str,
-        projectname: str,
-        designname: str,
+        project: str,
+        design: str,
         solution_type: str,
-        setup_name: str = None,
+        setup: str = None,
         version: str = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
@@ -80,10 +129,10 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
