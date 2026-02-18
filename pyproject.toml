@@ -276,7 +276,10 @@ source = ["src/ansys/aedt/core"]
 
 [tool.coverage.report]
 show_missing = true
-omit = ["src/ansys/aedt/core/rpc/*.py"]
+omit = [
+    "src/ansys/aedt/core/rpc/*.py",
+    "src/ansys/aedt/core/extensions/installer/*_setup.py",
+]
 
 [tool.pytest.ini_options]
 markers = [
