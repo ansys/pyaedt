@@ -27,6 +27,7 @@ from __future__ import annotations
 import csv
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -42,6 +43,19 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.checks import min_aedt_version
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
+    from ansys.aedt.core.modeler.modeler_2d import Modeler2D
+    from ansys.aedt.core.modeler.modeler_3d import Modeler3D
+    from ansys.aedt.core.modules.mesh import Mesh
+    from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+    from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+    from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+    from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+    from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+
 
 class FieldAnalysis3D(Analysis, PyAedtBase):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
@@ -53,19 +67,19 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     ----------
     application : str
         3D application that is to initialize the call.
-    projectname : str or :class:`pathlib.Path`, optional
+    project : str or :class:`pathlib.Path`, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
@@ -84,6 +98,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    port : int, optional
+        Port number to use for the AEDT instance. The default is ``0``.
     aedt_process_id : int, optional
         Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
@@ -95,28 +111,28 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
-        aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
-    ) -> None:
+        application: str,
+        project: str | Path = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str | int | float = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
+    ):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
@@ -137,7 +153,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def configurations(self):
+    def configurations(self) -> Configurations:
         """Property to import and export configuration files.
 
         Returns
@@ -147,7 +163,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._configurations
 
     @property
-    def modeler(self):
+    def modeler(self) -> Modeler3D | Modeler2D:
         """Modeler.
 
         Returns
@@ -166,7 +182,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def mesh(self):
+    def mesh(self) -> Mesh:
         """Mesh.
 
         Returns
@@ -185,7 +201,16 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._mesh
 
     @property
-    def post(self):
+    def post(
+        self,
+    ) -> (
+        PostProcessor3D
+        | PostProcessorIcepak
+        | PostProcessorCircuit
+        | PostProcessor3DLayout
+        | PostProcessorMaxwell
+        | PostProcessorHFSS
+    ):
         """PostProcessor.
 
         Returns
@@ -200,7 +225,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def components3d(self):
+    def components3d(self) -> dict:
         """3D components.
 
         Returns
@@ -229,19 +254,19 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @min_aedt_version("2021.2")
     def plot(
         self,
-        assignment=None,
+        assignment: list = None,
         show: bool = True,
-        output_file=None,
+        output_file: str = None,
         plot_as_separate_objects: bool = True,
         plot_air_objects: bool = True,
-        force_opacity_value=None,
+        force_opacity_value: float = None,
         clean_files: bool = False,
         view: str = "isometric",
         show_legend: bool = True,
         dark_mode: bool = False,
         show_grid: bool = False,
         show_bounding: bool = False,
-    ):
+    ) -> ModelPlotter:
         """Plot the model or a subset of objects.
 
         Parameters
@@ -299,7 +324,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: str | None = "", output_file=None):
+    def export_mesh_stats(self, setup: str, variations: str = "", output_file: str = None) -> str:
         """Export mesh statistics to a file.
 
         Parameters
@@ -349,7 +374,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             return read_component_file(self.components3d[name])
 
     @pyaedt_function_handler()
-    def get_property_value(self, assignment, property_name, property_type=None):
+    def get_property_value(self, assignment: str, property_name: str, property_type: str = None) -> any:
         """Retrieve a property value.
 
         Parameters
@@ -401,7 +426,12 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def copy_solid_bodies_from(
-        self, design, assignment=None, no_vacuum: bool = True, no_pec: bool = True, include_sheets: bool = False
+        self,
+        design: object,
+        assignment: list = None,
+        no_vacuum: bool = True,
+        no_pec: bool = True,
+        include_sheets: bool = False,
     ) -> bool:
         """Copy a list of objects and user defined models from one design to the active design.
 
@@ -576,11 +606,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         file_name: str = "",
         file_path: str = "",
         file_format: str = ".step",
-        assignment_to_export=None,
-        assignment_to_remove=None,
-        major_version=-1,
-        minor_version=-1,
-    ):
+        assignment_to_export: list | None = None,
+        assignment_to_remove: list | None = None,
+        major_version: int = -1,
+        minor_version: int = -1,
+    ) -> bool:
         """Export the 3D model.
 
         Parameters
@@ -620,7 +650,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def get_all_sources(self):
+    def get_all_sources(self) -> list[str]:
         """Retrieve all setup sources.
 
         Returns
@@ -635,7 +665,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSources())
 
     @pyaedt_function_handler()
-    def get_all_source_modes(self):
+    def get_all_source_modes(self) -> list[str]:
         """Retrieve all source modes.
 
         Returns
@@ -650,7 +680,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSourceModes())
 
     @pyaedt_function_handler()
-    def set_source_context(self, sources, number_of_modes: int = 1) -> bool:
+    def set_source_context(self, sources: list[str], number_of_modes: int = 1) -> bool:
         """Set the source context.
 
         Parameters
@@ -680,7 +710,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_material(self, assignment, material: str) -> bool:
+    def assign_material(self, assignment: str | list, material: str) -> bool:
         """Assign a material to one or more objects.
 
         Parameters
@@ -786,7 +816,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_all_conductors_names(self):
+    def get_all_conductors_names(self) -> list[str]:
         """Retrieve all conductors in the active design.
 
         Returns
@@ -810,7 +840,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def get_all_dielectrics_names(self):
+    def get_all_dielectrics_names(self) -> list[str]:
         """Retrieve all dielectrics in the active design.
 
         Returns
@@ -848,7 +878,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return nominal_val, "$" + ds_name
 
     @pyaedt_function_handler()
-    def assignmaterial_from_sherlock_files(self, component_file, material_file) -> bool:
+    def assignmaterial_from_sherlock_files(self, component_file: str, material_file: str) -> bool:
         """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
@@ -963,7 +993,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def cleanup_solution(
         self,
-        variations: list | str | None = "All",
+        variations: str | list = "All",
         entire_solution: bool = True,
         field: bool = True,
         mesh: bool = True,
@@ -1001,7 +1031,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler
-    def add_stackup_3d(self):
+    def add_stackup_3d(self) -> Stackup3D:
         """Create a stackup 3D object.
 
         Returns
@@ -1014,7 +1044,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return Stackup3D(self)
 
     @pyaedt_function_handler()
-    def flatten_3d_components(self, components=None, purge_history: bool = True, password=None) -> bool:
+    def flatten_3d_components(
+        self, components: str | list = None, purge_history: bool = True, password: str = None
+    ) -> bool:
         """Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.
@@ -1111,7 +1143,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     @graphics_required
     @min_aedt_version("2023.2")
-    def identify_touching_conductors(self, assignment=None):
+    def identify_touching_conductors(self, assignment: str = None) -> dict:
         """Identify all touching components and group in a dictionary.
 
         This method requires that the ``pyvista`` package is installed.

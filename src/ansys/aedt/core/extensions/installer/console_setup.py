@@ -33,11 +33,10 @@ This file can also serve as a template to modify PyAEDT scripts to take advantag
 provided by the launcher
 """
 
-import os
 import atexit
+import os
 from pathlib import Path
 import sys
-from IPython import get_ipython
 import tempfile
 
 
@@ -46,12 +45,12 @@ version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)  # pragma: no cover
 print("Loading the PyAEDT Console.")
 
 try:  # pragma: no cover
-    from ansys.aedt.core import *
     import ansys.aedt.core  # noqa: F401
+    from ansys.aedt.core import *
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 
@@ -62,12 +61,12 @@ except ImportError:  # pragma: no cover
     if "PersonalLib" in console_setup_dir.parts:
         sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
 
-    from ansys.aedt.core import *  # noqa: F401
     import ansys.aedt.core  # noqa: F401
+    from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 

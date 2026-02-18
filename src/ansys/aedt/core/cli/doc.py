@@ -120,7 +120,7 @@ def issues() -> None:
 
 
 @doc_app.command(name="search", help="One or more search keywords for the documentation")
-def search(search_keys: list[str] = typer.Argument(None)):
+def search(search_keys: list[str] = typer.Argument(None)) -> None:
     """Search the online documentation."""
     if not search_keys:
         typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)
