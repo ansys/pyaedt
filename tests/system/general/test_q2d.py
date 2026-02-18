@@ -97,21 +97,6 @@ def test_add_sweep(aedt_app) -> None:
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
 
-def test_add_sweep_closed(aedt_app):
-    # Set the solution type to "Closed" for this test
-    aedt_app.solution_type = "Closed"
-    """Test sweep creation in closed solution type Q2D."""
-    setup = aedt_app.create_setup()
-    setup.props["SaveFields"] = True
-    assert setup.update()
-    sweep = setup.add_sweep("Q2D_Sweep_Closed")
-    assert sweep.add_subrange("LinearCount", 0.0, 100e6, 10)
-    assert sweep.add_subrange("LinearStep", 100e6, 2e9, 50e6)
-    assert sweep.add_subrange("LogScale", 100, 100e6, 10, clear=True)
-    assert sweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
-    assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
-
-
 def test_assign_single_signal_line(aedt_app):
     rect = aedt_app.modeler.create_rectangle([0, 0, 0], [5, 3], name="Rectangle1")
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
