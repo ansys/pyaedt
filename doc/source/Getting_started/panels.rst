@@ -1,4 +1,4 @@
-AEDT Panels
+AEDT panels
 ===========
 
 PyAEDT provides several panels that integrate directly into the AEDT interface, accessible from the **Automation** tab.
@@ -48,12 +48,12 @@ This deletes the existing ``Toolkits`` directory inside PersonalLib before insta
 This is useful for troubleshooting installation issues or cleaning up corrupted installations.
 
 
-Available Panels
+Available panels
 ~~~~~~~~~~~~~~~~
 
 The following panels are installed when you add PyAEDT to AEDT:
 
-PyAEDT Utilities
+PyAEDT utilities
 ----------------
 
 A group panel containing three essential tools:
@@ -85,7 +85,7 @@ Launches a Jupyter notebook server connected to the current AEDT session. Benefi
 - Documentation of workflows with markdown
 - Sharing of analysis notebooks
 
-Run Script
+Run script
 ----------
 
 Executes Python scripts from the AEDT interface. This panel allows you to:
@@ -95,7 +95,7 @@ Executes Python scripts from the AEDT interface. This panel allows you to:
 - Execute batch operations
 - Test custom scripts
 
-Extension Manager
+Extension manager
 -----------------
 
 Provides a centralized interface for managing PyAEDT extensions and toolkits. Features include:
@@ -107,7 +107,7 @@ Provides a centralized interface for managing PyAEDT extensions and toolkits. Fe
 
 For detailed information about extensions, see :doc:`../User_guide/extensions`.
 
-Version Manager
+Version manager
 ---------------
 
 Manages PyAEDT and PyEDB installations. Available features:
@@ -120,7 +120,7 @@ Manages PyAEDT and PyEDB installations. Available features:
 - Reset and update PyAEDT panels
 
 .. note::
-    The Version Manager panel is optional and can be skipped during installation using the
+    The Version manager panel is optional and can be skipped during installation using the
     ``--skip-version-manager`` flag or ``skip_version_manager=True`` parameter.
 
 
