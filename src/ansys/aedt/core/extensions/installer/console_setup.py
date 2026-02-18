@@ -41,7 +41,7 @@ aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)  
 print("Loading the PyAEDT Console.")
 
-try:  
+try:
     from ansys.aedt.core import *
     import ansys.aedt.core  # noqa: F401
     from ansys.aedt.core import Desktop
@@ -51,7 +51,7 @@ try:
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 
-except ImportError:  
+except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
     console_setup_dir = Path(__file__).resolve().parent
@@ -68,7 +68,7 @@ except ImportError:
     settings.release_on_exception = False
 
 
-def release(d) -> None:  
+def release(d) -> None:
     d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False, False)
@@ -80,11 +80,11 @@ student_version = False
 
 
 sessions = active_sessions(version=version, student_version=False)
-if aedt_process_id in sessions:  
+if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
         port = sessions[aedt_process_id]
-if not session_found:  
+if not session_found:
     sessions = active_sessions(version=version, student_version=True)
     if aedt_process_id in sessions:
         session_found = True
@@ -93,7 +93,7 @@ if not session_found:
             port = sessions[aedt_process_id]
 
 error = False
-if port:  
+if port:
     desktop = Desktop(
         version=version,
         port=port,
@@ -102,7 +102,7 @@ if port:
         close_on_exit=False,
         student_version=student_version,
     )
-elif is_windows:  
+elif is_windows:
     desktop = Desktop(
         version=version,
         aedt_process_id=aedt_process_id,
@@ -111,12 +111,12 @@ elif is_windows:
         close_on_exit=False,
         student_version=student_version,
     )
-else:  
+else:
     print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
 
-if not error:  
+if not error:
     print(" ")
 
     print("\033[92m****************************************************************")
@@ -158,7 +158,7 @@ if not error:
             pass
         atexit.register(release, desktop)
 
-if version > "2023.1":  
+if version > "2023.1":
 
     log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
     log_file = available_file_name(log_file)
