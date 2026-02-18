@@ -129,7 +129,7 @@ general:
   # Skip license check during Desktop initialization
   skip_license_check: true
   # Enable or disable gRPC API for the EDB module.
-  # If null, the gRPC API is used if AEDT version is 2026 R1 or later, otherwise the legacy COM object is used.
+  # If null, the gRPC API is used if AEDT version is 2026 R2 or later, otherwise the legacy COM object is used.
   pyedb_use_grpc: null
 
 grpc:

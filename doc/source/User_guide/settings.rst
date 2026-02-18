@@ -158,5 +158,5 @@ Below is the content that can be updated through the YAML file.
         # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
         pyd_libraries_user_path: null
         # Enable or disable gRPC API for the EDB module.
-        # If null, the gRPC API is used if AEDT version is 2026 R1 or later, otherwise the legacy COM object is used.
+        # If null, the gRPC API is used if AEDT version is 2026 R2 or later, otherwise the legacy COM object is used.
         pyedb_use_grpc: null
