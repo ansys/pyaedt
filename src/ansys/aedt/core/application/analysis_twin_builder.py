@@ -90,7 +90,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
     """
 
     @property
-    def setups(self) -> list[str]:
+    def setup_names(self) -> list[str]:
         """Setup names.
 
         References
