@@ -430,7 +430,7 @@ def analyze_changes(base_ref: str = "origin/main"):
             print(f"  AST unchanged (both {len(old_ast)} chars)")
 
     print("-" * 40)
-    if logic_changed or other_files or deps_changed:
+    if logic_changed or other_files or tests_deps_changed:
         if logic_changed:
             print("[!] CODE LOGIC CHANGES DETECTED")
         if other_files:
