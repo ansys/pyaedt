@@ -1,8 +1,12 @@
 Extensions
 ==========
 
-Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
-In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
+Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT,
+they are generally tool-specific and are therefore only accessible given the appropriate context.
+
+In AEDT, you can use the Extension manager panel to add or remove extensions. The Extension manager is one of the
+:doc:`../Getting_started/panels` available in the AEDT Automation tab.
+
 The Extension manager allows the user to install three different types of extensions:
 
 - **Pre-installed extensions** available at project level.

@@ -718,10 +718,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option_label,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=True,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=True,
+                    personal_lib=self.desktop.personallib,
                     is_custom=True,
                 )
             except Exception as e:
@@ -975,10 +976,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=True,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=True,
+                    personal_lib=self.desktop.personallib,
                     is_custom=True,
                 )
                 msg = (f"Extension {option} pinned successfully.\n"
@@ -1006,10 +1008,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=False,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=False,
+                    personal_lib=self.desktop.personallib,
                 )
                 msg = (f"Extension {option} pinned successfully.\n"
                        f"If the extension is not visible create a new AEDT session or create a new project.")

@@ -24,6 +24,7 @@
 
 from pathlib import Path
 import platform
+import shutil
 
 try:
     import typer
@@ -51,7 +52,13 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
-) -> None:
+    reset: bool = typer.Option(
+        False,
+        "--reset",
+        "-r",
+        help="Delete existing Toolkits directory before installing",
+    ),
+):
     """Add PyAEDT panels to AEDT installation.
 
     TThis command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
@@ -61,6 +68,7 @@ def add_panels(
     --------
         pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
     """
     try:
@@ -122,6 +130,46 @@ def add_panels(
             )
             raise typer.Exit(code=1)
 
+        # Handle reset option - delete Toolkits directory if requested
+        if reset:
+            toolkits_path = personal_lib_path / "Toolkits"
+            if toolkits_path.exists():
+                typer.secho(
+                    "Deleting existing Toolkits directory...",
+                    fg=typer.colors.YELLOW,
+                    bold=True,
+                )
+                typer.secho(f"  {toolkits_path}", fg=typer.colors.CYAN)
+                try:
+                    shutil.rmtree(toolkits_path)
+                    typer.secho(
+                        "✓ Toolkits directory deleted successfully.",
+                        fg=typer.colors.GREEN,
+                    )
+                except PermissionError as e:
+                    typer.secho(
+                        f"✗ Permission denied: {str(e)}",
+                        fg=typer.colors.RED,
+                        bold=True,
+                    )
+                    typer.echo("\nMake sure:")
+                    typer.echo("  • You have permission to delete files in this directory")
+                    typer.echo("  • AEDT is not currently running")
+                    typer.echo("  • No files in the Toolkits directory are currently in use")
+                    raise typer.Exit(code=1)
+                except Exception as e:
+                    typer.secho(
+                        f"✗ Error deleting Toolkits directory: {str(e)}",
+                        fg=typer.colors.RED,
+                        bold=True,
+                    )
+                    raise typer.Exit(code=1)
+            else:
+                typer.secho(
+                    "ℹ Toolkits directory does not exist, nothing to delete.",
+                    fg=typer.colors.YELLOW,
+                )
+
         # Import and run the installer
         typer.secho(
             "Installing PyAEDT panels...",
@@ -140,14 +188,13 @@ def add_panels(
             skip_version_manager=skip_version_manager,
         )
 
-        if result is False:
+        if not result:
             typer.secho("✗ Failed to install PyAEDT panels.", fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1)
 
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
-        typer.secho("  • Console", fg=typer.colors.GREEN)
-        typer.secho("  • Jupyter", fg=typer.colors.GREEN)
+        typer.secho("  • PyAEDT Utilities (Console, CLI, Jupyter)", fg=typer.colors.GREEN)
         typer.secho("  • Run Script", fg=typer.colors.GREEN)
         typer.secho("  • Extension Manager", fg=typer.colors.GREEN)
         if not skip_version_manager:

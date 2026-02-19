@@ -22,32 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Launches an interactive shell with an instance of HFSS.
 
-This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
-provided by the launcher
-"""
+# Launches a shell with pyaedt commands available, activating previously the installation virtual environment.
 
-import atexit
+
 import os
+import atexit
 from pathlib import Path
 import sys
+from IPython import get_ipython
 import tempfile
 
-
-aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) 
-version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) 
-print("Loading the PyAEDT Console.")
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
+print("Loading the PyAEDT CLI.")
 
 try:
     from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core import settings
-    settings.release_on_exception = False
+    from ansys.aedt.core.generic.file_utils import available_file_name
 
 except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
@@ -58,15 +53,13 @@ except ImportError:
 
     from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
-    from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core import settings
-    settings.release_on_exception = False
+    from ansys.aedt.core.generic.file_utils import available_file_name
 
 
 def release(d) -> None:
-    d.logger.info("Exiting the PyAEDT Console.")
+    d.logger.info("Exiting the PyAEDT CLI.")
 
     d.release_desktop(False, False)
 
@@ -74,7 +67,6 @@ def release(d) -> None:
 session_found = False
 port = 0
 student_version = False
-
 
 sessions = active_sessions(version=version, student_version=False)
 if aedt_process_id in sessions:
@@ -123,7 +115,7 @@ if not error:
     print("*  Example: \033[94m hfss = Hfss() \033[92m")
     print("*  Example: \033[94m m2d = Maxwell2d() \033[92m")
     print("*  Desktop object is initialized: \033[94mdesktop.logger.info('Hello world')\033[92m")
-    print("*  \033[31mType exit() to close the console and release the desktop.  \033[92m ")
+    print("*  \033[31mType exit() to close the CLI and release the desktop.  \033[92m ")
     print("****************************************************************\033[0m")
     print(" ")
 
@@ -161,7 +153,7 @@ if version > "2023.1":
     log_file = available_file_name(log_file)
 
     with open(log_file, 'a', encoding='utf-8') as f:
-        f.write("# PyAEDT script recorded from PyAEDT Console:\n\n")
+        f.write("# PyAEDT script recorded from PyAEDT CLI:\n\n")
         f.write("import ansys.aedt.core\n")
         f.write("from ansys.aedt.core import *\n")
 

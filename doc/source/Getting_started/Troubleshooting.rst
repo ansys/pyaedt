@@ -78,7 +78,7 @@ Alternatively, you can use the Python API directly:
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
-     add_pyaedt_to_aedt("your_aedt_version", r"path_to_personalib")
+     add_pyaedt_to_aedt("path_to_personalib")
 
 If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
 
