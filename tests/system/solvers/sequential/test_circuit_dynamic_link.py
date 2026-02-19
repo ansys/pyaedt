@@ -24,7 +24,6 @@
 
 
 import shutil
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -34,12 +33,10 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import SKIP_CIRCUITS
-
-if TYPE_CHECKING:
-    from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 
 TEST_SUBFOLDER = "circuit_dynamic_link"
 TEST_PROJECT_NAME = "Dynamic_Link"
