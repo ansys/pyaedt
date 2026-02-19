@@ -1019,7 +1019,7 @@ class ParametricSetups(PyAedtBase):
         variation_type: str = "LinearCount",
         solution: str | None = None,
         name: str | None = None,
-    ):
+    ) -> SetupParam | bool:
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
 
