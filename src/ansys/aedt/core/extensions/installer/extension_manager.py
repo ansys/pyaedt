@@ -27,18 +27,19 @@ from pathlib import Path
 import shutil
 import subprocess  # nosec
 import sys
+import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 import webbrowser
-import threading
 
 import PIL.Image
 import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
+from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
@@ -46,8 +47,9 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
-from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon, ToolTip, check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
+from ansys.aedt.core.extensions.misc import ToolTip
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -716,10 +718,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option_label,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=True,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=True,
+                    personal_lib=self.desktop.personallib,
                     is_custom=True,
                 )
             except Exception as e:
@@ -973,10 +976,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=True,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=True,
+                    personal_lib=self.desktop.personallib,
                     is_custom=True,
                 )
                 msg = (f"Extension {option} pinned successfully.\n"
@@ -1004,10 +1008,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option,
                     script_file=str(script_file),
-                    product=category,
-                    personal_lib=self.desktop.personallib,
-                    copy_to_personal_lib=False,
+                    template_file="run_pyaedt_toolkit_script",
                     icon_file=str(icon),
+                    product=category,
+                    copy_to_personal_lib=False,
+                    personal_lib=self.desktop.personallib,
                 )
                 msg = (f"Extension {option} pinned successfully.\n"
                        f"If the extension is not visible create a new AEDT session or create a new project.")
@@ -1493,9 +1498,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
             def decline() -> None:
                 try:
-                    from ansys.aedt.core.extensions.misc import (
-                        decline_pyaedt_update,
-                    )
+                    from ansys.aedt.core.extensions.misc import decline_pyaedt_update
 
                     decline_pyaedt_update(
                         declined_file_path, latest_version
