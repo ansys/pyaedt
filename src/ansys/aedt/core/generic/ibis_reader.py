@@ -631,6 +631,7 @@ class Model(PyAedtBase):
         self._enable = None
         self._ami = None
         self._c_comp = None
+        self._model_type = None
 
     @property
     def name(self):
@@ -1018,8 +1019,8 @@ class IbisReader(PyAedtBase):
                 ibis.AMI = True
             else:
                 ibis.AMI = False
-
-            ibis.models.append(model)
+            if model.model_type:
+                ibis.models.append(model)
 
     # Model Selector
     def read_model_selector(self, ibis, model_selector_list) -> None:
