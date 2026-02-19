@@ -287,7 +287,7 @@ def analyze_changes(base_ref: str = "origin/main"):
     classified_files = set(python_files) | set(doc_files) | {"uv.lock"}
     other_files = [f for f in all_files if f not in classified_files]
 
-    tests_deps_changed= False
+    tests_deps_changed = False
     if uv_lock_changed:
         print("Detected uv.lock change. Checking tests group dependencies...")
         tests_deps_changed = _tests_dependencies_changed(base_ref)
