@@ -34,12 +34,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.modules.design_xploration import SetupParam
-from ansys.aedt.core.modules.solve_setup import SetupHFSS
-from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
-from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
@@ -49,6 +44,11 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.modules.design_xploration import SetupParam
+    from ansys.aedt.core.modules.solve_setup import SetupHFSS
+    from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+    from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+    from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -1654,7 +1654,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(
         self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> SetupHFSS | SetupHFSSAuto:
+    ) -> "SetupHFSS" | "SetupHFSSAuto":
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1736,7 +1736,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         sweep_type: str = "Discrete",
         interpolation_tol: float = 0.5,
         interpolation_max_solutions: int = 250,
-    ) -> SweepHFSS | bool:
+    ) -> "SweepHFSS" | bool:
         """Create a sweep with a specified number of points.
 
         Parameters
@@ -1854,7 +1854,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
-    ) -> SweepHFSS | bool:
+    ) -> "SweepHFSS" | bool:
         """Create a sweep with a specified frequency step.
 
         Parameters
@@ -1937,7 +1937,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
-    ) -> SweepHFSS | bool:
+    ) -> "SweepHFSS" | bool:
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -4846,7 +4846,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool | None = False,
         doppler_ad_sampling_rate: int | None = 20,
         setup: str | None = None,
-    ) -> tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]:
+    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
         """Create an SBR+ Chirp I setup.
 
         Parameters
@@ -4950,7 +4950,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool | None = False,
         doppler_ad_sampling_rate: int | None = 20,
         setup: str | None = None,
-    ) -> tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]:
+    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
         """Create an SBR+ Chirp IQ setup.
 
         Parameters
@@ -5049,7 +5049,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ray_density_per_wavelength: float | None = 0.2,
         max_bounces: int | None = 5,
         setup: str | None = None,
-    ) -> tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]:
+    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
         """Create an SBR+ pulse Doppler setup.
 
         Parameters
@@ -6281,7 +6281,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def get_hdm_plotter(self, file_name: str | None = None) -> HDMPlotter:
+    def get_hdm_plotter(self, file_name: str | None = None) -> "HDMPlotter":
         """Get the HDM plotter.
 
         Parameters
