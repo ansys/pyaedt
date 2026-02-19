@@ -35,7 +35,7 @@ from typing import Literal
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
-    from ansys.aedt.core.modules.solve_setup import SetupHFSS
+    from ansys.aedt.core.modules.solve_setup import SetupIcepak
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -3177,7 +3177,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupHFSS:
+    def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupIcepak:
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -3201,7 +3201,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupIcepak`
             3D Solver Setup object.
 
         References

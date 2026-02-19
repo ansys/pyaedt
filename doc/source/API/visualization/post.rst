@@ -67,9 +67,9 @@ You can access these classes directly from the design object:
     from ansys.aedt.core import Hfss
 
     app = Hfss(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -105,9 +105,9 @@ User can get the properties of the default reports using the following class:
     from ansys.aedt.core.visualization.post.common import Reports
 
     app = Hfss(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -148,7 +148,7 @@ The following classes manage all aspects of AEDT 3D post-processing and are util
 
     from ansys.aedt.core import Hfss
 
-    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    app = Hfss(version="2025.2", non_graphical=False, new_desktop=False)
     test_points = [
         ["0mm", "0mm", "0mm"],
         ["100mm", "20mm", "0mm"],
