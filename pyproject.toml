@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.77",
+    "grpcio>=1.50.0,<1.79",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -45,56 +45,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-unit-tests = [
-    "pytest>=7.4.0,<9.1",
-    "pytest-cov>=4.0.0,<7.1",
-    "pytest-testmon>=2.0.0,<3.0",
-    "mock>=5.1.0,<5.3",
-    "fpdf2",
-    "requests",
-    "rpyc>=6.0.0,<6.1",
-    "typer>=0.20.0",
-    "openpyxl>=3.1.0,<3.3",
-]
-integration-tests = [
-    "matplotlib>=3.5.0,<3.11",
-    "pytest-testmon>=2.0.0,<3.0",
-    "pandas>=1.1.0,<2.4",
-    "pyaedt[unit-tests]",
-]
-tests = [
-    "ansys-tools-visualization-interface",
-    "osmnx>=1.1.0,<2.1",
-    "pyaedt[integration-tests]",
-    "pytest-timeout>=2.3.0,<2.5",
-    "pytest-xdist>=3.5.0,<3.9",
-    "pytest-testmon>=2.0.0,<3.0",
-    "pyvista[io]>=0.38.0,<0.47",
-    "scikit-rf>=0.30.0,<1.11",
-    "tables",
-    "cryptography",
-]
-
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
     "cffi>=1.16.0,<2.1; platform_system=='Linux'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
-]
-doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.8",
-    "jupyter",
-    "numpydoc==1.10.0",
-    "recommonmark",
-    "Sphinx>=7.1.0,<8.3",
-    "sphinx-autobuild==2024.10.3",
-    "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.21",
-    "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.47",
-    "ansys-tools-visualization-interface",
-    "fpdf2",
-    "rpyc>=6.0.0,<6.1",
 ]
 graphics = [
     "ansys-tools-visualization-interface",
@@ -138,6 +93,58 @@ examples = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
+
+[dependency-groups]
+dev = [
+  "prek==0.3.2",
+  { include-group = "doc" },
+  { include-group = "tests" },
+]
+unit-tests = [
+    "pytest>=7.4.0,<9.1",
+    "pytest-cov>=4.0.0,<7.1",
+    "pytest-testmon>=2.0.0,<3.0",
+    "mock>=5.1.0,<5.3",
+    "fpdf2",
+    "requests",
+    "rpyc>=6.0.0,<6.1",
+    "typer>=0.20.0",
+    "openpyxl>=3.1.0,<3.3",
+]
+integration-tests = [
+    "matplotlib>=3.5.0,<3.11",
+    "pytest-testmon>=2.0.0,<3.0",
+    "pandas>=1.1.0,<2.4",
+    { include-group = "unit-tests" },
+]
+tests = [
+    "ansys-tools-visualization-interface",
+    "osmnx>=1.1.0,<2.1",
+    "pytest-timeout>=2.3.0,<2.5",
+    "pytest-xdist>=3.5.0,<3.9",
+    "pytest-testmon>=2.0.0,<3.0",
+    "pyvista[io]>=0.38.0,<0.47",
+    "scikit-rf>=0.30.0,<1.11",
+    "tables",
+    "cryptography",
+    { include-group = "integration-tests" },
+]
+doc = [
+    "ansys-sphinx-theme>=1.0.0,<1.8",
+    "jupyter",
+    "numpydoc==1.10.0",
+    "recommonmark",
+    "Sphinx>=7.1.0,<8.3",
+    "sphinx-autobuild==2024.10.3",
+    "sphinx-copybutton>=0.5.0,<0.6",
+    "sphinx-gallery>=0.14.0,<0.21",
+    "sphinx_design>=0.4.0,<0.7",
+    "pyvista[io]>=0.38.0,<0.47",
+    "ansys-tools-visualization-interface",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+]
+
 
 [tool.setuptools]
 include-package-data = true
@@ -269,7 +276,10 @@ source = ["src/ansys/aedt/core"]
 
 [tool.coverage.report]
 show_missing = true
-omit = ["src/ansys/aedt/core/rpc/*.py"]
+omit = [
+    "src/ansys/aedt/core/rpc/*.py",
+    "src/ansys/aedt/core/extensions/installer/*_setup.py",
+]
 
 [tool.pytest.ini_options]
 markers = [

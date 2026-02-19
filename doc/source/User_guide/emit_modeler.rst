@@ -19,9 +19,9 @@ EMIT version check and set units example:
 
     emit = Emit(
         ansys.aedt.core.generate_unique_project_name(),
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
     )
 
@@ -58,9 +58,9 @@ EMIT-HFSS link creation example:
 
     # Launch AEDT
     aedtapp = ansys.aedt.core.launch_desktop(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
     )
 
@@ -127,9 +127,9 @@ Create and Analyze an EMIT project:
 
     emit = Emit(
         ansys.aedt.core.generate_unique_project_name(),
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
     )
 

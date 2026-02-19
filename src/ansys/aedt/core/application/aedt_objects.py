@@ -102,7 +102,7 @@ class AedtObjects(PyAedtBase):
         return self.__aedtunits
 
     @property
-    def oradfield(self):
+    def oradfield(self) -> object:
         """AEDT radiation field object.
 
         References
@@ -119,7 +119,7 @@ class AedtObjects(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_module(self, module_name):
+    def get_module(self, module_name: str) -> object:
         """AEDT module object."""
         if self.design_type not in ["EMIT"] and self._odesign:
             try:
@@ -129,7 +129,7 @@ class AedtObjects(PyAedtBase):
         return None
 
     @property
-    def osymbol_manager(self):
+    def osymbol_manager(self) -> object:
         """AEDT symbol manager.
 
         References
@@ -141,7 +141,7 @@ class AedtObjects(PyAedtBase):
         return
 
     @property
-    def opadstack_manager(self):
+    def opadstack_manager(self) -> object:
         """AEDT padstack manager.
 
         References
@@ -153,11 +153,11 @@ class AedtObjects(PyAedtBase):
         return self._opadstack_manager
 
     @property
-    def design_type(self):
+    def design_type(self) -> object:
         return self._odesign.GetDesignType()
 
     @property
-    def oboundary(self):
+    def oboundary(self) -> object:
         """Boundary Object."""
         if not self._oboundary:
             if self.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
@@ -169,7 +169,7 @@ class AedtObjects(PyAedtBase):
         return self._oboundary
 
     @property
-    def oimport_export(self):
+    def oimport_export(self) -> object:
         """Import/Export Manager Module.
 
         References
@@ -181,7 +181,7 @@ class AedtObjects(PyAedtBase):
         return self._oimport_export
 
     @property
-    def ooptimetrics(self):
+    def ooptimetrics(self) -> object:
         """AEDT Optimetrics Module.
 
         References
@@ -193,7 +193,7 @@ class AedtObjects(PyAedtBase):
         return self._ooptimetrics
 
     @property
-    def ooutput_variable(self):
+    def ooutput_variable(self) -> object:
         """AEDT Output Variable Module.
 
         References
@@ -205,7 +205,7 @@ class AedtObjects(PyAedtBase):
         return self._ooutput_variable
 
     @property
-    def oanalysis(self):
+    def oanalysis(self) -> object:
         """Analysis AEDT Module.
 
         References
@@ -227,7 +227,7 @@ class AedtObjects(PyAedtBase):
         return self._oanalysis
 
     @property
-    def odefinition_manager(self):
+    def odefinition_manager(self) -> object:
         """Definition Manager Module.
 
         References
@@ -239,7 +239,7 @@ class AedtObjects(PyAedtBase):
         return self._odefinition_manager
 
     @property
-    def omaterial_manager(self):
+    def omaterial_manager(self) -> object:
         """Material Manager Module.
 
         References
@@ -251,7 +251,7 @@ class AedtObjects(PyAedtBase):
         return self._omaterial_manager
 
     @property
-    def omodelsetup(self):
+    def omodelsetup(self) -> object:
         """AEDT Model Setup Object.
 
         References
@@ -270,7 +270,7 @@ class AedtObjects(PyAedtBase):
         return self._omodel_setup
 
     @property
-    def omaxwell_parameters(self):
+    def omaxwell_parameters(self) -> object:
         """AEDT Maxwell Parameter Setup Object.
 
         References
@@ -284,7 +284,7 @@ class AedtObjects(PyAedtBase):
         return self._omaxwell_parameters
 
     @property
-    def omonitor(self):
+    def omonitor(self) -> object:
         """AEDT Monitor Object."""
         if not self._odesign or not self.design_type == "Icepak":
             return
@@ -293,7 +293,7 @@ class AedtObjects(PyAedtBase):
         return self._omonitor
 
     @property
-    def osolution(self):
+    def osolution(self) -> object:
         """Solution Module.
 
         References
@@ -317,7 +317,7 @@ class AedtObjects(PyAedtBase):
         return self._osolution
 
     @property
-    def oexcitation(self):
+    def oexcitation(self) -> object:
         """Solution Module.
 
         References
@@ -332,7 +332,7 @@ class AedtObjects(PyAedtBase):
         return self._oexcitation
 
     @property
-    def omatrix(self):
+    def omatrix(self) -> object:
         """Matrix Object."""
         if self.design_type not in ["Q3D Extractor", "2D Extractor"]:
             return
@@ -341,7 +341,7 @@ class AedtObjects(PyAedtBase):
         return self._omatrix
 
     @property
-    def ofieldsreporter(self):
+    def ofieldsreporter(self) -> object:
         """Fields reporter.
 
         Returns
@@ -367,7 +367,7 @@ class AedtObjects(PyAedtBase):
         return self._ofieldsreporter
 
     @property
-    def oreportsetup(self):
+    def oreportsetup(self) -> object:
         """Report setup.
 
         Returns
@@ -383,7 +383,7 @@ class AedtObjects(PyAedtBase):
         return self._oreportsetup
 
     @property
-    def omeshmodule(self):
+    def omeshmodule(self) -> object:
         """Icepak Mesh Module.
 
         References
@@ -395,7 +395,7 @@ class AedtObjects(PyAedtBase):
         return self._omeshmodule
 
     @property
-    def oeditor(self):
+    def oeditor(self) -> object:
         """Oeditor Module.
 
         References
@@ -424,7 +424,7 @@ class AedtObjects(PyAedtBase):
         return self._oeditor
 
     @property
-    def layouteditor(self):
+    def layouteditor(self) -> object:
         """Return the Circuit Layout Editor.
 
         References
@@ -436,21 +436,21 @@ class AedtObjects(PyAedtBase):
         return self._layouteditor
 
     @property
-    def ocomponent_manager(self):
+    def ocomponent_manager(self) -> object:
         """Component manager object."""
         if not self._ocomponent_manager and self.odefinition_manager:
             self._ocomponent_manager = self.odefinition_manager.GetManager("Component")
         return self._ocomponent_manager
 
     @property
-    def omodel_manager(self):
+    def omodel_manager(self) -> object:
         """Model manager object."""
         if not self._omodel_manager and self.odefinition_manager:
             self._omodel_manager = self.odefinition_manager.GetManager("Model")
         return self._omodel_manager
 
     @property
-    def onetwork_data_explorer(self):
+    def onetwork_data_explorer(self) -> object:
         """Network data explorer module.
 
         References
