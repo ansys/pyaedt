@@ -32,20 +32,14 @@ import shutil
 import subprocess  # nosec
 import sys
 import warnings
-import xml.etree.ElementTree as ET  # nosec
-
-from defusedxml.ElementTree import ParseError
-from defusedxml.ElementTree import parse as defused_parse
-import defusedxml.minidom
-from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+from ansys.aedt.core.extensions.tabconfig_parser import TabConfigParser
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
-
-defusedxml.defuse_stdlib()
 
 AEDT_APPLICATIONS = {
     "circuit": "CircuitDesign",
@@ -63,6 +57,27 @@ AEDT_APPLICATIONS = {
 }
 
 
+def _iter_panel_button_specs(parser: TabConfigParser, panel_label: str | None = None):
+    for panel_spec in parser.to_model():
+        if panel_label and panel_spec.label != panel_label:
+            continue
+        yield from panel_spec.buttons
+        for gallery in panel_spec.galleries:
+            if gallery.header_button:
+                yield gallery.header_button
+            for group in gallery.groups:
+                yield from group.buttons
+
+
+def _safe_parse_tabconfig(tabconfig_path, logger=None):
+    try:
+        return TabConfigParser(tabconfig_path)
+    except Exception as exc:
+        if logger:
+            logger.warning(f"Failed to parse {tabconfig_path}: {exc}")
+        return None
+
+
 def add_automation_tab(
     name: str,
     lib_dir,
@@ -71,15 +86,19 @@ def add_automation_tab(
     template: str = "Run PyAEDT Toolkit Script",
     overwrite: bool = False,
     panel: str = "Panel_PyAEDT_Extensions",
-    is_custom: bool = False,  # new argument for custom flag
-    odesktop=None,
+    is_custom: bool = False,  # new argument for custom flagº
+    odesktop: object = None,
+    group_name: str | None = None,
+    group_icon: str | None = None,
+    gallery_imagewidth: int = 80,
+    gallery_imageheight: int = 72,
 ):
     """Add an automation tab in AEDT.
 
     Parameters
     ----------
     name : str
-        Toolkit name.
+        Toolkit name to add.
     lib_dir : str
         Path to the library directory.
     icon_file : str
@@ -87,7 +106,7 @@ def add_automation_tab(
     product : str, optional
         Product directory to install the toolkit.
     template : str, optional
-        Script template name to use
+        Script template name to use.
     overwrite : bool, optional
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
@@ -95,6 +114,14 @@ def add_automation_tab(
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     is_custom : bool, optional
         Whether the automation tab is for custom extensions. The default is ``False``.
+    group_name : str, optional
+        Group name to create grouped buttons. The default is ``None``.
+    group_icon : str, optional
+        Group icon to use when creating grouped buttons. The default is ``None``.
+    gallery_imagewidth : int, optional
+        Gallery image width when creating grouped buttons. The default is ``32``.
+    gallery_imageheight : int, optional
+        Gallery image height when creating grouped buttons. The default is ``32``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
 
@@ -104,104 +131,102 @@ def add_automation_tab(
         Automation tab path.
     """
     product = tab_map(product)
-    toolkit_name = name
-    if "/" in name:
-        toolkit_name = name.replace("/", "_")
     lib_dir = Path(lib_dir)
     tab_config_file_path = lib_dir / product / "TabConfig.xml"
-    if not tab_config_file_path.is_file() or overwrite:
-        root = ET.Element("TabConfig")
-    else:
+    parser = TabConfigParser()
+    if tab_config_file_path.is_file() and not overwrite:
         try:
-            tree = defused_parse(str(tab_config_file_path))
-        except ParseError as e:  # pragma: no cover
+            parser.load(tab_config_file_path)
+        except ValueError as e:  # pragma: no cover
             warnings.warn(f"Unable to parse {tab_config_file_path}\nError received = {str(e)}")
             return
-        root = tree.getroot()
-    panels = root.findall("./panel")
-    if panels:
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        if panel in panel_names:
-            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
+    parser.ensure_panel(panel)
+    parser.remove_button(panel, name)
+
+    default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
+
+    if not is_custom and is_linux:  # pragma: no cover
+        images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
+        images_target = lib_dir / product / "images"
+        if not images_target.exists() and images_source.exists():
+            try:
+                images_target.symlink_to(images_source)
+            except Exception:
+                logging.getLogger("Global").warning(f"Could not create symlink from {images_source} to {images_target}")
+                if odesktop:
+                    odesktop.AddMessage(
+                        "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
+                    )
+
+    def _resolve_image_path(path_value: Path | None, is_group_icon: bool = False) -> str | None:
+        if not path_value:
+            return None
+        if is_linux and not is_custom and is_group_icon:
+            return f"images/gallery/{path_value.name}"
+        elif is_linux and not is_custom:
+            return f"images/{path_value.name}"
+        return path_value.as_posix()
+
+    if group_name:
+        icon_path = Path(icon_file) if icon_file else default_icon_path
+        image_value = _resolve_image_path(icon_path)
+        group_icon_path = Path(group_icon) if group_icon else None
+        if group_icon_path is None:
+            raise TypeError("Group icon is required when group_name is provided.")
+        group_image_value = _resolve_image_path(group_icon_path, is_group_icon=True)
+        gallery_button_attrs = {}
+        if group_image_value:
+            gallery_button_attrs["image"] = image_value
+        gallery_button = (
+            ButtonSpec(group_name, gallery_button_attrs) if gallery_button_attrs else ButtonSpec(group_name)
+        )
+        if is_custom:
+            script = Path(name) / "run_pyaedt_toolkit_script"
+            button_kwargs = {
+                "script": str(script.as_posix()),
+                "custom_extension": "true",
+                "type": "custom",
+            }
         else:
-            panel_element = ET.SubElement(root, "panel", label=panel)
-    else:
-        panel_element = ET.SubElement(root, "panel", label=panel)
-    buttons = panel_element.findall("./button")
-    if buttons:  # pragma: no cover
-        button_names = [button.attrib["label"] for button in buttons]
-        if name in button_names:
-            b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel_element.remove(b)
-    # For custom extensions, use 'image' and 'script' fields (relative paths)
-    if is_custom:
-        script = Path(name) / "run_pyaedt_toolkit_script"
-        button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=str(Path(icon_file).as_posix()),
-            script=str(script.as_posix()),
-            custom_extension="true",
-            type="custom",
+            toolkit_name = name.replace("/", "_")
+            button_kwargs = {
+                "script": f"{toolkit_name}/{template}",
+            }
+        parser.add_group_button(
+            panel_label=panel,
+            group_label=group_name,
+            button=ButtonSpec(name, button_kwargs),
+            group_image=group_image_value,
+            gallery_button=gallery_button,
+            imagewidth=gallery_imagewidth,
+            imageheight=gallery_imageheight,
         )
     else:
-        if not icon_file:
-            icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
+        if is_custom:
+            icon_path = Path(icon_file) if icon_file else default_icon_path
+            script = Path(name) / "run_pyaedt_toolkit_script"
+            button_kwargs = {
+                "isLarge": "1",
+                "image": str(icon_path.as_posix()),
+                "script": str(script.as_posix()),
+                "custom_extension": "true",
+                "type": "custom",
+            }
         else:
-            icon_file = Path(icon_file)
-
-        # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
-        if is_linux:  # pragma: no cover
-            images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
-            images_target = lib_dir / product / "images"
-            if not images_target.exists() and images_source.exists():
-                try:
-                    images_target.symlink_to(images_source)
-                except Exception:
-                    logging.getLogger("Global").warning(
-                        f"Could not create symlink from {images_source} to {images_target}"
-                    )
-                    if odesktop:
-                        odesktop.AddMessage(
-                            "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
-                        )
-            icon_relative = f"images/{icon_file.name}"
-            button_kwargs = dict(
-                label=name,
-                isLarge="1",
-                image=icon_relative,
-                script=f"{toolkit_name}/{template}",
-            )
-        else:
-            button_kwargs = dict(
-                label=name,
-                isLarge="1",
-                image=str(icon_file.as_posix()),
-                script=f"{toolkit_name}/{template}",
-            )
-    ET.SubElement(panel_element, "button", **button_kwargs)
+            icon_path = Path(icon_file) if icon_file else default_icon_path
+            image_value = _resolve_image_path(icon_path)
+            toolkit_name = name.replace("/", "_")
+            button_kwargs = {
+                "isLarge": "1",
+                "image": image_value,
+                "script": f"{toolkit_name}/{template}",
+            }
+        parser.add_button(panel, ButtonSpec(name, button_kwargs))
     # Backup any existing file if present
     if tab_config_file_path.is_file():
         shutil.copy(str(tab_config_file_path), str(tab_config_file_path) + ".orig")
-    create_xml_tab(root, str(tab_config_file_path))
+    parser.save(tab_config_file_path)
     return str(tab_config_file_path)
-
-
-def create_xml_tab(root, output_file) -> None:
-    """Write the XML file to create the automation tab.
-
-    Parameters
-    ----------
-    root : :class:xml.etree.ElementTree
-        Root element of the main panel.
-    output_file : str
-        Full name of the file to save the XML tab.
-    """
-    lines = [line for line in parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n") if line.strip()]
-    xml_str = "\n".join(lines)
-
-    with open(output_file, "w") as f:
-        f.write(xml_str)
 
 
 def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
@@ -228,83 +253,11 @@ def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_P
         return False
 
     try:
-        tree = defused_parse(str(tab_config_file_path))
-    except ParseError as e:  # pragma: no cover
+        parser = TabConfigParser(tab_config_file_path)
+    except (FileNotFoundError, ValueError) as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
-
-    root = tree.getroot()
-    panels = root.findall("./panel")
-
-    if not panels:
-        return False
-
-    panel_names = [panel_element.attrib["label"] for panel_element in panels]
-    if panel not in panel_names:
-        return False
-
-    # Get the specific panel
-    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-    buttons = panel_element.findall("./button")
-
-    if not buttons:
-        return False
-
-    button_names = [button.attrib["label"] for button in buttons]
-    return name in button_names
-
-
-def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
-    """Remove a toolkit configuration from the panel.
-
-    Parameters
-    ----------
-        toolkit_dir : str
-            Path to the toolkit directory.
-        product : str
-            Name of the product to check.
-        name : str
-            Name of the toolkit to remove.
-        panel : str, optional
-            Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
-    s
-
-    Returns
-    -------
-        bool
-            True if removal was successful or extension was not found, False if error occurred.
-    """
-    # Check if extension exists in panel first
-    if not is_extension_in_panel(toolkit_dir, tab_map(product), name, panel):
-        return True  # Already removed or doesn't exist
-
-    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
-    try:
-        tree = defused_parse(str(tab_config_file_path))
-    except ParseError as e:  # pragma: no cover
-        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-        return False
-
-    root = tree.getroot()
-    panels = root.findall("./panel")
-
-    # Find the panel
-    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-    buttons = panel_element.findall("./button")
-
-    # Find and remove the button
-    button_names = [button.attrib["label"] for button in buttons]
-    if name in button_names:
-        b = [button for button in buttons if button.attrib["label"] == name][0]
-        panel_element.remove(b)
-
-    # If panel is now empty, remove it
-    remaining_buttons = panel_element.findall("./button")
-    if not remaining_buttons:
-        root.remove(panel_element)
-
-    create_xml_tab(root, str(tab_config_file_path))
-    return True
+    return parser.has_button(panel, name)
 
 
 def available_toolkits():
@@ -328,6 +281,8 @@ def add_script_to_menu(
     personal_lib=None,
     is_custom: bool = False,
     odesktop=None,
+    group_name: str | None = None,
+    group_icon=None,
 ) -> bool:
     """Add a script to the ribbon menu.
 
@@ -357,6 +312,10 @@ def add_script_to_menu(
     personal_lib : str, optional
     is_custom : bool, optional
     odesktop : oDesktop, optional
+    group_name : str, optional
+        Group name to create grouped buttons. The default is ``None``.
+    group_icon : str, optional
+        Group icon to use when creating grouped buttons. The default is ``None``.
 
     Returns
     -------
@@ -394,17 +353,28 @@ def add_script_to_menu(
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
 
     executable_interpreter = sys.executable
-
-    ipython_executable = re.sub(
-        r"python" + __exe() + r"$",
-        "ipython" + __exe(),
-        executable_interpreter,
-    )
-    jupyter_executable = re.sub(
-        r"python" + __exe() + r"$",
-        "jupyter" + __exe(),
-        executable_interpreter,
-    )
+    if is_linux:
+        ipython_executable = re.sub(
+            r"python3" + __exe() + r"$",
+            "ipython" + __exe(),
+            executable_interpreter,
+        )
+        jupyter_executable = re.sub(
+            r"python3" + __exe() + r"$",
+            "jupyter" + __exe(),
+            executable_interpreter,
+        )
+    else:
+        ipython_executable = re.sub(
+            r"python" + __exe() + r"$",
+            "ipython" + __exe(),
+            executable_interpreter,
+        )
+        jupyter_executable = re.sub(
+            r"python" + __exe() + r"$",
+            "jupyter" + __exe(),
+            executable_interpreter,
+        )
 
     with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
         build_file_data = build_file.read()
@@ -423,16 +393,21 @@ def add_script_to_menu(
             build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
+    names = name
+    icons = icon_file
+    templates = template_file
 
     add_automation_tab(
-        name,
+        names,
         toolkit_dir,
-        icon_file=icon_file,
+        icon_file=icons,
         product=product,
-        template=template_file,
+        template=templates,
         panel=panel,
         is_custom=is_custom,
         odesktop=odesktop,
+        group_name=group_name,
+        group_icon=group_icon,
     )
     logger.info(f"{name} installed")
     if odesktop:
@@ -706,11 +681,15 @@ def remove_script_from_menu(desktop_object, name: str, product: str = "Project")
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
     aedt_version = desktop_object.aedt_version_id
     tool_dir = toolkit_dir / product / name
-
+    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
     # Check if extension exists in panel before attempting removal
     if aedt_version >= "2023.2":
-        remove_xml_tab(toolkit_dir, product, name)
-
+        parser = _safe_parse_tabconfig(tab_config_file_path, logger=desktop_object.logger)
+        if parser and parser.has_button(panel_label="Panel_PyAEDT_Extensions", label=name):
+            parser.remove_button(panel_label="Panel_PyAEDT_Extensions", label=name)
+        elif not parser:
+            return False
+    parser.save(tab_config_file_path)
     shutil.rmtree(str(tool_dir), ignore_errors=True)
     desktop_object.logger.info(f"{name} extension removed successfully.")
     return True
@@ -724,50 +703,34 @@ def __exe() -> str:
 
 def get_custom_extensions_from_tabconfig(tabconfig_path, toml_names, options, logger=None):
     """Add custom extensions from TabConfig.xml not in TOML."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
-                label = button.attrib.get("label")
-                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                if label and is_custom and label not in toml_names and label not in options:
-                    options[label] = label
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return options
+    for button in _iter_panel_button_specs(parser):
+        is_custom = button.attributes.get("custom_extension", "false").lower() == "true"
+        if button.label and is_custom and button.label not in toml_names and button.label not in options:
+            options[button.label] = button.label
     return options
 
 
 def get_custom_extension_script(tabconfig_path, label, logger=None):
     """Get script path for a custom extension from TabConfig.xml."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
-                btn_label = button.attrib.get("label")
-                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                if btn_label == label and is_custom:
-                    script_field = button.attrib.get("script", None)
-                    return script_field
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return None
+    for button in _iter_panel_button_specs(parser):
+        is_custom = button.attributes.get("custom_extension", "false").lower() == "true"
+        if button.label == label and is_custom:
+            return button.attributes.get("script", None)
     return None
 
 
 def get_custom_extension_image(tabconfig_path, label, logger=None):
     """Get image path for a custom extension from TabConfig.xml."""
-    try:
-        tree = defused_parse(str(tabconfig_path))
-        root = tree.getroot()
-        for panel in root.findall("./panel"):
-            for button in panel.findall("./button"):
-                btn_label = button.attrib.get("label")
-                if btn_label == label:
-                    return button.attrib.get("image", "")
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    parser = _safe_parse_tabconfig(tabconfig_path, logger=logger)
+    if not parser:
+        return ""
+    for button in _iter_panel_button_specs(parser):
+        if button.label == label:
+            return button.attributes.get("image", "")
     return ""

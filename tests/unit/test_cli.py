@@ -516,8 +516,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     assert result.exit_code == 0
     assert "Installing PyAEDT panels..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
-    assert "• Console" in result.stdout
-    assert "• Jupyter" in result.stdout
+    assert "• PyAEDT Utilities (Console, CLI, Jupyter)" in result.stdout
     assert "• Run Script" in result.stdout
     assert "• Extension Manager" in result.stdout
     assert "• Version Manager" in result.stdout
@@ -1150,6 +1149,151 @@ def test_panels_add_no_versions_installed(mock_installed_versions, cli_runner) -
     assert "Please install AEDT before running this command." in (result.stdout)
 
 
+# PANELS ADD WITH RESET OPTION TESTS
+
+
+def test_panels_add_with_reset_success(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test successful panel installation with reset option."""
+    # Create existing Toolkits directory
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+    test_file = toolkits_dir / "test.txt"
+    test_file.write_text("test content")
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+    mock_add_pyaedt_to_aedt.assert_called_once()
+
+
+def test_panels_add_with_reset_short_option(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with reset short option."""
+    # Create existing Toolkits directory
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "-p", str(temp_personal_lib), "-r"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+
+
+def test_panels_add_with_reset_no_toolkits(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with reset when Toolkits doesn't exist."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+    mock_add_pyaedt_to_aedt.assert_called_once()
+
+
+def test_panels_add_with_reset_nested_content(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with reset when Toolkits has nested content."""
+    # Create Toolkits directory with nested content
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+
+    nested_dir = toolkits_dir / "SubFolder" / "DeepFolder"
+    nested_dir.mkdir(parents=True)
+    nested_file = nested_dir / "nested_file.txt"
+    nested_file.write_text("nested content")
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+    assert not toolkits_dir.exists() or not nested_dir.exists()  # Either deleted or recreated by installer
+
+
+@patch("shutil.rmtree", side_effect=PermissionError("Permission denied"))
+def test_panels_add_with_reset_permission_error(
+    mock_rmtree, cli_runner, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with reset when permission error occurs."""
+    # Create Toolkits directory
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 1
+
+
+@patch("shutil.rmtree", side_effect=Exception("Unexpected error"))
+def test_panels_add_with_reset_generic_exception(
+    mock_rmtree, cli_runner, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with reset when generic exception occurs."""
+    # Create Toolkits directory
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--reset"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 1
+
+
+def test_panels_add_with_reset_and_skip_version_manager(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test panel installation with both reset and skip version manager options."""
+    # Create existing Toolkits directory
+    toolkits_dir = temp_personal_lib / "Toolkits"
+    toolkits_dir.mkdir()
+
+    result = cli_runner.invoke(
+        app,
+        [
+            "panels",
+            "add",
+            "--personal-lib",
+            str(temp_personal_lib),
+            "--reset",
+            "--skip-version-manager",
+        ],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=True,
+    )
+
+
+# DOC TESTS
+
+
 def test_doc_group_help(cli_runner) -> None:
     """Ensure doc command group help works."""
     result = cli_runner.invoke(app, ["doc", "--help"])
@@ -1279,6 +1423,9 @@ def test_doc_callback_opens_home_and_shows_help(cli_runner, mock_online_help) ->
     assert "Documentation commands" in result.stdout
     assert "examples" in result.stdout
     assert "github" in result.stdout
+
+
+# ATTACH TESTS
 
 
 @patch("ansys.aedt.core.cli.process._find_aedt_processes")
