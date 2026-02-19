@@ -9,6 +9,111 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.25.1 <https://github.com/ansys/pyaedt/releases/tag/v0.25.1>`_ - February 19, 2026
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added method for adding sweep in q2d for Closed solution type
+          - `#7201 <https://github.com/ansys/pyaedt/pull/7201>`_
+
+        * - Panel button groups
+          - `#7272 <https://github.com/ansys/pyaedt/pull/7272>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump uv from 0.9.26 to 0.10.0
+          - `#7259 <https://github.com/ansys/pyaedt/pull/7259>`_
+
+        * - Bump grpcio from 1.76.0 to 1.78.0
+          - `#7260 <https://github.com/ansys/pyaedt/pull/7260>`_
+
+        * - Bump jupyterlab from 4.5.2 to 4.5.3
+          - `#7261 <https://github.com/ansys/pyaedt/pull/7261>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update parameter names from 'specified_version' to 'version' in multiple files
+          - `#7279 <https://github.com/ansys/pyaedt/pull/7279>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Handle files in local example-data repo
+          - `#7263 <https://github.com/ansys/pyaedt/pull/7263>`_
+
+        * - Constructor parameters order
+          - `#7266 <https://github.com/ansys/pyaedt/pull/7266>`_
+
+        * - Aedt_grpc always failing
+          - `#7276 <https://github.com/ansys/pyaedt/pull/7276>`_
+
+        * - Update gRPC API version check and improve exception handling
+          - `#7278 <https://github.com/ansys/pyaedt/pull/7278>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.25.0
+          - `#7247 <https://github.com/ansys/pyaedt/pull/7247>`_
+
+        * - Bump dev version into v0.26.dev0
+          - `#7250 <https://github.com/ansys/pyaedt/pull/7250>`_
+
+        * - Leverage dependency groups (PEP 735) to avoid including dev dependencies in package distributions
+          - `#7256 <https://github.com/ansys/pyaedt/pull/7256>`_
+
+        * - Add missing doc-build conf in worklflows
+          - `#7267 <https://github.com/ansys/pyaedt/pull/7267>`_
+
+        * - Pre-commit automatic update
+          - `#7273 <https://github.com/ansys/pyaedt/pull/7273>`_
+
+        * - Clean unnecessary added folder
+          - `#7282 <https://github.com/ansys/pyaedt/pull/7282>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Application and cli typing
+          - `#7243 <https://github.com/ansys/pyaedt/pull/7243>`_
+
+        * - Fix dependency issue (transitive/optional)
+          - `#7255 <https://github.com/ansys/pyaedt/pull/7255>`_
+
+        * - Maxwell boundary definitions and usage
+          - `#7269 <https://github.com/ansys/pyaedt/pull/7269>`_
+
+
 `0.25.0 <https://github.com/ansys/pyaedt/releases/tag/v0.25.0>`_ - February 12, 2026
 ====================================================================================
 
