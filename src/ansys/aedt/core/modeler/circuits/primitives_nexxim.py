@@ -28,6 +28,7 @@ from pathlib import Path
 import re
 import secrets
 import time
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -38,11 +39,15 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.q3d import Q3d
 
 
 class NexximComponents(CircuitComponents, PyAedtBase):
@@ -2308,3 +2313,89 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             model_type="siwave",
             simulate_solutions=simulate_solutions,
         )
+
+    @pyaedt_function_handler()
+    def add_q3d_rlgc(
+        self,
+        pyaedt_app: "str | Q3d",
+        solution_name: str | None = None,
+        matrix: str = "Original",
+        name: str | None = None,
+    ) -> "CircuitComponent":
+        """Add a Q3D RLGC dynamic link to a circuit design.
+
+        Parameters
+        ----------
+        pyaedt_app : :class:`ansys.aedt.core.q3d.Q3d` or str
+            Q3d application object to include or design name in the active project.
+        solution_name : str, optional
+            Name of the solution and sweep. The default is the nominal sweep of the Q3D design.
+            If ``pyaedt_app`` is a string, this parameter must be provided.
+        matrix : str, optional
+            Reduce matrix which will be referenced by the dynamic link. The default is ``"Original"``.
+            Other options include reduced matrices defined in the Q3D design.
+        name : str, optional
+            Component name. If not provided, a unique name based on the design name will be generated.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
+
+        References
+        ----------
+        >>> oDesign.AddQ3DRLGCLink
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> from ansys.aedt.core import Circuit
+        >>> q3d_app = Q3d()
+        >>> circuit_app = Circuit()
+        >>> comp = circuit_app.modeler.schematic.add_q3d_rlgc(q3d_app)
+
+        Use a string reference to a design in the same project:
+
+        >>> comp = circuit_app.modeler.schematic.add_q3d_rlgc("Q3DDesignName", solution_name="Setup1 : Sweep")
+        """
+        # Handle pyaedt_app as string
+        if isinstance(pyaedt_app, str):
+            source_design_name = pyaedt_app
+            if source_design_name not in self._app.design_list:
+                raise ValueError(f"Design '{source_design_name}' is not in the active project.")
+            source_project_path = self._app.project_file
+            # When pyaedt_app is a string, solution_name must be provided
+            if not solution_name:
+                self.logger.error("Parameter 'solution_name' is required when 'pyaedt_app' is a design name string.")
+                raise ValueError("Parameter 'solution_name' is required when 'pyaedt_app' is a design name string.")
+
+        # Handle pyaedt_app as Q3d object
+        elif hasattr(pyaedt_app, "design_type") and pyaedt_app.design_type == "Q3D Extractor":
+            source_project_path = pyaedt_app.project_file
+            source_design_name = pyaedt_app.design_name
+            if not solution_name:
+                solution_name = pyaedt_app.nominal_sweep
+        else:
+            raise ValueError(
+                "Parameter 'pyaedt_app' should be either a design name in the active project or a "
+                "Q3d application object."
+            )
+
+        # Generate component name if not provided
+        if not name:
+            name = generate_unique_name(source_design_name)
+
+        try:
+            self._app.odesign.AddQ3DRLGCLink(
+                source_design_name,
+                source_project_path,
+                name,
+                solution_name,
+                matrix,
+            )
+            self.refresh_all_ids()
+            for el in self.components:
+                if name in self.components[el].composed_name:
+                    return self.components[el]
+            raise AEDTRuntimeError(f"Component '{name}' was not found after adding Q3D RLGC link.")
+        except Exception as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to add Q3D RLGC link: {str(e)}")
