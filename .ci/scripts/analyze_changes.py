@@ -435,7 +435,7 @@ def analyze_changes(base_ref: str = "origin/main"):
             print("[!] CODE LOGIC CHANGES DETECTED")
         if other_files:
             print(f"[!] NON-PYTHON FILES CHANGED: {len(other_files)}")
-        if deps_changed:
+        if tests_deps_changed:
             print("[!] TESTS DEPENDENCIES CHANGED")
         print("Result: RUN ALL CI/CD JOBS")
         _set_ci_env("RUN_ALL", "true")
