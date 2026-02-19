@@ -2365,7 +2365,6 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             source_project_path = self._app.project_file
             # When pyaedt_app is a string, solution_name must be provided
             if not solution_name:
-                self.logger.error("Parameter 'solution_name' is required when 'pyaedt_app' is a design name string.")
                 raise ValueError("Parameter 'solution_name' is required when 'pyaedt_app' is a design name string.")
 
         # Handle pyaedt_app as Q3d object
@@ -2396,6 +2395,6 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             for el in self.components:
                 if name in self.components[el].composed_name:
                     return self.components[el]
-            raise AEDTRuntimeError(f"Component '{name}' was not found after adding Q3D RLGC link.")
-        except Exception as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Component '{name}' was not found after adding Q3D RLGC link.")  # pragma: no cover
+        except Exception as e:
             raise AEDTRuntimeError(f"Failed to add Q3D RLGC link: {str(e)}")
