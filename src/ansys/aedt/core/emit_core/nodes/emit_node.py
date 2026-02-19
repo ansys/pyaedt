@@ -860,5 +860,9 @@ class EmitNode:
             isRx = False
 
         freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, isRx)
-        freqs = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
+
+        if not units:
+            freqs = [self._convert_to_internal_units(freq, "Freq") for freq in freqs]
+        else:
+            freqs = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
         return freqs
