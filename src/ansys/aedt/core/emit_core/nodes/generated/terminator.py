@@ -46,7 +46,7 @@ class Terminator(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Parametric VSWR Table.
         Table consists of 3 columns.
         Min:
@@ -59,7 +59,7 @@ class Terminator(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property

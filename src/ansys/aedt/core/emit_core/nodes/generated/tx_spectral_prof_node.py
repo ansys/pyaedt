@@ -33,7 +33,7 @@ class TxSpectralProfNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -42,19 +42,19 @@ class TxSpectralProfNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_narrowband_emissions_mask(self):
+    def add_narrowband_emissions_mask(self) -> EmitNode:
         """Add a Transmitter Narrowband Emission Profile"""
         return self._add_child_node("Narrowband Emissions Mask")
 
-    def add_tx_broadband_noise_profile(self):
+    def add_tx_broadband_noise_profile(self) -> EmitNode:
         """Add a Transmitter Broadband Emission Profile"""
         return self._add_child_node("Tx Broadband Noise Profile")
 
-    def add_custom_tx_harmonics(self):
+    def add_custom_tx_harmonics(self) -> EmitNode:
         """Add Custom Tx Harmonics"""
         return self._add_child_node("Custom Tx Harmonics")
 
-    def add_spurious_emissions(self):
+    def add_spurious_emissions(self) -> EmitNode:
         """Add Transmitter Spurs"""
         return self._add_child_node("Spurious Emissions")
 

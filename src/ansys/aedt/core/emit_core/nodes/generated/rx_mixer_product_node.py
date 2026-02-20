@@ -33,7 +33,7 @@ class RxMixerProductNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -51,7 +51,7 @@ class RxMixerProductNode(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list:
         """Edit Mixer Products Table.
         Table consists of 3 columns.
         RF Harmonic Order:
@@ -251,7 +251,7 @@ class RxMixerProductNode(EmitNode):
         self._set_property("Mixing Mode", f"{value.value}")
 
     @property
-    def first_if_frequency(self):
+    def first_if_frequency(self) -> str:
         """Intermediate frequency for Rx's 1st conversion stage.
 
         Value should be a mathematical expression.
@@ -260,7 +260,7 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @first_if_frequency.setter
-    def first_if_frequency(self, value) -> None:
+    def first_if_frequency(self, value: str) -> None:
         self._set_property("First IF Frequency", f"{value}")
 
     @property

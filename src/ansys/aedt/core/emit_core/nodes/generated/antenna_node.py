@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
@@ -33,7 +32,7 @@ class AntennaNode(EmitNode):
         self._is_component = True
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -81,7 +80,7 @@ class AntennaNode(EmitNode):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    def position(self) -> str | list:
         """Set position of the antenna in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -94,7 +93,7 @@ class AntennaNode(EmitNode):
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    def relative_position(self) -> str | list:
         """Set position of the antenna relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -125,7 +124,7 @@ class AntennaNode(EmitNode):
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    def orientation(self) -> str | list:
         """Set orientation of the antenna relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -138,7 +137,7 @@ class AntennaNode(EmitNode):
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    def relative_orientation(self) -> str | list:
         """Set orientation of the antenna relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -504,7 +503,7 @@ class AntennaNode(EmitNode):
         self._set_property("Size", f"{value}")
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Set color of antenna marker (cone) in 3-D window.
 
         Color should be in RGB form: #RRGGBB.
@@ -607,7 +606,7 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterposition(self):
+    def phasecenterposition(self) -> str | list:
         """Set position of the antennas linked coordinate system.
 
         Value should be x/y/z, delimited by spaces.
@@ -616,7 +615,7 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterorientation(self):
+    def phasecenterorientation(self) -> str | list:
         """Set orientation of the antennas linked coordinate system.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.

@@ -33,7 +33,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -42,7 +42,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -51,7 +51,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Custom Building Values Table.
         Table consists of 3 columns.
         Frequency:

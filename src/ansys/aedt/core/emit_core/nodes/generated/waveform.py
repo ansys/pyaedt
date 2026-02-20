@@ -33,7 +33,7 @@ class Waveform(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -50,7 +50,7 @@ class Waveform(EmitNode):
         """Delete this node"""
         self._delete()
 
-    def import_tx_measurement(self, file_name: str):
+    def import_tx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 

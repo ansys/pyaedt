@@ -665,7 +665,7 @@ class ExtensionManager(ExtensionProjectCommon):
         for col in range(3):
             scroll_frame.grid_columnconfigure(col, weight=1)
 
-    def launch_extension(self, category: str, option: str):
+    def launch_extension(self, category: str, option: str) -> None:
         """Launch extension without pinning it to AEDT top bar."""
         if self.active_process and self.active_process.poll() is None:
             self.log_message(f"{self.active_extension} is already running.")
@@ -1139,12 +1139,12 @@ class ExtensionManager(ExtensionProjectCommon):
             return result["script_file"], result["display_name"]
         return None, None
 
-    def create_theme_background_image(self, img, target_size=None):
+    def create_theme_background_image(self, img: PIL.ImageTk.PhotoImage, target_size: tuple = None) -> PIL.ImageTk.PhotoImage:
         """Create a background image with theme color for transparency.
 
         Parameters
         ----------
-        img : PIL.Image
+        img : PIL.ImageTk.PhotoImage
             The image to process.
         target_size : tuple, optional
             Target size to resize the image to (width, height).
@@ -1185,8 +1185,8 @@ class ExtensionManager(ExtensionProjectCommon):
         return PIL.ImageTk.PhotoImage(img, master=self.root)
 
     def create_pin_icon(
-        self, parent, category: str, option: str, size=(20, 20)
-    ):
+        self, parent: tkinter.Widget, category: str, option: str, size=(20, 20)
+    ) -> ttk.Label:
         """Create a pin icon based on extension installation status.
 
         Parameters
@@ -1201,6 +1201,8 @@ class ExtensionManager(ExtensionProjectCommon):
             Size of the pin icon (width, height).
 
         Returns
+        -------
+        ttk.Label
         -------
         ttk.Label
             The pin icon label widget.
@@ -1269,7 +1271,7 @@ class ExtensionManager(ExtensionProjectCommon):
         else:
             self.pin_extension(category, option)
 
-    def apply_canvas_theme(self, canvas) -> None:
+    def apply_canvas_theme(self, canvas: tkinter.Canvas) -> None:
         """Apply theme to a specific canvas widget."""
         theme_colors = (
             self.theme.light
@@ -1299,7 +1301,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # images
         self.add_extension_content()
 
-    def confirm_unpin(self, category, option) -> None:
+    def confirm_unpin(self, category: str, option: str) -> None:
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
         if option.lower() == "custom": # pragma: no cover
@@ -1353,7 +1355,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     "Error", "Extension could not be removed."
                 )
 
-    def check_extension_pinned(self, category: str, option: str):
+    def check_extension_pinned(self, category: str, option: str) -> bool:
         """Check if an extension is pined in AEDT.
 
         Parameters

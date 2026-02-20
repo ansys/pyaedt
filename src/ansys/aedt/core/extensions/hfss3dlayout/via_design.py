@@ -88,7 +88,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
             withdraw=withdraw,
             add_custom_content=False,
         )
-        self.__create_design_path = None
+        self.__create_design_path: Path | None = None
         self.__export_examples: list[ExportExampleData] = EXPORT_EXAMPLES
         self.add_extension_content()
 
@@ -203,11 +203,11 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         return True
 
     @property
-    def create_design_path(self):
+    def create_design_path(self) -> Path | None:
         return self.__create_design_path
 
     @property
-    def export_examples(self):
+    def export_examples(self) -> list[ExportExampleData]:
         return self.__export_examples
 
 

@@ -37,19 +37,19 @@ class EmitSceneNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_emitter(self):
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
-    def add_group(self):
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name: str):
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
-    def add_antenna(self):
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 

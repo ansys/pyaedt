@@ -35,43 +35,43 @@ class CouplingsNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def import_touchstone(self, file_name: str):
+    def import_touchstone(self, file_name: str) -> EmitNode:
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name, "TouchstoneCoupling")
 
-    def add_custom_coupling(self):
+    def add_custom_coupling(self) -> EmitNode:
         """Add a new node to define custom coupling between antennas"""
         return self._add_child_node("Custom Coupling")
 
-    def add_path_loss_coupling(self):
+    def add_path_loss_coupling(self) -> EmitNode:
         """Add a new node to define path loss coupling between antennas"""
         return self._add_child_node("Path Loss Coupling")
 
-    def add_two_ray_path_loss_coupling(self):
+    def add_two_ray_path_loss_coupling(self) -> EmitNode:
         """Add a new node to define two ray ground reflection coupling between antennas"""
         return self._add_child_node("Two Ray Path Loss Coupling")
 
-    def add_log_distance_coupling(self):
+    def add_log_distance_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Log Distance model"""
         return self._add_child_node("Log Distance Coupling")
 
-    def add_hata_coupling(self):
+    def add_hata_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Hata COST 231 model"""
         return self._add_child_node("Hata Coupling")
 
-    def add_walfisch_ikegami_coupling(self):
+    def add_walfisch_ikegami_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Walfisch-Ikegami model"""
         return self._add_child_node("Walfisch-Ikegami Coupling")
 
-    def add_erceg_coupling(self):
+    def add_erceg_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Erceg coupling model"""
         return self._add_child_node("Erceg Coupling")
 
-    def add_indoor_propagation_coupling(self):
+    def add_indoor_propagation_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the ITU Indoor Propagation model"""
         return self._add_child_node("Indoor Propagation Coupling")
 
-    def add_5g_channel_model_coupling(self):
+    def add_5g_channel_model_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the 5G channel coupling model"""
         return self._add_child_node("5G Channel Model Coupling")
 
