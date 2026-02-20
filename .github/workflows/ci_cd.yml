@@ -229,7 +229,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
@@ -238,7 +238,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ matrix.python-version != '3.14' && 'all' || '' }}
           attest-provenance: true
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
