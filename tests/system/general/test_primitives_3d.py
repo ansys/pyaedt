@@ -2535,3 +2535,15 @@ def test_uncover_faces(aedt_app) -> None:
     b3 = aedt_app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box3")
     assert aedt_app.modeler.uncover_faces([c3.faces[0], b3.faces])
     assert len(b3.faces) == 0
+
+
+def test_delete_all_points(aedt_app) -> None:
+    """Test delete_all_points method."""
+    aedt_app.modeler.create_point([0, 0, 0], name="point_1")
+    aedt_app.modeler.create_point([1, 1, 1], name="point_1")
+    aedt_app.modeler.create_point([2, 2, 2], name="point_2")
+
+    result = aedt_app.modeler.delete_all_points()
+
+    assert result
+    assert [] == aedt_app.modeler.oeditor.GetPoints()
