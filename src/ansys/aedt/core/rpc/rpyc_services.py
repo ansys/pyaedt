@@ -23,12 +23,12 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import is_windows
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_path
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.filesystem import is_safe_path
-from ansys.aedt.core.base import PyAedtBase
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -912,7 +912,9 @@ class GlobalService(rpyc.Service, PyAedtBase):
         port : int
             gRPC port on which the AEDT session has started.
         """
-        from ansys.aedt.core.generic.general_methods import grpc_active_sessions, active_sessions
+        from ansys.aedt.core.generic.general_methods import active_sessions
+        from ansys.aedt.core.generic.general_methods import grpc_active_sessions
+        from ansys.aedt.core.generic.settings import settings
 
         sessions = grpc_active_sessions()
         if not port:
@@ -959,16 +961,17 @@ class GlobalService(rpyc.Service, PyAedtBase):
             command.append("-ng")
 
         process = subprocess.Popen(command)  # nosec
-        timeout = 60
+        timeout = settings.desktop_launch_timeout
+
         while timeout > 0:
             active_s = active_sessions()
             if port in active_s.values():
-                break
+                return True
             timeout -= 1
             time.sleep(1)
 
         process.terminate()
-        logger.error("Service did not start within the timeout of 60 seconds.")
+        logger.error(f"Service did not start within the timeout of {settings.desktop_launch_timeout} seconds.")
         return False
 
     @property

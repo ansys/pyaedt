@@ -28,10 +28,13 @@ jobs:
         uses: ansys/actions/doc-build@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
+          group-dependencies-name: 'doc'
 
   upload-dev-doc:
     name: Upload dev documentation

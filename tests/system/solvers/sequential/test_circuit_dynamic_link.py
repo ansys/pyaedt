@@ -32,6 +32,8 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import SKIP_CIRCUITS
@@ -82,7 +84,7 @@ def q2d_app(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_pin_names(usb_app, add_app) -> None:
+def test_pin_names(usb_app, add_app):
     app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     pin_names = app.get_source_pin_names(SRC_USB, SRC_PROJECT_NAME, port_selector=2)
     assert len(pin_names) == 4
@@ -90,14 +92,14 @@ def test_pin_names(usb_app, add_app) -> None:
 
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
-def test_add_subcircuits_3dlayout(circuit_app) -> None:
+def test_add_subcircuits_3dlayout(circuit_app):
     hfss3Dlayout_comp = circuit_app.modeler.schematic.add_subcircuit_3dlayout(LAYOUT_DESIGN_NAME)
     assert hfss3Dlayout_comp.id == 86
     assert hfss3Dlayout_comp
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_add_subcircuits_hfss_link(circuit_app, add_app_example) -> None:
+def test_add_subcircuits_hfss_link(circuit_app, add_app_example):
     app = add_app_example(project=SRC_PROJECT_NAME, application=Hfss, subfolder=TEST_SUBFOLDER, close_projects=False)
     hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(app, name=SRC_USB)
     assert hfss_comp.id == 86
@@ -106,7 +108,7 @@ def test_add_subcircuits_hfss_link(circuit_app, add_app_example) -> None:
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app) -> None:
+def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
     app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, name="uUSB")
     assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
@@ -115,14 +117,14 @@ def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app) -> None:
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_set_sim_solution_on_hfss_subcircuit(usb_app, add_app) -> None:
+def test_set_sim_solution_on_hfss_subcircuit(usb_app, add_app):
     app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, name="uUSB")
     assert app.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_assign_excitations(add_app) -> None:
+def test_assign_excitations(add_app):
     app = add_app(application=Circuit)
     app.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
     app.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
@@ -144,7 +146,7 @@ def test_assign_excitations(add_app) -> None:
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_q2d_link(q2d_app, add_app) -> None:
+def test_q2d_link(q2d_app, add_app):
     cir = add_app(application=Circuit, close_projects=False)
     c1 = cir.modeler.schematic.add_subcircuit_dynamic_link(q2d_app, extrusion_length=25)
     assert c1
@@ -155,7 +157,7 @@ def test_q2d_link(q2d_app, add_app) -> None:
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_q3d_link(q3d_app, add_app) -> None:
+def test_q3d_link(q3d_app, add_app):
     cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
 
     q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_app, solution_name="Setup1 : LastAdaptive")
@@ -164,7 +166,7 @@ def test_q3d_link(q3d_app, add_app) -> None:
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_hfss_link(q3d_app, add_app) -> None:
+def test_hfss_link(q3d_app, add_app):
     app = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
     hfss_app = add_app(application=Hfss, project=q3d_app.project_name, close_projects=False)
     comp = app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup1 : Sweep")
@@ -174,7 +176,7 @@ def test_hfss_link(q3d_app, add_app) -> None:
 
 
 @pytest.mark.skipif(is_linux, reason="Method not working in Linux")
-def test_siwave_link(aedt_app, test_tmp_dir) -> None:
+def test_siwave_link(aedt_app, test_tmp_dir):
     model_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
     model = shutil.copy2(model_o, test_tmp_dir / "siwave_syz.siw")
     model_results_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
@@ -186,7 +188,7 @@ def test_siwave_link(aedt_app, test_tmp_dir) -> None:
 
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
-def test_create_interface_port(aedt_app) -> None:
+def test_create_interface_port(aedt_app):
     page_port = aedt_app.modeler.schematic.create_page_port(name="Port12", location=[0, -0.50])
     interface_port = aedt_app.modeler.schematic.create_interface_port(name="Port12", location=[0.3, -0.50])
     second_page_port = aedt_app.modeler.schematic.create_page_port(name="Port12", location=[0.45, -0.5])
@@ -196,3 +198,35 @@ def test_create_interface_port(aedt_app) -> None:
     assert page_port.composed_name != interface_port.name
     assert page_port.composed_name != second_interface_port.name
     assert interface_port.name != second_interface_port.name
+
+
+def test_q3d_rlgc_link(q3d_app, add_app):
+    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+
+    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_app)
+    assert isinstance(q3d_comp, CircuitComponent)
+    assert len(q3d_comp.pins) == 6
+
+
+def test_q3d_rlgc_link_design_name(q3d_app, add_app):
+    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+
+    with pytest.raises(ValueError):
+        cir.modeler.schematic.add_q3d_rlgc("dummy", solution_name="dummy")
+
+    with pytest.raises(ValueError):
+        cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name)
+
+    with pytest.raises(AEDTRuntimeError):
+        cir.modeler.schematic.add_q3d_rlgc("Terminal", solution_name="Setup1 : LastAdaptive")
+
+    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name, solution_name="Setup1 : LastAdaptive")
+    assert isinstance(q3d_comp, CircuitComponent)
+    assert len(q3d_comp.pins) == 6
+
+
+def test_q3d_rlgc_link_exception(usb_app, add_app):
+    cir = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
+
+    with pytest.raises(ValueError):
+        cir.modeler.schematic.add_q3d_rlgc(usb_app)
