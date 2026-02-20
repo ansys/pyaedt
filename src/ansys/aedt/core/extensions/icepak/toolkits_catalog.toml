@@ -1,20 +1,11 @@
 [CreatePowerMap]
-icon = "images/large/power_map.png"
 name = "Create Power Map from CSV file"
 script = "power_map_from_csv.py"
+icon = "images/large/power_map.png"
 template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/icepak/create_power_map.html"
 
-[FieldsCalculator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical
-icon = "../common/images/large/fields.png"
-name = "Advanced Fields Calculator"
-script = "../common/advanced_fields_calculator.py"
+[IcepakModelReviewer]
+name = "Icepak Model Reviewer"
+script = "icepak_model_reviewer.py"
+icon = "images/large/push.png"
 template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/advanced_fields_calculator.html"
-
-[PointCloudGenerator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical, Maxwell 2D
-icon = "../common/images/large/cloud.png"
-name = "Point Cloud Generator"
-script = "../common/points_cloud.py"
-template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
