@@ -2230,7 +2230,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             "CoSimulator",
             "InstanceName",
             "NexximNetlist",
-            "InstanceName",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2282,7 +2281,10 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     component_type = "ami"
                 else:
                     component_type = "ibis"
-                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
+                component: str = (
+                    parameters.get("comp_name") or parameters.get("Model") or parameters.get("model") or component
+                )
+                component = component.replace('"', "")
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
