@@ -167,10 +167,10 @@ def test_q2d_link(q2d_app, add_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_q3d_link(q3d_app, add_app):
-    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+def test_q3d_link(q3d_solved, add_app):
+    cir = add_app(application=Circuit, project=q3d_solved.project_name, close_projects=False)
 
-    q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_app, solution_name="Setup1 : LastAdaptive")
+    q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_solved, solution_name="Setup1 : LastAdaptive")
     assert q3d_comp
     assert len(q3d_comp.pins) == 4
 
