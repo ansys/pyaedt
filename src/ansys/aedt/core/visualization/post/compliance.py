@@ -1079,7 +1079,7 @@ class VirtualCompliance(PyAedtBase):
                 time.sleep(1)
                 self._desktop_class.odesktop.CloseAllWindows()
             try:
-                settings.logger.info(f"Adding report  {template_report.name}.")
+                settings.logger.info(f"Adding report {template_report.name}.")
                 config_file = template_report.config_file
                 config_path = Path(config_file)
                 template_config_path = Path(self._template_folder) / config_file
