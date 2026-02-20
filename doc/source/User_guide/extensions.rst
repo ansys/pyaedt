@@ -311,8 +311,9 @@ They are advanced workflows where backend and frontend are split.
 They are also fully documented and tested.
 
 Here are some links to existing toolkits:
-- Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
-- Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
+- `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Radar Explorer <https://github.com/ansys/ansys-aedt-toolkits-radar-explorer>`_.
 
 Now, you need to download the installer from the Releases section of each toolkit.
 You can access it by clicking the "Install" button in the corresponding repository.
