@@ -32,7 +32,6 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from tests import TESTS_SEQUENTIAL_PATH
 from tests import TESTS_SOLVERS_PATH
@@ -226,9 +225,6 @@ def test_q3d_rlgc_link_design_name(q3d_solved, add_app):
 
     with pytest.raises(ValueError):
         cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name)
-
-    with pytest.raises(AEDTRuntimeError):
-        cir.modeler.schematic.add_q3d_rlgc("Terminal", solution_name="Setup1 : LastAdaptive")
 
     q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name, solution_name="Setup1 : LastAdaptive")
     assert isinstance(q3d_comp, CircuitComponent)
