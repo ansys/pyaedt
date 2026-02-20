@@ -419,7 +419,7 @@ def open_file(
 
 
 @pyaedt_function_handler()
-def read_json(input_file: str | Path) -> dict:
+def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
     """Load a JSON file to a dictionary.
 
     Parameters
@@ -433,7 +433,7 @@ def read_json(input_file: str | Path) -> dict:
         Parsed JSON file as a dictionary.
     """
     json_data = {}
-    with open_file(input_file) as json_file:
+    with open_file(input_file, encoding=encoding) as json_file:
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
