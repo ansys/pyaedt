@@ -219,18 +219,18 @@ def test_q3d_rlgc_link(q3d_solved, add_app):
 
 
 def test_q3d_rlgc_link_design_name(q3d_solved, add_app):
-    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+    cir = add_app(application=Circuit, project=q3d_solved.project_name, close_projects=False)
 
     with pytest.raises(ValueError):
         cir.modeler.schematic.add_q3d_rlgc("dummy", solution_name="dummy")
 
     with pytest.raises(ValueError):
-        cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name)
+        cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name)
 
     with pytest.raises(AEDTRuntimeError):
         cir.modeler.schematic.add_q3d_rlgc("Terminal", solution_name="Setup1 : LastAdaptive")
 
-    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name, solution_name="Setup1 : LastAdaptive")
+    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name, solution_name="Setup1 : LastAdaptive")
     assert isinstance(q3d_comp, CircuitComponent)
     assert len(q3d_comp.pins) == 6
 
