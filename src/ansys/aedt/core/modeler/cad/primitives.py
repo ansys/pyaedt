@@ -4443,7 +4443,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         str
             Name of the bondwire created.
         """
-        old_bondwire = self.get_object_from_name(assignment)
+        old_bondwire = self.get_objects_by_name(assignment)[0]
         if not old_bondwire:
             return False
         edges = old_bondwire.edges
@@ -7504,6 +7504,29 @@ class GeometryModeler(Modeler, PyAedtBase):
         if assignment in self.objects_by_name:
             return self.objects_by_name[assignment].id
         return None
+
+    @pyaedt_function_handler()
+    def get_objects_by_name(self, assignment, case_sensitive: bool = True):
+        """Return the objects given a search string.
+
+        Parameters
+        ----------
+        assignment : str
+            String used to filter by object names.
+        case_sensitive : bool, optional
+            Whether the string is case-sensitive. The default is ``True``.
+
+        Returns
+        -------
+        list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Returns a list of objects whose names contain the
+            search string.
+
+        """
+        if case_sensitive:
+            return [o for name, o in self.objects_by_name.items() if assignment in name]
+        else:
+            return [o for name, o in self.objects_by_name.items() if assignment.lower() in name.lower()]
 
     @pyaedt_function_handler()
     def get_object_from_name(self, assignment):
