@@ -136,7 +136,9 @@ class SolutionData(PyAedtBase):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = data.GetDesignVariableValue(v, False)
+                # The second argument of GetDesignVariableValue is set to True to get the value
+                # in SI units.
+                variations[v] = data.GetDesignVariableValue(v, True)
                 if v not in self.units_sweeps:
                     try:
                         self.units_sweeps[v] = data.GetDesignVariableUnits(v)
