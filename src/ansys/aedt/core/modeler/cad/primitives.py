@@ -7484,7 +7484,6 @@ class GeometryModeler(Modeler, PyAedtBase):
             return [o for name, o in self.objects_by_name.items() if assignment in name]
         else:
             return [o for name, o in self.objects_by_name.items() if assignment.lower() in name.lower()]
-        return None
 
     @pyaedt_function_handler()
     def get_object_from_name(self, assignment):
