@@ -54,3 +54,17 @@ def test_project_object_failure(mock_unclassified_objects, mock_hfss_app, caplog
     assert any(
         "Failed to Project Sheet. Reverting to original objects." in record.getMessage() for record in caplog.records
     )
+
+
+def test_delete_all_points_failure(mock_hfss_app, caplog: pytest.LogCaptureFixture) -> None:
+    """Test delete all points failure behavior."""
+    mock_editor = MagicMock()
+    mock_editor.GetPoints.return_value = ["point_1"]
+    mock_editor.Delete.side_effect = Exception("Delete failed")
+    mock_hfss_app._oeditor = mock_editor
+
+    gm = GeometryModeler(mock_hfss_app)
+    res = gm.delete_all_points()
+
+    assert not res
+    assert any("Failed to delete points." in record.getMessage() for record in caplog.records)
