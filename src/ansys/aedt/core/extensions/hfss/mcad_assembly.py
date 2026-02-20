@@ -140,7 +140,9 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent: tkinter.Widget) -> None:
+    def add_toggle_theme_button(
+        self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
+    ) -> None:
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -184,7 +186,6 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         nb.pack(fill="both", expand=True)
 
         create_tab_main(self.tab_frame_main, self)
-        self.add_toggle_theme_button(self.root)
 
     def run(self, config_data: dict) -> None:
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
