@@ -128,7 +128,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         label.image = tk_image
         label.pack()
 
-    def _add_vertical_coil_checkbox(self, tab, row):
+    def _add_vertical_coil_checkbox(self, tab: tk.Widget, row: int) -> int:
         is_vertical_label = ttk.Label(tab, text="Vertical Coil", style="PyAEDT.TLabel", width=20)
         is_vertical_label.grid(row=row, column=0, **DEFAULT_PADDING)
         is_vertical = tk.IntVar(tab, name="is_vertical", value=1)
@@ -143,7 +143,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         row += 1
         return row
 
-    def _add_parameter_row(self, tab, parameter, default_value, row):
+    def _add_parameter_row(self, tab: tk.Widget, parameter: str, default_value: float, row: int) -> int:
         widget_name = parameter.replace(" ", "_").lower()
         parameter_label = ttk.Label(tab, text=parameter, style="PyAEDT.TLabel", width=20)
         parameter_label.grid(row=row, column=0, **DEFAULT_PADDING)
@@ -162,7 +162,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
-    def create_parameter_inputs(self, tab, tab_name) -> None:
+    def create_parameter_inputs(self, tab: tk.Widget, tab_name: str) -> None:
         """Create parameter input widgets for a category."""
         row = 0
         if tab_name == "Common":

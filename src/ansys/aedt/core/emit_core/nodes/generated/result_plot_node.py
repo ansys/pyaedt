@@ -48,7 +48,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Title", f"{value}")
 
     @property
-    def title_font(self):
+    def title_font(self) -> str:
         """Configure title font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -57,7 +57,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @title_font.setter
-    def title_font(self, value) -> None:
+    def title_font(self, value: str) -> None:
         self._set_property("Title Font", f"{value}")
 
     @property
@@ -74,7 +74,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Show Legend", f"{str(value).lower()}")
 
     @property
-    def legend_font(self):
+    def legend_font(self) -> str:
         """Configure legend font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -83,7 +83,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @legend_font.setter
-    def legend_font(self, value) -> None:
+    def legend_font(self, value: str) -> None:
         self._set_property("Legend Font", f"{value}")
 
     @property
@@ -218,7 +218,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Max Minor Ticks Y", f"{value}")
 
     @property
-    def axis_label_font(self):
+    def axis_label_font(self) -> str:
         """Configure axis text labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -227,11 +227,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @axis_label_font.setter
-    def axis_label_font(self, value) -> None:
+    def axis_label_font(self, value: str) -> None:
         self._set_property("Axis Label Font", f"{value}")
 
     @property
-    def axis_tick_label_font(self):
+    def axis_tick_label_font(self) -> str:
         """Configure axis tick numeric labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -240,7 +240,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @axis_tick_label_font.setter
-    def axis_tick_label_font(self, value) -> None:
+    def axis_tick_label_font(self, value: str) -> None:
         self._set_property("Axis Tick Label Font", f"{value}")
 
     class MajorGridLineStyleOption(Enum):
@@ -263,7 +263,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Major Grid Line Style", f"{value.value}")
 
     @property
-    def major_grid_color(self):
+    def major_grid_color(self) -> str:
         """Set color of major-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -272,7 +272,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @major_grid_color.setter
-    def major_grid_color(self, value) -> None:
+    def major_grid_color(self, value: str) -> None:
         self._set_property("Major Grid Color", f"{value}")
 
     class MinorGridLineStyleOption(Enum):
@@ -295,7 +295,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Minor Grid Line Style", f"{value.value}")
 
     @property
-    def minor_grid_color(self):
+    def minor_grid_color(self) -> str:
         """Set color of minor-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -308,7 +308,7 @@ class ResultPlotNode(EmitNode):
         self._set_property("Minor Grid Color", f"{value}")
 
     @property
-    def background_color(self):
+    def background_color(self) -> str:
         """Set background color of entire plot.
 
         Color should be in RGB form: #RRGGBB.
@@ -317,7 +317,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value: str) -> None:
         self._set_property("Background Color", f"{value}")
 
     class BBPowerforPlotsUnitOption(Enum):

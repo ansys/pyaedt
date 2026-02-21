@@ -190,17 +190,17 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.grid(row=1, column=2, **DEFAULT_PADDING)
 
     @property
-    def objects_net(self):
+    def objects_net(self) -> dict:
         """Get objects by net from the EDB modeler."""
         return self.__objects_net
 
     @property
-    def widgets(self):
+    def widgets(self) -> dict:
         """Get mapping to the extension's widgets"""
         return self.__widgets
 
     @property
-    def execute_cutout(self):
+    def execute_cutout(self) -> bool:
         """Get whether the cutout should be executed."""
         return self.__execute_cutout
 

@@ -119,7 +119,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         except Exception:
             return "Maxwell 3D"  # Default fallback
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell design."""
         if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()

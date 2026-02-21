@@ -35,15 +35,15 @@ class RadioNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_band(self):
+    def add_band(self) -> EmitNode:
         """Create a New Band"""
         return self._add_child_node("Band")
 
-    def add_folder(self):
+    def add_folder(self) -> EmitNode:
         """Create a New Folder to Organize Bands"""
         return self._add_child_node("Band Folder")
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 

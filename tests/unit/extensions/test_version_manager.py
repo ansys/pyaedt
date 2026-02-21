@@ -84,6 +84,7 @@ def _make_vm():
 
     fake_tkinter = SimpleNamespace(
         Tk=lambda *a, **k: MagicMock(),
+        Widget=object,
         StringVar=_SV,
         # orientations
         HORIZONTAL=1,

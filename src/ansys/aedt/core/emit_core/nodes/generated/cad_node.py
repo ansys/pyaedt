@@ -33,7 +33,7 @@ class CADNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -193,7 +193,7 @@ class CADNode(EmitNode):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def min(self):
+    def min(self) -> str:
         """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -202,7 +202,7 @@ class CADNode(EmitNode):
         return val
 
     @property
-    def max(self):
+    def max(self) -> str:
         """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -217,7 +217,7 @@ class CADNode(EmitNode):
         return int(val)
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.

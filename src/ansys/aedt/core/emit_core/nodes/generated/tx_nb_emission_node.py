@@ -33,7 +33,7 @@ class TxNbEmissionNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -51,7 +51,7 @@ class TxNbEmissionNode(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Tx Emissions Profile Table.
         Table consists of 2 columns.
         Bandwidth or Frequency:
@@ -62,7 +62,7 @@ class TxNbEmissionNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property

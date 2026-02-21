@@ -92,7 +92,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         # Add extension content
         self.add_extension_content()
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
         if self.aedt_application.design_type not in [
             "HFSS",

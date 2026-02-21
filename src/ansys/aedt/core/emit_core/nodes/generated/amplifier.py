@@ -44,7 +44,7 @@ class Amplifier(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Harmonic Intercept Points, Ref. Input Table.
         Table consists of 2 columns.
         Harmonic:

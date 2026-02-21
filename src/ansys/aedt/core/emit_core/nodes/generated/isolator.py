@@ -37,7 +37,7 @@ class Isolator(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
