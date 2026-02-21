@@ -143,7 +143,9 @@ def test_3dl_generate_mesh(hfss3dl_solve) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
-def test_3dl_analyze_setup(hfss3dl_solve) -> None:
+def test_3dl_analyze_setup(hfss3dl_solve):
+    logger = hfss3dl_solve.logger
+
     assert hfss3dl_solve.export_touchstone_on_completion(export=False)
     assert hfss3dl_solve.export_touchstone_on_completion(export=True)
     if DESKTOP_VERSION > "2024.2":
@@ -151,12 +153,53 @@ def test_3dl_analyze_setup(hfss3dl_solve) -> None:
     else:
         with pytest.raises(AEDTRuntimeError):
             hfss3dl_solve.set_export_touchstone()
-    assert hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
-    assert hfss3dl_solve.are_there_simulations_running
-    assert hfss3dl_solve.stop_simulations()
+
+    logger.info("test_3dl_analyze_setup: calling analyze_setup('Setup1', cores=4, blocking=False)")
+    analyze_result = hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
+    logger.info(f"test_3dl_analyze_setup: analyze_setup returned {analyze_result}")
+    assert analyze_result
+
+    running = hfss3dl_solve.are_there_simulations_running
+    logger.info(f"test_3dl_analyze_setup: initial are_there_simulations_running={running}")
+    start = time.time()
+    poll_count = 0
+    while not running and time.time() - start < 10:
+        time.sleep(0.5)
+        running = hfss3dl_solve.are_there_simulations_running
+        poll_count += 1
+        logger.info(
+            f"test_3dl_analyze_setup: poll #{poll_count} at {time.time() - start:.1f}s, "
+            f"are_there_simulations_running={running}"
+        )
+    elapsed_poll = time.time() - start
+    logger.info(
+        f"test_3dl_analyze_setup: polling loop done after {elapsed_poll:.1f}s, "
+        f"poll_count={poll_count}, running={running}"
+    )
+
+    if not running:
+        setup_solved = hfss3dl_solve.setups[0].is_solved if hfss3dl_solve.setups else None
+        logger.warning(
+            f"test_3dl_analyze_setup: simulations NOT detected as running. "
+            f"setup_solved={setup_solved}, num_setups={len(hfss3dl_solve.setups)}"
+        )
+    assert running, (
+        f"Simulations not detected as running after {elapsed_poll:.1f}s "
+        f"(poll_count={poll_count}). Check AEDT logs for errors."
+    )
+
+    stop_result = hfss3dl_solve.stop_simulations()
+    logger.info(f"test_3dl_analyze_setup: stop_simulations returned {stop_result}")
+    assert stop_result
+
+    wait_start = time.time()
+    wait_count = 0
     while hfss3dl_solve.are_there_simulations_running:
         time.sleep(1)
+        wait_count += 1
+
     profile = hfss3dl_solve.setups[0].get_profile()
+    logger.info(f"test_3dl_analyze_setup: profile keys={list(profile.keys()) if profile else None}")
     key0 = list(profile.keys())[0]
     assert key0 == "Setup1"
     assert isinstance(profile[key0], SimulationProfile)
