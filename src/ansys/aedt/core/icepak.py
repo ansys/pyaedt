@@ -987,7 +987,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return hs, name_map
 
     @pyaedt_function_handler()
-    @pyaedt_function_handler()
     def edit_design_settings(
         self,
         gravity_dir: int | None = 0,
@@ -1267,7 +1266,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir: str | None = None,
         filename: str | Path | None = None,
         sweep_name: str | None = None,
-        parameter_dict_with_values: dict | None = {},
+        parameter_dict_with_values: dict | None = None,
     ) -> str:
         """Export the field surface output.
 
@@ -1289,7 +1288,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
-            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+            Dictionary of parameters defined for the specific setup with values.
+            The default is ``None``, in which case the nominal variation is used.
 
         Returns
         -------
@@ -1300,6 +1300,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = self.available_variations.nominal_values
+
         name = generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list, name)
         if not savedir:
@@ -1339,7 +1342,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir: str | None = None,
         filename: str | Path | None = None,
         sweep_name: str | None = None,
-        parameter_dict_with_values: dict | None = {},
+        parameter_dict_with_values: dict | None = None,
     ) -> str:
         """Export the field volume output.
 
@@ -1361,7 +1364,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
-            Dictionary of parameters defined for the specific setup with values. The default is ``{}``
+            Dictionary of parameters defined for the specific setup with values.
+            The default is ``None``, in which case the nominal variation is used.
 
         Returns
         -------
@@ -1372,6 +1376,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = self.available_variations.nominal_values
+
         if not savedir:
             savedir = self.working_directory
         if not filename:
@@ -1493,12 +1500,17 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                     ]
                 )
         else:
+            string = ""
+            parameter_dict_with_values = self.available_variations.nominal_values
+            for el in parameter_dict_with_values:
+                string += el + "='" + parameter_dict_with_values[el] + "' "
+
             self.osolution.ExportFieldsSummary(
                 [
                     "SolutionName:=",
                     solution_name,
                     "DesignVariationKey:=",
-                    "",
+                    string,
                     "ExportFileName:=",
                     str(Path(output_dir) / (filename + "_" + quantity + ".csv")),
                 ]
@@ -2295,7 +2307,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fl_ucommand = [cmd, "3d", "-meshing", "-hidden", "-i"]
         self.logger.info("Fluent is starting in Background with command line")
         if is_linux:
-            fl_ucommand = ["bash"] + fl_ucommand + [fl_uscript_file_pointer]
+            fl_ucommand = ["bash"] + fl_ucommand + [str(fl_uscript_file_pointer)]
         else:
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + str(fl_uscript_file_pointer) + '"']
         self.logger.info(" ".join(fl_ucommand))
@@ -5019,8 +5031,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             props["Faces"] = [f.id for f in faces]
         if not isinstance(inlet_face, list):
             inlet_face = [inlet_face]
-        if not isinstance(inlet_face[0], int):
-            props["InletFace"] = [f.id for f in inlet_face]
+
+        inlet_faces = []
+        for f in inlet_face:
+            if isinstance(f, int):
+                inlet_faces.append(f)
+            elif hasattr(f, "id"):
+                inlet_faces.append(f.id)
+
+        props["InletFace"] = inlet_faces
+
         props["Blower Power"] = blower_power
         props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
         if len(fan_curve_flow) != len(fan_curve_pressure):

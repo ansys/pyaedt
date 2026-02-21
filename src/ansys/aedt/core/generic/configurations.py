@@ -2031,9 +2031,16 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     operation_list = [
                         decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)
                     ]
-                else:
+                elif len(operation_dict["Props"]["Move Vector"]) == 3:
                     operation_list = [
                         decompose_variable_value(operation_dict["Props"]["Move Vector"][i])[0] for i in range(3)
+                    ]
+                else:
+                    # Handle empty list case - use separate X/Y/Z values
+                    operation_list = [
+                        decompose_variable_value(operation_dict["Props"]["Move Vector/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Move Vector/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Move Vector/Z"])[0],
                     ]
                 obj.move(operation_list)
             elif operation_dict["Props"]["Command"] == "Rotate":
@@ -2049,13 +2056,24 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
                         for i in range(3)
                     ]
-
-                else:
+                elif len(operation_dict["Props"]["Base Position"]) == 3:
                     base_list = [
                         decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
                     ]
                     normal_list = [
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
+                    ]
+                else:
+                    # Handle empty list case - use separate X/Y/Z values
+                    base_list = [
+                        decompose_variable_value(operation_dict["Props"]["Base Position/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Base Position/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Base Position/Z"])[0],
+                    ]
+                    normal_list = [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/Z"])[0],
                     ]
 
                 obj.mirror(base_list, normal_list)
@@ -2064,8 +2082,15 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     vector_list = [
                         decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)
                     ]
-                else:
+                elif len(operation_dict["Props"]["Vector"]) == 3:
                     vector_list = [decompose_variable_value(operation_dict["Props"]["Vector"][i])[0] for i in range(3)]
+                else:
+                    # Handle empty list case - use separate X/Y/Z values
+                    vector_list = [
+                        decompose_variable_value(operation_dict["Props"]["Vector/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Vector/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Vector/Z"])[0],
+                    ]
                 new_objs = obj.duplicate_along_line(
                     vector_list,
                     clones=operation_dict["Props"]["Total Number"],
@@ -2086,13 +2111,24 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
                         for i in range(3)
                     ]
-
-                else:
+                elif len(operation_dict["Props"]["Base Position"]) == 3:
                     base_list = [
                         decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
                     ]
                     normal_list = [
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
+                    ]
+                else:
+                    # Handle empty list case - use separate X/Y/Z values
+                    base_list = [
+                        decompose_variable_value(operation_dict["Props"]["Base Position/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Base Position/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Base Position/Z"])[0],
+                    ]
+                    normal_list = [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/X"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/Y"])[0],
+                        decompose_variable_value(operation_dict["Props"]["Normal Position/Z"])[0],
                     ]
                 new_objs = obj.duplicate_and_mirror(
                     base_list,

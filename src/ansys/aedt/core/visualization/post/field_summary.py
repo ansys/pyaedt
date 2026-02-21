@@ -253,7 +253,7 @@ class FieldSummary(PyAedtBase):
             default is ``None``, in which case the nominal variation is used.
         variations : dict, optional
             Dictionary containing the design variation to use for the computation.
-            The default is  ``{}``, in which case the nominal variation is used.
+            The default is ``None``, in which case the nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             which is suitable when no frequency needs to be selected.
@@ -263,8 +263,8 @@ class FieldSummary(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if variations is None:
-            variations = {}
+        if not variations:
+            variations = self._app.available_variations.nominal_values
         if not setup:
             setup = self._app.nominal_sweep
         dv_string = ""

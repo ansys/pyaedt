@@ -3642,6 +3642,7 @@ class Design(AedtObjects, PyAedtBase):
         proj_from.CopyDesign(design)
         # paste in the destination project and get the name
         self._oproject.Paste()
+        self._oproject.SetActiveDesign(design)
         new_designname = self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetName()
         if (
             self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetDesignType()
