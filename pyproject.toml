@@ -55,7 +55,7 @@ graphics = [
     "ansys-tools-visualization-interface",
     "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.6",
+    "vtk>=9.0,<9.7",
     "fpdf2",
 ]
 jupyter = [
