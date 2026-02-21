@@ -821,6 +821,11 @@ def get_dxf_layers(input_file: str | Path) -> list[str]:
         for idx in indices:
             if "2" in lines[idx + index_offset]:
                 layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
+        if not layer_names:
+            index_offset = 1
+            for idx in indices:
+                if "2" in lines[idx + index_offset]:
+                    layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
         return layer_names
 
 
