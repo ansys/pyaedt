@@ -1229,7 +1229,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def import_dxf(
         self,
         input_file: str | Path,
-        layers: list[str],
+        layers: list[str] = None,
         auto_detect_close: bool = True,
         self_stitch: bool = True,
         self_stitch_tolerance: float = 0.0,
@@ -1247,9 +1247,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         input_file : str or :class:`pathlib.Path`
             Path to the DXF file.
-        layers : list
-            List of layer names to import. To get the dxf_layers in the DXF file,
-            you can call the ``get_dxf_layers`` method.
+        layers : list, optional
+            List of layer names to import, if empty all layers will be imported.
+            To get the dxf_layers in the DXF file, you can call the ``get_dxf_layers`` method.
         auto_detect_close : bool, optional
             Whether to check polylines to see if they are closed.
             The default is ``True``. If a polyline is closed, the modeler
@@ -1294,10 +1294,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = get_dxf_layers(input_file)
-        for layer in layers:
-            if layer not in dxf_layers:
-                self.logger.error(f"{layer} does not exist in specified dxf.")
-                return False
+        if not layers:
+            layers = dxf_layers
+        else:
+            for layer in layers:
+                if layer not in dxf_layers:
+                    self.logger.error(f"{layer} does not exist in specified dxf.")
+                    return False
 
         if hasattr(self, "is3d") and self.is3d:
             sheet_bodies_2d = False
