@@ -1,0 +1,6 @@
+get\_field\_extremum
+====================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
+
+.. automethod:: PostProcessor3D.get_field_extremum

@@ -1,0 +1,44 @@
+﻿EdgePrimitive
+=============
+
+.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
+
+.. autoclass:: EdgePrimitive
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EdgePrimitive.chamfer
+      
+      
+      EdgePrimitive.create_object
+      
+      
+      EdgePrimitive.fillet
+      
+      
+      EdgePrimitive.move_along_normal
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      EdgePrimitive.length
+      EdgePrimitive.midpoint
+      EdgePrimitive.name
+      EdgePrimitive.segment_info
+      EdgePrimitive.vertices
+   
+   

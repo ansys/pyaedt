@@ -1,0 +1,38 @@
+﻿Point
+=====
+
+.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
+
+.. autoclass:: Point
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Point.delete
+      
+      
+      Point.set_color
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Point.coordinate_system
+      Point.logger
+      Point.name
+      Point.public_dir
+      Point.valid_properties
+   
+   

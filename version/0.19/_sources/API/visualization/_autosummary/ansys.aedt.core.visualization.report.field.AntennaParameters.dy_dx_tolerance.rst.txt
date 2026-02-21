@@ -1,0 +1,6 @@
+dy\_dx\_tolerance
+=================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.field
+
+.. autoproperty:: AntennaParameters.dy_dx_tolerance

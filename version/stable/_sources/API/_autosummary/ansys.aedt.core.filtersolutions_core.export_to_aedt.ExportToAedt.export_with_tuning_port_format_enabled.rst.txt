@@ -1,0 +1,6 @@
+export\_with\_tuning\_port\_format\_enabled
+===========================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
+
+.. autoproperty:: ExportToAedt.export_with_tuning_port_format_enabled

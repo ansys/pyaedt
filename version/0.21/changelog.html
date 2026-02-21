@@ -1,0 +1,3156 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Release notes &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/ansys-sphinx-theme.css?v=9e79609d" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/ansys-sphinx-theme.css?v=9e79609d" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="_static/documentation_options.js?v=a8555a2b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.21';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="public_dir" href="API/_autosummary/ansys.aedt.core.generic.math_utils.MathUtils.public_dir.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.21.3" />
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/changelog.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Release notes
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Release notes</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="release-notes">
+<span id="ref-release-notes"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<p>This document contains the release notes for the project.</p>
+<section id="october-17-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.21.2">0.21.2</a> - October 17, 2025<a class="headerlink" href="#october-17-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update Report type according to Solution Type in CreateOutputVariable</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6726">#6726</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update extension directory path handling in add_script_to_menu function</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6779">#6779</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update CHANGELOG for v0.21.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6777">#6777</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="october-16-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.21.1">0.21.1</a> - October 16, 2025<a class="headerlink" href="#october-16-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add dir as property</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6716">#6716</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Project sheet</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6757">#6757</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update extension handling</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6758">#6758</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Enhance custom extension dialog with display name and validation checks</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6760">#6760</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump peter-evans/create-or-update-comment from 4.0.0 to 5.0.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6753">#6753</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update ``CONTRIBUTORS.md`` with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6755">#6755</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix doc wheelhouse Installation.rst</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6765">#6765</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update troubleshooting guide with extension troubleshooting</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6771">#6771</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>F-string usage for IronPython compatibility</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6748">#6748</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Design type check and update points cloud extension call</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6750">#6750</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added additional check to is_solved for circuit analysis</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6759">#6759</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fixed the issue of comp name same as model name in ibis file which caused issue in mapping</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6761">#6761</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>GeometryModeler __getitem__ for AEDT 24R2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6762">#6762</a></p></td>
+</tr>
+<tr class="row-even"><td><p>_import_cad</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6764">#6764</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add platform-specific console termination handling in console_setup.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6766">#6766</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add ``ansys/actions/check-actions-security`` action and related fixes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6743">#6743</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update CHANGELOG for v0.21.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6746">#6746</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump 0.22.dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6747">#6747</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="october-09-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.21.0">0.21.0</a> - October 09, 2025<a class="headerlink" href="#october-09-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add background update check for PyAEDT with user notification</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6739">#6739</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump ansys/actions from 10.1.2 to 10.1.4</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6735">#6735</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix a bug in TouchstoneData class that occurs when the port names are not correctly parsed.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6715">#6715</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Removed duplicated numbers.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6721">#6721</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix issue 6719 get_string_version</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6722">#6722</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update some emit params</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6728">#6728</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed generated jsons test issue</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6729">#6729</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Enhance package installation process with fallback to pip if uv fails</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6730">#6730</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Version manager pip fallback</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6732">#6732</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Enable to import the lib again from MacOS</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6738">#6738</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed pedb bug</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6741">#6741</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update CHANGELOG for v0.20.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6714">#6714</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Solution Data</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6706">#6706</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="october-01-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.20.1">0.20.1</a> - October 01, 2025<a class="headerlink" href="#october-01-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Panels update automatically after update</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6690">#6690</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-13" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-13">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump ansys/actions from 10.1.1 to 10.1.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6693">#6693</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update grpcio requirement from &lt;1.75,&gt;=1.50.0 to &gt;=1.50.0,&lt;1.76</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6694">#6694</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-14" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-14">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add documentation for the pyd folder settings</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6689">#6689</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update ``CONTRIBUTORS.md`` with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6697">#6697</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-15" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-15">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Increased width to fit elements</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6691">#6691</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add – to uv to pass options to pip</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6696">#6696</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added point cloud generator extension to Maxwell 2D</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6699">#6699</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Ibis import of models when multiple component have same name</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6705">#6705</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-16" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-16">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update CHANGELOG for v0.20.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6683">#6683</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix nightly doc build (temporary)</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6684">#6684</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove caching from wheelhouse</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6685">#6685</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump v0.21.dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6686">#6686</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove ansys processes on self-hosted</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6687">#6687</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve pyaedt installer script</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6702">#6702</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-17" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-17">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Nastran import refactoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6236">#6236</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="september-26-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.20.0">0.20.0</a> - September 26, 2025<a class="headerlink" href="#september-26-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-18" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-18">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update create_setup method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6279">#6279</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Install pyaedt via uv</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6338">#6338</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6290 add profile class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6478">#6478</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Allow pass AEDT installation directory</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6494">#6494</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add Profile class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6593">#6593</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Added test iframe to the docs</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6618">#6618</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add emit_schematic and emitter_node classes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6639">#6639</a></p></td>
+</tr>
+<tr class="row-even"><td><p>6620 bug located in export image</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6641">#6641</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Delete motion setup</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6652">#6652</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Version-manager-uv-support</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6655">#6655</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Display-all-logs-extension-manager</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6661">#6661</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-19" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-19">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump pyvista from &lt;0.46 to &lt;0.47</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6602">#6602</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump actions/checkout from 4.2.2 to 5.0.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6613">#6613</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump ansys/actions from 10.0.15 to 10.0.20</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6614">#6614</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump actions/setup-python from 5.6.0 to 6.0.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6642">#6642</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump actions/labeler from 5.0.0 to 6.0.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6643">#6643</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump codecov/codecov-action from 5.4.3 to 5.5.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6644">#6644</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump pypa/gh-action-pypi-publish from 1.12.4 to 1.13.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6645">#6645</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys/actions from 10.0.20 to 10.1.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6668">#6668</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update pytest-cov requirement from &lt;6.3,&gt;=4.0.0 to &gt;=4.0.0,&lt;7.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6669">#6669</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update cffi requirement from &lt;1.18,&gt;=1.16.0 to &gt;=1.16.0,&lt;2.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6670">#6670</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-20" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-20">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix typo in env variable</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6626">#6626</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Added via design video iframe</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6634">#6634</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix doc link</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6640">#6640</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix is_dielectric docstring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6677">#6677</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-21" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-21">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>MATLAB script amp2db.m</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6559">#6559</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Aligned ports to the same plane</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6605">#6605</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed configurations.py for circuit import when no port_names is passed</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6610">#6610</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Some minor updates to PyAedt</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6621">#6621</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Improve analyze method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6624">#6624</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Page connector</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6636">#6636</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Moved fpdf2 and rpyc in optional dependencies</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6647">#6647</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fixed bug in variations which prevented eye diagram plot</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6653">#6653</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixes and improvements in edit_sources() for q3d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6660">#6660</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix an issue with psutil on machine with multiple users running aedt</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6665">#6665</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed theme switching bug</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6674">#6674</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-22" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-22">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Make EMIT tests independent</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6546">#6546</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update CHANGELOG for v0.19.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6607">#6607</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update v0.20.dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6608">#6608</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve visualization failure handling</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6617">#6617</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Improve Touchstone parser test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6629">#6629</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Temporary fix doc-build</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6672">#6672</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-23" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-23">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Migrate kernel converter extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6536">#6536</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Optimize field plot test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6597">#6597</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Migrate convert to circuit extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6619">#6619</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add terminal support</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6622">#6622</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Migrate maxwell extension fields distribution</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6625">#6625</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Migrate via clustering extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6627">#6627</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Migrate post layout design toolkit</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6638">#6638</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move project section applications</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6666">#6666</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Separate methods for releasing the desktop and closing the AEDT application</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6667">#6667</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-24" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-24">
+Test</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added missing microvia test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6649">#6649</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="september-04-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.19.0">0.19.0</a> - September 04, 2025<a class="headerlink" href="#september-04-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-25" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-25">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>New extension manager</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6406">#6406</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Automatic release desktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6557">#6557</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Support pin reordering in config files</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6561">#6561</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Extension MCAD assembly</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6581">#6581</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added offset to page port creation during connect_to_component.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6599">#6599</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-26" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-26">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump ansys/actions from 10.0.13 to 10.0.14</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6504">#6504</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump actions/download-artifact from 4.3.0 to 5.0.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6542">#6542</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump actions/checkout from 4.2.2 to 5.0.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6565">#6565</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update ansys-sphinx-theme range from &lt;1.6 to &lt;1.7</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6583">#6583</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump codecov/codecov-action from 5.4.3 to 5.5.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6588">#6588</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update plotly requirement from &lt;6.3,&gt;=6.0 to &gt;=6.0,&lt;6.4</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6590">#6590</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump ansys/actions into v10.0.15</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6592">#6592</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-27" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-27">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improving Maxwell circuit documentation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6521">#6521</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">html_context</span></code> with PyAnsys tags</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6579">#6579</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-28" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-28">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Observe specified output path for saving extension results (and minor improvements)</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6459">#6459</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fixed issue in schematic components dictionary.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6473">#6473</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Join load thread before opening project</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6513">#6513</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Maxwell solution type name compatibility</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6514">#6514</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Save project after recovering archive</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6553">#6553</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Configure layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6560">#6560</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Issue with circuit extensions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6563">#6563</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move test_via_design_examples_success to unit tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6571">#6571</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>3dlayout component coordinate</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6574">#6574</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Configure layout test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6577">#6577</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Setting rigth default TDR options</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6578">#6578</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix problem with extension manager hanging on some extensions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6585">#6585</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add context em fields q3d/q2d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6586">#6586</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Via design extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6598">#6598</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Circuit config fixes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6600">#6600</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-29" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-29">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update CHANGELOG for v0.18.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6503">#6503</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Enforce <code class="docutils literal notranslate"><span class="pre">ruff</span></code> pydocstyle D rules with available autofixes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6520">#6520</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add jupyter backend for pyvista plot</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6564">#6564</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Enforce simple <code class="docutils literal notranslate"><span class="pre">ruff</span></code> “flake8-todos” TD rules</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6570">#6570</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-30" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-30">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Migrate choke designer extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6364">#6364</a></p></td>
+</tr>
+<tr class="row-even"><td><p>6451 migrate export layout extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6455">#6455</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6507 migrate parametrize edb extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6510">#6510</a></p></td>
+</tr>
+<tr class="row-even"><td><p>6511 migrate push excitation from file</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6515">#6515</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6516 migrate push excitation from file hfss3d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6518">#6518</a></p></td>
+</tr>
+<tr class="row-even"><td><p>6530 migrate import nastran extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6537">#6537</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6529 migrate create report extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6545">#6545</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Extension Configure Layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6552">#6552</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Configure layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6567">#6567</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Insert layout component</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6580">#6580</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Enhancement mcad assembly</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6591">#6591</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Use use small snp for test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6596">#6596</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="august-08-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.18.1">0.18.1</a> - August 08, 2025<a class="headerlink" href="#august-08-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-31" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-31">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Support new emitcom api for 25r2, add node classes for all emit node types</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6068">#6068</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add submit job class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6331">#6331</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Circuit configuration extension refactoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6417">#6417</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Em fields in q3d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6421">#6421</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add vector fields names in extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6423">#6423</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add  create ports by nets function</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6428">#6428</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add options to debug unit tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6479">#6479</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-32" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-32">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update scikit-rf requirement from &lt;1.8,&gt;=0.30.0 to &gt;=0.30.0,&lt;1.9</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6437">#6437</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update ansys-sphinx-theme requirement from &lt;1.5,&gt;=1.0.0 to &gt;=1.0.0,&lt;1.6</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6438">#6438</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update vtk requirement from &lt;9.4,&gt;=9.0 to &gt;=9.0,&lt;9.6</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6439">#6439</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys/actions from 10.0.12 to 10.0.13</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6469">#6469</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update grpcio requirement from &lt;1.74,&gt;=1.50.0 to &gt;=1.50.0,&lt;1.75</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6487">#6487</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-33" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-33">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix monitor documentation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6457">#6457</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Documentation improvement of create_report method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6468">#6468</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Improving primitives maxwell circuit documentation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6489">#6489</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-34" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-34">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Save project before analyze</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6432">#6432</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Import cad with none value in control file</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6436">#6436</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix a typo error which was preventing optislang setup to be populated.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6448">#6448</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Use regex to check installed ansysem versions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6453">#6453</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix indentation when loading emit revision</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6454">#6454</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Edb import</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6458">#6458</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix issue in method to create tdr analysis which caused failure when more than 1 input is present</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6460">#6460</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fixed issue in export_results fro q3d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6467">#6467</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Icepak boundary update is missing</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6483">#6483</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Export model obj usage of relative path</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6486">#6486</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Get evalauted value with correct unit scale</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6492">#6492</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-35" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-35">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update changelog for v0.18.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6429">#6429</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update 0.19.0dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6431">#6431</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump aedt version into 2025.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6477">#6477</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-36" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-36">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Submit job class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6349">#6349</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pathlib in multiple files</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6367">#6367</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6375 migrate shielding effectiveness extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6379">#6379</a></p></td>
+</tr>
+<tr class="row-even"><td><p>6380 migrate import schematic extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6389">#6389</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>6390 migrate export to 3d extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6391">#6391</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Scheduler logic</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6398">#6398</a>, <a class="reference external" href="https://github.com/ansys/pyaedt/pull/6399">#6399</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Enforce design check in extensions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6433">#6433</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Implement Arbitrary Wave Port extension with new format and tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6498">#6498</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-37" name="sd-tab-set-6" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-37">
+Test</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Temporary skip test in linux 2025r2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6456">#6456</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="july-17-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.18.0">0.18.0</a> - July 17, 2025<a class="headerlink" href="#july-17-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-38" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-38">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added method reduce to the TouchstoneData class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6191">#6191</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add function to emit to list all component types</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6210">#6210</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Toggle net type in q3d</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6237">#6237</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Assign wave port in driven terminal</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6358">#6358</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Control order connection between coil terminals in maxwell3d transientaphiformulation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6360">#6360</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Spisim ucie</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6373">#6373</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added a new class to customize page ports and added 2 new properties</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6374">#6374</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add new method to convert far field data to ffd</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6392">#6392</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-39" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-39">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>bump codecov/codecov-action from 5.4.2 to 5.4.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6166">#6166</a></p></td>
+</tr>
+<tr class="row-even"><td><p>bump ansys/actions from 9.0.12 to 9.0.13</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6217">#6217</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update pytest-cov requirement from &lt;6.2,&gt;=4.0.0 to &gt;=4.0.0,&lt;6.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6292">#6292</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update plotly requirement from &lt;6.2,&gt;=6.0 to &gt;=6.0,&lt;6.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6356">#6356</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update pytest-xdist requirement from &lt;3.8,&gt;=3.5.0 to &gt;=3.5.0,&lt;3.9</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6393">#6393</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-40" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-40">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improving documentation of maxwell class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6150">#6150</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6218">#6218</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix docstrings to comply with numpydoc style.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6231">#6231</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">contributors.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6330">#6330</a>, <a class="reference external" href="https://github.com/ansys/pyaedt/pull/6394">#6394</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix extension contribution code snippets</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6384">#6384</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-41" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-41">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>fix a bug in the reduce method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6204">#6204</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve circuit speed</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6206">#6206</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>LSF submission string error 6182</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6208">#6208</a></p></td>
+</tr>
+<tr class="row-even"><td><p>RefDes is a property not present in all components.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6209">#6209</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Version manager install from wheelhouse</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6216">#6216</a></p></td>
+</tr>
+<tr class="row-even"><td><p>edit_external_circuit move lists</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6223">#6223</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed the way to retrieve non_graphical variable</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6351">#6351</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Exposed file format in plot_animated_field function</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6353">#6353</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Handle zero-valued expression variables properly.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6376">#6376</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Symbolstyle return value</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6378">#6378</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>The method export_model_obj when a full path to an obj is passed.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6382">#6382</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Refactoring of component_array creation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6383">#6383</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Support for maxwell transient aphi solver renaming in 2025r2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6414">#6414</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Subprocess call doesn’t accept check</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6418">#6418</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-42" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-42">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>2025.2 compatibility</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6152">#6152</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update CHANGELOG for v0.17.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6192">#6192</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update 0.18.dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6195">#6195</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve test efficiency</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6196">#6196</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Do not check AEDT/EDB binary files with Ruff</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6198">#6198</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys actions to v9.0.12</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6201">#6201</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Enforce <code class="docutils literal notranslate"><span class="pre">ruff</span></code> pycodestyle e rules</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6203">#6203</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update labeler permissions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6232">#6232</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bump ansys/actions into v10.0.4</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6233">#6233</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update changelog for v0.17.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6341">#6341</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add deepwiki badge in readme.md</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6345">#6345</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix visualization random failure</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6346">#6346</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update minimum python version</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6352">#6352</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add dependency check on all target</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6363">#6363</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Temporary fix for vtk-osmesa</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6407">#6407</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Rename numbers.py into numbers_utils.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6412">#6412</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-43" name="sd-tab-set-7" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-43">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>test_12_1_post processing</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6200">#6200</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve primitives connect</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6220">#6220</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Import nastran extension and tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6227">#6227</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Cutout extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6321">#6321</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Configure layout rlc on cap</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6342">#6342</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Use enum instead of custom class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6354">#6354</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Point cloud extension and tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6372">#6372</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Power map from csv extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6388">#6388</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="june-30-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.5">0.17.5</a> - June 30, 2025<a class="headerlink" href="#june-30-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-44" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-44">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Create coil extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6276">#6276</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update create_setup method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6279">#6279</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-45" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-45">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Bump ansys/actions from 10.0.11 to 10.0.12</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6325">#6325</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update pandas requirement from &lt;2.3,&gt;=1.1.0 to &gt;=1.1.0,&lt;2.4</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6326">#6326</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-46" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-46">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add guide line on how to develop an extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6303">#6303</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add space between badges.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6305">#6305</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add direct link to troubleshooting in the aedt panel installation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6320">#6320</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix ci cd badge in readme</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6334">#6334</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-47" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-47">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>The new_session was not properly populated into desktop __new__ class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6298">#6298</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Extension’s unwanted desktop opening</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6304">#6304</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Notify vtk for changes in the animation loop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6310">#6310</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Lsf-job-submission-failure</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6318">#6318</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Dotnet use runtime spec</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6324">#6324</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Skip move on circuit if it is running on linux in non-graphical mode</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6332">#6332</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-48" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-48">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Enforce <code class="docutils literal notranslate"><span class="pre">ruff</span></code> pyflakes f rules</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6239">#6239</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update changelog for v0.17.4</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6306">#6306</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Skip not stable emit tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6312">#6312</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add cooldown for github actions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6327">#6327</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-49" name="sd-tab-set-8" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-49">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Refactored settings.py to use pathlib</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6291">#6291</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Configure layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6328">#6328</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="june-24-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.4">0.17.4</a> - June 24, 2025<a class="headerlink" href="#june-24-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-50" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-50">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update grpcio requirement from &lt;1.73,&gt;=1.50.0 to &gt;=1.50.0,&lt;1.74</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6293">#6293</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-51" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-51">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update <code class="docutils literal notranslate"><span class="pre">contributors.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6295">#6295</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix url link after changes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6302">#6302</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-52" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-52">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Parametrics fix in add_from_file for maxwell</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6299">#6299</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-53" name="sd-tab-set-9" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-53">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update changelog for v0.17.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6297">#6297</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="june-23-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.3">0.17.3</a> - June 23, 2025<a class="headerlink" href="#june-23-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-54" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-54">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Via design extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6222">#6222</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Configure layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6235">#6235</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>New version of point_in_polygon for higher performances</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6283">#6283</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-55" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-55">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update grpcio requirement from &lt;1.71,&gt;=1.50.0 to &gt;=1.50.0,&lt;1.73</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6263">#6263</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update pytest requirement from &lt;8.4,&gt;=7.4.0 to &gt;=7.4.0,&lt;8.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6265">#6265</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update plotly requirement from &lt;6.1,&gt;=6.0 to &gt;=6.0,&lt;6.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6266">#6266</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys/actions from 10.0.10 to 10.0.11</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6267">#6267</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-56" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-56">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Refactor move it extension with extensioncommon</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6280">#6280</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Remove_galileo_reference</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6281">#6281</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-57" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-57">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update changelog for v0.17.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6262">#6262</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add numpy as default requirement</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6289">#6289</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-58" name="sd-tab-set-10" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-58">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Advanced field calculator extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6261">#6261</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Configure layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6287">#6287</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="june-13-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.2">0.17.2</a> - June 13, 2025<a class="headerlink" href="#june-13-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-59" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-59">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Frtm new methods and doa new features</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6221">#6221</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Coordinate system in hfss 3d layout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6255">#6255</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-60" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-60">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update pyvista[io] requirement from &lt;0.45,&gt;=0.38.0 to &gt;=0.38.0,&lt;0.46</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6061">#6061</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys/actions from 10.0.8 to 10.0.10</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6256">#6256</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-61" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-61">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Import graphic dependencies if needed</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6246">#6246</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Emi receiver report</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6250">#6250</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add extension logo image anchor</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6251">#6251</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-62" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-62">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update changelog for v0.17.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6245">#6245</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-63" name="sd-tab-set-11" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-63">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Extension architecture using common class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6238">#6238</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="june-09-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.1">0.17.1</a> - June 09, 2025<a class="headerlink" href="#june-09-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-64" name="sd-tab-set-12" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-64">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update pytest-xdist requirement from &lt;3.7,&gt;=3.5.0 to &gt;=3.5.0,&lt;3.8</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6242">#6242</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump ansys/actions from 10.0.4 to 10.0.8</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6243">#6243</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="may-23-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.17.0">0.17.0</a> - May 23, 2025<a class="headerlink" href="#may-23-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-65" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-65">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added document revision to Virtual Compliance</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6131">#6131</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add circuit extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6143">#6143</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-66" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-66">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update pytest-timeout requirement from &lt;2.4,&gt;=2.3.0 to &gt;=2.3.0,&lt;2.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6167">#6167</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update scikit-rf requirement from &lt;1.7,&gt;=0.30.0 to &gt;=0.30.0,&lt;1.8</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6172">#6172</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-67" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-67">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6168">#6168</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-68" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-68">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Return None in compute power loss if no solution available</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6106">#6106</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix small bug in VirtualCompliance which prevented the save of the reports</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6165">#6165</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Improve the speed up of the cleanup of objects and delete of objects in modeler.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6170">#6170</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Image aspect ratio in VirtualCompliance</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6173">#6173</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Change default report resolution on VirtualCompliance</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6177">#6177</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Check if property key exist in boundary for configuration file</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6180">#6180</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>improved ibis pin load time</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6181">#6181</a></p></td>
+</tr>
+<tr class="row-even"><td><p>fixed the issue where the freq/time column got interchanged with y axis value for lna analysis and tdr</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6185">#6185</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>fixed add_pyaedt_to_aedt</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6189">#6189</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-69" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-69">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Setting up ruff</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6157">#6157</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update CHANGELOG for v0.16.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6164">#6164</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update dependabot cfg and codeowners</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6169">#6169</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Minor changes to update jobs name</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6190">#6190</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-70" name="sd-tab-set-13" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-70">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Separate extension tests</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6186">#6186</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="may-16-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.16.2">0.16.2</a> - May 16, 2025<a class="headerlink" href="#may-16-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-71" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-71">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>FRTM class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6018">#6018</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Added automatic search in modeler getitem of FaceID and Edge Ids.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6109">#6109</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added new section in VirtualCompliance to compute skew parameters from Report.</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6114">#6114</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Uncover face</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6122">#6122</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added support for pass_fail criteria into the main.json</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6124">#6124</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-72" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-72">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update jupyterlab requirement from &lt;4.4,&gt;=3.6.0 to &gt;=3.6.0,&lt;4.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6104">#6104</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update joblib requirement from &lt;1.5,&gt;=1.4.0 to &gt;=1.4.0,&lt;1.6</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6140">#6140</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-73" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-73">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add docstring to some classes in constants.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6099">#6099</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6105">#6105</a>, <a class="reference external" href="https://github.com/ansys/pyaedt/pull/6144">#6144</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add hint for toolkit icon visiblity</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6123">#6123</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-74" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-74">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>improvements in circuit config</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6012">#6012</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Adding close desktop function</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6052">#6052</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix name of setup to match setup type</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6125">#6125</a></p></td>
+</tr>
+<tr class="row-even"><td><p>fix small bug in time domain report</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6126">#6126</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>External circuit import of renamed sources</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6128">#6128</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Change units in non linear properties</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6130">#6130</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Output variable with differential pairs</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6132">#6132</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add mesh link wrong source design solution selection</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6133">#6133</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add blocking to optimetrics analyze method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6135">#6135</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix equivalent circuit export</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6139">#6139</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>fields documentation extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6147">#6147</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Correct unit for h-field in set_non_linear() for bh curve definition</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6156">#6156</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>ISAR 2D range extents</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6162">#6162</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-75" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-75">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.16.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6098">#6098</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Bump dev version into v0.17.dev0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6102">#6102</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add vulnerability checking</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6112">#6112</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Extend smoke tests with py313</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6116">#6116</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add nosec B110 to random AEDT failure</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6137">#6137</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pin ansys/actions to the latest stable release</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6148">#6148</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix missing call to actions/doc-build</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6155">#6155</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-76" name="sd-tab-set-14" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-76">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>12_post_processing refactoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6051">#6051</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add required graphics decorator</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6087">#6087</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Refactor/12 post processing test</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6095">#6095</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Updates related to vulnerabilities and documentation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6110">#6110</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Extension manager compatible with toolkits</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6115">#6115</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Refactored quaternion implementation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6151">#6151</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="may-01-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.16.1">0.16.1</a> - May 01, 2025<a class="headerlink" href="#may-01-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-77" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-77">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added DUT Image to the Compliance report</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5985">#5985</a></p></td>
+</tr>
+<tr class="row-even"><td><p>improved pdf  image management</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6076">#6076</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add assignment argument to plane wave</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6077">#6077</a></p></td>
+</tr>
+<tr class="row-even"><td><p>args deprecation decorator</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6086">#6086</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add Version manager to main panels</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6089">#6089</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-78" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-78">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update install targets and dependencies</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5997">#5997</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Temporary add bound to wheel</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6002">#6002</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>bump actions/setup-python from 5.5.0 to 5.6.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6081">#6081</a></p></td>
+</tr>
+<tr class="row-even"><td><p>bump actions/download-artifact from 4.2.1 to 4.3.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6082">#6082</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-79" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-79">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update priority level in doctree removal</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6078">#6078</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6084">#6084</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-80" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-80">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve robustness of field summary dictionary to DataFrame conversion</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5986">#5986</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Copy Design #5623</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5993">#5993</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>fix extension manager + add missing icon fields distribution</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6066">#6066</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Return value of download_icepak_3d_component</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6071">#6071</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Return value of download_multiparts</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6075">#6075</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Speedup extension cutout</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6079">#6079</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Only force download file if specified</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6083">#6083</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix locale error that happens after matplotlib plot is created</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6088">#6088</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove dummy project fixture</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6091">#6091</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Schematic name argument optional in edit_external_circuit method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6092">#6092</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Added some improvement to VirtualCompliance class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6096">#6096</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-81" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-81">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5981">#5981</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update CHANGELOG for v0.15.6</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6065">#6065</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update package metadata license (PEP 639)</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6094">#6094</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-82" name="sd-tab-set-15" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-82">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve API and security in Desktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5892">#5892</a></p></td>
+</tr>
+<tr class="row-even"><td><p>split post_common_3d.py application</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5955">#5955</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Add examples folder and rework download logic</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6055">#6055</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Refactor virtual compliance class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6073">#6073</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="april-22-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.6">0.15.6</a> - April 22, 2025<a class="headerlink" href="#april-22-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-83" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-83">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>populate named expressions and improve doc</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6027">#6027</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-84" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-84">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>bump ansys/actions from 8 to 9</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6039">#6039</a></p></td>
+</tr>
+<tr class="row-even"><td><p>bump actions/setup-python from 5.4.0 to 5.5.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6040">#6040</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>bump actions/download-artifact from 4.1.9 to 4.2.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6041">#6041</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update pytest-cov requirement from &lt;6.1,&gt;=4.0.0 to &gt;=4.0.0,&lt;6.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6042">#6042</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>bump codecov/codecov-action from 5.4.0 to 5.4.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6062">#6062</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-85" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-85">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6046">#6046</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-86" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-86">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Exception error for multiple design</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5937">#5937</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Adding missed properties</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6045">#6045</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-87" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-87">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6044">#6044</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update pre-commit hooks and intend to fix auto update</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6058">#6058</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-88" name="sd-tab-set-16" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-88">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Pathlib hfss.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6054">#6054</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pathlib hfss3dlayout.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6057">#6057</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="april-11-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.5">0.15.5</a> - April 11, 2025<a class="headerlink" href="#april-11-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-89" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-89">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Field distribution extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5818">#5818</a></p></td>
+</tr>
+<tr class="row-even"><td><p>extensions link</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6021">#6021</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>post layout extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6034">#6034</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-90" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-90">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>bump osmnx from 2.0.1 to 2.0.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6009">#6009</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Refactor install targets</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6031">#6031</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove patch on build</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6032">#6032</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-91" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-91">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add log and nosec in checked subprocess calls</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6001">#6001</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6015">#6015</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-92" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-92">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Insert row fix for tables</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5931">#5931</a></p></td>
+</tr>
+<tr class="row-even"><td><p>adding missing  argument for 2d electrostatic balloon BC</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6011">#6011</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>color not working properly for traces in single plot</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6020">#6020</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Compliance contour BER check</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6023">#6023</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update Spisim to relative path</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6033">#6033</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve extension unit tests using ANSYS-HSD_V1 file</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6043">#6043</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-93" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-93">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add dependabot cooldown for pip</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5999">#5999</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pin actions version and avoid dependabot autorun</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6000">#6000</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-94" name="sd-tab-set-17" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-94">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>FilterSolutions unit test improvements</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5987">#5987</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve code quality and handling of subprocess calls</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5995">#5995</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>move points cloud extension at project level</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6004">#6004</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve assign balloon method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6017">#6017</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>pathlib refactor primitives_circuit.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6024">#6024</a></p></td>
+</tr>
+<tr class="row-even"><td><p>move add calculation to CommonOptimetrics</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6030">#6030</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="april-03-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.4">0.15.4</a> - April 03, 2025<a class="headerlink" href="#april-03-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-95" name="sd-tab-set-18" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-95">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added DUT Image to the Compliance report</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5985">#5985</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-96" name="sd-tab-set-18" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-96">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update install targets and dependencies</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5997">#5997</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Temporary add bound to wheel</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6002">#6002</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-97" name="sd-tab-set-18" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-97">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve robustness of field summary dictionary to DataFrame conversion</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5986">#5986</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Copy Design #5623</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5993">#5993</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-98" name="sd-tab-set-18" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-98">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5981">#5981</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-99" name="sd-tab-set-18" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-99">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve API and security in Desktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5892">#5892</a></p></td>
+</tr>
+<tr class="row-even"><td><p>split post_common_3d.py application</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5955">#5955</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="march-28-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.3">0.15.3</a> - March 28, 2025<a class="headerlink" href="#march-28-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-100" name="sd-tab-set-19" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-100">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Ibis reader</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5954">#5954</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move It extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5966">#5966</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Layered impedance boundary</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5970">#5970</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-101" name="sd-tab-set-19" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-101">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix cloud extension grid</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5960">#5960</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Clean up changelog issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5962">#5962</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Documentation updates in FilterSolutions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5967">#5967</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-102" name="sd-tab-set-19" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-102">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix get insertion loss</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5964">#5964</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Compatibility with Python 3.8</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5972">#5972</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix spisim.py in compute_erl</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5976">#5976</a></p></td>
+</tr>
+<tr class="row-even"><td><p>make get_field_extremum more resilient</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5979">#5979</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-103" name="sd-tab-set-19" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-103">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5951">#5951</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update vale logic to leverage reviewdog20</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5974">#5974</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-104" name="sd-tab-set-19" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-104">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>pathlib refactor multi-files</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5943">#5943</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Remove aedt threading</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5945">#5945</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Pathlib icepack.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5973">#5973</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="march-25-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.2">0.15.2</a> - March 25, 2025<a class="headerlink" href="#march-25-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-105" name="sd-tab-set-20" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-105">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Enhance native API coverage common.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5757">#5757</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve circuit wire methods</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5904">#5904</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cloud point generator</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5909">#5909</a></p></td>
+</tr>
+<tr class="row-even"><td><p>circuit configuration</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5920">#5920</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-106" name="sd-tab-set-20" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-106">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Changelog settings</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5908">#5908</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Choke designer issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5915">#5915</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Prevent solution invalidation in <cite>create_fieldplot_volume</cite></p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5922">#5922</a></p></td>
+</tr>
+<tr class="row-even"><td><p>issue 5864. Solve inside ON for Network objects</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5923">#5923</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Reduce number of units call from odesktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5927">#5927</a></p></td>
+</tr>
+<tr class="row-even"><td><p>“Time” removed from intrinsincs keys in Steady State simulations</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5928">#5928</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>colormap names in folder settings</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5935">#5935</a></p></td>
+</tr>
+<tr class="row-even"><td><p>RCS postprocessing</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5942">#5942</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed IBIS differential buffer creation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5947">#5947</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Modify SolveSetup for Parametrics</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5948">#5948</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-107" name="sd-tab-set-20" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-107">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>populate pyvista object refactoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5887">#5887</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move internal files to a new directory</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5910">#5910</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Delete ML patch class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5916">#5916</a></p></td>
+</tr>
+<tr class="row-even"><td><p>FilterSolutions_class_refacoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5917">#5917</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>add arg coefficient in core loss mat</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5939">#5939</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-108" name="sd-tab-set-20" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-108">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5903">#5903</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add attestation to release notes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5906">#5906</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-109" name="sd-tab-set-20" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-109">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add setuptools bound to avoid PEP639 issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5949">#5949</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#october-17-2025">0.21.2 - October 17, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#october-16-2025">0.21.1 - October 16, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#october-09-2025">0.21.0 - October 09, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#october-01-2025">0.20.1 - October 01, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#september-26-2025">0.20.0 - September 26, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#september-04-2025">0.19.0 - September 04, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#august-08-2025">0.18.1 - August 08, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#july-17-2025">0.18.0 - July 17, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#june-30-2025">0.17.5 - June 30, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#june-24-2025">0.17.4 - June 24, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#june-23-2025">0.17.3 - June 23, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#june-13-2025">0.17.2 - June 13, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#june-09-2025">0.17.1 - June 09, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#may-23-2025">0.17.0 - May 23, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#may-16-2025">0.16.2 - May 16, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#may-01-2025">0.16.1 - May 01, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-22-2025">0.15.6 - April 22, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-11-2025">0.15.5 - April 11, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-03-2025">0.15.4 - April 03, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#march-28-2025">0.15.3 - March 28, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#march-25-2025">0.15.2 - March 25, 2025</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/changelog.rst">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "limite": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "_static/search.json";
+const ADVANCE_SEARCH_PATH = "search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.6.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

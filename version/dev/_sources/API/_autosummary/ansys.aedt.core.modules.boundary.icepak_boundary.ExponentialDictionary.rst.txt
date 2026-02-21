@@ -1,0 +1,23 @@
+﻿ExponentialDictionary
+=====================
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
+
+.. autoclass:: ExponentialDictionary
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ExponentialDictionary.props
+      ExponentialDictionary.public_dir
+   
+   

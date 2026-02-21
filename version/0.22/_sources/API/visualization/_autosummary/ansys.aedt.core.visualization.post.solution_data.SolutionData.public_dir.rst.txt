@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
+
+.. autoproperty:: SolutionData.public_dir

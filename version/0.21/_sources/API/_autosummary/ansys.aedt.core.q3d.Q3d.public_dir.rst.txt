@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. autoproperty:: Q3d.public_dir

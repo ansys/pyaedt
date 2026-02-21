@@ -1,0 +1,1078 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Client-server &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../_static/documentation_options.js?v=2db99d3b"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_started/ClientServer';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Command line interface" href="cli.html" />
+    <link rel="prev" title="Security considerations" href="../User_guide/security_consideration.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.26.dev0" />
+  <meta property="og:site_name" content="PyAnsys" />
+  <meta name="physics" content="Electronics" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/Getting_started/ClientServer.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="../_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    
+<!--
+  Announcement Version Loader
+  Dynamically loads the announcement.html content into the announcement_msg div.
+-->
+<div id="announcement_msg" aria-live="polite"></div>
+<script>
+  // Fetch and inject the announcement HTML content
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} Announcement.html file not found, Please ignore this, if you are in dev/stable documentation`);
+      }
+      return response.text();
+    })
+    .then((text) => {
+      var msgDiv = document.getElementById("announcement_msg");
+      if (msgDiv) {
+        msgDiv.innerHTML = text;
+      }
+    })
+    .catch((error) => {
+      // Log only unexpected fetch errors
+      if (!(error.message && error.message.startsWith("HTTP error: 404"))) {
+        console.error(`Fetch problem: ${error.message} Announcement.html could not be loaded.`);
+      }
+    });
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html" title="PyAEDT home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide/index.html">User guide</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Client-server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">AEDT panels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versioning.html">Versions and interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_notes.html">Developer notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About PyAnsys and AEDT</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Getting started</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Client-server</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="client-server">
+<span id="id1"></span><h1>Client-server<a class="headerlink" href="#client-server" title="Link to this heading">#</a></h1>
+<p>You can launch PyAEDT on a remote machine if these conditions are met:</p>
+<ul class="simple">
+<li><p>AEDT and PyAEDT is installed on client and server machines.</p></li>
+<li><p>The same Python version is used on the client and server machines. (CPython 3.10+
+is embedded in the AEDT installation.)</p></li>
+</ul>
+<section id="grpc-connections">
+<h2>gRPC connections<a class="headerlink" href="#grpc-connections" title="Link to this heading">#</a></h2>
+<p>In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch the latest installed version of AEDT in graphical mode.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hfss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.generic.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">use_grpc_api</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;fullmachinename&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">portnumber</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">machine</span></code> argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port <code class="docutils literal notranslate"><span class="pre">portnumber</span></code>.</p>
+<p>To start AEDT in listening mode on the remote machine:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">ANSYSEM</span><span class="o">/</span><span class="n">v222</span><span class="o">/</span><span class="n">Win64</span><span class="o">/</span><span class="n">ansysedt</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">grpcsrv</span> <span class="n">portnumber</span>  <span class="c1">#windows</span>
+<span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">ANSYSEM</span><span class="o">/</span><span class="n">v222</span><span class="o">/</span><span class="n">Lin64</span><span class="o">/</span><span class="n">ansysedt</span> <span class="o">-</span><span class="n">grpcsrv</span> <span class="n">portnumber</span>   <span class="c1">#linux</span>
+</pre></div>
+</div>
+<p>If the connection is local, the <code class="docutils literal notranslate"><span class="pre">machine</span></code> argument must be left empty. PyAEDT then
+starts the AEDT session automatically. Machine and port arguments are available to
+all applications except EDB.</p>
+</section>
+<section id="secure-grpc-connections">
+<h2>Secure gRPC connections<a class="headerlink" href="#secure-grpc-connections" title="Link to this heading">#</a></h2>
+<p>PyAEDT supports secure gRPC connections using different transport modes:
+<strong>WNUA</strong> (Windows), <strong>UDS</strong> (Linux), <strong>mTLS</strong>, or <strong>insecure</strong> modes.</p>
+<p>The transport mode depends on whether you are using:</p>
+<ul class="simple">
+<li><p><strong>Local mode</strong>: Same-machine connections using OS-native secure mechanisms.</p></li>
+<li><p><strong>Client-server mode</strong>: Network connections for local or remote scenarios.</p></li>
+</ul>
+<p>PyAEDT exposes these behaviors through environment variables and runtime settings.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Secure connections (mTLS, WNUA, UDS) require specific service packs for each version.
+Versions without the required service pack only support insecure mode.</p>
+</div>
+<section id="version-and-service-pack-requirements">
+<h3>Version and service pack requirements<a class="headerlink" href="#version-and-service-pack-requirements" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Required SP for Secure</p></th>
+<th class="head"><p>Windows (default: <strong>wnua</strong>)</p></th>
+<th class="head"><p>Linux (default: <strong>uds</strong>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2024 R1 (241)</p></td>
+<td><p>Not supported</p></td>
+<td><p>insecure only</p></td>
+<td><p>insecure only</p></td>
+</tr>
+<tr class="row-odd"><td><p>2024 R2 (242)</p></td>
+<td><p><strong>SP05+</strong></p></td>
+<td><p>insecure, <strong>wnua</strong>, mtls</p></td>
+<td><p>insecure, <strong>uds</strong>, mtls</p></td>
+</tr>
+<tr class="row-even"><td><p>2025 R1 (251)</p></td>
+<td><p><strong>SP04+</strong></p></td>
+<td><p>insecure, <strong>wnua</strong>, mtls</p></td>
+<td><p>insecure, <strong>uds</strong>, mtls</p></td>
+</tr>
+<tr class="row-odd"><td><p>2025 R2 (252)</p></td>
+<td><p><strong>SP04+</strong></p></td>
+<td><p>insecure, <strong>wnua</strong>, mtls</p></td>
+<td><p>insecure, <strong>uds</strong>, mtls</p></td>
+</tr>
+<tr class="row-even"><td><p>2026 R1+ (261+)</p></td>
+<td><p>All service packs</p></td>
+<td><p>insecure, <strong>wnua</strong>, mtls</p></td>
+<td><p>insecure, <strong>uds</strong>, mtls</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Ansys 2024 R1 (241) and earlier versions <strong>only support insecure mode</strong>.</p></li>
+<li><p>If your installation does not have the required service pack listed above,
+only insecure mode is available.</p></li>
+<li><p>To check your service pack version, look at the <code class="docutils literal notranslate"><span class="pre">builddate.txt</span></code> file in your
+Ansys installation directory.</p></li>
+</ul>
+</div>
+</section>
+<section id="default-configuration">
+<h3>Default configuration<a class="headerlink" href="#default-configuration" title="Link to this heading">#</a></h3>
+<p>PyAEDT uses the following default settings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span><span class="o">.</span><span class="n">grpc_secure_mode</span> <span class="o">=</span> <span class="kc">True</span>   <span class="c1"># Enables secure connections</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">grpc_local</span> <span class="o">=</span> <span class="kc">True</span>         <span class="c1"># Uses local transport mechanisms</span>
+</pre></div>
+</div>
+<p>These defaults enable secure, local communication using OS-native mechanisms.</p>
+</section>
+<section id="local-mode">
+<h3>Local mode<a class="headerlink" href="#local-mode" title="Link to this heading">#</a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">grpc_local</span> <span class="pre">=</span> <span class="pre">True</span></code> (default), PyAEDT uses local inter-process communication
+mechanisms optimized for same-machine connections.</p>
+<section id="wnua-windows-named-user-access">
+<h4>WNUA (Windows named user access)<a class="headerlink" href="#wnua-windows-named-user-access" title="Link to this heading">#</a></h4>
+<p>On <strong>Windows</strong>, with default settings (<code class="docutils literal notranslate"><span class="pre">grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">grpc_local</span> <span class="pre">=</span> <span class="pre">True</span></code>), PyAEDT uses <strong>WNUA</strong> (Windows Named User Access).</p>
+<p><strong>Characteristics:</strong></p>
+<ul class="simple">
+<li><p>Enabled by default.</p></li>
+<li><p>No additional user configuration required.</p></li>
+<li><p><strong>Local connections only</strong> (same machine).</p></li>
+<li><p>Requires required service pack (see table above).</p></li>
+</ul>
+</section>
+<section id="uds-unix-domain-sockets">
+<h4>UDS (Unix domain sockets)<a class="headerlink" href="#uds-unix-domain-sockets" title="Link to this heading">#</a></h4>
+<p>On <strong>Linux</strong>, with default settings (<code class="docutils literal notranslate"><span class="pre">grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">grpc_local</span> <span class="pre">=</span> <span class="pre">True</span></code>), PyAEDT uses <strong>UDS</strong> (Unix Domain Sockets).</p>
+<p><strong>Characteristics:</strong></p>
+<ul class="simple">
+<li><p>Enabled by default.</p></li>
+<li><p>No additional user configuration required.</p></li>
+<li><p><strong>Local connections only</strong> (same machine).</p></li>
+<li><p>Requires required service pack (see table above).</p></li>
+</ul>
+</section>
+<section id="disabling-secure-local-mode">
+<h4>Disabling secure local mode<a class="headerlink" href="#disabling-secure-local-mode" title="Link to this heading">#</a></h4>
+<p>To disable secure local mode and use insecure transport, set:</p>
+<blockquote>
+<div><p>settings.grpc_secure_mode = False</p>
+</div></blockquote>
+<p>This may be needed for:</p>
+<ul class="simple">
+<li><p>Debugging purposes.</p></li>
+<li><p>Compatibility with older service packs.</p></li>
+<li><p>Specific network configurations.</p></li>
+</ul>
+</section>
+</section>
+<section id="client-server-mode">
+<h3>Client-server mode<a class="headerlink" href="#client-server-mode" title="Link to this heading">#</a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">grpc_local</span> <span class="pre">=</span> <span class="pre">False</span></code>, PyAEDT uses client-server architecture suitable
+for both local and remote connections over the network.</p>
+<section id="secure-client-server-mutual-transport-layer-security-mtls">
+<h4>Secure client-server: mutual Transport Layer Security (mTLS)<a class="headerlink" href="#secure-client-server-mutual-transport-layer-security-mtls" title="Link to this heading">#</a></h4>
+<p>PyAEDT supports <strong>mutual Transport Layer Security (mTLS)</strong> for secure client–server communication.
+With mTLS, both the client and server authenticate each other using X.509
+certificates.</p>
+<p><strong>When mTLS is used</strong></p>
+<p>mTLS is automatically selected when:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code> (default), <strong>AND</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES</span></code> environment variable is set to a valid certificate directory</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES</span></code> and <code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code> forces mTLS mode regardless of the
+<code class="docutils literal notranslate"><span class="pre">grpc_local</span></code> setting.</p>
+</div>
+<p><strong>Enabling mTLS</strong></p>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES</span></code> environment variable on <strong>both the client
+and the server</strong>:</p>
+<blockquote>
+<div><p># Windows
+set ANSYS_GRPC_CERTIFICATES=C:pathtocertificates</p>
+<p># Linux
+export ANSYS_GRPC_CERTIFICATES=/path/to/certificates</p>
+</div></blockquote>
+</section>
+<section id="insecure-client-server-mode">
+<h4>Insecure client-server mode<a class="headerlink" href="#insecure-client-server-mode" title="Link to this heading">#</a></h4>
+<p>To use insecure client-server mode (no encryption), set:</p>
+<blockquote>
+<div><p>settings.grpc_secure_mode = False
+settings.grpc_local = False</p>
+</div></blockquote>
+<p>This configuration uses standard gRPC without encryption.</p>
+</section>
+</section>
+<section id="pre-service-pack-compatibility">
+<h3>Pre-service pack compatibility<a class="headerlink" href="#pre-service-pack-compatibility" title="Link to this heading">#</a></h3>
+<p>For Ansys versions <strong>prior to the required Service Pack</strong> that introduced
+updated gRPC arguments, set this environment variable:</p>
+<blockquote>
+<div><p>PYAEDT_USE_PRE_GRPC_ARGS=True</p>
+</div></blockquote>
+<p><strong>When to use:</strong></p>
+<ul class="simple">
+<li><p>Connecting to Ansys installations that predate the updated gRPC interface.</p></li>
+<li><p>Ensures compatibility with older gRPC startup arguments.</p></li>
+</ul>
+</section>
+<section id="configuration-summary">
+<h3>Configuration summary<a class="headerlink" href="#configuration-summary" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Configuration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Local secure (default)</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">settings.grpc_local</span> <span class="pre">=</span> <span class="pre">True</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><strong>Client-server secure</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES=&lt;path&gt;</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">settings.grpc_local</span> <span class="pre">=</span> <span class="pre">False</span></code></p>
+</td>
+</tr>
+<tr class="row-even"><td><p><strong>Client-Server insecure</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">False</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">settings.grpc_local</span> <span class="pre">=</span> <span class="pre">False</span></code></p>
+</td>
+</tr>
+<tr class="row-odd"><td><p><strong>Local insecure</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">False</span></code></p>
+<p>Result: Insecure local connection</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><strong>Pre-service pack compatibility</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PYAEDT_USE_PRE_GRPC_ARGS=True</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="summary-of-grpc-transport-mode-selection">
+<h3>Summary of gRPC transport mode selection<a class="headerlink" href="#summary-of-grpc-transport-mode-selection" title="Link to this heading">#</a></h3>
+<p>PyAEDT selects the gRPC transport mode based on this decision tree:</p>
+<ol class="arabic">
+<li><p><strong>If</strong> <code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">False</span></code>:</p>
+<p>→ Uses <strong>INSECURE</strong> mode (no encryption)</p>
+</li>
+<li><p><strong>Else if</strong> <code class="docutils literal notranslate"><span class="pre">settings.grpc_secure_mode</span> <span class="pre">=</span> <span class="pre">True</span></code> (default):</p>
+<ol class="loweralpha">
+<li><p><strong>If</strong> <code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES</span></code> environment variable <strong>is set</strong>:</p>
+<p>→ Uses <strong>mTLS</strong> (mutual TLS with certificates)</p>
+<p><em>Applies to both local and client-server modes</em></p>
+</li>
+<li><p><strong>Else if</strong> <code class="docutils literal notranslate"><span class="pre">settings.grpc_local</span> <span class="pre">=</span> <span class="pre">True</span></code> (default) <strong>AND</strong> <code class="docutils literal notranslate"><span class="pre">ANSYS_GRPC_CERTIFICATES</span></code> is <strong>not set</strong>:</p>
+<p>→ Uses <strong>WNUA</strong> (Windows) or <strong>UDS</strong> (Linux) for local connections</p>
+<p><em>Local mode only - same machine</em></p>
+</li>
+<li><p><strong>Else</strong> (<code class="docutils literal notranslate"><span class="pre">grpc_local</span> <span class="pre">=</span> <span class="pre">False</span></code> <strong>AND</strong> no certificates):</p>
+<p>→ Uses <strong>INSECURE</strong> client-server mode</p>
+</li>
+</ol>
+</li>
+</ol>
+</section>
+</section>
+<section id="pyaedt-remote-service-manager">
+<h2>PyAEDT remote service manager<a class="headerlink" href="#pyaedt-remote-service-manager" title="Link to this heading">#</a></h2>
+<p>PyAEDT includes a service manager that can be run on the server machine and can be
+launched on-demand in AEDT sessions and act as a file manager.
+You can make a remote application call on a CPython server
+or any Windows client machine in AEDT 2022 R2 and later.</p>
+<p>On a CPython Server run the <code class="docutils literal notranslate"><span class="pre">pyaedt_service_manager</span></code> service that listens on port 17878
+for incoming requests of connections from clients. The port is configurable.
+Requirements:</p>
+<ul class="simple">
+<li><p>Python 3.10+ Virtual Environment.</p></li>
+<li><p>pyaedt &gt; 0.6.0</p></li>
+</ul>
+<p>On Linux, in addition to the preceding requirements, these environments are needed:</p>
+<ul class="simple">
+<li><p>You can use the CPython version in the AEDT installation folder if you first
+add the Python library folder to the <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> environment variable.</p></li>
+<li><p>You can use the Python 3.10 or later version that is installed.</p></li>
+<li><p>You can export <code class="docutils literal notranslate"><span class="pre">ANSYSEM_ROOT252=/path/to/AnsysEM/v252/AnsysEM</span></code>.</p></li>
+<li><p>You can export <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH=$ANSYSEM_ROOT252/common/mono/Linux64/lib:$LD_LIBRARY_PATH</span></code>.</p></li>
+</ul>
+<p>On the server, the <code class="docutils literal notranslate"><span class="pre">pyaedt_service_manager</span></code> service listen for incoming connections:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch PyAEDT remote server on CPython</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.common_rpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyaedt_service_manager</span>
+
+<span class="n">pyaedt_service_manager</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>On any client machine, the user must establish the connection as shown in following example.
+AEDT can be launched directly while creating the session or after the connection is established.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.common_rpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_session</span>
+
+<span class="c1"># User can establish the connection and start a new AEDT session</span>
+<span class="n">cl1</span> <span class="o">=</span> <span class="n">create_session</span><span class="p">(</span>
+    <span class="s2">&quot;server_name&quot;</span><span class="p">,</span> <span class="n">launch_aedt_on_server</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aedt_port</span><span class="o">=</span><span class="mi">17880</span><span class="p">,</span> <span class="n">non_graphical</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Optionally AEDT can be launched after the connection is established</span>
+<span class="n">cl2</span> <span class="o">=</span> <span class="n">create_session</span><span class="p">(</span><span class="s2">&quot;server_name&quot;</span><span class="p">,</span> <span class="n">launch_aedt_on_server</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">cl2</span><span class="o">.</span><span class="n">aedt</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">17880</span><span class="p">,</span> <span class="n">non_graphical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once AEDT is started then user can connect an application to it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="n">cl1</span><span class="o">.</span><span class="n">server_name</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cl1</span><span class="o">.</span><span class="n">aedt_port</span><span class="p">)</span>
+<span class="c1"># your code here</span>
+</pre></div>
+</div>
+<p>The client can be used also to upload or download files from the server.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cl1</span><span class="o">.</span><span class="n">filemanager</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">)</span>
+<span class="n">file_content</span> <span class="o">=</span> <span class="n">cl1</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">remote_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#grpc-connections">gRPC connections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#secure-grpc-connections">Secure gRPC connections</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-and-service-pack-requirements">Version and service pack requirements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-configuration">Default configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-mode">Local mode</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wnua-windows-named-user-access">WNUA (Windows named user access)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uds-unix-domain-sockets">UDS (Unix domain sockets)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-secure-local-mode">Disabling secure local mode</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#client-server-mode">Client-server mode</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#secure-client-server-mutual-transport-layer-security-mtls">Secure client-server: mutual Transport Layer Security (mTLS)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#insecure-client-server-mode">Insecure client-server mode</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-service-pack-compatibility">Pre-service pack compatibility</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-summary">Configuration summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-grpc-transport-mode-selection">Summary of gRPC transport mode selection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyaedt-remote-service-manager">PyAEDT remote service manager</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/Getting_started/ClientServer.rst" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Getting_started/ClientServer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text", "objectID"], "limit": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.7.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

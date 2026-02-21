@@ -1,0 +1,6 @@
+channel\_number
+===============
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.channel_number

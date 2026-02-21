@@ -1,0 +1,6 @@
+﻿generate\_unique\_name
+======================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: generate_unique_name

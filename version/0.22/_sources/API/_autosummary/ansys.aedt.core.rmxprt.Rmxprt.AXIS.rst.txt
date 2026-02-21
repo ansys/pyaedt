@@ -1,0 +1,6 @@
+AXIS
+====
+
+.. currentmodule:: ansys.aedt.core.rmxprt
+
+.. autoproperty:: Rmxprt.AXIS

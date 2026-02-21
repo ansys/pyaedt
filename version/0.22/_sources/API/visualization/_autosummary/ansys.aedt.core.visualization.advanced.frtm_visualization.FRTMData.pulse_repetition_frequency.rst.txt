@@ -1,0 +1,6 @@
+pulse\_repetition\_frequency
+============================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.pulse_repetition_frequency

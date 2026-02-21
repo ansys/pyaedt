@@ -1,0 +1,6 @@
+product
+=======
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: SimulationProfile.product

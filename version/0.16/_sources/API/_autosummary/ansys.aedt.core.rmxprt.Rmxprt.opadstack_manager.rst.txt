@@ -1,0 +1,6 @@
+opadstack\_manager
+==================
+
+.. currentmodule:: ansys.aedt.core.rmxprt
+
+.. autoproperty:: Rmxprt.opadstack_manager

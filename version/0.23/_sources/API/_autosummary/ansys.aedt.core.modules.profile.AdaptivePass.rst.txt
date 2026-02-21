@@ -1,0 +1,36 @@
+﻿AdaptivePass
+============
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: AdaptivePass
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      AdaptivePass.table
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      AdaptivePass.adapt_frequency
+      AdaptivePass.cpu_time
+      AdaptivePass.max_memory
+      AdaptivePass.process_steps
+      AdaptivePass.public_dir
+      AdaptivePass.real_time
+   
+   

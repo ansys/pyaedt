@@ -1,0 +1,6 @@
+omaxwell\_parameters
+====================
+
+.. currentmodule:: ansys.aedt.core.maxwellcircuit
+
+.. autoproperty:: MaxwellCircuit.omaxwell_parameters

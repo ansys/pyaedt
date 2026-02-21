@@ -1,0 +1,23 @@
+﻿MemoryGB
+========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: MemoryGB
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MemoryGB.public_dir
+      MemoryGB.value
+   
+   

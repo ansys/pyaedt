@@ -1,0 +1,6 @@
+opadstack\_manager
+==================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.opadstack_manager

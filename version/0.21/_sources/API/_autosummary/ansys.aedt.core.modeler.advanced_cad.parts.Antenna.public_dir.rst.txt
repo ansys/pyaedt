@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.parts
+
+.. autoproperty:: Antenna.public_dir
