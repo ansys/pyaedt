@@ -1299,7 +1299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         else:
             for layer in layers:
                 if layer not in dxf_layers:
-                    self.logger.error(f"{layer} does not exist in specified dxf.")
+                    self.logger.error(f"{layer} does not exist in specified DXF file.")
                     return False
 
         if hasattr(self, "is3d") and self.is3d:
