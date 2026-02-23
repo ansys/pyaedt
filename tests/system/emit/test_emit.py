@@ -54,6 +54,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -1437,6 +1438,10 @@ def test_couplings_2(tutorial) -> None:
         assert antenna_nodes[key].name == antenna_names[i]
         i += 1
 
+    rev: Revision = tutorial.results.analyze()
+    gps_ant: AntennaNode = rev.get_component_node("GPS")
+    assert gps_ant.parent_name == "NODE-*-Scene"
+    assert gps_ant._full_node_name == gps_ant.parent_name + "-*-" + gps_ant.name
 
 @pytest.mark.skipif(
     DESKTOP_VERSION < "2024.1" or DESKTOP_VERSION > "2025.1",

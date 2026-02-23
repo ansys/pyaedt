@@ -151,6 +151,29 @@ class EmitNode:
         return self._get_node(node_id)
 
     @property
+    def parent_name(self):
+        """Full node name of the parent node including the entire tree structure
+
+        Returns
+        -------
+        Str
+            Full node name of this node's parent node.
+        """
+        return self._get_property("Parent", True)
+
+    @property
+    def _full_node_name(self):
+        """Full node name of this node including the entire tree structure
+
+        Returns
+        -------
+        Str
+            Full node name.
+        """
+        parent_name = self.parent_name
+        return parent_name + "-*-" + self.name
+
+    @property
     def properties(self) -> dict:
         """Node properties.
 
