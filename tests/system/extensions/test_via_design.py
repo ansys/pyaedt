@@ -30,6 +30,8 @@ import toml
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+from ansys.aedt.core.generic.file_utils import read_configuration_file
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
 
@@ -40,16 +42,20 @@ from tests.conftest import DESKTOP_VERSION
 )
 @patch.object(ViaDesignExtension, "check_design_type", return_value=None)
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app) -> None:
+def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app, test_tmp_dir) -> None:
     """Test the creation of a design from examples in the via design extension."""
     app = add_app(application=Hfss3dLayout)
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
+        conf = read_configuration_file(example.toml_file_path)
+        conf["general"]["version"] = DESKTOP_VERSION
+        output_path = test_tmp_dir / example.toml_file_path.name
+        write_configuration_file(conf, output_path)
         button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
+        mock_askopenfilename.return_value = output_path
         button.invoke()
-        with example.toml_file_path.open("r") as f:
+        with output_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
         app.close_project(save=False)
