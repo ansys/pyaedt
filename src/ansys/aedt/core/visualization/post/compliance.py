@@ -646,7 +646,6 @@ class VirtualCompliance(PyAedtBase):
         self._dut = val
 
     @pyaedt_function_handler()
-    @pyaedt_function_handler()
     def load_project(self) -> bool:
         """Open the aedt project in Electronics Desktop.
 
