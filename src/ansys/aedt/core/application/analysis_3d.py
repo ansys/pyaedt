@@ -1249,7 +1249,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             Path to the DXF file.
         layers : list, optional
             List of layer names to import, if ``None`` or empty list all layers will be imported.
-            To get the dxf_layers in the DXF file, you can call the ``get_dxf_layers`` method.
+            To get the layers in the DXF file, you can call the ``get_dxf_layers`` method.
         auto_detect_close : bool, optional
             Whether to check polylines to see if they are closed.
             The default is ``True``. If a polyline is closed, the modeler
