@@ -426,6 +426,8 @@ def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
     ----------
     input_file : str or :class:`pathlib.Path`
         Full path to the JSON file.
+    encoding : str, optional
+        Text encoding used to read the JSON file. The default is ``"utf-8"``.
 
     Returns
     -------
