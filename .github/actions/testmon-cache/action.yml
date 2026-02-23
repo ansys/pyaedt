@@ -13,6 +13,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Debug cache keys
+      shell: bash
+      env:
+        CACHE_KEY: ${{ inputs.cache-key }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        echo "Primary cache key: ${CACHE_KEY}-main-${GITHUB_SHA}"
+        echo "Restore key 1: ${CACHE_KEY}-main-"
+        echo "Restore key 2: ${CACHE_KEY}"
+
     - name: Restore testmondata cache
       id: testmon-cache
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -24,10 +34,34 @@ runs:
           ${{ inputs.cache-key }}
         enableCrossOsArchive: true
 
-    - name: Check testmon cache status
+    - name: Check cache restore result
       shell: bash
       env:
-        EVENT_NAME: ${{ github.event_name }}
+        CACHE_HIT: ${{ steps.testmon-cache.outputs.cache-hit }}
+        CACHE_KEY: ${{ steps.testmon-cache.outputs.cache-primary-key }}
+        MATCHED_KEY: ${{ steps.testmon-cache.outputs.cache-matched-key }}
+      run: |
+        echo "Cache hit: ${CACHE_HIT}"
+        echo "Primary key: ${CACHE_KEY}"
+        echo "Matched key: ${MATCHED_KEY}"
+
+    - name: Check testmon cache status (Windows)
+      if: runner.os == 'Windows'
+      shell: powershell
+      env:
+        TESTMON_FILE: ${{ inputs.testmon-datafile }}
+      run: |
+          if (Test-Path $env:TESTMON_FILE) {
+            Write-Output "Testmon cache restored successfully"
+            Get-Item $env:TESTMON_FILE | Select-Object Name, Length, LastWriteTime
+          } else {
+            Write-Output "No testmon cache found - will run all tests"
+          }
+
+    - name: Check testmon cache status (Linux)
+      if: runner.os != 'Windows'
+      shell: bash
+      env:
         TESTMON_FILE: ${{ inputs.testmon-datafile }}
       run: |
           if [ -f "$TESTMON_FILE" ]; then
