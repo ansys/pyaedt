@@ -7443,6 +7443,49 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.logger.info("Deleted %s objects", num_del)
         return True
 
+    # NOTE: This method can be deleted once AEDT's API of the form CreateStuff are
+    # returning a string and we can completely rely on our PyAEDT methods to delete
+    # objects. Right now, it's not possible when one create multiple objects with the
+    # same name as we can have a different name in AEDT and PyAEDT.
+    # See https://github.com/ansys/pyaedt/issues/7290 for more information.
+    def delete_all_points(self):
+        """Delete all points.
+
+        This method doesn't rely on the PyAEDT object management and directly deletes
+        all points in the modeler. This avoid issues with points created in AEDT which
+        are renamed on the fly.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.GetPoints
+        >>> oEditor.Delete
+
+        Note
+        ----
+        This method is used to clean up any points.
+        """
+        res = False
+        points = self.oeditor.GetPoints()
+        if points:
+            try:
+                self.oeditor.Delete(
+                    [
+                        "NAME:Selections",
+                        "Selections:=",
+                        ",".join(points),
+                    ]
+                )
+                res = True
+            except Exception:
+                self.logger.warning("Failed to delete points.")
+        self._refresh_object_types()
+        return res
+
     @pyaedt_function_handler()
     def get_obj_id(self, assignment):
         """Return the object ID from an object name.
