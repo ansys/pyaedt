@@ -178,3 +178,4 @@ jobs:
           path: ${{ steps.download.outputs.path }}
           # Uses the SHA of the current workflow run (the merge commit on main) to save the cache
           key: ${{ matrix.cache_key }}-main-${{ github.sha }}
+          enableCrossOsArchive: true
