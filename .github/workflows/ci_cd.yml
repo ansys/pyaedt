@@ -357,6 +357,8 @@ jobs:
     needs: [integration-tests, analyze-changes]
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
+    permissions:
+      actions: read  # Required to read testmon cache artifacts
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
