@@ -22,6 +22,7 @@ runs:
         restore-keys: |
           ${{ inputs.cache-key }}-main-
           ${{ inputs.cache-key }}
+        enableCrossOsArchive: true
 
     - name: Check testmon cache status
       shell: bash
