@@ -169,7 +169,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CACHE_KEY: ${{ matrix.cache_key }}
         run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+          gh cache list --key ${CACHE_KEY}-main --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
 
       - name: Save updated testmon cache
         if: steps.download.outputs.found == 'true'
@@ -177,4 +177,5 @@ jobs:
         with:
           path: ${{ steps.download.outputs.path }}
           # Uses the SHA of the current workflow run (the merge commit on main) to save the cache
-          key: ${{ matrix.cache_key }}-main-${{ github.sha }}
+          key: ${{ matrix.cache_key }}-main
+          enableCrossOsArchive: true
