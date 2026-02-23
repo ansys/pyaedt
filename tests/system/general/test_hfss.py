@@ -138,7 +138,8 @@ def test_assign_material(aedt_app) -> None:
     assert cyl_1.material_name == "teflon_based"
 
 
-def test_create_wave_port_from_sheets(aedt_app) -> None:
+def test_create_wave_port_from_sheets_terminal(aedt_app):
+    aedt_app.solution_type = "Terminal"
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_length = 80
     # Create inner conductor cylinder (smaller radius)
@@ -154,7 +155,6 @@ def test_create_wave_port_from_sheets(aedt_app) -> None:
     coax1_origin = aedt_app.modeler.Position(0, 0, 0)
     outer_1 = aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r2, coax1_len, 0, "outer_1")
     o5 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
-    aedt_app.solution_type = "Terminal"
 
     port = aedt_app.wave_port(
         assignment=o5,
@@ -201,8 +201,11 @@ def test_create_wave_port_from_sheets(aedt_app) -> None:
     assert bottom_port.name == "bottom_probe_port"
     pec_objects = aedt_app.modeler.get_objects_by_material("pec")
     assert len(pec_objects) == 2  # PEC cap created.
+
+
+def test_create_wave_port_from_sheets_modal(aedt_app):
     aedt_app.solution_type = "Modal"
-    assert len(aedt_app.boundaries) == 4
+
     udp = aedt_app.modeler.Position(200, 0, 0)
     o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
     port = aedt_app.wave_port(
@@ -579,7 +582,9 @@ def test_edit_sources_modal(aedt_app) -> None:
     )
 
 
-def test_create_circuit_port_from_edges(aedt_app) -> None:
+def test_create_circuit_port_from_edges(aedt_app):
+    aedt_app.solution_type = "Modal"
+
     coax1_len = 200
     r1 = 3.0
     r2 = 10.0
@@ -609,7 +614,6 @@ def test_create_circuit_port_from_edges(aedt_app) -> None:
     edges2 = aedt_app.modeler.get_object_edges(rect_2.id)
     e2 = edges2[0]
 
-    aedt_app.solution_type = "Modal"
     assert aedt_app.composite is False
     aedt_app.composite = True
     assert aedt_app.composite is True
@@ -648,7 +652,6 @@ def test_create_circuit_port_from_edges(aedt_app) -> None:
     assert bound
     bound.name = "port21"
     assert bound.update()
-    aedt_app.solution_type = "Modal"
 
 
 def test_create_waveport_on_objects(aedt_app) -> None:

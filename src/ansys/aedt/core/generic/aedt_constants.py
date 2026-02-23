@@ -210,7 +210,7 @@ class IcepakConstants(metaclass=DynamicMeta):
 
 class IcepakFeaConstants(metaclass=DynamicMeta):
     NAME = "IcepakFEA"
-    model_name = "MechanicalModel"
+    model_name = "IcepakFEAModel"
     solution_default = "Thermal"
     solution_types = {
         "Thermal": {
@@ -246,7 +246,10 @@ class IcepakFeaConstants(metaclass=DynamicMeta):
     mesher = "MeshSetup"
     default_material = "copper"
     report_templates = ["Standard", "Fields"]
-    __versioned = {"2025.2": {"NAME": "Mechanical"}}
+    __versioned = {
+        version: {"NAME": "Mechanical", "model_name": "MechanicalModel"}
+        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
+    }
     property_tabs = {"boundary": "IcepakFEA", "excitation": "IcepakFEA", "setup": "IcepakFEA", "mesh": "IcepakFEA"}
 
 

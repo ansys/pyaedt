@@ -2396,5 +2396,5 @@ class NexximComponents(CircuitComponents, PyAedtBase):
                 if name in self.components[el].composed_name:
                     return self.components[el]
             raise AEDTRuntimeError(f"Component '{name}' was not found after adding Q3D RLGC link.")  # pragma: no cover
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise AEDTRuntimeError(f"Failed to add Q3D RLGC link: {str(e)}")
