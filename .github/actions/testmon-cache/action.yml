@@ -19,9 +19,10 @@ runs:
         CACHE_KEY: ${{ inputs.cache-key }}
         GITHUB_SHA: ${{ github.sha }}
       run: |
+        echo "=== Cache Key Information ==="
         echo "Primary cache key: ${CACHE_KEY}-main-${GITHUB_SHA}"
         echo "Restore key 1: ${CACHE_KEY}-main-"
-        echo "Restore key 2: ${CACHE_KEY}"
+        echo ""
 
     - name: Restore testmondata cache
       id: testmon-cache
@@ -31,8 +32,8 @@ runs:
         key: ${{ inputs.cache-key }}-main-${{ github.sha }}
         restore-keys: |
           ${{ inputs.cache-key }}-main-
-          ${{ inputs.cache-key }}
         enableCrossOsArchive: true
+        lookup-only: false
 
     - name: Check cache restore result
       shell: bash

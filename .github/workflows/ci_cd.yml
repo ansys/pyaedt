@@ -357,6 +357,9 @@ jobs:
 #    needs: [integration-tests, analyze-changes]
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
+    permissions:
+      actions: read      # Required to list and read Actions caches
+      contents: read     # Required to checkout repository
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -386,6 +389,18 @@ jobs:
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
+
+      - name: Debug - List available caches
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACHE_PREFIX: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
+        run: |
+          echo "=== Looking for caches matching: ${CACHE_PREFIX} ==="
+          gh cache list --limit 50 | grep "${CACHE_PREFIX}" || echo "No caches found matching prefix"
+          echo ""
+          echo "=== All recent caches ==="
+          gh cache list --limit 10
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
