@@ -272,7 +272,7 @@ Open street map
 ~~~~~~~~~~~~~~~
 
 PyAEDT provides comprehensive tools for importing and processing OpenStreetMap (OSM) data to create
-realistic 3D environments for electromagnetic simulations. The OMS module enables automatic generation
+realistic 3D environments for electromagnetic simulations. The OSM module enables automatic generation
 of buildings, roads, and terrain meshes suitable for large-scale RF propagation and antenna placement studies.
 
 The module consists of three main preparation classes:
