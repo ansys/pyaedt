@@ -1223,9 +1223,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
         to compute also elevation.
 
         """
-        from ansys.aedt.core.modeler.advanced_cad.oms import BuildingsPrep
-        from ansys.aedt.core.modeler.advanced_cad.oms import RoadPrep
-        from ansys.aedt.core.modeler.advanced_cad.oms import TerrainPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
 
         output_path = self._app.working_directory
 

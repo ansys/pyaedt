@@ -281,7 +281,7 @@ The module consists of three main preparation classes:
 - **RoadPrep**: Creates road network geometries with proper elevation mapping
 - **TerrainPrep**: Generates terrain meshes with elevation data
 
-.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.oms
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
 
 .. autosummary::
    :toctree: _autosummary
@@ -318,7 +318,7 @@ For advanced control, use the preparation classes directly:
 
 .. code:: python
 
-    from ansys.aedt.core.modeler.advanced_cad.oms import (
+    from ansys.aedt.core.modeler.advanced_cad.osm import (
         BuildingsPrep,
         RoadPrep,
         TerrainPrep,
