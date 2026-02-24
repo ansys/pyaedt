@@ -86,7 +86,7 @@ jobs:
           echo "Found Run ID: $RUN_ID"
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
-  update-testmon-caches:
+  update-testmon-caches-linux:
     name: Update testmon cache (${{ matrix.name }})
     needs: find-pr-run
     if: needs.find-pr-run.outputs.run_id != ''
@@ -98,36 +98,94 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: solvers-win
-            artifact: testmondata-solvers-win
-            cache_key: testmondata-solvers-win
           - name: solvers-linux
             artifact: testmondata-solvers-linux
             cache_key: testmondata-solvers-linux
-          - name: general-win
-            artifact: testmondata-general-win
-            cache_key: testmondata-general-win
           - name: general-linux
             artifact: testmondata-general-linux
             cache_key: testmondata-general-linux
-          - name: visualization-win
-            artifact: testmondata-visualization-win
-            cache_key: testmondata-visualization-win
           - name: visualization-linux
             artifact: testmondata-visualization-linux
             cache_key: testmondata-visualization-linux
-          - name: icepak-win
-            artifact: testmondata-icepak-win
-            cache_key: testmondata-icepak-win
           - name: icepak-linux
             artifact: testmondata-icepak-linux
             cache_key: testmondata-icepak-linux
-          - name: layout-win
-            artifact: testmondata-layout-win
-            cache_key: testmondata-layout-win
           - name: layout-linux
             artifact: testmondata-layout-linux
             cache_key: testmondata-layout-linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+            persist-credentials: false
+
+      - name: Download testmon artifact
+        id: download
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ needs.find-pr-run.outputs.run_id }}
+          ARTIFACT_NAME: ${{ matrix.artifact }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          gh run download "$RUN_ID" --name "$ARTIFACT_NAME" --dir artifact || true
+          FILE_PATH=$(find artifact -name ".testmondata" -type f -print -quit)
+          if [ -z "$FILE_PATH" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Artifact $ARTIFACT_NAME not found. Skipping."
+            exit 0
+          fi
+          echo "Artifact $ARTIFACT_NAME found at $FILE_PATH"
+          mv "$FILE_PATH" .testmondata
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "path=.testmondata" >> "$GITHUB_OUTPUT"
+
+      - name: Delete old testmon caches
+        if: steps.download.outputs.found == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACHE_KEY: ${{ matrix.cache_key }}
+        run: |
+          gh cache list --key ${CACHE_KEY}-main --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+
+      - name: Save updated testmon cache
+        if: steps.download.outputs.found == 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ steps.download.outputs.path }}
+          # Uses the SHA of the current workflow run (the merge commit on main) to save the cache
+          key: ${{ matrix.cache_key }}-main
+          enableCrossOsArchive: true
+
+  update-testmon-caches-windows:
+    name: Update testmon cache (${{ matrix.name }})
+    needs: find-pr-run
+    if: needs.find-pr-run.outputs.run_id != ''
+    runs-on: windows-latest
+    permissions:
+      actions: write # Needed to delete and save Actions caches
+      contents: write # Needed to write cache data into the repository scope
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: solvers-win
+            artifact: testmondata-solvers-win
+            cache_key: testmondata-solvers-win
+          - name: general-win
+            artifact: testmondata-general-win
+            cache_key: testmondata-general-win
+          - name: visualization-win
+            artifact: testmondata-visualization-win
+            cache_key: testmondata-visualization-win
+          - name: icepak-win
+            artifact: testmondata-icepak-win
+            cache_key: testmondata-icepak-win
+          - name: layout-win
+            artifact: testmondata-layout-win
+            cache_key: testmondata-layout-win
           - name: filter-win
             artifact: testmondata-filter-win
             cache_key: testmondata-filter-win
@@ -138,7 +196,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-            persist-credentials: false
+          persist-credentials: false
 
       - name: Download testmon artifact
         id: download
