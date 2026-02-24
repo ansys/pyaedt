@@ -18,7 +18,7 @@ runs:
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: ${{ inputs.testmon-datafile }}
-        key: ${{ inputs.cache-key }}-main-${{ github.sha }}
+        key: ${{ inputs.cache-key }}-main
         restore-keys: |
           ${{ inputs.cache-key }}-main
 
