@@ -346,7 +346,7 @@ class RoadPrep(PyAedtBase):
                 zpos = np.linspace(pts[0][2], pts[1][2], num=num_steps)
                 pts = np.column_stack((xpos, ypos, zpos))
             try:
-                line += pv.lines_from_points(pts, close=True)
+                line += pv.lines_from_points(pts, close=False)
             except ValueError:
                 pass
             end_shape = pv.Circle(road_width, resolution=16).delaunay_2d()
