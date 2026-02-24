@@ -268,8 +268,8 @@ The following methods allows to read and plot rays information.
    sbrplus.hdm_parser.Parser
 
 
-OpenStreetMap
-~~~~~~~~~~~~~
+Open street map
+~~~~~~~~~~~~~~~
 
 PyAEDT provides comprehensive tools for importing and processing OpenStreetMap (OSM) data to create
 realistic 3D environments for electromagnetic simulations. The OMS module enables automatic generation
