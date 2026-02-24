@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,6 +26,7 @@ import sys
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -36,13 +37,13 @@ if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for direction of arrival (DoA) post-processing.")
 
 
-class DirectionOfArrival:
+class DirectionOfArrival(PyAedtBase):
     """
     Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
     with coordinates in meters and user-defined frequency.
     """
 
-    def __init__(self, x_position: np.array, y_position: np.array, frequency: float):
+    def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
         """
         Initialize with antenna element positions in meters and signal frequency in Hertz.
 

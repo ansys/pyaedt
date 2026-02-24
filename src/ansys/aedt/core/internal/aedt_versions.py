@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,18 +34,19 @@ from pathlib import Path
 import re
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2025.2
 
 
-class AedtVersions:
+class AedtVersions(PyAedtBase):
     """Class to get the AEDT versions on the system.
 
     It caches the data to avoid inspecting the environment variables multiple times.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._list_installed_ansysem = None
         self._installed_versions = None
         self._stable_versions = None

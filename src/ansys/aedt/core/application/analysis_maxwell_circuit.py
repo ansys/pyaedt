@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,12 +21,19 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
 
-class AnalysisMaxwellCircuit(Analysis):
+
+class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
     """Provides the Maxwell Circuit (MaxwellCircuit) interface.
 
     Maxwell Circuit Editor has no setup, solution, analysis or postprocessor
@@ -53,7 +60,7 @@ class AnalysisMaxwellCircuit(Analysis):
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -70,18 +77,18 @@ class AnalysisMaxwellCircuit(Analysis):
 
     def __init__(
         self,
-        application,
-        project,
-        design,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        application: str,
+        project: str = None,
+        design: str = None,
+        version: str | int | float = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
@@ -105,7 +112,7 @@ class AnalysisMaxwellCircuit(Analysis):
             self._modeler = self.modeler
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerMaxwellCircuit:
         """Design oModeler.
 
         Returns

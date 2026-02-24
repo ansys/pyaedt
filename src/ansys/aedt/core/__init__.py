@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -48,13 +48,13 @@ DOTNET_LINUX_WARNING = (
 )
 
 
-def deprecation_warning():
+def deprecation_warning() -> None:
     """Warning message informing users that some Python versions are deprecated in PyAEDT."""
     # Store warnings showwarning
     existing_showwarning = warnings.showwarning
 
     # Define and use custom showwarning
-    def custom_show_warning(message, category, filename, lineno, file=None, line=None):
+    def custom_show_warning(message, category) -> None:
         """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 
@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.20.dev0"
+__version__ = "0.26.dev0"
 version = __version__
 
 # isort: off
@@ -102,12 +102,12 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 import ansys.aedt.core.generic.general_methods as general_methods
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.help import online_help
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.icepak import Icepak
@@ -151,7 +151,7 @@ __all__ = [
     "generate_unique_project_name",
     "general_methods",
     "_retry_ntimes",
-    "inside_desktop",
+    "inside_desktop_ironpython_console",
     "is_linux",
     "is_windows",
     "online_help",

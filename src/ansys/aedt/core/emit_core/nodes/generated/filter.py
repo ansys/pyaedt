@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,24 +28,20 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class Filter(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -60,7 +55,7 @@ class Filter(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -73,7 +68,7 @@ class Filter(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -83,32 +78,32 @@ class Filter(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
-        LOW_PASS = "Low Pass"  # nosec
-        HIGH_PASS = "High Pass"  # nosec
-        BAND_PASS = "Band Pass"  # nosec
-        BAND_STOP = "Band Stop"
-        TUNABLE_BANDPASS = "Tunable Bandpass"
-        TUNABLE_BANDSTOP = "Tunable Bandstop"
+    class FilterTypeOption(Enum):
+        BY_FILE = "ByFile"
+        LOW_PASS = "LowPass"  # nosec
+        HIGH_PASS = "HighPass"  # nosec
+        BAND_PASS = "BandPass"  # nosec
+        BAND_STOP = "BandStop"
+        TUNABLE_BANDPASS = "TunableBandpass"
+        TUNABLE_BANDSTOP = "TunableBandstop"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def filter_type(self) -> FilterTypeOption:
+        """Filter Type.
 
         Type of filter to define. The filter can be defined by file (measured or
         simulated data) or using one of EMIT's parametric models.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Filter Type")
+        val = self.FilterTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @filter_type.setter
+    def filter_type(self, value: FilterTypeOption) -> None:
+        self._set_property("Filter Type", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -120,7 +115,7 @@ class Filter(EmitNode):
         return float(val)
 
     @insertion_loss.setter
-    def insertion_loss(self, value: float):
+    def insertion_loss(self, value: float) -> None:
         self._set_property("Insertion Loss", f"{value}")
 
     @property
@@ -133,7 +128,7 @@ class Filter(EmitNode):
         return float(val)
 
     @stop_band_attenuation.setter
-    def stop_band_attenuation(self, value: float):
+    def stop_band_attenuation(self, value: float) -> None:
         self._set_property("Stop band Attenuation", f"{value}")
 
     @property
@@ -147,7 +142,7 @@ class Filter(EmitNode):
         return float(val)
 
     @max_pass_band.setter
-    def max_pass_band(self, value: float | str):
+    def max_pass_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Pass Band", f"{value}")
 
@@ -162,7 +157,7 @@ class Filter(EmitNode):
         return float(val)
 
     @min_stop_band.setter
-    def min_stop_band(self, value: float | str):
+    def min_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Stop Band", f"{value}")
 
@@ -177,7 +172,7 @@ class Filter(EmitNode):
         return float(val)
 
     @max_stop_band.setter
-    def max_stop_band(self, value: float | str):
+    def max_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Stop Band", f"{value}")
 
@@ -192,7 +187,7 @@ class Filter(EmitNode):
         return float(val)
 
     @min_pass_band.setter
-    def min_pass_band(self, value: float | str):
+    def min_pass_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Pass Band", f"{value}")
 
@@ -210,7 +205,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bp_lower_stop_band.setter
-    def bp_lower_stop_band(self, value: float | str):
+    def bp_lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandPassLowerStopBandFrequency", f"{value}")
 
@@ -228,7 +223,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bp_lower_cutoff.setter
-    def bp_lower_cutoff(self, value: float | str):
+    def bp_lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandPassLowerCutoffFrequency", f"{value}")
 
@@ -246,7 +241,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bp_higher_cutoff.setter
-    def bp_higher_cutoff(self, value: float | str):
+    def bp_higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandPassHigherCutoffFrequency", f"{value}")
 
@@ -264,7 +259,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bp_higher_stop_band.setter
-    def bp_higher_stop_band(self, value: float | str):
+    def bp_higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandPassHigherStopBandFrequency", f"{value}")
 
@@ -282,7 +277,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bs_lower_cutoff.setter
-    def bs_lower_cutoff(self, value: float | str):
+    def bs_lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandStopLowerCutoffFrequency", f"{value}")
 
@@ -300,7 +295,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bs_lower_stop_band.setter
-    def bs_lower_stop_band(self, value: float | str):
+    def bs_lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandStopLowerStopBandFrequency", f"{value}")
 
@@ -318,7 +313,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bs_higher_stop_band.setter
-    def bs_higher_stop_band(self, value: float | str):
+    def bs_higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandStopHigherStopBandFrequency", f"{value}")
 
@@ -336,7 +331,7 @@ class Filter(EmitNode):
         return float(val)
 
     @bs_higher_cutoff.setter
-    def bs_higher_cutoff(self, value: float | str):
+    def bs_higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("BandStopHigherCutoffFrequency", f"{value}")
 
@@ -346,14 +341,14 @@ class Filter(EmitNode):
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Lowest Tuned Frequency ")
+        val = self._get_property("Lowest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @lowest_tuned_frequency.setter
-    def lowest_tuned_frequency(self, value: float | str):
+    def lowest_tuned_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Lowest Tuned Frequency ", f"{value}")
+        self._set_property("Lowest Tuned Frequency", f"{value}")
 
     @property
     def highest_tuned_frequency(self) -> float:
@@ -361,14 +356,14 @@ class Filter(EmitNode):
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Highest Tuned Frequency ")
+        val = self._get_property("Highest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @highest_tuned_frequency.setter
-    def highest_tuned_frequency(self, value: float | str):
+    def highest_tuned_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Highest Tuned Frequency ", f"{value}")
+        self._set_property("Highest Tuned Frequency", f"{value}")
 
     @property
     def percent_bandwidth(self) -> float:
@@ -380,7 +375,7 @@ class Filter(EmitNode):
         return float(val)
 
     @percent_bandwidth.setter
-    def percent_bandwidth(self, value: float):
+    def percent_bandwidth(self, value: float) -> None:
         self._set_property("Percent Bandwidth", f"{value}")
 
     @property
@@ -393,7 +388,7 @@ class Filter(EmitNode):
         return float(val)
 
     @shape_factor.setter
-    def shape_factor(self, value: float):
+    def shape_factor(self, value: float) -> None:
         self._set_property("Shape Factor", f"{value}")
 
     @property

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,13 +37,13 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class EMIReceiver(CommonReport):
     """Provides for managing EMI receiver reports."""
 
-    def __init__(self, app, report_category="EMIReceiver", setup_name=None, expressions=None):
+    def __init__(self, app, report_category: str = "EMIReceiver", setup_name=None, expressions=None) -> None:
         CommonReport.__init__(self, app, "EMIReceiver", setup_name, expressions)
         self.logger = app.logger
         self.domain = "EMI Receiver"
         self.available_nets = []
         self._net = ""
-        for comp in app._app.modeler.components.components.values():
+        for comp in app._app.modeler.schematic.components.values():
             if comp.name == "CompInst@EMI_RCVR":
                 self.available_nets.append(comp.pins[0].net)
 
@@ -73,7 +73,7 @@ class EMIReceiver(CommonReport):
         return self._net
 
     @net.setter
-    def net(self, value):
+    def net(self, value) -> None:
         if value not in self.available_nets:
             self.logger.error("Net not available.")
         else:
@@ -92,7 +92,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("overlap_rate", 95)
 
     @overlap_rate.setter
-    def overlap_rate(self, value):
+    def overlap_rate(self, value) -> None:
         self._legacy_props["context"]["overlap_rate"] = value
 
     @property
@@ -107,7 +107,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("band", "0")
 
     @band.setter
-    def band(self, value):
+    def band(self, value) -> None:
         self._legacy_props["context"]["band"] = value
 
     @property
@@ -122,7 +122,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("RBW", "0")
 
     @rbw.setter
-    def rbw(self, value):
+    def rbw(self, value) -> None:
         self._legacy_props["context"]["RBW"] = value
 
     @property
@@ -137,7 +137,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("RBW_factor", "0")
 
     @rbw_factor.setter
-    def rbw_factor(self, value):
+    def rbw_factor(self, value) -> None:
         self._legacy_props["context"]["RBW_factor"] = value
 
     @property
@@ -154,7 +154,7 @@ class EMIReceiver(CommonReport):
         return self._emission
 
     @emission.setter
-    def emission(self, value):
+    def emission(self, value) -> None:
         if value == "CE":
             self._emission = value
             self._legacy_props["context"]["emission"] = "CE"
@@ -176,7 +176,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -191,7 +191,7 @@ class EMIReceiver(CommonReport):
         return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
@@ -276,7 +276,7 @@ class EMIReceiver(CommonReport):
             return [self.expressions]
 
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str | None = None):
         """Create an EMI receiver report.
 
         Parameters

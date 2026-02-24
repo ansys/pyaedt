@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+import shutil
 
 import pytest
 
@@ -32,22 +32,24 @@ from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeE
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests import TESTS_EXTENSIONS_PATH
 
 pytest.importorskip("pyedb", "0.21.0")
 
+TEST_SUBFOLDER = "T45"
+EDB_PROJECT = "ANSYS-HSD_V1.aedb"
+SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
+
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_layout(local_scratch):
+def test_parametrize_layout(desktop, test_tmp_dir) -> None:
     """Test parametrizing EDB layout with comprehensive settings."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
+    file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
-    local_scratch.copyfolder(
-        os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
-    )
+    shutil.copytree(SI_VERSE_PATH, file_path, dirs_exist_ok=True)
 
     data = ParametrizeEdbExtensionData(
-        aedb_path=file_path,
+        aedb_path=str(file_path),
         parametrize_layers=True,
         parametrize_materials=True,
         parametrize_padstacks=True,
@@ -63,7 +65,7 @@ def test_parametrize_layout(local_scratch):
     assert result is True
 
 
-def test_parametrize_edb_exceptions():
+def test_parametrize_edb_exceptions(desktop) -> None:
     """Test exceptions thrown by the Parametrize EDB extension."""
     # Test with negative polygon expansion
     data = ParametrizeEdbExtensionData(
@@ -90,17 +92,15 @@ def test_parametrize_edb_exceptions():
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_custom_settings(local_scratch):
+def test_parametrize_edb_custom_settings(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with custom settings."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_custom.aedb")
+    file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
-    local_scratch.copyfolder(
-        os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
-    )
+    shutil.copytree(SI_VERSE_PATH, file_path)
 
     # Test with custom parametrization settings
     data = ParametrizeEdbExtensionData(
-        aedb_path=file_path,
+        aedb_path=str(file_path),
         parametrize_layers=False,
         parametrize_materials=True,
         parametrize_padstacks=False,
@@ -117,17 +117,15 @@ def test_parametrize_edb_custom_settings(local_scratch):
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_zero_expansions(local_scratch):
+def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with zero expansions."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_zero.aedb")
+    file_path = test_tmp_dir / "ANSYS-HSD_V1_zero.aedb"
 
-    local_scratch.copyfolder(
-        os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
-    )
+    shutil.copytree(SI_VERSE_PATH, file_path)
 
     # Test with zero expansions (should work fine)
     data = ParametrizeEdbExtensionData(
-        aedb_path=file_path,
+        aedb_path=str(file_path),
         expansion_polygon_mm=0.0,
         expansion_void_mm=0.0,
         project_name="zero_expansion_project",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,6 +35,7 @@ import os
 import tempfile
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -99,10 +100,10 @@ AVAILABLE_QUANTITIES = [
 ]
 
 
-class FieldSummary:
+class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.calculations = []
 
@@ -113,12 +114,12 @@ class FieldSummary:
         geometry,
         geometry_name,
         quantity,
-        normal="",
-        side="Default",
-        mesh="All",
-        ref_temperature="AmbientTemp",
-        time="0s",
-    ):
+        normal: str = "",
+        side: str = "Default",
+        mesh: str = "All",
+        ref_temperature: str = "AmbientTemp",
+        time: str = "0s",
+    ) -> bool:
         """
         Add an entry in the field summary calculation requests.
 
@@ -184,8 +185,10 @@ class FieldSummary:
         self.calculations.append(calc_args)
         return True
 
-    @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup", design_variation="variation")
-    def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output=False):
+    @pyaedt_function_handler()
+    def get_field_summary_data(
+        self, setup: str | None = None, variation=None, intrinsics: str = "", pandas_output: bool = False
+    ):
         """
         Get  field summary output computation.
 
@@ -234,8 +237,10 @@ class FieldSummary:
                 return df
         return out_dict
 
-    @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")
-    def export_csv(self, output_file, setup=None, variations=None, intrinsics=""):
+    @pyaedt_function_handler()
+    def export_csv(
+        self, output_file, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
+    ) -> bool:
         """
         Get the field summary output computation.
 
@@ -248,7 +253,7 @@ class FieldSummary:
             default is ``None``, in which case the nominal variation is used.
         variations : dict, optional
             Dictionary containing the design variation to use for the computation.
-            The default is  ``{}``, in which case the nominal variation is used.
+            The default is ``None``, in which case the nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             which is suitable when no frequency needs to be selected.
@@ -258,8 +263,8 @@ class FieldSummary:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if variations is None:
-            variations = {}
+        if not variations:
+            variations = self._app.available_variations.nominal_values
         if not setup:
             setup = self._app.nominal_sweep
         dv_string = ""
@@ -281,7 +286,7 @@ class FieldSummary:
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self, setup, variation):
+    def _create_field_summary(self, setup, variation) -> None:
         arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")

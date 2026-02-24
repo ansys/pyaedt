@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -144,6 +144,12 @@ EMIT_TO_AEDT_UNITS = {
     "Gbps": "Gbps",
 }
 
+EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
+
+EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
+
+EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
+
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True):
     """Converts the data rate to (from) the internal units from the
@@ -168,20 +174,20 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
         if units == "bps":
             mult = 1.0
         elif units == "kbps":
-            mult = 1e-3
-        elif units == "Mbps":
-            mult = 1e-6
-        elif units == "Gbps":
-            mult = 1e-9
-    else:
-        if units == "bps":
-            mult = 1.0
-        elif units == "kbps":
             mult = 1e3
         elif units == "Mbps":
             mult = 1e6
         elif units == "Gbps":
             mult = 1e9
+    else:
+        if units == "bps":
+            mult = 1.0
+        elif units == "kbps":
+            mult = 1e-3
+        elif units == "Mbps":
+            mult = 1e-6
+        elif units == "Gbps":
+            mult = 1e-9
     return value * mult
 
 

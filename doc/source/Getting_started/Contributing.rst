@@ -9,7 +9,7 @@ in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide, paying particular attention to `Guidelines and Best Practices
 <https://dev.docs.pyansys.com/how-to/index.html>`_, before attempting
 to contribute to PyAEDT.
- 
+
 The following contribution information is specific to PyAEDT.
 
 Clone the repository
@@ -24,6 +24,35 @@ development mode, run:
     python -m pip install --upgrade pip
     pip install -e .
 
+Development environment setup
+------------------------------
+
+PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
+This is a modern approach that replaces the older ``[project.optional-dependencies]``
+mechanism for development-only dependencies.
+
+Dependency groups vs optional dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PyAEDT uses two mechanisms for managing dependencies:
+
+- **Optional dependencies** (``[project.optional-dependencies]``): Used for runtime features
+  that users can optionally install (e.g., ``dotnet``, ``graphics``, ``jupyter``, ``all``).
+  These are installed with ``pip install pyaedt[graphics]`` or ``uv sync --extra graphics``.
+
+- **Dependency groups** (``[dependency-groups]``): Used for development-only dependencies
+  (e.g., ``dev``, ``doc``, ``tests``). These are NOT included in the package distribution
+  and are only used during development. They are installed with ``pip install --group dev``
+  or ``uv sync --group dev``.
+
+.. note::
+
+  After with PyAEDT 0.25, development dependencies have been migrated from
+  ``[project.optional-dependencies]`` to ``[dependency-groups]`` following PEP 735.
+  This ensures development dependencies are not accidentally included in package
+  distributions. When using pip, ensure you have ``pip`` version 25.1 or later to use the
+  new dependency group syntax.
+
 Post issues
 -----------
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
@@ -34,7 +63,7 @@ To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@a
 View PyAEDT documentation
 -------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
+`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
@@ -46,24 +75,25 @@ Code style
 PyAEDT complies with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_.
 `pre-commit <https://pre-commit.com/>`_ is applied within the CI/CD to ensure compliance.
-The ``pre-commit`` Python package can be installed
-and run as follows:
+However, for local development, you might want to use `prek <https://prek.j178.dev/>`_
+which is a drop-in alternative to ``pre-commit`` that is faster and more efficient in
+disk space usage. The ``prek`` Python package can be installed and run as follows:
 
 .. code:: bash
 
-  pip install pre-commit
-  pre-commit run --all-files
+  pip install prek
+  prek run --all-files
 
-You can also install this as a pre-commit hook with:
+You can also install this as a prek hook with:
 
 .. code:: bash
 
-  pre-commit install
+  prek install
 
 This way, it's not possible for you to push code that fails the style checks.
 For example::
 
-  $ pre-commit install
+  $ prek install
   $ git commit -am "Add my cool feature."
   black....................................................................Passed
   isort (python)...........................................................Passed
@@ -94,7 +124,7 @@ explicitly defined by the method name. The variable ``name`` provides
 a more compact
 description of the variable in this context.
 
-In previous PyAEDT versions, you can also find both ``setup_name`` and ``setupname`` used 
+In previous PyAEDT versions, you can also find both ``setup_name`` and ``setupname`` used
 for various methods or classes.
 Improving naming consistency improves maintainability and readability.
 
@@ -163,7 +193,7 @@ For example:
    def my_method(self, var):
        pass
 
-Every method can return a value of ``True`` when successful or 
+Every method can return a value of ``True`` when successful or
 ``False`` when failed. When a failure occurs, the error
 handler returns information about the error in both the console and
 log file.
@@ -225,7 +255,7 @@ Step 1: Create the extension Python file
 Navigate to the directory ``src/ansys/aedt/core/extension/project`` and create a new Python file for
 your extension. The file name should be descriptive and follow the format ``extension_name.py``, where
 ``extension_name`` is a lowercase, hyphen-separated name that describes the extension's functionality.
-The extension file should follow the official 
+The extension file should follow the official
 `template <https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/extensions/templates/template_get_started.py>`_
 and contain at least two classes:
 
@@ -240,6 +270,7 @@ and contain at least two classes:
 .. code-block:: python
 
     from ansys.aedt.core.extensions import ExtensionCommon, ExtensionData
+
 
     class MyExtension(ExtensionCommon):
         def __init__(self, *args, **kwargs):
@@ -258,6 +289,7 @@ and computed through the UI. Below is an example of how to create a data class f
     from dataclasses import dataclass
     from dataclasses import field
 
+
     @dataclass
     class MyExtensionData(ExtensionCommonData):
         setup: str = ""
@@ -273,10 +305,10 @@ function:
 .. code-block:: python
 
     def main(extension_data: MyExtensionData):
-      if not data.setup:
-          raise AEDTRuntimeError("No setup provided to the extension.")
+        if not data.setup:
+            raise AEDTRuntimeError("No setup provided to the extension.")
 
-      # Core logic of the extension goes here
+        # Core logic of the extension goes here
 
 Step 2: Add unit tests
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -295,12 +327,13 @@ is an example of how to create a unit test for your extension:
 
 .. code-block:: python
 
-    from unittest.mock import patch
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from unittest.mock import patch
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
 
-    @patch("ansys.aedt.core.extensions.misc.Desktop")
-    def test_my_extension(mock_desktop):
-        extension = MyExtension()
+
+  @patch("ansys.aedt.core.extensions.misc.Desktop")
+  def test_my_extension(mock_desktop):
+      extension = MyExtension()
 
       assert "My extension title" == extension.root.title()
       assert "light" == extension.root.theme
@@ -318,18 +351,28 @@ behaves as expected when integrated into the AEDT environment.
 
 .. code-block:: python
 
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
-    from ansys.aedt.core import Hfss
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from ansys.aedt.core import Hfss
 
-    def test_my_extension_system(add_app):
-      
+
+  def test_my_extension_system(add_app):
+
       # Create some data in AEDT to test the extension
-      aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
+      aedt_app = add_app(
+          application=Hfss, project_name="my_project", design_name="my_design"
+      )
       aedt_app["p1"] = "100mm"
       aedt_app["p2"] = "71mm"
-      test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+      test_points = [
+          ["0mm", "p1", "0mm"],
+          ["-p1", "0mm", "0mm"],
+          ["-p1/2", "-p1/2", "0mm"],
+          ["0mm", "0mm", "0mm"],
+      ]
       p = aedt_app.modeler.create_polyline(
-          points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+          points=test_points,
+          segment_type=PolylineSegment("Spline", num_points=4),
+          name="spline_4pt",
       )
 
       # Create the extension and set its data by clicking on the "Generate" button
@@ -340,6 +383,86 @@ behaves as expected when integrated into the AEDT environment.
       assert 2 == len(aedt_app.variable_manager.variables)
       assert main(extension.data)
       assert 7 == len(aedt_app.variable_manager.variables)
+
+Run tests in VSCode and PyCharm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section explains how to run pytest unit and system tests in VSCode (Visual Studio Code) and PyCharm, and how to estimate coverage
+using the "Run with coverage" feature or pytest-cov.
+
+Prerequisites
+~~~~~~~~~~~~~
+- Install pytest and pytest-cov in your environment if you haven't already:
+
+.. code:: bash
+
+  pip install pytest pytest-cov
+
+- Ensure your IDE is configured to use the Python interpreter where the packages are installed.
+
+VSCode IDE
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Use the Test Explorer (Python extension) to discover and run tests:
+  - Open the Testing side bar (beaker icon).
+  - Run or debug individual tests, test files, or test suites from the UI.
+
+.. image:: ../Resources/vscode_run_tests.png
+  :alt: VSCode Test Explorer (placeholder)
+
+2. Run tests and view coverage using the GUI
+  - VSCode:
+    - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage.
+    - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
+
+.. image:: ../Resources/coverage_vscode.png
+  :alt: VSCode Test Explorer (placeholder)
+
+Brief note
+~~~~~~~~~~
+You can also run tests with coverage from a terminal in VSCode using pytest-cov:
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
+
+PyCharm IDE
+~~~~~~~~~~~~~~~~~~~
+
+1. Configure pytest as the test runner:
+   - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
+
+2. Run tests from the IDE:
+   - Right-click a test file, folder, or test function and choose Run or Debug.
+   - Use the dedicated test runner UI to run and inspect results.
+
+.. image:: ../Resources/pycharm_run_tests.png
+   :alt: PyCharm test runner (placeholder)
+
+3. Run with coverage in PyCharm:
+   - Right-click a test file or configuration and choose "Run 'pytest in' with Coverage".
+   - PyCharm shows a coverage summary and highlights covered and uncovered lines in the editor.
+
+4. Run with pytest-cov from a terminal in PyCharm (alternative):
+
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+Interpreting coverage results
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Coverage percentage shows the portion of executed lines compared to total executable lines in the source files.
+- Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. At least 85% coverage for all the new code added to the repository is required.
+- Use ``--cov-report=term-missing`` to see which lines are not covered directly in the terminal.
+- Use ``--cov-report=html`` and open ``htmlcov/index.html`` in a browser for an easy-to-navigate, per-file coverage report.
+- Run unit and system tests separately to estimate their individual contributions:
+
+Best practices
+~~~~~~~~~~~~~~
+- Aim to keep unit tests fast and isolated; use mocks for external systems like AEDT.
+- Use the IDE "Run with coverage" feature for quick, visual feedback.
 
 Step 4: Add the extension to the catalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -358,14 +481,14 @@ For example, to add your extension, you would add an entry like this:
     template = "run_pyaedt_toolkit_script"
 
 The path to the image is relative to the directory where your extension is located. For example, if
-the extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
+the extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following
 the previous code block information, the path to the icon should be
 ``src/ansys/aedt/core/extensions/project/images/large/my_extension_icon.png``.
 
 Step 5: Add the extension to the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To ensure that your extension is documented, you need to add a new card to the 
+To ensure that your extension is documented, you need to add a new card to the
 ``doc/source/User_guide/extensions.rst`` file. This card links to the extension's documentation page.
 The documentation page needs to be created in the ``doc/source/User_guide/pyaedt_extensions_doc/project``
 directory and should contain a brief description of the extension, its functionality, and how to use it.
@@ -373,3 +496,271 @@ Also, another card should be added to the
 ``doc/source/User_guide/pyaedt_extensions_doc/project/index.rst`` file to link to the extension's documentation page.
 This ensures that the extension is discoverable in the documentation from the multiple pages that list all the
 extensions available in PyAEDT.
+
+
+Local testing parameters
+------------------------
+
+Two configuration files control test behavior:
+
+- ``tests/local_config.json``: Contains parameters intended for modification during local testing.
+  These settings control test execution behavior such as desktop version, graphical mode, and feature flags.
+  **This file does not exist by default and must be created manually** in the ``tests/`` directory.
+
+- ``tests/pyaedt_settings.yaml``: Contains default PyAEDT settings applied to all tests.
+  These settings are not intended for local modification.
+
+Creating local_config.json
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To customize local test execution, create a ``local_config.json`` file in the ``tests/`` directory
+at the top level of the repository. Below is an example configuration with descriptions of each parameter:
+
+.. code-block:: json
+
+  {
+      "desktopVersion": "2025.2",
+      "NonGraphical": true,
+      "NewThread": true,
+      "skip_circuits": false,
+      "use_grpc": true,
+      "close_desktop": true,
+      "use_local_example_data": false,
+      "local_example_folder": "",
+      "skip_modelithics": true
+      "use_pyedb_grpc": true
+  }
+
+Parameter descriptions:
+
+- ``desktopVersion``: AEDT version to use for testing (for example, "2025.2," "2024.1").
+- ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
+- ``NewThread``: Opens AEDT in a new thread.
+- ``skip_circuits``: When ``true``, skips Circuit-related tests.
+- ``use_grpc``: When ``true``, uses gRPC API for communication with AEDT.
+- ``close_desktop``: When ``true``, closes AEDT after tests complete.
+- ``use_local_example_data``: When ``true``, uses local example data for tests.
+- ``local_example_folder``: Path to the local example data folder.
+- ``skip_modelithics``: When ``true``, skips Modelithics-related tests.
+- ``use_pyedb_grpc``: When ``true``, use PyEDB with gRPC for database access.
+
+Replicating CI/CD environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CI/CD pipeline loads ``pyaedt_settings.yaml`` via the environment variable:
+
+.. code:: bash
+
+  PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+To replicate the CI/CD environment locally, set this environment variable on your machine:
+
+- **Windows (PowerShell)**:
+
+.. code:: powershell
+
+  $env:PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+- **Linux (Bash)**:
+
+.. code:: bash
+
+  export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+
+Testmon in CI/CD
+----------------
+
+This section explains how PyAEDT uses `Testmon <https://testmon.org/>`_ to optimize test execution
+in the CI/CD pipeline by only running tests affected by code changes.
+
+What is Testmon?
+~~~~~~~~~~~~~~~~
+
+Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
+dependency information in a database file (``.testmondata``). On subsequent test runs, Testmon analyzes
+which files have changed and selectively runs only the tests that depend on the modified code.
+
+**Key benefits:**
+
+- **Faster CI pipelines**: Only tests affected by changes are executed, significantly reducing test runtime.
+- **Resource efficiency**: Reduces computational costs on self-hosted runners and GitHub Actions.
+- **Immediate feedback**: Developers get quicker feedback on their changes.
+
+**How it works:**
+
+1. Testmon creates a dependency graph mapping each test to the source files it uses.
+2. When code changes, Testmon compares the current state against the cached dependency data.
+3. Only tests with dependencies on changed files are selected for execution.
+4. The dependency database is cached between runs to maintain history.
+
+**Requirements and constraints:**
+
+For Testmon to work correctly, the following requirements must be met:
+
+- **Dependency consistency**: The Testmon cache must be built and used with the **exact same dependency versions**.
+  If the environment changes (for example, package updates, different Python versions), the cache becomes invalid and must
+  be regenerated. The CI/CD pipeline enforces this by using locked dependency files and consistent environments.
+
+- **No pytest markers for test selection**: Testmon relies on analyzing code dependencies to determine which tests to run.
+  Using pytest markers (for example, ``-m "solvers"``) forces Testmon to run with `--testmon-noselect` argument and leads to all tests being run, negating the benefits of selective testing. Instead, the way to select specific test suites is by providing the path to the test files (for example, ``pytest tests/solvers``).
+
+If you want to learn more details about this implementation, check `.github/workflows` files inside the repository.
+
+Testmon workflow during pull requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a pull request is created or updated, the CI/CD pipeline executes the following workflow:
+
+1. **Wait for cache update (if needed)**: Before running tests, the workflow checks if the
+  ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the pull request's base commit.
+  If so, the PR workflow waits for it to complete to ensure it uses the most
+  up-to-date cache data.
+
+2. **Restore Testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.
+  The cache key includes:
+
+  - The test suite identifier (for example, ``testmondata-unit-linux``).
+  - The branch name (``main``).
+  - The latest successful commit SHA (unique identifier of a commit) on ``main``.
+
+3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs Testmon to:
+
+  - Analyze which source files have changed compared to the cached state.
+  - Select only tests that depend on the changed files.
+  - Execute the selected tests.
+
+4. **Report results**: Test results and coverage are uploaded as artifacts without modifying the cache
+  (only the ``main`` branch can update the shared cache).
+
+.. note::
+
+  The PR workflow does **not** update the shared Testmon cache. This ensures that all PRs work from
+  a consistent baseline derived from the ``main`` branch.
+
+Testmon workflow during merge to main
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a pull request is merged to the ``main`` branch, the ``update-testmondata-cache.yml`` workflow triggers automatically:
+
+1. **Run all affected tests**: The workflow runs tests with Testmon to update the dependency data based on the newly merged code.
+
+2. **Delete old cache entries**: Before saving, old cache entries for the same test suite are deleted to prevent cache accumulation.
+
+3. **Save updated cache**: The updated ``.testmondata`` file is saved to GitHub Actions cache with a key that includes:
+
+- The test suite identifier (for example, `testmondata-unit-linux`).
+- The branch name (``main``).
+- The commit SHA.
+
+4. **Cache available for PRs**: The new cache becomes the baseline for all subsequent pull requests.
+
+Each test suite maintains its own separate cache:
+
+- ``testmondata-unit-linux``: Unit tests on Linux.
+- ``testmondata-integration-linux``: Integration tests on Linux.
+- ``testmondata-solvers-win``: Solver tests on Windows.
+- ``testmondata-solvers-linux``: Solver tests on Linux.
+- And other test suites (general, visualization, icepak, layout, extensions, filter, emit).
+
+.. note::
+
+   For detailed information about edge cases, keeping PRs updated, and tracking coverage locally,
+   see :ref:`developer_notes`.
+
+Workflow diagrams
+~~~~~~~~~~~~~~~~~
+
+The following diagrams illustrate the Testmon workflow in the CI/CD pipeline.
+
+**Diagram 1: PR workflow with Testmon**
+
+This diagram shows how the CI/CD pipeline handles a pull request with Testmon integration,
+including the cache waiting mechanism and selective test execution.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: PR Workflow with Testmon
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: PR Workflow with Testmon
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :alt: PR Workflow with Testmon
+
+**Diagram 2: Merge to main workflow**
+
+This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
+cache update workflow is triggered.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Merge to Main Cache Update Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: Merge to Main Cache Update Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :alt: Merge to Main Cache Update Workflow
+
+**Diagram 3: Multiple concurrent PRs**
+
+This diagram shows how multiple PRs can run concurrently, each restoring from the same
+baseline cache without interfering with each other.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Multiple Concurrent PRs Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :class: only-light
+      :alt: Multiple Concurrent PRs Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :alt: Multiple Concurrent PRs Workflow
+
+**Diagram 4: Cache update blocking scenario**
+
+This sequence diagram shows the timeline when a PR workflow starts while the cache update
+workflow is running, demonstrating the waiting and retry mechanism.
+
+.. only:: html
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Cache Update Blocking Scenario
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :class: only-light
+      :alt: Cache Update Blocking Scenario
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :alt: Cache Update Blocking Scenario

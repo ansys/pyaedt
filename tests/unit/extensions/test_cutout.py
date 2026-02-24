@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,6 +35,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import SELECTION_PERFORMED
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import WAITING_FOR_SELECTION
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 MOCK_LINE_0 = "line__0"
 MOCK_LINE_1 = "line__1"
@@ -79,7 +80,15 @@ def mock_hfss_3d_layout_with_primitives(request, mock_hfss_3d_layout_app):
     yield mock_hfss_3d_layout_app
 
 
-def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives):
+def test_cutout_extension_empty_design(mock_hfss_3d_layout_app) -> None:
+    """Test that CutoutExtension raises an error if launched with an empty design."""
+    mock_hfss_3d_layout_app.modeler.edb = None
+
+    with pytest.raises(AEDTRuntimeError, match="Extension cannot be used with an empty HFSS 3D Layout design."):
+        CutoutExtension(withdraw=True)
+
+
+def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives) -> None:
     """Test instantiation of CutoutExtension with default parameters."""
     EXPECTED_OBJS_NET = {
         MOCK_NET_NAME_0: [MOCK_LINE_0, MOCK_PADSTACK_0],
@@ -100,7 +109,7 @@ def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives):
     extension.root.destroy()
 
 
-def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_with_primitives):
+def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_with_primitives) -> None:
     """Test that CutoutExtension raises an error if no objects are selected."""
     extension = CutoutExtension(withdraw=True)
 
@@ -115,7 +124,7 @@ def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_wit
 
 
 @pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
-def test_cutout_extension_net_selections_ui_messages(mock_hfss_3d_layout_with_primitives):
+def test_cutout_extension_net_selections_ui_messages(mock_hfss_3d_layout_with_primitives) -> None:
     """Test that CutoutExtension allows selection of signal and reference nets."""
     extension = CutoutExtension(withdraw=True)
 
@@ -135,7 +144,7 @@ def test_cutout_extension_net_selections_ui_messages(mock_hfss_3d_layout_with_pr
 
 
 @pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
-def test_cutout_extension_create_cutout(mock_hfss_3d_layout_with_primitives):
+def test_cutout_extension_create_cutout(mock_hfss_3d_layout_with_primitives) -> None:
     """Test that CutoutExtension creates a cutout when valid selections are made."""
     EXPECTED_RESULT = CutoutData(
         cutout_type=CUTOUT_TYPES[1],

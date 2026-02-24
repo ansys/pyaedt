@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,6 +26,7 @@ import warnings
 
 from ansys.aedt.core import emit_core
 from ansys.aedt.core.application.design import Design
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core.couplings import CouplingsEmit
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum
@@ -35,7 +36,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.schematic import ModelerEmit
 
 
-class Emit(Design, object):
+class Emit(Design, PyAedtBase):
     """Provides the EMIT application interface.
 
     Parameters
@@ -63,7 +64,7 @@ class Emit(Design, object):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -126,28 +127,21 @@ class Emit(Design, object):
     >>> print(f"Worst-case sensitivity for Rx '{domain.rx_radio_name}' is {val}dB.")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=True,
-        close_on_exit=True,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
@@ -187,11 +181,11 @@ class Emit(Design, object):
 
             self.__emit_api_enabled = True
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerEmit:
         """Modeler.
 
         Returns
@@ -202,7 +196,7 @@ class Emit(Design, object):
         return self._modeler
 
     @property
-    def couplings(self):
+    def couplings(self) -> CouplingsEmit:
         """EMIT Couplings.
 
         Returns
@@ -213,7 +207,7 @@ class Emit(Design, object):
         return self._couplings
 
     @property
-    def schematic(self):
+    def schematic(self) -> EmitSchematic:
         """EMIT Schematic.
 
         Returns
@@ -224,7 +218,7 @@ class Emit(Design, object):
         return self._schematic
 
     @pyaedt_function_handler()
-    def version(self, detailed=False):
+    def version(self, detailed: bool = False) -> str:
         """
         Get version information.
 
@@ -248,7 +242,7 @@ class Emit(Design, object):
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value):
+    def set_units(self, unit_type: str, unit_value: str) -> bool:
         """Set units for the EMIT design.
 
         Parameters
@@ -303,7 +297,7 @@ class Emit(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type=""):
+    def get_units(self, unit_type: str | None = "") -> str | dict | None:
         """Get units for the EMIT design.
 
         Parameters
@@ -330,7 +324,9 @@ class Emit(Design, object):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(
+        self, file_name: str | None = None, overwrite: bool | None = True, refresh_ids: bool | None = False
+    ) -> bool:
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

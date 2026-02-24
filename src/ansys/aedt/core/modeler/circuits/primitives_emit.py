@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,15 +23,15 @@
 # SOFTWARE.
 
 from collections import defaultdict
-import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
 
-class EmitComponents(object):
+class EmitComponents(PyAedtBase):
     """EmitComponents class.
 
     This is the class for managing all EMIT components.
@@ -68,22 +68,8 @@ class EmitComponents(object):
         return self.modeler.omodel_manager
 
     @property
-    def o_model_manager(self):  # pragma: no cover
-        """AEDT model manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
-
-    @property
     def o_definition_manager(self):
-        """Aedt Definition Manager.
+        """AEDT definition manager.
 
         References
         ----------
@@ -102,23 +88,6 @@ class EmitComponents(object):
         return self._parent.osymbol_manager
 
     @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """AEDT Symbol Manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        References
-        ----------
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.osymbol_manager
-
-    @property
     def ocomponent_manager(self):
         """AEDT Component Manager.
 
@@ -127,23 +96,6 @@ class EmitComponents(object):
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
         return self._parent.ocomponent_manager
-
-    @property
-    def o_component_manager(self):  # pragma: no cover
-        """AEDT Component Manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-
-        References
-        ----------
-        >>> oComponentManager = oDefinitionManager.GetManager("Component")
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
 
     @property
     def design_type(self):
@@ -174,13 +126,13 @@ class EmitComponents(object):
     def _logger(self):
         return self._app.logger
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.components)
 
     def __iter__(self):
         return self.components.keys().__iter__()
 
-    def __init__(self, parent, modeler):
+    def __init__(self, parent, modeler) -> None:
         self._parent = parent
         self.modeler = modeler
         self._currentId = 0
@@ -198,11 +150,11 @@ class EmitComponents(object):
         return self.include_personal_lib
 
     @include_personal_library.setter
-    def include_personal_library(self, value):
+    def include_personal_library(self, value) -> None:
         self.include_personal_lib = value
 
     @property
-    def design_libray(self):
+    def design_libray(self) -> str:
         """Design library."""
         if self.include_personal_lib:
             return "PersonalLib"
@@ -221,7 +173,7 @@ class EmitComponents(object):
         return self._components_catalog
 
     @pyaedt_function_handler()
-    def create_component(self, component_type, name=None, library=None):
+    def create_component(self, component_type, name: str | None = None, library=None):
         """Create a new component from a library.
 
         Parameters
@@ -387,7 +339,7 @@ class EmitComponents(object):
         return o
 
 
-class EmitComponent(object):
+class EmitComponent(PyAedtBase):
     """A component in the EMIT schematic."""
 
     # Dictionary of subclass types. Register each subclass types with
@@ -430,7 +382,7 @@ class EmitComponent(object):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         self.name = component_name
         """Name of the component."""
 
@@ -452,7 +404,7 @@ class EmitComponent(object):
         return self.name
 
     @pyaedt_function_handler()
-    def move_and_connect_to(self, component):
+    def move_and_connect_to(self, component) -> None:
         """Move and connect this component to another component.
 
         Parameters
@@ -573,7 +525,7 @@ class EmitComponent(object):
         return props
 
     @pyaedt_function_handler()
-    def _add_property(self, property_name, property_value):
+    def _add_property(self, property_name, property_value) -> bool:
         """Add a property or update existing property value.
 
         Parameters
@@ -669,7 +621,7 @@ class EmitComponent(object):
 class EmitAntennaComponent(EmitComponent):
     """An Antenna component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitAntennaComponent, self).__init__(components, component_name)
 
     def get_pattern_filename(self):
@@ -717,7 +669,7 @@ class EmitAntennaComponent(EmitComponent):
 
         return orientation
 
-    def get_position(self, units=""):
+    def get_position(self, units: str = ""):
         """Get the position of this antenna.
 
         Parameters
@@ -755,7 +707,7 @@ class EmitAntennaComponent(EmitComponent):
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def is_emitter(self):
@@ -808,7 +760,7 @@ class EmitRadioComponent(EmitComponent):
                 return node
         return None
 
-    def band_start_frequency(self, band_node, units=""):
+    def band_start_frequency(self, band_node, units: str = ""):
         """Get the start frequency of the band node.
 
         Parameters
@@ -826,7 +778,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
-    def band_stop_frequency(self, band_node, units=""):
+    def band_stop_frequency(self, band_node, units: str = ""):
         """Get the stop frequency of the band node.
 
         Parameters
@@ -844,7 +796,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
-    def set_band_start_frequency(self, band_node, band_start_freq, units=""):
+    def set_band_start_frequency(self, band_node, band_start_freq, units: str = ""):
         """Set start frequency of the band.
 
         Parameters
@@ -889,7 +841,7 @@ class EmitRadioComponent(EmitComponent):
             prop_list = {"StartFrequency": freq_string}
             band_node._set_prop_value(prop_list)
 
-    def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
+    def set_band_stop_frequency(self, band_node, band_stop_freq, units: str = ""):
         """Set stop frequency of the band.
 
         Parameters
@@ -933,7 +885,7 @@ class EmitRadioComponent(EmitComponent):
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
-    def band_channel_bandwidth(self, band_node, units=""):
+    def band_channel_bandwidth(self, band_node, units: str = ""):
         """Get the channel bandwidth of the band node.
 
         Parameters
@@ -951,7 +903,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
 
-    def band_tx_power(self, band_node, units=""):
+    def band_tx_power(self, band_node, units: str = ""):
         """Get the transmit power of the band node.
 
         Parameters
@@ -1036,8 +988,8 @@ class EmitRadioComponent(EmitComponent):
         return samp_node[0]
 
 
-class EmitComponentPropNode(object):
-    def __init__(self, editor, design, parent_component, node_name):
+class EmitComponentPropNode(PyAedtBase):
+    def __init__(self, editor, design, parent_component, node_name) -> None:
         self.oeditor = editor
         """Oeditor module"""
 
@@ -1093,7 +1045,7 @@ class EmitComponentPropNode(object):
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()
-    def set_band_power_level(self, power, units=""):
+    def set_band_power_level(self, power, units: str = ""):
         """Set the power of the fundamental for the given band.
 
         Parameters
@@ -1123,7 +1075,7 @@ class EmitComponentPropNode(object):
                 return  # only one Tx Spectral Profile per Band
 
     @pyaedt_function_handler()
-    def get_band_power_level(self, units=""):
+    def get_band_power_level(self, units: str = ""):
         """Get the power of the fundamental for the given band.
 
         Parameters
@@ -1149,7 +1101,7 @@ class EmitComponentPropNode(object):
         return consts.unit_converter(float(power), "Power", "dBm", units)
 
     @pyaedt_function_handler()
-    def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
+    def set_channel_sampling(self, sampling_type: str = "Uniform", percentage=None, max_channels=None, seed=None):
         """Set the channel sampling for the radio.
 
         If a percentage is specified, then it will be used instead of max_channels.
@@ -1225,7 +1177,7 @@ class EmitComponentPropNode(object):
         self.odesign.EditComponentNodes(comp_name, properties_to_set, nodes_to_delete)
 
     @enabled.setter
-    def enabled(self, value):
+    def enabled(self, value) -> None:
         """Set the node enabled or disabled.
 
         Parameters

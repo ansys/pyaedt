@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,18 +28,26 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class EmitSceneNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    def add_emitter(self):
+        """Add a new emitter"""
+        return self._add_child_node("Emitter")
+
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")
+
+    def import_cad(self, file_name: str):
+        """Add an existing CAD file"""
+        return self._import(file_name, "CAD")
 
     def add_antenna(self):
         """Add a new antenna"""
@@ -53,13 +60,13 @@ class EmitSceneNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
-        X_AXIS = "X Axis"
-        Y_AXIS = "Y Axis"
-        Z_AXIS = "Z Axis"
+        X_AXIS = "XAxis"
+        Y_AXIS = "YAxis"
+        Z_AXIS = "ZAxis"
 
     @property
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
@@ -69,7 +76,7 @@ class EmitSceneNode(EmitNode):
         return val
 
     @ground_plane_normal.setter
-    def ground_plane_normal(self, value: GroundPlaneNormalOption):
+    def ground_plane_normal(self, value: GroundPlaneNormalOption) -> None:
         self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
@@ -84,6 +91,6 @@ class EmitSceneNode(EmitNode):
         return float(val)
 
     @gp_position_along_normal.setter
-    def gp_position_along_normal(self, value: float | str):
+    def gp_position_along_normal(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("GP Position Along Normal", f"{value}")

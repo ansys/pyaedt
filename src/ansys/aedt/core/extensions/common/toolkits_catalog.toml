@@ -1,0 +1,5 @@
+[GenerateReport] # All
+icon = "images/large/pdf.png"
+name = "Generate report"
+script = "create_report.py"
+template = "run_pyaedt_toolkit_script"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,12 +38,12 @@ class LumpedNodesandLeads:
     lead inductors parameters of the lumped elements used in the designed filter.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_nodes_and_leads_dll_functions()
 
-    def _define_nodes_and_leads_dll_functions(self):
+    def _define_nodes_and_leads_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setLumpedCNodeCapacitor.argtype = c_char_p
         self._dll.setLumpedCNodeCapacitor.restype = c_int
@@ -98,7 +98,7 @@ class LumpedNodesandLeads:
         return c_node_capacitor
 
     @c_node_capacitor.setter
-    def c_node_capacitor(self, c_node_capacitor):
+    def c_node_capacitor(self, c_node_capacitor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCNodeCapacitor, c_node_capacitor)
 
     @property
@@ -114,7 +114,7 @@ class LumpedNodesandLeads:
         return c_lead_inductor
 
     @c_lead_inductor.setter
-    def c_lead_inductor(self, c_lead_inductor):
+    def c_lead_inductor(self, c_lead_inductor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCLeadInductor, c_lead_inductor)
 
     @property
@@ -131,7 +131,7 @@ class LumpedNodesandLeads:
         return l_node_capacitor
 
     @l_node_capacitor.setter
-    def l_node_capacitor(self, l_node_capacitor):
+    def l_node_capacitor(self, l_node_capacitor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedLNodeCapacitor, l_node_capacitor)
 
     @property
@@ -148,7 +148,7 @@ class LumpedNodesandLeads:
         return l_lead_inductor
 
     @l_lead_inductor.setter
-    def l_lead_inductor(self, l_lead_inductor):
+    def l_lead_inductor(self, l_lead_inductor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedLLeadInductor, l_lead_inductor)
 
     @property
@@ -164,7 +164,7 @@ class LumpedNodesandLeads:
         return r_node_capacitor
 
     @r_node_capacitor.setter
-    def r_node_capacitor(self, r_node_capacitor):
+    def r_node_capacitor(self, r_node_capacitor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedRNodeCapacitor, r_node_capacitor)
 
     @property
@@ -181,7 +181,7 @@ class LumpedNodesandLeads:
         return r_lead_inductor
 
     @r_lead_inductor.setter
-    def r_lead_inductor(self, r_lead_inductor):
+    def r_lead_inductor(self, r_lead_inductor) -> None:
         self._dll_interface.set_string(self._dll.setLumpedRLeadInductor, r_lead_inductor)
 
     @property
@@ -198,7 +198,7 @@ class LumpedNodesandLeads:
         return bool(c_node_compensate.value)
 
     @c_node_compensate.setter
-    def c_node_compensate(self, c_node_compensate: bool):
+    def c_node_compensate(self, c_node_compensate: bool) -> None:
         status = self._dll.setLumpedCNodeLedComensate(c_node_compensate)
         self._dll_interface.raise_error(status)
 
@@ -216,6 +216,6 @@ class LumpedNodesandLeads:
         return bool(l_node_compensate.value)
 
     @l_node_compensate.setter
-    def l_node_compensate(self, l_node_compensate: bool):
+    def l_node_compensate(self, l_node_compensate: bool) -> None:
         status = self._dll.setLumpedLNodeLedComensate(l_node_compensate)
         self._dll_interface.raise_error(status)

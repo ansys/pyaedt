@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,12 +26,13 @@ import copy
 from difflib import SequenceMatcher
 import json
 import os
-import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -41,15 +42,9 @@ from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
-open3 = open
-if sys.version_info < (3, 0):
-    import io
-
-    open3 = io.open
-
 
 @pyaedt_function_handler()
-def identify_setup(props):
+def identify_setup(props) -> bool:
     """Identify if a setup's properties is based on a time or frequency domain.
 
     Parameters
@@ -83,11 +78,11 @@ def identify_setup(props):
     return False
 
 
-class SweepCommon:
-    def __repr__(self):
+class SweepCommon(PyAedtBase):
+    def __repr__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.setup_name} : {self.name}"
 
 
@@ -116,7 +111,7 @@ class SweepHFSS(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", props=None):
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -177,7 +172,7 @@ class SweepHFSS(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @property
@@ -223,8 +218,17 @@ class SweepHFSS(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
+    @pyaedt_function_handler()
+    def add_subrange(
+        self,
+        range_type,
+        start,
+        end=None,
+        count=None,
+        unit: str = "GHz",
+        save_single_fields: bool = False,
+        clear: bool = False,
+    ):
         """Add a range to the sweep.
 
         Parameters
@@ -312,7 +316,7 @@ class SweepHFSS(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a sweep.
 
         Returns
@@ -325,7 +329,7 @@ class SweepHFSS(SweepCommon):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update a sweep.
 
         Returns
@@ -380,7 +384,9 @@ class SweepHFSS3DLayout(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", save_fields=True, props=None, **kwargs):
+    def __init__(
+        self, setup, name: str, sweep_type: str = "Interpolating", save_fields: bool = True, props=None, **kwargs
+    ) -> None:
         self._app = setup
         self.oanalysis = setup.omodule
         self.props = {}
@@ -408,7 +414,7 @@ class SweepHFSS3DLayout(SweepCommon):
             self.props["GenerateSurfaceCurrent"] = save_fields
 
     @property
-    def combined_name(self):
+    def combined_name(self) -> str:
         """Compute the name : sweep_name string.
 
         Returns
@@ -432,7 +438,7 @@ class SweepHFSS3DLayout(SweepCommon):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
-    @pyaedt_function_handler(sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def change_type(self, sweep_type):
         """Change the type of the sweep.
 
@@ -456,7 +462,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_save_fields(self, save_fields, save_rad_fields=False):
+    def set_save_fields(self, save_fields, save_rad_fields: bool = False):
         """Choose whether to save fields.
 
         Parameters
@@ -475,8 +481,8 @@ class SweepHFSS3DLayout(SweepCommon):
         self.props["SaveRadFieldsOnly"] = save_rad_fields
         return self.update()
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz"):
+    @pyaedt_function_handler()
+    def add_subrange(self, range_type, start, end=None, count=None, unit: str = "GHz"):
         """Add a subrange to the sweep.
 
         Parameters
@@ -525,8 +531,8 @@ class SweepHFSS3DLayout(SweepCommon):
         except Exception:
             return False
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def change_range(self, range_type, start, end=None, count=None, unit="GHz"):
+    @pyaedt_function_handler()
+    def change_range(self, range_type, start, end=None, count=None, unit: str = "GHz"):
         """Change the range of the sweep.
 
         Parameters
@@ -566,7 +572,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a sweep.
 
         Returns
@@ -579,7 +585,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the sweep.
 
         Returns
@@ -631,7 +637,7 @@ class SweepMatrix(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", props=None):
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -694,7 +700,7 @@ class SweepMatrix(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @property
@@ -739,8 +745,8 @@ class SweepMatrix(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False, **kwargs):
+    @pyaedt_function_handler()
+    def add_subrange(self, range_type, start, end=None, count=None, unit: str = "GHz", clear: bool = False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -766,9 +772,6 @@ class SweepMatrix(SweepCommon):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if "type" in kwargs:
-            warnings.warn("'type' has been deprecated. Use 'range_type' instead.", DeprecationWarning)
-            range_type = kwargs["type"]
         if clear:
             self.props["RangeType"] = range_type
             self.props["RangeStart"] = str(start) + unit
@@ -800,7 +803,7 @@ class SweepMatrix(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a sweep.
 
         Returns
@@ -813,7 +816,7 @@ class SweepMatrix(SweepCommon):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the sweep.
 
         Returns
@@ -866,7 +869,7 @@ class SweepMaxwellEC(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, sweep_type="LinearStep", props=None):
+    def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
         self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -884,6 +887,11 @@ class SweepMaxwellEC(SweepCommon):
                 self.props["RangeSamples"] = "2"
             elif sweep_type == "SinglePoints":
                 self.props["RangeEnd"] = self.props["RangeStart"]
+
+    @property
+    def name(self):
+        """Setup name."""
+        return self.setup_name
 
     @property
     def is_solved(self):
@@ -923,11 +931,11 @@ class SweepMaxwellEC(SweepCommon):
         )
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a Maxwell Eddy Current sweep.
 
         Returns
@@ -940,7 +948,7 @@ class SweepMaxwellEC(SweepCommon):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update a Maxwell Eddy Current sweep.
 
         Returns
@@ -952,7 +960,7 @@ class SweepMaxwellEC(SweepCommon):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete a Maxwell Eddy Current sweep.
 
         Returns
@@ -997,7 +1005,7 @@ class SweepMaxwellEC(SweepCommon):
 class SetupProps(dict):
     """Provides internal parameters for the AEDT boundary component."""
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         if isinstance(value, dict):
             dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
         else:
@@ -1008,7 +1016,7 @@ class SetupProps(dict):
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, setup, props):
+    def __init__(self, setup, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -1018,10 +1026,10 @@ class SetupProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
 
-    def _setitem_without_update(self, key, value):
+    def _setitem_without_update(self, key, value) -> None:
         dict.__setitem__(self, key, value)
 
-    def _export_properties_to_json(self, file_path, overwrite=False):
+    def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:
         """Export all setup properties to a JSON file.
 
         Parameters
@@ -1040,11 +1048,11 @@ class SetupProps(dict):
             settings.logger.warning("Unable to overwrite file: %s." % (file_path))
             return False
         else:
-            with open3(file_path, "w", encoding="utf-8") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
             return True
 
-    def _import_properties_from_json(self, file_path):
+    def _import_properties_from_json(self, file_path) -> bool:
         """Import setup properties from a JSON file.
 
         Parameters
@@ -1053,7 +1061,7 @@ class SetupProps(dict):
             File path for the JSON file.
         """
 
-        def set_props(target, source):
+        def set_props(target, source) -> None:
             for k, v in source.items():
                 if k not in target:
                     self._pyaedt_setup._app.logger.warning(f"{k} is not a valid property name.")
@@ -1064,12 +1072,12 @@ class SetupProps(dict):
                         target[k] = {}
                     set_props(target[k], v)
 
-        with open3(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
         return True
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         for item in list(self.keys()):
             if item != "_pyaedt_setup":
                 dict.__delitem__(self, item)

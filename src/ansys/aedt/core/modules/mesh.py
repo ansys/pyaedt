@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,7 +27,7 @@
 import os
 import shutil
 
-from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -39,17 +39,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
-
-meshers = {
-    "HFSS": "MeshSetup",
-    "Icepak": "MeshRegion",
-    "HFSS3DLayout": "MeshSetup",
-    "Maxwell 2D": "MeshSetup",
-    "Maxwell 3D": "MeshSetup",
-    "Q3D Extractor": "MeshSetup",
-    "Mechanical": "MeshSetup",
-    "2D Extractor": "MeshSetup",
-}
 
 mesh_props = {
     "CurvedSurfaceApproxChoice": "Curved Mesh Approximation Type",
@@ -82,7 +71,7 @@ mesh_props = {
 class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters."""
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
@@ -93,7 +82,7 @@ class MeshProps(dict):
             if not res:
                 self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, mesh_object, props):
+    def __init__(self, mesh_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -103,11 +92,11 @@ class MeshProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_mesh = mesh_object
 
-    def _setitem_without_update(self, key, value):
+    def _setitem_without_update(self, key, value) -> None:
         dict.__setitem__(self, key, value)
 
 
-class MeshOperation(BinaryTreeNode):
+class MeshOperation(BinaryTreeNode, PyAedtBase):
     """MeshOperation class.
 
     Parameters
@@ -116,7 +105,13 @@ class MeshOperation(BinaryTreeNode):
 
     """
 
-    def __init__(self, mesh, name, props, meshoptype):
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __init__(self, mesh, name: str, props, meshoptype) -> None:
         self._mesh = mesh
         self._app = self._mesh._app
         self._legacy_props = None
@@ -217,7 +212,7 @@ class MeshOperation(BinaryTreeNode):
         return self._name
 
     @name.setter
-    def name(self, meshop_name):
+    def name(self, meshop_name) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = meshop_name
@@ -263,7 +258,7 @@ class MeshOperation(BinaryTreeNode):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self, key_name=None, value=None):
+    def update(self, key_name=None, value=None) -> bool:
         """Update the mesh.
 
         Returns
@@ -325,7 +320,7 @@ class MeshOperation(BinaryTreeNode):
         return True
 
     @pyaedt_function_handler()
-    def update_assignment(self):
+    def update_assignment(self) -> bool:
         """Update the boundary assignment.
 
         Returns
@@ -365,7 +360,7 @@ class MeshOperation(BinaryTreeNode):
         return True
 
     @pyaedt_function_handler()
-    def _change_property(self, name, arg):
+    def _change_property(self, name: str, arg) -> None:
         """Update properties of the mesh operation.
 
         Parameters
@@ -386,7 +381,7 @@ class MeshOperation(BinaryTreeNode):
         self._mesh._app.odesign.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the mesh.
 
         Returns
@@ -405,14 +400,14 @@ class MeshOperation(BinaryTreeNode):
         return True
 
     @pyaedt_function_handler()
-    def _initialize_tree_node(self):
+    def _initialize_tree_node(self) -> bool:
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 
 
-class Mesh(object):
+class Mesh(PyAedtBase):
     """Manages AEDT mesh functions for 2D and 3D solvers (HFSS, Maxwell, and Q3D).
 
     Parameters
@@ -429,7 +424,7 @@ class Mesh(object):
     >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign
@@ -544,7 +539,7 @@ class Mesh(object):
 
     @property
     def omeshmodule(self):
-        """Aedt Mesh Module.
+        """AEDT Mesh Module.
 
         References
         ----------
@@ -574,7 +569,7 @@ class Mesh(object):
             # _project_dictionary = load_entire_aedt_file(temp_proj)
             _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
             try:
-                props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
+                props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name]["MeshSetup"][
                     "MeshSettings"
                 ]
             except Exception:
@@ -596,8 +591,8 @@ class Mesh(object):
             meshops.append(MeshOperation(self, ds, {}, ""))
         return meshops
 
-    @pyaedt_function_handler(names="assignment", meshop_name="name")
-    def assign_surface_mesh(self, assignment, level, name=None):
+    @pyaedt_function_handler()
+    def assign_surface_mesh(self, assignment, level, name: str | None = None):
         """Assign a surface mesh level to one or more objects.
 
         Parameters
@@ -654,9 +649,9 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="assignment", surf_dev="surface_deviation", meshop_name="name")
+    @pyaedt_function_handler()
     def assign_surface_mesh_manual(
-        self, assignment, surface_deviation=None, normal_dev=None, aspect_ratio=None, name=None
+        self, assignment, surface_deviation=None, normal_dev=None, aspect_ratio=None, name: str | None = None
     ):
         """Assign a surface mesh to a list of faces.
 
@@ -735,8 +730,8 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="assignment", meshop_name="name")
-    def assign_model_resolution(self, assignment, defeature_length=None, name=None):
+    @pyaedt_function_handler()
+    def assign_model_resolution(self, assignment, defeature_length=None, name: str | None = None):
         """Assign the model resolution.
 
         Parameters
@@ -795,27 +790,19 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(
-        usedynamicsurface="dynamic_surface",
-        useflexmesh="flex_mesh",
-        applycurvilinear="curvilinear",
-        usefallback="fallback",
-        usephi="phi",
-        automodelresolution="auto_model_resolution",
-        modelresolutionlength="model_resolution_length",
-    )
+    @pyaedt_function_handler()
     def assign_initial_mesh_from_slider(
         self,
-        level=5,
-        method="Auto",
-        dynamic_surface=True,
-        flex_mesh=False,
-        curvilinear=False,
-        fallback=True,
-        phi=True,
-        auto_model_resolution=True,
-        model_resolution_length="0.0001mm",
-    ):
+        level: int = 5,
+        method: str = "Auto",
+        dynamic_surface: bool = True,
+        flex_mesh: bool = False,
+        curvilinear: bool = False,
+        fallback: bool = True,
+        phi: bool = True,
+        auto_model_resolution: bool = True,
+        model_resolution_length: str = "0.0001mm",
+    ) -> bool:
         """Assign a surface mesh level to an object.
 
         Parameters
@@ -895,17 +882,17 @@ class Mesh(object):
     @pyaedt_function_handler()
     def assign_initial_mesh(
         self,
-        method="Auto",
+        method: str = "Auto",
         surface_deviation=None,
         normal_deviation=None,
         aspect_ratio=None,
-        flex_mesh=False,
-        curvilinear=False,
-        fallback=True,
-        phi=True,
-        auto_model_resolution=True,
-        model_resolution_length="0.0001mm",
-    ):
+        flex_mesh: bool = False,
+        curvilinear: bool = False,
+        fallback: bool = True,
+        phi: bool = True,
+        auto_model_resolution: bool = True,
+        model_resolution_length: str = "0.0001mm",
+    ) -> bool:
         """Assign a surface mesh level to an object.
 
         Parameters
@@ -1005,8 +992,8 @@ class Mesh(object):
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
-    @pyaedt_function_handler(object_lists="assignment", surfpriority="surface_priority")
-    def assign_surf_priority_for_tau(self, assignment, surface_priority=0):
+    @pyaedt_function_handler()
+    def assign_surf_priority_for_tau(self, assignment, surface_priority: int = 0):
         """Assign a surface representation priority for the TAU mesh.
 
         Parameters
@@ -1034,7 +1021,7 @@ class Mesh(object):
         return mop
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name: str):
         """Generate the mesh for a design.
 
         Parameters
@@ -1063,7 +1050,7 @@ class Mesh(object):
         return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()
-    def delete_mesh_operations(self, mesh_type=None):
+    def delete_mesh_operations(self, mesh_type=None) -> bool:
         """Remove mesh operations from a design.
 
         Parameters
@@ -1097,14 +1084,15 @@ class Mesh(object):
 
         return True
 
-    @pyaedt_function_handler(
-        names="assignment",
-        isinside="inside_selection",
-        maxlength="maximum_length",
-        maxel="maximum_elements",
-        meshop_name="name",
-    )
-    def assign_length_mesh(self, assignment, inside_selection=True, maximum_length=1, maximum_elements=1000, name=None):
+    @pyaedt_function_handler()
+    def assign_length_mesh(
+        self,
+        assignment,
+        inside_selection: bool = True,
+        maximum_length: int = 1,
+        maximum_elements: int = 1000,
+        name: str | None = None,
+    ):
         """Assign a length for the model resolution.
 
         Parameters
@@ -1188,21 +1176,15 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(
-        names="assignment",
-        skindepth="skin_depth",
-        maxelements="maximum_elements",
-        numlayers="layers_number",
-        meshop_name="name",
-    )
+    @pyaedt_function_handler()
     def assign_skin_depth(
         self,
         assignment,
-        skin_depth="0.2mm",
+        skin_depth: str = "0.2mm",
         maximum_elements=None,
-        triangulation_max_length="0.1mm",
-        layers_number="2",
-        name=None,
+        triangulation_max_length: str = "0.1mm",
+        layers_number: str = "2",
+        name: str | None = None,
     ):
         """Assign a skin depth for the mesh refinement.
 
@@ -1281,8 +1263,8 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="assignment", meshop_name="name")
-    def assign_curvilinear_elements(self, assignment, enable=True, name=None):
+    @pyaedt_function_handler()
+    def assign_curvilinear_elements(self, assignment, enable: bool = True, name: str | None = None):
         """Assign curvilinear elements.
 
         Parameters
@@ -1329,10 +1311,8 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(
-        names="assignment", disable_for_faceted_surf="disabled_for_faceted", meshoperation_names="name"
-    )
-    def assign_curvature_extraction(self, assignment, disabled_for_faceted=True, name=None):
+    @pyaedt_function_handler()
+    def assign_curvature_extraction(self, assignment, disabled_for_faceted: bool = True, name: str | None = None):
         """Assign curvature extraction.
 
         Parameters
@@ -1382,8 +1362,10 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="assignment", num_layers="layers_number", meshop_name="name")
-    def assign_rotational_layer(self, assignment, layers_number=3, total_thickness="1mm", name=None):
+    @pyaedt_function_handler()
+    def assign_rotational_layer(
+        self, assignment, layers_number: int = 3, total_thickness: str = "1mm", name: str | None = None
+    ):
         """Assign a rotational layer mesh.
 
         Parameters
@@ -1433,8 +1415,8 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="assignment", meshop_name="name")
-    def assign_edge_cut(self, assignment, layer_thickness="1mm", name=None):
+    @pyaedt_function_handler()
+    def assign_edge_cut(self, assignment, layer_thickness: str = "1mm", name: str | None = None):
         """Assign an edge cut layer mesh.
 
         Parameters
@@ -1474,11 +1456,14 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(
-        names="assignment", maxelementlength="maximum_element_length", layerNum="layers_number", meshop_name="name"
-    )
+    @pyaedt_function_handler()
     def assign_density_control(
-        self, assignment, refine_inside=True, maximum_element_length=None, layers_number=None, name=None
+        self,
+        assignment,
+        refine_inside: bool = True,
+        maximum_element_length=None,
+        layers_number=None,
+        name: str | None = None,
     ):
         """Assign density control.
 
@@ -1545,15 +1530,15 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(obj="entity", meshop_name="name")
+    @pyaedt_function_handler()
     def assign_cylindrical_gap(
         self,
         entity,
-        name=None,
+        name: str | None = None,
         band_mapping_angle=None,
-        clone_mesh=False,
-        moving_side_layers=1,
-        static_side_layers=1,
+        clone_mesh: bool = False,
+        moving_side_layers: int = 1,
+        static_side_layers: int = 1,
     ):
         """Assign a cylindrical gap for a 2D or 3D design to enable a clone mesh and associated band mapping angle.
 

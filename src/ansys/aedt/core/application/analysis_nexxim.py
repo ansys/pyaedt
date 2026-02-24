@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,9 +21,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import warnings
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -39,44 +42,97 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.boundary.common import BoundaryObject
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
-class FieldAnalysisCircuit(Analysis):
-    """FieldCircuitAnalysis class.
 
-    This class is for circuit analysis setup in Nexxim.
+class FieldAnalysisCircuit(Analysis, PyAedtBase):
+    """Provides the Field Analysis Circuit interface for Nexxim.
 
-    It is automatically initialized by a call from an application,
-    such as HFSS or Q3D. See the application function for its
-    parameter definitions.
+    This class is for circuit analysis setup in Nexxim. It is automatically
+    initialized by a call from an application such as Circuit, Twin Builder,
+    or Maxwell Circuit.
 
     Parameters
     ----------
+    application : str
+        Name of the application. Options are ``"Circuit Design"``,
+        ``"Twin Builder"``, or ``"Maxwell Circuit"``.
+    project : str
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.
+    design : str
+        Name of the design to select.
+    solution_type : str
+        Solution type to apply to the design.
+    setup : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or
+        nothing is used.
+    version : str, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+        This parameter is ignored when a script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
+    new_desktop : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
+    close_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when a script is launched
+        within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This parameter works only on
+        2022 R2 or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        starts if it is not present. The default is ``""``.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        The default is ``0``.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
+
     """
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        application: str,
+        project: str,
+        design: str,
+        solution_type: str,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
     ):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
@@ -98,17 +154,17 @@ class FieldAnalysisCircuit(Analysis):
             self._post = self.post
 
     @property
-    def configurations(self):
+    def configurations(self) -> ConfigurationsNexxim:
         """Property to import and export configuration files.
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.configurations.Configurations`
+        :class:`ansys.aedt.core.generic.configurations.ConfigurationsNexxim`
         """
         return self._configurations
 
-    @pyaedt_function_handler(setupname="name")
-    def delete_setup(self, name):
+    @pyaedt_function_handler()
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -133,8 +189,8 @@ class FieldAnalysisCircuit(Analysis):
             return True
         return False
 
-    @pyaedt_function_handler(component_name="component")
-    def push_down(self, component):
+    @pyaedt_function_handler()
+    def push_down(self, component: CircuitComponent | str) -> bool:
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
@@ -166,7 +222,7 @@ class FieldAnalysisCircuit(Analysis):
         return True
 
     @pyaedt_function_handler()
-    def pop_up(self):
+    def pop_up(self) -> bool:
         """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
@@ -183,7 +239,7 @@ class FieldAnalysisCircuit(Analysis):
         return True
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """PostProcessor.
 
         Returns
@@ -198,27 +254,7 @@ class FieldAnalysisCircuit(Analysis):
         return self._post
 
     @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
-
-    @property
-    def modeler(self):
+    def modeler(self) -> object:
         """Modeler object.
 
         Returns
@@ -235,7 +271,7 @@ class FieldAnalysisCircuit(Analysis):
         return self._modeler
 
     @property
-    def setup_names(self):
+    def setup_names(self) -> list:
         """Setup names.
 
         References
@@ -245,7 +281,7 @@ class FieldAnalysisCircuit(Analysis):
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
-    def source_names(self):
+    def source_names(self) -> list:
         """Get all source names.
 
         Returns
@@ -260,7 +296,7 @@ class FieldAnalysisCircuit(Analysis):
         return list(self.odesign.GetChildObject("Excitations").GetChildNames())
 
     @property
-    def source_objects(self):
+    def source_objects(self) -> list:
         """Get all source objects.
 
         Returns
@@ -271,7 +307,7 @@ class FieldAnalysisCircuit(Analysis):
         return [self.sources[name] for name in self.sources]
 
     @property
-    def sources(self):
+    def sources(self) -> list[Sources]:
         """Get all sources.
 
         Returns
@@ -316,29 +352,7 @@ class FieldAnalysisCircuit(Analysis):
         return props
 
     @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
-
-    @property
-    def excitation_names(self):
+    def excitation_names(self) -> list[str]:
         """Get all excitation names.
 
         Returns
@@ -354,7 +368,7 @@ class FieldAnalysisCircuit(Analysis):
         return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
 
     @property
-    def design_excitations(self):
+    def design_excitations(self) -> dict[str, BoundaryObject]:
         """Get all excitation.
 
         Returns
@@ -395,8 +409,8 @@ class FieldAnalysisCircuit(Analysis):
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    @pyaedt_function_handler()
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters

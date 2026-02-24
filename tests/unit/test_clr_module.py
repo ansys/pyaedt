@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -61,7 +61,7 @@ def clean_environment():
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
 @patch("pythonnet.load")
 @patch("clr_loader.get_coreclr")
-def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment):
+def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment) -> None:
     mock_runtime = MagicMock()
     mock_runtime.dotnet_root = DOTNET_ROOT_PATH
     mock_get_coreclr.return_value = mock_runtime
@@ -78,7 +78,7 @@ def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment):
 @patch("pythonnet.load")
 @patch("clr_loader.get_coreclr", side_effect=Exception("Dummy exception"))
 @patch.object(warnings, "warn")
-def test_use_dotnetcore2(mock_warn, mock_get_coreclr, mock_load, clean_environment):
+def test_use_dotnetcore2(mock_warn, mock_get_coreclr, mock_load, clean_environment) -> None:
     import ansys.aedt.core.internal.clr_module as cm
 
     assert cm.is_clr
@@ -90,7 +90,7 @@ def test_use_dotnetcore2(mock_warn, mock_get_coreclr, mock_load, clean_environme
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch("clr_loader.find_runtimes", return_value=[])
-def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, clean_environment):
+def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, clean_environment) -> None:
     os.environ["DOTNET_ROOT"] = DOTNET_ROOT
 
     with pytest.raises(RuntimeError):
@@ -101,7 +101,7 @@ def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, cle
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch.object(warnings, "warn")
-def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, clean_environment, capsys):
+def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, clean_environment, capsys) -> None:
     os.environ["DOTNET_ROOT"] = DOTNETCORE2_BIN
 
     import ansys.aedt.core.internal.clr_module as cm
@@ -115,7 +115,7 @@ def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, 
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch("clr_loader.find_runtimes")
-def test_use_dotnet_root_env_variable_success(mock_find_runtimes, mock_load, clean_environment):
+def test_use_dotnet_root_env_variable_success(mock_find_runtimes, mock_load, clean_environment) -> None:
     os.environ["DOTNET_ROOT"] = DOTNET_ROOT
     mock_runtime = MagicMock()
     mock_runtime.name = "Microsoft.NETCore.App"

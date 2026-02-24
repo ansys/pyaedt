@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,7 @@ import sys
 import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -40,7 +41,7 @@ if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 
-class FRTMData(object):
+class FRTMData(PyAedtBase):
     """Provides FRTM data.
 
     Read FRTM data and return the Python interface to analyze the data. All units are in SI.
@@ -57,7 +58,7 @@ class FRTMData(object):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file: str | Path) -> None:
         input_file = Path(input_file)
 
         if not input_file.is_file():
@@ -252,7 +253,7 @@ class FRTMData(object):
         return self.__receiver_position
 
     @receiver_position.setter
-    def receiver_position(self, value):
+    def receiver_position(self, value) -> None:
         """Position of receivers respected the transmitters."""
         self.__receiver_position = value
 
@@ -311,7 +312,7 @@ class FRTMData(object):
         return self.__data_conversion_function
 
     @data_conversion_function.setter
-    def data_conversion_function(self, val):
+    def data_conversion_function(self, val) -> None:
         available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
         if val in available_functions:
             self.__data_conversion_function = val
@@ -663,7 +664,7 @@ class FRTMData(object):
         return rng_xrng
 
     @staticmethod
-    def window_function(window="Flat", size=512):
+    def window_function(window: str = "Flat", size: int = 512):
         """Window function.
 
         Parameters
@@ -695,7 +696,7 @@ class FRTMData(object):
             raise ValueError(f"Window function {window} not supported.")
         return win
 
-    def __read_frtm(self):
+    def __read_frtm(self) -> None:
         string_to_stop_reading_header = "@ BeginData"
         header = []
 
@@ -854,7 +855,7 @@ class FRTMData(object):
                 self.__all_data[ch] = temp
 
 
-class FRTMPlotter(object):
+class FRTMPlotter(PyAedtBase):
     """Provides range doppler data.
 
     Read FRTM data and return the Python interface to analyze the range doppler data. All units are in SI.
@@ -871,7 +872,7 @@ class FRTMPlotter(object):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, frtm_data):
+    def __init__(self, frtm_data) -> None:
         if not isinstance(frtm_data, dict):
             frtm_data = {0: frtm_data}
 
@@ -1366,7 +1367,7 @@ class FRTMPlotter(object):
 
 
 @pyaedt_function_handler()
-def get_results_files(input_dir, var_name="time_var"):
+def get_results_files(input_dir, var_name: str = "time_var"):
     path = Path(input_dir)
 
     # Find all CSV files recursively

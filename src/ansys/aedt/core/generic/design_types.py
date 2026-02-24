@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,14 +51,14 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    version=None,
-    non_graphical=False,
-    new_desktop=True,
-    close_on_exit=True,
-    student_version=False,
-    machine="",
-    port=0,
-    aedt_process_id=None,
+    version: str | None = None,
+    non_graphical: bool | None = False,
+    new_desktop: bool = True,
+    close_on_exit: bool = True,
+    student_version: bool | None = False,
+    machine: str | None = "",
+    port: int | None = 0,
+    aedt_process_id: int | None = None,
 ):
     """Initialize AEDT based on the inputs provided.
 
@@ -73,7 +73,7 @@ def launch_desktop(
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the machine.
+        another instance of the ``version`` is active on the machine.
         The default is ``False``.
     close_on_exit : bool, optional
         Whether to close AEDT on exit. The default is ``True``.
@@ -142,6 +142,7 @@ app_map = {
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,
     "Mechanical": Mechanical,
+    "IcepakFEA": Mechanical,
     "Icepak": Icepak,
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,
@@ -175,7 +176,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         process_id = desktop.aedt_process_id
     elif _desktop_sessions and project_name:
         for desktop in list(_desktop_sessions.values()):
-            if project_name in list(desktop.project_list()):
+            if project_name in list(desktop.project_list):
                 odesktop = desktop.odesktop
                 break
     elif _desktop_sessions:
@@ -186,7 +187,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         raise AttributeError("No Desktop Present.")
     if not process_id:
         process_id = odesktop.GetProcessID()
-    if project_name and project_name not in odesktop.GetProjectList():
+    if project_name and project_name not in desktop.project_list:
         raise AttributeError(f"Project {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()

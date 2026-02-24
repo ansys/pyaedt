@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,18 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import ast
 import re
 from typing import Any
-from typing import Dict
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
 
 
-class Quantity(float):
+class Quantity(float, PyAedtBase):
     """Stores a number with its unit.
 
     Parameters
@@ -52,7 +54,7 @@ class Quantity(float):
         self,
         expression,
         unit=None,
-    ):
+    ) -> None:
         self._unit = ""
         self._unit_system = None
         if unit:
@@ -83,7 +85,7 @@ class Quantity(float):
         else:
             return []
 
-    def _parse_units(self, unit):
+    def _parse_units(self, unit) -> None:
         if unit:
             self._unit_system = unit_system(unit)
             if self._unit_system == "None":
@@ -94,11 +96,11 @@ class Quantity(float):
                 self._unit = unit
 
     @property
-    def expression(self):
+    def expression(self) -> str:
         return f"{self._value}{self._unit}"
 
     @expression.setter
-    def expression(self, value):
+    def expression(self, value) -> None:
         """Value number with unit.
 
         Returns
@@ -130,7 +132,7 @@ class Quantity(float):
         return self._unit
 
     @unit.setter
-    def unit(self, value):
+    def unit(self, value) -> None:
         if value in AEDT_UNITS[self.unit_system]:
             self._unit = value
 
@@ -145,15 +147,15 @@ class Quantity(float):
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value) -> None:
         _value, _unit = decompose_variable_value(value)
         self._value = _value
         self._parse_units(_unit)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "%.16g" % self.value + self.unit
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.value == int(self.value):
             return "%.16g" % self.value + self.unit
         return self.expression
@@ -234,7 +236,7 @@ class Quantity(float):
         else:
             return False
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
     def __lt__(self, other):
@@ -254,16 +256,16 @@ class Quantity(float):
     def __le__(self, other):
         return self.__lt__(other) or self.__eq__(other)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return not self.__le__(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return not self.__lt__(other)
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.value)
 
-    def __int__(self):
+    def __int__(self) -> int:
         return int(self.value)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
@@ -350,7 +352,7 @@ class Quantity(float):
         return self.__class__, (self.expression, self.unit)
 
 
-def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
+def decompose_variable_value(variable_value: str, full_variables: dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
 
     Parameters

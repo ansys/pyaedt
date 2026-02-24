@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,13 +36,14 @@ import defusedxml
 from defusedxml.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
 
 defusedxml.defuse_stdlib()
 
 
-class MaterialWorkbench:
+class MaterialWorkbench(PyAedtBase):
     """Manages the import of materials from a Workbench Engineering Data XML file.
 
     Parameters
@@ -51,7 +52,7 @@ class MaterialWorkbench:
         Inherited parent object.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._mat_name_suffix = "_wb"
 
@@ -60,7 +61,7 @@ class MaterialWorkbench:
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
-    def mat_name_suffix(self, suffix):
+    def mat_name_suffix(self, suffix) -> None:
         self._mat_name_suffix = str(suffix)
 
     @staticmethod
@@ -106,7 +107,7 @@ class MaterialWorkbench:
             return string
 
     @staticmethod
-    def _is_tabular_data(string):
+    def _is_tabular_data(string) -> bool:
         pattern = r"^([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?)(,([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?))*$"
         if re.match(pattern, string):
             return True
@@ -117,7 +118,7 @@ class MaterialWorkbench:
         name = f"TM_{self._aedt_material_name(material_name)}_{MatProperties.wb_to_aedt_name(property_name)}"
         return name
 
-    def _aedt_material_name(self, wb_material_name):
+    def _aedt_material_name(self, wb_material_name) -> str:
         return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
     def import_materials_from_workbench(self, filename):

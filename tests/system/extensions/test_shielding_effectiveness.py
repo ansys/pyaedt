@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,12 +32,12 @@ from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-fields_calculator = "fields_calculator_solved"
-test_subfolder = "T45"
+FIELDS_CALCULATOR = "fields_calculator_solved"
+TEST_SUBFOLDER = "T45"
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_shielding_effectiveness_generate_button(add_app):
+def test_shielding_effectiveness_generate_button(add_app) -> None:
     """Test the Generate button in the Shielding Effectiveness extension."""
     data = ShieldingEffectivenessExtensionData(
         sphere_size=0.01,
@@ -52,7 +52,7 @@ def test_shielding_effectiveness_generate_button(add_app):
         cores=4,
     )
 
-    aedt_app = add_app(application=Hfss, project_name="shielding_test", design_name="generate")
+    aedt_app = add_app(application=Hfss)
 
     aedt_app.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
 
@@ -67,9 +67,10 @@ def test_shielding_effectiveness_generate_button(add_app):
 
     # Verify that a setup was created
     assert len(aedt_app.setups) > 0
+    aedt_app.close_project(save=False)
 
 
-def test_shielding_effectiveness_exceptions(add_app):
+def test_shielding_effectiveness_exceptions(add_app) -> None:
     """Test exceptions thrown by the Shielding Effectiveness extension."""
     # Test with no sphere size
     data = ShieldingEffectivenessExtensionData(sphere_size=-0.01)
@@ -82,7 +83,7 @@ def test_shielding_effectiveness_exceptions(add_app):
         main(data)
 
     # Test with wrong application type (Maxwell3d instead of HFSS)
-    aedt_app = add_app(application=Maxwell3d, project_name="shielding_test", design_name="wrong_design")
+    aedt_app = add_app(application=Maxwell3d)
 
     aedt_app.modeler.create_box(
         origin=["-0.1", "-0.1", "-0.1"], sizes=["0.2", "0.2", "0.2"], name="test_enclosure", material="aluminum"
@@ -100,3 +101,4 @@ def test_shielding_effectiveness_exceptions(add_app):
 
     with pytest.raises(AEDTRuntimeError):
         main(data)
+    aedt_app.close_project(save=False)

@@ -1,8 +1,12 @@
 Extensions
 ==========
 
-Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
-In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
+Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT,
+they are generally tool-specific and are therefore only accessible given the appropriate context.
+
+In AEDT, you can use the Extension manager panel to add or remove extensions. The Extension manager is one of the
+:doc:`../Getting_started/panels` available in the AEDT Automation tab.
+
 The Extension manager allows the user to install three different types of extensions:
 
 - **Pre-installed extensions** available at project level.
@@ -243,13 +247,34 @@ They are small automated workflows with a simple GUI.
 
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
-   .. grid-item-card:: Vertical and flat coil geometries
+   .. grid-item-card:: Coil Design
             :link: pyaedt_extensions_doc/maxwell/create_coil
             :link-type: doc
             :margin: 2 2 0 0
 
             Automation of vertical and flat coil geometries.
 
+EMIT extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at EMIT level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Interference Classification
+            :link: pyaedt_extensions_doc/emit/interference_classification
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Classify results according to radio protection level or interference type.
+
+   .. grid-item-card:: EMI Heat Map
+            :link: pyaedt_extensions_doc/emit/emi_heat_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a 2D heat map of EMI results between two radio bands.
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
@@ -274,6 +299,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
    pyaedt_extensions_doc/maxwell/index
+   pyaedt_extensions_doc/emit/index
    pyaedt_extensions_doc/templates/index
 
 
@@ -285,8 +311,9 @@ They are advanced workflows where backend and frontend are split.
 They are also fully documented and tested.
 
 Here are some links to existing toolkits:
-- Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
-- Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
+- `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Radar Explorer <https://github.com/ansys/ansys-aedt-toolkits-radar-explorer>`_.
 
 Now, you need to download the installer from the Releases section of each toolkit.
 You can access it by clicking the "Install" button in the corresponding repository.
@@ -298,7 +325,7 @@ Custom extensions
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
 From the Extension manager select the target destination and `Custom` as the extension type:
 
-.. image:: ../Resources/toolkit_manager_1.png
+.. image:: ../Resources/extension_manager_1.png
   :width: 500
   :alt: PyAEDT toolkit manager 1
 
@@ -306,7 +333,7 @@ Provide the path of the Python script containing the workflow. If you do not spe
 
 Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
 
-.. image:: ../Resources/toolkit_manager_2.png
+.. image:: ../Resources/extension_manager_2.png
   :width: 500
   :alt: PyAEDT toolkit manager 2
 
@@ -325,21 +352,23 @@ The Python script requires a common initial part to define the port and the vers
     import os
 
     # common part
-    if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-        port = os.environ["PYAEDT_SCRIPT_PORT"]
-        version = os.environ["PYAEDT_SCRIPT_VERSION"]
+    if "PYAEDT_DESKTOP_PORT" in os.environ and "PYAEDT_DESKTOP_VERSION" in os.environ:
+        port = os.environ["PYAEDT_DESKTOP_PORT"]
+        version = os.environ["PYAEDT_DESKTOP_VERSION"]
     else:
         port = 0
         version = "2025.2"
 
     # your pyaedt script
-    app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)
+    app = ansys.aedt.core.Desktop(new_desktop=False, version=version, port=port)
 
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
     # no need to hardcode your application since get_pyaedt_app detects it for you
-    aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+    aedtapp = ansys.aedt.core.get_pyaedt_app(
+        design_name=active_design.GetName(), desktop=app
+    )
 
     # your workflow
     aedtapp.modeler.create_sphere([0, 0, 0], 20)

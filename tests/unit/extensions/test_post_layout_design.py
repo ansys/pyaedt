@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -64,7 +64,7 @@ def mock_hfss_3d_layout_app_with_padstacks(mock_hfss_3d_layout_app):
     yield mock_hfss_3d_layout_app
 
 
-def test_post_layout_design_extension_default(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_default(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test instantiation of the Post Layout Design extension."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -74,7 +74,7 @@ def test_post_layout_design_extension_default(mock_hfss_3d_layout_app_with_padst
     extension.root.destroy()
 
 
-def test_post_layout_design_extension_antipad_callback(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_antipad_callback(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test the antipad callback functionality."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -99,7 +99,7 @@ def test_post_layout_design_extension_antipad_callback(mock_hfss_3d_layout_app_w
     assert data.race_track is True
 
 
-def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test the microvia callback functionality."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -165,7 +165,7 @@ def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_
 #        extension._microvia_callback()
 
 
-def test_post_layout_design_extension_get_antipad_selections(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_get_antipad_selections(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test getting antipad selections."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -179,7 +179,7 @@ def test_post_layout_design_extension_get_antipad_selections(mock_hfss_3d_layout
     assert selections_text == "Via1,Via2"
 
 
-def test_post_layout_design_extension_get_microvia_selections(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_get_microvia_selections(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test getting microvia selections."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -193,7 +193,7 @@ def test_post_layout_design_extension_get_microvia_selections(mock_hfss_3d_layou
     assert selections_text == "PadStack1,PadStack2"
 
 
-def test_post_layout_design_extension_get_selections_exceptions(mock_hfss_3d_layout_app_with_padstacks):
+def test_post_layout_design_extension_get_selections_exceptions(mock_hfss_3d_layout_app_with_padstacks) -> None:
     """Test exceptions in get selections methods."""
     extension = PostLayoutDesignExtension(withdraw=True)
 
@@ -210,7 +210,7 @@ def test_post_layout_design_extension_get_selections_exceptions(mock_hfss_3d_lay
         mock_showerror.assert_called_once()
 
 
-def test_post_layout_design_extension_data_dataclass():
+def test_post_layout_design_extension_data_dataclass() -> None:
     """Test the PostLayoutDesignExtensionData dataclass."""
     # Test default values
     data = PostLayoutDesignExtensionData()
@@ -241,7 +241,7 @@ def test_post_layout_design_extension_data_dataclass():
     assert data.angle == 85.0
 
 
-def test_main_function_exceptions():
+def test_main_function_exceptions() -> None:
     """Test exceptions in the main function."""
     # Test with no selections
     data = PostLayoutDesignExtensionData(selections=[])
@@ -249,7 +249,7 @@ def test_main_function_exceptions():
         main(data)
 
 
-def test_post_layout_design_extension_wrong_design_type():
+def test_post_layout_design_extension_wrong_design_type() -> None:
     """Test exception when design type is not HFSS 3D Layout."""
     mock_app = MagicMock()
     mock_app.design_type = "HFSS"

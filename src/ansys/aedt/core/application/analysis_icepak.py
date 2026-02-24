@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,17 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
-from typing import Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+    from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
 
-class FieldAnalysisIcepak(FieldAnalysis3D, object):
+
+class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
     """Manages Icepak field analysis setup.
 
     This class is automatically initialized by an application call from one Icepak.
@@ -66,7 +73,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -88,15 +95,15 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         project: str,
         design: str,
         solution_type: str,
-        setup: Optional[str] = None,
-        version: Optional[Union[str, int, float]] = None,
+        setup: str | None = None,
+        version: str | int | float | None = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version=False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int] = None,
+        aedt_process_id: int | None = None,
         remove_lock: bool = False,
     ):
         FieldAnalysis3D.__init__(
@@ -128,7 +135,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
             self._monitor = self.monitor
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorIcepak:
         """Icepak post processor.
 
         Returns
@@ -143,7 +150,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         return self._post
 
     @property
-    def mesh(self):
+    def mesh(self) -> IcepakMesh:
         """Mesh.
 
         Returns
@@ -161,7 +168,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         return self._mesh
 
     @property
-    def monitor(self):
+    def monitor(self) -> Monitor:
         """Property to handle monitor objects.
 
         Returns
@@ -177,7 +184,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         return self._monitor
 
 
-class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
+class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     """Manages Icepak design settings.
 
     This class provides methods to modify specific design settings like ambient temperature,
@@ -190,10 +197,10 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
         Icepak application that is to initialize the call.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
-    def execute(self, k, v) -> str:
+    def execute(self, k: str, v: float | int | str) -> str:
         """
         Modify the design settings for the given key with the specified value.
 

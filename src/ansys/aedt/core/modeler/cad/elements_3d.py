@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,19 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class EdgeTypePrimitive(object):
-    """Provides common methods for EdgePrimitive and FacePrimitive."""
+class ModifiablePrimitive(PyAedtBase):
+    """Base class for geometric primitives that support modification operations.
+
+    Provides fillet and chamfer operations for:
+    - EdgePrimitive (3D designs only)
+    - VertexPrimitive (2D designs only)
+
+    """
 
     @pyaedt_function_handler()
-    def fillet(self, radius=0.1, setback=0.0):
+    def fillet(self, radius: float = 0.1, setback: float = 0.0) -> bool:
         """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -75,12 +83,13 @@ class EdgeTypePrimitive(object):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
-    def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+    def chamfer(
+        self, left_distance: float = 1, right_distance: float | None = None, angle: float = 45, chamfer_type: int = 0
+    ) -> bool:
         """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -178,7 +187,7 @@ class EdgeTypePrimitive(object):
         return True
 
 
-class VertexPrimitive(EdgeTypePrimitive, object):
+class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the vertex object within the AEDT Desktop Modeler.
 
     Parameters
@@ -190,7 +199,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     """
 
-    def __init__(self, object3d, objid, position=None):
+    def __init__(self, object3d, objid, position=None) -> None:
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -226,14 +235,14 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         except Exception:
             return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.id)
 
 
-class EdgePrimitive(EdgeTypePrimitive, object):
+class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the edge object within the AEDT Desktop Modeler.
 
     Parameters
@@ -245,10 +254,82 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     """
 
-    def __init__(self, object3d, edge_id):
+    def __init__(self, object3d, edge_id) -> None:
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+    def __repr__(self) -> str:
+        return str(self.id)
+
+    def __iter__(self):
+        """Return an iterator for the vertices of the edge.
+
+        Returns
+        -------
+        iterator
+            Iterator over the vertices of the edge.
+
+        Examples
+        --------
+        >>> for vertex in edge:
+        ...     print(f"Vertex ID: {vertex.id}, Position: {vertex.position}")
+        """
+        return iter(self.vertices)
+
+    def __getitem__(self, index):
+        """Get a vertex by index.
+
+        Parameters
+        ----------
+        index : int
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`
+            Vertex at the specified index.
+
+        Examples
+        --------
+        >>> first_vertex = edge[0]
+        >>> last_vertex = edge[-1]
+        """
+        return self.vertices[index]
+
+    def __contains__(self, item: int | VertexPrimitive) -> bool:
+        """Check if a vertex is contained in the edge.
+
+        Parameters
+        ----------
+        item : :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive` or int
+            Vertex object or vertex ID to check for containment.
+
+        Returns
+        -------
+        bool
+            ``True`` if the item is part of this edge, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> edge = obj.edges[0]
+        >>> vertex = obj.vertices[0]
+        >>> if vertex in edge:
+        ...     print("Vertex is part of this edge")
+
+        >>> # Check by vertex ID
+        >>> vertex_id = 123
+        >>> if vertex_id in edge:
+        ...     print("Vertex ID is part of this edge")
+        """
+        if isinstance(item, VertexPrimitive):
+            item_id = item.id
+            return any(v.id == item_id for v in self)
+        elif isinstance(item, int):
+            return any(v.id == item for v in self)
+        return False
 
     @property
     def name(self):
@@ -363,14 +444,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         except Exception:
             return False
 
-    def __str__(self):
-        return str(self.id)
-
-    def __repr__(self):
-        return str(self.id)
-
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected edge.
 
         Returns
@@ -387,7 +462,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
-    def move_along_normal(self, offset=1.0):
+    def move_along_normal(self, offset: float = 1.0):
         """Move this edge.
 
         This method moves an edge which belong to the same solid.
@@ -411,8 +486,150 @@ class EdgePrimitive(EdgeTypePrimitive, object):
             return False
         return self._object3d._primitives.move_edge(self, offset)
 
+    @pyaedt_function_handler()
+    def fillet(self, radius: float = 0.1, setback: float = 0.0) -> bool:
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
 
-class FacePrimitive(object):
+        Parameters
+        ----------
+        radius : float, optional
+            Radius of the fillet. The default is ``0.1``.
+        setback : float, optional
+            Setback value for the file. The default is ``0.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Fillet
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._object3d.is3d:
+                edge_id_list = [self.id]
+            else:
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
+
+        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:FilletParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._app.value_with_units(radius))
+        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._app.value_with_units(setback))
+        self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
+            self._object3d._primitives._odesign.Undo()
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
+        return True
+
+    @pyaedt_function_handler()
+    def chamfer(self, left_distance: int = 1, right_distance=None, angle: int = 45, chamfer_type: int = 0) -> bool:
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        left_distance : float, optional
+            Left distance from the edge. The default is ``1``.
+        right_distance : float, optional
+            Right distance from the edge. The default is ``None``.
+        angle : float, optional.
+            Angle value for chamfer types 2 and 3. The default is ``0``.
+        chamfer_type : int, optional
+            Type of the chamfer. Options are:
+                * 0 - Symmetric
+                * 1 - Left Distance-Right Distance
+                * 2 - Left Distance-Angle
+                * 3 - Right Distance-Angle
+
+            The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Chamfer
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._object3d.is3d:
+                edge_id_list = [self.id]
+            else:
+                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
+                return False
+        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:ChamferParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        if right_distance is None:
+            right_distance = left_distance
+        if chamfer_type == 0:
+            if left_distance != right_distance:
+                self._object3d.logger.error(
+                    "Do not set right distance or ensure that left distance equals right distance."
+                )
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Symmetric")
+        elif chamfer_type == 1:
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 2:
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
+        elif chamfer_type == 3:
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
+        else:
+            self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
+            return False
+        self._object3d._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
+            self._object3d.odesign.Undo()
+            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
+            return False
+        return True
+
+
+class FacePrimitive(PyAedtBase):
     """Contains the face object within the AEDT Desktop Modeler.
 
     Parameters
@@ -421,13 +638,13 @@ class FacePrimitive(object):
         obj_id : int
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.id)
 
-    def __init__(self, object3d, obj_id):
+    def __init__(self, object3d, obj_id) -> None:
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
@@ -570,7 +787,8 @@ class FacePrimitive(object):
             self._is_planar = True
             return True
         except Exception:
-            self.logger.clear_messages()
+            if self.logger and hasattr(self.logger, "clear_messages"):
+                self.logger.clear_messages()
             self._is_planar = False
             return False
 
@@ -738,8 +956,8 @@ class FacePrimitive(object):
         except Exception:
             return None
 
-    @pyaedt_function_handler(tol="tolerance")
-    def is_on_bounding(self, tolerance=1e-9):
+    @pyaedt_function_handler()
+    def is_on_bounding(self, tolerance: float = 1e-9) -> bool:
         """Check if the face is on bounding box or Not.
 
         Parameters
@@ -766,7 +984,7 @@ class FacePrimitive(object):
         return False
 
     @pyaedt_function_handler()
-    def move_with_offset(self, offset=1.0):
+    def move_with_offset(self, offset: float = 1.0) -> bool:
         """Move the face along the normal.
 
         Parameters
@@ -808,7 +1026,7 @@ class FacePrimitive(object):
         return True
 
     @pyaedt_function_handler()
-    def move_with_vector(self, vector):
+    def move_with_vector(self, vector) -> bool:
         """Move the face along a vector.
 
         Parameters
@@ -909,7 +1127,7 @@ class FacePrimitive(object):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected face.
 
         Returns
@@ -926,7 +1144,7 @@ class FacePrimitive(object):
         return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
-class Point(object):
+class Point(PyAedtBase):
     """Manages point attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -950,7 +1168,7 @@ class Point(object):
     >>> my_point = primitives.points[point.name]
     """
 
-    def __init__(self, primitives, name):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._point_coordinate_system = "Global"
         self._color = None
@@ -994,7 +1212,7 @@ class Point(object):
         return self._name
 
     @name.setter
-    def name(self, point_name):
+    def name(self, point_name) -> None:
         if point_name not in self._primitives.points.keys:
             if point_name != self._name:
                 name_property = []
@@ -1027,7 +1245,7 @@ class Point(object):
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    def set_color(self, color_value):
+    def set_color(self, color_value) -> None:
         """Set symbol color.
 
         Parameters
@@ -1097,13 +1315,13 @@ class Point(object):
             return self._point_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
+    def coordinate_system(self, new_coordinate_system) -> None:
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the point.
 
         References
@@ -1120,7 +1338,7 @@ class Point(object):
         return self._primitives._change_point_property(vPropChange, self.name)
 
 
-class Plane(object):
+class Plane(PyAedtBase):
     """Manages plane attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -1144,7 +1362,7 @@ class Plane(object):
     >>> my_plane = primitives.planes[plane.name]
     """
 
-    def __init__(self, primitives, name):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._plane_coordinate_system = "Global"
         self._color = None
@@ -1190,7 +1408,7 @@ class Plane(object):
         return self._name
 
     @name.setter
-    def name(self, plane_name):
+    def name(self, plane_name) -> None:
         if plane_name not in self._primitives.planes.keys():
             plane_old_name = self._name
             if plane_name != self._name:
@@ -1227,7 +1445,7 @@ class Plane(object):
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
     @pyaedt_function_handler()
-    def set_color(self, color_value):
+    def set_color(self, color_value) -> None:
         """Set symbol color.
 
         Parameters
@@ -1297,14 +1515,14 @@ class Plane(object):
             return self._plane_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
+    def coordinate_system(self, new_coordinate_system) -> bool:
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._plane_coordinate_system = new_coordinate_system
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the plane.
 
         References
@@ -1324,7 +1542,7 @@ class Plane(object):
 class HistoryProps(dict):
     """Manages an object's history properties."""
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         value = _units_assignment(value)
         if self._pyaedt_child._app:
             value = _units_assignment(value)
@@ -1332,24 +1550,26 @@ class HistoryProps(dict):
         if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
-    def __init__(self, child_object, props):
+    def __init__(self, child_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
         self._pyaedt_child = child_object
 
-    def _setitem_without_update(self, key, value):
+    def _setitem_without_update(self, key, value) -> None:
         dict.__setitem__(self, key, value)
 
-    def pop(self, key, default=None):
+    def pop(self, key, default=None) -> None:
         dict.pop(self, key, default)
 
 
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None, app=None):
+    def __init__(
+        self, node, child_object, first_level: bool = False, get_child_obj_arg=None, root_name=None, app=None
+    ) -> None:
         self._props = None
         self._app = app
         if not root_name:
@@ -1364,7 +1584,7 @@ class BinaryTreeNode:
         if first_level:
             self._update_children()
 
-    def _update_children(self):
+    def _update_children(self) -> None:
         self._children = {}
         name = None
         try:
@@ -1506,7 +1726,7 @@ class BinaryTreeNode:
         return self._jsonalize_tree(binary_tree_node=self)
 
     @pyaedt_function_handler
-    def _suppress(self, node, app, suppress):
+    def _suppress(self, node, app, suppress) -> bool:
         if not node.command.startswith("Duplicate") and "Suppress Command" in node.properties:
             app.oeditor.ChangeProperty(
                 [

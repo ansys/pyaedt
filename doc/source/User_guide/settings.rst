@@ -28,8 +28,8 @@ Here is an example of YAML file :download:`YAML configuration file <../Resources
 
 Below is the content that can be updated through the YAML file.
 
-.. code-block:: yaml  
-  
+.. code-block:: yaml
+
     # Settings related to logging
     log:
         # Enable or disable the logging of EDB API methods
@@ -76,7 +76,7 @@ Below is the content that can be updated through the YAML file.
         # Command to launch the task in the LSF Scheduler
         lsf_aedt_command: 'ansysedt'
         # Number of LSF cores
-        lsf_num_cores: 2
+        num_cores: 2
         # Operating system string
         lsf_osrel: null
         # LSF queue name
@@ -90,7 +90,7 @@ Below is the content that can be updated through the YAML file.
         # Enable or disable use LSF Scheduler
         use_lsf_scheduler: false
 
-    # Settings related to environment variables thare are set before launching a new AEDT session
+    # Settings related to environment variables that are set before launching a new AEDT session
     # This includes those that enable the beta features !
     aedt_env_var:
         ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE: '1'
@@ -104,6 +104,7 @@ Below is the content that can be updated through the YAML file.
         ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
         ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
         ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
+        ANSYSEM_FEATURE_F1035460_EDDY_APHI_ENHANCEMENT_ENABLE: '1'
         # Environment variable used in Linux to skip the dependency check for speed
         # ANS_NODEPCHECK: '1'
 
@@ -114,7 +115,7 @@ Below is the content that can be updated through the YAML file.
         objects_lazy_load: true
         # AEDT installation path
         aedt_install_dir: null
-        # AEDT version in the form ``"2023.x"``
+        # AEDT version in the form ``"2025.x"``
         aedt_version: null
         # Timeout in seconds for trying to launch AEDT
         desktop_launch_timeout: 120
@@ -123,7 +124,7 @@ Below is the content that can be updated through the YAML file.
         # Optional path for the EDB DLL file
         edb_dll_path: null
         # Enable or disable the internal PyAEDT error handling
-        enable_error_handler: true
+        enable_error_handler: false
         # Enable or disable the use of Pandas to export dictionaries and lists
         enable_pandas_output: false
         # Enable or disable the check of the project path
@@ -152,3 +153,10 @@ Below is the content that can be updated through the YAML file.
         block_figure_plot: false
         # Skip license check during Desktop initialization
         skip_license_check: false
+        # Get the path to the PyD libraries (not editable)
+        pyd_libraries_path: null
+        # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
+        pyd_libraries_user_path: null
+        # Enable or disable gRPC API for the EDB module.
+        # If null, the gRPC API is used if AEDT version is above 2026 R1, otherwise the legacy COM object is used.
+        pyedb_use_grpc: null

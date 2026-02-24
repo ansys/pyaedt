@@ -21,15 +21,15 @@
 # SOFTWARE.
 
 """
-* * * This script is meant to run in IronPython within AEDT. * * *
 
 The script provides for choosing the PyAEDT script to execute.
 
 """
 import os
 import sys
-from System.Windows.Forms import OpenFileDialog
 
+from System.Windows.Forms import Form, Button, TextBox, Label, OpenFileDialog, DialogResult, FormBorderStyle
+from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
 is_linux = os.name == "posix"
 
 if is_linux:
@@ -41,56 +41,152 @@ sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
 
+def show_launcher_dialog(initial_dir):
+    """
+    Shows a GUI to select file and arguments without using System.Drawing.
+    Returns (file_path, arguments) or (None, None).
+    """
+
+    top = 20
+    # Script file
+    f = Form()
+    f.Text = "Run PyAEDT Script"
+    f.Width = 500
+    f.Height = 180
+    f.FormBorderStyle = FormBorderStyle.FixedDialog
+    f.MaximizeBox = False
+    f.MinimizeBox = False
+    f.StartPosition = f.StartPosition.CenterScreen
+
+    lbl_file = Label()
+    lbl_file.Text = "File name:"
+    lbl_file.Left = 12
+    lbl_file.Top = top
+    lbl_file.AutoSize = True
+    f.Controls.Add(lbl_file)
+
+    txt_file = TextBox()
+    txt_file.Left = 110
+    txt_file.Top = top
+    txt_file.Width = 320
+    f.Controls.Add(txt_file)
+
+    btn_browse = Button()
+    btn_browse.Text = "..."
+    btn_browse.Left = 440
+    btn_browse.Top = top - 3
+    btn_browse.Width = 30
+    btn_browse.Height = 23
+    f.Controls.Add(btn_browse)
+
+    def browse_click(sender, args):
+        dlg = OpenFileDialog()
+        dlg.InitialDirectory = initial_dir
+        dlg.Filter = "Python Script Files (*.py)|*.py"
+        if dlg.ShowDialog() == DialogResult.OK:
+            txt_file.Text = dlg.FileName
+
+    btn_browse.Click += browse_click
+
+    top += 30
+    # Args Label
+    lbl_args = Label()
+    lbl_args.Text = "Script Arguments:"
+    lbl_args.Left = 12
+    lbl_args.Top = top
+    lbl_args.AutoSize = True
+    f.Controls.Add(lbl_args)
+
+    txt_args = TextBox()
+    txt_args.Left = 110
+    txt_args.Top = top
+    txt_args.Width = 320
+    f.Controls.Add(txt_args)
+
+
+    # Execution
+    top += 40
+    btn_run = Button()
+    btn_run.Text = "Run"
+    btn_run.DialogResult = DialogResult.OK
+    btn_run.Left = 315
+    btn_run.Top = top
+    f.Controls.Add(btn_run)
+
+    btn_cancel = Button()
+    btn_cancel.Text = "Cancel"
+    btn_cancel.DialogResult = DialogResult.Cancel
+    btn_cancel.Left = 395
+    btn_cancel.Top = top
+    f.Controls.Add(btn_cancel)
+
+    f.AcceptButton = btn_run
+    f.CancelButton = btn_cancel
+
+    # Show
+    result = f.ShowDialog()
+
+    if result == DialogResult.OK:
+        args = txt_args.Text
+
+        return txt_file.Text, args
+    else:
+        return None, None
+
 
 def main():
     oProject = oDesktop.GetActiveProject()
-
-    # Choose file to launch
-    file_dialog = OpenFileDialog()
-    file_dialog.InitialDirectory = oProject.GetPath()
-    file_dialog.Filter = "python files (*.py)|*.py"
-    ret = file_dialog.ShowDialog()
+    project_path = oProject.GetPath() if oProject else ""
 
     try:
-        if ret == ret.OK:
-            # Get AEDT version
-            version_short = oDesktop.GetVersion()[2:6].replace(".", "")
-            # CPython interpreter
-            python_exe = r"##PYTHON_EXE##" % version
-            # Check if CPython interpreter and AEDT release match
-            python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
-            # Python script
-            pyaedt_script = file_dialog.FileName
-            # Check Python executable
-            python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
-            if not python_exe_flag:
-                return
-            # Check script file
-            pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
-            if not pyaedt_script_flag:
-                return
-            # Add environment variables
-            pyaedt_utils.environment_variables(oDesktop)
-            # Run script
-            if is_linux:
-                pyaedt_utils.set_ansys_em_environment(oDesktop)
-                command = [
-                    python_exe,
-                    pyaedt_script,
-                    str(oDesktop.GetProcessID()),
-                    str(oDesktop.GetVersion()[:6]),
-                ]
-                my_env = os.environ.copy()
-                subprocess.Popen(command, env=my_env)
-            else:
-                command = [
-                    '"{}"'.format(python_exe),
-                    '"{}"'.format(pyaedt_script),
-                    str(oDesktop.GetProcessID()),
-                    str(oDesktop.GetVersion()[:6]),
-                ]
-                my_env = os.environ.copy()
-                subprocess.Popen(" ".join(command), env=my_env)
+        # --- GUI Selection ---
+        pyaedt_script, script_args = show_launcher_dialog(project_path)
+
+        if not pyaedt_script:
+            return
+
+        # Get AEDT version
+        version_short = oDesktop.GetVersion()[2:6].replace(".", "")
+        # CPython interpreter
+        python_exe = r"##PYTHON_EXE##"
+        # Check if CPython interpreter and AEDT release match
+        python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
+
+        # Check Python executable
+        python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
+        if not python_exe_flag:
+            return
+        # Check script file
+        pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
+        if not pyaedt_script_flag:
+            return
+
+        # Add environment variables
+        pyaedt_utils.environment_variables(oDesktop)
+
+        # --- Run Script with Arguments ---
+        my_env = os.environ.copy()
+
+        # Build command based on platform
+        if is_linux:
+            command = [
+                python_exe,
+                pyaedt_script,
+            ]
+            if script_args:
+                command.append(script_args)
+        else:
+            command = [
+                '"{}"'.format(python_exe),
+                '"{}"'.format(pyaedt_script),
+            ]
+            if script_args:
+                command.append(script_args)
+            command = ' '.join(command)
+
+        oDesktop.AddMessage("", "", 0, str(command))
+
+        subprocess.Popen(command, env=my_env)
 
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)

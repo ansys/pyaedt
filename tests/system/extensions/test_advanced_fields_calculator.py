@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,20 +27,20 @@ from unittest.mock import patch
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import main
 from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
-fields_calculator = "fields_calculator_solved"
-test_subfolder = "T45"
-
+TEST_SUBFOLDER = "T45"
+FIELDS_CALCULATOR = "fields_calculator_solved"
 HFSS_ASSIGNMENTS = ["Polyline1", "Polyline2"]
 
 
-def test_advanced_fields_calculator_q3d_ok_button(add_app):
+@patch.object(AdvancedFieldsCalculatorExtension, "check_design_type", return_value=None)
+def test_advanced_fields_calculator_q3d_ok_button(mock_check, add_app_example) -> None:
     """Test the OK button in the Advanced Fields Calculator extension."""
-    aedt_app = add_app(application=Q3d, project_name=fields_calculator, subfolder=test_subfolder)
+    aedt_app = add_app_example(application=Q3d, project=FIELDS_CALCULATOR, subfolder=TEST_SUBFOLDER)
 
     DATA = AdvancedFieldsCalculatorExtensionData(
         setup="Setup1 : LastAdaptive",
@@ -55,10 +55,11 @@ def test_advanced_fields_calculator_q3d_ok_button(add_app):
     assert DATA == extension.data
     assert main(extension.data)
     assert 2 == len(aedt_app.post.all_report_names)
+    aedt_app.close_project(save=False)
 
 
 @patch.object(Modeler3D, "selections", new_callable=PropertyMock)
-def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app):
+def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app_example) -> None:
     """Test the OK button in the Advanced Fields Calculator extension for HFSS."""
     mock_selections.return_value = HFSS_ASSIGNMENTS
 
@@ -67,7 +68,7 @@ def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app):
         calculation="voltage_line",
         assignments=HFSS_ASSIGNMENTS,
     )
-    aedt_app = add_app(application=Hfss, project_name=fields_calculator, subfolder=test_subfolder)
+    aedt_app = add_app_example(application=Hfss, project=FIELDS_CALCULATOR, subfolder=TEST_SUBFOLDER)
 
     extension = AdvancedFieldsCalculatorExtension(withdraw=True)
     extension.root.nametowidget("ok_button").invoke()
@@ -76,3 +77,4 @@ def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app):
     assert DATA == extension.data
     assert main(extension.data)
     assert 4 == len(aedt_app.post.all_report_names)
+    aedt_app.close_project(save=False)

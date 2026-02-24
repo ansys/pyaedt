@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,16 +31,17 @@ This module provides all functionalities for creating and editing reports.
 
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
-class Standard(CommonReport):
+class Standard(CommonReport, PyAedtBase):
     """Provides a reporting class that fits most of the app's standard reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
@@ -55,7 +56,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
-    def sub_design_id(self, value):
+    def sub_design_id(self, value) -> None:
         self._legacy_props["context"]["Sub Design ID"] = value
 
     @property
@@ -70,7 +71,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("time_start", "0ps")
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -84,7 +85,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("thinning", 0)
 
     @thinning.setter
-    def thinning(self, value):
+    def thinning(self, value) -> None:
         self._legacy_props["context"]["thinning"] = value
 
     @property
@@ -98,7 +99,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("thinning_points", 500000000)
 
     @thinning_points.setter
-    def thinning_points(self, value):
+    def thinning_points(self, value) -> None:
         self._legacy_props["context"]["thinning_points"] = value
 
     @property
@@ -112,7 +113,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
 
     @dy_dx_tolerance.setter
-    def dy_dx_tolerance(self, value):
+    def dy_dx_tolerance(self, value) -> None:
         self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
@@ -127,11 +128,11 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("time_stop", "10ns")
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
-    def _did(self):
+    def _did(self) -> int:
         if self.domain == "Sweep":
             return 3
         elif self.domain == "Clock Times":
@@ -159,7 +160,7 @@ class Standard(CommonReport):
         )
 
     @pulse_rise_time.setter
-    def pulse_rise_time(self, val):
+    def pulse_rise_time(self, val) -> None:
         self._legacy_props["context"]["pulse_rise_time"] = val
 
     @property
@@ -174,7 +175,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
     @maximum_time.setter
-    def maximum_time(self, val):
+    def maximum_time(self, val) -> None:
         self._legacy_props["context"]["maximum_time"] = val
 
     @property
@@ -189,7 +190,7 @@ class Standard(CommonReport):
         return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
     @step_time.setter
-    def step_time(self, val):
+    def step_time(self, val) -> None:
         self._legacy_props["context"]["step_time"] = val
 
     @property
@@ -216,7 +217,7 @@ class Standard(CommonReport):
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
-    def time_windowing(self, val):
+    def time_windowing(self, val) -> None:
         available_values = {
             "rectangular": 0,
             "bartlett": 1,
@@ -539,10 +540,10 @@ class Standard(CommonReport):
         return ctxt
 
 
-class Spectral(CommonReport):
+class Spectral(CommonReport, PyAedtBase):
     """Provides for managing spectral reports from transient data."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Spectrum"
         self.algorithm = "FFT"
@@ -554,6 +555,7 @@ class Spectral(CommonReport):
         self.max_frequency = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
+        self.noise_threshold = "60"
 
     @property
     def time_start(self):
@@ -567,7 +569,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("time_start", "0s")
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -582,7 +584,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("time_stop", "100ns")
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
@@ -597,7 +599,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("window", "Rectangular")
 
     @window.setter
-    def window(self, value):
+    def window(self, value) -> None:
         self._legacy_props["context"]["window"] = value
 
     @property
@@ -612,7 +614,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("kaiser_coeff", 0)
 
     @kaiser_coeff.setter
-    def kaiser_coeff(self, value):
+    def kaiser_coeff(self, value) -> None:
         self._legacy_props["context"]["kaiser_coeff"] = value
 
     @property
@@ -627,7 +629,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("adjust_coherent_gain", False)
 
     @adjust_coherent_gain.setter
-    def adjust_coherent_gain(self, value):
+    def adjust_coherent_gain(self, value) -> None:
         self._legacy_props["context"]["adjust_coherent_gain"] = value
 
     @property
@@ -642,7 +644,7 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("plot_continous_spectrum", False)
 
     @plot_continous_spectrum.setter
-    def plot_continous_spectrum(self, value):
+    def plot_continous_spectrum(self, value) -> None:
         self._legacy_props["context"]["plot_continous_spectrum"] = value
 
     @property
@@ -657,8 +659,23 @@ class Spectral(CommonReport):
         return self._legacy_props["context"].get("max_frequency", "10GHz")
 
     @max_frequency.setter
-    def max_frequency(self, value):
+    def max_frequency(self, value) -> None:
         self._legacy_props["context"]["max_frequency"] = value
+
+    @property
+    def noise_threshold(self):
+        """Noise Threshold in dB.
+
+        Returns
+        -------
+        str
+            Noise Threshold.
+        """
+        return self._legacy_props["context"].get("noise_threshold", 0)
+
+    @noise_threshold.setter
+    def noise_threshold(self, value) -> None:
+        self._legacy_props["context"]["noise_threshold"] = value
 
     @property
     def _context(self):
@@ -680,67 +697,115 @@ class Spectral(CommonReport):
             "Lanzcos": "8",
         }
         wt = WT[self.window]
-        arg = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [
-                2,
-                0,
-                2,
-                0,
-                False,
-                False,
-                -1,
-                1,
-                0,
-                1,
-                1,
-                "",
-                0,
-                0,
-                "CP",
-                False,
-                "1" if self.plot_continous_spectrum else "0",
-                "IT",
-                False,
-                it,
-                "MF",
-                False,
-                self.max_frequency,
-                "NUMLEVELS",
-                False,
-                "0",
-                "TE",
-                False,
-                self.time_stop,
-                "TS",
-                False,
-                self.time_start,
-                "WT",
-                False,
-                wt,
-                "WW",
-                False,
-                "100",
-                "KP",
-                False,
-                str(self.kaiser_coeff),
-                "CG",
-                False,
-                "1" if self.adjust_coherent_gain else "0",
-            ],
-        ]
+        if self._app.design_type == "Circuit Design":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CP",
+                    False,
+                    "1" if self.plot_continous_spectrum else "0",
+                    "IT",
+                    False,
+                    it,
+                    "MF",
+                    False,
+                    self.max_frequency,
+                    "NUMLEVELS",
+                    False,
+                    "0",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "CG",
+                    False,
+                    "1" if self.adjust_coherent_gain else "0",
+                ],
+            ]
+        elif self._app.design_type == "Twin Builder":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CF",
+                    False,
+                    self.max_frequency,
+                    "CG",
+                    False,
+                    "0",
+                    "CP",
+                    False,
+                    "0",
+                    "IT",
+                    False,
+                    it,
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "NTC",
+                    False,
+                    "1",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TH",
+                    False,
+                    self.noise_threshold,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                ],
+            ]
         return arg
 
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return self.expressions
-        else:
-            return [self.expressions]
-
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str | None = None) -> bool:
         """Create an eye diagram report.
 
         Parameters
@@ -765,12 +830,7 @@ class Spectral(CommonReport):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            [
-                "X Component:=",
-                self.primary_sweep,
-                "Y Component:=",
-                self._trace_info,
-            ],
+            self._trace_info,
         )
         self._post.plots.append(self)
         self._is_created = True

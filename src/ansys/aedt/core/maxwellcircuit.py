@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,11 +28,12 @@ import math
 from pathlib import Path
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class MaxwellCircuit(AnalysisMaxwellCircuit, object):
+class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     """Provide the Maxwell Circuit application interface.
 
     Parameters
@@ -57,7 +58,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -106,32 +107,25 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        version: str | None = None,
+        solution_type: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
-            "Maxwell Circuit",
+            "MAXWELLCIRCUIT",
             project,
             design,
             version,
@@ -145,11 +139,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(file_to_import="input_file")
-    def create_schematic_from_netlist(self, input_file):
+    @pyaedt_function_handler()
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -217,8 +211,8 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                         ypos = 0
         return True
 
-    @pyaedt_function_handler(file_to_export="output_file")
-    def export_netlist_from_schematic(self, output_file):
+    @pyaedt_function_handler()
+    def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
         """Create netlist from schematic circuit.
 
         Parameters
@@ -253,7 +247,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

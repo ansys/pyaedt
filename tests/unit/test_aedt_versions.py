@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,7 +31,7 @@ from ansys.aedt.core.internal.aedt_versions import AedtVersions
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -75,7 +75,7 @@ def aedt_versions():
     return AedtVersions()
 
 
-def test_list_installed_ansysem(mock_os_environ, mock_path_exist, aedt_versions):
+def test_list_installed_ansysem(mock_os_environ, mock_path_exist, aedt_versions) -> None:
     """Test the list_installed_ansysem function."""
     result = aedt_versions.list_installed_ansysem
     expected = [
@@ -97,7 +97,7 @@ def test_list_installed_ansysem(mock_os_environ, mock_path_exist, aedt_versions)
     assert result == expected
 
 
-def test_installed_versions(mock_os_environ, mock_path_exist, aedt_versions):
+def test_installed_versions(mock_os_environ, mock_path_exist, aedt_versions) -> None:
     """Test the installed_versions function."""
     result = aedt_versions.installed_versions
     expected = {
@@ -120,42 +120,42 @@ def test_installed_versions(mock_os_environ, mock_path_exist, aedt_versions):
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2024.2)
-def test_current_version_1(mock_os_environ, aedt_versions):
+def test_current_version_1(mock_os_environ, aedt_versions) -> None:
     """Test the current_version function."""
     assert aedt_versions.current_version == "2024.2"
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2023.2)
-def test_current_version_2(mock_os_environ, aedt_versions):
+def test_current_version_2(mock_os_environ, aedt_versions) -> None:
     """Test the current_version function."""
     assert aedt_versions.current_version == ""
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2024.2)
-def test_current_student_version_1(mock_os_environ, aedt_versions):
+def test_current_student_version_1(mock_os_environ, aedt_versions) -> None:
     """Test the current_student_version function."""
     assert aedt_versions.current_student_version == "2024.2SV"
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2023.2)
-def test_current_student_version_2(mock_os_environ, aedt_versions):
+def test_current_student_version_2(mock_os_environ, aedt_versions) -> None:
     """Test the current_student_version function."""
     assert aedt_versions.current_student_version == ""
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2024.2)
-def test_latest_version_1(mock_os_environ, aedt_versions):
+def test_latest_version_1(mock_os_environ, aedt_versions) -> None:
     """Test the current_student_version function."""
     assert aedt_versions.latest_version == "2025.2"
 
 
 @mock.patch("ansys.aedt.core.internal.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2023.2)
-def test_latest_version_2(mock_os_environ, aedt_versions):
+def test_latest_version_2(mock_os_environ, aedt_versions) -> None:
     """Test the current_student_version function."""
     assert aedt_versions.latest_version == "2025.2"
 
 
-def test_get_version_env_variable(aedt_versions):
+def test_get_version_env_variable(aedt_versions) -> None:
     # Test case 1: Version < 20, release < 3
     version_id = "2018.2"
     expected_output = "ANSYSEM_ROOT192"

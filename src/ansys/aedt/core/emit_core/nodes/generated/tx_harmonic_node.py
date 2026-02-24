@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,9 +28,9 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TxHarmonicNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -43,22 +42,37 @@ class TxHarmonicNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name):
+    def import_csv_file(self, file_name: str):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    def table_data(self):
+        """Edit Harmonics Table.
+        Table consists of 2 columns.
+        Harmonic:
+            Value should be between 2 and 1000.
+        Power (Relative or Absolute):
+            Value should be between -1000 and 1000.
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value) -> None:
+        self._set_table_data(value)
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+    def enabled(self, value: bool) -> None:
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     class HarmonicTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -72,5 +86,5 @@ class TxHarmonicNode(EmitNode):
         return val
 
     @harmonic_table_units.setter
-    def harmonic_table_units(self, value: HarmonicTableUnitsOption):
+    def harmonic_table_units(self, value: HarmonicTableUnitsOption) -> None:
         self._set_property("Harmonic Table Units", f"{value.value}")

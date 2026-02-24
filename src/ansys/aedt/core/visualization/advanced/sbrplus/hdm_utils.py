@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 
-def sort_bundle(bundle, monoPW_attrib="sweep_angle_index"):
+def sort_bundle(bundle, monoPW_attrib: str = "sweep_angle_index") -> None:
     """
     In-place sorting utility for hdm ray exports.
 

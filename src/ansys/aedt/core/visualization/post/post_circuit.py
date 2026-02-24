@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,6 +26,9 @@
 import os
 import warnings
 
+import numpy as np
+
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -40,7 +43,7 @@ except ImportError:
     )
 
 
-class PostProcessorCircuit(PostProcessorCommon):
+class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     """Manages the main schematic postprocessing functions.
 
     .. note::
@@ -54,16 +57,16 @@ class PostProcessorCircuit(PostProcessorCommon):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessorCommon.__init__(self, app)
 
     @pyaedt_function_handler()
     def export_model_picture(
         self,
         output_file=None,
-        page=1,
-        width=1920,
-        height=1080,
+        page: int = 1,
+        width: int = 1920,
+        height: int = 1080,
     ):
         """Export a snapshot of the schematic to a ``JPG`` file.
 
@@ -103,16 +106,16 @@ class PostProcessorCircuit(PostProcessorCommon):
         self.oeditor.ExportImage(output_file, page, width, height)
         return output_file
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_ami_initial_response_plot(
         self,
         setup,
         ami_name,
         variation_list_w_value,
-        plot_type="Rectangular Plot",
-        plot_initial_response=True,
-        plot_intermediate_response=False,
-        plot_final_response=False,
+        plot_type: str = "Rectangular Plot",
+        plot_initial_response: bool = True,
+        plot_intermediate_response: bool = False,
+        plot_final_response: bool = False,
         plot_name=None,
     ):
         """Create an AMI initial response plot.
@@ -217,9 +220,9 @@ class PostProcessorCircuit(PostProcessorCommon):
         )
         return plot_name
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_ami_statistical_eye_plot(
-        self, setup, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
+        self, setup, ami_name, variation_list_w_value, ami_plot_type: str = "InitialEye", plot_name=None
     ):
         """Create an AMI statistical eye plot.
 
@@ -330,7 +333,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         )
         return plot_name
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_statistical_eye_plot(self, setup, probe_names, variation_list_w_value, plot_name=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
@@ -432,11 +435,11 @@ class PostProcessorCircuit(PostProcessorCommon):
         self,
         waveform_data,
         waveform_sweep,
-        waveform_unit="V",
-        waveform_sweep_unit="s",
-        unit_interval=1e-9,
+        waveform_unit: str = "V",
+        waveform_sweep_unit: str = "s",
+        unit_interval: float = 1e-9,
         clock_tics=None,
-        pandas_enabled=False,
+        pandas_enabled: bool = False,
     ):
         """Sampling a waveform at clock times plus half unit interval.
 
@@ -483,7 +486,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         if isinstance(waveform_data, pd.Series):
             waveform_data = list(waveform_data)
 
-        sweep_filtered = waveform_sweep
+        sweep_filtered = np.copy(waveform_sweep)
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
@@ -492,9 +495,9 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         for tic in filtered_tic:
             if tic >= sweep_filtered[0]:
-                sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
-                if sweep_filtered:
-                    waveform_index = waveform_sweep.index(sweep_filtered[0])
+                sweep_filtered = sweep_filtered[sweep_filtered >= tic]
+                if sweep_filtered.any():
+                    waveform_index = np.where(waveform_sweep == sweep_filtered[0])
                     voltage = waveform_data[waveform_index]
                     new_voltage.append(
                         unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
@@ -504,22 +507,22 @@ class PostProcessorCircuit(PostProcessorCommon):
                     )
                     if not pandas_enabled:
                         outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
-                    del sweep_filtered[0]
+                    np.delete(sweep_filtered, 0)
                 else:
                     break
         if pandas_enabled:
             return pd.Series(new_voltage, index=tic_in_s)
         return outputdata
 
-    @pyaedt_function_handler(setupname="setup", probe_name="probe", source_name="source")
+    @pyaedt_function_handler()
     def sample_ami_waveform(
         self,
         setup,
         probe,
         source,
         variation_list_w_value,
-        unit_interval=1e-9,
-        ignore_bits=0,
+        unit_interval: float = 1e-9,
+        ignore_bits: int = 0,
         plot_type=None,
         clock_tics=None,
     ):
@@ -591,11 +594,11 @@ class PostProcessorCircuit(PostProcessorCommon):
                     break
                 else:
                     samples_per_bit += 1
-            if samples_per_bit * ignore_bits > len(waveform_data.data_real()):
+            if samples_per_bit * ignore_bits > len(waveform_data.get_expression_data()[0]):
                 self._app.solution_type = initial_solution_type
                 self.logger.warning("Ignored bits are greater than generated bits.")
                 return None
-            waveform.append(waveform_data.data_real()[samples_per_bit * ignore_bits :])
+            waveform.append(waveform_data.get_expression_data()[1][samples_per_bit * ignore_bits :])
             waveform_sweep.append(waveform_data.primary_sweep_values[samples_per_bit * ignore_bits :])
             waveform_unit.append(waveform_data.units_data[exp])
             waveform_sweep_unit.append(waveform_data.units_sweeps["Time"])
@@ -609,7 +612,7 @@ class PostProcessorCircuit(PostProcessorCommon):
                 domain="Clock Times",
                 variations=variation_list_w_value,
             )
-            tics = clock_tic.data_real()
+            tics = clock_tic.get_expression_data()[1]
 
         outputdata = [[] for i in range(len(waveform))]
         is_pandas_enabled = False

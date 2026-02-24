@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
@@ -50,7 +52,7 @@ def read_actors(fn, actor_lib):
     return a
 
 
-class Generic(Actor, object):
+class Generic(Actor, PyAedtBase):
     """Provides an instance of an actor.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -72,12 +74,12 @@ class Generic(Actor, object):
 
     """
 
-    def __init__(self, actor_folder, speed="0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
 
-class Person(Actor, object):
+class Person(Actor, PyAedtBase):
     """Provides an instance of a person.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -102,7 +104,7 @@ class Person(Actor, object):
 
     """
 
-    def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None) -> None:
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -119,11 +121,11 @@ class Person(Actor, object):
         return self._stride
 
     @stride.setter
-    def stride(self, s):
+    def stride(self, s) -> None:
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
-    def _add_walking(self, app):
+    def _add_walking(self, app) -> None:
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
         for k, p in self.parts.items():
@@ -145,7 +147,7 @@ class Person(Actor, object):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool = True) -> None:
         """Insert the person in HFSS SBR+.
 
         Parameters
@@ -169,7 +171,7 @@ class Person(Actor, object):
             self._add_walking(app)
 
 
-class Bird(Actor, object):
+class Bird(Actor, PyAedtBase):
     """Provides an instance of a bird.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -193,12 +195,12 @@ class Bird(Actor, object):
 
     """
 
-    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
+    def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None) -> None:
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
 
-    def _add_flying(self, app):
+    def _add_flying(self, app) -> None:
         # Update expressions for wheel motion:
 
         for k, p in self.parts.items():
@@ -209,7 +211,7 @@ class Bird(Actor, object):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool = True) -> None:
         """Insert the bird in HFSS SBR+.
 
         Parameters
@@ -231,7 +233,7 @@ class Bird(Actor, object):
             self._add_flying(app)
 
 
-class Vehicle(Actor, object):
+class Vehicle(Actor, PyAedtBase):
     """Provides an instance of a vehicle.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -253,12 +255,12 @@ class Vehicle(Actor, object):
 
     """
 
-    def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
+    def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None) -> None:
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
     @pyaedt_function_handler()
-    def _add_driving(self, app):
+    def _add_driving(self, app) -> None:
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to determine if there is motion of the wheel.
@@ -274,7 +276,7 @@ class Vehicle(Actor, object):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool = True) -> bool:
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
@@ -297,7 +299,7 @@ class Vehicle(Actor, object):
         return True
 
 
-class Radar(MultiPartComponent, object):
+class Radar(MultiPartComponent, PyAedtBase):
     """Manages the radar definition and placement in the HFSS design.
 
     Parameters
@@ -324,13 +326,13 @@ class Radar(MultiPartComponent, object):
     def __init__(
         self,
         radar_folder,
-        name=None,
-        motion=False,
-        use_relative_cs=False,
+        name: str | None = None,
+        motion: bool = False,
+        use_relative_cs: bool = False,
         offset=("0", "0", "0"),
-        speed=0,
+        speed: int = 0,
         relative_cs_name=None,
-    ):
+    ) -> None:
         self.aedt_antenna_names = []  # List of Antenna Names
         name = name.split(".")[0] if name else name  # remove suffix if any
         self._component_class = "radar"
@@ -379,11 +381,11 @@ class Radar(MultiPartComponent, object):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s):
+    def speed_expression(self, s) -> None:
         self._speed_expression = s
 
     @pyaedt_function_handler()
-    def _add_speed(self, app):
+    def _add_speed(self, app) -> None:
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )
@@ -397,7 +399,7 @@ class Radar(MultiPartComponent, object):
         )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=False):
+    def insert(self, app, motion: bool = False):
         """Insert radar in the HFSS application instance.
 
         Parameters

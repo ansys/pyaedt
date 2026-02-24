@@ -78,6 +78,7 @@ PMs
 [Pp]olyline
 polylines
 Postprocessing
+prek
 pwl
 pyaedt
 PyAEDT
@@ -86,6 +87,9 @@ PyAEDT
 Python
 Python.NET
 pyvista
+[Pp]y[Tt]est
+[Pp]y[Cc]harm
+[Vv]s[Cc]ode
 Q2D Extractor
 Q3D
 Q3D Extractor
@@ -121,7 +125,26 @@ jupyter
 toml
 Parasolid
 i.e.
+[I][Dd][Ee]
 solderballs
 pin_mapping
 refdes
 gnd
+uv
+venv
+[Cc][Ll][Ii]
+[Pp]ytest
+[Tt]yper
+subprocess
+PID
+[Pp]rocesses
+[Ww][Nn][Uu][Aa]
+[Uu][Dd][Ss]
+[Mm][Tt][Ll][Ss]
+TLS
+Unix
+Transport
+Layer
+Security
+RCS
+[Tt]estmon
