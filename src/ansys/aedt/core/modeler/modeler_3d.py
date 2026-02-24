@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
@@ -1303,8 +1304,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
             plt.show(interactive=True)
 
         if import_in_aedt:
+            release_on_exception = settings.release_on_exception
+
             self.model_units = "meter"
             for part in parts_dict:
+                settings.release_on_exception = False
                 if not Path(parts_dict[part]["file_name"]).exists():
                     continue
                 obj_names = [i for i in self.object_names]
@@ -1324,6 +1328,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                     except Exception as e:  # pragma: no cover
                         self.logger.error(f"Failed to import {part} part with healing enabled. Error: {str(e)}.")
 
+                settings.release_on_exception = release_on_exception
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2
