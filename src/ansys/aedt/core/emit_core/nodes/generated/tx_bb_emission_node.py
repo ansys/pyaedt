@@ -62,7 +62,7 @@ class TxBbEmissionNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value: list[tuple]) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -71,7 +71,7 @@ class TxBbEmissionNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NoiseBehaviorOption(Enum):
@@ -88,7 +88,7 @@ class TxBbEmissionNode(EmitNode):
         return val
 
     @noise_behavior.setter
-    def noise_behavior(self, value: NoiseBehaviorOption) -> None:
+    def noise_behavior(self, value: NoiseBehaviorOption):
         self._set_property("Noise Behavior", f"{value.value}")
 
     @property
@@ -104,5 +104,5 @@ class TxBbEmissionNode(EmitNode):
         return val == "true"
 
     @use_log_linear_interpolation.setter
-    def use_log_linear_interpolation(self, value: bool) -> None:
+    def use_log_linear_interpolation(self, value: bool):
         self._set_property("Use Log-Linear Interpolation", f"{str(value).lower()}")

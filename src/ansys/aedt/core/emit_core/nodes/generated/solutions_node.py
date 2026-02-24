@@ -53,5 +53,5 @@ class SolutionsNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")

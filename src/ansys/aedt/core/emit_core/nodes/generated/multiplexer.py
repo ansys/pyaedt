@@ -59,7 +59,7 @@ class Multiplexer(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -72,7 +72,7 @@ class Multiplexer(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -82,7 +82,7 @@ class Multiplexer(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class MultiplexerTypeOption(Enum):
@@ -102,7 +102,7 @@ class Multiplexer(EmitNode):
         return val
 
     @multiplexer_type.setter
-    def multiplexer_type(self, value: MultiplexerTypeOption) -> None:
+    def multiplexer_type(self, value: MultiplexerTypeOption):
         self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
@@ -112,7 +112,7 @@ class Multiplexer(EmitNode):
         return val
 
     @ports.setter
-    def ports(self, value) -> None:
+    def ports(self, value):
         self._set_property("Ports", f"{value}")
 
     @property

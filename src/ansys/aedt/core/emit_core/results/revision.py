@@ -584,7 +584,7 @@ class Revision:
         return design.GetResultNotes(self.name)
 
     @notes.setter
-    def notes(self, notes: str) -> None:
+    def notes(self, notes: str):
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project.save_project()
 
@@ -612,7 +612,7 @@ class Revision:
         return max_instances
 
     @n_to_1_limit.setter
-    def n_to_1_limit(self, max_instances: int) -> None:
+    def n_to_1_limit(self, max_instances: int):
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:

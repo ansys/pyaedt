@@ -64,7 +64,7 @@ class CustomCouplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value) -> None:
+    def table_data(self, value):
         self._set_table_data(value)
 
     @property
@@ -77,7 +77,7 @@ class CustomCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -87,7 +87,7 @@ class CustomCouplingNode(EmitNode):
         return val
 
     @antenna_a.setter
-    def antenna_a(self, value: EmitNode) -> None:
+    def antenna_a(self, value: EmitNode):
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -97,5 +97,5 @@ class CustomCouplingNode(EmitNode):
         return val
 
     @antenna_b.setter
-    def antenna_b(self, value: EmitNode) -> None:
+    def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
