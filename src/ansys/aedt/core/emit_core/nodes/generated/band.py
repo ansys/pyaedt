@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+import ansys.aedt.core.generic.constants as consts
 
 
 class Band(EmitNode):
@@ -57,6 +58,12 @@ class Band(EmitNode):
     def import_tx_measurement(self, file_name):
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
+
+    def get_active_frequencies(self, is_rx: bool, units: str = "Hz") -> list[float]:
+        """Return list of sampled tx or rx frequencies for the given band (empty if disabled)"""
+        freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, is_rx)
+        freqs_converted = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
+        return freqs_converted
 
     @property
     def enabled(self) -> bool:
