@@ -21,11 +21,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import copy
-import os.path
 from pathlib import Path
 import time
 
+from matplotlib.path import Path as MplPath
 import numpy as np
 from pyedb.generic.constants import unit_converter
 
@@ -94,7 +95,7 @@ class CommonTemplate(PyAedtBase):
         if self._project_name:
             return self._project_name
         if self.project and self.project.endswith(".aedt"):
-            return os.path.split(os.path.splitext(self.project)[0])[-1]
+            return str(Path(self.project).stem)
         return
 
     @project_name.setter
@@ -645,7 +646,6 @@ class VirtualCompliance(PyAedtBase):
         self._dut = val
 
     @pyaedt_function_handler()
-    @pyaedt_function_handler()
     def load_project(self) -> bool:
         """Open the aedt project in Electronics Desktop.
 
@@ -659,10 +659,11 @@ class VirtualCompliance(PyAedtBase):
         self._desktop_class.load_project(self._project_file)
         project = self._desktop_class.active_project()
         self._project_name = project.GetName()
-        self._output_folder = os.path.join(
-            project.GetPath(), self._project_name + ".pyaedt", generate_unique_name(self._template_name)
+        output_path = (
+            Path(project.GetPath()) / f"{self._project_name}.pyaedt" / generate_unique_name(self._template_name)
         )
-        os.makedirs(self._output_folder, exist_ok=True)
+        output_path.mkdir(parents=True, exist_ok=True)
+        self._output_folder = str(output_path)
         return True
 
     @property
@@ -719,8 +720,8 @@ class VirtualCompliance(PyAedtBase):
     @specs_folder.setter
     def specs_folder(self, val) -> None:
         self._specs_folder = val
-        if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
-            self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
+        if self._specs_folder and (Path(self._template_folder) / self._specs_folder).exists():
+            self._specs_folder = str(Path(self._template_folder) / self._specs_folder)
 
     @property
     def template_name(self):
@@ -966,7 +967,7 @@ class VirtualCompliance(PyAedtBase):
                     break
         self._summary.append([name, failed])
         self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
-        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), pass_fail_table)
+        write_csv(str(Path(self._output_folder) / f"{name}_pass_fail.csv"), pass_fail_table)
         return True
 
     @pyaedt_function_handler()
@@ -981,7 +982,9 @@ class VirtualCompliance(PyAedtBase):
                 self._desktop_class.odesktop.CloseAllWindows()
             settings.logger.info(f"Adding report {template_report.name}.")
             config_file = template_report.config_file
-            if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
+            config_path = Path(config_file)
+            template_config_path = Path(self._template_folder) / config_file
+            if not config_path.exists() and not template_config_path.exists():
                 self._desktop_class.logger.error(f"{config_file} is not found.")
                 continue
             name = template_report.name
@@ -1001,9 +1004,9 @@ class VirtualCompliance(PyAedtBase):
                 except Exception:  # pragma: no cover
                     self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                     continue
-            if os.path.exists(os.path.join(self._template_folder, config_file)):
-                config_file = os.path.join(self._template_folder, config_file)
-            if not os.path.exists(config_file):
+            if template_config_path.exists():
+                config_file = str(template_config_path)
+            if not Path(config_file).exists():
                 continue
             local_config = read_configuration_file(config_file)
             new_dict = {}
@@ -1053,7 +1056,7 @@ class VirtualCompliance(PyAedtBase):
             if out:
                 compliance_reports.add_image(
                     {
-                        "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                        "path": str(Path(self._output_folder) / f"{aedt_report.plot_name}.jpg"),
                         "caption": f"Plot {report_type} for {name}",
                     }
                 )
@@ -1075,11 +1078,11 @@ class VirtualCompliance(PyAedtBase):
                 time.sleep(1)
                 self._desktop_class.odesktop.CloseAllWindows()
             try:
-                settings.logger.info(f"Adding report  {template_report.name}.")
+                settings.logger.info(f"Adding report {template_report.name}.")
                 config_file = template_report.config_file
-                if not os.path.exists(config_file) and not os.path.exists(
-                    os.path.join(self._template_folder, config_file)
-                ):
+                config_path = Path(config_file)
+                template_config_path = Path(self._template_folder) / config_file
+                if not config_path.exists() and not template_config_path.exists():
                     self._desktop_class.logger.error(f"{config_file} is not found.")
                     continue
                 name = template_report.name
@@ -1101,9 +1104,9 @@ class VirtualCompliance(PyAedtBase):
                     except Exception:  # pragma: no cover
                         self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                         continue
-                if os.path.exists(os.path.join(self._template_folder, config_file)):
-                    config_file = os.path.join(self._template_folder, config_file)
-                if not os.path.exists(config_file):
+                if template_config_path.exists():
+                    config_file = str(template_config_path)
+                if not Path(config_file).exists():
                     continue
                 local_config = read_configuration_file(config_file)
                 if pass_fail and not pass_fail_criteria:
@@ -1168,7 +1171,7 @@ class VirtualCompliance(PyAedtBase):
                         self._summary.append([template_report.name, failed])
                         self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
 
-                        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
+                        write_csv(str(Path(self._output_folder) / f"{name}_pass_fail.csv"), table)
                     else:
                         self._summary.append([template_report.name, "NO PASS/FAIL"])
                         self._summary_font.append(["", None])
@@ -1176,7 +1179,7 @@ class VirtualCompliance(PyAedtBase):
                     if out:
                         compliance_reports.add_image(
                             {
-                                "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                "path": str(Path(self._output_folder) / f"{aedt_report.plot_name}.jpg"),
                                 "caption": f"Plot {report_type} for {name}",
                             }
                         )
@@ -1256,7 +1259,7 @@ class VirtualCompliance(PyAedtBase):
                                 )
 
                                 if table:  # pragma: no cover
-                                    write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
+                                    write_csv(str(Path(self._output_folder) / f"{name}{trace}_pass_fail.csv"), table)
                                 else:
                                     _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
                             else:
@@ -1264,7 +1267,7 @@ class VirtualCompliance(PyAedtBase):
                                 self._summary_font.append(["", None])
                             compliance_reports.add_image(
                                 {
-                                    "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                    "path": str(Path(self._output_folder) / f"{aedt_report.plot_name}.jpg"),
                                     "caption": f"Plot {report_type} for {name}",
                                 }
                             )
@@ -1272,9 +1275,9 @@ class VirtualCompliance(PyAedtBase):
                                 _design.logger.info("Adding eye measurements.")
                                 table = self._add_eye_measurement(aedt_report, compliance_reports, image_name)
                                 write_csv(
-                                    os.path.join(
-                                        self._output_folder,
-                                        f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", ""),
+                                    str(
+                                        Path(self._output_folder)
+                                        / f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", "")
                                     ),
                                     table,
                                 )
@@ -1300,9 +1303,10 @@ class VirtualCompliance(PyAedtBase):
 
         for templ_name, template_report in self._parameters.items():
             config_file = template_report.config_file
-            if not os.path.exists(config_file):
-                config_file = os.path.join(self._template_folder, config_file)
-            if not os.path.exists(config_file):
+            config_path = Path(config_file)
+            if not config_path.exists():
+                config_file = str(Path(self._template_folder) / config_file)
+            if not Path(config_file).exists():
                 self._desktop_class.logger.error(f"{config_file} not found.")
                 continue
             name = template_report.name
@@ -1376,7 +1380,7 @@ class VirtualCompliance(PyAedtBase):
 
     @staticmethod
     def points_in_polygon(points, polygon):
-        path = Path(polygon)
+        path = MplPath(polygon)
         return path.contains_points(points)
 
     @pyaedt_function_handler()
@@ -1451,7 +1455,7 @@ class VirtualCompliance(PyAedtBase):
             if len(output_array) > 0:
                 unit = sols.units_sweeps["__Amplitude"]
                 header = f"Value{unit},Unit Interval,Violation"
-                file_path = os.path.join(self._output_folder, f"{image_name}_statistical_eye_violations.csv")
+                file_path = str(Path(self._output_folder) / f"{image_name}_statistical_eye_violations.csv")
                 np.savetxt(
                     file_path,
                     output_array,
@@ -1600,7 +1604,7 @@ class VirtualCompliance(PyAedtBase):
     @pyaedt_function_handler()
     def _add_eye_diagram_violations(self, report, chapter, image_name):
         try:
-            out_eye = os.path.join(self._output_folder, "violations.tab")
+            out_eye = str(Path(self._output_folder) / "violations.tab")
             viol = report.export_mask_violation(out_eye)
         except Exception:  # pragma: no cover
             viol = None
@@ -1610,7 +1614,7 @@ class VirtualCompliance(PyAedtBase):
         result_value_mask = "PASS"
         mystr2 = "Upper/Lower Mask Violation:"
         result_value_upper = "PASS"
-        if os.path.exists(viol):
+        if Path(viol).exists():
             try:  # pragma: no cover
                 import pandas as pd
             except ImportError:  # pragma: no cover
@@ -1634,7 +1638,7 @@ class VirtualCompliance(PyAedtBase):
     @pyaedt_function_handler()
     def _add_eye_measurement(self, report, chapter, image_name):
         report.add_all_eye_measurements()
-        out_eye = os.path.join(self._output_folder, f"eye_measurements_{image_name}.csv")
+        out_eye = str(Path(self._output_folder) / f"eye_measurements_{image_name}.csv")
         report._post.oreportsetup.ExportTableToFile(report.plot_name, out_eye, "Legend")
         report.clear_all_eye_measurements()
         table = read_csv(out_eye)
@@ -1678,9 +1682,9 @@ class VirtualCompliance(PyAedtBase):
             if _design.design_type == "Circuit Design":
                 if not self._desktop_class.non_graphical:
                     for page in range(1, _design.modeler.pages + 1):
-                        name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
+                        name = str(Path(self._output_folder) / f"{_design.design_name}_{page}.jpg")
                         image = _design.post.export_model_picture(name, page)
-                        if os.path.exists(image):
+                        if Path(image).exists():
                             report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
                 for element in _design.modeler.schematic.components.values():
@@ -1731,12 +1735,13 @@ class VirtualCompliance(PyAedtBase):
                 self._specs_folder,
             )
             for file in file_list:
-                if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:
+                file_path = Path(file)
+                if file_path.suffix in [".jpg", ".png", ".gif"]:
                     # noinspection PyBroadException
                     try:
-                        caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
+                        caption = " ".join(file_path.stem.split("_"))
                     except Exception:  # pragma: no cover
-                        caption = os.path.split(file)[-1]
+                        caption = file_path.name
                     specs.add_image({"path": file, "caption": caption})
             settings.logger.info("Specifications info added to the report.")
         if self.dut_image:
