@@ -260,7 +260,7 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @first_if_frequency.setter
-    def first_if_frequency(self, value: str) -> None:
+    def first_if_frequency(self, value: str | float) -> None:
         self._set_property("First IF Frequency", f"{value}")
 
     @property
