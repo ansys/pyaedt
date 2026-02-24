@@ -23,10 +23,11 @@
 # SOFTWARE.
 
 import math as mathlib
-import os
+from pathlib import Path
 import warnings
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -46,13 +47,13 @@ ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 class BuildingsPrep(PyAedtBase):
     """Contains all basic functions needed to generate buildings stl files."""
 
-    def __init__(self, cad_path) -> None:
+    def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
 
     @staticmethod
     @pyaedt_function_handler()
     @graphics_required
-    def create_building_roof(all_pos):
+    def create_building_roof(all_pos: NDArray[np.float64]):
         """Generate a filled in polygon from outline.
 
         Includes concave and convex shapes.
@@ -103,7 +104,7 @@ class BuildingsPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def generate_buildings(self, center_lat_lon, terrain_mesh, max_radius: int = 500):
+    def generate_buildings(self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500) -> dict:
         """Generate the buildings stl file.
 
         Parameters
@@ -122,12 +123,7 @@ class BuildingsPrep(PyAedtBase):
         """
         import pyvista as pv
 
-        # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
-        try:
-            gdf = ox.geometries.geometries_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
-        # NOTE: Handle breaking changes introduced in osmn>=v2.0
-        except AttributeError:
-            gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
+        gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         center_offset_x = utm_center[0]
@@ -137,13 +133,7 @@ class BuildingsPrep(PyAedtBase):
             logger.info("No Buildings Exists in Selected Geometry")
             return {"file_name": None, "mesh": None}
         else:
-            # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
-            try:
-                gdf_proj = ox.project_gdf(gdf)
-            # NOTE: Handle breaking changes introduced in osmn>=v2.0
-            except AttributeError:
-                gdf_proj = ox.projection.project_gdf(gdf)
-
+            gdf_proj = ox.projection.project_gdf(gdf)
             geo = gdf_proj["geometry"]
             try:
                 levels = gdf_proj["building:levels"]
@@ -246,7 +236,7 @@ class BuildingsPrep(PyAedtBase):
 
             building_meshes["Elevation"] = el.ravel(order="F")
 
-            file_out = self.cad_path + "\\buildings.stl"
+            file_out = str(Path(self.cad_path) / "buildings.stl")
             building_meshes.save(file_out, binary=True)
 
             return {"file_name": file_out, "mesh": building_meshes, "temp": temp}
@@ -255,20 +245,20 @@ class BuildingsPrep(PyAedtBase):
 class RoadPrep(PyAedtBase):
     """Contains all basic functions needed to generate road stl files."""
 
-    def __init__(self, cad_path) -> None:
+    def __init__(self, cad_path: str) -> None:
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
     @graphics_required
     def create_roads(
         self,
-        center_lat_lon,
+        center_lat_lon: list[float],
         terrain_mesh,
-        max_radius: int = 1000,
-        z_offset: int = 0,
-        road_step: int = 10,
-        road_width: int = 5,
-    ):
+        max_radius: float | int = 1000,
+        z_offset: float | int = 0,
+        road_step: float | int = 10,
+        road_width: float | int = 5,
+    ) -> dict:
         """Generate the road stl file.
 
         Parameters
@@ -293,14 +283,7 @@ class RoadPrep(PyAedtBase):
         """
         import pyvista as pv
 
-        # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
-        try:
-            graph = ox.graph_from_point(
-                center_lat_lon, dist=max_radius, simplify=False, network_type="all", clean_periphery=True
-            )
-        # NOTE: Handle breaking changes introduced in osmn>=v2.0
-        except TypeError:
-            graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
+        graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
         g_projected = ox.project_graph(graph)
 
@@ -363,7 +346,7 @@ class RoadPrep(PyAedtBase):
                 zpos = np.linspace(pts[0][2], pts[1][2], num=num_steps)
                 pts = np.column_stack((xpos, ypos, zpos))
             try:
-                line += pv.lines_from_points(pts, close=True)
+                line += pv.lines_from_points(pts, close=False)
             except ValueError:
                 pass
             end_shape = pv.Circle(road_width, resolution=16).delaunay_2d()
@@ -377,7 +360,7 @@ class RoadPrep(PyAedtBase):
         el = roads.points[:, 2]
 
         roads["Elevation"] = el.ravel(order="F")
-        file_out = os.path.join(self.cad_path + "\\roads.stl")
+        file_out = str(Path(self.cad_path) / "roads.stl")
         roads.save(file_out)
         return {"file_name": file_out, "mesh": roads, "graph": g_projected}
 
@@ -390,7 +373,13 @@ class TerrainPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def get_terrain(self, center_lat_lon, max_radius: int = 500, grid_size: int = 5, buffer_percent: int = 0):
+    def get_terrain(
+        self,
+        center_lat_lon: list[float],
+        max_radius: float | int = 500,
+        grid_size: float | int = 5,
+        buffer_percent: float | int = 0,
+    ) -> dict:
         """Generate the terrain stl file.
 
         Parameters
@@ -433,7 +422,7 @@ class TerrainPrep(PyAedtBase):
                     xyz.append([latlat_utm_centered, lonlon_utm_centered, all_data[lat_idx][lon_idx]])
         xyz = np.array(xyz)
 
-        file_out = self.cad_path + "/terrain.stl"
+        file_out = str(Path(self.cad_path) / "terrain.stl")
         logger.info("saving STL as " + file_out)
         terrain_mesh = pv.PolyData(xyz)
         terrain_mesh = terrain_mesh.delaunay_2d(tol=10 / (2 * max_radius) / 2)
@@ -449,10 +438,10 @@ class TerrainPrep(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def get_elevation(
-        center_lat_lon,
-        max_radius: int = 500,
-        grid_size: int = 3,
-    ):
+        center_lat_lon: list[float],
+        max_radius: float | int = 500,
+        grid_size: float | int = 3,
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
         """Get Elevation map.
 
         Parameters
@@ -527,7 +516,9 @@ class TerrainPrep(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None) -> tuple:
+def convert_latlon_to_utm(
+    latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None
+) -> tuple[float, float, str, int]:
     """Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
 
     Parameters
@@ -646,8 +637,12 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
 
 @pyaedt_function_handler()
 def convert_utm_to_latlon(
-    east: int, north: float, zone_number: int, zone_letter: str = None, northern: bool = None
-) -> tuple:
+    east: float | int,
+    north: float | int,
+    zone_number: int,
+    zone_letter: str = None,
+    northern: bool = None,
+) -> tuple[float, float]:
     """Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.
 
     Parameters
