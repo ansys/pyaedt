@@ -25,7 +25,8 @@
 import copy
 import datetime
 import json
-import os.path
+import os
+from pathlib import Path
 
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
@@ -382,11 +383,12 @@ class Modeler3D(Primitives3D, PyAedtBase):
                         del out_dict["coordinatesystems"][cs]
             with open_file(export_auxiliary, "w") as outfile:
                 json.dump(out_dict, outfile)
-        if not os.path.isdir(os.path.dirname(input_file)):
-            self.logger.warning("Folder '" + os.path.dirname(input_file) + "' doesn't exist.")
+        input_path = Path(input_file)
+        if not input_path.parent.is_dir():
+            self.logger.warning(f"Folder '{input_path.parent}' doesn't exist.")
             if create_folder:  # Folder doesn't exist.
-                os.mkdir(os.path.dirname(input_file))
-                self.logger.warning("Created folder '" + os.path.dirname(input_file) + "'")
+                input_path.parent.mkdir(parents=True, exist_ok=True)
+                self.logger.warning(f"Created folder '{input_path.parent}'")
             else:
                 self.logger.warning("Unable to create 3D Component: '" + input_file + "'")
                 return False
@@ -1062,7 +1064,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                     merge_planar_faces=enable_stl_merge,
                     merge_angle=merge_angle,
                 )
-                self.logger.info(f"Model {os.path.split(output_stl)[-1]} imported")
+                self.logger.info(f"Model {Path(output_stl).name} imported")
             self._app.save_project()
             if group_parts:
                 self.logger.info("Grouping parts...")
@@ -1168,18 +1170,18 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def import_from_openstreet_map(
         self,
-        latitude_longitude,
+        latitude_longitude: list[float],
         env_name: str = "default",
-        terrain_radius: int = 500,
+        terrain_radius: float | int = 500,
         include_osm_buildings: bool = True,
         including_osm_roads: bool = True,
         import_in_aedt: bool = True,
         plot_before_importing: bool = False,
-        z_offset: int = 2,
-        road_step: int = 3,
-        road_width: int = 8,
-        create_lightweigth_part: bool = True,
-    ):
+        z_offset: float | int = 2,
+        road_step: float | int = 3,
+        road_width: float | int = 8,
+        create_lightweight_part: bool = True,
+    ) -> dict:
         """Import OpenStreet Maps into AEDT.
 
         Parameters
@@ -1204,7 +1206,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             Road simplification steps in meter. Default is ``3``.
         road_width : float
             Road width  in meter. Default is ``8``.
-        create_lightweigth_part : bool
+        create_lightweight_part : bool
             Either if import as lightweight object or not. Default is ``True``.
 
         Returns
@@ -1220,9 +1222,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
         to compute also elevation.
 
         """
-        from ansys.aedt.core.modeler.advanced_cad.oms import BuildingsPrep
-        from ansys.aedt.core.modeler.advanced_cad.oms import RoadPrep
-        from ansys.aedt.core.modeler.advanced_cad.oms import TerrainPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+        from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
 
         output_path = self._app.working_directory
 
@@ -1263,7 +1265,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
             parts_dict["roads"] = road_dict
 
-        json_path = os.path.join(output_path, env_name + ".json")
+        json_path = Path(output_path) / (env_name + ".json")
 
         scene = {
             "name": env_name,
@@ -1303,10 +1305,25 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if import_in_aedt:
             self.model_units = "meter"
             for part in parts_dict:
-                if not os.path.exists(parts_dict[part]["file_name"]):
+                if not Path(parts_dict[part]["file_name"]).exists():
                     continue
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweight_part=create_lightweigth_part)
+
+                try:
+                    self.import_3d_cad(
+                        parts_dict[part]["file_name"], create_lightweight_part=create_lightweight_part, healing=False
+                    )
+                except Exception as e:  # pragma: no cover
+                    self.logger.error(
+                        f"Failed to import {part} part. Error: {str(e)}. Trying to import with healing enabled."
+                    )
+                    try:
+                        self.import_3d_cad(
+                            parts_dict[part]["file_name"], create_lightweight_part=create_lightweight_part, healing=True
+                        )
+                    except Exception as e:  # pragma: no cover
+                        self.logger.error(f"Failed to import {part} part with healing enabled. Error: {str(e)}.")
+
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2
