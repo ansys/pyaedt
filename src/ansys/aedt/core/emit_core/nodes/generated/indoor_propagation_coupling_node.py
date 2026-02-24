@@ -64,7 +64,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
