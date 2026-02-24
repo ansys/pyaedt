@@ -123,7 +123,7 @@ class BuildingsPrep(PyAedtBase):
         """
         import pyvista as pv
 
-        gdf = ox.geometries.geometries_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
+        gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         center_offset_x = utm_center[0]
@@ -133,7 +133,7 @@ class BuildingsPrep(PyAedtBase):
             logger.info("No Buildings Exists in Selected Geometry")
             return {"file_name": None, "mesh": None}
         else:
-            gdf_proj = ox.project_gdf(gdf)
+            gdf_proj = ox.projection.project_gdf(gdf)
             geo = gdf_proj["geometry"]
             try:
                 levels = gdf_proj["building:levels"]

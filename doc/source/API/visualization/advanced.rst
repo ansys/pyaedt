@@ -268,6 +268,98 @@ The following methods allows to read and plot rays information.
    sbrplus.hdm_parser.Parser
 
 
+OpenStreetMap
+~~~~~~~~~~~~~
+
+PyAEDT provides comprehensive tools for importing and processing OpenStreetMap (OSM) data to create
+realistic 3D environments for electromagnetic simulations. The OMS module enables automatic generation
+of buildings, roads, and terrain meshes suitable for large-scale RF propagation and antenna placement studies.
+
+The module consists of three main preparation classes:
+
+- **BuildingsPrep**: Generates 3D building models from OSM building footprints with estimated heights
+- **RoadPrep**: Creates road network geometries with proper elevation mapping
+- **TerrainPrep**: Generates terrain meshes with elevation data
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.oms
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   BuildingsPrep
+   RoadPrep
+   TerrainPrep
+   convert_latlon_to_utm
+   convert_utm_to_latlon
+
+
+Use the high-level ``import_from_openstreet_map`` method to import complete OSM scenes:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+
+    # Define location (latitude, longitude)
+    center = [40.7128, -74.0060]  # New York City
+
+    # Import OSM data with buildings, roads, and terrain
+    scene = app.modeler.import_from_openstreet_map(
+        latitude_longitude=center,
+        terrain_radius=500,
+        include_osm_buildings=True,
+        including_osm_roads=True,
+        import_in_aedt=True,
+    )
+
+For advanced control, use the preparation classes directly:
+
+.. code:: python
+
+    from ansys.aedt.core.modeler.advanced_cad.oms import (
+        BuildingsPrep,
+        RoadPrep,
+        TerrainPrep,
+    )
+
+    # Define location
+    center = [40.7128, -74.0060]  # New York City
+    output_path = "./osm_output"
+
+    # Generate terrain
+    terrain_prep = TerrainPrep(cad_path=output_path)
+    terrain_data = terrain_prep.get_terrain(center, max_radius=500, grid_size=30)
+
+    # Generate buildings aligned to terrain
+    building_prep = BuildingsPrep(cad_path=output_path)
+    building_data = building_prep.generate_buildings(
+        center, terrain_data["mesh"], max_radius=400
+    )
+
+    # Generate roads aligned to terrain
+    road_prep = RoadPrep(cad_path=output_path)
+    road_data = road_prep.create_roads(
+        center, terrain_data["mesh"], max_radius=500, road_width=8
+    )
+
+The module automatically:
+
+- Downloads geographic data from OpenStreetMap
+- Converts coordinates from lat/lon to local UTM system
+- Generates 3D STL meshes for buildings, roads, and terrain
+- Aligns all geometries to terrain elevation
+- Exports files ready for AEDT import
+
+.. note::
+   Building heights are estimated from OSM ``building:levels`` tags or ``height`` attributes.
+   Large radius values may result in significant download and processing times.
+
+For complete documentation, see the example:
+`City scenario with OpenStreetMap <https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html>`_
+
+
 Miscellaneous
 ~~~~~~~~~~~~~
 
