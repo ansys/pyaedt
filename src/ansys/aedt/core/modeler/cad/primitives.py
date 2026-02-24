@@ -4986,10 +4986,10 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg1.append("ImportFreeSurfaces:="), vArg1.append(import_free_surfaces)
         vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
-        (
-            vArg1.append("MergeFacesAngle:="),
-            vArg1.append(merge_angle if input_file.suffix.lower() == ".stl" and merge_planar_faces else -1),
-        )
+
+        (vArg1.append("MergeFacesAngle:="),)
+        (vArg1.append(merge_angle if input_file.suffix.lower() == ".stl" and merge_planar_faces else -1),)
+
         if input_file.suffix.lower() == ".stl":
             vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
