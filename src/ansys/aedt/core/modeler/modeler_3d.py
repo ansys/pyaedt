@@ -1283,10 +1283,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
             json.dump(scene, f, indent=4)
 
         self.logger.info("Done...")
-        if plot_before_importing:
+        if plot_before_importing:  # pragma: no cover
             try:
                 import pyvista as pv
-            except ImportError:
+            except ImportError:  # pragma: no cover
                 raise ImportError(ERROR_GRAPHICS_REQUIRED)
 
             self.logger.info("Viewing Geometry...")
@@ -1309,7 +1309,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             self.model_units = "meter"
             for part in parts_dict:
                 settings.release_on_exception = False
-                if not Path(parts_dict[part]["file_name"]).exists():
+                if not Path(parts_dict[part]["file_name"]).exists():  # pragma: no cover
                     continue
                 obj_names = [i for i in self.object_names]
 
