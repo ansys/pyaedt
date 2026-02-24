@@ -18,13 +18,15 @@ runs:
       uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: ${{ inputs.testmon-datafile }}
-        key: ${{ inputs.cache-key }}-main
+        key: ${{ inputs.cache-key }}-${{ github.base_ref || 'main' }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.cache-key }}-main
+          ${{ inputs.cache-key }}-${{ github.base_ref || 'main' }}-
+          ${{ inputs.cache-key }}-main-
 
     - name: Check testmon cache status
       shell: bash
       env:
+        EVENT_NAME: ${{ github.event_name }}
         TESTMON_FILE: ${{ inputs.testmon-datafile }}
       run: |
           if [ -f "$TESTMON_FILE" ]; then
