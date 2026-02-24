@@ -26,8 +26,8 @@
 
 import pytest
 
-from ansys.aedt.core.modeler.advanced_cad.oms import convert_latlon_to_utm
-from ansys.aedt.core.modeler.advanced_cad.oms import convert_utm_to_latlon
+from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
+from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
 
 
 def test_convert_latlon_to_utm() -> None:

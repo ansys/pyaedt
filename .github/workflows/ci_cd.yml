@@ -412,20 +412,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-solvers-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -496,20 +482,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
-
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-solvers-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -585,20 +557,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-general-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -671,20 +629,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
-
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-general-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -762,20 +706,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-visualization-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -850,20 +780,6 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-visualization-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -934,20 +850,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
-
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-icepak-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -1020,20 +922,6 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-icepak-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1105,20 +993,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-layout-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1187,20 +1061,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
-
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-layout-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -1402,20 +1262,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-filter-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
-
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -1486,20 +1332,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
-
-      - name: Prepare testmon data for caching
-        if: ${{ success() }}
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: testmondata-emit-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          include-hidden-files: true
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
