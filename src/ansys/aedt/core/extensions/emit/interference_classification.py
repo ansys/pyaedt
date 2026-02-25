@@ -443,7 +443,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         domain = app.results.interaction_domain()
         # Prefer API on results viewer if available; otherwise fallback to results
         rev = app.results.analyze()
-        colors, matrix = rev.interference_type_classification(
+        sim = rev.get_simulation()
+        colors, matrix = sim.interference_type_classification(
             domain, interferer_type=InterfererType().TRANSMITTERS, use_filter=True, filter_list=filter_list
         )
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS_AND_EMITTERS)
@@ -475,9 +476,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             global_levels = self._protection_levels.get("Global", current_values)
 
         rev = app.results.analyze()
+        sim = rev.get_simulation()
         domain = app.results.interaction_domain()
 
-        colors, matrix = rev.protection_level_classification(
+        colors, matrix = sim.protection_level_classification(
             domain=domain,
             interferer_type=InterfererType().TRANSMITTERS,
             global_protection_level=self._global_protection_level,

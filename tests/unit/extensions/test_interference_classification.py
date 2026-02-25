@@ -231,17 +231,19 @@ def test_compute_interference(mock_emit_environment):
     mock_components = MagicMock()
     mock_results = MagicMock()
     mock_analyze = MagicMock()
+    mock_simulation = MagicMock()
 
     # Mock radios
     mock_components.get_radios.return_value = ["Radio1", "Radio2", "Radio3"]
     mock_modeler.components = mock_components
     mock_aedt_app.modeler = mock_modeler
 
-    # Mock results
-    mock_analyze.interference_type_classification.return_value = (
+    # Mock results - simulation methods are on the simulation object
+    mock_simulation.interference_type_classification.return_value = (
         [["red", "green"], ["yellow", "orange"], ["white", "red"]],
         [["IB/IB", "OOB/IB"], ["IB/OOB", "IB/IB"], ["OOB/OOB", "IB/IB"]],
     )
+    mock_analyze.get_simulation.return_value = mock_simulation
     mock_analyze.get_interferer_names.return_value = ["Tx1", "Tx2", "Tx3"]
     mock_analyze.get_receiver_names.return_value = ["Rx1", "Rx2"]
     mock_results.analyze.return_value = mock_analyze
@@ -287,17 +289,19 @@ def test_compute_protection(mock_emit_environment):
     mock_components = MagicMock()
     mock_results = MagicMock()
     mock_analyze = MagicMock()
+    mock_simulation = MagicMock()
 
     # Mock radios
     mock_components.get_radios.return_value = ["Radio1", "Radio2"]
     mock_modeler.components = mock_components
     mock_aedt_app.modeler = mock_modeler
 
-    # Mock results
-    mock_analyze.protection_level_classification.return_value = (
+    # Mock results - simulation methods are on the simulation object
+    mock_simulation.protection_level_classification.return_value = (
         [["green", "red"], ["yellow", "orange"]],
         [["Safe", "Damage"], ["Overload", "Intermod"]],
     )
+    mock_analyze.get_simulation.return_value = mock_simulation
     mock_analyze.get_interferer_names.return_value = ["Tx1", "Tx2"]
     mock_analyze.get_receiver_names.return_value = ["Rx1", "Rx2"]
     mock_results.analyze.return_value = mock_analyze
@@ -324,15 +328,17 @@ def test_on_run_interference(mock_emit_environment):
     mock_components = MagicMock()
     mock_results = MagicMock()
     mock_analyze = MagicMock()
+    mock_simulation = MagicMock()
 
     mock_components.get_radios.return_value = ["Radio1", "Radio2"]
     mock_modeler.components = mock_components
     mock_aedt_app.modeler = mock_modeler
 
-    mock_analyze.interference_type_classification.return_value = (
+    mock_simulation.interference_type_classification.return_value = (
         [["red", "green"]],
         [["IB/IB", "OOB/IB"]],
     )
+    mock_analyze.get_simulation.return_value = mock_simulation
     mock_analyze.get_interferer_names.return_value = ["Tx1"]
     mock_analyze.get_receiver_names.return_value = ["Rx1", "Rx2"]
     mock_results.analyze.return_value = mock_analyze
@@ -384,15 +390,17 @@ def test_on_run_protection(mock_emit_environment):
     mock_components = MagicMock()
     mock_results = MagicMock()
     mock_analyze = MagicMock()
+    mock_simulation = MagicMock()
 
     mock_components.get_radios.return_value = ["Radio1", "Radio2"]
     mock_modeler.components = mock_components
     mock_aedt_app.modeler = mock_modeler
 
-    mock_analyze.protection_level_classification.return_value = (
+    mock_simulation.protection_level_classification.return_value = (
         [["green", "red"]],
         [["Safe", "Damage"]],
     )
+    mock_analyze.get_simulation.return_value = mock_simulation
     mock_analyze.get_interferer_names.return_value = ["Tx1"]
     mock_analyze.get_receiver_names.return_value = ["Rx1", "Rx2"]
     mock_results.analyze.return_value = mock_analyze
