@@ -59,7 +59,7 @@ class AntennaNode(EmitNode):
         val = self._get_property("Tags")
         return val
 
-    @tags
+    @tags.setter
     def tags(self, value: str):
         self._set_property("Tags", f"{value}")
 
