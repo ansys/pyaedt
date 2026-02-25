@@ -112,6 +112,7 @@ jobs:
           - [testing](https://github.com/ansys/pyaedt/pulls?q=label%Atesting+)
 
   changelog-fragment:
+    if: github.repository_owner == 'ansys'
     name: "Create changelog fragment"
     needs: [labeler]
     permissions:
