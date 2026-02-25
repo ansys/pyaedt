@@ -5,7 +5,7 @@ runs:
   using: 'composite'
   steps:
     - name: Wait for main cache update
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && github.repository == 'ansys/pyaedt'
       shell: bash
       run: |
         echo "Checking if main cache update is running..."
