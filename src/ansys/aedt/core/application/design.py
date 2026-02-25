@@ -2342,6 +2342,8 @@ class Design(AedtObjects, PyAedtBase):
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
+        if not self.setups:
+            raise AEDTRuntimeError("No setup in source design.")
         if design not in [DesignType.ICEPAK, DesignType.ICEPAKFEA]:
             raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
         design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
@@ -2354,7 +2356,7 @@ class Design(AedtObjects, PyAedtBase):
             design = DesignType.ICEPAKFEA
         if not setup:
             setup = self.nominal_adaptive
-        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
+        self.odesign.CreateEMLossTarget(design.NAME, setup, design_setup_args)
         return True
 
     @pyaedt_function_handler()
