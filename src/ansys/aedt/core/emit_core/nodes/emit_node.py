@@ -36,6 +36,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
@@ -55,6 +56,11 @@ class EmitNode:
 
     def __eq__(self, other):
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
+
+    @property
+    def odesktop(self):
+        """Desktop instance used for version checking."""
+        return self._emit_obj.odesktop
 
     @staticmethod
     def props_to_dict(props: list[str]) -> dict:
@@ -79,6 +85,7 @@ class EmitNode:
         return result
 
     @property
+    @min_aedt_version("2025.2")
     def valid(self) -> bool:
         """Indicates if this object is still valid (not detached from EMIT node).
 
@@ -90,6 +97,7 @@ class EmitNode:
         return self._valid
 
     @property
+    @min_aedt_version("2025.2")
     def name(self) -> str:
         """Name of the node.
 
@@ -101,6 +109,7 @@ class EmitNode:
         return self._get_property("Name", True)
 
     @name.setter
+    @min_aedt_version("2025.2")
     def name(self, requested_name: str):
         """Renames the node/component.
 
@@ -126,6 +135,7 @@ class EmitNode:
             _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
 
     @property
+    @min_aedt_version("2025.2")
     def _node_type(self) -> str:
         """Type of the node.
 
@@ -137,6 +147,7 @@ class EmitNode:
         return self._get_property("Type", True)
 
     @property
+    @min_aedt_version("2025.2")
     def _parent(self):
         """Parent node name of this node.
 
@@ -151,6 +162,7 @@ class EmitNode:
         return self._get_node(node_id)
 
     @property
+    @min_aedt_version("2025.2")
     def parent_name(self):
         """Full node name of the parent node including the entire tree structure
 
@@ -162,6 +174,7 @@ class EmitNode:
         return self._get_property("Parent", True)
 
     @property
+    @min_aedt_version("2025.2")
     def _full_node_name(self):
         """Full node name of this node including the entire tree structure
 
@@ -174,6 +187,7 @@ class EmitNode:
         return parent_name + "-*-" + self.name
 
     @property
+    @min_aedt_version("2025.2")
     def properties(self) -> dict:
         """Node properties.
 
@@ -187,6 +201,7 @@ class EmitNode:
         return props
 
     @property
+    @min_aedt_version("2025.2")
     def warnings(self) -> str:
         """Warnings for the node, if any.
 
@@ -206,6 +221,7 @@ class EmitNode:
         return node_warnings
 
     @property
+    @min_aedt_version("2025.2")
     def allowed_child_types(self) -> list[str]:
         """Child types allowed for this node.
 
@@ -216,6 +232,7 @@ class EmitNode:
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
+    @min_aedt_version("2025.2")
     def _get_node(self, node_id: int):
         """Gets a node for this node's revision with the given id.
 
@@ -267,6 +284,7 @@ class EmitNode:
         return node
 
     @property
+    @min_aedt_version("2025.2")
     def children(self):
         """Child nodes of this node.
 
@@ -280,6 +298,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
+    @min_aedt_version("2025.2")
     def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
@@ -319,6 +338,7 @@ class EmitNode:
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
+    @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
         try:
             self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
@@ -374,6 +394,7 @@ class EmitNode:
         except ValueError:
             raise ValueError(f"{value} is not valid for this property.")
 
+    @min_aedt_version("2025.2")
     def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
         """Takes a value and converts to internal EMIT units used for storing values.
 
@@ -441,6 +462,7 @@ class EmitNode:
             converted_value = consts.unit_converter(value, unit_system, EMIT_INTERNAL_UNITS[unit_system], units)
         return converted_value
 
+    @min_aedt_version("2025.2")
     def _delete(self) -> None:
         """Deletes the current node (component)."""
         if self.get_is_component():
@@ -448,6 +470,7 @@ class EmitNode:
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
+    @min_aedt_version("2025.2")
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
 
@@ -474,6 +497,7 @@ class EmitNode:
 
         return self.name
 
+    @min_aedt_version("2025.2")
     def _duplicate(self: T, new_name: str = "") -> T:
         """Duplicate component using oEditor's Copy/Paste.
         New component is placed under existing components in the schematic window.
@@ -551,6 +575,7 @@ class EmitNode:
 
         return new_component
 
+    @min_aedt_version("2025.2")
     def _import(self, file_path: str, import_type: str):
         """Imports a file into an Emit node.
 
@@ -580,6 +605,7 @@ class EmitNode:
             raise Exception(error_text)
         return self._get_node(node_id)
 
+    @min_aedt_version("2025.2")
     def _export_model(self, file_path: str) -> None:
         """Exports an Emit node's model to a file.
 
@@ -590,6 +616,7 @@ class EmitNode:
         """
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
+    @min_aedt_version("2025.2")
     def get_is_component(self) -> bool:
         """Check if node is also a component.
 
@@ -600,6 +627,7 @@ class EmitNode:
         """
         return self._is_component
 
+    @min_aedt_version("2025.2")
     def _get_child_node_id(self, child_name: str) -> int:
         """Returns the node ID for the specified child node.
 
@@ -615,6 +643,7 @@ class EmitNode:
         """
         return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
+    @min_aedt_version("2025.2")
     def _is_column_data_table(self) -> bool:
         """Returns true if the node uses column data tables.
 
@@ -641,6 +670,7 @@ class EmitNode:
             return False
         return True
 
+    @min_aedt_version("2025.2")
     def _check_column_table_data(self, data):
         """Converts user inputted int or string table data to SI units.
 
@@ -731,6 +761,7 @@ class EmitNode:
             data_return.append(tuple(row_list))
         return data_return
 
+    @min_aedt_version("2025.2")
     def _check_valid_function(self, expr: str) -> None:
         """Validates a function expression for use in table data.
 
@@ -753,6 +784,7 @@ class EmitNode:
         except Exception as e:
             raise ValueError(f"Error parsing function expression: {e}")
 
+    @min_aedt_version("2025.2")
     def _check_node_prop_table_data(self, data):
         """Converts user inputted int or string table data to SI units or ColumnUnits.
 
@@ -850,6 +882,7 @@ class EmitNode:
             data_return.append(tuple(row_list))
         return data_return
 
+    @min_aedt_version("2025.2")
     def _get_table_data(self):
         """Returns the node's table data.
 
@@ -888,6 +921,7 @@ class EmitNode:
             print(f"Failed to get table data for node {self.name}. Error: {e}")
         return table
 
+    @min_aedt_version("2025.2")
     def _set_table_data(self, table):
         """Sets the table data for the node.
 
@@ -924,6 +958,7 @@ class EmitNode:
         except Exception as e:
             raise ValueError(f"Failed to set table data for node {self.name}. Error: {e}")
 
+    @min_aedt_version("2025.2")
     def _add_child_node(self, child_type, child_name=None):
         """Creates a child node of the given type and name.
 

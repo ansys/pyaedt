@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxBbEmissionNode(EmitNode):
@@ -33,24 +34,29 @@ class TxBbEmissionNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self):
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def table_data(self):
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
@@ -62,15 +68,18 @@ class TxBbEmissionNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
+    @min_aedt_version("2025.2")
     def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
@@ -81,6 +90,7 @@ class TxBbEmissionNode(EmitNode):
         EQUATION = "BroadbandEquation"
 
     @property
+    @min_aedt_version("2025.2")
     def noise_behavior(self) -> NoiseBehaviorOption:
         """Specifies the behavior of the parametric noise profile."""
         val = self._get_property("Noise Behavior")
@@ -88,10 +98,12 @@ class TxBbEmissionNode(EmitNode):
         return val
 
     @noise_behavior.setter
+    @min_aedt_version("2025.2")
     def noise_behavior(self, value: NoiseBehaviorOption) -> None:
         self._set_property("Noise Behavior", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def use_log_linear_interpolation(self) -> bool:
         """Use Log-Linear Interpolation.
 
@@ -104,5 +116,6 @@ class TxBbEmissionNode(EmitNode):
         return val == "true"
 
     @use_log_linear_interpolation.setter
+    @min_aedt_version("2025.2")
     def use_log_linear_interpolation(self, value: bool) -> None:
         self._set_property("Use Log-Linear Interpolation", f"{str(value).lower()}")

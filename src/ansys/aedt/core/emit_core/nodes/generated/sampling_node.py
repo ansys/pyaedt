@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class SamplingNode(EmitNode):
@@ -33,16 +34,19 @@ class SamplingNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self):
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
     @property
+    @min_aedt_version("2025.2")
     def table_data(self):
         """Frequency Ranges Table.
         Table consists of 2 columns.
@@ -54,6 +58,7 @@ class SamplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
+    @min_aedt_version("2025.2")
     def table_data(self, value) -> None:
         self._set_table_data(value)
 
@@ -63,6 +68,7 @@ class SamplingNode(EmitNode):
         UNIFORM_SAMPLING = "UniformSampling"
 
     @property
+    @min_aedt_version("2025.2")
     def sampling_type(self) -> SamplingTypeOption:
         """Sampling to apply to this configuration."""
         val = self._get_property("Sampling Type")
@@ -70,10 +76,12 @@ class SamplingNode(EmitNode):
         return val
 
     @sampling_type.setter
+    @min_aedt_version("2025.2")
     def sampling_type(self, value: SamplingTypeOption) -> None:
         self._set_property("Sampling Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def specify_percentage(self) -> bool:
         """Specify Percentage.
 
@@ -86,10 +94,12 @@ class SamplingNode(EmitNode):
         return val == "true"
 
     @specify_percentage.setter
+    @min_aedt_version("2025.2")
     def specify_percentage(self, value: bool) -> None:
         self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def percentage_of_channels(self) -> float:
         """Percentage of the Band Channels to simulate.
 
@@ -99,10 +109,12 @@ class SamplingNode(EmitNode):
         return float(val)
 
     @percentage_of_channels.setter
+    @min_aedt_version("2025.2")
     def percentage_of_channels(self, value: float) -> None:
         self._set_property("Percentage of Channels", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_channels_range_band(self) -> int:
         """Maximum number of Band Channels to simulate.
 
@@ -112,10 +124,12 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @max_channels_range_band.setter
+    @min_aedt_version("2025.2")
     def max_channels_range_band(self, value: int) -> None:
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def seed(self) -> int:
         """Seed for random channel generator.
 
@@ -125,10 +139,12 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @seed.setter
+    @min_aedt_version("2025.2")
     def seed(self, value: int) -> None:
         self._set_property("Seed", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def total_tx_channels(self) -> int:
         """Total Tx Channels.
 
@@ -139,6 +155,7 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @property
+    @min_aedt_version("2025.2")
     def total_rx_channels(self) -> int:
         """Total Rx Channels.
 
@@ -149,6 +166,7 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @property
+    @min_aedt_version("2025.2")
     def warnings(self) -> str:
         """Warning(s) for this node."""
         val = self._get_property("Warnings")

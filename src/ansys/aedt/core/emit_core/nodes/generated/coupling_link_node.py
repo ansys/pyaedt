@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingLinkNode(EmitNode):
@@ -31,16 +32,19 @@ class CouplingLinkNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self):
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enable/Disable coupling link.
 
@@ -50,15 +54,18 @@ class CouplingLinkNode(EmitNode):
         return val == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def ports(self):
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
+    @min_aedt_version("2025.2")
     def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")

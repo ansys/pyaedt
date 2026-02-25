@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxSpectralProfEmitterNode(EmitNode):
@@ -31,41 +32,50 @@ class TxSpectralProfEmitterNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self):
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def add_narrowband_emissions_mask(self):
         """Add a Transmitter Narrowband Emission Profile"""
         return self._add_child_node("Narrowband Emissions Mask")
 
+    @min_aedt_version("2025.2")
     def add_tx_broadband_noise_profile(self):
         """Add a Transmitter Broadband Emission Profile"""
         return self._add_child_node("Tx Broadband Noise Profile")
 
+    @min_aedt_version("2025.2")
     def add_custom_tx_harmonics(self):
         """Add Custom Tx Harmonics"""
         return self._add_child_node("Custom Tx Harmonics")
 
+    @min_aedt_version("2025.2")
     def add_spurious_emissions(self):
         """Add Transmitter Spurs"""
         return self._add_child_node("Spurious Emissions")
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def output_voltage_peak(self) -> float:
         """Output High Voltage Level: maximum voltage of the digital signal."""
         val = self._get_property("Output Voltage Peak")
@@ -73,11 +83,13 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @output_voltage_peak.setter
+    @min_aedt_version("2025.2")
     def output_voltage_peak(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Voltage")
         self._set_property("Output Voltage Peak", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_phase_noise(self) -> bool:
         """Include oscillator phase noise in Tx spectral profile.
 
@@ -87,10 +99,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return val == "true"
 
     @include_phase_noise.setter
+    @min_aedt_version("2025.2")
     def include_phase_noise(self, value: bool) -> None:
         self._set_property("Include Phase Noise", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def tx_broadband_noise(self) -> float:
         """Transmitters broadband noise level.
 
@@ -100,10 +114,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @tx_broadband_noise.setter
+    @min_aedt_version("2025.2")
     def tx_broadband_noise(self, value: float) -> None:
         self._set_property("Tx Broadband Noise", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def number_of_harmonics(self) -> int:
         """Maximum number of harmonics modeled.
 
@@ -113,10 +129,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return int(val)
 
     @number_of_harmonics.setter
+    @min_aedt_version("2025.2")
     def number_of_harmonics(self, value: int) -> None:
         self._set_property("Number of Harmonics", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def perform_tx_intermod_analysis(self) -> bool:
         """Performs a non-linear intermod analysis for the Tx.
 
@@ -126,10 +144,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return val == "true"
 
     @perform_tx_intermod_analysis.setter
+    @min_aedt_version("2025.2")
     def perform_tx_intermod_analysis(self, value: bool) -> None:
         self._set_property("Perform Tx Intermod Analysis", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def internal_amp_gain(self) -> float:
         """Internal Tx Amplifier's Gain.
 
@@ -139,10 +159,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @internal_amp_gain.setter
+    @min_aedt_version("2025.2")
     def internal_amp_gain(self, value: float) -> None:
         self._set_property("Internal Amp Gain", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def noise_figure(self) -> float:
         """Internal Tx Amplifier's noise figure.
 
@@ -152,10 +174,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @noise_figure.setter
+    @min_aedt_version("2025.2")
     def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def amplifier_saturation_level(self) -> float:
         """Internal Tx Amplifier's Saturation Level.
 
@@ -166,11 +190,13 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @amplifier_saturation_level.setter
+    @min_aedt_version("2025.2")
     def amplifier_saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Amplifier Saturation Level", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
         """P1-dB Point, Ref. Input .
 
@@ -184,11 +210,13 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @p1_db_point_ref_input.setter
+    @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input ", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
         """Internal Tx Amplifier's 3rd order intercept point.
 
@@ -199,11 +227,13 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @ip3_ref_input.setter
+    @min_aedt_version("2025.2")
     def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
         """Internal Tx Amplifier's Reverse Isolation.
 
@@ -213,10 +243,12 @@ class TxSpectralProfEmitterNode(EmitNode):
         return float(val)
 
     @reverse_isolation.setter
+    @min_aedt_version("2025.2")
     def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
         """Internal Tx Amplifier's maximum intermod order to compute.
 
@@ -226,5 +258,6 @@ class TxSpectralProfEmitterNode(EmitNode):
         return int(val)
 
     @max_intermod_order.setter
+    @min_aedt_version("2025.2")
     def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Cable(EmitNode):
@@ -33,19 +34,23 @@ class Cable(EmitNode):
         self._is_component = True
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def filename(self) -> str:
         """Name of file defining the outboard component.
 
@@ -55,10 +60,12 @@ class Cable(EmitNode):
         return val
 
     @filename.setter
+    @min_aedt_version("2025.2")
     def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
         """System Noise temperature (K) of the component.
 
@@ -68,16 +75,19 @@ class Cable(EmitNode):
         return float(val)
 
     @noise_temperature.setter
+    @min_aedt_version("2025.2")
     def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
+    @min_aedt_version("2025.2")
     def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
@@ -87,6 +97,7 @@ class Cable(EmitNode):
         COAXIAL_CABLE = "Coaxial"
 
     @property
+    @min_aedt_version("2025.2")
     def cable_type(self) -> CableTypeOption:
         """Cable Type.
 
@@ -98,10 +109,12 @@ class Cable(EmitNode):
         return val
 
     @cable_type.setter
+    @min_aedt_version("2025.2")
     def cable_type(self, value: CableTypeOption) -> None:
         self._set_property("Cable Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def length(self) -> float:
         """Length of cable.
 
@@ -112,11 +125,13 @@ class Cable(EmitNode):
         return float(val)
 
     @length.setter
+    @min_aedt_version("2025.2")
     def length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def loss_per_length(self) -> float:
         """Cable loss per unit length (dB/meter).
 
@@ -126,10 +141,12 @@ class Cable(EmitNode):
         return float(val)
 
     @loss_per_length.setter
+    @min_aedt_version("2025.2")
     def loss_per_length(self, value: float) -> None:
         self._set_property("Loss Per Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def measurement_length(self) -> float:
         """Length of the cable used for the measurements.
 
@@ -140,11 +157,13 @@ class Cable(EmitNode):
         return float(val)
 
     @measurement_length.setter
+    @min_aedt_version("2025.2")
     def measurement_length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Measurement Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def resistive_loss_constant(self) -> float:
         """Coaxial cable resistive loss constant.
 
@@ -154,10 +173,12 @@ class Cable(EmitNode):
         return float(val)
 
     @resistive_loss_constant.setter
+    @min_aedt_version("2025.2")
     def resistive_loss_constant(self, value: float) -> None:
         self._set_property("Resistive Loss Constant", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def dielectric_loss_constant(self) -> float:
         """Coaxial cable dielectric loss constant.
 
@@ -167,10 +188,12 @@ class Cable(EmitNode):
         return float(val)
 
     @dielectric_loss_constant.setter
+    @min_aedt_version("2025.2")
     def dielectric_loss_constant(self, value: float) -> None:
         self._set_property("Dielectric Loss Constant", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def warnings(self) -> str:
         """Warning(s) for this node."""
         val = self._get_property("Warnings")

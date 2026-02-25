@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class AntennaPassband(EmitNode):
@@ -31,33 +32,40 @@ class AntennaPassband(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self):
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def passband_loss(self) -> float:
         """Passband loss.
 
@@ -67,10 +75,12 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @passband_loss.setter
+    @min_aedt_version("2025.2")
     def passband_loss(self, value: float) -> None:
         self._set_property("Passband Loss", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
         """Out of band antenna loss.
 
@@ -80,10 +90,12 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @out_of_band_attenuation.setter
+    @min_aedt_version("2025.2")
     def out_of_band_attenuation(self, value: float) -> None:
         self._set_property("Out of Band Attenuation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
         """Lower stop band frequency.
 
@@ -94,11 +106,13 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @lower_stop_band.setter
+    @min_aedt_version("2025.2")
     def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
         """Lower cutoff frequency.
 
@@ -109,11 +123,13 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @lower_cutoff.setter
+    @min_aedt_version("2025.2")
     def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
         """Higher cutoff frequency.
 
@@ -124,11 +140,13 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @higher_cutoff.setter
+    @min_aedt_version("2025.2")
     def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
         """Higher stop band frequency.
 
@@ -139,16 +157,19 @@ class AntennaPassband(EmitNode):
         return float(val)
 
     @higher_stop_band.setter
+    @min_aedt_version("2025.2")
     def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
+    @min_aedt_version("2025.2")
     def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
