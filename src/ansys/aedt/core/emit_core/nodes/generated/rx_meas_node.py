@@ -31,7 +31,7 @@ class RxMeasNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -70,7 +70,7 @@ class RxMeasNode(EmitNode):
         return val == "true"
 
     @exclude_mixer_products_below_noise.setter
-    def exclude_mixer_products_below_noise(self, value: bool) -> None:
+    def exclude_mixer_products_below_noise(self, value: bool):
         self._set_property("Exclude Mixer Products Below Noise", f"{str(value).lower()}")
 
     @property
@@ -79,5 +79,5 @@ class RxMeasNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")

@@ -33,7 +33,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -52,7 +52,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val == "true"
 
     @visible.setter
-    def visible(self, value: bool) -> None:
+    def visible(self, value: bool):
         self._set_property("Visible", f"{str(value).lower()}")
 
     @property
@@ -80,7 +80,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val == "true"
 
     @floating_label.setter
-    def floating_label(self, value: bool) -> None:
+    def floating_label(self, value: bool):
         self._set_property("Floating Label", f"{str(value).lower()}")
 
     @property
@@ -96,7 +96,7 @@ class EmiPlotMarkerNode(EmitNode):
         return float(val)
 
     @position_from_left.setter
-    def position_from_left(self, value: float) -> None:
+    def position_from_left(self, value: float):
         self._set_property("Position from Left", f"{value}")
 
     @property
@@ -112,7 +112,7 @@ class EmiPlotMarkerNode(EmitNode):
         return float(val)
 
     @position_from_top.setter
-    def position_from_top(self, value: float) -> None:
+    def position_from_top(self, value: float):
         self._set_property("Position from Top", f"{value}")
 
     @property
@@ -122,7 +122,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @text.setter
-    def text(self, value: str) -> None:
+    def text(self, value: str):
         self._set_property("Text", f"{value}")
 
     class HorizontalPositionOption(Enum):
@@ -138,7 +138,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @horizontal_position.setter
-    def horizontal_position(self, value: HorizontalPositionOption) -> None:
+    def horizontal_position(self, value: HorizontalPositionOption):
         self._set_property("Horizontal Position", f"{value.value}")
 
     class VerticalPositionOption(Enum):
@@ -154,7 +154,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @vertical_position.setter
-    def vertical_position(self, value: VerticalPositionOption) -> None:
+    def vertical_position(self, value: VerticalPositionOption):
         self._set_property("Vertical Position", f"{value.value}")
 
     class TextAlignmentOption(Enum):
@@ -170,11 +170,11 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @text_alignment.setter
-    def text_alignment(self, value: TextAlignmentOption) -> None:
+    def text_alignment(self, value: TextAlignmentOption):
         self._set_property("Text Alignment", f"{value.value}")
 
     @property
-    def font(self):
+    def font(self) -> str:
         """Specify font used for the label.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -183,11 +183,11 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @font.setter
-    def font(self, value) -> None:
+    def font(self, value):
         self._set_property("Font", f"{value}")
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Specify color of the label text.
 
         Color should be in RGB form: #RRGGBB.
@@ -196,11 +196,11 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value):
         self._set_property("Color", f"{value}")
 
     @property
-    def background_color(self):
+    def background_color(self) -> str:
         """Set color of the label text background.
 
         Color should be in RGBA form: #AARRGGBB.
@@ -209,7 +209,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value):
         self._set_property("Background Color", f"{value}")
 
     @property
@@ -222,7 +222,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val == "true"
 
     @border.setter
-    def border(self, value: bool) -> None:
+    def border(self, value: bool):
         self._set_property("Border", f"{str(value).lower()}")
 
     @property
@@ -235,11 +235,11 @@ class EmiPlotMarkerNode(EmitNode):
         return int(val)
 
     @border_width.setter
-    def border_width(self, value: int) -> None:
+    def border_width(self, value: int):
         self._set_property("Border Width", f"{value}")
 
     @property
-    def border_color(self):
+    def border_color(self) -> str:
         """Set color of the border around the label text.
 
         Color should be in RGB form: #RRGGBB.
@@ -248,7 +248,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @border_color.setter
-    def border_color(self, value) -> None:
+    def border_color(self, value):
         self._set_property("Border Color", f"{value}")
 
     class SymbolOption(Enum):
@@ -277,7 +277,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @symbol.setter
-    def symbol(self, value: SymbolOption) -> None:
+    def symbol(self, value: SymbolOption):
         self._set_property("Symbol", f"{value.value}")
 
     @property
@@ -290,7 +290,7 @@ class EmiPlotMarkerNode(EmitNode):
         return int(val)
 
     @arrow_direction.setter
-    def arrow_direction(self, value: int) -> None:
+    def arrow_direction(self, value: int):
         self._set_property("Arrow Direction", f"{value}")
 
     @property
@@ -303,11 +303,11 @@ class EmiPlotMarkerNode(EmitNode):
         return int(val)
 
     @symbol_size.setter
-    def symbol_size(self, value: int) -> None:
+    def symbol_size(self, value: int):
         self._set_property("Symbol Size", f"{value}")
 
     @property
-    def symbol_color(self):
+    def symbol_color(self) -> str:
         """Set color of the symbol used for this marker.
 
         Color should be in RGB form: #RRGGBB.
@@ -316,7 +316,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @symbol_color.setter
-    def symbol_color(self, value) -> None:
+    def symbol_color(self, value):
         self._set_property("Symbol Color", f"{value}")
 
     @property
@@ -329,7 +329,7 @@ class EmiPlotMarkerNode(EmitNode):
         return int(val)
 
     @line_width.setter
-    def line_width(self, value: int) -> None:
+    def line_width(self, value: int):
         self._set_property("Line Width", f"{value}")
 
     @property
@@ -345,5 +345,5 @@ class EmiPlotMarkerNode(EmitNode):
         return val == "true"
 
     @filled.setter
-    def filled(self, value: bool) -> None:
+    def filled(self, value: bool):
         self._set_property("Filled", f"{str(value).lower()}")

@@ -37,11 +37,11 @@ class Multiplexer(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_multiplexer_pass_band(self):
+    def add_multiplexer_pass_band(self) -> EmitNode:
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -59,7 +59,7 @@ class Multiplexer(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -72,7 +72,7 @@ class Multiplexer(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -82,7 +82,7 @@ class Multiplexer(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class MultiplexerTypeOption(Enum):
@@ -102,17 +102,17 @@ class Multiplexer(EmitNode):
         return val
 
     @multiplexer_type.setter
-    def multiplexer_type(self, value: MultiplexerTypeOption) -> None:
+    def multiplexer_type(self, value: MultiplexerTypeOption):
         self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
-    def ports(self):
+    def ports(self) -> str | list:
         """Assigns the child port nodes to the multiplexers ports."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
-    def ports(self, value) -> None:
+    def ports(self, value):
         self._set_property("Ports", f"{value}")
 
     @property

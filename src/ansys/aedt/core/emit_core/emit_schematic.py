@@ -216,7 +216,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")
 
     @pyaedt_function_handler
-    def delete_component(self, name: str):
+    def delete_component(self, name: str) -> None:
         """Delete a component from the schematic.
 
         Parameters

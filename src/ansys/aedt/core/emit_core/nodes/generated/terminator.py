@@ -46,7 +46,7 @@ class Terminator(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Parametric VSWR Table.
         Table consists of 3 columns.
         Min:
@@ -59,7 +59,7 @@ class Terminator(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -72,7 +72,7 @@ class Terminator(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -85,7 +85,7 @@ class Terminator(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -95,7 +95,7 @@ class Terminator(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class TerminatorTypeOption(Enum):
@@ -114,7 +114,7 @@ class Terminator(EmitNode):
         return val
 
     @terminator_type.setter
-    def terminator_type(self, value: TerminatorTypeOption) -> None:
+    def terminator_type(self, value: TerminatorTypeOption):
         self._set_property("Terminator Type", f"{value.value}")
 
     @property
@@ -131,7 +131,7 @@ class Terminator(EmitNode):
         return float(val)
 
     @vswr.setter
-    def vswr(self, value: float) -> None:
+    def vswr(self, value: float):
         self._set_property("VSWR", f"{value}")
 
     @property

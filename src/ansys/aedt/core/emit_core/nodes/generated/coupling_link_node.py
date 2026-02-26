@@ -31,7 +31,7 @@ class CouplingLinkNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -50,15 +50,15 @@ class CouplingLinkNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
-    def ports(self):
+    def ports(self) -> str:
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
-    def ports(self, value) -> None:
+    def ports(self, value):
         self._set_property("Ports", f"{value}")

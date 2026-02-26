@@ -143,7 +143,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.root.destroy()
 
 
-def create_powermaps_from_csv(ipk, csv_path: Path) -> None:
+def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
     """Create powermap from an Icepak classic CSV file.
 
     Parameters
@@ -161,7 +161,7 @@ def create_powermaps_from_csv(ipk, csv_path: Path) -> None:
     create_powermaps_from_data(ipk, data)
 
 
-def create_powermaps_from_data(ipk, data: PowerMapFromCSVExtensionData) -> None:
+def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) -> None:
     """Create power maps from geometric and source information.
 
     Parameters
