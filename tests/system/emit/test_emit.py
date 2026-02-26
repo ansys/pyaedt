@@ -1315,6 +1315,7 @@ that the AEDT app functions as intended.
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
