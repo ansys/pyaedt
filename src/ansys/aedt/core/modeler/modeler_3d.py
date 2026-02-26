@@ -1283,7 +1283,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             json.dump(scene, f, indent=4)
 
         self.logger.info("Done...")
-        if plot_before_importing:
+        if plot_before_importing:  # pragma: no cover
             try:
                 import pyvista as pv
             except ImportError:  # pragma: no cover
