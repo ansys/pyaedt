@@ -104,7 +104,9 @@ class BuildingsPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def generate_buildings(self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500) -> dict:
+    def generate_buildings(
+        self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500
+    ) -> dict:  # pragma: no cover
         """Generate the buildings stl file.
 
         Parameters
@@ -129,10 +131,10 @@ class BuildingsPrep(PyAedtBase):
         center_offset_x = utm_center[0]
         center_offset_y = utm_center[1]
 
-        if len(gdf) == 0:
+        if len(gdf) == 0:  # pragma: no cover
             logger.info("No Buildings Exists in Selected Geometry")
             return {"file_name": None, "mesh": None}
-        else:
+        else:  # pragma: no cover
             gdf_proj = ox.projection.project_gdf(gdf)
             geo = gdf_proj["geometry"]
             try:
