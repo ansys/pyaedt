@@ -219,7 +219,6 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
-    if: needs.analyze-changes.outputs.doc_only != 'true'
     permissions:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
