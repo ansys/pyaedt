@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
@@ -33,7 +32,7 @@ class AntennaNode(EmitNode):
         self._is_component = True
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -42,11 +41,11 @@ class AntennaNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_antenna_passband(self):
+    def add_antenna_passband(self) -> EmitNode:
         """Add a New Passband to this Antenna"""
         return self._add_child_node("Antenna Passband")
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -61,7 +60,7 @@ class AntennaNode(EmitNode):
         return val
 
     @tags.setter
-    def tags(self, value: str) -> None:
+    def tags(self, value: str):
         self._set_property("Tags", f"{value}")
 
     @property
@@ -77,11 +76,11 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool) -> None:
+    def show_relative_coordinates(self, value: bool):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    def position(self) -> str:
         """Set position of the antenna in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -90,11 +89,11 @@ class AntennaNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value) -> None:
+    def position(self, value):
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    def relative_position(self) -> str:
         """Set position of the antenna relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -103,7 +102,7 @@ class AntennaNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value) -> None:
+    def relative_position(self, value):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -121,11 +120,11 @@ class AntennaNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption) -> None:
+    def orientation_mode(self, value: OrientationModeOption):
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    def orientation(self) -> str | list:
         """Set orientation of the antenna relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -134,11 +133,11 @@ class AntennaNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value) -> None:
+    def orientation(self, value):
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    def relative_orientation(self) -> str | list:
         """Set orientation of the antenna relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -147,7 +146,7 @@ class AntennaNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value) -> None:
+    def relative_orientation(self, value):
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -160,7 +159,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @position_defined.setter
-    def position_defined(self, value: bool) -> None:
+    def position_defined(self, value: bool):
         self._set_property("Position Defined", f"{str(value).lower()}")
 
     @property
@@ -173,7 +172,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @antenna_temperature.setter
-    def antenna_temperature(self, value: float) -> None:
+    def antenna_temperature(self, value: float):
         self._set_property("Antenna Temperature", f"{value}")
 
     class AntennaTypeOption(Enum):
@@ -197,7 +196,7 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_type.setter
-    def antenna_type(self, value: AntennaTypeOption) -> None:
+    def antenna_type(self, value: AntennaTypeOption):
         self._set_property("Antenna Type", f"{value.value}")
 
     @property
@@ -207,7 +206,7 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_file.setter
-    def antenna_file(self, value: str) -> None:
+    def antenna_file(self, value: str):
         self._set_property("Antenna File", f"{value}")
 
     @property
@@ -220,7 +219,7 @@ class AntennaNode(EmitNode):
         return val
 
     @project_name.setter
-    def project_name(self, value: str) -> None:
+    def project_name(self, value: str):
         self._set_property("Project Name", f"{value}")
 
     @property
@@ -233,7 +232,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @peak_gain.setter
-    def peak_gain(self, value: float) -> None:
+    def peak_gain(self, value: float):
         self._set_property("Peak Gain", f"{value}")
 
     @property
@@ -246,7 +245,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @vertical_beamwidth.setter
-    def vertical_beamwidth(self, value: float) -> None:
+    def vertical_beamwidth(self, value: float):
         self._set_property("Vertical Beamwidth", f"{value}")
 
     @property
@@ -259,7 +258,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @horizontal_beamwidth.setter
-    def horizontal_beamwidth(self, value: float) -> None:
+    def horizontal_beamwidth(self, value: float):
         self._set_property("Horizontal Beamwidth", f"{value}")
 
     @property
@@ -272,7 +271,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @extra_sidelobe.setter
-    def extra_sidelobe(self, value: bool) -> None:
+    def extra_sidelobe(self, value: bool):
         self._set_property("Extra Sidelobe", f"{str(value).lower()}")
 
     @property
@@ -288,7 +287,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_level.setter
-    def first_sidelobe_level(self, value: float) -> None:
+    def first_sidelobe_level(self, value: float):
         self._set_property("First Sidelobe Level", f"{value}")
 
     @property
@@ -301,7 +300,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_vert_bw.setter
-    def first_sidelobe_vert_bw(self, value: float) -> None:
+    def first_sidelobe_vert_bw(self, value: float):
         self._set_property("First Sidelobe Vert. BW", f"{value}")
 
     @property
@@ -314,7 +313,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_hor_bw.setter
-    def first_sidelobe_hor_bw(self, value: float) -> None:
+    def first_sidelobe_hor_bw(self, value: float):
         self._set_property("First Sidelobe Hor. BW", f"{value}")
 
     @property
@@ -330,7 +329,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @outerbacklobe_level.setter
-    def outerbacklobe_level(self, value: float) -> None:
+    def outerbacklobe_level(self, value: float):
         self._set_property("Outer/Backlobe Level", f"{value}")
 
     @property
@@ -347,7 +346,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @resonant_frequency.setter
-    def resonant_frequency(self, value: float | str) -> None:
+    def resonant_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Resonant Frequency", f"{value}")
 
@@ -362,7 +361,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @mouth_width.setter
-    def mouth_width(self, value: float | str) -> None:
+    def mouth_width(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Mouth Width", f"{value}")
 
@@ -377,7 +376,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @mouth_height.setter
-    def mouth_height(self, value: float | str) -> None:
+    def mouth_height(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Mouth Height", f"{value}")
 
@@ -395,7 +394,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @waveguide_width.setter
-    def waveguide_width(self, value: float | str) -> None:
+    def waveguide_width(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Waveguide Width", f"{value}")
 
@@ -412,7 +411,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @width_flare_half_angle.setter
-    def width_flare_half_angle(self, value: float) -> None:
+    def width_flare_half_angle(self, value: float):
         self._set_property("Width Flare Half-angle", f"{value}")
 
     @property
@@ -428,7 +427,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @height_flare_half_angle.setter
-    def height_flare_half_angle(self, value: float) -> None:
+    def height_flare_half_angle(self, value: float):
         self._set_property("Height Flare Half-angle", f"{value}")
 
     @property
@@ -444,7 +443,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @vswr.setter
-    def vswr(self, value: float) -> None:
+    def vswr(self, value: float):
         self._set_property("VSWR", f"{value}")
 
     class AntennaPolarizationOption(Enum):
@@ -461,7 +460,7 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_polarization.setter
-    def antenna_polarization(self, value: AntennaPolarizationOption) -> None:
+    def antenna_polarization(self, value: AntennaPolarizationOption):
         self._set_property("Antenna Polarization", f"{value.value}")
 
     @property
@@ -474,7 +473,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool) -> None:
+    def show_axes(self, value: bool):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
@@ -487,7 +486,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_icon.setter
-    def show_icon(self, value: bool) -> None:
+    def show_icon(self, value: bool):
         self._set_property("Show Icon", f"{str(value).lower()}")
 
     @property
@@ -500,11 +499,11 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @size.setter
-    def size(self, value: float) -> None:
+    def size(self, value: float):
         self._set_property("Size", f"{value}")
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Set color of antenna marker (cone) in 3-D window.
 
         Color should be in RGB form: #RRGGBB.
@@ -513,7 +512,7 @@ class AntennaNode(EmitNode):
         return val
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value):
         self._set_property("Color", f"{value}")
 
     @property
@@ -568,7 +567,7 @@ class AntennaNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     @property
@@ -581,7 +580,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_composite_passband.setter
-    def show_composite_passband(self, value: bool) -> None:
+    def show_composite_passband(self, value: bool):
         self._set_property("Show Composite Passband", f"{str(value).lower()}")
 
     @property
@@ -594,7 +593,7 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @use_phase_center.setter
-    def use_phase_center(self, value: bool) -> None:
+    def use_phase_center(self, value: bool):
         self._set_property("Use Phase Center", f"{str(value).lower()}")
 
     @property
@@ -607,7 +606,7 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterposition(self):
+    def phasecenterposition(self) -> str:
         """Set position of the antennas linked coordinate system.
 
         Value should be x/y/z, delimited by spaces.
@@ -616,7 +615,7 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterorientation(self):
+    def phasecenterorientation(self) -> str | list:
         """Set orientation of the antennas linked coordinate system.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.

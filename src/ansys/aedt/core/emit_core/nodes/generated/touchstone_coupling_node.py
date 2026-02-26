@@ -31,7 +31,7 @@ class TouchstoneCouplingNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -58,7 +58,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -71,7 +71,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -90,17 +90,17 @@ class TouchstoneCouplingNode(EmitNode):
         return val == "true"
 
     @enable_em_isolation.setter
-    def enable_em_isolation(self, value: bool) -> None:
+    def enable_em_isolation(self, value: bool):
         self._set_property("Enable EM Isolation", f"{str(value).lower()}")
 
     @property
-    def port_antenna_assignment(self):
+    def port_antenna_assignment(self) -> str:
         """Maps each port in the coupling file to an antenna in the project."""
         val = self._get_property("Port-Antenna Assignment")
         return val
 
     @port_antenna_assignment.setter
-    def port_antenna_assignment(self, value) -> None:
+    def port_antenna_assignment(self, value: str):
         self._set_property("Port-Antenna Assignment", f"{value}")
 
     @property
@@ -110,5 +110,5 @@ class TouchstoneCouplingNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")

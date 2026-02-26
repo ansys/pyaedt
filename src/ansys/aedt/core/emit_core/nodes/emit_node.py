@@ -137,7 +137,7 @@ class EmitNode:
         return self._get_property("Type", True)
 
     @property
-    def _parent(self):
+    def _parent(self) -> EmitNode:
         """Parent node name of this node.
 
         Returns
@@ -193,7 +193,7 @@ class EmitNode:
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
-    def _get_node(self, node_id: int):
+    def _get_node(self, node_id: int) -> EmitNode:
         """Gets a node for this node's revision with the given id.
 
         Parameters
@@ -244,7 +244,7 @@ class EmitNode:
         return node
 
     @property
-    def children(self):
+    def children(self) -> list[EmitNode]:
         """Child nodes of this node.
 
         Returns
@@ -257,7 +257,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
+    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
         Parameters
