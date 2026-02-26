@@ -368,7 +368,7 @@ class Simulation:
                             instance = interaction.get_instance(domain)
                             if not instance.has_valid_values():
                                 # check for saturation somewhere in the chain
-                                # set power=200 to flag it as "damage threshold"
+                                # set power=200 to flag it as strong interference
                                 if instance.get_result_warning() == "An amplifier was saturated.":
                                     max_power = 200
                                 else:
@@ -377,7 +377,8 @@ class Simulation:
                                     # should just be skipped
                                     continue
                             else:
-                                power = instance.get_value(ResultType.POWER_AT_RX)
+                                tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
@@ -386,20 +387,20 @@ class Simulation:
                                 rx_prob = "In-band"
                             else:
                                 rx_prob = "Out-of-band"
-
-                            tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
                             prob_filter_val = tx_prob + ":" + rx_prob
 
                             # Check if problem type is in filtered list of problem types to analyze
                             if use_filter:
-                                filtering = prob_filter_val in filter_list
+                                in_filters = any(prob_filter_val in sublist for sublist in filter_list)
                             else:
-                                filtering = True
+                                in_filters = True
 
-                            if power > max_power and filtering:
+                            # Save the worst case interference values
+                            if power > max_power and in_filters:
                                 max_power = power
-                                largest_tx_prob = tx_prob
                                 largest_rx_prob = rx_prob
+                                prob = instance.get_largest_emi_problem_type()
+                                largest_tx_prob = prob.replace(" ", "").split(":")
 
                 if max_power > -200:
                     rx_powers.append(max_power)
