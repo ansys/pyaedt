@@ -966,7 +966,6 @@ def test_basic_run(emit_app):
     ant3 = emit_app.modeler.components.create_component("Antenna")
     ant3.move_and_connect_to(rad3)
     rev = emit_app.results.analyze()
-    sim = rev.get_simulation()
     assert len(emit_app.results.revisions) == 1
     if emit_app._emit_api is not None:
         path = Path(emit_app.oproject.GetPath())
@@ -982,14 +981,14 @@ def test_basic_run(emit_app):
         engine = emit_app._emit_api.get_engine()
         assert engine is not None
         assert engine.is_domain_valid(domain)
-        assert sim.is_domain_valid(domain)
-        interaction_unrun = sim.get_interaction(domain)
+        assert rev.is_domain_valid(domain)
+        interaction_unrun = rev.get_interaction(domain)
         assert interaction_unrun is not None
         assert not interaction_unrun.is_valid()
         interaction = engine.run(domain)
         assert interaction is not None
         assert interaction.is_valid()
-        interaction2 = sim.run(domain)
+        interaction2 = rev.run(domain)
         assert interaction2 is not None
         assert interaction2.is_valid()
         emit_app.results.delete_revision(rev.name)
@@ -998,20 +997,19 @@ def test_basic_run(emit_app):
         domain.set_receiver("dummy")
         assert rev.name not in emit_app.results.revision_names()
         assert not engine.is_domain_valid(domain)
-        assert not sim.is_domain_valid(domain)
+        assert not rev.is_domain_valid(domain)
         rad4 = emit_app.modeler.components.create_component("MD400C")
         ant4 = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad4)
         emit_app.oeditor.Delete([rad1.name, ant1.name])
         rev2 = emit_app.results.analyze()
-        sim2 = rev2.get_simulation()
         domain2 = emit_app.results.interaction_domain()
         domain2.set_receiver("MD400C")
         domain2.set_interferer(rad3.name)
         if DESKTOP_VERSION >= "2024.1":
-            sim2.n_to_1_limit = 0
-        assert sim2.is_domain_valid(domain2)
-        interaction3 = sim2.run(domain2)
+            rev2.n_to_1_limit = 0
+        assert rev2.is_domain_valid(domain2)
+        interaction3 = rev2.run(domain2)
         assert interaction3 is not None
         assert interaction3.is_valid()
         worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
@@ -1020,8 +1018,8 @@ def test_basic_run(emit_app):
         assert worst_domain.interferer_names[0] == rad3.name
         domain2.set_receiver(rad3.name)
         domain2.set_interferer(rad2.name)
-        assert sim2.is_domain_valid(domain2)
-        interaction3 = sim2.run(domain2)
+        assert rev2.is_domain_valid(domain2)
+        interaction3 = rev2.run(domain2)
         assert interaction3 is not None
         assert interaction3.is_valid()
         worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
@@ -1031,8 +1029,8 @@ def test_basic_run(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2024.1",
-    reason="Skipped on versions earlier than 2024.1",
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_optimal_n_to_1_feature(emit_app):
     # place components and generate the appropriate number of revisions
@@ -1375,33 +1373,31 @@ def test_result_categories(emit_app):
     ant2 = emit_app.modeler.components.create_component("Antenna")
     ant2.move_and_connect_to(rad2)
     rev = emit_app.results.analyze()
-    sim = rev.get_simulation()
     domain = emit_app.results.interaction_domain()
-    interaction = sim.run(domain)
+    interaction = rev.run(domain)
 
     # initially all categories are enabled
     for category in EmiCategoryFilter.members():
-        assert sim.get_emi_category_filter_enabled(category)
-
+        assert rev.get_emi_category_filter_enabled(category)
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
     assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
 
     # disable one category and confirm the emi value changes
-    sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+    rev.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 2.0
     assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
 
     # disable another category and confirm the emi value changes
-    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+    rev.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == -58.0
     assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
 
     # disable last existing category and confirm expected exceptions and error messages
-    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+    rev.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     with pytest.raises(RuntimeError) as e:
         instance.get_value(ResultType.EMI)
@@ -1411,7 +1407,7 @@ def test_result_categories(emit_app):
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
