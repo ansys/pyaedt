@@ -98,7 +98,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
 
         self.add_extension_content()
 
-    def validate_configuration(self, choke) -> bool:
+    def validate_configuration(self, choke: Choke) -> bool:
         """Validate choke configuration parameters."""
         try:
             if choke.core["Outer Radius"] <= choke.core["Inner Radius"]:
@@ -176,13 +176,13 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                     f"Failed to load configuration: {str(e)}",
                 )
 
-    def update_config(self, category, selected_option) -> None:
+    def update_config(self, category: str, selected_option: tkinter.StringVar) -> None:
         """Update boolean configuration options."""
         choke_options = getattr(self.choke, category)
         for key in choke_options:
             choke_options[key] = key == selected_option.get()
 
-    def update_parameter_config(self, attr_name, field, entry_widget) -> None:
+    def update_parameter_config(self, attr_name: str, field: str, entry_widget: tkinter.Entry) -> None:
         """Update parameter configuration from entry widget."""
         try:
             entry_value = entry_widget.get()
@@ -222,7 +222,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             self.data = ChokeDesignerExtensionData(choke=self.choke)
             self.root.destroy()
 
-    def create_boolean_options(self, parent) -> None:
+    def create_boolean_options(self, parent: tkinter.Widget) -> None:
         """Create boolean option radio buttons."""
         for category in self.boolean_categories:
             if hasattr(self.choke, category):
@@ -252,7 +252,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                         )
                         btn.pack(anchor=tkinter.W, padx=5)
 
-    def create_parameter_inputs(self, parent, category_name) -> None:
+    def create_parameter_inputs(self, parent: tkinter.Widget, category_name: str) -> None:
         """Create parameter input widgets for a category."""
         # Get the attribute name from the category name
         attr_name = self.category_map.get(category_name)

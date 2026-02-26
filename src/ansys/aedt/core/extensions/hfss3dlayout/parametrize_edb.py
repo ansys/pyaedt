@@ -272,13 +272,13 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message) -> None:
+    def show_error_message(self, message: str) -> None:
         """Show error message."""
         import tkinter.messagebox
 
         tkinter.messagebox.showerror("Error", message)
 
-    def generate_callback(self):
+    def generate_callback(self) -> None:
         """Generate callback function."""
         try:
             # Validate expansion values

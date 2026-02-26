@@ -33,7 +33,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -42,7 +42,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -51,7 +51,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Custom Building Values Table.
         Table consists of 3 columns.
         Frequency:
@@ -64,7 +64,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -77,7 +77,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -87,7 +87,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val
 
     @antenna_a.setter
-    def antenna_a(self, value: EmitNode) -> None:
+    def antenna_a(self, value: EmitNode):
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -97,7 +97,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val
 
     @antenna_b.setter
-    def antenna_b(self, value: EmitNode) -> None:
+    def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
 
     class BuildingTypeOption(Enum):
@@ -115,7 +115,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val
 
     @building_type.setter
-    def building_type(self, value: BuildingTypeOption) -> None:
+    def building_type(self, value: BuildingTypeOption):
         self._set_property("Building Type", f"{value.value}")
 
     @property
@@ -128,7 +128,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return int(val)
 
     @number_of_floors.setter
-    def number_of_floors(self, value: int) -> None:
+    def number_of_floors(self, value: int):
         self._set_property("Number of Floors", f"{value}")
 
     @property
@@ -144,7 +144,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float) -> None:
+    def custom_fading_margin(self, value: float):
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -160,7 +160,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float) -> None:
+    def polarization_mismatch(self, value: float):
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -176,7 +176,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float) -> None:
+    def pointing_error_loss(self, value: float):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -193,7 +193,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val
 
     @fading_type.setter
-    def fading_type(self, value: FadingTypeOption) -> None:
+    def fading_type(self, value: FadingTypeOption):
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -209,7 +209,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @fading_availability.setter
-    def fading_availability(self, value: float) -> None:
+    def fading_availability(self, value: float):
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -222,7 +222,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @std_deviation.setter
-    def std_deviation(self, value: float) -> None:
+    def std_deviation(self, value: float):
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -235,7 +235,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val == "true"
 
     @include_rain_attenuation.setter
-    def include_rain_attenuation(self, value: bool) -> None:
+    def include_rain_attenuation(self, value: bool):
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -251,7 +251,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @rain_availability.setter
-    def rain_availability(self, value: float) -> None:
+    def rain_availability(self, value: float):
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -264,7 +264,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @rain_rate.setter
-    def rain_rate(self, value: float) -> None:
+    def rain_rate(self, value: float):
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -280,7 +280,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float) -> None:
+    def polarization_tilt_angle(self, value: float):
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -296,7 +296,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return val == "true"
 
     @include_atmospheric_absorption.setter
-    def include_atmospheric_absorption(self, value: bool) -> None:
+    def include_atmospheric_absorption(self, value: bool):
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
@@ -309,7 +309,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @temperature.setter
-    def temperature(self, value: float) -> None:
+    def temperature(self, value: float):
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -322,7 +322,7 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float) -> None:
+    def total_air_pressure(self, value: float):
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -335,5 +335,5 @@ class IndoorPropagationCouplingNode(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float) -> None:
+    def water_vapor_concentration(self, value: float):
         self._set_property("Water Vapor Concentration", f"{value}")

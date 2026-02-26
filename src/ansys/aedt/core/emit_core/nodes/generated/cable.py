@@ -37,7 +37,7 @@ class Cable(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -55,7 +55,7 @@ class Cable(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -68,7 +68,7 @@ class Cable(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -78,7 +78,7 @@ class Cable(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class CableTypeOption(Enum):
@@ -98,7 +98,7 @@ class Cable(EmitNode):
         return val
 
     @cable_type.setter
-    def cable_type(self, value: CableTypeOption) -> None:
+    def cable_type(self, value: CableTypeOption):
         self._set_property("Cable Type", f"{value.value}")
 
     @property
@@ -112,7 +112,7 @@ class Cable(EmitNode):
         return float(val)
 
     @length.setter
-    def length(self, value: float | str) -> None:
+    def length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Length", f"{value}")
 
@@ -126,7 +126,7 @@ class Cable(EmitNode):
         return float(val)
 
     @loss_per_length.setter
-    def loss_per_length(self, value: float) -> None:
+    def loss_per_length(self, value: float):
         self._set_property("Loss Per Length", f"{value}")
 
     @property
@@ -140,7 +140,7 @@ class Cable(EmitNode):
         return float(val)
 
     @measurement_length.setter
-    def measurement_length(self, value: float | str) -> None:
+    def measurement_length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Measurement Length", f"{value}")
 
@@ -154,7 +154,7 @@ class Cable(EmitNode):
         return float(val)
 
     @resistive_loss_constant.setter
-    def resistive_loss_constant(self, value: float) -> None:
+    def resistive_loss_constant(self, value: float):
         self._set_property("Resistive Loss Constant", f"{value}")
 
     @property
@@ -167,7 +167,7 @@ class Cable(EmitNode):
         return float(val)
 
     @dielectric_loss_constant.setter
-    def dielectric_loss_constant(self, value: float) -> None:
+    def dielectric_loss_constant(self, value: float):
         self._set_property("Dielectric Loss Constant", f"{value}")
 
     @property

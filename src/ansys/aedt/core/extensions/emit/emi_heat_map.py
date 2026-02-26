@@ -87,7 +87,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             toggle_column=None,
         )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Build the UI for the EMI heat map extension."""
         root = self.root
 
