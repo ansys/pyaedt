@@ -83,7 +83,7 @@ class SceneGroupNode(EmitNode):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self) -> str | list:
+    def position(self) -> str:
         """Set position of the Scene Group in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.

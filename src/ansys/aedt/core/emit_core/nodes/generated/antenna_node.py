@@ -80,7 +80,7 @@ class AntennaNode(EmitNode):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self) -> str | list:
+    def position(self) -> str:
         """Set position of the antenna in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -93,7 +93,7 @@ class AntennaNode(EmitNode):
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self) -> str | list:
+    def relative_position(self) -> str:
         """Set position of the antenna relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -606,7 +606,7 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterposition(self) -> str | list:
+    def phasecenterposition(self) -> str:
         """Set position of the antennas linked coordinate system.
 
         Value should be x/y/z, delimited by spaces.
