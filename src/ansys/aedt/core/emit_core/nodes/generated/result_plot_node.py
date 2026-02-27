@@ -44,11 +44,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @title.setter
-    def title(self, value: str) -> None:
+    def title(self, value: str):
         self._set_property("Title", f"{value}")
 
     @property
-    def title_font(self):
+    def title_font(self) -> str:
         """Configure title font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -57,7 +57,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @title_font.setter
-    def title_font(self, value) -> None:
+    def title_font(self, value: str):
         self._set_property("Title Font", f"{value}")
 
     @property
@@ -70,11 +70,11 @@ class ResultPlotNode(EmitNode):
         return val == "true"
 
     @show_legend.setter
-    def show_legend(self, value: bool) -> None:
+    def show_legend(self, value: bool):
         self._set_property("Show Legend", f"{str(value).lower()}")
 
     @property
-    def legend_font(self):
+    def legend_font(self) -> str:
         """Configure legend font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -83,7 +83,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @legend_font.setter
-    def legend_font(self, value) -> None:
+    def legend_font(self, value: str):
         self._set_property("Legend Font", f"{value}")
 
     @property
@@ -96,7 +96,7 @@ class ResultPlotNode(EmitNode):
         return val == "true"
 
     @show_emi_thresholds.setter
-    def show_emi_thresholds(self, value: bool) -> None:
+    def show_emi_thresholds(self, value: bool):
         self._set_property("Show EMI Thresholds", f"{str(value).lower()}")
 
     @property
@@ -112,7 +112,7 @@ class ResultPlotNode(EmitNode):
         return val == "true"
 
     @lock_axes.setter
-    def lock_axes(self, value: bool) -> None:
+    def lock_axes(self, value: bool):
         self._set_property("Lock Axes", f"{str(value).lower()}")
 
     @property
@@ -122,7 +122,7 @@ class ResultPlotNode(EmitNode):
         return float(val)
 
     @x_axis_min.setter
-    def x_axis_min(self, value: float) -> None:
+    def x_axis_min(self, value: float):
         self._set_property("X-axis Min", f"{value}")
 
     @property
@@ -132,7 +132,7 @@ class ResultPlotNode(EmitNode):
         return float(val)
 
     @x_axis_max.setter
-    def x_axis_max(self, value: float) -> None:
+    def x_axis_max(self, value: float):
         self._set_property("X-axis Max", f"{value}")
 
     @property
@@ -142,7 +142,7 @@ class ResultPlotNode(EmitNode):
         return float(val)
 
     @y_axis_min.setter
-    def y_axis_min(self, value: float) -> None:
+    def y_axis_min(self, value: float):
         self._set_property("Y-axis Min", f"{value}")
 
     @property
@@ -152,7 +152,7 @@ class ResultPlotNode(EmitNode):
         return float(val)
 
     @y_axis_max.setter
-    def y_axis_max(self, value: float) -> None:
+    def y_axis_max(self, value: float):
         self._set_property("Y-axis Max", f"{value}")
 
     @property
@@ -167,7 +167,7 @@ class ResultPlotNode(EmitNode):
         return int(val)
 
     @max_major_ticks_x.setter
-    def max_major_ticks_x(self, value: int) -> None:
+    def max_major_ticks_x(self, value: int):
         self._set_property("Max Major Ticks X", f"{value}")
 
     @property
@@ -183,7 +183,7 @@ class ResultPlotNode(EmitNode):
         return int(val)
 
     @max_minor_ticks_x.setter
-    def max_minor_ticks_x(self, value: int) -> None:
+    def max_minor_ticks_x(self, value: int):
         self._set_property("Max Minor Ticks X", f"{value}")
 
     @property
@@ -198,7 +198,7 @@ class ResultPlotNode(EmitNode):
         return int(val)
 
     @max_major_ticks_y.setter
-    def max_major_ticks_y(self, value: int) -> None:
+    def max_major_ticks_y(self, value: int):
         self._set_property("Max Major Ticks Y", f"{value}")
 
     @property
@@ -214,11 +214,11 @@ class ResultPlotNode(EmitNode):
         return int(val)
 
     @max_minor_ticks_y.setter
-    def max_minor_ticks_y(self, value: int) -> None:
+    def max_minor_ticks_y(self, value: int):
         self._set_property("Max Minor Ticks Y", f"{value}")
 
     @property
-    def axis_label_font(self):
+    def axis_label_font(self) -> str:
         """Configure axis text labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -227,11 +227,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @axis_label_font.setter
-    def axis_label_font(self, value) -> None:
+    def axis_label_font(self, value: str):
         self._set_property("Axis Label Font", f"{value}")
 
     @property
-    def axis_tick_label_font(self):
+    def axis_tick_label_font(self) -> str:
         """Configure axis tick numeric labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -240,7 +240,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @axis_tick_label_font.setter
-    def axis_tick_label_font(self, value) -> None:
+    def axis_tick_label_font(self, value: str):
         self._set_property("Axis Tick Label Font", f"{value}")
 
     class MajorGridLineStyleOption(Enum):
@@ -259,11 +259,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @major_grid_line_style.setter
-    def major_grid_line_style(self, value: MajorGridLineStyleOption) -> None:
+    def major_grid_line_style(self, value: MajorGridLineStyleOption):
         self._set_property("Major Grid Line Style", f"{value.value}")
 
     @property
-    def major_grid_color(self):
+    def major_grid_color(self) -> str:
         """Set color of major-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -272,7 +272,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @major_grid_color.setter
-    def major_grid_color(self, value) -> None:
+    def major_grid_color(self, value: str):
         self._set_property("Major Grid Color", f"{value}")
 
     class MinorGridLineStyleOption(Enum):
@@ -291,11 +291,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @minor_grid_line_style.setter
-    def minor_grid_line_style(self, value: MinorGridLineStyleOption) -> None:
+    def minor_grid_line_style(self, value: MinorGridLineStyleOption):
         self._set_property("Minor Grid Line Style", f"{value.value}")
 
     @property
-    def minor_grid_color(self):
+    def minor_grid_color(self) -> str:
         """Set color of minor-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -304,11 +304,11 @@ class ResultPlotNode(EmitNode):
         return val
 
     @minor_grid_color.setter
-    def minor_grid_color(self, value) -> None:
+    def minor_grid_color(self, value):
         self._set_property("Minor Grid Color", f"{value}")
 
     @property
-    def background_color(self):
+    def background_color(self) -> str:
         """Set background color of entire plot.
 
         Color should be in RGB form: #RRGGBB.
@@ -317,7 +317,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value: str):
         self._set_property("Background Color", f"{value}")
 
     class BBPowerforPlotsUnitOption(Enum):
@@ -334,7 +334,7 @@ class ResultPlotNode(EmitNode):
         return val
 
     @bb_power_for_plots_unit.setter
-    def bb_power_for_plots_unit(self, value: BBPowerforPlotsUnitOption) -> None:
+    def bb_power_for_plots_unit(self, value: BBPowerforPlotsUnitOption):
         self._set_property("BB Power for Plots Unit", f"{value.value}")
 
     @property
@@ -348,7 +348,7 @@ class ResultPlotNode(EmitNode):
         return float(val)
 
     @bb_power_bandwidth.setter
-    def bb_power_bandwidth(self, value: float | str) -> None:
+    def bb_power_bandwidth(self, value: float | str):
         value = self._convert_to_internal_units(value, "")
         self._set_property("BB Power Bandwidth", f"{value}")
 
@@ -362,5 +362,5 @@ class ResultPlotNode(EmitNode):
         return val == "true"
 
     @log_scale.setter
-    def log_scale(self, value: bool) -> None:
+    def log_scale(self, value: bool):
         self._set_property("Log Scale", f"{str(value).lower()}")
