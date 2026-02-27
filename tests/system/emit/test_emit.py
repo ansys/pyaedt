@@ -820,7 +820,23 @@ def test_radio_band_getters(emit_app):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_get_active_frequencies(emit_app):
+def test_get_active_frequencies_waveform(emit_app):
+    emitter_name = "Test Emitter"
+    emitter_node: EmitterNode = emit_app.schematic.create_component(
+        name=emitter_name, component_type="New Emitter", library="Emitters"
+    )
+
+    emitter_band: Waveform = emitter_node.get_waveforms()[0]
+
+    assert emitter_band.get_frequencies(units="MHz") == [100]
+    assert emitter_band.get_frequencies() == [100000000.0]
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_band(emit_app):
     rad1, ant1 = emit_app.schematic.create_radio_antenna("WiFi - 802.11-2012")
     rev = emit_app.results.analyze()
 

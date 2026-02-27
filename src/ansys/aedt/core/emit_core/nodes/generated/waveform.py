@@ -55,7 +55,7 @@ class Waveform(EmitNode):
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 
-    def get_frequencies(self, is_rx: bool, units: str = "Hz") -> list[float]:
+    def get_frequencies(self, units: str = "Hz") -> list[float]:
         """Return list of frequencies for the given waveform (empty if disabled)"""
         freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, False)
         freqs_converted = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
