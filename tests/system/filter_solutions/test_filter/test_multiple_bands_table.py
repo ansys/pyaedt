@@ -44,14 +44,14 @@ class TestClass:
         "Either no value is set for this band or the rowIndex must be greater than zero and less than row count"
     )
 
-    def test_row_count(self, lumped_design):
+    def test_row_count(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.multiple_bands_table.row_count == 2
         assert info.value.args[0] == self.multiple_bands_not_enabled
         lumped_design.attributes.filter_multiple_bands_enabled = True
         assert lumped_design.multiple_bands_table.row_count == 2
 
-    def test_row(self, lumped_design):
+    def test_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.row(0)
         assert info.value.args[0] == self.multiple_bands_not_enabled
@@ -63,7 +63,7 @@ class TestClass:
         )
         assert lumped_design.multiple_bands_table.row(0) == ("2G", "3G")
 
-    def test_update_row(self, lumped_design):
+    def test_update_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.update_row(0, "200M", "5G")
         assert info.value.args[0] == self.multiple_bands_not_enabled
@@ -82,7 +82,7 @@ class TestClass:
         lumped_design.multiple_bands_table.update_row(0, "200M")
         assert lumped_design.multiple_bands_table.row(0) == ("200M", "5G")
 
-    def test_append_row(self, lumped_design):
+    def test_append_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.append_row("200M", "5G")
         assert info.value.args[0] == self.multiple_bands_not_enabled
@@ -97,7 +97,7 @@ class TestClass:
             lumped_design.multiple_bands_table.append_row("100M", "")
         assert info.value.args[0] == self.input_value_append_blank_msg
 
-    def test_insert_row(self, lumped_design):
+    def test_insert_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.insert_row(0, "200M", "5G")
         assert info.value.args[0] == self.multiple_bands_not_enabled
@@ -132,7 +132,7 @@ class TestClass:
             lumped_design.multiple_bands_table.insert_row(0)
         assert info.value.args[0] == self.input_value_insert_blank_msg
 
-    def test_remove_row(self, lumped_design):
+    def test_remove_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.remove_row(0)
         assert info.value.args[0] == self.multiple_bands_not_enabled
@@ -149,7 +149,7 @@ class TestClass:
             lumped_design.multiple_bands_table.row(1)
         assert info.value.args[0] == self.input_row_index_max_err_msg
 
-    def test_clear_table(self, lumped_design):
+    def test_clear_table(self, lumped_design) -> None:
         lumped_design.attributes.filter_multiple_bands_enabled = True
         # There are 2 rows in the table by default
         assert lumped_design.multiple_bands_table.row_count == 2

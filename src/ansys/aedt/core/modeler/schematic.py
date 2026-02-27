@@ -24,7 +24,7 @@
 
 import random
 import sys
-import warnings
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -33,11 +33,9 @@ from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
-if (3, 7) < sys.version_info < (3, 13):
+if TYPE_CHECKING or (3, 7) < sys.version_info < (3, 13):
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
-else:  # pragma: no cover
-    warnings.warn("EMIT API is only available for Python 3.8-3.12.")
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
@@ -61,7 +59,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._schematic_units = "meter"
@@ -84,7 +82,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value) -> None:
         if value in list(AEDT_UNITS["Length"].keys()):
             self._schematic_units = value
         else:
@@ -111,7 +109,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._app.oeditor
 
     @pyaedt_function_handler()
-    def zoom_to_fit(self):
+    def zoom_to_fit(self) -> None:
         """Zoom To Fit.
 
         References
@@ -122,8 +120,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_schematic_components(
-        self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire=True
-    ):
+        self, starting_component, ending_component, pin_starting: int = 2, pin_ending: int = 1, use_wire: bool = True
+    ) -> bool:
         """Connect schematic components.
 
         Parameters
@@ -176,20 +174,20 @@ class ModelerCircuit(Modeler, PyAedtBase):
     def create_text(
         self,
         text,
-        x_origin=0,
-        y_origin=0,
-        text_size=12,
-        text_angle=0,
-        text_color=0,
-        show_rect=False,
-        x1=0,
-        y1=0,
-        x2=0,
-        y2=0,
-        rect_line_width=0,
-        rect_border_color=0,
-        rect_fill=0,
-        rect_color=0,
+        x_origin: int = 0,
+        y_origin: int = 0,
+        text_size: int = 12,
+        text_angle: int = 0,
+        text_color: int = 0,
+        show_rect: bool = False,
+        x1: int = 0,
+        y1: int = 0,
+        x2: int = 0,
+        y2: int = 0,
+        rect_line_width: int = 0,
+        rect_border_color: int = 0,
+        rect_fill: int = 0,
+        rect_color: int = 0,
     ):
         """Draw Text.
 
@@ -345,7 +343,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_text_property(self, assignment, name, value):
+    def change_text_property(self, assignment, name: str, value) -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -438,7 +436,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):
+    def _get_components_selections(self, selections, return_as_list: bool = True):
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -465,7 +463,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
@@ -545,7 +543,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             return pnames.index(name)
 
     @pyaedt_function_handler()
-    def rename_page(self, page, name):
+    def rename_page(self, page, name: str) -> bool:
         """Rename a page in the schematic."""
         pnames = self.page_names
         if page in pnames:
@@ -599,12 +597,12 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._primitives
 
     @model_units.setter
-    def model_units(self, units):
+    def model_units(self, units) -> None:
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 
     @pyaedt_function_handler()
-    def move(self, assignment, offset, units=None):
+    def move(self, assignment, offset, units=None) -> bool:
         """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
@@ -656,7 +654,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def rotate(self, assignment, degrees=90):
+    def rotate(self, assignment, degrees: int = 90) -> bool:
         """Rotate the selections by degrees.
 
         Parameters
@@ -704,7 +702,7 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
@@ -740,14 +738,20 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
+        if not (3, 7) < sys.version_info < (3, 13):
+            self.logger.warning(
+                f"EMIT API is only supported for Python 3.8-3.12. "
+                f"Current version is {sys.version_info.major}.{sys.version_info.minor}. "
+                f"Some features may not be available."
+            )
         self.components = EmitComponents(app, self)
         self.logger.info("ModelerEmit class has been initialized!")
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
+    def _get_components_selections(self, selections, return_as_list: bool = True):  # pragma: no cover
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -774,7 +778,7 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = MaxwellCircuitComponents(self)

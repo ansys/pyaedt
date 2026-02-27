@@ -32,12 +32,12 @@ from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
-def test_ga_launch():
+def test_ga_launch() -> None:
     def f(X):
         return np.sum(X)
 
@@ -66,7 +66,7 @@ def test_ga_launch():
     assert model.best_function
 
 
-def test_ga_timeout():
+def test_ga_timeout() -> None:
     def f(X):
         time.sleep(random.uniform(0, 0.12))
         return np.sum(X)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +28,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TxBbEmissionNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -43,16 +42,16 @@ class TxBbEmissionNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name):
+    def import_csv_file(self, file_name: str):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
         Frequency, Bandwidth, or Offset:
@@ -63,7 +62,7 @@ class TxBbEmissionNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property

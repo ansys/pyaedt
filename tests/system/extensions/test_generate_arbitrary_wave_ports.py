@@ -34,7 +34,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports impor
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_arbitrary_wave_port_main_function_validation():
+def test_arbitrary_wave_port_main_function_validation() -> None:
     """Test validation in the main function."""
     # Test with empty working path
     data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
@@ -53,7 +53,7 @@ def test_arbitrary_wave_port_main_function_validation():
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Hfss3dLayout")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Hfss")
-def test_arbitrary_wave_port_main_success(mock_hfss, mock_hfss3d, mock_desktop, mock_edb):
+def test_arbitrary_wave_port_main_success(mock_hfss, mock_hfss3d, mock_desktop, mock_edb) -> None:
     """Test successful execution of the main function."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -100,7 +100,7 @@ def test_arbitrary_wave_port_main_success(mock_hfss, mock_hfss3d, mock_desktop, 
 
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Edb")
-def test_arbitrary_wave_port_edb_failure(mock_edb):
+def test_arbitrary_wave_port_edb_failure(mock_edb) -> None:
     """Test EDB model creation failure."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -126,7 +126,7 @@ def test_arbitrary_wave_port_edb_failure(mock_edb):
         assert "Failed to create EDB model" in str(exc_info.value)
 
 
-def test_arbitrary_wave_port_extension_data_properties():
+def test_arbitrary_wave_port_extension_data_properties() -> None:
     """Test data class properties."""
     data = ArbitraryWavePortExtensionData()
 
@@ -148,7 +148,7 @@ def test_arbitrary_wave_port_extension_data_properties():
     assert data.import_edb is False
 
 
-def test_arbitrary_wave_port_different_mounting_sides():
+def test_arbitrary_wave_port_different_mounting_sides() -> None:
     """Test data class with different mounting sides."""
     # Test with top mounting
     data_top = ArbitraryWavePortExtensionData(

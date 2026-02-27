@@ -31,17 +31,17 @@ from tests.conftest import config
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-    def test_radial_stubs(self, distributed_design):
+    def test_radial_stubs(self, distributed_design) -> None:
         assert distributed_design.radial.radial_stubs is False
         distributed_design.radial.radial_stubs = True
         assert distributed_design.radial.radial_stubs
 
-    def test_fixed_angle_enabled(self, distributed_design):
+    def test_fixed_angle_enabled(self, distributed_design) -> None:
         assert distributed_design.radial.fixed_angle_enabled
         distributed_design.radial.fixed_angle_enabled = False
         assert not distributed_design.radial.fixed_angle_enabled
 
-    def test_fixed_angle(self, distributed_design):
+    def test_fixed_angle(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.radial.fixed_angle_enabled = False
             distributed_design.radial.fixed_angle = "45"
@@ -53,17 +53,17 @@ class TestClass:
         distributed_design.radial.fixed_angle = "45"
         assert distributed_design.radial.fixed_angle == "45"
 
-    def test_delta_stubs(self, distributed_design):
+    def test_delta_stubs(self, distributed_design) -> None:
         assert distributed_design.radial.delta_stubs is False
         distributed_design.radial.delta_stubs = True
         assert distributed_design.radial.delta_stubs
 
-    def test_split_wide_angle_enabled(self, distributed_design):
+    def test_split_wide_angle_enabled(self, distributed_design) -> None:
         assert distributed_design.radial.split_wide_angle_enabled is False
         distributed_design.radial.split_wide_angle_enabled = True
         assert distributed_design.radial.split_wide_angle_enabled
 
-    def test_split_wide_angle(self, distributed_design):
+    def test_split_wide_angle(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.radial.split_wide_angle = "45"
         assert (
@@ -75,12 +75,12 @@ class TestClass:
         distributed_design.radial.split_wide_angle = "10"
         assert distributed_design.radial.split_wide_angle == "10"
 
-    def test_offset_from_feedline_enabled(self, distributed_design):
+    def test_offset_from_feedline_enabled(self, distributed_design) -> None:
         assert distributed_design.radial.offset_from_feedline_enabled
         distributed_design.radial.offset_from_feedline_enabled = False
         assert distributed_design.radial.offset_from_feedline_enabled is False
 
-    def test_offset_from_feedline(self, distributed_design):
+    def test_offset_from_feedline(self, distributed_design) -> None:
         with pytest.raises(RuntimeError) as info:
             distributed_design.radial.offset_from_feedline_enabled = False
             distributed_design.radial.offset_from_feedline = "100 um"
@@ -93,32 +93,32 @@ class TestClass:
         distributed_design.radial.offset_from_feedline = "100 um"
         assert distributed_design.radial.offset_from_feedline == "100 um"
 
-    def test_alternate_radial_delta_orientation(self, distributed_design):
+    def test_alternate_radial_delta_orientation(self, distributed_design) -> None:
         assert distributed_design.radial.alternate_radial_delta_orientation
         distributed_design.radial.alternate_radial_delta_orientation = False
         assert distributed_design.radial.alternate_radial_delta_orientation is False
 
-    def test_adjust_width_max(self, distributed_design):
+    def test_adjust_width_max(self, distributed_design) -> None:
         assert distributed_design.radial.adjust_width_max
         distributed_design.radial.adjust_width_max = False
         assert distributed_design.radial.adjust_width_max is False
 
-    def test_max_radial_delta_angle(self, distributed_design):
+    def test_max_radial_delta_angle(self, distributed_design) -> None:
         assert distributed_design.radial.max_radial_delta_angle == "120"
         distributed_design.radial.max_radial_delta_angle = "90"
         assert distributed_design.radial.max_radial_delta_angle == "90"
 
-    def test_adjust_length_max(self, distributed_design):
+    def test_adjust_length_max(self, distributed_design) -> None:
         assert distributed_design.radial.adjust_length_max is False
         distributed_design.radial.adjust_length_max = True
         assert distributed_design.radial.adjust_length_max
 
-    def test_min_radial_delta_angle(self, distributed_design):
+    def test_min_radial_delta_angle(self, distributed_design) -> None:
         assert distributed_design.radial.min_radial_delta_angle == "15"
         distributed_design.radial.min_radial_delta_angle = "10"
         assert distributed_design.radial.min_radial_delta_angle == "10"
 
-    def test_apply_limits_radial_delta(self, distributed_design):
+    def test_apply_limits_radial_delta(self, distributed_design) -> None:
         assert distributed_design.radial.apply_limits_radial_delta
         distributed_design.radial.apply_limits_radial_delta = False
         assert distributed_design.radial.apply_limits_radial_delta is False

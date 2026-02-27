@@ -58,7 +58,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -107,22 +107,21 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        version: str | None = None,
+        solution_type: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
@@ -140,11 +139,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -213,7 +212,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_netlist_from_schematic(self, output_file):
+    def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
         """Create netlist from schematic circuit.
 
         Parameters

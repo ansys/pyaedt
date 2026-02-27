@@ -26,6 +26,7 @@ The PyAEDT CLI provides these main commands:
 * ``processes`` - List all running AEDT processes
 * ``start`` - Start a new AEDT session
 * ``stop`` - Stop running AEDT processes
+* ``attach`` - Attach to a running AEDT process for interactive work
 * ``config`` - Manage test configuration settings
 * ``panels`` - Install PyAEDT panels in AEDT
 * ``doc`` - Quick access to PyAEDT documentation
@@ -146,6 +147,76 @@ Stop multiple processes:
     pyaedt stop -a
 
 
+Attach to AEDT
+~~~~~~~~~~~~~~
+
+Attach to a running AEDT process and launch an interactive PyAEDT console:
+
+.. code-block:: bash
+
+    pyaedt attach
+
+This command detects all running AEDT processes and presents them in an interactive menu.
+You can select which process to attach to; this launches an IPython console with
+a PyAEDT Desktop instance already connected to that process.
+
+**Direct Attachment by PID**
+
+If you already know the process ID, attach directly:
+
+.. code-block:: bash
+
+    pyaedt attach --pid 12345
+    pyaedt attach -p 12345
+
+This skips the interactive menu and connects immediately to the specified process.
+
+**Interactive Process Selection**
+
+When you run ``pyaedt attach``, you'll see output like this:
+
+.. code-block:: text
+
+    Found 2 AEDT process(es):
+
+      1. PID: 12345 | Version: 2025.2 | Port: 50051
+      2. PID: 67890 | Version: 2025.1 | Port: COM mode
+
+    Select process number (1-2) or 'q' to quit:
+
+Simply enter the number of the process you want to attach to, and an interactive
+console opens with PyAEDT already initialized and connected.
+
+**Using the Interactive Console**
+
+Once attached, you have access to the Desktop object and can interact with AEDT:
+
+.. code-block:: python
+
+    # The Desktop object is already available as 'desktop'
+    desktop.project_list()
+
+    # Create a new project
+    hfss = ansys.aedt.core.Hfss()
+
+    # Work with your designs
+    hfss.modeler.create_box([0, 0, 0], [10, 10, 10])
+
+**Requirements**
+
+The attach command requires IPython to be installed:
+
+.. code-block:: bash
+
+    pip install ipython
+
+Or install PyAEDT with all optional dependencies:
+
+.. code-block:: bash
+
+    pip install pyaedt[all]
+
+
 Test configuration management
 ------------------------------
 
@@ -197,16 +268,15 @@ Install PyAEDT panels into AEDT:
 This command launches an interactive setup that:
 
 1. Detects installed AEDT versions on your system
-2. Prompts you to select the AEDT version
-3. Asks for the path to your PersonalLib folder
-4. Installs the PyAEDT panels
+2. Asks for the path to your PersonalLib folder
+3. Installs the PyAEDT panels
 
-You can also provide all parameters directly:
+You can also provide the PersonalLib path directly:
 
 .. code-block:: bash
 
-    pyaedt panels add --version 2025.2 --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
-    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
 
 **Skip Version Manager**
 
@@ -216,12 +286,39 @@ By default, the Version Manager panel is installed. To skip it:
 
     pyaedt panels add --skip-version-manager
 
+**Reset option**
+
+If you want to clean up existing installations before adding panels, use the ``--reset`` option.
+This deletes the existing ``Toolkits`` directory inside PersonalLib before installing:
+
+.. code-block:: bash
+
+    pyaedt panels add --reset
+    pyaedt panels add -r
+
+This is useful for:
+
+* Troubleshooting panel installation issues
+* Cleaning up old or corrupted panel installations
+* Performing a fresh installation
+
+You can combine options:
+
+.. code-block:: bash
+
+    pyaedt panels add --personal-lib "path/to/PersonalLib" --reset --skip-version-manager
+    pyaedt panels add -p "path/to/PersonalLib" -r
+
 **Installed Panels**
 
 The following panels are installed:
 
-* **Console** - Interactive Python console within AEDT
-* **Jupyter** - Launch Jupyter notebooks connected to AEDT
+* **PyAEDT Utilities** - A group containing:
+
+  * **Console** - Interactive Python console within AEDT
+  * **CLI** - PyAEDT command line interface access
+  * **Jupyter** - Launch Jupyter notebooks connected to AEDT
+
 * **Run Script** - Execute Python scripts from AEDT
 * **Extension Manager** - Manage PyAEDT extensions
 * **Version Manager** - Switch between AEDT versions (optional)
@@ -305,6 +402,26 @@ Here are some common workflows using the CLI:
     # Stop when done
     pyaedt stop --all
 
+**Interactive Development**
+
+.. code-block:: bash
+
+    # Start AEDT
+    pyaedt start -v 2025.2
+
+    # List processes to get PID
+    pyaedt processes
+
+    # Attach to it for interactive work (interactive menu)
+    pyaedt attach
+
+    # Or attach directly by PID
+    pyaedt attach -p 12345
+
+    # Work interactively in the console
+    # When done, exit the console and stop AEDT
+    pyaedt stop --all
+
 **Automation Script**
 
 .. code-block:: bash
@@ -335,8 +452,11 @@ Here are some common workflows using the CLI:
     # Interactive mode
     pyaedt panels add
 
-    # Or provide all parameters
-    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    # Or provide the PersonalLib path
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+
+    # Clean install
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reset
 
 **Quick Documentation Access**
 
@@ -407,6 +527,7 @@ For detailed help on any command:
     pyaedt --help
     pyaedt start --help
     pyaedt stop --help
+    pyaedt attach --help
     pyaedt config test --help
     pyaedt panels add --help
     pyaedt doc --help

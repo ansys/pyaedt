@@ -106,6 +106,24 @@ _len_all_lines = 0
 _count = 0
 
 
+def get_designs(filename: str | Path) -> list[str]:
+    """Get the list of designs in an AEDT file.
+
+    Parameters
+    ----------
+    filename : str or pathlib.Path
+        Path to the AEDT file.
+
+    Returns
+    -------
+    list of str
+        List of design names found in the AEDT file.
+    """
+    filename = Path(filename)
+    designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]
+    return [info["DesignName"] for info in designs["DesignInfo"]]
+
+
 def _parse_value(v):
     """Parse value in C# format."""
     #  duck typing parse of the value 'v'
@@ -150,7 +168,7 @@ def _separate_list_elements(v):
     return l2
 
 
-def _decode_recognized_subkeys(sk, d):
+def _decode_recognized_subkeys(sk, d) -> bool:
     """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
@@ -211,7 +229,7 @@ def _decode_recognized_subkeys(sk, d):
     return False
 
 
-def _decode_recognized_key(keyword, line, d):
+def _decode_recognized_key(keyword, line, d) -> bool:
     """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
@@ -313,7 +331,7 @@ def _decode_recognized_key(keyword, line, d):
     return True
 
 
-def _decode_subkey(line, d):
+def _decode_subkey(line, d) -> None:
     """
 
     Parameters
@@ -454,7 +472,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
     return _count
 
 
-def _read_aedt_file(filename):
+def _read_aedt_file(filename) -> None:
     """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters

@@ -32,49 +32,49 @@ from tests.system.filter_solutions.resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_lumped_c_node_capacitor(self, lumped_design):
+    def test_lumped_c_node_capacitor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.c_node_capacitor == "0"
         lumped_design.leads_and_nodes.c_node_capacitor = "1n"
         assert lumped_design.leads_and_nodes.c_node_capacitor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("c_node_capacitor.ckt", "Lumped")
 
-    def test_lumped_c_lead_inductor(self, lumped_design):
+    def test_lumped_c_lead_inductor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.c_lead_inductor == "0"
         lumped_design.leads_and_nodes.c_lead_inductor = "1n"
         assert lumped_design.leads_and_nodes.c_lead_inductor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("c_lead_inductor.ckt", "Lumped")
 
-    def test_lumped_l_node_capacitor(self, lumped_design):
+    def test_lumped_l_node_capacitor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.l_node_capacitor == "0"
         lumped_design.leads_and_nodes.l_node_capacitor = "1n"
         assert lumped_design.leads_and_nodes.l_node_capacitor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("l_node_capacitor.ckt", "Lumped")
 
-    def test_lumped_l_lead_inductor(self, lumped_design):
+    def test_lumped_l_lead_inductor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.l_lead_inductor == "0"
         lumped_design.leads_and_nodes.l_lead_inductor = "1n"
         assert lumped_design.leads_and_nodes.l_lead_inductor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("l_lead_inductor.ckt", "Lumped")
 
-    def test_lumped_r_node_capacitor(self, lumped_design):
+    def test_lumped_r_node_capacitor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.r_node_capacitor == "0"
         lumped_design.leads_and_nodes.r_node_capacitor = "1n"
         assert lumped_design.leads_and_nodes.r_node_capacitor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("r_node_capacitor.ckt", "Lumped")
 
-    def test_lumped_r_lead_inductor(self, lumped_design):
+    def test_lumped_r_lead_inductor(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.r_lead_inductor == "0"
         lumped_design.leads_and_nodes.r_lead_inductor = "1n"
         assert lumped_design.leads_and_nodes.r_lead_inductor == "1n"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("r_lead_inductor.ckt", "Lumped")
 
-    def test_lumped_c_node_compensate(self, lumped_design):
+    def test_lumped_c_node_compensate(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.c_node_compensate is False
         lumped_design.leads_and_nodes.c_node_compensate = True
         assert lumped_design.leads_and_nodes.c_node_compensate
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("c_node_compensate.ckt", "Lumped")
 
-    def test_lumped_l_node_compensate(self, lumped_design):
+    def test_lumped_l_node_compensate(self, lumped_design) -> None:
         assert lumped_design.leads_and_nodes.l_node_compensate is False
         lumped_design.leads_and_nodes.l_node_compensate = True
         assert lumped_design.leads_and_nodes.l_node_compensate

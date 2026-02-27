@@ -27,7 +27,7 @@ from ansys.aedt.core.base import PyAedtBase
 
 # Sample hierarchy for chaining
 class Vertex(PyAedtBase):
-    def position(self):
+    def position(self) -> None:
         pass
 
 
@@ -48,18 +48,18 @@ class Cube(PyAedtBase):
 
 # Example classes for testing
 class Base(PyAedtBase):
-    def base_method(self):
+    def base_method(self) -> None:
         pass
 
-    def _base_private(self):
+    def _base_private(self) -> None:
         pass
 
 
 class Child(Base):
-    def child_method(self):
+    def child_method(self) -> None:
         pass
 
-    def _child_private(self):
+    def _child_private(self) -> None:
         pass
 
 
@@ -70,7 +70,7 @@ class Child(Base):
 # tests for public_dir method and DirMixin functionality
 
 
-def test_instance_dir_contains_methods():
+def test_instance_dir_contains_methods() -> None:
     cube = Cube()
     d = cube.public_dir
     assert "faces" in d
@@ -78,20 +78,20 @@ def test_instance_dir_contains_methods():
     assert "public_dir" not in d  # exclude the property itself
 
 
-def test_chaining_dir():
+def test_chaining_dir() -> None:
     cube = Cube()
     vertex_dir = cube.faces().edges().vertices().public_dir
     assert "position" in vertex_dir
     assert all(not i.startswith("_") for i in vertex_dir)
 
 
-def test_base_inheritance():
+def test_base_inheritance() -> None:
     assert issubclass(Cube, PyAedtBase)
     cube = Cube()
     assert isinstance(cube, PyAedtBase)
 
 
-def test_dir_sorted():
+def test_dir_sorted() -> None:
     cube = Cube()
     d = cube.public_dir
     assert d == sorted(d)
@@ -100,7 +100,7 @@ def test_dir_sorted():
 # tests for __dir__ method and DirMixin functionality
 
 
-def test_dir_includes_all_attributes():
+def test_dir_includes_all_attributes() -> None:
     """Ensure __dir__ returns all attributes, not just reordered subset."""
     c = Child()
     default_attrs = object.__dir__(c)
@@ -113,7 +113,7 @@ def test_dir_includes_all_attributes():
     assert any(a.startswith("_") for a in custom_attrs)
 
 
-def test_dir_orders_public_first():
+def test_dir_orders_public_first() -> None:
     """Public attributes should appear before private ones."""
     c = Child()
     attrs = c.__dir__()
@@ -123,7 +123,7 @@ def test_dir_orders_public_first():
     assert all(a.startswith("_") for a in attrs[first_private:])
 
 
-def test_dir_preserves_methods_from_parents():
+def test_dir_preserves_methods_from_parents() -> None:
     """Inherited public and private methods should appear."""
     c = Child()
     attrs = c.__dir__()
@@ -133,7 +133,7 @@ def test_dir_preserves_methods_from_parents():
     assert "_child_private" in attrs
 
 
-def test_dir_is_sorted_within_groups():
+def test_dir_is_sorted_within_groups() -> None:
     """Public and private groups should each be alphabetically ordered."""
     c = Child()
     attrs = c.__dir__()
@@ -143,14 +143,14 @@ def test_dir_is_sorted_within_groups():
     assert private == sorted(private)
 
 
-def test_public_dir_with_deprecated_method():
+def test_public_dir_with_deprecated_method() -> None:
     """Test that deprecated methods are excluded from public_dir."""
 
     class VertexWithDeprecatedMethod(PyAedtBase):
-        def position(self):
+        def position(self) -> None:
             """Method that is not deprecated."""
 
-        def position_deprecated(self):
+        def position_deprecated(self) -> None:
             """Method that is deprecated.
 
             .. deprecated:: X.Y.Z

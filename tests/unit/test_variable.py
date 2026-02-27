@@ -74,7 +74,7 @@ def validation_float_input():
     return property_names, expected_settings, actual_settings
 
 
-def test_variable_class():
+def test_variable_class() -> None:
     v = Variable("4mm")
     num_value = v.numeric_value
     assert num_value == 4.0
@@ -113,7 +113,7 @@ def test_variable_class():
         _ = Variable("4", units="invented")
 
 
-def test_multiplication():
+def test_multiplication() -> None:
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -162,7 +162,7 @@ def test_multiplication():
     assert result_8.unit_system == "Power"
 
 
-def test_addition():
+def test_addition() -> None:
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -188,7 +188,7 @@ def test_addition():
     assert result_3.unit_system == "Current"
 
 
-def test_subtraction():
+def test_subtraction() -> None:
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -216,7 +216,7 @@ def test_subtraction():
     assert result_3.unit_system == "Current"
 
 
-def test_specify_units():
+def test_specify_units() -> None:
     # Scaling of the unit system "Angle"
     angle = Variable("1rad")
     angle.rescale_to("deg")
@@ -257,7 +257,7 @@ def test_specify_units():
     assert is_close(distance.numeric_value, 2000 / 0.0254)
 
 
-def test_division():
+def test_division() -> None:
     """
     'Power_divide_Voltage': 'Current',
     'Power_divide_Current': 'Voltage',
@@ -313,7 +313,7 @@ def test_division():
     assert result_6.unit_system == "AngularSpeed"
 
 
-def test_decompose_variable_value():
+def test_decompose_variable_value() -> None:
     assert decompose_variable_value("3.123456m") == (3.123456, "m")
     assert decompose_variable_value("3m") == (3, "m")
     assert decompose_variable_value("3") == (3, "")
@@ -324,13 +324,13 @@ def test_decompose_variable_value():
     assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
 
 
-def test_validator_exact_match(validation_input):
+def test_validator_exact_match(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
     assert len(validation_errors) == 0
 
 
-def test_validator_tolerance(validation_input):
+def test_validator_tolerance(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     # Small difference should produce no validation errors
@@ -342,7 +342,7 @@ def test_validator_tolerance(validation_input):
     assert len(validation_errors) == 0
 
 
-def test_validator_invalidate_offset_type(validation_input):
+def test_validator_invalidate_offset_type(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     # Are expected to be "Absolute Offset"
@@ -353,7 +353,7 @@ def test_validator_invalidate_offset_type(validation_input):
     assert len(validation_errors) == 1
 
 
-def test_validator_invalidate_value(validation_input):
+def test_validator_invalidate_value(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     # Above tolerance
@@ -364,7 +364,7 @@ def test_validator_invalidate_value(validation_input):
     assert len(validation_errors) == 1
 
 
-def test_validator_invalidate_unit(validation_input):
+def test_validator_invalidate_unit(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     actual_settings[1] = "10in"
@@ -374,7 +374,7 @@ def test_validator_invalidate_unit(validation_input):
     assert len(validation_errors) == 1
 
 
-def test_validator_invalidate_multiple(validation_input):
+def test_validator_invalidate_multiple(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     actual_settings[0] = "Percentage Offset"
@@ -386,7 +386,7 @@ def test_validator_invalidate_multiple(validation_input):
     assert len(validation_errors) == 3
 
 
-def test_validator_invalidate_wrong_type(validation_input):
+def test_validator_invalidate_wrong_type(validation_input) -> None:
     property_names, expected_settings, actual_settings = validation_input
 
     actual_settings[1] = "nonnumeric"
@@ -396,7 +396,7 @@ def test_validator_invalidate_wrong_type(validation_input):
     assert len(validation_errors) == 1
 
 
-def test_validator_float_type(validation_float_input):
+def test_validator_float_type(validation_float_input) -> None:
     property_names, expected_settings, actual_settings = validation_float_input
 
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
@@ -404,7 +404,7 @@ def test_validator_float_type(validation_float_input):
     assert len(validation_errors) == 0
 
 
-def test_validator_float_type_tolerance(validation_float_input):
+def test_validator_float_type_tolerance(validation_float_input) -> None:
     property_names, expected_settings, actual_settings = validation_float_input
 
     # Set just below the tolerance to pass the check
@@ -417,7 +417,7 @@ def test_validator_float_type_tolerance(validation_float_input):
     assert len(validation_errors) == 0
 
 
-def test_validator_float_type_invalidate(validation_float_input):
+def test_validator_float_type_invalidate(validation_float_input) -> None:
     property_names, expected_settings, actual_settings = validation_float_input
 
     # Set just above the tolerance to fail the check
@@ -430,7 +430,7 @@ def test_validator_float_type_invalidate(validation_float_input):
     assert len(validation_errors) == 3
 
 
-def test_validator_float_type_invalidate_zeros(validation_float_input):
+def test_validator_float_type_invalidate_zeros(validation_float_input) -> None:
     property_names, expected_settings, actual_settings = validation_float_input
 
     actual_settings[0] *= 2

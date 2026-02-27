@@ -1,3 +1,5 @@
+.ci/* @Samuelopez-ansys @SMoraisAnsys @eblanco-ansys @ecoussoux-ansys
+
 .github/* @MaxJPRey @maxcapodi78 @Samuelopez-ansys @SMoraisAnsys
 
 /tests/system/solvers/test_26_emit.py @jsalant22 @myoung301

@@ -210,7 +210,7 @@ class IcepakConstants(metaclass=DynamicMeta):
 
 class IcepakFeaConstants(metaclass=DynamicMeta):
     NAME = "IcepakFEA"
-    model_name = "MechanicalModel"
+    model_name = "IcepakFEAModel"
     solution_default = "Thermal"
     solution_types = {
         "Thermal": {
@@ -246,7 +246,10 @@ class IcepakFeaConstants(metaclass=DynamicMeta):
     mesher = "MeshSetup"
     default_material = "copper"
     report_templates = ["Standard", "Fields"]
-    __versioned = {"2025.2": {"NAME": "Mechanical"}}
+    __versioned = {
+        version: {"NAME": "Mechanical", "model_name": "MechanicalModel"}
+        for version in ["2025.2", "2025.1", "2024.2", "2024.1", "2023.2", "2023.1", "2022.2"]
+    }
     property_tabs = {"boundary": "IcepakFEA", "excitation": "IcepakFEA", "setup": "IcepakFEA", "mesh": "IcepakFEA"}
 
 
@@ -386,6 +389,14 @@ class Maxwell3dConstants(metaclass=DynamicMeta):
         },
         "AC Magnetic": {
             "name": "AC Magnetic",
+            "options": None,
+            "report_type": "AC Magnetic",
+            "default_setup": 7,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
+        "AC Magnetic APhi": {
+            "name": "AC Magnetic APhi",
             "options": None,
             "report_type": "AC Magnetic",
             "default_setup": 7,
@@ -803,24 +814,24 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
     solution_default = ""
     solution_types = {
         "NexximLNA": {
-            "name": None,
+            "name": "LNA",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "Netlist",
             "default_setup": 15,
             "default_adaptive": None,
             "intrinsics": ["Freq"],
         },
         "NexximDC": {
-            "name": None,
+            "name": "DC",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "Netlist",
             "default_setup": 16,
             "default_adaptive": None,
         },
         "NexximTransient": {
-            "name": None,
+            "name": "TRAN",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "Netlist",
             "default_setup": 17,
             "default_adaptive": None,
             "intrinsics": ["Time"],

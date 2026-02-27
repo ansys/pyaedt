@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import inspect
 from pathlib import Path
 import sys
 import tempfile
@@ -31,10 +32,17 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.extensions.customize_automation_tab import _iter_panel_button_specs
+from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
+from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
+from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
+from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+from ansys.aedt.core.extensions.tabconfig_parser import TabConfigParser
 
 
 @pytest.fixture
@@ -42,7 +50,6 @@ def mock_desktop_session():
     """Fixture for a mocked desktop session."""
     mock_desktop = MagicMock()
     mock_desktop.personallib = tempfile.gettempdir()
-    mock_desktop.aedt_version_id = "2024.1"
     return mock_desktop
 
 
@@ -62,9 +69,6 @@ def sample_tabconfig_xml():
 
     yield temp_path
 
-    # Cleanup
-    temp_path.unlink(missing_ok=True)
-
 
 @pytest.fixture
 def invalid_tabconfig_xml():
@@ -81,13 +85,10 @@ def invalid_tabconfig_xml():
 
     yield temp_path
 
-    # Cleanup
-    temp_path.unlink(missing_ok=True)
-
 
 def test_get_custom_extensions_from_tabconfig_success(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test successful parsing of custom extensions from TabConfig.xml."""
     toml_names = {"Standard Extension"}
     options = {}
@@ -104,7 +105,7 @@ def test_get_custom_extensions_from_tabconfig_success(
 
 def test_get_custom_extensions_from_tabconfig_with_existing_options(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test parsing with existing options dict."""
     toml_names = set()
     options = {"Existing Extension": "existing"}
@@ -118,7 +119,7 @@ def test_get_custom_extensions_from_tabconfig_with_existing_options(
 
 def test_get_custom_extensions_from_tabconfig_duplicate_prevention(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test that duplicates are not added to options."""
     toml_names = set()
     options = {"Custom Extension 1": "already_exists"}
@@ -131,7 +132,7 @@ def test_get_custom_extensions_from_tabconfig_duplicate_prevention(
 
 def test_get_custom_extensions_from_tabconfig_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling with invalid XML."""
     mock_logger = MagicMock()
     toml_names = set()
@@ -143,7 +144,7 @@ def test_get_custom_extensions_from_tabconfig_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extensions_from_tabconfig_nonexistent_file():
+def test_get_custom_extensions_from_tabconfig_nonexistent_file() -> None:
     """Test error handling with nonexistent file."""
     mock_logger = MagicMock()
     toml_names = set()
@@ -160,7 +161,7 @@ def test_get_custom_extensions_from_tabconfig_nonexistent_file():
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_script_success(sample_tabconfig_xml):
+def test_get_custom_extension_script_success(sample_tabconfig_xml) -> None:
     """Test successful retrieval of custom extension script."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Custom Extension 1")
     assert result == "custom_script1.py"
@@ -171,7 +172,7 @@ def test_get_custom_extension_script_success(sample_tabconfig_xml):
 
 def test_get_custom_extension_script_non_custom_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test script retrieval for non-custom extension returns None."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Standard Extension")
     assert result is None
@@ -182,7 +183,7 @@ def test_get_custom_extension_script_non_custom_extension(
 
 def test_get_custom_extension_script_nonexistent_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test script retrieval for nonexistent extension returns None."""
     result = get_custom_extension_script(sample_tabconfig_xml, "Nonexistent Extension")
     assert result is None
@@ -190,7 +191,7 @@ def test_get_custom_extension_script_nonexistent_extension(
 
 def test_get_custom_extension_script_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling in script retrieval with invalid XML."""
     mock_logger = MagicMock()
 
@@ -204,7 +205,7 @@ def test_get_custom_extension_script_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_script_nonexistent_file():
+def test_get_custom_extension_script_nonexistent_file() -> None:
     """Test error handling in script retrieval with nonexistent file."""
     mock_logger = MagicMock()
 
@@ -218,7 +219,7 @@ def test_get_custom_extension_script_nonexistent_file():
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_image_success(sample_tabconfig_xml):
+def test_get_custom_extension_image_success(sample_tabconfig_xml) -> None:
     """Test successful retrieval of extension image."""
     result = get_custom_extension_image(sample_tabconfig_xml, "Custom Extension 1")
     assert result == "custom/icon1.png"
@@ -229,13 +230,13 @@ def test_get_custom_extension_image_success(sample_tabconfig_xml):
 
 def test_get_custom_extension_image_nonexistent_extension(
     sample_tabconfig_xml,
-):
+) -> None:
     """Test image retrieval for nonexistent extension returns empty string."""
     result = get_custom_extension_image(sample_tabconfig_xml, "Nonexistent Extension")
     assert result == ""
 
 
-def test_get_custom_extension_image_missing_image_attribute():
+def test_get_custom_extension_image_missing_image_attribute() -> None:
     """Test image retrieval when image attribute is missing."""
     xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <TabConfig>
@@ -248,16 +249,13 @@ def test_get_custom_extension_image_missing_image_attribute():
         f.write(xml_content)
         temp_path = Path(f.name)
 
-    try:
-        result = get_custom_extension_image(temp_path, "No Image Extension")
-        assert result == ""
-    finally:
-        temp_path.unlink(missing_ok=True)
+    result = get_custom_extension_image(temp_path, "No Image Extension")
+    assert result == ""
 
 
 def test_get_custom_extension_image_invalid_xml(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling in image retrieval with invalid XML."""
     mock_logger = MagicMock()
 
@@ -271,7 +269,7 @@ def test_get_custom_extension_image_invalid_xml(
     mock_logger.warning.assert_called_once()
 
 
-def test_get_custom_extension_image_nonexistent_file():
+def test_get_custom_extension_image_nonexistent_file() -> None:
     """Test error handling in image retrieval with nonexistent file."""
     mock_logger = MagicMock()
 
@@ -287,7 +285,7 @@ def test_get_custom_extension_image_nonexistent_file():
 
 def test_get_custom_extensions_from_tabconfig_no_logger(
     invalid_tabconfig_xml,
-):
+) -> None:
     """Test error handling without logger."""
     toml_names = set()
     options = {}
@@ -298,7 +296,7 @@ def test_get_custom_extensions_from_tabconfig_no_logger(
     assert result == options
 
 
-def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml):
+def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml) -> None:
     """Test error handling in script retrieval without logger."""
     # Should not raise exception when logger is None
     result = get_custom_extension_script(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
@@ -306,7 +304,7 @@ def test_get_custom_extension_script_no_logger(invalid_tabconfig_xml):
     assert result is None
 
 
-def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml):
+def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml) -> None:
     """Test error handling in image retrieval without logger."""
     # Should not raise exception when logger is None
     result = get_custom_extension_image(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
@@ -317,11 +315,12 @@ def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml):
 @patch("ansys.aedt.core.generic.settings.is_linux", False)
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
 @patch("shutil.copy2")
+@patch("sys.executable", "C:\\Python\\python.exe")
 def test_add_script_to_menu_success(
     mock_copy,
     mock_add_automation_tab,
     mock_desktop_session,
-):
+) -> None:
     """Test the successful addition of a script to the menu."""
     # Arrange
     toolkit_name = "MyTestToolkit"
@@ -330,85 +329,92 @@ def test_add_script_to_menu_success(
         f.write("print('Hello from test script')")
 
     personal_lib = mock_desktop_session.personallib
-    aedt_version = mock_desktop_session.aedt_version_id
 
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)
 
     with patch("builtins.open", m):
         # Act
-        result = add_script_to_menu(
+        kwargs = dict(
             name=toolkit_name,
             script_file=str(script_file),
             personal_lib=personal_lib,
-            aedt_version=aedt_version,
+        )
+        if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
+            kwargs["aedt_version"] = "2025.2"
+        result = add_script_to_menu(**kwargs)
+
+        # Assert
+        assert result is True
+        mock_copy.assert_called_once()
+        mock_add_automation_tab.assert_called_once_with(
+            toolkit_name,
+            Path(personal_lib) / "Toolkits",
+            icon_file=None,
+            product="Project",
+            template="run_pyaedt_toolkit_script",
+            panel="Panel_PyAEDT_Extensions",
+            is_custom=False,
+            odesktop=None,
+            group_name=None,
+            group_icon=None,
         )
 
-    # Assert
-    assert result is True
-    mock_copy.assert_called_once()
-    mock_add_automation_tab.assert_called_once_with(
-        toolkit_name,
-        Path(personal_lib) / "Toolkits",
-        icon_file=None,
-        product="Project",
-        template="run_pyaedt_toolkit_script",
-        panel="Panel_PyAEDT_Extensions",
-        is_custom=False,
-        odesktop=None,
-    )
-
-    # Verify the generated script content
-    written_content = m().write.call_args[0][0]
-    assert sys.executable in written_content
-    assert script_file.name in written_content
-
-    # Cleanup
-    script_file.unlink()
+        # Verify the generated script content
+        written_content = m().write.call_args[0][0]
+        assert sys.executable in written_content
+        assert script_file.name in written_content
 
 
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions", {})
 @patch("logging.getLogger")
-def test_add_script_to_menu_no_session_failure(mock_logger):
+def test_add_script_to_menu_no_session_failure(mock_logger) -> None:
     """Test failure when no desktop session is available and no paths are provided."""
-    with patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions", {}):
-        result = add_script_to_menu("Test")
-        assert result is False
-        mock_logger.return_value.error.assert_called_with(
-            "Personallib or AEDT version is not provided and there is no available desktop session."
-        )
+    result = add_script_to_menu("Test")
+    assert result is False
+    mock_logger.return_value.error.assert_called_once()
+    error_message = mock_logger.return_value.error.call_args[0][0]
+    assert "Personallib" in error_message
+    assert "available desktop session" in error_message
 
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
-def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_session):
+@patch("sys.executable", "C:\\Python\\python.exe")
+def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_session) -> None:
     """Test that the script is not copied when copy_to_personal_lib is False."""
     with patch("shutil.copy2") as mock_copy:
         template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
         m = mock_open(read_data=template_content)
         with patch("builtins.open", m):
-            add_script_to_menu(
-                "MyToolkit",
+            kwargs = dict(
+                name="MyToolkit",
                 script_file=__file__,
                 copy_to_personal_lib=False,
                 personal_lib=mock_desktop_session.personallib,
-                aedt_version=mock_desktop_session.aedt_version_id,
             )
+            if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
+                kwargs["aedt_version"] = "2025.2"
+            add_script_to_menu(**kwargs)
         mock_copy.assert_not_called()
 
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
 @patch("shutil.copy2")
-def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_desktop_session):
+@patch("sys.executable", "C:\\Python\\python.exe")
+def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_desktop_session) -> None:
     """Test that add_automation_tab is called with is_custom=True."""
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)
     with patch("builtins.open", m):
-        add_script_to_menu(
-            "MyCustomToolkit",
+        kwargs = dict(
+            name="MyCustomToolkit",
             script_file=__file__,
             is_custom=True,
             personal_lib=mock_desktop_session.personallib,
-            aedt_version=mock_desktop_session.aedt_version_id,
         )
+        if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
+            kwargs["aedt_version"] = "2025.2"
+        add_script_to_menu(**kwargs)
     mock_add_automation_tab.assert_called_with(
         "MyCustomToolkit",
         Path(mock_desktop_session.personallib) / "Toolkits",
@@ -418,4 +424,216 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
         panel="Panel_PyAEDT_Extensions",
         is_custom=True,
         odesktop=None,
+        group_name=None,
+        group_icon=None,
     )
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
+def test_add_automation_tab_resolves_image_linux(tmp_path) -> None:
+    """Test image resolution for Linux non-custom toolkits."""
+    icon_file = tmp_path / "tool_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="MyToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    assert parser.has_button("Panel_PyAEDT_Extensions", "MyToolkit")
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["image"] == f"images/{icon_file.name}"
+    assert button.attrib["script"] == "MyToolkit/run_pyaedt_toolkit_script"
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_custom_button_attributes(tmp_path) -> None:
+    """Test custom extension attributes for add_automation_tab."""
+    icon_file = tmp_path / "custom_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["custom_extension"] == "true"
+    assert button.attrib["type"] == "custom"
+    assert button.attrib["image"] == icon_file.as_posix()
+    assert button.attrib["script"] == "CustomToolkit/run_pyaedt_toolkit_script"
+
+
+def test_is_extension_in_panel(tmp_path) -> None:
+    """Test extension detection with existing and missing entries."""
+    toolkit_dir = tmp_path / "Toolkits"
+    tabconfig_path = toolkit_dir / "Project" / "TabConfig.xml"
+
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+    parser.add_button(
+        "Panel_PyAEDT_Extensions",
+        ButtonSpec("MyExtension", {"script": "MyExtension/run"}),
+    )
+    parser.save(tabconfig_path)
+
+    assert is_extension_in_panel(toolkit_dir, "Project", "MyExtension") is True
+    assert is_extension_in_panel(toolkit_dir, "Project", "MissingExtension") is False
+    assert is_extension_in_panel(tmp_path / "MissingToolkits", "Project", "Any") is False
+
+
+def test_available_toolkits_reads_toml(tmp_path) -> None:
+    """Test reading toolkits catalog from TOML files."""
+    toolkits_dir = tmp_path / "hfss"
+    toolkits_dir.mkdir(parents=True, exist_ok=True)
+    toml_file = toolkits_dir / "toolkits_catalog.toml"
+    toml_file.write_text('[ToolkitA]\nname = "ToolkitA"\n')
+
+    module_path = tmp_path / "customize_automation_tab.py"
+    module_path.write_text("# test module path")
+
+    with patch("ansys.aedt.core.extensions.customize_automation_tab.__file__", str(module_path)):
+        result = available_toolkits()
+
+    assert "HFSS" in result
+    assert result["HFSS"]["ToolkitA"]["name"] == "ToolkitA"
+
+
+def test_remove_script_from_menu_removes_button_and_dir(tmp_path) -> None:
+    """Test removal of toolkit configuration and directory."""
+    desktop_object = MagicMock()
+    desktop_object.personallib = str(tmp_path)
+    desktop_object.aedt_version_id = "2023.2"
+    desktop_object.logger = MagicMock()
+
+    toolkit_dir = tmp_path / "Toolkits" / "Project"
+    toolkit_dir.mkdir(parents=True, exist_ok=True)
+    tabconfig_path = toolkit_dir / "TabConfig.xml"
+
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+    parser.add_button(
+        "Panel_PyAEDT_Extensions",
+        ButtonSpec("RemoveMe", {"script": "RemoveMe/run"}),
+    )
+    parser.save(tabconfig_path)
+
+    tool_dir = toolkit_dir / "RemoveMe"
+    tool_dir.mkdir(parents=True, exist_ok=True)
+
+    result = remove_script_from_menu(desktop_object, "RemoveMe", product="Project")
+
+    assert result is True
+    assert not tool_dir.exists()
+    parser_after = TabConfigParser(tabconfig_path)
+    assert not parser_after.has_button("Panel_PyAEDT_Extensions", "RemoveMe")
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_group_buttons(tmp_path) -> None:
+    """Test grouped button creation with gallery header and group button."""
+    icon_file = tmp_path / "icon.png"
+    group_icon = tmp_path / "group.png"
+    icon_file.write_text("icon")
+    group_icon.write_text("group")
+
+    tabconfig_path = add_automation_tab(
+        name="GroupedToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        group_name="MyGroup",
+        group_icon=str(group_icon),
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    gallery = panel.find("./gallery")
+    assert gallery is not None
+    header_button = gallery.find("./button")
+    assert header_button is not None
+    assert header_button.attrib["label"] == "MyGroup"
+    assert header_button.attrib["image"] == icon_file.as_posix()
+    group = gallery.find("./group")
+    assert group is not None
+    assert group.attrib["label"] == "MyGroup"
+    assert group.attrib["image"] == group_icon.as_posix()
+    group_button = group.find("./button")
+    assert group_button is not None
+    assert group_button.attrib["label"] == "GroupedToolkit"
+    assert group_button.attrib["script"] == "GroupedToolkit/run_pyaedt_toolkit_script"
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_group_buttons_custom(tmp_path) -> None:
+    """Test grouped custom button attributes and script path."""
+    icon_file = tmp_path / "icon.png"
+    group_icon = tmp_path / "group.png"
+    icon_file.write_text("icon")
+    group_icon.write_text("group")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomGrouped",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        group_name="CustomGroup",
+        group_icon=str(group_icon),
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    group_button = panel.find("./gallery/group/button")
+    assert group_button is not None
+    assert group_button.attrib["script"] == "CustomGrouped/run_pyaedt_toolkit_script"
+    assert group_button.attrib["custom_extension"] == "true"
+    assert group_button.attrib["type"] == "custom"
+
+
+def test_add_automation_tab_group_buttons_requires_group_icon(tmp_path) -> None:
+    """Test that missing group icon raises type error."""
+    icon_file = tmp_path / "icon.png"
+    icon_file.write_text("icon")
+
+    with pytest.raises(TypeError):
+        add_automation_tab(
+            name="GroupedToolkit",
+            lib_dir=tmp_path,
+            icon_file=str(icon_file),
+            product="Project",
+            template="run_pyaedt_toolkit_script",
+            group_name="MyGroup",
+            group_icon=None,
+        )
+
+
+def test_iter_panel_button_specs_includes_gallery_header_and_group_buttons() -> None:
+    """Test iteration over gallery header and grouped buttons."""
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+
+    parser.add_group_button(
+        panel_label="Panel_PyAEDT_Extensions",
+        group_label="GroupOne",
+        button=ButtonSpec("GroupedButton", {"script": "Grouped/run"}),
+        group_image="group.png",
+        gallery_button=ButtonSpec("GroupOne", {"image": "header.png"}),
+    )
+
+    labels = [button.label for button in _iter_panel_button_specs(parser, "Panel_PyAEDT_Extensions")]
+    assert "GroupOne" in labels
+    assert "GroupedButton" in labels

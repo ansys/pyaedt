@@ -300,7 +300,9 @@ html_theme_options = {
     },
     "cheatsheet": {
         "file": "cheatsheet/cheat_sheet.qmd",
+        "pages": ["index", "Getting_started/index", "User_guide/index"],
         "title": "PyAEDT cheat sheet",
+        "version": __version__,
     },
 }
 

@@ -52,7 +52,7 @@ class MaterialWorkbench(PyAedtBase):
         Inherited parent object.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._mat_name_suffix = "_wb"
 
@@ -61,7 +61,7 @@ class MaterialWorkbench(PyAedtBase):
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
-    def mat_name_suffix(self, suffix):
+    def mat_name_suffix(self, suffix) -> None:
         self._mat_name_suffix = str(suffix)
 
     @staticmethod
@@ -107,7 +107,7 @@ class MaterialWorkbench(PyAedtBase):
             return string
 
     @staticmethod
-    def _is_tabular_data(string):
+    def _is_tabular_data(string) -> bool:
         pattern = r"^([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?)(,([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?))*$"
         if re.match(pattern, string):
             return True
@@ -118,7 +118,7 @@ class MaterialWorkbench(PyAedtBase):
         name = f"TM_{self._aedt_material_name(material_name)}_{MatProperties.wb_to_aedt_name(property_name)}"
         return name
 
-    def _aedt_material_name(self, wb_material_name):
+    def _aedt_material_name(self, wb_material_name) -> str:
         return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
     def import_materials_from_workbench(self, filename):

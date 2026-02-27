@@ -34,7 +34,7 @@ _this = sys.modules[__name__]
 _this._internal_dll_interface = None
 
 
-def _dll_interface(version=None) -> DllInterface:
+def _dll_interface(version: str | None = None) -> DllInterface:
     if _this._internal_dll_interface is None:
         _this._internal_dll_interface = DllInterface(show_gui=False, version=version)
     elif version is not None and version != _this._internal_dll_interface._version:

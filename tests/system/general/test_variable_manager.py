@@ -75,7 +75,7 @@ def maxwell_circuit_app(add_app):
     aedtapp.close_project(aedtapp.project_name)
 
 
-def test_set_project_variables(hfss_app):
+def test_set_project_variables(hfss_app) -> None:
     hfss_app["$Test_Global1"] = "5rad"
     hfss_app["$Test_Global2"] = -1.0
     hfss_app["$Test_Global3"] = "0"
@@ -98,7 +98,7 @@ def test_set_project_variables(hfss_app):
     assert "$test" not in hfss_app.variable_manager.variables
 
 
-def test_set_var_simple(app):
+def test_set_var_simple(app) -> None:
     var = app.variable_manager
     app["Var1"] = "1rpm"
     var_1 = app["Var1"]
@@ -161,7 +161,7 @@ def test_set_var_simple(app):
     assert "test" not in app.variable_manager.variables
 
 
-def test_test_formula(app):
+def test_test_formula(app) -> None:
     app["Var1"] = 3
     app["Var2"] = "12deg"
     app["Var3"] = "Var1 * Var2"
@@ -186,7 +186,7 @@ def test_test_formula(app):
     assert app.variable_manager.variables["Var3"].units == "deg"
 
 
-def test_evaluated_value(app):
+def test_evaluated_value(app) -> None:
     app["p1"] = "10mm"
     app.variable_manager.set_variable("p2", "20mm", circuit_parameter=False)
     app["p3"] = "p1 * p2"
@@ -248,7 +248,7 @@ def test_evaluated_value(app):
     assert v_app["p1"].expression == "5mm"
 
 
-def test_set_variable(app):
+def test_set_variable(app) -> None:
     assert app.variable_manager.set_variable("p1", expression="10mm", circuit_parameter=False)
     assert app["p1"] == "10mm"
     assert not app.variable_manager.variables["p1"].is_circuit_parameter
@@ -269,12 +269,12 @@ def test_set_variable(app):
     assert app.variable_manager.set_variable("$p1", expression="12mm")
 
 
-def test_delete_variable(app):
+def test_delete_variable(app) -> None:
     app["Var1"] = 1
     assert app.variable_manager.delete_variable("Var1")
 
 
-def test_postprocessing(app):
+def test_postprocessing(app) -> None:
     if app.design_type == "Twin Builder":
         pytest.skip("Twin Builder is crashing for this test.")
 
@@ -288,13 +288,13 @@ def test_postprocessing(app):
     assert x1 == 11.0
 
 
-def test_intrinsics(app):
+def test_intrinsics(app) -> None:
     app["fc"] = "Freq"
     assert app["fc"] == "Freq"
     assert app.variable_manager.dependent_variables["fc"].units == app.units.frequency
 
 
-def test_arrays(app):
+def test_arrays(app) -> None:
     app.variable_manager.set_variable("arr_index", expression=0, circuit_parameter=False)
     app.variable_manager.set_variable("arr1", expression="[1, 2, 3]", circuit_parameter=False)
     app.variable_manager.set_variable("arr2", expression=[1, 2, 3], circuit_parameter=False)
@@ -306,7 +306,7 @@ def test_arrays(app):
     assert app.variable_manager["getvalue2"].numeric_value == 1.0
 
 
-def test_maxwell_circuit_variables(maxwell_circuit_app):
+def test_maxwell_circuit_variables(maxwell_circuit_app) -> None:
     maxwell_circuit_app["var2"] = "10mm"
     assert maxwell_circuit_app["var2"] == "10mm"
     v_circuit = maxwell_circuit_app.variable_manager
@@ -319,7 +319,7 @@ def test_maxwell_circuit_variables(maxwell_circuit_app):
     assert maxwell_circuit_app["var4"] == "10rad"
 
 
-def test_project_variable_operation(app):
+def test_project_variable_operation(app) -> None:
     app["$my_proj_test"] = "1mm"
     app["$my_proj_test2"] = 2
     app["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
@@ -331,7 +331,7 @@ def test_project_variable_operation(app):
     assert app.variable_manager["$my_proj_test4"].si_value == ["a", "ab"]
 
 
-def test_test_optimization_properties(app):
+def test_test_optimization_properties(app) -> None:
     var = "v1"
     app.variable_manager.set_variable(var, "10mm", circuit_parameter=False)
     v = app.variable_manager
@@ -381,7 +381,7 @@ def test_test_optimization_properties(app):
         v["v2"].is_optimization_enabled = True
 
 
-def test_optimization_global_properties(hfss_app):
+def test_optimization_global_properties(hfss_app) -> None:
     var = "$v1"
     hfss_app[var] = "10mm"
     v = hfss_app.variable_manager
@@ -420,7 +420,7 @@ def test_optimization_global_properties(hfss_app):
     assert v[var].sensitivity_initial_disp == "0.5mm"
 
 
-def test_variable_with_units(app):
+def test_variable_with_units(app) -> None:
     app["v1"] = "3mm"
     app["v2"] = "2*v1"
     assert app.variable_manager.decompose("v1") == (3.0, "mm")
@@ -429,7 +429,7 @@ def test_variable_with_units(app):
     assert app.variable_manager.decompose("5mm") == (5.0, "mm")
 
 
-def test_delete_unused_variables(hfss_app):
+def test_delete_unused_variables(hfss_app) -> None:
     hfss_app.insert_design("used_variables")
     hfss_app["used_var"] = "1mm"
     hfss_app["unused_var"] = "1mm"

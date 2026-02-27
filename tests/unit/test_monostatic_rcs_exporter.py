@@ -48,13 +48,13 @@ mock_data_with_one_variations = MagicMock()
 mock_data_with_one_variations.number_of_variations = 1
 
 
-def test_init_with_frequencies_not_list():
+def test_init_with_frequencies_not_list() -> None:
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES_VALUE)
 
     assert FREQUENCIES == exporter.frequencies
 
 
-def test_init_with_default_values():
+def test_init_with_default_values() -> None:
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
     assert "name" == exporter.setup_name
@@ -64,7 +64,6 @@ def test_init_with_default_values():
     assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related
@@ -74,7 +73,7 @@ def test_init_with_default_values():
 @patch("ansys.aedt.core.generic.file_utils.check_and_download_folder", return_value=PATH)
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_two_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
-def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download):
+def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download) -> None:
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
     with pytest.raises(AEDTRuntimeError):
@@ -85,7 +84,9 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_two_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 @patch("pathlib.Path.is_file", return_value=False)
-def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog):
+def test_export_rcs_with_data_file_not_a_file(
+    mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog
+) -> None:
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
     with pytest.raises(AEDTRuntimeError):
@@ -99,7 +100,7 @@ def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_
 @patch("json.dump", side_effect=Exception("Dummy exception"))
 def test_export_rcs_with_dump_json_exception(
     mock_json_dump, mock_is_file, mock_settings, mock_monostatic_rcs, mock_download
-):
+) -> None:
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES, overwrite=False)
 
     with pytest.raises(AEDTRuntimeError):

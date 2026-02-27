@@ -34,7 +34,7 @@ def aedt_app(add_app):
     app.close_project(save=False)
 
 
-def test_create_stackup(aedt_app):
+def test_create_stackup(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     gnd = stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
@@ -57,7 +57,7 @@ def test_create_stackup(aedt_app):
     assert stckp3d.start_position.numeric_value == 0.0
 
 
-def test_line(aedt_app):
+def test_line(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
@@ -89,7 +89,7 @@ def test_line(aedt_app):
     assert line2._permittivity
 
 
-def test_padstack_line(aedt_app):
+def test_padstack_line(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     p1 = stckp3d.add_padstack("new_padstack", material="aluminum")
     p1.plating_ratio = 0.7
@@ -118,7 +118,7 @@ def test_padstack_line(aedt_app):
     assert len(stckp3d.padstacks) == 1
 
 
-def test_patch(aedt_app):
+def test_patch(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     gnd = stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
@@ -141,7 +141,7 @@ def test_patch(aedt_app):
     assert patch.create_lumped_port(gnd)
 
 
-def test_polygon(aedt_app):
+def test_polygon(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_signal_layer("top")
     stckp3d.add_ground_layer("gnd2", thickness=0)
@@ -160,7 +160,7 @@ def test_polygon(aedt_app):
     assert poly4
 
 
-def test_resize(aedt_app):
+def test_resize(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
 
     stckp3d.add_ground_layer("gnd1")
@@ -191,7 +191,7 @@ def test_resize(aedt_app):
     assert stckp3d.dielectric_y_position.evaluated_value == "10.0mm"
 
 
-def test_hide_variables(aedt_app):
+def test_hide_variables(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     assert stckp3d.dielectric_x_position.hide_variable()
     assert stckp3d.dielectric_x_position.read_only_variable()
@@ -199,7 +199,7 @@ def test_hide_variables(aedt_app):
     assert stckp3d.dielectric_x_position.read_only_variable(False)
 
 
-def test_duplicated_parametrized_material(aedt_app):
+def test_duplicated_parametrized_material(aedt_app) -> None:
     stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     diel = stckp3d.stackup_layers["diel1"]

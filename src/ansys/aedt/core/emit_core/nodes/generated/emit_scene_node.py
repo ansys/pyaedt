@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class EmitSceneNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -38,19 +37,19 @@ class EmitSceneNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_emitter(self):
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
-    def add_group(self):
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name):
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
-    def add_antenna(self):
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
@@ -65,9 +64,9 @@ class EmitSceneNode(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
-        X_AXIS = "X Axis"
-        Y_AXIS = "Y Axis"
-        Z_AXIS = "Z Axis"
+        X_AXIS = "XAxis"
+        Y_AXIS = "YAxis"
+        Z_AXIS = "ZAxis"
 
     @property
     def ground_plane_normal(self) -> GroundPlaneNormalOption:

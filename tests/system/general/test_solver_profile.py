@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import datetime
 from pathlib import Path
 import shutil
 import sys
-from typing import List
 
 import pandas as pd
 import pytest
@@ -41,7 +42,7 @@ from tests.conftest import SYSTEM_SOLVERS_TEST_PREFIX
 from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
-def _collect_archives_from_path(path_obj: Path) -> List[Path]:
+def _collect_archives_from_path(path_obj: Path) -> list[Path]:
     """Return a list of .aedtz/.aedt files under the provided path."""
     if path_obj.is_file() and path_obj.suffix.lower() in (".aedtz", ".aedt"):
         return [path_obj]
@@ -59,13 +60,13 @@ def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent
 
 
-def _download_archives(folder: str, dest: Path) -> List[Path]:
+def _download_archives(folder: str, dest: Path) -> list[Path]:
     """Download one or more solved project archives."""
     dest.mkdir(parents=True, exist_ok=True)
 
     # The download_file API can differ; try common call styles gracefully.
-    candidates: List[Path] = []
-    errors: List[str] = []
+    candidates: list[Path] = []
+    errors: list[str] = []
     result = None
 
     try:
@@ -166,7 +167,7 @@ def _exercise_profile_object(profile) -> None:
         (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),
     ],
 )
-def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder):
+def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder) -> None:
     # Download one or more archives for this application class.
     archives = _download_archives(folder=folder, dest=test_tmp_dir / "downloads")
     if not archives:

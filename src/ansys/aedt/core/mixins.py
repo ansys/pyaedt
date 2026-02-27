@@ -50,7 +50,7 @@ class CreateBoundaryMixin:
     """
 
     @pyaedt_function_handler()
-    def _create_boundary(self, name, props, boundary_type):
+    def _create_boundary(self, name: str, props, boundary_type):
         """Create a boundary.
 
         Parameters

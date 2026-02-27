@@ -34,7 +34,7 @@ TEST_SUBFOLDER = "T50"
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -83,7 +83,7 @@ def setup_test_data(request, test_tmp_dir):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-    def test_add_field_file(self):
+    def test_add_field_file(self) -> None:
         # vector field
         model_pv_vector = ModelPlotter()
         assert not model_pv_vector.fields
@@ -105,7 +105,7 @@ class TestClass:
         model_pv_scalar.add_field_from_file(self.scalar_case)
         assert len(model_pv_scalar.fields) == 3
 
-    def test_populate_pyvista_object(self):
+    def test_populate_pyvista_object(self) -> None:
         # vector field
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_field_from_file(self.field_fld)
@@ -148,7 +148,7 @@ class TestClass:
         assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_scalars)
         assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_vectors)
 
-    def test_vector_field_scale(self):
+    def test_vector_field_scale(self) -> None:
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_field_from_file(self.field_fld)
         model_pv_vector.populate_pyvista_object()
@@ -157,7 +157,7 @@ class TestClass:
         assert model_pv_vector.vector_field_scale == 5
 
     @pytest.mark.avoid_ansys_load
-    def test_animate(self, test_tmp_dir):
+    def test_animate(self, test_tmp_dir) -> None:
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_fld])
         model_pv_vector.animate(show=False)

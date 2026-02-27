@@ -51,14 +51,14 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    version=None,
-    non_graphical=False,
-    new_desktop=True,
-    close_on_exit=True,
-    student_version=False,
-    machine="",
-    port=0,
-    aedt_process_id=None,
+    version: str | None = None,
+    non_graphical: bool | None = False,
+    new_desktop: bool = True,
+    close_on_exit: bool = True,
+    student_version: bool | None = False,
+    machine: str | None = "",
+    port: int | None = 0,
+    aedt_process_id: int | None = None,
 ):
     """Initialize AEDT based on the inputs provided.
 
@@ -73,7 +73,7 @@ def launch_desktop(
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the machine.
+        another instance of the ``version`` is active on the machine.
         The default is ``False``.
     close_on_exit : bool, optional
         Whether to close AEDT on exit. The default is ``True``.

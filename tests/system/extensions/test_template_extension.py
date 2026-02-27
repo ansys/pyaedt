@@ -30,7 +30,7 @@ from ansys.aedt.core.extensions.templates.template_get_started import main
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
 
-def test_create_sphere_success(add_app):
+def test_create_sphere_success(add_app) -> None:
     """Test that the extension works correctly when creating a sphere."""
     DATA = ExtensionData()
     aedtapp = add_app(application=Hfss)
@@ -42,7 +42,7 @@ def test_create_sphere_success(add_app):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_load_aedt_file_success(add_app, test_tmp_dir):
+def test_load_aedt_file_success(add_app, test_tmp_dir) -> None:
     """Test that the extension works correctly when loading a project."""
     AEDT_PATH = test_tmp_dir / "workflow_template_extension.aedt"
     DATA = ExtensionData(file_path=AEDT_PATH)

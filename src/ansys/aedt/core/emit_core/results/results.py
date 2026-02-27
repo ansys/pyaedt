@@ -47,7 +47,7 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj):
+    def __init__(self, emit_obj) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -63,7 +63,7 @@ class Results:
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):
+    def _add_revision(self, name: str | None = None):
         """Add a new revision or get the current revision if it already exists.
 
         Parameters
@@ -99,7 +99,7 @@ class Results:
             return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name):
+    def delete_revision(self, revision_name: str) -> None:
         """Delete the specified revision from the results.
 
         Parameters
@@ -139,7 +139,7 @@ class Results:
                     warnings.warn(f"{revision_name} does not exist")
 
     @staticmethod
-    def interaction_domain():
+    def interaction_domain() -> "emit_core.emit_api_python().InteractionDomain":
         """
         Get an ``InteractionDomain`` object.
 
@@ -160,7 +160,7 @@ class Results:
         return domain
 
     @pyaedt_function_handler
-    def _unload_revisions(self):
+    def _unload_revisions(self) -> None:
         """Convenience function to set all revisions as ``unloaded``
 
         Parameters
@@ -175,7 +175,7 @@ class Results:
             rev.revision_loaded = False
 
     @pyaedt_function_handler()
-    def revision_names(self):
+    def revision_names(self) -> list[str]:
         """
         Return a list of all the revision names.
 
@@ -191,7 +191,7 @@ class Results:
         return [rev.name for rev in self.revisions]
 
     @pyaedt_function_handler
-    def get_revision(self, revision_name=None):
+    def get_revision(self, revision_name: str = None) -> Revision:
         """
         Load the specified revision.
 
@@ -244,7 +244,7 @@ class Results:
         return self.current_revision
 
     @pyaedt_function_handler()
-    def analyze(self):
+    def analyze(self) -> Revision:
         """Analyze the current revision or create a new revision if the design has changed.
 
         Returns

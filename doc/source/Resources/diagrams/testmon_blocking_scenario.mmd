@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Main as main branch
+    participant CacheWF as Cache Update Workflow
+    participant PRB as PR-B Workflow
+
+    Main->>CacheWF: PR-A merged, triggers update
+    CacheWF->>CacheWF: Running tests...
+    PRB->>PRB: PR-B workflow starts
+    PRB->>CacheWF: Check if running
+    CacheWF-->>PRB: Status: in_progress
+    PRB->>PRB: Wait 10s, retry
+    CacheWF->>CacheWF: Tests complete
+    CacheWF->>Main: Save new cache
+    PRB->>CacheWF: Check if running
+    CacheWF-->>PRB: Status: completed, success
+    PRB->>PRB: Restore fresh cache
+    PRB->>PRB: Run tests
+    PRB->>PRB: Complete

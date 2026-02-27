@@ -28,7 +28,6 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 from ctypes import create_string_buffer
-from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
@@ -42,12 +41,12 @@ class DistributedSubstrate:
     This class allows you to define and modify the substrate parameters of distributed filters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_substrate_dll_functions()
 
-    def _define_substrate_dll_functions(self):
+    def _define_substrate_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setDistributedSubstrateType.argtype = c_int
         self._dll.setDistributedSubstrateType.restype = int
@@ -122,12 +121,12 @@ class DistributedSubstrate:
         return substrate_type
 
     @substrate_type.setter
-    def substrate_type(self, substrate_type: SubstrateType):
+    def substrate_type(self, substrate_type: SubstrateType) -> None:
         status = self._dll.setDistributedSubstrateType(substrate_type.value)
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_er(self) -> Union[SubstrateType, str]:
+    def substrate_er(self) -> SubstrateType | str:
         """Substrate's relative permittivity ``Er``.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
@@ -163,7 +162,7 @@ class DistributedSubstrate:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
+    def substrate_resistivity(self) -> SubstrateResistivity | str:
         """Substrate's resistivity.
 
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
@@ -199,7 +198,7 @@ class DistributedSubstrate:
         self._dll_interface.raise_error(status)
 
     @property
-    def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
+    def substrate_loss_tangent(self) -> SubstrateEr | str:
         """Substrate's loss tangent.
 
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
@@ -250,7 +249,7 @@ class DistributedSubstrate:
         return substrate_conductor_thickness_string
 
     @substrate_conductor_thickness.setter
-    def substrate_conductor_thickness(self, substrate_conductor_thickness_string):
+    def substrate_conductor_thickness(self, substrate_conductor_thickness_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedConductorThickness, substrate_conductor_thickness_string)
 
     @property
@@ -267,7 +266,7 @@ class DistributedSubstrate:
         return substrate_dielectric_height_string
 
     @substrate_dielectric_height.setter
-    def substrate_dielectric_height(self, substrate_dielectric_height_string):
+    def substrate_dielectric_height(self, substrate_dielectric_height_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedDielectricHeight, substrate_dielectric_height_string)
 
     @property
@@ -286,7 +285,7 @@ class DistributedSubstrate:
         return substrate_unbalanced_lower_dielectric_height_string
 
     @substrate_unbalanced_lower_dielectric_height.setter
-    def substrate_unbalanced_lower_dielectric_height(self, substrate_unbalanced_lower_dielectric_height_string):
+    def substrate_unbalanced_lower_dielectric_height(self, substrate_unbalanced_lower_dielectric_height_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedLowerDielectricHeight, substrate_unbalanced_lower_dielectric_height_string
         )
@@ -307,7 +306,7 @@ class DistributedSubstrate:
         return substrate_suspend_dielectric_height_string
 
     @substrate_suspend_dielectric_height.setter
-    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string):
+    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedSuspendDielectricHeight, substrate_suspend_dielectric_height_string
         )
@@ -325,7 +324,7 @@ class DistributedSubstrate:
         return substrate_cover_height_string
 
     @substrate_cover_height.setter
-    def substrate_cover_height(self, substrate_cover_height_string):
+    def substrate_cover_height(self, substrate_cover_height_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCoverHeight, substrate_cover_height_string)
 
     @property
@@ -342,7 +341,7 @@ class DistributedSubstrate:
         return bool(substrate_unbalanced_stripline_enabled.value)
 
     @substrate_unbalanced_stripline_enabled.setter
-    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
+    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool) -> None:
         status = self._dll.setDistributedUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
         self._dll_interface.raise_error(status)
 
@@ -360,6 +359,6 @@ class DistributedSubstrate:
         return bool(substrate_cover_height_enabled.value)
 
     @substrate_cover_height_enabled.setter
-    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
+    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool) -> None:
         status = self._dll.setDistributedGroundedCoverAboveLine(substrate_cover_height_enabled)
         self._dll_interface.raise_error(status)

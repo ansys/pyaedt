@@ -27,7 +27,7 @@ from unittest.mock import patch
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
 
-def test_plot_insertion_losses(touchstone_file, patch_graphics_modules):
+def test_plot_insertion_losses(touchstone_file, patch_graphics_modules) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_insertion_losses()
 
@@ -36,7 +36,7 @@ def test_plot_insertion_losses(touchstone_file, patch_graphics_modules):
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot(mock_plot_s_db, touchstone_file, patch_graphics_modules):
+def test_plot(mock_plot_s_db, touchstone_file, patch_graphics_modules) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot(show=True)
 
@@ -45,7 +45,7 @@ def test_plot(mock_plot_s_db, touchstone_file, patch_graphics_modules):
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
+def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_next_xtalk_losses()
 
@@ -54,7 +54,7 @@ def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot_fext_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
+def test_plot_fext_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules) -> None:
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_fext_xtalk_losses("Port", "Port")
 

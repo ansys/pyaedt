@@ -42,8 +42,10 @@ def icepak_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_global_messenger():
+def test_global_messenger() -> None:
     msg = AedtLogger()
+    with pytest.raises(ValueError):
+        msg.add_logger("Projectt")
     msg.clear_messages()
 
     # Add messages at different levels
@@ -69,7 +71,7 @@ def test_global_messenger():
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Messages not functional in non-graphical mode")
-def test_get_messages(add_app, icepak_app, test_tmp_dir):  # pragma: no cover
+def test_get_messages(add_app, icepak_app, test_tmp_dir) -> None:  # pragma: no cover
     app = add_app(application=Hfss, close_projects=False)
     settings.enable_desktop_logs = True
     msg = app.logger
@@ -94,10 +96,22 @@ def test_get_messages(add_app, icepak_app, test_tmp_dir):  # pragma: no cover
     settings.enable_desktop_logs = False
 
 
-def test_messaging(icepak_app):  # pragma: no cover
+def test_messaging(icepak_app) -> None:  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = icepak_app.logger
     msg.clear_messages(level=3)
+    msg.log_on_desktop = False
+    assert not msg.log_on_desktop
+    msg.log_on_desktop = True
+    assert msg.log_on_desktop
+    msg.log_on_stdout = False
+    assert not msg.log_on_stdout
+    msg.log_on_stdout = True
+    assert msg.log_on_stdout
+    msg.log_on_file = False
+    assert not msg.log_on_file
+    msg.log_on_file = True
+    assert msg.log_on_file
     msg.add_info_message("Test Info")
     msg.add_info_message("Test Info", "Project")
     msg.add_info_message("Test Info", "Global")
@@ -115,6 +129,15 @@ def test_messaging(icepak_app):  # pragma: no cover
     msg.add_info_message("Test Debug", "Project")
     msg.add_info_message("Test Debug", "Global")
     assert len(msg.messages.info_level) > 0
+    with msg.suspend_logging():
+        msgs = icepak_app.logger.get_messages(level=0, aedt_messages=True)
+        start_counts = [len(msgs.info_level), len(msgs.warning_level), len(msgs.error_level)]
+        msg.add_info_message("Test Debug 2")
+        msg.add_warning_message("Test Debug 2")
+        msg.add_error_message("Test Debug 2")
+        msgs = icepak_app.logger.get_messages(level=0, aedt_messages=True)
+        end_counts = [len(msgs.info_level), len(msgs.warning_level), len(msgs.error_level)]
+        assert start_counts == end_counts
     assert len(msg.aedt_messages.global_level) >= 4
     assert len(msg.aedt_messages.project_level) >= 4
     assert len(msg.aedt_messages.design_level) >= 4

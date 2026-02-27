@@ -37,10 +37,10 @@ Cable bundle creation example:
     from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(
-        projectname=project_path,
-        specified_version="2025.2",
+        project=project_path,
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -76,10 +76,10 @@ Clock source creation example:
     from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(
-        projectname=project_path,
-        specified_version="2025.2",
+        project=project_path,
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -127,10 +127,10 @@ Cable harness creation example:
     from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(
-        projectname=project_path,
-        specified_version="2025.2",
+        project=project_path,
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )

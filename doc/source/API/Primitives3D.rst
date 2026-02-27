@@ -15,9 +15,9 @@ They are accessible through the ``modeler`` property:
     from ansys.aedt.core import Hfss
 
     app = Hfss(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -68,9 +68,9 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
     from ansys.aedt.core import Circuit
 
     app = Hfss(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )

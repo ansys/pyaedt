@@ -34,7 +34,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 
 
-def test_import_stl_success(add_app, test_tmp_dir):
+def test_import_stl_success(add_app, test_tmp_dir) -> None:
     """Test the extension with an STL file."""
     # Test with STL file
     stl_path = TESTS_GENERAL_PATH / "example_models" / "T20" / "sphere.stl"
@@ -59,7 +59,7 @@ def test_import_stl_success(add_app, test_tmp_dir):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_import_nastran_exceptions():
+def test_import_nastran_exceptions() -> None:
     """Test exceptions thrown by the Import Nastran extension."""
     # Test no file path
     data = ImportNastranExtensionData(file_path="")
@@ -102,7 +102,7 @@ def test_import_nastran_exceptions():
         main(data)
 
 
-def test_import_nastran_extension_ui(add_app):
+def test_import_nastran_extension_ui(add_app) -> None:
     """Test the extension UI instantiation."""
     # Create an active AEDT app so extension checks pass
     aedtapp = add_app(
@@ -139,7 +139,7 @@ def test_import_nastran_extension_ui(add_app):
     aedtapp.close_project(aedtapp.project_name)
 
 
-def test_import_nastran_data_class():
+def test_import_nastran_data_class() -> None:
     """Test ImportNastranExtensionData class."""
     # Test default values
     data = ImportNastranExtensionData()

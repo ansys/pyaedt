@@ -55,7 +55,7 @@ def emit_api_python():
     return EMIT_API_PYTHON
 
 
-def _init_enums(aedt_version):
+def _init_enums(aedt_version) -> None:
     numeric_version = int(aedt_version[-3:])
 
     if numeric_version > 251:
@@ -122,7 +122,7 @@ def _init_enums(aedt_version):
 
 # need this as a function so that it can be set
 # for the correct aedt version that the user is running
-def _set_api(aedt_version):
+def _set_api(aedt_version) -> None:
     numeric_version = int(aedt_version[-3:])
     desktop_path = os.environ.get(aedt_version)
     if desktop_path and numeric_version > 231:

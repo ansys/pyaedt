@@ -21,6 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
@@ -28,10 +30,7 @@ import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -46,6 +45,9 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
 
 DATA = {
     "component_models": {
@@ -110,8 +112,8 @@ DATA = {
 class AedtInfo(BaseModel):
     version: str = ""
     port: int
-    aedt_process_id: Union[int, None]
-    student_version: bool = False
+    aedt_process_id: int | None
+    student_version: bool | None = False
 
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
@@ -124,7 +126,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     local_path = ""
     config_data: dict = dict()
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
@@ -138,10 +140,9 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
-        return
-
-    def add_toggle_theme_button_(self, parent):
+    def add_toggle_theme_button(
+        self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
+    ) -> None:
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -171,7 +172,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         change_theme_button.pack(anchor="e", side="right", **{"padx": 15, "pady": 10})
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         self.root.geometry("700x600")
 
         menubar = tkinter.Menu(self.root)
@@ -185,9 +186,8 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         nb.pack(fill="both", expand=True)
 
         create_tab_main(self.tab_frame_main, self)
-        self.add_toggle_theme_button_(self.root)
 
-    def run(self, config_data):
+    def run(self, config_data: dict) -> None:
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
         app = MCADAssemblyBackend.load(data=config_data, cur_dir=self.local_path)
         app.run(hfss)
@@ -201,7 +201,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
 
 # create main tab
-def create_tab_main(tab_frame, master):
+def create_tab_main(tab_frame: tkinter.Widget, master: MCADAssemblyFrontend) -> None:
     tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
 
@@ -215,7 +215,7 @@ def create_tab_main(tab_frame, master):
     ).pack(anchor="w", **master.PACK_PARAMS)
 
 
-def load_dict(tree, master):
+def load_dict(tree: ttk.Treeview, master: MCADAssemblyFrontend) -> None:
     file_path = filedialog.askopenfilename(
         title="Select Design",
         filetypes=(("JSON", "*.json"), ("All files", "*.*")),
@@ -240,7 +240,7 @@ def load_dict(tree, master):
     insert_items(tree, node3, master.config_data.get("assembly", {}))
 
 
-def insert_items(tree, parent, dictionary):
+def insert_items(tree: ttk.Treeview, parent: str, dictionary: dict | list | str | int | float | None) -> None:
     if isinstance(dictionary, dict):
         for key, value in dictionary.items():
             node = tree.insert(parent, "end", text=str(key), open=False)
@@ -262,11 +262,11 @@ def insert_items(tree, parent, dictionary):
 class Arrange(BaseModel):
     operation: str
     # Rotate parameters
-    axis: Optional[str] = "X"
-    angle: Optional[str] = "0deg"
+    axis: str | None = "X"
+    angle: str | None = "0deg"
 
     # Move parameters
-    vector: Optional[list[Union[str, int, float]]] = ["0mm", "0mm", "0mm"]
+    vector: list[str | int | float] | None = ["0mm", "0mm", "0mm"]
 
     class Config:
         extra = "forbid"
@@ -278,36 +278,36 @@ class Component(BaseModel):
     model: str
 
     target_coordinate_system: str
-    layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
-    arranges: List[Arrange] = Field(default_factory=list)
-    sub_components: Optional[Dict] = Field(default_factory=dict)
+    layout_coordinate_systems: list[str] | None = Field(default_factory=list)
+    arranges: list[Arrange] = Field(default_factory=list)
+    sub_components: dict | None = Field(default_factory=dict)
     password: str = None
 
     # Mcad parameters
-    geometry_parameters: Optional[Dict[str, Union[str, float, int]]] = None
+    geometry_parameters: dict[str, str | float | int] | None = None
 
     # Ecad parameters
     reference_coordinate_system: str = "Global"
 
     # internal properties
-    __rotate_index: Optional[int] = 0
+    __rotate_index: int | None = 0
 
     class Config:
         extra = "forbid"
 
     @classmethod
-    def load(cls, name, data):
+    def load(cls, name: str, data: dict) -> Component:
         sub_components = {name: cls.load(name, comp) for name, comp in data.get("sub_components", {}).items()}
         data_ = data.copy()
         data_["sub_components"] = sub_components
         data_["name"] = name
         return cls(**data_)
 
-    def assemble_sub_components(self, hfss, cs_prefix=""):
+    def assemble_sub_components(self, hfss, cs_prefix: str = "") -> None:
         for name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 
-    def apply_arrange(self, hfss):
+    def apply_arrange(self, hfss: "Hfss") -> None:
         for i in self.arranges:
             if i.operation == "rotate":
                 self.__rotate_index = self.__rotate_index + 1
@@ -325,7 +325,7 @@ class Component(BaseModel):
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector)
 
-    def assemble(self, hfss, cs_prefix=None):
+    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None) -> None:
         """
         Parameters
         ----------
@@ -379,16 +379,16 @@ COMPONENT_MODELS = {}
 
 
 class MCADAssemblyBackend(BaseModel):
-    coordinate_system: Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
-    layout_component_models: Dict[str, str] = Field(default_factory=dict)
-    component_models: Dict[str, str] = Field(default_factory=dict)
-    sub_components: Dict[str, Component] = Field(default_factory=dict)
+    coordinate_system: dict[str, dict[str, str | list[str]]] = Field(default_factory=dict)
+    layout_component_models: dict[str, str] = Field(default_factory=dict)
+    component_models: dict[str, str] = Field(default_factory=dict)
+    sub_components: dict[str, Component] = Field(default_factory=dict)
 
     class Config:
         extra = "forbid"
 
     @classmethod
-    def load(cls, data, cur_dir):
+    def load(cls, data: dict, cur_dir: str) -> "MCADAssemblyBackend":
         cur_dir = Path(cur_dir)
 
         for name, file_path in data.get("component_models", {}).items():
@@ -405,7 +405,7 @@ class MCADAssemblyBackend(BaseModel):
             sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
-    def run(self, hfss):
+    def run(self, hfss: "Hfss") -> None:
         for name, value in self.coordinate_system.items():
             hfss.modeler.create_coordinate_system(name=name, **value)
 

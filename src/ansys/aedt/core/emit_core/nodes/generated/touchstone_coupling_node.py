@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,12 +26,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TouchstoneCouplingNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -41,15 +40,11 @@ class TouchstoneCouplingNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -99,13 +94,13 @@ class TouchstoneCouplingNode(EmitNode):
         self._set_property("Enable EM Isolation", f"{str(value).lower()}")
 
     @property
-    def port_antenna_assignment(self):
+    def port_antenna_assignment(self) -> str:
         """Maps each port in the coupling file to an antenna in the project."""
         val = self._get_property("Port-Antenna Assignment")
         return val
 
     @port_antenna_assignment.setter
-    def port_antenna_assignment(self, value):
+    def port_antenna_assignment(self, value: str):
         self._set_property("Port-Antenna Assignment", f"{value}")
 
     @property

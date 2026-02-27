@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-import shutil
 
 import pytest
 
@@ -41,61 +40,55 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_read_ibis(aedt_app):
+def test_read_ibis(aedt_app) -> None:
     reader = ibis_reader.IbisReader(
-        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "u26a_800_modified.ibs", aedt_app
+        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ansys_ddr4.ibs", aedt_app
     )
     reader.parse_ibis_file()
     ibis = reader.ibis_model
     ibis_components = ibis.components
-    assert len(ibis_components) == 6
-    assert ibis_components["MT47H64M4BP-3_25"].name == "MT47H64M4BP-3_25"
-    assert ibis_components["MT47H64M4BP_CLP-3_25"].name == "MT47H64M4BP_CLP-3_25"
-    assert ibis_components["MT47H32M8BP-3_25"].name == "MT47H32M8BP-3_25"
-    assert ibis_components["MT47H16M16BG_CLP-3_25"].name == "MT47H16M16BG_CLP-3_25"
+    assert len(ibis_components) == 1
+    assert ibis_components["ANSYS_DDR4_v001"].name == "ANSYS_DDR4_v001"
 
     ibis_models = ibis.models
-    assert len(ibis_models) == 17
-    assert ibis_models[0].name == "DQ_FULL_800"
-    assert ibis_models[1].name == "DQ_FULL_ODT50_800"
-    assert ibis_models[16].name == "NF_IN_800"
+    assert len(ibis_models) == 12
+    assert ibis_models[0].name == "ansys_ddr4_odt34"
+    assert ibis_models[1].name == "ansys_ddr4_odt40"
+    assert ibis_models[-1].name == "ansys_ddr4_pp48"
 
     # Test pin characteristics
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].name == "A1_MT47H64M4BP-3_25_u26a_800_modified"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].short_name == "A1"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].signal == "VDD"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].model == "POWER"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].r_value == "44.3m"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].l_value == "1.99nH"
-    assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].c_value == "0.59pF"
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].name == "A1_ANSYS_DDR4_v001_ansys_ddr4"
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].short_name == "A1"
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].signal == "DQ0_out"
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].model == "ansys_ddr4_dq"
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].r_value == ""
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].l_value == ""
+    assert ibis.components["ANSYS_DDR4_v001"].pins["A1"].c_value == ""
 
     # Add pin
-    ibis.components["MT47H32M8BP-3_25"].pins["A8"].add()
-    pin = ibis.components["MT47H32M8BP-3_25"].pins["A8"].insert(0.1016, 0.05334, 0.0)
-    assert pin.name == "CompInst@DQS#_MT47H32M8BP-3_25_u26a_800_modified"
+    ibis.components["ANSYS_DDR4_v001"].pins["A1"].add()
+    pin = ibis.components["ANSYS_DDR4_v001"].pins["A1"].insert(0.1016, 0.05334, 0.0)
+    assert pin.name == "CompInst@DQ0_out_ANSYS_DDR4_v001_ansys_ddr4"
 
     # Add buffer
-    ibis.buffers["RDQS#"].add()
-    buffer = ibis.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
-    assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
+    ibis.buffers["ansys_ddr4_dq_odt"].add()
+    buffer = ibis.buffers["ansys_ddr4_dq_odt"].insert(0.1016, 0.05334, 0.0)
+    assert buffer.name == "CompInst@ansys_ddr4_dq_odt_ansys_ddr4"
 
 
-def test_read_ibis_from_circuit(aedt_app):
+def test_read_ibis_from_circuit(aedt_app) -> None:
     ibis_model = aedt_app.get_ibis_model_from_file(
-        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "u26a_800_modified.ibs"
+        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ansys_ddr4.ibs"
     )
-    assert len(ibis_model.components) == 6
-    assert len(ibis_model.models) == 17
+    assert len(ibis_model.components) == 1
+    assert len(ibis_model.models) == 12
 
 
-def test_read_ibis_ami(aedt_app, test_tmp_dir):
+def test_read_ibis_ami(aedt_app, test_tmp_dir) -> None:
     # Copy AMI files to local_scratch to avoid modifying source files
     source_dir = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER
-    for file_path in source_dir.iterdir():
-        if file_path.is_file():
-            shutil.copy(file_path, test_tmp_dir)
 
-    ibis_file = test_tmp_dir / "ibis_ami_example_tx.ibs"
+    ibis_file = source_dir / "ibis_ami_example_tx.ibs"
     ibis_model = aedt_app.get_ibis_model_from_file(ibis_file, is_ami=True)
     assert ibis_model.buffers["example_model_tx"].insert(0, 0)
     assert ibis_model.components["example_device_tx"].differential_pins["14"].insert(0, 0.0512)

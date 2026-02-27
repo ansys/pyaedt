@@ -123,59 +123,86 @@ If you have existing farfield data, or you want to export it manually, you can s
 Monostatic RCS
 ~~~~~~~~~~~~~~
 
-PyAEDT offers sophisticated tools for advanced monostatic radar cross section (RCS) post-processing.
-There are three complementary classes: ``MonostaticRCSExporter``, ``MonostaticRCSData``, and ``MonostaticRCSPlotter``.
+PyAEDT provides tools for exporting monostatic radar cross section (RCS) data through the ``MonostaticRCSExporter`` class.
+For advanced RCS post-processing, analysis, and visualization, use the **Radar Explorer Toolkit**.
 
-- MonostaticRCSExporter: Enables efficient export and manipulation of RCS data. It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
+.. note::
+   Advanced RCS features (``MonostaticRCSData`` and ``MonostaticRCSPlotter``) have been moved to the
+   `Radar Explorer Toolkit <https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/>`_.
 
-- MonostaticRCSData: Focuses on the direct access and processing of RCS solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
+   Install the toolkit with:
 
-- MonostaticRCSPlotter: Focuses on the post-processing of RCS solution data.
+   .. code:: bash
+
+       pip install ansys-aedt-toolkits-radar-explorer
 
 
-.. currentmodule:: ansys.aedt.core.visualization.advanced.rcs_visualization
+PyAEDT RCS exporter
+^^^^^^^^^^^^^^^^^^^
+
+The ``MonostaticRCSExporter`` class enables efficient export of RCS simulation data into a standardized
+metadata format for further analysis with the Radar Explorer Toolkit.
+
+.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   MonostaticRCSData
-   MonostaticRCSPlotter
+   MonostaticRCSExporter
 
-
-This code shows how you can get the RCS data and perform some post-processing:
+Export RCS data from HFSS:
 
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    from ansys.aedt.core.visualization.advanced.rcs_visualization import (
-        MonostaticRCSPlotter,
-    )
 
     app = Hfss()
-    rcs_object = app.get_rcs_data()
-    rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_object.rcs_data)
-    rcs_plotter.plot_rcs()
+    setup_name = "Setup1 : LastAdaptive"
+    frequencies = [77e9]
 
-If you exported the RCS data previously, you can directly get the RCS data:
+    # Export RCS data
+    rcs_exporter = app.get_rcs_data(
+        frequencies=frequencies, setup=setup_name, variation_name="rcs_solution"
+    )
+
+    # Metadata file is created for use with Radar Explorer Toolkit
+    metadata_file = rcs_exporter.metadata_file
+
+Radar explorer toolkit
+^^^^^^^^^^^^^^^^^^^^^^
+
+For comprehensive RCS analysis and visualization, use the **radar explorer toolkit**:
+
+- **MonostaticRCSData**: Advanced processing of RCS solution data with support for range profiles,
+  waterfall plots, and ISAR imaging.
+
+- **MonostaticRCSPlotter**: Interactive 3D visualization and post-processing of RCS data.
+
+Example using the radar explorer toolkit:
 
 .. code:: python
 
-    from ansys.aedt.core.visualization.advanced.rcs_visualization import (
-        MonostaticRCSPlotter,
-    )
-    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+    # Install first: pip install ansys-aedt-toolkits-radar-explorer
+    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
+    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSPlotter
 
+    # Load RCS data exported from PyAEDT
     input_file = r"path_to_data\pyaedt_rcs_metadata.json"
     rcs_data = MonostaticRCSData(input_file)
+
+    # Create plotter for visualization
     rcs_plotter = MonostaticRCSPlotter(rcs_data)
-    rcs_plotter.plot_cut()
 
-The following diagram shows both classes work. You can use them independently or from the ``get_rcs_data`` method.
+    # Generate various plots
+    rcs_plotter.plot_rcs(primary_sweep="IWavePhi")
+    rcs_plotter.plot_3d()
+    rcs_plotter.add_range_profile()
+    rcs_plotter.plot_scene()
 
-  .. image:: ../../_static/rcs_visualization_pyaedt.png
-    :width: 800
-    :alt: RCS data with PyAEDT
+For complete documentation and API reference, see:
+
+- `Radar explorer API <https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/toolkit/api.html>`_
 
 
 FRTM processing
@@ -239,6 +266,98 @@ The following methods allows to read and plot rays information.
 
    hdm_plot.HDMPlotter
    sbrplus.hdm_parser.Parser
+
+
+Open street map
+~~~~~~~~~~~~~~~
+
+PyAEDT provides comprehensive tools for importing and processing OpenStreetMap (OSM) data to create
+realistic 3D environments for electromagnetic simulations. The OSM module enables automatic generation
+of buildings, roads, and terrain meshes suitable for large-scale RF propagation and antenna placement studies.
+
+The module consists of three main preparation classes:
+
+- **BuildingsPrep**: Generates 3D building models from OSM building footprints with estimated heights
+- **RoadPrep**: Creates road network geometries with proper elevation mapping
+- **TerrainPrep**: Generates terrain meshes with elevation data
+
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.osm
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   BuildingsPrep
+   RoadPrep
+   TerrainPrep
+   convert_latlon_to_utm
+   convert_utm_to_latlon
+
+
+Use the high-level ``import_from_openstreet_map`` method to import complete OSM scenes:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+
+    # Define location (latitude, longitude)
+    center = [40.7128, -74.0060]  # New York City
+
+    # Import OSM data with buildings, roads, and terrain
+    scene = app.modeler.import_from_openstreet_map(
+        latitude_longitude=center,
+        terrain_radius=500,
+        include_osm_buildings=True,
+        including_osm_roads=True,
+        import_in_aedt=True,
+    )
+
+For advanced control, use the preparation classes directly:
+
+.. code:: python
+
+    from ansys.aedt.core.modeler.advanced_cad.osm import (
+        BuildingsPrep,
+        RoadPrep,
+        TerrainPrep,
+    )
+
+    # Define location
+    center = [40.7128, -74.0060]  # New York City
+    output_path = "./osm_output"
+
+    # Generate terrain
+    terrain_prep = TerrainPrep(cad_path=output_path)
+    terrain_data = terrain_prep.get_terrain(center, max_radius=500, grid_size=30)
+
+    # Generate buildings aligned to terrain
+    building_prep = BuildingsPrep(cad_path=output_path)
+    building_data = building_prep.generate_buildings(
+        center, terrain_data["mesh"], max_radius=400
+    )
+
+    # Generate roads aligned to terrain
+    road_prep = RoadPrep(cad_path=output_path)
+    road_data = road_prep.create_roads(
+        center, terrain_data["mesh"], max_radius=500, road_width=8
+    )
+
+The module automatically:
+
+- Downloads geographic data from OpenStreetMap
+- Converts coordinates from lat/lon to local UTM system
+- Generates 3D STL meshes for buildings, roads, and terrain
+- Aligns all geometries to terrain elevation
+- Exports files ready for AEDT import
+
+.. note::
+   Building heights are estimated from OSM ``building:levels`` tags or ``height`` attributes.
+   Large radius values may result in significant download and processing times.
+
+For complete documentation, see the example:
+`City scenario with OpenStreetMap <https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html>`_
 
 
 Miscellaneous

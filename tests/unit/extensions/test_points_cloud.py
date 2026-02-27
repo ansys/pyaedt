@@ -46,7 +46,7 @@ def mock_hfss_app_with_objects_in_group(mock_hfss_app):
     yield mock_hfss_app
 
 
-def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
+def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group) -> None:
     """Test instantiation of the point cloud extension."""
     extension = PointsCloudExtension(withdraw=True)
 
@@ -56,7 +56,7 @@ def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
     extension.root.destroy()
 
 
-def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_group):
+def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_group) -> None:
     """Test update of extension data after clicking on "Generate" button."""
     extension = PointsCloudExtension(withdraw=True)
     extension._widgets["objects_list"].selection_set(1)
@@ -68,7 +68,7 @@ def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_gro
     assert "" == data.output_file
 
 
-def test_point_cloud_extension_generate_button_multiple_objects(mock_hfss_app_with_objects_in_group):
+def test_point_cloud_extension_generate_button_multiple_objects(mock_hfss_app_with_objects_in_group) -> None:
     """Test update of extension data after clicking on "Generate" button."""
     long_name = "very_long_name_to_test_scroll_bar_resize"
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = [long_name] * 4
@@ -83,7 +83,7 @@ def test_point_cloud_extension_generate_button_multiple_objects(mock_hfss_app_wi
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with_objects_in_group):
+def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with_objects_in_group) -> None:
     """Test call to filedialog.asksaveasfilename method from tkinter after clicking on "Browse" button."""
     extension = PointsCloudExtension(withdraw=True)
 
@@ -101,7 +101,7 @@ def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with
 @patch("ansys.aedt.core.extensions.common.points_cloud.generate_point_cloud")
 def test_point_cloud_extension_preview_button(
     mock_generate_cloud, mock_hfss_app_with_objects_in_group, patch_graphics_modules
-):
+) -> None:
     """Test call to pyvista plotter after clicking on "Preview" button."""
     extension = PointsCloudExtension(withdraw=True)
     extension._widgets["objects_list"].selection_set(1)
@@ -110,7 +110,7 @@ def test_point_cloud_extension_preview_button(
     patch_graphics_modules["pyvista"].Plotter().show.assert_called_once()
 
 
-def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
+def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group) -> None:
     """Test exceptions thrown by the point cloud extension."""
     # Triggering AEDTRuntimeError due to the absence of objects in current design
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
@@ -141,7 +141,7 @@ def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
         extension.root.children["buttons_frame"].children["generate"].invoke()
 
 
-def test_check_design_type_invalid(mock_circuit_app):
+def test_check_design_type_invalid(mock_circuit_app) -> None:
     """Unsupported design types raise on init and call release_desktop."""
     with patch.object(PointsCloudExtension, "release_desktop") as mock_release:
         with pytest.raises(AEDTRuntimeError, match="This extension only works"):

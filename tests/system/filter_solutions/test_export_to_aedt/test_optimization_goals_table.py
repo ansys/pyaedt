@@ -45,7 +45,7 @@ class TestClass:
     empty_paramter_insert_err_msg = "Unable to insert a new row, one or more required parameters are missing"
     empty_row_index_err_msg = "The rowIndex is greater than row count or less than zero"
 
-    def test_row_count(self, lumped_design):
+    def test_row_count(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row_count == 2
         lumped_design.export_to_aedt.optimitrics_enabled = False
@@ -54,7 +54,7 @@ class TestClass:
                 assert lumped_design.optimization_goals_table.row_count == 2
             assert info.value.args[0] == "The optimetric export to AEDT is not enabled"
 
-    def test_row(self, lumped_design):
+    def test_row(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row(0) == [
             "200 MHz",
@@ -65,25 +65,26 @@ class TestClass:
             "1",
             "Y",
         ]
-        assert lumped_design.optimization_goals_table.row(1) == [
+        row_1 = lumped_design.optimization_goals_table.row(1)
+        assert row_1[:5] == [
             "1.5849 GHz",
             "1.9019 GHz",
             "-23.01",
             "<=",
             "dB(S(Port2,Port1))",
-            "0.5",
-            "Y",
         ]
+        assert row_1[5] in ["0.5", "0,5"]
+        assert row_1[6] == "Y"
         assert (
             lumped_design.optimization_goals_table.row(0)[OptimizationGoalParameter.PARAMETER_NAME.value]
             == "dB(S(Port1,Port1))"
         )
-        assert lumped_design.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] == "0.5"
+        assert lumped_design.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] in ["0.5", "0,5"]
         with pytest.raises(RuntimeError) as info:
             lumped_design.optimization_goals_table.row(5)
         assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
 
-    def test_update_row(self, lumped_design):
+    def test_update_row(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.update_row(
             0,
@@ -115,7 +116,7 @@ class TestClass:
                 )
             assert info.value.args[0] == self.empty_paramter_update_err_msg
 
-    def test_append_row(self, lumped_design):
+    def test_append_row(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.append_row(
             "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
@@ -137,7 +138,7 @@ class TestClass:
                 )
             assert info.value.args[0] == self.empty_paramter_append_err_msg
 
-    def test_insert_row(self, lumped_design):
+    def test_insert_row(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.insert_row(
             1, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
@@ -168,7 +169,7 @@ class TestClass:
                 )
             assert info.value.args[0] == self.empty_row_index_err_msg
 
-    def test_remove_row(self, lumped_design):
+    def test_remove_row(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.remove_row(1)
         assert lumped_design.optimization_goals_table.row_count == 1
@@ -185,7 +186,7 @@ class TestClass:
             lumped_design.optimization_goals_table.remove_row(5)
         assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
 
-    def test_save_goals(self, lumped_design):
+    def test_save_goals(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.clear_goal_entries()
         lumped_design.optimization_goals_table.append_row(
             "100 MHz", "3 GHz", "-3.5", ">", "dB(S(Port1,Port2))", "0.2", "Y"
@@ -200,7 +201,7 @@ class TestClass:
                 assert row in [["100 MHz", "3 GHz", "-3.5", ">", "dB(S(Port1,Port2))", "0.2", "Y"]]
         os.remove(temp_save_path)
 
-    def test_load_goals(self, lumped_design):
+    def test_load_goals(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         temp_save_path = resource_path("goals.cfg")
         lumped_design.optimization_goals_table.save_goals(temp_save_path)
@@ -215,22 +216,23 @@ class TestClass:
             "1",
             "Y",
         ]
-        assert lumped_design.optimization_goals_table.row(1) == [
+        row_1 = lumped_design.optimization_goals_table.row(1)
+        assert row_1[:5] == [
             "1.5849 GHz",
             "1.9019 GHz",
             "-23.01",
             "<=",
             "dB(S(Port2,Port1))",
-            "0.5",
-            "Y",
         ]
+        assert row_1[5] in ["0.5", "0,5"]
+        assert row_1[6] == "Y"
         os.remove(temp_save_path)
 
-    def test_clear_goal_entries(self, lumped_design):
+    def test_clear_goal_entries(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.clear_goal_entries()
         assert lumped_design.optimization_goals_table.row_count == 0
 
-    def test_adjust_goal_frequency(self, lumped_design):
+    def test_adjust_goal_frequency(self, lumped_design) -> None:
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.adjust_goal_frequency("150 MHz")
         assert (

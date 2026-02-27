@@ -47,11 +47,11 @@ class TestClass:
         input_value_insert_blank_msg = "The input value is blank"
         input_row_index_max_err_msg = "The given index 6 is larger than zeros order"
 
-    def test_row_count(self, lumped_design):
+    def test_row_count(self, lumped_design) -> None:
         assert lumped_design.transmission_zeros_bandwidth.row_count == 0
         assert lumped_design.transmission_zeros_ratio.row_count == 0
 
-    def test_row(self, lumped_design):
+    def test_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_bandwidth.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
@@ -59,7 +59,7 @@ class TestClass:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
 
-    def test_update_row(self, lumped_design):
+    def test_update_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_bandwidth.update_row(0, zero="1.3G", position="2")
         assert info.value.args[0] == self.no_transmission_zero_update_msg
@@ -82,7 +82,7 @@ class TestClass:
             assert info.value.args[0] == "The input value is blank"
         lumped_design.transmission_zeros_bandwidth.clear_table()
 
-    def test_append_row(self, lumped_design):
+    def test_append_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_bandwidth.append_row(zero="", position="")
         assert info.value.args[0] == self.input_value_append_blank_msg
@@ -97,7 +97,7 @@ class TestClass:
         lumped_design.transmission_zeros_ratio.append_row(zero="1.6", position="2")
         assert lumped_design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
-    def test_insert_row(self, lumped_design):
+    def test_insert_row(self, lumped_design) -> None:
         lumped_design.transmission_zeros_ratio.append_row("2.0", "2")
         assert lumped_design.transmission_zeros_ratio.row_count == 1
         assert lumped_design.transmission_zeros_ratio.row(0) == ("2.0", "2")
@@ -128,7 +128,7 @@ class TestClass:
             lumped_design.transmission_zeros_ratio.insert_row(0)
         assert info.value.args[0] == self.input_value_insert_blank_msg
 
-    def test_remove_row(self, lumped_design):
+    def test_remove_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_bandwidth.remove_row(2)
         assert info.value.args[0] == "The given index 2 is larger than zeros order"
@@ -138,7 +138,7 @@ class TestClass:
             lumped_design.transmission_zeros_bandwidth.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
 
-    def test_clear_table(self, lumped_design):
+    def test_clear_table(self, lumped_design) -> None:
         lumped_design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1600M", "2")
         lumped_design.transmission_zeros_bandwidth.clear_table()
@@ -152,7 +152,7 @@ class TestClass:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
 
-    def test_restore_default_positions(self, lumped_design):
+    def test_restore_default_positions(self, lumped_design) -> None:
         lumped_design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         lumped_design.transmission_zeros_bandwidth.restore_default_positions()
         assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1600M", "3")

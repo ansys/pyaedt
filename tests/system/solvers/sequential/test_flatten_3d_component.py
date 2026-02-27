@@ -36,5 +36,5 @@ def flatten(add_app_example):
     app.close_project(save=False)
 
 
-def test_flatten_3d_components(flatten):
+def test_flatten_3d_components(flatten) -> None:
     assert flatten.flatten_3d_components()

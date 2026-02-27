@@ -36,12 +36,12 @@ class LumpedParasitics:
     parameters of the lumped elements used in designed filter.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_parasitics_dll_functions()
 
-    def _define_parasitics_dll_functions(self):
+    def _define_parasitics_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setLumpedCapacitorQ.argtype = c_char_p
         self._dll.setLumpedCapacitorQ.restype = c_int
@@ -97,7 +97,7 @@ class LumpedParasitics:
         return capacitor_q_string
 
     @capacitor_q.setter
-    def capacitor_q(self, capacitor_q_string):
+    def capacitor_q(self, capacitor_q_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCapacitorQ, capacitor_q_string)
 
     @property
@@ -114,7 +114,7 @@ class LumpedParasitics:
         return capacitor_rs_string
 
     @capacitor_rs.setter
-    def capacitor_rs(self, capacitor_rs_string):
+    def capacitor_rs(self, capacitor_rs_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCapacitorRs, capacitor_rs_string)
 
     @property
@@ -130,7 +130,7 @@ class LumpedParasitics:
         return capacitor_rp_string
 
     @capacitor_rp.setter
-    def capacitor_rp(self, capacitor_rp_string):
+    def capacitor_rp(self, capacitor_rp_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCapacitorRp, capacitor_rp_string)
 
     @property
@@ -147,7 +147,7 @@ class LumpedParasitics:
         return capacitor_ls_string
 
     @capacitor_ls.setter
-    def capacitor_ls(self, capacitor_ls_string):
+    def capacitor_ls(self, capacitor_ls_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCapacitorLs, capacitor_ls_string)
 
     @property
@@ -163,7 +163,7 @@ class LumpedParasitics:
         return inductor_q_string
 
     @inductor_q.setter
-    def inductor_q(self, inductor_q_string):
+    def inductor_q(self, inductor_q_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedInductorQ, inductor_q_string)
 
     @property
@@ -180,7 +180,7 @@ class LumpedParasitics:
         return inductor_rs_string
 
     @inductor_rs.setter
-    def inductor_rs(self, inductor_rs_string):
+    def inductor_rs(self, inductor_rs_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedInductorRs, inductor_rs_string)
 
     @property
@@ -197,7 +197,7 @@ class LumpedParasitics:
         return inductor_rp_string
 
     @inductor_rp.setter
-    def inductor_rp(self, inductor_rp_string):
+    def inductor_rp(self, inductor_rp_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedInductorRp, inductor_rp_string)
 
     @property
@@ -214,5 +214,5 @@ class LumpedParasitics:
         return inductor_cp_string
 
     @inductor_cp.setter
-    def inductor_cp(self, inductor_cp_string):
+    def inductor_cp(self, inductor_cp_string) -> None:
         self._dll_interface.set_string(self._dll.setLumpedInductorCp, inductor_cp_string)

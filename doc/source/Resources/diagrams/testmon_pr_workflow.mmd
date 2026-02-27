@@ -1,0 +1,12 @@
+flowchart TD
+    A[PR Created/Updated] --> B[ci_cd.yml Triggers]
+    B --> C{Cache Update Running?}
+    C -->|Yes| D[Wait up to 10 min]
+    D --> E{Update Complete?}
+    E -->|Success| F[Restore Testmon Cache]
+    E -->|Failure/Timeout| G[PR Workflow Fails]
+    C -->|No| F
+    F --> H[Pytest --testmon]
+    H --> I[Run Affected Tests Only]
+    I --> J[Upload Test Results]
+    J --> K[No Cache Update - PR Complete]

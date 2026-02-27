@@ -76,7 +76,7 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.7 and versions up to Python 3.11.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2024 R1.
--  0.9.0 <= PyAEDT Version < 0.18.0:
+- 0.9.0 <= PyAEDT Version < 0.18.0:
   - Python Compatibility:
     - Dropped support for python 3.7 and below.
     - Compatible with Python 3.8 and versions up to Python 3.12.
@@ -176,7 +176,7 @@ Note that PyAEDT uses semantic naming for pull requests (PR). This convention
 greatly simplifies the review process by providing meaningful
 information in the PR title. The
 following
-[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+[prefixes](https://github.com/ansys/actions/blob/main/check-pr-title/action.yml)
 should be used for pull request name:
 
 - "BUILD"
@@ -238,9 +238,9 @@ Usage examples follow.
 from ansys.aedt.core import Desktop, Circuit
 
 with Desktop(
-    specified_version="2022.2",
+    version="2022.2",
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
     student_version=False,
 ):
@@ -259,7 +259,7 @@ with Desktop(
 
 from ansys.aedt.core import Circuit
 
-with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
+with Circuit(version="2022.2", non_graphical=False) as circuit:
     ...
     # Any error here will be caught by Desktop.
     ...
@@ -338,3 +338,4 @@ page on the Ansys website.
 -  [Index](https://aedt.docs.pyansys.com/version/stable/genindex.html)
 -  [Module Index](https://aedt.docs.pyansys.com/version/stable/py-modindex.html)
 -  [Search Page](https://aedt.docs.pyansys.com/version/stable/search.html)
+
