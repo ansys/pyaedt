@@ -2359,10 +2359,10 @@ class Design(AedtObjects, PyAedtBase):
                 raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
             design_setup_args.append(design_setup)
         else:
-            design = DesignType.ICEPAKFEA
+            design = DesignType.ICEPAKFEA.NAME
         if not setup:
             setup = self.nominal_adaptive
-        self.odesign.CreateEMLossTarget(design.NAME, setup, design_setup_args)
+        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
         return True
 
     @pyaedt_function_handler()
