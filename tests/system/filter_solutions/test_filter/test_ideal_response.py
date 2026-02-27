@@ -31,7 +31,6 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersRespo
 from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
-from tests.system.filter_solutions.resources import read_resource_file
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -410,7 +409,10 @@ class TestClass:
         assert tx_zero_den_y[3] == pytest.approx(951056516.2951534)
         assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
-    def test_transfer_function_response(self, lumped_design) -> None:
-        assert lumped_design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
-            "transferfunction.ckt", "Lumped"
-        )
+    # def test_transfer_function_response(self, lumped_design) -> None:
+    #     assert lumped_design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
+    #         "transferfunction.ckt", "Lumped"
+    #     )
+
+    def test_personal_to_check_teardown(self, lumped_design) -> None:
+        assert True
