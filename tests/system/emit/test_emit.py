@@ -820,28 +820,34 @@ def test_radio_band_getters(emit_app):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_get_band_frequencies(emit_app):
-    rad1, ant1 = emit_app.schematic.create_radio_antenna("AVQ-30X")
-
+def test_get_active_frequencies(emit_app):
+    rad1, ant1 = emit_app.schematic.create_radio_antenna("WiFi - 802.11-2012")
     rev = emit_app.results.analyze()
 
-    tx_bands = rev.get_all_band_nodes(radio=rad1, tx_rx_mode=TxRxMode.TX, enabled_only=True)
-    rx_bands = rev.get_all_band_nodes(radio=rad1, tx_rx_mode=TxRxMode.RX, enabled_only=True)
+    # Tx Band Check
+    band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
+    band.enabled = True
+    tx_freqs_mhz = band.get_active_frequencies(is_rx=False, units="MHz")
+    tx_freqs_hz = band.get_active_frequencies(is_rx=False, units="Hz")
 
-    assert len(tx_bands) == 1
-    assert len(rx_bands) == 1
+    assert len(tx_freqs_mhz) == 13
+    assert tx_freqs_hz[0] == 2412000000.0
+    assert tx_freqs_mhz[0] == 2412.0
 
-    tx_freqs = tx_bands[0].get_active_frequencies(is_rx=False, units="MHz")
-    rx_freqs = rx_bands[0].get_active_frequencies(is_rx=True, units="MHz")
+    rad2, ant2 = emit_app.schematic.create_radio_antenna("GPS Receiver")
+    rev2 = emit_app.results.analyze()
 
-    assert tx_freqs == [9400.0]
-    assert rx_freqs == [9400.0]
+    # Rx Band Check
+    band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
+    rx_freqs_mhz = band.get_active_frequencies(is_rx=True, units="MHz")
 
-    tx_freqs = tx_bands[0].get_active_frequencies(is_rx=False)
-    rx_freqs = rx_bands[0].get_active_frequencies(is_rx=True)
+    assert len(rx_freqs_mhz) == 1
+    assert rx_freqs_mhz[0] == 1575.42
 
-    assert tx_freqs == [9400000000.0]
-    assert rx_freqs == [9400000000.0]
+    # Disabled Band Check
+    band.enabled = False
+    rx_freqs_mhz_disabled = band.get_active_frequencies(is_rx=True, units="MHz")
+    assert len(rx_freqs_mhz_disabled) == 0
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
