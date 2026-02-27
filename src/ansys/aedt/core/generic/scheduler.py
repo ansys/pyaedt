@@ -85,7 +85,7 @@ class HPCMethod(IntEnum):
     USE_AUTO_HPC = 4
 
 
-def path_string(path: Path):
+def path_string(path: Path) -> str:
     """Convert the path to a string.
 
     If the path has whitespace and the OS is Windows, the path will be
@@ -97,7 +97,7 @@ def path_string(path: Path):
     return path_str
 
 
-def get_aedt_exe(version: str | None = None):
+def get_aedt_exe(version: str | None = None) -> Path:
     """Retrieve the full path to the Ansys AEDT executable.
 
     Parameters
@@ -327,7 +327,7 @@ class _ResourcesConfiguration:
         """Set the total RAM in GB to be used per core for the simulation job."""
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
-    def check_consistency(self):
+    def check_consistency(self) -> None:
         """Check the consistency of the resource configuration."""
         if self.__max_tasks_per_node is not None:
             if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:

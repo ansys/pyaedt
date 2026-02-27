@@ -264,51 +264,51 @@ class Settings(PyAedtBase):
         self.__pyedb_use_grpc = value
 
     @property
-    def grpc_secure_mode(self):
+    def grpc_secure_mode(self) -> bool:
         """Flag for whether to use secure mode for gRPC API.
         The default is ``True``.
         """
         return self.__grpc_secure_mode
 
     @grpc_secure_mode.setter
-    def grpc_secure_mode(self, val) -> None:
+    def grpc_secure_mode(self, val: bool) -> None:
         self.__grpc_secure_mode = val
 
     @property
-    def grpc_local(self):
+    def grpc_local(self) -> bool:
         """Flag for whether to use local connection for gRPC API.
         The default is ``True``.
         """
         return self.__grpc_local
 
     @grpc_local.setter
-    def grpc_local(self, val) -> None:
+    def grpc_local(self, val: bool) -> None:
         self.__grpc_local = val
 
     @property
-    def grpc_listen_all(self):
+    def grpc_listen_all(self) -> bool:
         """Flag for whether to listen on all interfaces for gRPC API.
         The default is ``False``.
         """
         return self.__grpc_listen_all
 
     @grpc_listen_all.setter
-    def grpc_listen_all(self, val) -> None:
+    def grpc_listen_all(self, val: bool) -> None:
         self.__grpc_listen_all = val
 
     # ########################## Logging properties ##########################
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger | None:
         """Active logger."""
         return self.__logger
 
     @logger.setter
-    def logger(self, val) -> None:
+    def logger(self, val: logging.Logger | None) -> None:
         self.__logger = val
 
     @property
-    def block_figure_plot(self):
+    def block_figure_plot(self) -> bool:
         """Block matplotlib figure plot during python script run until the user close it manually.
 
         Default is ``False``.
@@ -316,29 +316,29 @@ class Settings(PyAedtBase):
         return self.__block_figure_plot
 
     @block_figure_plot.setter
-    def block_figure_plot(self, val) -> None:
+    def block_figure_plot(self, val: bool) -> None:
         self.__block_figure_plot = val
 
     @property
-    def enable_desktop_logs(self):
+    def enable_desktop_logs(self) -> bool:
         """Enable or disable the logging to the AEDT message window."""
         return self.__enable_desktop_logs
 
     @enable_desktop_logs.setter
-    def enable_desktop_logs(self, val) -> None:
+    def enable_desktop_logs(self, val: bool) -> None:
         self.__enable_desktop_logs = val
 
     @property
-    def global_log_file_size(self):
+    def global_log_file_size(self) -> int:
         """Global PyAEDT log file size in MB. The default value is ``10``."""
         return self.__global_log_file_size
 
     @global_log_file_size.setter
-    def global_log_file_size(self, value) -> None:
+    def global_log_file_size(self, value: int) -> None:
         self.__global_log_file_size = value
 
     @property
-    def enable_global_log_file(self):
+    def enable_global_log_file(self) -> bool:
         """Enable or disable the global PyAEDT log file located in the global temp folder.
 
         The default is ``True``.
@@ -346,11 +346,11 @@ class Settings(PyAedtBase):
         return self.__enable_global_log_file
 
     @enable_global_log_file.setter
-    def enable_global_log_file(self, value) -> None:
+    def enable_global_log_file(self, value: bool) -> None:
         self.__enable_global_log_file = value
 
     @property
-    def enable_local_log_file(self):
+    def enable_local_log_file(self) -> bool:
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
 
         The default is ``True``.
@@ -358,21 +358,21 @@ class Settings(PyAedtBase):
         return self.__enable_local_log_file
 
     @enable_local_log_file.setter
-    def enable_local_log_file(self, value) -> None:
+    def enable_local_log_file(self, value: bool) -> None:
         self.__enable_local_log_file = value
 
     @property
-    def global_log_file_name(self):
+    def global_log_file_name(self) -> str:
         """Global PyAEDT log file path. The default is ``pyaedt_username.log``."""
         return self.__global_log_file_name
 
     @global_log_file_name.setter
-    def global_log_file_name(self, value) -> None:
+    def global_log_file_name(self, value: str) -> None:
         if value is not None:
             self.__global_log_file_name = value
 
     @property
-    def enable_debug_methods_argument_logger(self):
+    def enable_debug_methods_argument_logger(self) -> bool:
         """Flag for whether to write out the method's arguments in the debug logger.
 
         The default is ``False``.
@@ -380,47 +380,47 @@ class Settings(PyAedtBase):
         return self.__enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
-    def enable_debug_methods_argument_logger(self, val) -> None:
+    def enable_debug_methods_argument_logger(self, val: bool) -> None:
         self.__enable_debug_methods_argument_logger = val
 
     @property
-    def enable_screen_logs(self):
+    def enable_screen_logs(self) -> bool:
         """Enable or disable the logging to STDOUT."""
         return self.__enable_screen_logs
 
     @enable_screen_logs.setter
-    def enable_screen_logs(self, val) -> None:
+    def enable_screen_logs(self, val: bool) -> None:
         self.__enable_screen_logs = val
 
     @property
-    def enable_file_logs(self):
+    def enable_file_logs(self) -> bool:
         """Enable or disable the logging to a file."""
         return self.__enable_file_logs
 
     @enable_file_logs.setter
-    def enable_file_logs(self, val) -> None:
+    def enable_file_logs(self, val: bool) -> None:
         self.__enable_file_logs = val
 
     @property
-    def enable_logger(self):
+    def enable_logger(self) -> bool:
         """Enable or disable the logging overall."""
         return self.__enable_logger
 
     @enable_logger.setter
-    def enable_logger(self, val) -> None:
+    def enable_logger(self, val: bool) -> None:
         self.__enable_logger = val
 
     @property
-    def logger_file_path(self):
+    def logger_file_path(self) -> str | None:
         """PyAEDT log file path."""
         return self.__logger_file_path
 
     @logger_file_path.setter
-    def logger_file_path(self, val) -> None:
+    def logger_file_path(self, val: str | None) -> None:
         self.__logger_file_path = val
 
     @property
-    def logger_formatter(self):
+    def logger_formatter(self) -> str:
         """Message format of the log entries.
 
         The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``.
@@ -428,11 +428,11 @@ class Settings(PyAedtBase):
         return self.__logger_formatter
 
     @logger_formatter.setter
-    def logger_formatter(self, val) -> None:
+    def logger_formatter(self, val: str) -> None:
         self.__logger_formatter = val
 
     @property
-    def logger_datefmt(self):
+    def logger_datefmt(self) -> str:
         """Date format of the log entries.
 
         The default is ``'%Y/%m/%d %H.%M.%S'``
@@ -440,29 +440,29 @@ class Settings(PyAedtBase):
         return self.__logger_datefmt
 
     @logger_datefmt.setter
-    def logger_datefmt(self, val) -> None:
+    def logger_datefmt(self, val: str) -> None:
         self.__logger_datefmt = val
 
     @property
-    def enable_debug_edb_logger(self):
+    def enable_debug_edb_logger(self) -> bool:
         """Enable or disable the logger for any EDB API methods."""
         return self.__enable_debug_edb_logger
 
     @enable_debug_edb_logger.setter
-    def enable_debug_edb_logger(self, val) -> None:
+    def enable_debug_edb_logger(self, val: bool) -> None:
         self.__enable_debug_edb_logger = val
 
     @property
-    def enable_debug_grpc_api_logger(self):
+    def enable_debug_grpc_api_logger(self) -> bool:
         """Enable or disable the logging for the gRPC API calls."""
         return self.__enable_debug_grpc_api_logger
 
     @enable_debug_grpc_api_logger.setter
-    def enable_debug_grpc_api_logger(self, val) -> None:
+    def enable_debug_grpc_api_logger(self, val: bool) -> None:
         self.__enable_debug_grpc_api_logger = val
 
     @property
-    def enable_debug_geometry_operator_logger(self):
+    def enable_debug_geometry_operator_logger(self) -> bool:
         """Enable or disable the logging for the geometry operators.
 
         This setting is useful for debug purposes.
@@ -470,11 +470,11 @@ class Settings(PyAedtBase):
         return self.__enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
-    def enable_debug_geometry_operator_logger(self, val) -> None:
+    def enable_debug_geometry_operator_logger(self, val: bool) -> None:
         self.__enable_debug_geometry_operator_logger = val
 
     @property
-    def enable_debug_internal_methods_logger(self):
+    def enable_debug_internal_methods_logger(self) -> bool:
         """Enable or disable the logging for internal methods.
 
         This setting is useful for debug purposes.
@@ -482,20 +482,20 @@ class Settings(PyAedtBase):
         return self.__enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
-    def enable_debug_internal_methods_logger(self, val) -> None:
+    def enable_debug_internal_methods_logger(self, val: bool) -> None:
         self.__enable_debug_internal_methods_logger = val
 
     @property
-    def enable_debug_logger(self):
+    def enable_debug_logger(self) -> bool:
         """Enable or disable the debug level logger."""
         return self.__enable_debug_logger
 
     @enable_debug_logger.setter
-    def enable_debug_logger(self, val) -> None:
+    def enable_debug_logger(self, val: bool) -> None:
         self.__enable_debug_logger = val
 
     @property
-    def aedt_log_file(self):
+    def aedt_log_file(self) -> str:
         """Path to the AEDT log file.
 
         Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
@@ -509,7 +509,7 @@ class Settings(PyAedtBase):
     # ############################# LSF properties ############################
 
     @property
-    def lsf_queue(self):
+    def lsf_queue(self) -> str:
         """LSF queue name.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
@@ -517,11 +517,11 @@ class Settings(PyAedtBase):
         return self.__lsf_queue
 
     @lsf_queue.setter
-    def lsf_queue(self, value) -> None:
+    def lsf_queue(self, value: str) -> None:
         self.__lsf_queue = value
 
     @property
-    def use_lsf_scheduler(self):
+    def use_lsf_scheduler(self) -> bool:
         """Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
@@ -529,11 +529,11 @@ class Settings(PyAedtBase):
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
-    def use_lsf_scheduler(self, value) -> None:
+    def use_lsf_scheduler(self, value: bool) -> None:
         self.__use_lsf_scheduler = value
 
     @property
-    def lsf_aedt_command(self):
+    def lsf_aedt_command(self) -> str:
         """Command to launch the task in the LSF Scheduler.
 
         The default is ``"ansysedt"``.
@@ -542,20 +542,20 @@ class Settings(PyAedtBase):
         return self.__lsf_aedt_command
 
     @lsf_aedt_command.setter
-    def lsf_aedt_command(self, value) -> None:
+    def lsf_aedt_command(self, value: str) -> None:
         self.__lsf_aedt_command = value
 
     @property
-    def num_cores(self):
+    def num_cores(self) -> int:
         """Number cores to use with the scheduler."""
         return self.__num_cores
 
     @num_cores.setter
-    def num_cores(self, value) -> None:
+    def num_cores(self, value: int) -> None:
         self.__num_cores = int(value)
 
     @property
-    def lsf_ram(self):
+    def lsf_ram(self) -> int:
         """RAM allocated for the LSF job.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
@@ -563,67 +563,67 @@ class Settings(PyAedtBase):
         return self.__lsf_ram
 
     @lsf_ram.setter
-    def lsf_ram(self, value) -> None:
+    def lsf_ram(self, value: int) -> None:
         self.__lsf_ram = int(value)
 
     @property
-    def lsf_ui(self):
+    def lsf_ui(self) -> int:
         """Value passed in the LSF 'select' string to the ui resource."""
         return self.__lsf_ui
 
     @lsf_ui.setter
-    def lsf_ui(self, value) -> None:
+    def lsf_ui(self, value: int) -> None:
         if value is not None:
             self.__lsf_ui = int(value)
 
     @property
-    def lsf_timeout(self):
+    def lsf_timeout(self) -> int:
         """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds."""
         return self.__lsf_timeout
 
     @lsf_timeout.setter
-    def lsf_timeout(self, value) -> None:
+    def lsf_timeout(self, value: int) -> None:
         self.__lsf_timeout = int(value)
 
     @property
-    def lsf_osrel(self):
+    def lsf_osrel(self) -> str:
         """Operating system string.
         This attribute is valid only on Linux systems running LSF Scheduler.
         """
         return self.__lsf_osrel
 
     @lsf_osrel.setter
-    def lsf_osrel(self, value) -> None:
+    def lsf_osrel(self, value: str) -> None:
         self.__lsf_osrel = value
 
     @property
-    def custom_lsf_command(self):
+    def custom_lsf_command(self) -> str:
         """Command to launch in the LSF Scheduler. The default is ``None``.
         This attribute is valid only on Linux systems running LSF Scheduler.
         """
         return self.__custom_lsf_command
 
     @custom_lsf_command.setter
-    def custom_lsf_command(self, value) -> None:
+    def custom_lsf_command(self, value: str) -> None:
         self.__custom_lsf_command = value
 
     # ############################## Environment variable properties ##############################
 
     @property
-    def aedt_environment_variables(self):
+    def aedt_environment_variables(self) -> dict:
         """Environment variables that are set before launching a new AEDT session,
         including those that enable the beta features.
         """
         return self.__aedt_environment_variables
 
     @aedt_environment_variables.setter
-    def aedt_environment_variables(self, value) -> None:
+    def aedt_environment_variables(self, value: dict) -> None:
         self.__aedt_environment_variables = value
 
     # ##################################### General properties ####################################
 
     @property
-    def remote_api(self):
+    def remote_api(self) -> bool:
         """State whether remote API is used or not."""
         return self.__remote_api
 
@@ -632,34 +632,34 @@ class Settings(PyAedtBase):
         self.__remote_api = value
 
     @property
-    def formatter(self):
+    def formatter(self) -> logging.Formatter | None:
         """Get the formatter."""
         return self.__formatter
 
     @formatter.setter
-    def formatter(self, value: logging.Formatter) -> None:
+    def formatter(self, value: logging.Formatter | None) -> None:
         self.__formatter = value
 
     @property
-    def remote_rpc_session(self):
+    def remote_rpc_session(self) -> Any | None:
         """Get the RPyC connection."""
         return self.__remote_rpc_session
 
     @remote_rpc_session.setter
-    def remote_rpc_session(self, value: Any) -> None:
+    def remote_rpc_session(self, value: Any | None) -> None:
         self.__remote_rpc_session = value
 
     @property
-    def remote_rpc_session_temp_folder(self):
+    def remote_rpc_session_temp_folder(self) -> str | None:
         """Get the remote RPyC session temp folder."""
         return self.__remote_rpc_session_temp_folder
 
     @remote_rpc_session_temp_folder.setter
-    def remote_rpc_session_temp_folder(self, value: str) -> None:
+    def remote_rpc_session_temp_folder(self, value: str | None) -> None:
         self.__remote_rpc_session_temp_folder = value
 
     @property
-    def remote_rpc_service_manager_port(self):
+    def remote_rpc_service_manager_port(self) -> int:
         """Get the remote RPyC service manager port."""
         return self.__remote_rpc_service_manager_port
 
@@ -668,7 +668,7 @@ class Settings(PyAedtBase):
         self.__remote_rpc_service_manager_port = value
 
     @property
-    def time_tick(self):
+    def time_tick(self) -> float:
         """Time in seconds since the 'epoch' as a floating-point number."""
         return self.__time_tick
 
@@ -677,34 +677,34 @@ class Settings(PyAedtBase):
         self.__time_tick = value
 
     @property
-    def release_on_exception(self):
+    def release_on_exception(self) -> bool:
         """Enable or disable the release of AEDT on exception."""
         return self.__release_on_exception
 
     @release_on_exception.setter
-    def release_on_exception(self, value) -> None:
+    def release_on_exception(self, value: bool) -> None:
         self.__release_on_exception = value
 
     @property
-    def objects_lazy_load(self):
+    def objects_lazy_load(self) -> bool:
         """Flag for enabling and disabling the lazy load. The default value is ``True``."""
         return self.__objects_lazy_load
 
     @objects_lazy_load.setter
-    def objects_lazy_load(self, value) -> None:
+    def objects_lazy_load(self, value: bool) -> None:
         self.__objects_lazy_load = value
 
     @property
-    def lazy_load(self):
+    def lazy_load(self) -> bool:
         """Flag for enabling and disabling the lazy load. The default value is ``True``."""
         return self.__lazy_load
 
     @lazy_load.setter
-    def lazy_load(self, value) -> None:
+    def lazy_load(self, value: bool) -> None:
         self.__lazy_load = value
 
     @property
-    def wait_for_license(self):
+    def wait_for_license(self) -> bool:
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
 
         The default value is ``False``.
@@ -712,38 +712,38 @@ class Settings(PyAedtBase):
         return self.__wait_for_license
 
     @wait_for_license.setter
-    def wait_for_license(self, value) -> None:
+    def wait_for_license(self, value: bool) -> None:
         self.__wait_for_license = value
 
     @property
-    def retry_n_times_time_interval(self):
+    def retry_n_times_time_interval(self) -> float:
         """Time interval between the retries by the ``_retry_n_times`` method."""
         return self.__retry_n_times_time_interval
 
     @retry_n_times_time_interval.setter
-    def retry_n_times_time_interval(self, value) -> None:
+    def retry_n_times_time_interval(self, value: float) -> None:
         self.__retry_n_times_time_interval = float(value)
 
     @property
-    def number_of_grpc_api_retries(self):
+    def number_of_grpc_api_retries(self) -> int:
         """Number of gRPC API retries. The default is ``3``."""
         return self.__number_of_grpc_api_retries
 
     @number_of_grpc_api_retries.setter
-    def number_of_grpc_api_retries(self, value) -> None:
+    def number_of_grpc_api_retries(self, value: int) -> None:
         self.__number_of_grpc_api_retries = int(value)
 
     @property
-    def desktop_launch_timeout(self):
+    def desktop_launch_timeout(self) -> int:
         """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds."""
         return self.__desktop_launch_timeout
 
     @desktop_launch_timeout.setter
-    def desktop_launch_timeout(self, value) -> None:
+    def desktop_launch_timeout(self, value: int) -> None:
         self.__desktop_launch_timeout = int(value)
 
     @property
-    def aedt_version(self):
+    def aedt_version(self) -> str | None:
         """AEDT version in the form ``"2023.x"``.
 
         In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled.
@@ -751,14 +751,14 @@ class Settings(PyAedtBase):
         return self.__aedt_version
 
     @aedt_version.setter
-    def aedt_version(self, value) -> None:
+    def aedt_version(self, value: str | None) -> None:
         if value is not None:
             self.__aedt_version = value
             if self.__aedt_version >= "2023.1":
                 self.disable_bounding_box_sat = True
 
     @property
-    def use_multi_desktop(self):
+    def use_multi_desktop(self) -> bool:
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
 
         Current limitations follow:
@@ -770,11 +770,11 @@ class Settings(PyAedtBase):
         return self.__use_multi_desktop
 
     @use_multi_desktop.setter
-    def use_multi_desktop(self, value) -> None:
+    def use_multi_desktop(self, value: bool) -> None:
         self.__use_multi_desktop = value
 
     @property
-    def edb_dll_path(self):
+    def edb_dll_path(self) -> Path | None:
         """Optional path for the EDB DLL file."""
         if self.__edb_dll_path is not None:
             # If the optional path is set, return it
@@ -782,14 +782,14 @@ class Settings(PyAedtBase):
         return None
 
     @edb_dll_path.setter
-    def edb_dll_path(self, value) -> None:
+    def edb_dll_path(self, value: str | Path | None) -> None:
         if value is not None:
             dll_path = Path(value)
             if dll_path.exists():
                 self.__edb_dll_path = dll_path
 
     @property
-    def enable_pandas_output(self):
+    def enable_pandas_output(self) -> bool:
         """Flag for whether Pandas is being used to export dictionaries and lists.
 
         This attribute applies to Solution data output.
@@ -799,11 +799,11 @@ class Settings(PyAedtBase):
         return self.__enable_pandas_output
 
     @enable_pandas_output.setter
-    def enable_pandas_output(self, val) -> None:
+    def enable_pandas_output(self, val: bool) -> None:
         self.__enable_pandas_output = val
 
     @property
-    def force_error_on_missing_project(self):
+    def force_error_on_missing_project(self) -> bool:
         """Flag for whether to check the project path.
 
         The default is ``False``.
@@ -813,91 +813,91 @@ class Settings(PyAedtBase):
         return self.__force_error_on_missing_project
 
     @force_error_on_missing_project.setter
-    def force_error_on_missing_project(self, val) -> None:
+    def force_error_on_missing_project(self, val: bool) -> None:
         self.__force_error_on_missing_project = val
 
     @property
-    def disable_bounding_box_sat(self):
+    def disable_bounding_box_sat(self) -> bool:
         """Flag for enabling and disabling bounding box evaluation by exporting a SAT file."""
         return self.__disable_bounding_box_sat
 
     @disable_bounding_box_sat.setter
-    def disable_bounding_box_sat(self, val) -> None:
+    def disable_bounding_box_sat(self, val: bool) -> None:
         self.__disable_bounding_box_sat = val
 
     @property
-    def use_grpc_api(self):
+    def use_grpc_api(self) -> bool | None:
         """Flag for whether to use the gRPC API or legacy COM object."""
         return self.__use_grpc_api
 
     @use_grpc_api.setter
-    def use_grpc_api(self, val) -> None:
+    def use_grpc_api(self, val: bool | None) -> None:
         self.__use_grpc_api = val
 
     @property
-    def enable_error_handler(self):
+    def enable_error_handler(self) -> bool:
         """Flag for enabling and disabling the internal PyAEDT error handling."""
         return self.__enable_error_handler
 
     @enable_error_handler.setter
-    def enable_error_handler(self, val) -> None:
+    def enable_error_handler(self, val: bool) -> None:
         self.__enable_error_handler = val
 
     @property
-    def pyaedt_server_path(self):
+    def pyaedt_server_path(self) -> str:
         """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable."""
         self.__pyaedt_server_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         return self.__pyaedt_server_path
 
     # NOTE: Convenient way to set the environment variable for RPyC
     @pyaedt_server_path.setter
-    def pyaedt_server_path(self, val) -> None:
+    def pyaedt_server_path(self, val: str) -> None:
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
 
     @property
-    def skip_license_check(self):
+    def skip_license_check(self) -> bool:
         """Flag indicating whether to check for license availability when launching the Desktop."""
         return self.__skip_license_check
 
     @skip_license_check.setter
-    def skip_license_check(self, value) -> None:
+    def skip_license_check(self, value: bool) -> None:
         self.__skip_license_check = value
 
     @property
-    def use_local_example_data(self):
+    def use_local_example_data(self) -> bool:
         """Methods in downloads.py will use the local examples folder if this is set."""
         return self.__use_local_example_data
 
     @use_local_example_data.setter
-    def use_local_example_data(self, value) -> None:
+    def use_local_example_data(self, value: bool) -> None:
         self.__use_local_example_data = value
 
     @property
-    def local_example_folder(self):
+    def local_example_folder(self) -> str | None:
         """Methods in downloads.py will use the local examples folder if this is set."""
         return self.__local_example_folder
 
     @local_example_folder.setter
-    def local_example_folder(self, value) -> None:
+    def local_example_folder(self, value: str | None) -> None:
         self.__local_example_folder = value
 
     @property
-    def pyd_libraries_path(self):
+    def pyd_libraries_path(self) -> Path:
         if self.__pyd_libraries_user_path is not None:
             # If the user path is set, return it
             return Path(self.__pyd_libraries_user_path)
         return Path(self.__pyd_libraries_path)
 
     @property
-    def pyd_libraries_user_path(self):
+    def pyd_libraries_user_path(self) -> Path | None:
         # Get the user path for PyAEDT libraries.
         if self.__pyd_libraries_user_path is not None:
             return Path(self.__pyd_libraries_user_path)
         return None
 
     @pyd_libraries_user_path.setter
-    def pyd_libraries_user_path(self, val):
+    def pyd_libraries_user_path(self, val: Path | str | None) -> None:
         if val is None:
             # If the user path is None, set it to None
             self.__pyd_libraries_user_path = None
@@ -912,7 +912,7 @@ class Settings(PyAedtBase):
 
     # yaml setting file IO methods
 
-    def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False):
+    def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False) -> None:
         """Update default settings from a YAML configuration file."""
         import yaml
 
