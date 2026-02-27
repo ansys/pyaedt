@@ -322,7 +322,7 @@ class IdealResponse:
         return bool(vsg_analysis_enabled.value)
 
     @vsg_analysis_enabled.setter
-    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool) -> None:
+    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool):
         status = self._dll.setVSGAnalsyis(filter_vsg_analysis_enabled)
         self._dll_interface.raise_error(status)
 

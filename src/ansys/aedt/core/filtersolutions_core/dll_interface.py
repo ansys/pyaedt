@@ -36,7 +36,7 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
-    def __init__(self, show_gui: bool = False, version: str | None = None) -> None:
+    def __init__(self, show_gui: bool = False, version: str | None = None):
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
@@ -69,7 +69,7 @@ class DllInterface:
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
         self._version = version
 
-    def _init_dll(self, show_gui) -> None:
+    def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
         self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
         self._define_dll_functions()
@@ -188,7 +188,7 @@ class DllInterface:
         api_version = f"{api_version_year}.{api_version_release}"
         return api_version
 
-    def raise_error(self, error_status: int) -> None:
+    def raise_error(self, error_status: int):
         """Raise an exception if the error status is not 0.
 
         Parameters

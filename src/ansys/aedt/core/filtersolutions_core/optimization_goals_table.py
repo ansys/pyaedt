@@ -307,7 +307,7 @@ class OptimizationGoalsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index: int) -> None:
+    def remove_row(self, row_index: int):
         """Remove a row from the optimization goals table.
 
         Parameters
@@ -352,7 +352,7 @@ class OptimizationGoalsTable:
                 row = line.strip().split("/")
                 self.append_row(*row)
 
-    def adjust_goal_frequency(self, adjust_goal_frequency_string: str) -> None:
+    def adjust_goal_frequency(self, adjust_goal_frequency_string: str):
         """Adjust all goal frequencies in the table by the adjusting
         frequency value which can be positive or negative.
         """

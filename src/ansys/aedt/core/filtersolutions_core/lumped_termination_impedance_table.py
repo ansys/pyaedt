@@ -84,7 +84,7 @@ class LumpedTerminationImpedance:
     This class allows you to enter, edit, or remove the entries of source and load complex impedance table.
     """
 
-    def __init__(self, table_type) -> None:
+    def __init__(self, table_type):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_termination_impedance_dll_functions()
@@ -226,7 +226,7 @@ class LumpedTerminationImpedance:
         imag_value_string = imag_value_buffer.value.decode("utf-8")
         return frequency_value_string, real_value_string, imag_value_string
 
-    def update_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def update_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None):
         """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
@@ -249,7 +249,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def append_row(self, frequency: str = None, real: str = None, imag: str = None):
         """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
@@ -271,7 +271,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
+    def insert_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None):
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
@@ -294,7 +294,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index: int) -> None:
+    def remove_row(self, row_index: int):
         """Remove frequency and complex impedance at a specified index from the complex impedance table.
 
         Parameters
@@ -325,7 +325,7 @@ class LumpedTerminationImpedance:
         return self._dll_interface.string_to_enum(ComplexTerminationDefinition, type_string)
 
     @complex_definition.setter
-    def complex_definition(self, complex_definition: ComplexTerminationDefinition) -> None:
+    def complex_definition(self, complex_definition: ComplexTerminationDefinition):
         string_value = self._dll_interface.enum_to_string(complex_definition)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexDefinition(string_bytes_value, self.table_type_to_bool())
@@ -352,7 +352,7 @@ class LumpedTerminationImpedance:
         return self._dll_interface.string_to_enum(ComplexReactanceType, type_string)
 
     @reactance_type.setter
-    def reactance_type(self, reactance_type: ComplexReactanceType) -> None:
+    def reactance_type(self, reactance_type: ComplexReactanceType):
         string_value = self._dll_interface.enum_to_string(reactance_type)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexReactanceType(string_bytes_value, self.table_type_to_bool())
@@ -372,7 +372,7 @@ class LumpedTerminationImpedance:
         return bool(element_tune_enabled.value)
 
     @element_tune_enabled.setter
-    def element_tune_enabled(self, element_tune_enabled: bool) -> None:
+    def element_tune_enabled(self, element_tune_enabled: bool):
         status = self._dll.setLumpedComplexElementTuneEnabled(element_tune_enabled)
         self._dll_interface.raise_error(status)
 
@@ -390,7 +390,7 @@ class LumpedTerminationImpedance:
         return bool(compensation_enabled.value)
 
     @compensation_enabled.setter
-    def compensation_enabled(self, compensation_enabled: bool) -> None:
+    def compensation_enabled(self, compensation_enabled: bool):
         status = self._dll.setLumpedComplexImpCompensateEnabled(compensation_enabled, self.table_type_to_bool())
         self._dll_interface.raise_error(status)
 
@@ -410,6 +410,6 @@ class LumpedTerminationImpedance:
         return int(compensation_order.value)
 
     @compensation_order.setter
-    def compensation_order(self, compensation_order: int) -> None:
+    def compensation_order(self, compensation_order: int):
         status = self._dll.setLumpedComplexCompOrder(compensation_order, self.table_type_to_bool())
         self._dll_interface.raise_error(status)
