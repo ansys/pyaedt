@@ -691,7 +691,7 @@ class Attributes:
         return filter_multiple_bands_low_pass_freq_string
 
     @filter_multiple_bands_low_pass_frequency.setter
-    def filter_multiple_bands_low_pass_frequency(self, filter_multiple_bands_low_pass_freq_string) -> None:
+    def filter_multiple_bands_low_pass_frequency(self, filter_multiple_bands_low_pass_freq_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMultipleBandsLowPassFrequency,
             filter_multiple_bands_low_pass_freq_string,
@@ -711,7 +711,7 @@ class Attributes:
         return filter_multiple_bands_high_pass_freq_string
 
     @filter_multiple_bands_high_pass_frequency.setter
-    def filter_multiple_bands_high_pass_frequency(self, filter_multiple_bands_high_pass_freq_string) -> None:
+    def filter_multiple_bands_high_pass_frequency(self, filter_multiple_bands_high_pass_freq_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMultipleBandsHighPassFrequency,
             filter_multiple_bands_high_pass_freq_string,
@@ -751,7 +751,7 @@ class Attributes:
         return minimum_order_stop_band_attenuation_db_string
 
     @minimum_order_stop_band_attenuation_db.setter
-    def minimum_order_stop_band_attenuation_db(self, minimum_order_stop_band_attenuation_db_string) -> None:
+    def minimum_order_stop_band_attenuation_db(self, minimum_order_stop_band_attenuation_db_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMinimumOrderStopbandAttenuationdB,
             minimum_order_stop_band_attenuation_db_string,
@@ -773,7 +773,7 @@ class Attributes:
         return minimum_order_stop_band_frequency_string
 
     @minimum_order_stop_band_frequency.setter
-    def minimum_order_stop_band_frequency(self, minimum_order_stop_band_frequency_string) -> None:
+    def minimum_order_stop_band_frequency(self, minimum_order_stop_band_frequency_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMinimumOrderStopbandFrequency,
             minimum_order_stop_band_frequency_string,
@@ -795,7 +795,7 @@ class Attributes:
         return minimum_order_group_delay_error_percent_string
 
     @minimum_order_group_delay_error_percent.setter
-    def minimum_order_group_delay_error_percent(self, minimum_order_group_delay_error_percent) -> None:
+    def minimum_order_group_delay_error_percent(self, minimum_order_group_delay_error_percent: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMinimumOrderGroupDelayError,
             minimum_order_group_delay_error_percent,
@@ -817,7 +817,7 @@ class Attributes:
         return minimum_order_group_delay_cutoff_string
 
     @minimum_order_group_delay_cutoff.setter
-    def minimum_order_group_delay_cutoff(self, minimum_order_group_delay_cutoff_string) -> None:
+    def minimum_order_group_delay_cutoff(self, minimum_order_group_delay_cutoff_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setMinimumOrderGroupDelayCutoff,
             minimum_order_group_delay_cutoff_string,
@@ -850,7 +850,7 @@ class Attributes:
         return delay_time_string
 
     @delay_time.setter
-    def delay_time(self, delay_time_string) -> None:
+    def delay_time(self, delay_time_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDelayTime, delay_time_string)
 
     @property
@@ -889,7 +889,7 @@ class Attributes:
         return center_freq_string
 
     @pass_band_center_frequency.setter
-    def pass_band_center_frequency(self, center_freq_string) -> None:
+    def pass_band_center_frequency(self, center_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setCenterFrequency, center_freq_string)
 
     @property
@@ -905,7 +905,7 @@ class Attributes:
         return pass_band_freq_string
 
     @pass_band_width_frequency.setter
-    def pass_band_width_frequency(self, pass_band_freq_string) -> None:
+    def pass_band_width_frequency(self, pass_band_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPassbandFrequency, pass_band_freq_string)
 
     @property
@@ -922,7 +922,7 @@ class Attributes:
         return lower_freq_string
 
     @lower_frequency.setter
-    def lower_frequency(self, lower_freq_string) -> None:
+    def lower_frequency(self, lower_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setLowerFrequency, lower_freq_string)
 
     @property
@@ -939,7 +939,7 @@ class Attributes:
         return upper_freq_string
 
     @upper_frequency.setter
-    def upper_frequency(self, upper_freq_string) -> None:
+    def upper_frequency(self, upper_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setUpperFrequency, upper_freq_string)
 
     @property
@@ -956,7 +956,7 @@ class Attributes:
         return diplexer_inner_band_width_string
 
     @diplexer_inner_band_width.setter
-    def diplexer_inner_band_width(self, diplexer_inner_band_width_string) -> None:
+    def diplexer_inner_band_width(self, diplexer_inner_band_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDiplexerInnerPassbandWidth, diplexer_inner_band_width_string)
 
     @property
@@ -973,7 +973,7 @@ class Attributes:
         return diplexer_outer_band_width_string
 
     @diplexer_outer_band_width.setter
-    def diplexer_outer_band_width(self, diplexer_outer_band_width_string) -> None:
+    def diplexer_outer_band_width(self, diplexer_outer_band_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDiplexerOuterPassbandWidth, diplexer_outer_band_width_string)
 
     @property
@@ -992,7 +992,7 @@ class Attributes:
         return diplexer_lower_center_frequency_string
 
     @diplexer_lower_center_frequency.setter
-    def diplexer_lower_center_frequency(self, diplexer_lower_center_frequency_string) -> None:
+    def diplexer_lower_center_frequency(self, diplexer_lower_center_frequency_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDiplexerLowerCenterFrequency, diplexer_lower_center_frequency_string
         )
@@ -1013,7 +1013,7 @@ class Attributes:
         return diplexer_upper_center_frequency_string
 
     @diplexer_upper_center_frequency.setter
-    def diplexer_upper_center_frequency(self, diplexer_upper_center_frequency_string) -> None:
+    def diplexer_upper_center_frequency(self, diplexer_upper_center_frequency_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDiplexerUpperCenterFrequency, diplexer_upper_center_frequency_string
         )
@@ -1032,7 +1032,7 @@ class Attributes:
         return diplexer_lower_band_width_string
 
     @diplexer_lower_band_width.setter
-    def diplexer_lower_band_width(self, diplexer_lower_band_width_string) -> None:
+    def diplexer_lower_band_width(self, diplexer_lower_band_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDiplexerLowerBandwidth, diplexer_lower_band_width_string)
 
     @property
@@ -1049,7 +1049,7 @@ class Attributes:
         return diplexer_upper_band_width_string
 
     @diplexer_upper_band_width.setter
-    def diplexer_upper_band_width(self, diplexer_upper_band_width_string) -> None:
+    def diplexer_upper_band_width(self, diplexer_upper_band_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDiplexerUpperBandwidth, diplexer_upper_band_width_string)
 
     @property
@@ -1088,7 +1088,7 @@ class Attributes:
         return stop_band_ratio_string
 
     @stop_band_ratio.setter
-    def stop_band_ratio(self, stop_band_ratio_string) -> None:
+    def stop_band_ratio(self, stop_band_ratio_string: str) -> None:
         self._dll_interface.set_string(self._dll.setStopbandRatio, stop_band_ratio_string)
 
     @property
@@ -1105,7 +1105,7 @@ class Attributes:
         return stop_band_frequency_string
 
     @stop_band_frequency.setter
-    def stop_band_frequency(self, stop_band_frequency_string) -> None:
+    def stop_band_frequency(self, stop_band_frequency_string: str) -> None:
         self._dll_interface.set_string(self._dll.setStopbandFrequency, stop_band_frequency_string)
 
     @property
@@ -1122,7 +1122,7 @@ class Attributes:
         return stop_band_attenuation_db_string
 
     @stop_band_attenuation_db.setter
-    def stop_band_attenuation_db(self, stop_band_attenuation_db_string) -> None:
+    def stop_band_attenuation_db(self, stop_band_attenuation_db_string: str) -> None:
         self._dll_interface.set_string(self._dll.setStopbandAttenuationdB, stop_band_attenuation_db_string)
 
     @property
@@ -1233,7 +1233,7 @@ class Attributes:
         return group_delay_ripple_period_string
 
     @group_delay_ripple_period.setter
-    def group_delay_ripple_period(self, group_delay_ripple_period_string) -> None:
+    def group_delay_ripple_period(self, group_delay_ripple_period_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDelayRipplePeriod,
             group_delay_ripple_period_string,
@@ -1277,7 +1277,7 @@ class Attributes:
         return standard_pass_band_attenuation_value_db_string
 
     @standard_pass_band_attenuation_value_db.setter
-    def standard_pass_band_attenuation_value_db(self, standard_pass_band_attenuation_value_db_string) -> None:
+    def standard_pass_band_attenuation_value_db(self, standard_pass_band_attenuation_value_db_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setCutoffAttenuationdB,
             standard_pass_band_attenuation_value_db_string,
@@ -1315,7 +1315,7 @@ class Attributes:
         return bessel_normalized_delay_period_string
 
     @bessel_normalized_delay_period.setter
-    def bessel_normalized_delay_period(self, bessel_normalized_delay_period_string) -> None:
+    def bessel_normalized_delay_period(self, bessel_normalized_delay_period_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setBesselEquiRippleDelayPeriod,
             bessel_normalized_delay_period_string,
@@ -1357,7 +1357,7 @@ class Attributes:
         return pass_band_ripple_string
 
     @pass_band_ripple.setter
-    def pass_band_ripple(self, pass_band_ripple_string) -> None:
+    def pass_band_ripple(self, pass_band_ripple_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPassbandRipple, pass_band_ripple_string)
 
     @property
@@ -1450,7 +1450,7 @@ class Attributes:
         return asymmetric_low_stop_band_ratio_string
 
     @asymmetric_low_stop_band_ratio.setter
-    def asymmetric_low_stop_band_ratio(self, asymmetric_low_stop_band_ratio_string) -> None:
+    def asymmetric_low_stop_band_ratio(self, asymmetric_low_stop_band_ratio_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setAsymmetricLowStopbandRatio,
             asymmetric_low_stop_band_ratio_string,
@@ -1472,7 +1472,7 @@ class Attributes:
         return asymmetric_high_stop_band_ratio_string
 
     @asymmetric_high_stop_band_ratio.setter
-    def asymmetric_high_stop_band_ratio(self, asymmetric_high_stop_band_ratio_string) -> None:
+    def asymmetric_high_stop_band_ratio(self, asymmetric_high_stop_band_ratio_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setAsymmetricHighStopbandRatio,
             asymmetric_high_stop_band_ratio_string,
@@ -1494,7 +1494,7 @@ class Attributes:
         return asymmetric_low_stop_band_attenuation_db_string
 
     @asymmetric_low_stop_band_attenuation_db.setter
-    def asymmetric_low_stop_band_attenuation_db(self, asymmetric_low_stop_band_attenuation_db_string) -> None:
+    def asymmetric_low_stop_band_attenuation_db(self, asymmetric_low_stop_band_attenuation_db_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setAsymmetricLowStopbandAttenuationdB,
             asymmetric_low_stop_band_attenuation_db_string,
@@ -1516,7 +1516,7 @@ class Attributes:
         return asymmetric_high_stop_band_attenuation_db_string
 
     @asymmetric_high_stop_band_attenuation_db.setter
-    def asymmetric_high_stop_band_attenuation_db(self, asymmetric_high_stop_band_attenuation_db_string) -> None:
+    def asymmetric_high_stop_band_attenuation_db(self, asymmetric_high_stop_band_attenuation_db_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setAsymmetricHighStopbandAttenuationdB,
             asymmetric_high_stop_band_attenuation_db_string,
@@ -1684,7 +1684,7 @@ class Attributes:
         return constrict_ripple_percent_string
 
     @constrict_ripple_percent.setter
-    def constrict_ripple_percent(self, constrict_ripple_percent_string) -> None:
+    def constrict_ripple_percent(self, constrict_ripple_percent_string: str) -> None:
         self._dll_interface.set_string(self._dll.setRippleConstrictionPercent, constrict_ripple_percent_string)
 
     @property
