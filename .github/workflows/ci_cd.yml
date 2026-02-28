@@ -104,11 +104,11 @@ jobs:
     steps:
       - uses: ansys/actions/check-vulnerabilities@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
+          dev-mode: ${{ github.ref != 'refs/heads/main' }}
+          extra-targets: 'all'
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-          dev-mode: ${{ github.ref != 'refs/heads/main' }}
-          extra-targets: 'all'
 
   actions-security:
     name: "Check actions security"
@@ -234,11 +234,11 @@ jobs:
         id: build-wheelhouse
         uses: ansys/actions/build-wheelhouse@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
+          attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           target: 'all'
-          attest-provenance: true
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -1369,6 +1369,7 @@ jobs:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@3931ac9351b13ae11b1203c2ef6b51e5c75502ea # v10.2.5
         with:
+          attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          attest-provenance: true
+          use-python-cache: false
