@@ -2336,12 +2336,20 @@ class Design(AedtObjects, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
-        >>> m3d.create_em_target_design("Icepak", design_setup="Forced")
+        >>> from ansys.aedt.core import Maxwell3d, Mechanical
+        >>> from ansys.aedt.core.generic.aedt_constants import IcepakFeaConstants
+        >>> m3d = Maxwell3d(version="2026.1")
+        From 2026.1 Mechanical has been renamed to IcepakFEA.
+        The target design must be passed through the IcepakFeaConstants metaclass.
+        This will automatically detect the AEDT version and pass the correct design name to the API.
+        >>> m3d.create_em_target_design(design=IcepakFeaConstants.NAME)
+        >>> mechanical = Mechanical(version="2026.1")
+        >>> mechanical.release_desktop(False, False)
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
+        if not self.setups:
+            raise AEDTRuntimeError("No setup in source design.")
         if design not in [DesignType.ICEPAK, DesignType.ICEPAKFEA]:
             raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
         design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
@@ -2351,7 +2359,7 @@ class Design(AedtObjects, PyAedtBase):
                 raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
             design_setup_args.append(design_setup)
         else:
-            design = DesignType.ICEPAKFEA
+            design = DesignType.ICEPAKFEA.NAME
         if not setup:
             setup = self.nominal_adaptive
         self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
