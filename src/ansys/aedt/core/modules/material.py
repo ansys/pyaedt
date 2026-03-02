@@ -394,8 +394,8 @@ class MatProperty(PyAedtBase):
         return self._type
 
     @type.setter
-    def type(self, type):
-        self._type = type
+    def type(self, value):
+        self._type = value
         if self._type == "simple":
             self._property_value = [self._property_value[0]]
         elif self._type == "anisotropic":
