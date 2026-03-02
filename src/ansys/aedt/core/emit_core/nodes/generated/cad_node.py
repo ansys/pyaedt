@@ -33,7 +33,7 @@ class CADNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -72,11 +72,11 @@ class CADNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool) -> None:
+    def show_relative_coordinates(self, value: bool):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    def position(self) -> str:
         """Set position of the CAD node in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -85,7 +85,7 @@ class CADNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value) -> None:
+    def position(self, value):
         self._set_property("Position", f"{value}")
 
     @property
@@ -100,7 +100,7 @@ class CADNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value) -> None:
+    def relative_position(self, value):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -118,7 +118,7 @@ class CADNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption) -> None:
+    def orientation_mode(self, value: OrientationModeOption):
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
@@ -131,7 +131,7 @@ class CADNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value) -> None:
+    def orientation(self, value):
         self._set_property("Orientation", f"{value}")
 
     @property
@@ -146,7 +146,7 @@ class CADNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value) -> None:
+    def relative_orientation(self, value):
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -159,7 +159,7 @@ class CADNode(EmitNode):
         return val == "true"
 
     @visible.setter
-    def visible(self, value: bool) -> None:
+    def visible(self, value: bool):
         self._set_property("Visible", f"{str(value).lower()}")
 
     class RenderModeOption(Enum):
@@ -176,7 +176,7 @@ class CADNode(EmitNode):
         return val
 
     @render_mode.setter
-    def render_mode(self, value: RenderModeOption) -> None:
+    def render_mode(self, value: RenderModeOption):
         self._set_property("Render Mode", f"{value.value}")
 
     @property
@@ -189,11 +189,11 @@ class CADNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool) -> None:
+    def show_axes(self, value: bool):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def min(self):
+    def min(self) -> str:
         """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -202,7 +202,7 @@ class CADNode(EmitNode):
         return val
 
     @property
-    def max(self):
+    def max(self) -> str:
         """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -217,7 +217,7 @@ class CADNode(EmitNode):
         return int(val)
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.
@@ -226,7 +226,7 @@ class CADNode(EmitNode):
         return val
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value):
         self._set_property("Color", f"{value}")
 
     @property
@@ -236,5 +236,5 @@ class CADNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")

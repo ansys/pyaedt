@@ -33,7 +33,7 @@ class HataCouplingNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -60,7 +60,7 @@ class HataCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -70,7 +70,7 @@ class HataCouplingNode(EmitNode):
         return val
 
     @base_antenna.setter
-    def base_antenna(self, value: EmitNode) -> None:
+    def base_antenna(self, value: EmitNode):
         self._set_property("Base Antenna", f"{value}")
 
     @property
@@ -80,7 +80,7 @@ class HataCouplingNode(EmitNode):
         return val
 
     @mobile_antenna.setter
-    def mobile_antenna(self, value: EmitNode) -> None:
+    def mobile_antenna(self, value: EmitNode):
         self._set_property("Mobile Antenna", f"{value}")
 
     class EnvironmentOption(Enum):
@@ -97,7 +97,7 @@ class HataCouplingNode(EmitNode):
         return val
 
     @environment.setter
-    def environment(self, value: EnvironmentOption) -> None:
+    def environment(self, value: EnvironmentOption):
         self._set_property("Environment", f"{value.value}")
 
     @property
@@ -113,7 +113,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float) -> None:
+    def custom_fading_margin(self, value: float):
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -129,7 +129,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float) -> None:
+    def polarization_mismatch(self, value: float):
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -145,7 +145,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float) -> None:
+    def pointing_error_loss(self, value: float):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -162,7 +162,7 @@ class HataCouplingNode(EmitNode):
         return val
 
     @fading_type.setter
-    def fading_type(self, value: FadingTypeOption) -> None:
+    def fading_type(self, value: FadingTypeOption):
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -178,7 +178,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @fading_availability.setter
-    def fading_availability(self, value: float) -> None:
+    def fading_availability(self, value: float):
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -191,7 +191,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @std_deviation.setter
-    def std_deviation(self, value: float) -> None:
+    def std_deviation(self, value: float):
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -204,7 +204,7 @@ class HataCouplingNode(EmitNode):
         return val == "true"
 
     @include_rain_attenuation.setter
-    def include_rain_attenuation(self, value: bool) -> None:
+    def include_rain_attenuation(self, value: bool):
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -220,7 +220,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @rain_availability.setter
-    def rain_availability(self, value: float) -> None:
+    def rain_availability(self, value: float):
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -233,7 +233,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @rain_rate.setter
-    def rain_rate(self, value: float) -> None:
+    def rain_rate(self, value: float):
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -249,7 +249,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float) -> None:
+    def polarization_tilt_angle(self, value: float):
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -265,7 +265,7 @@ class HataCouplingNode(EmitNode):
         return val == "true"
 
     @include_atmospheric_absorption.setter
-    def include_atmospheric_absorption(self, value: bool) -> None:
+    def include_atmospheric_absorption(self, value: bool):
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
@@ -278,7 +278,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @temperature.setter
-    def temperature(self, value: float) -> None:
+    def temperature(self, value: float):
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -291,7 +291,7 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float) -> None:
+    def total_air_pressure(self, value: float):
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -304,5 +304,5 @@ class HataCouplingNode(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float) -> None:
+    def water_vapor_concentration(self, value: float):
         self._set_property("Water Vapor Concentration", f"{value}")
