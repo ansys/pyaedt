@@ -38,52 +38,52 @@ class CouplingsNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def import_touchstone(self, file_name: str):
+    def import_touchstone(self, file_name: str) -> EmitNode:
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name, "TouchstoneCoupling")
 
     @min_aedt_version("2025.2")
-    def add_custom_coupling(self):
+    def add_custom_coupling(self) -> EmitNode:
         """Add a new node to define custom coupling between antennas"""
         return self._add_child_node("Custom Coupling")
 
     @min_aedt_version("2025.2")
-    def add_path_loss_coupling(self):
+    def add_path_loss_coupling(self) -> EmitNode:
         """Add a new node to define path loss coupling between antennas"""
         return self._add_child_node("Path Loss Coupling")
 
     @min_aedt_version("2025.2")
-    def add_two_ray_path_loss_coupling(self):
+    def add_two_ray_path_loss_coupling(self) -> EmitNode:
         """Add a new node to define two ray ground reflection coupling between antennas"""
         return self._add_child_node("Two Ray Path Loss Coupling")
 
     @min_aedt_version("2025.2")
-    def add_log_distance_coupling(self):
+    def add_log_distance_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Log Distance model"""
         return self._add_child_node("Log Distance Coupling")
 
     @min_aedt_version("2025.2")
-    def add_hata_coupling(self):
+    def add_hata_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Hata COST 231 model"""
         return self._add_child_node("Hata Coupling")
 
     @min_aedt_version("2025.2")
-    def add_walfisch_ikegami_coupling(self):
+    def add_walfisch_ikegami_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Walfisch-Ikegami model"""
         return self._add_child_node("Walfisch-Ikegami Coupling")
 
     @min_aedt_version("2025.2")
-    def add_erceg_coupling(self):
+    def add_erceg_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the Erceg coupling model"""
         return self._add_child_node("Erceg Coupling")
 
     @min_aedt_version("2025.2")
-    def add_indoor_propagation_coupling(self):
+    def add_indoor_propagation_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the ITU Indoor Propagation model"""
         return self._add_child_node("Indoor Propagation Coupling")
 
     @min_aedt_version("2025.2")
-    def add_5g_channel_model_coupling(self):
+    def add_5g_channel_model_coupling(self) -> EmitNode:
         """Add a new node to define coupling between antennas using the 5G channel coupling model"""
         return self._add_child_node("5G Channel Model Coupling")
 
@@ -102,7 +102,7 @@ class CouplingsNode(EmitNode):
 
     @minimum_allowed_coupling.setter
     @min_aedt_version("2025.2")
-    def minimum_allowed_coupling(self, value: float) -> None:
+    def minimum_allowed_coupling(self, value: float):
         self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
@@ -117,7 +117,7 @@ class CouplingsNode(EmitNode):
 
     @global_default_coupling.setter
     @min_aedt_version("2025.2")
-    def global_default_coupling(self, value: float) -> None:
+    def global_default_coupling(self, value: float):
         self._set_property("Global Default Coupling", f"{value}")
 
     @property

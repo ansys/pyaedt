@@ -33,7 +33,7 @@ class AntennaPassband(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -44,7 +44,7 @@ class AntennaPassband(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -61,7 +61,7 @@ class AntennaPassband(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -76,7 +76,7 @@ class AntennaPassband(EmitNode):
 
     @passband_loss.setter
     @min_aedt_version("2025.2")
-    def passband_loss(self, value: float) -> None:
+    def passband_loss(self, value: float):
         self._set_property("Passband Loss", f"{value}")
 
     @property
@@ -91,7 +91,7 @@ class AntennaPassband(EmitNode):
 
     @out_of_band_attenuation.setter
     @min_aedt_version("2025.2")
-    def out_of_band_attenuation(self, value: float) -> None:
+    def out_of_band_attenuation(self, value: float):
         self._set_property("Out of Band Attenuation", f"{value}")
 
     @property
@@ -107,7 +107,7 @@ class AntennaPassband(EmitNode):
 
     @lower_stop_band.setter
     @min_aedt_version("2025.2")
-    def lower_stop_band(self, value: float | str) -> None:
+    def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -124,7 +124,7 @@ class AntennaPassband(EmitNode):
 
     @lower_cutoff.setter
     @min_aedt_version("2025.2")
-    def lower_cutoff(self, value: float | str) -> None:
+    def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -141,7 +141,7 @@ class AntennaPassband(EmitNode):
 
     @higher_cutoff.setter
     @min_aedt_version("2025.2")
-    def higher_cutoff(self, value: float | str) -> None:
+    def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -158,7 +158,7 @@ class AntennaPassband(EmitNode):
 
     @higher_stop_band.setter
     @min_aedt_version("2025.2")
-    def higher_stop_band(self, value: float | str) -> None:
+    def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 
@@ -171,5 +171,5 @@ class AntennaPassband(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")

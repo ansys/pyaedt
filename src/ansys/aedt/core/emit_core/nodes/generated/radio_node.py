@@ -38,17 +38,17 @@ class RadioNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def add_band(self):
+    def add_band(self) -> EmitNode:
         """Create a New Band"""
         return self._add_child_node("Band")
 
     @min_aedt_version("2025.2")
-    def add_folder(self):
+    def add_folder(self) -> EmitNode:
         """Create a New Folder to Organize Bands"""
         return self._add_child_node("Band Folder")
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -66,5 +66,5 @@ class RadioNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")

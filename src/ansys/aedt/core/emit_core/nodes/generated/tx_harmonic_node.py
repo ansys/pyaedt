@@ -35,7 +35,7 @@ class TxHarmonicNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -57,7 +57,7 @@ class TxHarmonicNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Edit Harmonics Table.
         Table consists of 2 columns.
         Harmonic:
@@ -69,7 +69,7 @@ class TxHarmonicNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -80,7 +80,7 @@ class TxHarmonicNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class HarmonicTableUnitsOption(Enum):
@@ -97,5 +97,5 @@ class TxHarmonicNode(EmitNode):
 
     @harmonic_table_units.setter
     @min_aedt_version("2025.2")
-    def harmonic_table_units(self, value: HarmonicTableUnitsOption) -> None:
+    def harmonic_table_units(self, value: HarmonicTableUnitsOption):
         self._set_property("Harmonic Table Units", f"{value.value}")

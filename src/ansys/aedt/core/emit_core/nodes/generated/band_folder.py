@@ -33,7 +33,7 @@ class BandFolder(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 

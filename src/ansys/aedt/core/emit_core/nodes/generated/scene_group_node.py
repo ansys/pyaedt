@@ -35,7 +35,7 @@ class SceneGroupNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -46,27 +46,27 @@ class SceneGroupNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def add_emitter(self):
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
-    def add_group(self):
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
-    def import_cad(self, file_name: str):
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
     @min_aedt_version("2025.2")
-    def add_antenna(self):
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -90,12 +90,12 @@ class SceneGroupNode(EmitNode):
 
     @show_relative_coordinates.setter
     @min_aedt_version("2025.2")
-    def show_relative_coordinates(self, value: bool) -> None:
+    def show_relative_coordinates(self, value: bool):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
     @min_aedt_version("2025.2")
-    def position(self):
+    def position(self) -> str:
         """Set position of the Scene Group in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -105,12 +105,12 @@ class SceneGroupNode(EmitNode):
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value) -> None:
+    def position(self, value: str):
         self._set_property("Position", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_position(self):
+    def relative_position(self) -> str:
         """Set position of the Scene Group relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -120,7 +120,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value) -> None:
+    def relative_position(self, value: str):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -140,12 +140,12 @@ class SceneGroupNode(EmitNode):
 
     @orientation_mode.setter
     @min_aedt_version("2025.2")
-    def orientation_mode(self, value: OrientationModeOption) -> None:
+    def orientation_mode(self, value: OrientationModeOption):
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
     @min_aedt_version("2025.2")
-    def orientation(self):
+    def orientation(self) -> str:
         """Orientation.
 
         Set orientation of the Scene Group relative to parent-node coordinates.
@@ -157,12 +157,12 @@ class SceneGroupNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value) -> None:
+    def orientation(self, value: str):
         self._set_property("Orientation", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_orientation(self):
+    def relative_orientation(self) -> str:
         """Relative Orientation.
 
         Set orientation of the Scene Group relative to placement coordinates.
@@ -174,7 +174,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value) -> None:
+    def relative_orientation(self, value: str):
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -191,12 +191,12 @@ class SceneGroupNode(EmitNode):
 
     @show_axes.setter
     @min_aedt_version("2025.2")
-    def show_axes(self, value: bool) -> None:
+    def show_axes(self, value: bool):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
     @min_aedt_version("2025.2")
-    def box_color(self):
+    def box_color(self) -> str:
         """Set color of the bounding box of the Scene Group.
 
         Color should be in RGB form: #RRGGBB.
@@ -206,7 +206,7 @@ class SceneGroupNode(EmitNode):
 
     @box_color.setter
     @min_aedt_version("2025.2")
-    def box_color(self, value) -> None:
+    def box_color(self, value: str):
         self._set_property("Box Color", f"{value}")
 
     @property
@@ -218,5 +218,5 @@ class SceneGroupNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")

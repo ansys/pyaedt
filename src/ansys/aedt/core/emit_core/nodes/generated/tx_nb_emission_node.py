@@ -35,7 +35,7 @@ class TxNbEmissionNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -57,7 +57,7 @@ class TxNbEmissionNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Tx Emissions Profile Table.
         Table consists of 2 columns.
         Bandwidth or Frequency:
@@ -69,7 +69,7 @@ class TxNbEmissionNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -80,7 +80,7 @@ class TxNbEmissionNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
@@ -97,7 +97,7 @@ class TxNbEmissionNode(EmitNode):
 
     @narrowband_behavior.setter
     @min_aedt_version("2025.2")
-    def narrowband_behavior(self, value: NarrowbandBehaviorOption) -> None:
+    def narrowband_behavior(self, value: NarrowbandBehaviorOption):
         self._set_property("Narrowband Behavior", f"{value.value}")
 
     @property
@@ -110,6 +110,6 @@ class TxNbEmissionNode(EmitNode):
 
     @measurement_frequency.setter
     @min_aedt_version("2025.2")
-    def measurement_frequency(self, value: float | str) -> None:
+    def measurement_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Measurement Frequency", f"{value}")

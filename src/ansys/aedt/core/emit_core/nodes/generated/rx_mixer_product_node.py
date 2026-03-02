@@ -35,7 +35,7 @@ class RxMixerProductNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -57,7 +57,7 @@ class RxMixerProductNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list:
         """Edit Mixer Products Table.
         Table consists of 3 columns.
         RF Harmonic Order:
@@ -71,7 +71,7 @@ class RxMixerProductNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -82,7 +82,7 @@ class RxMixerProductNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class MixerProductTaperOption(Enum):
@@ -100,7 +100,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_taper.setter
     @min_aedt_version("2025.2")
-    def mixer_product_taper(self, value: MixerProductTaperOption) -> None:
+    def mixer_product_taper(self, value: MixerProductTaperOption):
         self._set_property("Mixer Product Taper", f"{value.value}")
 
     @property
@@ -115,7 +115,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_susceptibility.setter
     @min_aedt_version("2025.2")
-    def mixer_product_susceptibility(self, value: float) -> None:
+    def mixer_product_susceptibility(self, value: float):
         self._set_property("Mixer Product Susceptibility", f"{value}")
 
     @property
@@ -130,7 +130,7 @@ class RxMixerProductNode(EmitNode):
 
     @spurious_rejection.setter
     @min_aedt_version("2025.2")
-    def spurious_rejection(self, value: float) -> None:
+    def spurious_rejection(self, value: float):
         self._set_property("Spurious Rejection", f"{value}")
 
     @property
@@ -146,7 +146,7 @@ class RxMixerProductNode(EmitNode):
 
     @minimum_tuning_frequency.setter
     @min_aedt_version("2025.2")
-    def minimum_tuning_frequency(self, value: float | str) -> None:
+    def minimum_tuning_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Minimum Tuning Frequency", f"{value}")
 
@@ -163,7 +163,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_tuning_frequency.setter
     @min_aedt_version("2025.2")
-    def maximum_tuning_frequency(self, value: float | str) -> None:
+    def maximum_tuning_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Maximum Tuning Frequency", f"{value}")
 
@@ -182,7 +182,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_slope.setter
     @min_aedt_version("2025.2")
-    def mixer_product_slope(self, value: float) -> None:
+    def mixer_product_slope(self, value: float):
         self._set_property("Mixer Product Slope", f"{value}")
 
     @property
@@ -196,8 +196,7 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @mixer_product_intercept.setter
-    @min_aedt_version("2025.2")
-    def mixer_product_intercept(self, value: float) -> None:
+    def mixer_product_intercept(self, value: float):
         self._set_property("Mixer Product Intercept", f"{value}")
 
     @property
@@ -216,7 +215,7 @@ class RxMixerProductNode(EmitNode):
 
     @bandwidth_80_db.setter
     @min_aedt_version("2025.2")
-    def bandwidth_80_db(self, value: float | str) -> None:
+    def bandwidth_80_db(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Bandwidth 80 dB", f"{value}")
 
@@ -232,7 +231,7 @@ class RxMixerProductNode(EmitNode):
 
     @image_rejection.setter
     @min_aedt_version("2025.2")
-    def image_rejection(self, value: float) -> None:
+    def image_rejection(self, value: float):
         self._set_property("Image Rejection", f"{value}")
 
     @property
@@ -247,7 +246,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_rf_harmonic_order.setter
     @min_aedt_version("2025.2")
-    def maximum_rf_harmonic_order(self, value: int) -> None:
+    def maximum_rf_harmonic_order(self, value: int):
         self._set_property("Maximum RF Harmonic Order", f"{value}")
 
     @property
@@ -262,7 +261,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_lo_harmonic_order.setter
     @min_aedt_version("2025.2")
-    def maximum_lo_harmonic_order(self, value: int) -> None:
+    def maximum_lo_harmonic_order(self, value: int):
         self._set_property("Maximum LO Harmonic Order", f"{value}")
 
     class MixingModeOption(Enum):
@@ -280,12 +279,12 @@ class RxMixerProductNode(EmitNode):
 
     @mixing_mode.setter
     @min_aedt_version("2025.2")
-    def mixing_mode(self, value: MixingModeOption) -> None:
+    def mixing_mode(self, value: MixingModeOption):
         self._set_property("Mixing Mode", f"{value.value}")
 
     @property
     @min_aedt_version("2025.2")
-    def first_if_frequency(self):
+    def first_if_frequency(self) -> str:
         """Intermediate frequency for Rx's 1st conversion stage.
 
         Value should be a mathematical expression.
@@ -295,7 +294,7 @@ class RxMixerProductNode(EmitNode):
 
     @first_if_frequency.setter
     @min_aedt_version("2025.2")
-    def first_if_frequency(self, value) -> None:
+    def first_if_frequency(self, value: str | float):
         self._set_property("First IF Frequency", f"{value}")
 
     @property
@@ -308,7 +307,7 @@ class RxMixerProductNode(EmitNode):
 
     @rf_transition_frequency.setter
     @min_aedt_version("2025.2")
-    def rf_transition_frequency(self, value: float | str) -> None:
+    def rf_transition_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("RF Transition Frequency", f"{value}")
 
@@ -326,7 +325,7 @@ class RxMixerProductNode(EmitNode):
 
     @use_high_lo.setter
     @min_aedt_version("2025.2")
-    def use_high_lo(self, value: UseHighLOOption) -> None:
+    def use_high_lo(self, value: UseHighLOOption):
         self._set_property("Use High LO", f"{value.value}")
 
     class MixerProductTableUnitsOption(Enum):
@@ -343,5 +342,5 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_table_units.setter
     @min_aedt_version("2025.2")
-    def mixer_product_table_units(self, value: MixerProductTableUnitsOption) -> None:
+    def mixer_product_table_units(self, value: MixerProductTableUnitsOption):
         self._set_property("Mixer Product Table Units", f"{value.value}")

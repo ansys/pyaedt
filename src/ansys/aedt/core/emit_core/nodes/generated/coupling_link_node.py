@@ -33,7 +33,7 @@ class CouplingLinkNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -55,17 +55,17 @@ class CouplingLinkNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     @min_aedt_version("2025.2")
-    def ports(self):
+    def ports(self) -> str:
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value) -> None:
+    def ports(self, value):
         self._set_property("Ports", f"{value}")

@@ -35,7 +35,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -67,7 +67,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -79,7 +79,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @antenna_a.setter
     @min_aedt_version("2025.2")
-    def antenna_a(self, value: EmitNode) -> None:
+    def antenna_a(self, value: EmitNode):
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -91,7 +91,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @antenna_b.setter
     @min_aedt_version("2025.2")
-    def antenna_b(self, value: EmitNode) -> None:
+    def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
 
     @property
@@ -106,7 +106,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @ground_reflection_coeff.setter
     @min_aedt_version("2025.2")
-    def ground_reflection_coeff(self, value: float) -> None:
+    def ground_reflection_coeff(self, value: float):
         self._set_property("Ground Reflection Coeff.", f"{value}")
 
     @property
@@ -123,7 +123,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @pointspeak.setter
     @min_aedt_version("2025.2")
-    def pointspeak(self, value: int) -> None:
+    def pointspeak(self, value: int):
         self._set_property("Points/Peak", f"{value}")
 
     @property
@@ -141,7 +141,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @custom_fading_margin.setter
     @min_aedt_version("2025.2")
-    def custom_fading_margin(self, value: float) -> None:
+    def custom_fading_margin(self, value: float):
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -159,7 +159,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @polarization_mismatch.setter
     @min_aedt_version("2025.2")
-    def polarization_mismatch(self, value: float) -> None:
+    def polarization_mismatch(self, value: float):
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -177,7 +177,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @pointing_error_loss.setter
     @min_aedt_version("2025.2")
-    def pointing_error_loss(self, value: float) -> None:
+    def pointing_error_loss(self, value: float):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -196,7 +196,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @fading_type.setter
     @min_aedt_version("2025.2")
-    def fading_type(self, value: FadingTypeOption) -> None:
+    def fading_type(self, value: FadingTypeOption):
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -214,7 +214,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @fading_availability.setter
     @min_aedt_version("2025.2")
-    def fading_availability(self, value: float) -> None:
+    def fading_availability(self, value: float):
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -229,7 +229,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @std_deviation.setter
     @min_aedt_version("2025.2")
-    def std_deviation(self, value: float) -> None:
+    def std_deviation(self, value: float):
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -244,7 +244,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     @min_aedt_version("2025.2")
-    def include_rain_attenuation(self, value: bool) -> None:
+    def include_rain_attenuation(self, value: bool):
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -262,7 +262,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @rain_availability.setter
     @min_aedt_version("2025.2")
-    def rain_availability(self, value: float) -> None:
+    def rain_availability(self, value: float):
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -277,7 +277,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @rain_rate.setter
     @min_aedt_version("2025.2")
-    def rain_rate(self, value: float) -> None:
+    def rain_rate(self, value: float):
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -295,7 +295,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @polarization_tilt_angle.setter
     @min_aedt_version("2025.2")
-    def polarization_tilt_angle(self, value: float) -> None:
+    def polarization_tilt_angle(self, value: float):
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -313,11 +313,10 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     @min_aedt_version("2025.2")
-    def include_atmospheric_absorption(self, value: bool) -> None:
+    def include_atmospheric_absorption(self, value: bool):
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
-    @min_aedt_version("2025.2")
     def temperature(self) -> float:
         """Air temperature in degrees Celsius.
 
@@ -328,7 +327,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @temperature.setter
     @min_aedt_version("2025.2")
-    def temperature(self, value: float) -> None:
+    def temperature(self, value: float):
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -343,7 +342,7 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @total_air_pressure.setter
     @min_aedt_version("2025.2")
-    def total_air_pressure(self, value: float) -> None:
+    def total_air_pressure(self, value: float):
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -358,5 +357,5 @@ class TwoRayPathLossCouplingNode(EmitNode):
 
     @water_vapor_concentration.setter
     @min_aedt_version("2025.2")
-    def water_vapor_concentration(self, value: float) -> None:
+    def water_vapor_concentration(self, value: float):
         self._set_property("Water Vapor Concentration", f"{value}")

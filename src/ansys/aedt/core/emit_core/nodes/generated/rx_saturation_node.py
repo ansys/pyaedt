@@ -33,7 +33,7 @@ class RxSaturationNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -55,7 +55,7 @@ class RxSaturationNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list:
         """Rx Saturation Profile Table.
         Table consists of 2 columns.
         Frequency:
@@ -67,7 +67,7 @@ class RxSaturationNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -78,5 +78,5 @@ class RxSaturationNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")

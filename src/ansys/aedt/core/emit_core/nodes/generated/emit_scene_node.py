@@ -40,22 +40,22 @@ class EmitSceneNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def add_emitter(self):
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
-    def add_group(self):
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
-    def import_cad(self, file_name: str):
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
     @min_aedt_version("2025.2")
-    def add_antenna(self):
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
@@ -68,7 +68,7 @@ class EmitSceneNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
@@ -86,7 +86,7 @@ class EmitSceneNode(EmitNode):
 
     @ground_plane_normal.setter
     @min_aedt_version("2025.2")
-    def ground_plane_normal(self, value: GroundPlaneNormalOption) -> None:
+    def ground_plane_normal(self, value: GroundPlaneNormalOption):
         self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
@@ -103,6 +103,6 @@ class EmitSceneNode(EmitNode):
 
     @gp_position_along_normal.setter
     @min_aedt_version("2025.2")
-    def gp_position_along_normal(self, value: float | str) -> None:
+    def gp_position_along_normal(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("GP Position Along Normal", f"{value}")

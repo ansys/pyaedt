@@ -48,12 +48,12 @@ class ResultPlotNode(EmitNode):
 
     @title.setter
     @min_aedt_version("2025.2")
-    def title(self, value: str) -> None:
+    def title(self, value: str):
         self._set_property("Title", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def title_font(self):
+    def title_font(self) -> str:
         """Configure title font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -63,7 +63,7 @@ class ResultPlotNode(EmitNode):
 
     @title_font.setter
     @min_aedt_version("2025.2")
-    def title_font(self, value) -> None:
+    def title_font(self, value: str):
         self._set_property("Title Font", f"{value}")
 
     @property
@@ -78,12 +78,12 @@ class ResultPlotNode(EmitNode):
 
     @show_legend.setter
     @min_aedt_version("2025.2")
-    def show_legend(self, value: bool) -> None:
+    def show_legend(self, value: bool):
         self._set_property("Show Legend", f"{str(value).lower()}")
 
     @property
     @min_aedt_version("2025.2")
-    def legend_font(self):
+    def legend_font(self) -> str:
         """Configure legend font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -93,7 +93,7 @@ class ResultPlotNode(EmitNode):
 
     @legend_font.setter
     @min_aedt_version("2025.2")
-    def legend_font(self, value) -> None:
+    def legend_font(self, value: str):
         self._set_property("Legend Font", f"{value}")
 
     @property
@@ -108,7 +108,7 @@ class ResultPlotNode(EmitNode):
 
     @show_emi_thresholds.setter
     @min_aedt_version("2025.2")
-    def show_emi_thresholds(self, value: bool) -> None:
+    def show_emi_thresholds(self, value: bool):
         self._set_property("Show EMI Thresholds", f"{str(value).lower()}")
 
     @property
@@ -126,7 +126,7 @@ class ResultPlotNode(EmitNode):
 
     @lock_axes.setter
     @min_aedt_version("2025.2")
-    def lock_axes(self, value: bool) -> None:
+    def lock_axes(self, value: bool):
         self._set_property("Lock Axes", f"{str(value).lower()}")
 
     @property
@@ -138,7 +138,7 @@ class ResultPlotNode(EmitNode):
 
     @x_axis_min.setter
     @min_aedt_version("2025.2")
-    def x_axis_min(self, value: float) -> None:
+    def x_axis_min(self, value: float):
         self._set_property("X-axis Min", f"{value}")
 
     @property
@@ -150,7 +150,7 @@ class ResultPlotNode(EmitNode):
 
     @x_axis_max.setter
     @min_aedt_version("2025.2")
-    def x_axis_max(self, value: float) -> None:
+    def x_axis_max(self, value: float):
         self._set_property("X-axis Max", f"{value}")
 
     @property
@@ -162,7 +162,7 @@ class ResultPlotNode(EmitNode):
 
     @y_axis_min.setter
     @min_aedt_version("2025.2")
-    def y_axis_min(self, value: float) -> None:
+    def y_axis_min(self, value: float):
         self._set_property("Y-axis Min", f"{value}")
 
     @property
@@ -174,7 +174,7 @@ class ResultPlotNode(EmitNode):
 
     @y_axis_max.setter
     @min_aedt_version("2025.2")
-    def y_axis_max(self, value: float) -> None:
+    def y_axis_max(self, value: float):
         self._set_property("Y-axis Max", f"{value}")
 
     @property
@@ -191,7 +191,7 @@ class ResultPlotNode(EmitNode):
 
     @max_major_ticks_x.setter
     @min_aedt_version("2025.2")
-    def max_major_ticks_x(self, value: int) -> None:
+    def max_major_ticks_x(self, value: int):
         self._set_property("Max Major Ticks X", f"{value}")
 
     @property
@@ -209,7 +209,7 @@ class ResultPlotNode(EmitNode):
 
     @max_minor_ticks_x.setter
     @min_aedt_version("2025.2")
-    def max_minor_ticks_x(self, value: int) -> None:
+    def max_minor_ticks_x(self, value: int):
         self._set_property("Max Minor Ticks X", f"{value}")
 
     @property
@@ -226,7 +226,7 @@ class ResultPlotNode(EmitNode):
 
     @max_major_ticks_y.setter
     @min_aedt_version("2025.2")
-    def max_major_ticks_y(self, value: int) -> None:
+    def max_major_ticks_y(self, value: int):
         self._set_property("Max Major Ticks Y", f"{value}")
 
     @property
@@ -244,12 +244,12 @@ class ResultPlotNode(EmitNode):
 
     @max_minor_ticks_y.setter
     @min_aedt_version("2025.2")
-    def max_minor_ticks_y(self, value: int) -> None:
+    def max_minor_ticks_y(self, value: int):
         self._set_property("Max Minor Ticks Y", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def axis_label_font(self):
+    def axis_label_font(self) -> str:
         """Configure axis text labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -259,12 +259,12 @@ class ResultPlotNode(EmitNode):
 
     @axis_label_font.setter
     @min_aedt_version("2025.2")
-    def axis_label_font(self, value) -> None:
+    def axis_label_font(self, value: str):
         self._set_property("Axis Label Font", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def axis_tick_label_font(self):
+    def axis_tick_label_font(self) -> str:
         """Configure axis tick numeric labels font family, typeface, and size.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -274,7 +274,7 @@ class ResultPlotNode(EmitNode):
 
     @axis_tick_label_font.setter
     @min_aedt_version("2025.2")
-    def axis_tick_label_font(self, value) -> None:
+    def axis_tick_label_font(self, value: str):
         self._set_property("Axis Tick Label Font", f"{value}")
 
     class MajorGridLineStyleOption(Enum):
@@ -295,12 +295,12 @@ class ResultPlotNode(EmitNode):
 
     @major_grid_line_style.setter
     @min_aedt_version("2025.2")
-    def major_grid_line_style(self, value: MajorGridLineStyleOption) -> None:
+    def major_grid_line_style(self, value: MajorGridLineStyleOption):
         self._set_property("Major Grid Line Style", f"{value.value}")
 
     @property
     @min_aedt_version("2025.2")
-    def major_grid_color(self):
+    def major_grid_color(self) -> str:
         """Set color of major-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -310,7 +310,7 @@ class ResultPlotNode(EmitNode):
 
     @major_grid_color.setter
     @min_aedt_version("2025.2")
-    def major_grid_color(self, value) -> None:
+    def major_grid_color(self, value: str):
         self._set_property("Major Grid Color", f"{value}")
 
     class MinorGridLineStyleOption(Enum):
@@ -331,12 +331,12 @@ class ResultPlotNode(EmitNode):
 
     @minor_grid_line_style.setter
     @min_aedt_version("2025.2")
-    def minor_grid_line_style(self, value: MinorGridLineStyleOption) -> None:
+    def minor_grid_line_style(self, value: MinorGridLineStyleOption):
         self._set_property("Minor Grid Line Style", f"{value.value}")
 
     @property
     @min_aedt_version("2025.2")
-    def minor_grid_color(self):
+    def minor_grid_color(self) -> str:
         """Set color of minor-tick grid lines.
 
         Color should be in RGB form: #RRGGBB.
@@ -346,12 +346,12 @@ class ResultPlotNode(EmitNode):
 
     @minor_grid_color.setter
     @min_aedt_version("2025.2")
-    def minor_grid_color(self, value) -> None:
+    def minor_grid_color(self, value):
         self._set_property("Minor Grid Color", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def background_color(self):
+    def background_color(self) -> str:
         """Set background color of entire plot.
 
         Color should be in RGB form: #RRGGBB.
@@ -361,7 +361,7 @@ class ResultPlotNode(EmitNode):
 
     @background_color.setter
     @min_aedt_version("2025.2")
-    def background_color(self, value) -> None:
+    def background_color(self, value: str):
         self._set_property("Background Color", f"{value}")
 
     class BBPowerforPlotsUnitOption(Enum):
@@ -380,7 +380,7 @@ class ResultPlotNode(EmitNode):
 
     @bb_power_for_plots_unit.setter
     @min_aedt_version("2025.2")
-    def bb_power_for_plots_unit(self, value: BBPowerforPlotsUnitOption) -> None:
+    def bb_power_for_plots_unit(self, value: BBPowerforPlotsUnitOption):
         self._set_property("BB Power for Plots Unit", f"{value.value}")
 
     @property
@@ -396,7 +396,7 @@ class ResultPlotNode(EmitNode):
 
     @bb_power_bandwidth.setter
     @min_aedt_version("2025.2")
-    def bb_power_bandwidth(self, value: float | str) -> None:
+    def bb_power_bandwidth(self, value: float | str):
         value = self._convert_to_internal_units(value, "")
         self._set_property("BB Power Bandwidth", f"{value}")
 
@@ -412,5 +412,5 @@ class ResultPlotNode(EmitNode):
 
     @log_scale.setter
     @min_aedt_version("2025.2")
-    def log_scale(self, value: bool) -> None:
+    def log_scale(self, value: bool):
         self._set_property("Log Scale", f"{str(value).lower()}")

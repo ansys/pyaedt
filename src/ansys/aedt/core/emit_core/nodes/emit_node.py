@@ -148,7 +148,7 @@ class EmitNode:
 
     @property
     @min_aedt_version("2025.2")
-    def _parent(self):
+    def _parent(self) -> EmitNode:
         """Parent node name of this node.
 
         Returns
@@ -233,7 +233,7 @@ class EmitNode:
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
     @min_aedt_version("2025.2")
-    def _get_node(self, node_id: int):
+    def _get_node(self, node_id: int) -> EmitNode:
         """Gets a node for this node's revision with the given id.
 
         Parameters
@@ -285,7 +285,7 @@ class EmitNode:
 
     @property
     @min_aedt_version("2025.2")
-    def children(self):
+    def children(self) -> list[EmitNode]:
         """Child nodes of this node.
 
         Returns
@@ -299,7 +299,7 @@ class EmitNode:
         return child_nodes
 
     @min_aedt_version("2025.2")
-    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
+    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
 
         Parameters

@@ -40,7 +40,7 @@ class PowerDivider(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -61,7 +61,7 @@ class PowerDivider(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -76,7 +76,7 @@ class PowerDivider(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -88,7 +88,7 @@ class PowerDivider(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class PowerDividerTypeOption(Enum):
@@ -110,7 +110,7 @@ class PowerDivider(EmitNode):
 
     @power_divider_type.setter
     @min_aedt_version("2025.2")
-    def power_divider_type(self, value: PowerDividerTypeOption) -> None:
+    def power_divider_type(self, value: PowerDividerTypeOption):
         self._set_property("Power Divider Type", f"{value.value}")
 
     @property
@@ -128,7 +128,7 @@ class PowerDivider(EmitNode):
 
     @insertion_loss_above_ideal.setter
     @min_aedt_version("2025.2")
-    def insertion_loss_above_ideal(self, value: float) -> None:
+    def insertion_loss_above_ideal(self, value: float):
         self._set_property("Insertion Loss Above Ideal", f"{value}")
 
     @property
@@ -146,7 +146,7 @@ class PowerDivider(EmitNode):
 
     @finite_isolation.setter
     @min_aedt_version("2025.2")
-    def finite_isolation(self, value: bool) -> None:
+    def finite_isolation(self, value: bool):
         self._set_property("Finite Isolation", f"{str(value).lower()}")
 
     @property
@@ -161,7 +161,7 @@ class PowerDivider(EmitNode):
 
     @isolation.setter
     @min_aedt_version("2025.2")
-    def isolation(self, value: float) -> None:
+    def isolation(self, value: float):
         self._set_property("Isolation", f"{value}")
 
     @property
@@ -179,7 +179,7 @@ class PowerDivider(EmitNode):
 
     @finite_bandwidth.setter
     @min_aedt_version("2025.2")
-    def finite_bandwidth(self, value: bool) -> None:
+    def finite_bandwidth(self, value: bool):
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
@@ -194,7 +194,7 @@ class PowerDivider(EmitNode):
 
     @out_of_band_attenuation.setter
     @min_aedt_version("2025.2")
-    def out_of_band_attenuation(self, value: float) -> None:
+    def out_of_band_attenuation(self, value: float):
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
@@ -210,7 +210,7 @@ class PowerDivider(EmitNode):
 
     @lower_stop_band.setter
     @min_aedt_version("2025.2")
-    def lower_stop_band(self, value: float | str) -> None:
+    def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -227,7 +227,7 @@ class PowerDivider(EmitNode):
 
     @lower_cutoff.setter
     @min_aedt_version("2025.2")
-    def lower_cutoff(self, value: float | str) -> None:
+    def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -244,7 +244,7 @@ class PowerDivider(EmitNode):
 
     @higher_cutoff.setter
     @min_aedt_version("2025.2")
-    def higher_cutoff(self, value: float | str) -> None:
+    def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -261,7 +261,7 @@ class PowerDivider(EmitNode):
 
     @higher_stop_band.setter
     @min_aedt_version("2025.2")
-    def higher_stop_band(self, value: float | str) -> None:
+    def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

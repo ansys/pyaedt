@@ -33,7 +33,7 @@ class CustomCouplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -44,12 +44,12 @@ class CustomCouplingNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def import_csv_file(self, file_name: str):
+    def import_csv_file(self, file_name: str) -> EmitNode:
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -60,7 +60,7 @@ class CustomCouplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Custom Coupling Values Table.
         Table consists of 2 columns.
         Frequency:
@@ -72,7 +72,7 @@ class CustomCouplingNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     @property
@@ -87,7 +87,7 @@ class CustomCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -99,7 +99,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_a.setter
     @min_aedt_version("2025.2")
-    def antenna_a(self, value: EmitNode) -> None:
+    def antenna_a(self, value: EmitNode):
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -111,5 +111,5 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_b.setter
     @min_aedt_version("2025.2")
-    def antenna_b(self, value: EmitNode) -> None:
+    def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")

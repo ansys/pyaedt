@@ -35,7 +35,7 @@ class SamplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -47,7 +47,7 @@ class SamplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self):
+    def table_data(self) -> list[tuple]:
         """Frequency Ranges Table.
         Table consists of 2 columns.
         Min:
@@ -59,7 +59,7 @@ class SamplingNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value) -> None:
+    def table_data(self, value: list[tuple]):
         self._set_table_data(value)
 
     class SamplingTypeOption(Enum):
@@ -77,7 +77,7 @@ class SamplingNode(EmitNode):
 
     @sampling_type.setter
     @min_aedt_version("2025.2")
-    def sampling_type(self, value: SamplingTypeOption) -> None:
+    def sampling_type(self, value: SamplingTypeOption):
         self._set_property("Sampling Type", f"{value.value}")
 
     @property
@@ -95,7 +95,7 @@ class SamplingNode(EmitNode):
 
     @specify_percentage.setter
     @min_aedt_version("2025.2")
-    def specify_percentage(self, value: bool) -> None:
+    def specify_percentage(self, value: bool):
         self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
@@ -110,7 +110,7 @@ class SamplingNode(EmitNode):
 
     @percentage_of_channels.setter
     @min_aedt_version("2025.2")
-    def percentage_of_channels(self, value: float) -> None:
+    def percentage_of_channels(self, value: float):
         self._set_property("Percentage of Channels", f"{value}")
 
     @property
@@ -125,7 +125,7 @@ class SamplingNode(EmitNode):
 
     @max_channels_range_band.setter
     @min_aedt_version("2025.2")
-    def max_channels_range_band(self, value: int) -> None:
+    def max_channels_range_band(self, value: int):
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
@@ -140,7 +140,7 @@ class SamplingNode(EmitNode):
 
     @seed.setter
     @min_aedt_version("2025.2")
-    def seed(self, value: int) -> None:
+    def seed(self, value: int):
         self._set_property("Seed", f"{value}")
 
     @property

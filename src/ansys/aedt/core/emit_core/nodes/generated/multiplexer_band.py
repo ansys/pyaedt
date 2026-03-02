@@ -35,7 +35,7 @@ class MultiplexerBand(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -46,7 +46,7 @@ class MultiplexerBand(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -76,7 +76,7 @@ class MultiplexerBand(EmitNode):
 
     @passband_type.setter
     @min_aedt_version("2025.2")
-    def passband_type(self, value: PassbandTypeOption) -> None:
+    def passband_type(self, value: PassbandTypeOption):
         self._set_property("Passband Type", f"{value.value}")
 
     @property
@@ -91,7 +91,7 @@ class MultiplexerBand(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -106,7 +106,7 @@ class MultiplexerBand(EmitNode):
 
     @insertion_loss.setter
     @min_aedt_version("2025.2")
-    def insertion_loss(self, value: float) -> None:
+    def insertion_loss(self, value: float):
         self._set_property("Insertion Loss", f"{value}")
 
     @property
@@ -121,7 +121,7 @@ class MultiplexerBand(EmitNode):
 
     @stop_band_attenuation.setter
     @min_aedt_version("2025.2")
-    def stop_band_attenuation(self, value: float) -> None:
+    def stop_band_attenuation(self, value: float):
         self._set_property("Stop band Attenuation", f"{value}")
 
     @property
@@ -137,7 +137,7 @@ class MultiplexerBand(EmitNode):
 
     @max_pass_band.setter
     @min_aedt_version("2025.2")
-    def max_pass_band(self, value: float | str) -> None:
+    def max_pass_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Pass Band", f"{value}")
 
@@ -154,7 +154,7 @@ class MultiplexerBand(EmitNode):
 
     @min_stop_band.setter
     @min_aedt_version("2025.2")
-    def min_stop_band(self, value: float | str) -> None:
+    def min_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Stop Band", f"{value}")
 
@@ -171,7 +171,7 @@ class MultiplexerBand(EmitNode):
 
     @max_stop_band.setter
     @min_aedt_version("2025.2")
-    def max_stop_band(self, value: float | str) -> None:
+    def max_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Stop Band", f"{value}")
 
@@ -188,7 +188,7 @@ class MultiplexerBand(EmitNode):
 
     @min_pass_band.setter
     @min_aedt_version("2025.2")
-    def min_pass_band(self, value: float | str) -> None:
+    def min_pass_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Pass Band", f"{value}")
 
@@ -205,7 +205,7 @@ class MultiplexerBand(EmitNode):
 
     @lower_stop_band.setter
     @min_aedt_version("2025.2")
-    def lower_stop_band(self, value: float | str) -> None:
+    def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -222,7 +222,7 @@ class MultiplexerBand(EmitNode):
 
     @lower_cutoff.setter
     @min_aedt_version("2025.2")
-    def lower_cutoff(self, value: float | str) -> None:
+    def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -239,7 +239,7 @@ class MultiplexerBand(EmitNode):
 
     @higher_cutoff.setter
     @min_aedt_version("2025.2")
-    def higher_cutoff(self, value: float | str) -> None:
+    def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -256,7 +256,7 @@ class MultiplexerBand(EmitNode):
 
     @higher_stop_band.setter
     @min_aedt_version("2025.2")
-    def higher_stop_band(self, value: float | str) -> None:
+    def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

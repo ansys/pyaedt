@@ -40,7 +40,7 @@ class Cable(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -61,7 +61,7 @@ class Cable(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -76,7 +76,7 @@ class Cable(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -88,7 +88,7 @@ class Cable(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class CableTypeOption(Enum):
@@ -110,7 +110,7 @@ class Cable(EmitNode):
 
     @cable_type.setter
     @min_aedt_version("2025.2")
-    def cable_type(self, value: CableTypeOption) -> None:
+    def cable_type(self, value: CableTypeOption):
         self._set_property("Cable Type", f"{value.value}")
 
     @property
@@ -126,7 +126,7 @@ class Cable(EmitNode):
 
     @length.setter
     @min_aedt_version("2025.2")
-    def length(self, value: float | str) -> None:
+    def length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Length", f"{value}")
 
@@ -142,7 +142,7 @@ class Cable(EmitNode):
 
     @loss_per_length.setter
     @min_aedt_version("2025.2")
-    def loss_per_length(self, value: float) -> None:
+    def loss_per_length(self, value: float):
         self._set_property("Loss Per Length", f"{value}")
 
     @property
@@ -158,7 +158,7 @@ class Cable(EmitNode):
 
     @measurement_length.setter
     @min_aedt_version("2025.2")
-    def measurement_length(self, value: float | str) -> None:
+    def measurement_length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Measurement Length", f"{value}")
 
@@ -174,7 +174,7 @@ class Cable(EmitNode):
 
     @resistive_loss_constant.setter
     @min_aedt_version("2025.2")
-    def resistive_loss_constant(self, value: float) -> None:
+    def resistive_loss_constant(self, value: float):
         self._set_property("Resistive Loss Constant", f"{value}")
 
     @property
@@ -189,7 +189,7 @@ class Cable(EmitNode):
 
     @dielectric_loss_constant.setter
     @min_aedt_version("2025.2")
-    def dielectric_loss_constant(self, value: float) -> None:
+    def dielectric_loss_constant(self, value: float):
         self._set_property("Dielectric Loss Constant", f"{value}")
 
     @property

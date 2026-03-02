@@ -35,7 +35,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -46,7 +46,7 @@ class LogDistanceCouplingNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -67,7 +67,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -79,7 +79,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @antenna_a.setter
     @min_aedt_version("2025.2")
-    def antenna_a(self, value: EmitNode) -> None:
+    def antenna_a(self, value: EmitNode):
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -91,7 +91,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @antenna_b.setter
     @min_aedt_version("2025.2")
-    def antenna_b(self, value: EmitNode) -> None:
+    def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
 
     class EnvironmentOption(Enum):
@@ -113,7 +113,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @environment.setter
     @min_aedt_version("2025.2")
-    def environment(self, value: EnvironmentOption) -> None:
+    def environment(self, value: EnvironmentOption):
         self._set_property("Environment", f"{value.value}")
 
     @property
@@ -128,7 +128,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @path_loss_exponent.setter
     @min_aedt_version("2025.2")
-    def path_loss_exponent(self, value: float) -> None:
+    def path_loss_exponent(self, value: float):
         self._set_property("Path Loss Exponent", f"{value}")
 
     @property
@@ -146,7 +146,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @custom_fading_margin.setter
     @min_aedt_version("2025.2")
-    def custom_fading_margin(self, value: float) -> None:
+    def custom_fading_margin(self, value: float):
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -164,7 +164,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @polarization_mismatch.setter
     @min_aedt_version("2025.2")
-    def polarization_mismatch(self, value: float) -> None:
+    def polarization_mismatch(self, value: float):
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -182,7 +182,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @pointing_error_loss.setter
     @min_aedt_version("2025.2")
-    def pointing_error_loss(self, value: float) -> None:
+    def pointing_error_loss(self, value: float):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -201,7 +201,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @fading_type.setter
     @min_aedt_version("2025.2")
-    def fading_type(self, value: FadingTypeOption) -> None:
+    def fading_type(self, value: FadingTypeOption):
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -219,7 +219,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @fading_availability.setter
     @min_aedt_version("2025.2")
-    def fading_availability(self, value: float) -> None:
+    def fading_availability(self, value: float):
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -234,7 +234,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @std_deviation.setter
     @min_aedt_version("2025.2")
-    def std_deviation(self, value: float) -> None:
+    def std_deviation(self, value: float):
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -249,7 +249,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     @min_aedt_version("2025.2")
-    def include_rain_attenuation(self, value: bool) -> None:
+    def include_rain_attenuation(self, value: bool):
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -267,7 +267,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @rain_availability.setter
     @min_aedt_version("2025.2")
-    def rain_availability(self, value: float) -> None:
+    def rain_availability(self, value: float):
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -282,7 +282,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @rain_rate.setter
     @min_aedt_version("2025.2")
-    def rain_rate(self, value: float) -> None:
+    def rain_rate(self, value: float):
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -300,7 +300,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @polarization_tilt_angle.setter
     @min_aedt_version("2025.2")
-    def polarization_tilt_angle(self, value: float) -> None:
+    def polarization_tilt_angle(self, value: float):
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -318,7 +318,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     @min_aedt_version("2025.2")
-    def include_atmospheric_absorption(self, value: bool) -> None:
+    def include_atmospheric_absorption(self, value: bool):
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
@@ -333,7 +333,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @temperature.setter
     @min_aedt_version("2025.2")
-    def temperature(self, value: float) -> None:
+    def temperature(self, value: float):
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -348,7 +348,7 @@ class LogDistanceCouplingNode(EmitNode):
 
     @total_air_pressure.setter
     @min_aedt_version("2025.2")
-    def total_air_pressure(self, value: float) -> None:
+    def total_air_pressure(self, value: float):
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -363,5 +363,5 @@ class LogDistanceCouplingNode(EmitNode):
 
     @water_vapor_concentration.setter
     @min_aedt_version("2025.2")
-    def water_vapor_concentration(self, value: float) -> None:
+    def water_vapor_concentration(self, value: float):
         self._set_property("Water Vapor Concentration", f"{value}")

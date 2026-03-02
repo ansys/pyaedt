@@ -40,12 +40,12 @@ class Circulator(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
-    def delete(self) -> None:
+    def delete(self):
         """Delete this node"""
         self._delete()
 
@@ -61,7 +61,7 @@ class Circulator(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str) -> None:
+    def filename(self, value: str):
         self._set_property("Filename", f"{value}")
 
     @property
@@ -76,7 +76,7 @@ class Circulator(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float) -> None:
+    def noise_temperature(self, value: float):
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -88,7 +88,7 @@ class Circulator(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str) -> None:
+    def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
     class CirculatorTypeOption(Enum):
@@ -109,7 +109,7 @@ class Circulator(EmitNode):
 
     @circulator_type.setter
     @min_aedt_version("2025.2")
-    def circulator_type(self, value: CirculatorTypeOption) -> None:
+    def circulator_type(self, value: CirculatorTypeOption):
         self._set_property("Circulator Type", f"{value.value}")
 
     @property
@@ -124,7 +124,7 @@ class Circulator(EmitNode):
 
     @insertion_loss.setter
     @min_aedt_version("2025.2")
-    def insertion_loss(self, value: float) -> None:
+    def insertion_loss(self, value: float):
         self._set_property("Insertion Loss", f"{value}")
 
     @property
@@ -142,7 +142,7 @@ class Circulator(EmitNode):
 
     @finite_reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def finite_reverse_isolation(self, value: bool) -> None:
+    def finite_reverse_isolation(self, value: bool):
         self._set_property("Finite Reverse Isolation", f"{str(value).lower()}")
 
     @property
@@ -157,7 +157,7 @@ class Circulator(EmitNode):
 
     @reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def reverse_isolation(self, value: float) -> None:
+    def reverse_isolation(self, value: float):
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -175,7 +175,7 @@ class Circulator(EmitNode):
 
     @finite_bandwidth.setter
     @min_aedt_version("2025.2")
-    def finite_bandwidth(self, value: bool) -> None:
+    def finite_bandwidth(self, value: bool):
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
@@ -190,7 +190,7 @@ class Circulator(EmitNode):
 
     @out_of_band_attenuation.setter
     @min_aedt_version("2025.2")
-    def out_of_band_attenuation(self, value: float) -> None:
+    def out_of_band_attenuation(self, value: float):
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
@@ -206,7 +206,7 @@ class Circulator(EmitNode):
 
     @lower_stop_band.setter
     @min_aedt_version("2025.2")
-    def lower_stop_band(self, value: float | str) -> None:
+    def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -223,7 +223,7 @@ class Circulator(EmitNode):
 
     @lower_cutoff.setter
     @min_aedt_version("2025.2")
-    def lower_cutoff(self, value: float | str) -> None:
+    def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -240,7 +240,7 @@ class Circulator(EmitNode):
 
     @higher_cutoff.setter
     @min_aedt_version("2025.2")
-    def higher_cutoff(self, value: float | str) -> None:
+    def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -257,7 +257,7 @@ class Circulator(EmitNode):
 
     @higher_stop_band.setter
     @min_aedt_version("2025.2")
-    def higher_stop_band(self, value: float | str) -> None:
+    def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

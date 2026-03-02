@@ -33,7 +33,7 @@ class RxMeasNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -78,7 +78,7 @@ class RxMeasNode(EmitNode):
 
     @exclude_mixer_products_below_noise.setter
     @min_aedt_version("2025.2")
-    def exclude_mixer_products_below_noise(self, value: bool) -> None:
+    def exclude_mixer_products_below_noise(self, value: bool):
         self._set_property("Exclude Mixer Products Below Noise", f"{str(value).lower()}")
 
     @property
@@ -89,5 +89,5 @@ class RxMeasNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool) -> None:
+    def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")

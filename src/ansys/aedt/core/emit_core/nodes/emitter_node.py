@@ -76,7 +76,7 @@ class EmitterNode(EmitNode):
         return "EmitterNode"
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str) -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -117,7 +117,7 @@ class EmitterNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def children(self):
+    def children(self) -> list[EmitNode]:
         """Overridden to return the Waveforms
 
         Returns
