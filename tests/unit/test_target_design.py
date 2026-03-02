@@ -58,7 +58,8 @@ def test_mechanical_failure_design_type(mechanical) -> None:
 
 
 @patch.object(Maxwell3d, "design_type", "Maxwell 3D")
-def test_maxwell_failure_design(maxwell_3d) -> None:
+@patch.object(Maxwell3d, "setups", new_callable=PropertyMock, return_value=[])
+def test_maxwell_failure_design(mock_setups, maxwell_3d) -> None:
     maxwell = Maxwell3d()
 
     with pytest.raises(AEDTRuntimeError):
@@ -67,7 +68,8 @@ def test_maxwell_failure_design(maxwell_3d) -> None:
 
 @patch.object(Maxwell3d, "nominal_adaptive", new_callable=PropertyMock)
 @patch.object(Maxwell3d, "design_type", "Maxwell 3D")
-def test_maxwell_failure_design_type_create_target_design(mock_nominal, maxwell_3d) -> None:
+@patch.object(Maxwell3d, "setups", new_callable=PropertyMock, return_value=[])
+def test_maxwell_failure_design_type_create_target_design(mock_setups, mock_nominal, maxwell_3d) -> None:
     mock_nominal.return_value = "setup_name"
     maxwell = Maxwell3d()
     maxwell._odesign = MagicMock()
@@ -76,9 +78,10 @@ def test_maxwell_failure_design_type_create_target_design(mock_nominal, maxwell_
         assert maxwell.create_em_target_design("Icepak", design_setup="Invalid")
 
 
-@patch.object(Maxwell3d, "nominal_adaptive", new_callable=PropertyMock)
+@patch.object(Maxwell3d, "nominal_adaptive", new_callable=PropertyMock, return_value="MySetup")
 @patch.object(Maxwell3d, "design_type", "Maxwell 3D")
-def test_maxwell_create_target_design(mock_nominal, maxwell_3d) -> None:
+@patch.object(Maxwell3d, "setups", new_callable=PropertyMock, return_value="Setup1 : LastAdaptive")
+def test_maxwell_create_target_design(mock_setups, mock_nominal, maxwell_3d) -> None:
     mock_nominal.return_value = "setup_name"
     maxwell = Maxwell3d()
     maxwell._odesign = MagicMock()
