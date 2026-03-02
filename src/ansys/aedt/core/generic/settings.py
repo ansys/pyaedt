@@ -271,7 +271,7 @@ class Settings(PyAedtBase):
         return self.__grpc_secure_mode
 
     @grpc_secure_mode.setter
-    def grpc_secure_mode(self, val: bool) -> None:
+    def grpc_secure_mode(self, val: bool):
         self.__grpc_secure_mode = val
 
     @property
@@ -282,7 +282,7 @@ class Settings(PyAedtBase):
         return self.__grpc_local
 
     @grpc_local.setter
-    def grpc_local(self, val: bool) -> None:
+    def grpc_local(self, val: bool):
         self.__grpc_local = val
 
     @property
@@ -293,7 +293,7 @@ class Settings(PyAedtBase):
         return self.__grpc_listen_all
 
     @grpc_listen_all.setter
-    def grpc_listen_all(self, val: bool) -> None:
+    def grpc_listen_all(self, val: bool):
         self.__grpc_listen_all = val
 
     # ########################## Logging properties ##########################
@@ -304,7 +304,7 @@ class Settings(PyAedtBase):
         return self.__logger
 
     @logger.setter
-    def logger(self, val: logging.Logger | None) -> None:
+    def logger(self, val: logging.Logger | None):
         self.__logger = val
 
     @property
@@ -316,7 +316,7 @@ class Settings(PyAedtBase):
         return self.__block_figure_plot
 
     @block_figure_plot.setter
-    def block_figure_plot(self, val: bool) -> None:
+    def block_figure_plot(self, val: bool):
         self.__block_figure_plot = val
 
     @property
@@ -325,7 +325,7 @@ class Settings(PyAedtBase):
         return self.__enable_desktop_logs
 
     @enable_desktop_logs.setter
-    def enable_desktop_logs(self, val: bool) -> None:
+    def enable_desktop_logs(self, val: bool):
         self.__enable_desktop_logs = val
 
     @property
@@ -334,7 +334,7 @@ class Settings(PyAedtBase):
         return self.__global_log_file_size
 
     @global_log_file_size.setter
-    def global_log_file_size(self, value: int) -> None:
+    def global_log_file_size(self, value: int):
         self.__global_log_file_size = value
 
     @property
@@ -346,7 +346,7 @@ class Settings(PyAedtBase):
         return self.__enable_global_log_file
 
     @enable_global_log_file.setter
-    def enable_global_log_file(self, value: bool) -> None:
+    def enable_global_log_file(self, value: bool):
         self.__enable_global_log_file = value
 
     @property
@@ -358,7 +358,7 @@ class Settings(PyAedtBase):
         return self.__enable_local_log_file
 
     @enable_local_log_file.setter
-    def enable_local_log_file(self, value: bool) -> None:
+    def enable_local_log_file(self, value: bool):
         self.__enable_local_log_file = value
 
     @property
@@ -367,7 +367,7 @@ class Settings(PyAedtBase):
         return self.__global_log_file_name
 
     @global_log_file_name.setter
-    def global_log_file_name(self, value: str) -> None:
+    def global_log_file_name(self, value: str):
         if value is not None:
             self.__global_log_file_name = value
 
@@ -380,7 +380,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
-    def enable_debug_methods_argument_logger(self, val: bool) -> None:
+    def enable_debug_methods_argument_logger(self, val: bool):
         self.__enable_debug_methods_argument_logger = val
 
     @property
@@ -389,7 +389,7 @@ class Settings(PyAedtBase):
         return self.__enable_screen_logs
 
     @enable_screen_logs.setter
-    def enable_screen_logs(self, val: bool) -> None:
+    def enable_screen_logs(self, val: bool):
         self.__enable_screen_logs = val
 
     @property
@@ -398,7 +398,7 @@ class Settings(PyAedtBase):
         return self.__enable_file_logs
 
     @enable_file_logs.setter
-    def enable_file_logs(self, val: bool) -> None:
+    def enable_file_logs(self, val: bool):
         self.__enable_file_logs = val
 
     @property
@@ -407,7 +407,7 @@ class Settings(PyAedtBase):
         return self.__enable_logger
 
     @enable_logger.setter
-    def enable_logger(self, val: bool) -> None:
+    def enable_logger(self, val: bool):
         self.__enable_logger = val
 
     @property
@@ -416,7 +416,7 @@ class Settings(PyAedtBase):
         return self.__logger_file_path
 
     @logger_file_path.setter
-    def logger_file_path(self, val: str | None) -> None:
+    def logger_file_path(self, val: str | None):
         self.__logger_file_path = val
 
     @property
@@ -428,7 +428,7 @@ class Settings(PyAedtBase):
         return self.__logger_formatter
 
     @logger_formatter.setter
-    def logger_formatter(self, val: str) -> None:
+    def logger_formatter(self, val: str):
         self.__logger_formatter = val
 
     @property
@@ -440,7 +440,7 @@ class Settings(PyAedtBase):
         return self.__logger_datefmt
 
     @logger_datefmt.setter
-    def logger_datefmt(self, val: str) -> None:
+    def logger_datefmt(self, val: str):
         self.__logger_datefmt = val
 
     @property
@@ -449,7 +449,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_edb_logger
 
     @enable_debug_edb_logger.setter
-    def enable_debug_edb_logger(self, val: bool) -> None:
+    def enable_debug_edb_logger(self, val: bool):
         self.__enable_debug_edb_logger = val
 
     @property
@@ -458,7 +458,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_grpc_api_logger
 
     @enable_debug_grpc_api_logger.setter
-    def enable_debug_grpc_api_logger(self, val: bool) -> None:
+    def enable_debug_grpc_api_logger(self, val: bool):
         self.__enable_debug_grpc_api_logger = val
 
     @property
@@ -470,7 +470,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
-    def enable_debug_geometry_operator_logger(self, val: bool) -> None:
+    def enable_debug_geometry_operator_logger(self, val: bool):
         self.__enable_debug_geometry_operator_logger = val
 
     @property
@@ -482,7 +482,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
-    def enable_debug_internal_methods_logger(self, val: bool) -> None:
+    def enable_debug_internal_methods_logger(self, val: bool):
         self.__enable_debug_internal_methods_logger = val
 
     @property
@@ -491,7 +491,7 @@ class Settings(PyAedtBase):
         return self.__enable_debug_logger
 
     @enable_debug_logger.setter
-    def enable_debug_logger(self, val: bool) -> None:
+    def enable_debug_logger(self, val: bool):
         self.__enable_debug_logger = val
 
     @property
@@ -503,7 +503,7 @@ class Settings(PyAedtBase):
         return self.__aedt_log_file
 
     @aedt_log_file.setter
-    def aedt_log_file(self, value: str) -> None:
+    def aedt_log_file(self, value: str):
         self.__aedt_log_file = value
 
     # ############################# LSF properties ############################
@@ -517,7 +517,7 @@ class Settings(PyAedtBase):
         return self.__lsf_queue
 
     @lsf_queue.setter
-    def lsf_queue(self, value: str) -> None:
+    def lsf_queue(self, value: str):
         self.__lsf_queue = value
 
     @property
@@ -529,7 +529,7 @@ class Settings(PyAedtBase):
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
-    def use_lsf_scheduler(self, value: bool) -> None:
+    def use_lsf_scheduler(self, value: bool):
         self.__use_lsf_scheduler = value
 
     @property
@@ -542,7 +542,7 @@ class Settings(PyAedtBase):
         return self.__lsf_aedt_command
 
     @lsf_aedt_command.setter
-    def lsf_aedt_command(self, value: str) -> None:
+    def lsf_aedt_command(self, value: str):
         self.__lsf_aedt_command = value
 
     @property
@@ -551,7 +551,7 @@ class Settings(PyAedtBase):
         return self.__num_cores
 
     @num_cores.setter
-    def num_cores(self, value: int) -> None:
+    def num_cores(self, value: int):
         self.__num_cores = int(value)
 
     @property
@@ -563,7 +563,7 @@ class Settings(PyAedtBase):
         return self.__lsf_ram
 
     @lsf_ram.setter
-    def lsf_ram(self, value: int) -> None:
+    def lsf_ram(self, value: int):
         self.__lsf_ram = int(value)
 
     @property
@@ -572,7 +572,7 @@ class Settings(PyAedtBase):
         return self.__lsf_ui
 
     @lsf_ui.setter
-    def lsf_ui(self, value: int) -> None:
+    def lsf_ui(self, value: int):
         if value is not None:
             self.__lsf_ui = int(value)
 
@@ -582,7 +582,7 @@ class Settings(PyAedtBase):
         return self.__lsf_timeout
 
     @lsf_timeout.setter
-    def lsf_timeout(self, value: int) -> None:
+    def lsf_timeout(self, value: int):
         self.__lsf_timeout = int(value)
 
     @property
@@ -593,7 +593,7 @@ class Settings(PyAedtBase):
         return self.__lsf_osrel
 
     @lsf_osrel.setter
-    def lsf_osrel(self, value: str) -> None:
+    def lsf_osrel(self, value: str):
         self.__lsf_osrel = value
 
     @property
@@ -604,7 +604,7 @@ class Settings(PyAedtBase):
         return self.__custom_lsf_command
 
     @custom_lsf_command.setter
-    def custom_lsf_command(self, value: str) -> None:
+    def custom_lsf_command(self, value: str):
         self.__custom_lsf_command = value
 
     # ############################## Environment variable properties ##############################
@@ -617,7 +617,7 @@ class Settings(PyAedtBase):
         return self.__aedt_environment_variables
 
     @aedt_environment_variables.setter
-    def aedt_environment_variables(self, value: dict) -> None:
+    def aedt_environment_variables(self, value: dict):
         self.__aedt_environment_variables = value
 
     # ##################################### General properties ####################################
@@ -628,7 +628,7 @@ class Settings(PyAedtBase):
         return self.__remote_api
 
     @remote_api.setter
-    def remote_api(self, value: bool) -> None:
+    def remote_api(self, value: bool):
         self.__remote_api = value
 
     @property
@@ -637,7 +637,7 @@ class Settings(PyAedtBase):
         return self.__formatter
 
     @formatter.setter
-    def formatter(self, value: logging.Formatter | None) -> None:
+    def formatter(self, value: logging.Formatter | None):
         self.__formatter = value
 
     @property
@@ -646,7 +646,7 @@ class Settings(PyAedtBase):
         return self.__remote_rpc_session
 
     @remote_rpc_session.setter
-    def remote_rpc_session(self, value: Any | None) -> None:
+    def remote_rpc_session(self, value: Any | None):
         self.__remote_rpc_session = value
 
     @property
@@ -655,7 +655,7 @@ class Settings(PyAedtBase):
         return self.__remote_rpc_session_temp_folder
 
     @remote_rpc_session_temp_folder.setter
-    def remote_rpc_session_temp_folder(self, value: str | None) -> None:
+    def remote_rpc_session_temp_folder(self, value: str | None):
         self.__remote_rpc_session_temp_folder = value
 
     @property
@@ -664,7 +664,7 @@ class Settings(PyAedtBase):
         return self.__remote_rpc_service_manager_port
 
     @remote_rpc_service_manager_port.setter
-    def remote_rpc_service_manager_port(self, value: int) -> None:
+    def remote_rpc_service_manager_port(self, value: int):
         self.__remote_rpc_service_manager_port = value
 
     @property
@@ -673,7 +673,7 @@ class Settings(PyAedtBase):
         return self.__time_tick
 
     @time_tick.setter
-    def time_tick(self, value: float) -> None:
+    def time_tick(self, value: float):
         self.__time_tick = value
 
     @property
@@ -682,7 +682,7 @@ class Settings(PyAedtBase):
         return self.__release_on_exception
 
     @release_on_exception.setter
-    def release_on_exception(self, value: bool) -> None:
+    def release_on_exception(self, value: bool):
         self.__release_on_exception = value
 
     @property
@@ -691,7 +691,7 @@ class Settings(PyAedtBase):
         return self.__objects_lazy_load
 
     @objects_lazy_load.setter
-    def objects_lazy_load(self, value: bool) -> None:
+    def objects_lazy_load(self, value: bool):
         self.__objects_lazy_load = value
 
     @property
@@ -700,7 +700,7 @@ class Settings(PyAedtBase):
         return self.__lazy_load
 
     @lazy_load.setter
-    def lazy_load(self, value: bool) -> None:
+    def lazy_load(self, value: bool):
         self.__lazy_load = value
 
     @property
@@ -712,7 +712,7 @@ class Settings(PyAedtBase):
         return self.__wait_for_license
 
     @wait_for_license.setter
-    def wait_for_license(self, value: bool) -> None:
+    def wait_for_license(self, value: bool):
         self.__wait_for_license = value
 
     @property
@@ -721,7 +721,7 @@ class Settings(PyAedtBase):
         return self.__retry_n_times_time_interval
 
     @retry_n_times_time_interval.setter
-    def retry_n_times_time_interval(self, value: float) -> None:
+    def retry_n_times_time_interval(self, value: float):
         self.__retry_n_times_time_interval = float(value)
 
     @property
@@ -730,7 +730,7 @@ class Settings(PyAedtBase):
         return self.__number_of_grpc_api_retries
 
     @number_of_grpc_api_retries.setter
-    def number_of_grpc_api_retries(self, value: int) -> None:
+    def number_of_grpc_api_retries(self, value: int):
         self.__number_of_grpc_api_retries = int(value)
 
     @property
@@ -739,7 +739,7 @@ class Settings(PyAedtBase):
         return self.__desktop_launch_timeout
 
     @desktop_launch_timeout.setter
-    def desktop_launch_timeout(self, value: int) -> None:
+    def desktop_launch_timeout(self, value: int):
         self.__desktop_launch_timeout = int(value)
 
     @property
@@ -751,7 +751,7 @@ class Settings(PyAedtBase):
         return self.__aedt_version
 
     @aedt_version.setter
-    def aedt_version(self, value: str | None) -> None:
+    def aedt_version(self, value: str | None):
         if value is not None:
             self.__aedt_version = value
             if self.__aedt_version >= "2023.1":
@@ -770,7 +770,7 @@ class Settings(PyAedtBase):
         return self.__use_multi_desktop
 
     @use_multi_desktop.setter
-    def use_multi_desktop(self, value: bool) -> None:
+    def use_multi_desktop(self, value: bool):
         self.__use_multi_desktop = value
 
     @property
@@ -782,7 +782,7 @@ class Settings(PyAedtBase):
         return None
 
     @edb_dll_path.setter
-    def edb_dll_path(self, value: str | Path | None) -> None:
+    def edb_dll_path(self, value: str | Path | None):
         if value is not None:
             dll_path = Path(value)
             if dll_path.exists():
@@ -799,7 +799,7 @@ class Settings(PyAedtBase):
         return self.__enable_pandas_output
 
     @enable_pandas_output.setter
-    def enable_pandas_output(self, val: bool) -> None:
+    def enable_pandas_output(self, val: bool):
         self.__enable_pandas_output = val
 
     @property
@@ -813,7 +813,7 @@ class Settings(PyAedtBase):
         return self.__force_error_on_missing_project
 
     @force_error_on_missing_project.setter
-    def force_error_on_missing_project(self, val: bool) -> None:
+    def force_error_on_missing_project(self, val: bool):
         self.__force_error_on_missing_project = val
 
     @property
@@ -822,7 +822,7 @@ class Settings(PyAedtBase):
         return self.__disable_bounding_box_sat
 
     @disable_bounding_box_sat.setter
-    def disable_bounding_box_sat(self, val: bool) -> None:
+    def disable_bounding_box_sat(self, val: bool):
         self.__disable_bounding_box_sat = val
 
     @property
@@ -831,7 +831,7 @@ class Settings(PyAedtBase):
         return self.__use_grpc_api
 
     @use_grpc_api.setter
-    def use_grpc_api(self, val: bool | None) -> None:
+    def use_grpc_api(self, val: bool | None):
         self.__use_grpc_api = val
 
     @property
@@ -840,7 +840,7 @@ class Settings(PyAedtBase):
         return self.__enable_error_handler
 
     @enable_error_handler.setter
-    def enable_error_handler(self, val: bool) -> None:
+    def enable_error_handler(self, val: bool):
         self.__enable_error_handler = val
 
     @property
@@ -851,7 +851,7 @@ class Settings(PyAedtBase):
 
     # NOTE: Convenient way to set the environment variable for RPyC
     @pyaedt_server_path.setter
-    def pyaedt_server_path(self, val: str) -> None:
+    def pyaedt_server_path(self, val: str):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
 
@@ -861,7 +861,7 @@ class Settings(PyAedtBase):
         return self.__skip_license_check
 
     @skip_license_check.setter
-    def skip_license_check(self, value: bool) -> None:
+    def skip_license_check(self, value: bool):
         self.__skip_license_check = value
 
     @property
@@ -870,7 +870,7 @@ class Settings(PyAedtBase):
         return self.__use_local_example_data
 
     @use_local_example_data.setter
-    def use_local_example_data(self, value: bool) -> None:
+    def use_local_example_data(self, value: bool):
         self.__use_local_example_data = value
 
     @property
@@ -879,7 +879,7 @@ class Settings(PyAedtBase):
         return self.__local_example_folder
 
     @local_example_folder.setter
-    def local_example_folder(self, value: str | None) -> None:
+    def local_example_folder(self, value: str | None):
         self.__local_example_folder = value
 
     @property
@@ -897,7 +897,7 @@ class Settings(PyAedtBase):
         return None
 
     @pyd_libraries_user_path.setter
-    def pyd_libraries_user_path(self, val: Path | str | None) -> None:
+    def pyd_libraries_user_path(self, val: Path | str | None):
         if val is None:
             # If the user path is None, set it to None
             self.__pyd_libraries_user_path = None
@@ -912,7 +912,7 @@ class Settings(PyAedtBase):
 
     # yaml setting file IO methods
 
-    def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False) -> None:
+    def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
 
@@ -953,7 +953,7 @@ class Settings(PyAedtBase):
                     raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
-    def write_yaml_configuration(self, path: Path | str) -> None:
+    def write_yaml_configuration(self, path: Path | str):
         """Write the current settings into a YAML configuration file."""
         import yaml
 

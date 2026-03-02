@@ -66,7 +66,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name: str, dictinputs, optimtype) -> None:
+    def __init__(self, p_app, name: str, dictinputs, optimtype):
         self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
@@ -157,7 +157,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
         self.auto_update = True
 
-    def _get_setup_props(self, arg1: dict[str, Any]) -> None:
+    def _get_setup_props(self, arg1: dict[str, Any]):
         for k, v in arg1.items():
             if isinstance(v, dict):
                 arg1[k] = SetupProps(self, v)
@@ -483,7 +483,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def _activate_variable(self, variable_name) -> None:
+    def _activate_variable(self, variable_name):
         if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)
         elif self.soltype == "OptiParametric":
@@ -563,7 +563,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
-    def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
+    def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer"):
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
@@ -787,7 +787,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
-    def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
+    def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric"):
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
 
@@ -969,7 +969,7 @@ class ParametricSetups(PyAedtBase):
     >>> sensitivity_setups = app.parametrics
     """
 
-    def __init__(self, p_app) -> None:
+    def __init__(self, p_app):
         self._app = p_app
         self.setups = []
         if self._app.design_properties:
@@ -1163,7 +1163,7 @@ class OptimizationSetups(PyAedtBase):
     >>> optimization_setup = app.optimizations
     """
 
-    def __init__(self, p_app) -> None:
+    def __init__(self, p_app):
         self._app = p_app
         self.setups = []
         if self._app.design_properties:

@@ -1259,7 +1259,7 @@ class PropsManager(PyAedtBase):
         self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
         return None
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         """Set the `self.props` key value.
 
         Parameters

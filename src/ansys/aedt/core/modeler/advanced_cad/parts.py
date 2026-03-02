@@ -72,7 +72,7 @@ class Part(PyAedtBase):
         "polarization": None,
     }  # Antenna only
 
-    def __init__(self, part_folder, part_dict, parent=None, name: str | None = None) -> None:
+    def __init__(self, part_folder, part_dict, parent=None, name: str | None = None):
         # Default values:
         self._compdef = dict()
         self._multiparts = parent
@@ -139,7 +139,7 @@ class Part(PyAedtBase):
             self._pitch = "0"
             self._roll = "0"
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         self._compdef[key] = value
 
     def __getitem__(self, key):
@@ -300,7 +300,7 @@ class Part(PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw) -> None:
+    def yaw(self, yaw):
         self._yaw = yaw
 
     @property
@@ -315,7 +315,7 @@ class Part(PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch) -> None:
+    def pitch(self, pitch):
         self._pitch = pitch
 
     @property
@@ -330,7 +330,7 @@ class Part(PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll) -> None:
+    def roll(self, roll):
         self._roll = roll
 
     @property
@@ -475,7 +475,7 @@ class Antenna(Part, PyAedtBase):
 
     """
 
-    def __init__(self, root_folder, ant_dict, parent=None, name: str | None = None) -> None:
+    def __init__(self, root_folder, ant_dict, parent=None, name: str | None = None):
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
 
     def _antenna_type(self, app):

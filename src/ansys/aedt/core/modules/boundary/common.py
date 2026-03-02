@@ -38,7 +38,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_boundary.auto_update:
@@ -49,7 +49,7 @@ class BoundaryProps(dict):
             if not res:
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, boundary, props) -> None:
+    def __init__(self, boundary, props):
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -67,7 +67,7 @@ class BoundaryProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
 
@@ -227,7 +227,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
+    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True):
         self.auto_update = False
         self._app = app
         self._name = name
@@ -332,7 +332,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return self._type
 
     @type.setter
-    def type(self, value) -> None:
+    def type(self, value):
         self._type = value
 
     @property
@@ -343,7 +343,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value):
         if getattr(self, "child_object", None):
             try:
                 self.properties["Name"] = value

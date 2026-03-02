@@ -132,7 +132,7 @@ class EmitComponents(PyAedtBase):
     def __iter__(self):
         return self.components.keys().__iter__()
 
-    def __init__(self, parent, modeler) -> None:
+    def __init__(self, parent, modeler):
         self._parent = parent
         self.modeler = modeler
         self._currentId = 0
@@ -150,7 +150,7 @@ class EmitComponents(PyAedtBase):
         return self.include_personal_lib
 
     @include_personal_library.setter
-    def include_personal_library(self, value) -> None:
+    def include_personal_library(self, value):
         self.include_personal_lib = value
 
     @property
@@ -382,7 +382,7 @@ class EmitComponent(PyAedtBase):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-    def __init__(self, components, component_name) -> None:
+    def __init__(self, components, component_name):
         self.name = component_name
         """Name of the component."""
 
@@ -404,7 +404,7 @@ class EmitComponent(PyAedtBase):
         return self.name
 
     @pyaedt_function_handler()
-    def move_and_connect_to(self, component) -> None:
+    def move_and_connect_to(self, component):
         """Move and connect this component to another component.
 
         Parameters
@@ -621,7 +621,7 @@ class EmitComponent(PyAedtBase):
 class EmitAntennaComponent(EmitComponent):
     """An Antenna component in the EMIT schematic."""
 
-    def __init__(self, components, component_name) -> None:
+    def __init__(self, components, component_name):
         super(EmitAntennaComponent, self).__init__(components, component_name)
 
     def get_pattern_filename(self):
@@ -707,7 +707,7 @@ class EmitAntennaComponent(EmitComponent):
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
-    def __init__(self, components, component_name) -> None:
+    def __init__(self, components, component_name):
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def is_emitter(self):
@@ -989,7 +989,7 @@ class EmitRadioComponent(EmitComponent):
 
 
 class EmitComponentPropNode(PyAedtBase):
-    def __init__(self, editor, design, parent_component, node_name) -> None:
+    def __init__(self, editor, design, parent_component, node_name):
         self.oeditor = editor
         """Oeditor module"""
 
@@ -1177,7 +1177,7 @@ class EmitComponentPropNode(PyAedtBase):
         self.odesign.EditComponentNodes(comp_name, properties_to_set, nodes_to_delete)
 
     @enabled.setter
-    def enabled(self, value) -> None:
+    def enabled(self, value):
         """Set the node enabled or disabled.
 
         Parameters

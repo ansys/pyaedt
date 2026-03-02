@@ -286,7 +286,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phi_scan
 
     @phi_scan.setter
-    def phi_scan(self, value) -> None:
+    def phi_scan(self, value):
         self.__phi_scan = value
         self.__element_weight()
 
@@ -296,7 +296,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__theta_scan
 
     @theta_scan.setter
-    def theta_scan(self, value) -> None:
+    def theta_scan(self, value):
         self.__theta_scan = value
         self.__element_weight()
 
@@ -443,7 +443,7 @@ class FfdSolutionData(PyAedtBase):
         return self._frequency
 
     @frequency.setter
-    def frequency(self, val) -> None:
+    def frequency(self, val):
         if isinstance(val, str):
             frequency, units = decompose_variable_value(val)
             unit_converter(frequency, "Freq", units, "Hz")
@@ -460,7 +460,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phase
 
     @phase.setter
-    def phase(self, phases) -> None:
+    def phase(self, phases):
         if len(phases) != len(self.all_element_names):
             self.__logger.error("Number of phases must be equal to number of ports.")
         else:
@@ -472,7 +472,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__magnitude
 
     @magnitude.setter
-    def magnitude(self, mags) -> None:
+    def magnitude(self, mags):
         if len(mags) != len(self.all_element_names):
             self.__logger.error("Number of magnitude values must be equal to number of ports.")
         else:
@@ -493,7 +493,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__taper
 
     @taper.setter
-    def taper(self, val) -> None:
+    def taper(self, val):
         if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
             self.__taper = val
 
@@ -506,7 +506,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__origin
 
     @origin.setter
-    def origin(self, vals) -> None:
+    def origin(self, vals):
         if len(vals) != 3:
             self.__logger.error("Origin is wrong.")
         else:
@@ -1601,7 +1601,7 @@ class UpdateBeamForm(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, ff, farfield_quantity: str = "RealizedGain", quantity_format: str = "abs") -> None:
+    def __init__(self, ff, farfield_quantity: str = "RealizedGain", quantity_format: str = "abs"):
         self.output = ff._mesh
         self.__phi = 0
         self.__theta = 0
@@ -1617,13 +1617,13 @@ class UpdateBeamForm(PyAedtBase):
         self.output.copy_from(self.ff._mesh)
 
     @pyaedt_function_handler()
-    def update_phi(self, phi) -> None:
+    def update_phi(self, phi):
         """Update the Phi value."""
         self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
-    def update_theta(self, theta) -> None:
+    def update_theta(self, theta):
         """Update the Theta value."""
         self.__theta = theta * np.pi / 180
         self.__update_both()

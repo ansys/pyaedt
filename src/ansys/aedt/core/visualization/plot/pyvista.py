@@ -307,7 +307,7 @@ class ObjClass(PyAedtBase):
 
     """
 
-    def __init__(self, path, color, opacity, units) -> None:
+    def __init__(self, path, color, opacity, units):
         self.path = path
         self._color = (0, 0, 0)
         self.color = color
@@ -323,7 +323,7 @@ class ObjClass(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value):
         if isinstance(value, (tuple, list)):
             self._color = value
         elif value in CSS4_COLORS:
@@ -446,7 +446,7 @@ class CommonPlotter(PyAedtBase):
         return self._field_scale
 
     @vector_field_scale.setter
-    def vector_field_scale(self, value) -> None:
+    def vector_field_scale(self, value):
         self._field_scale = value
 
     @property
@@ -460,7 +460,7 @@ class CommonPlotter(PyAedtBase):
         return self._convert_fields_in_db
 
     @convert_fields_in_db.setter
-    def convert_fields_in_db(self, value) -> None:
+    def convert_fields_in_db(self, value):
         self._convert_fields_in_db = value
         for f in self.fields:
             f._cached_polydata = None
@@ -478,7 +478,7 @@ class CommonPlotter(PyAedtBase):
         return self._log_multiplier
 
     @log_multiplier.setter
-    def log_multiplier(self, value) -> None:
+    def log_multiplier(self, value):
         self._log_multiplier = value
 
     @property
@@ -492,7 +492,7 @@ class CommonPlotter(PyAedtBase):
         return self._x_scale
 
     @x_scale.setter
-    def x_scale(self, value) -> None:
+    def x_scale(self, value):
         self._x_scale = value
 
     @property
@@ -506,7 +506,7 @@ class CommonPlotter(PyAedtBase):
         return self._y_scale
 
     @y_scale.setter
-    def y_scale(self, value) -> None:
+    def y_scale(self, value):
         self._y_scale = value
 
     @property
@@ -520,7 +520,7 @@ class CommonPlotter(PyAedtBase):
         return self._z_scale
 
     @z_scale.setter
-    def z_scale(self, value) -> None:
+    def z_scale(self, value):
         self._z_scale = value
 
     @property
@@ -539,7 +539,7 @@ class CommonPlotter(PyAedtBase):
         return self._isometric_view
 
     @isometric_view.setter
-    def isometric_view(self, value: bool = True) -> None:
+    def isometric_view(self, value: bool = True):
         self._isometric_view = value
 
     @property
@@ -558,7 +558,7 @@ class CommonPlotter(PyAedtBase):
         return self._view_up
 
     @view_up.setter
-    def view_up(self, value) -> None:
+    def view_up(self, value):
         if isinstance(value, list):
             self._view_up = tuple(value)
         else:
@@ -581,7 +581,7 @@ class CommonPlotter(PyAedtBase):
         return self._focal_point
 
     @focal_point.setter
-    def focal_point(self, value) -> None:
+    def focal_point(self, value):
         if isinstance(value, list):
             self._focal_point = tuple(value)
         else:
@@ -601,7 +601,7 @@ class CommonPlotter(PyAedtBase):
         return self._camera_position
 
     @camera_position.setter
-    def camera_position(self, value) -> None:
+    def camera_position(self, value):
         if isinstance(value, list):
             self._camera_position = tuple(value)
         else:
@@ -624,7 +624,7 @@ class CommonPlotter(PyAedtBase):
         return self._roll_angle
 
     @roll_angle.setter
-    def roll_angle(self, value: int = 20) -> None:
+    def roll_angle(self, value: int = 20):
         self._roll_angle = value
         self.isometric_view = False
 
@@ -644,7 +644,7 @@ class CommonPlotter(PyAedtBase):
         return self._azimuth_angle
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value: int = 45) -> None:
+    def azimuth_angle(self, value: int = 45):
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
@@ -664,7 +664,7 @@ class CommonPlotter(PyAedtBase):
         return self._elevation_angle
 
     @elevation_angle.setter
-    def elevation_angle(self, value: int = 45) -> None:
+    def elevation_angle(self, value: int = 45):
         self._elevation_angle = value
         self.use_default_iso_view = False
 
@@ -684,7 +684,7 @@ class CommonPlotter(PyAedtBase):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value: int = 1) -> None:
+    def zoom(self, value: int = 1):
         self._zoom = value
 
     @pyaedt_function_handler()
@@ -727,7 +727,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_color
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value):
         if isinstance(value, (tuple, list)):
             self._background_color = value
         elif value in CSS4_COLORS:
@@ -745,7 +745,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_image
 
     @background_image.setter
-    def background_image(self, value) -> None:
+    def background_image(self, value):
         if Path(value).exists():
             self._background_image = value
 
@@ -999,7 +999,7 @@ class ModelPlotter(CommonPlotter):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
-    def _read_case(self, field) -> None:
+    def _read_case(self, field):
         file_path = Path(field.path).resolve()
         reader = pv.get_reader(str(file_path)).read()
         field._cached_polydata = reader[reader.keys()[0]].extract_surface()
@@ -1025,7 +1025,7 @@ class ModelPlotter(CommonPlotter):
             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
 
     @pyaedt_function_handler()
-    def _read_aedtplt(self, field) -> None:
+    def _read_aedtplt(self, field):
         vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
         if self.convert_fields_in_db:
             scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1052,7 +1052,7 @@ class ModelPlotter(CommonPlotter):
         field.log = log1
 
     @pyaedt_function_handler()
-    def _read_fld(self, field) -> None:
+    def _read_fld(self, field):
         nodes = []
         values = []
         is_vector = False
@@ -1126,7 +1126,7 @@ class ModelPlotter(CommonPlotter):
             field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
-    def _read_mesh_files(self, read_frames: bool = False) -> None:
+    def _read_mesh_files(self, read_frames: bool = False):
         for cad in self.objects:
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
@@ -1156,10 +1156,10 @@ class ModelPlotter(CommonPlotter):
         class SetVisibilityCallback:
             """Helper callback to keep a reference to the actor being modified."""
 
-            def __init__(self, actor) -> None:
+            def __init__(self, actor):
                 self.actor = actor
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.actor._cached_mesh.SetVisibility(state)
                 except AttributeError:
@@ -1168,7 +1168,7 @@ class ModelPlotter(CommonPlotter):
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
 
-            def __init__(self, plot, actor, axes_color) -> None:
+            def __init__(self, plot, actor, axes_color):
                 self.plot = plot
                 self.actors = actor
                 self.id = 0
@@ -1180,7 +1180,7 @@ class ModelPlotter(CommonPlotter):
                 self.axes_color = axes_color
                 self.text = []
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
                 except Exception:

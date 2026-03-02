@@ -44,7 +44,7 @@ T = TypeVar("T", bound="EmitNode")
 class EmitNode:
     """Emit node class for managing and interacting with EMIT nodes."""
 
-    def __init__(self, emit_obj, result_id, node_id) -> None:
+    def __init__(self, emit_obj, result_id, node_id):
         self._emit_obj = emit_obj
         self._oDesign = emit_obj.odesign
         self._oRevisionData = self._oDesign.GetModule("EmitCom")
@@ -557,7 +557,7 @@ class EmitNode:
             raise Exception(error_text)
         return self._get_node(node_id)
 
-    def _export_model(self, file_path: str) -> None:
+    def _export_model(self, file_path: str):
         """Exports an Emit node's model to a file.
 
         Parameters
@@ -708,7 +708,7 @@ class EmitNode:
             data_return.append(tuple(row_list))
         return data_return
 
-    def _check_valid_function(self, expr: str) -> None:
+    def _check_valid_function(self, expr: str):
         """Validates a function expression for use in table data.
 
         Parameters

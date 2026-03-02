@@ -32,7 +32,7 @@ class ScatteringMethods(PyAedtBase):
     Hfss3dLayout classes.
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
 
     @property

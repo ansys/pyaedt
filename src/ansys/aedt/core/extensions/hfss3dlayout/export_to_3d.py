@@ -59,7 +59,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
 class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting to 3D in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,

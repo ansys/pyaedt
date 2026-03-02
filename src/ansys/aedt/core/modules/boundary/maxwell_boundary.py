@@ -271,7 +271,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value):
         if self._child_object:
             try:
                 self.properties["Name"] = value

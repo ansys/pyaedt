@@ -60,7 +60,7 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
     """Extension for converting TwinBuilder designs to Circuit."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,

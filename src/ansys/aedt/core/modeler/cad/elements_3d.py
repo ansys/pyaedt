@@ -199,7 +199,7 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, objid, position=None) -> None:
+    def __init__(self, object3d, objid, position=None):
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -254,7 +254,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, edge_id) -> None:
+    def __init__(self, object3d, edge_id):
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -644,7 +644,7 @@ class FacePrimitive(PyAedtBase):
     def __repr__(self) -> str:
         return str(self.id)
 
-    def __init__(self, object3d, obj_id) -> None:
+    def __init__(self, object3d, obj_id):
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
@@ -1168,7 +1168,7 @@ class Point(PyAedtBase):
     >>> my_point = primitives.points[point.name]
     """
 
-    def __init__(self, primitives, name: str) -> None:
+    def __init__(self, primitives, name: str):
         self._name = name
         self._point_coordinate_system = "Global"
         self._color = None
@@ -1212,7 +1212,7 @@ class Point(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, point_name) -> None:
+    def name(self, point_name):
         if point_name not in self._primitives.points.keys:
             if point_name != self._name:
                 name_property = []
@@ -1245,7 +1245,7 @@ class Point(PyAedtBase):
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    def set_color(self, color_value) -> None:
+    def set_color(self, color_value):
         """Set symbol color.
 
         Parameters
@@ -1315,7 +1315,7 @@ class Point(PyAedtBase):
             return self._point_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system) -> None:
+    def coordinate_system(self, new_coordinate_system):
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
@@ -1362,7 +1362,7 @@ class Plane(PyAedtBase):
     >>> my_plane = primitives.planes[plane.name]
     """
 
-    def __init__(self, primitives, name: str) -> None:
+    def __init__(self, primitives, name: str):
         self._name = name
         self._plane_coordinate_system = "Global"
         self._color = None
@@ -1408,7 +1408,7 @@ class Plane(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, plane_name) -> None:
+    def name(self, plane_name):
         if plane_name not in self._primitives.planes.keys():
             plane_old_name = self._name
             if plane_name != self._name:
@@ -1445,7 +1445,7 @@ class Plane(PyAedtBase):
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
     @pyaedt_function_handler()
-    def set_color(self, color_value) -> None:
+    def set_color(self, color_value):
         """Set symbol color.
 
         Parameters
@@ -1542,7 +1542,7 @@ class Plane(PyAedtBase):
 class HistoryProps(dict):
     """Manages an object's history properties."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         if self._pyaedt_child._app:
             value = _units_assignment(value)
@@ -1550,17 +1550,17 @@ class HistoryProps(dict):
         if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
-    def __init__(self, child_object, props) -> None:
+    def __init__(self, child_object, props):
         dict.__init__(self)
         if props:
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
         self._pyaedt_child = child_object
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
-    def pop(self, key, default=None) -> None:
+    def pop(self, key, default=None):
         dict.pop(self, key, default)
 
 

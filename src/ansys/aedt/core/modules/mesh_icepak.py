@@ -40,7 +40,7 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 
 class CommonRegion(PyAedtBase):
-    def __init__(self, app, name: str) -> None:
+    def __init__(self, app, name: str):
         self._app = app
         self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
@@ -209,65 +209,65 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Z", False)
 
     @padding_types.setter
-    def padding_types(self, values) -> None:
+    def padding_types(self, values):
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, True)
 
     @padding_values.setter
-    def padding_values(self, values) -> None:
+    def padding_values(self, values):
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, False)
 
     @positive_x_padding_type.setter
-    def positive_x_padding_type(self, value) -> None:
+    def positive_x_padding_type(self, value):
         self._set_region_data(value, "+X", True)
 
     @negative_x_padding_type.setter
-    def negative_x_padding_type(self, value) -> None:
+    def negative_x_padding_type(self, value):
         self._set_region_data(value, "-X", True)
 
     @positive_y_padding_type.setter
-    def positive_y_padding_type(self, value) -> None:
+    def positive_y_padding_type(self, value):
         self._set_region_data(value, "+Y", True)
 
     @negative_y_padding_type.setter
-    def negative_y_padding_type(self, value) -> None:
+    def negative_y_padding_type(self, value):
         self._set_region_data(value, "-Y", True)
 
     @positive_z_padding_type.setter
-    def positive_z_padding_type(self, value) -> None:
+    def positive_z_padding_type(self, value):
         self._set_region_data(value, "+Z", True)
 
     @negative_z_padding_type.setter
-    def negative_z_padding_type(self, value) -> None:
+    def negative_z_padding_type(self, value):
         self._set_region_data(value, "-Z", True)
 
     @positive_x_padding.setter
-    def positive_x_padding(self, value) -> None:
+    def positive_x_padding(self, value):
         self._set_region_data(value, "+X", False)
 
     @negative_x_padding.setter
-    def negative_x_padding(self, value) -> None:
+    def negative_x_padding(self, value):
         self._set_region_data(value, "-X", False)
 
     @positive_y_padding.setter
-    def positive_y_padding(self, value) -> None:
+    def positive_y_padding(self, value):
         self._set_region_data(value, "+Y", False)
 
     @negative_y_padding.setter
-    def negative_y_padding(self, value) -> None:
+    def negative_y_padding(self, value):
         self._set_region_data(value, "-Y", False)
 
     @positive_z_padding.setter
-    def positive_z_padding(self, value) -> None:
+    def positive_z_padding(self, value):
         self._set_region_data(value, "+Z", False)
 
     @negative_z_padding.setter
-    def negative_z_padding(self, value) -> None:
+    def negative_z_padding(self, value):
         self._set_region_data(value, "-Z", False)
 
     @property
@@ -301,7 +301,7 @@ class CommonRegion(PyAedtBase):
         return self.object.name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value):
         try:
             if self._app.modeler.objects_by_name[self._name].name != value:
                 self._app.modeler.objects_by_name[self._name].name = value
@@ -309,7 +309,7 @@ class CommonRegion(PyAedtBase):
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
 
-    def _set_region_data(self, value, direction=None, padding_type: bool = True) -> None:
+    def _set_region_data(self, value, direction=None, padding_type: bool = True):
         self._update_region_data()
         region = self.object
         create_region = region.history()
@@ -344,7 +344,7 @@ class CommonRegion(PyAedtBase):
 class Region(CommonRegion):
     """Provides Icepak global mesh region properties and methods."""
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         super(Region, self).__init__(app, None)
         try:
             self._update_region_data()
@@ -355,7 +355,7 @@ class Region(CommonRegion):
 class SubRegion(CommonRegion):
     """Provides Icepak mesh subregions properties and methods."""
 
-    def __init__(self, app, parts, name: str | None = None) -> None:
+    def __init__(self, app, parts, name: str | None = None):
         if name is None:
             name = generate_unique_name("SubRegion")
         super(SubRegion, self).__init__(app, name)
@@ -433,7 +433,7 @@ class SubRegion(CommonRegion):
             return {}
 
     @parts.setter
-    def parts(self, parts) -> None:
+    def parts(self, parts):
         """Parts included in the subregion.
 
         Parameters
@@ -496,7 +496,7 @@ class MeshSettings(PyAedtBase):
         "Enforce2dot5DCutCell",
     ]
 
-    def __init__(self, mesh_class, app) -> None:
+    def __init__(self, mesh_class, app):
         self._app = app
         self._mesh_class = mesh_class
         self._instance_settings = self._common_mesh_settings.copy()
@@ -584,7 +584,7 @@ class MeshSettings(PyAedtBase):
         else:
             raise KeyError("Setting not available.")
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
@@ -608,7 +608,7 @@ class MeshSettings(PyAedtBase):
         else:
             self._app.logger.error("Setting not available.")
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
@@ -635,7 +635,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             Dictionary-like object to handle settings.
     """
 
-    def __init__(self, units, app, name: str) -> None:
+    def __init__(self, units, app, name: str):
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
         self._name = name
@@ -698,7 +698,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             else:
                 return self.__dict__[name]
 
-    def __setattr__(self, name: str, value) -> None:
+    def __setattr__(self, name: str, value):
         skip_properties = [
             "manual_settings",
             "settings",
@@ -736,7 +736,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 class GlobalMeshRegion(MeshRegionCommon):
     """Provides Icepak global mesh properties and methods."""
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
             app.modeler.model_units,
@@ -794,7 +794,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 class MeshRegion(MeshRegionCommon):
     """Provides Icepak subregions mesh properties and methods."""
 
-    def __init__(self, app, objects=None, name: str | None = None, **kwargs) -> None:
+    def __init__(self, app, objects=None, name: str | None = None, **kwargs):
         if name is None:
             name = generate_unique_name("MeshRegion")
         super(MeshRegion, self).__init__(
@@ -849,7 +849,7 @@ class MeshRegion(MeshRegionCommon):
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value):
         self._app.odesign.ChangeProperty(
             [
                 "NAME:AllTabs",
@@ -958,7 +958,7 @@ class MeshRegion(MeshRegionCommon):
             return [self._assignment]
 
     @assignment.setter
-    def assignment(self, value) -> None:
+    def assignment(self, value):
         arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
         try:
             self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
@@ -1002,7 +1002,7 @@ class IcepakMesh(PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
 
         self._odesign = self._app._odesign

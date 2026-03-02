@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class RxSaturationNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id) -> None:
+    def __init__(self, emit_obj, result_id, node_id):
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 

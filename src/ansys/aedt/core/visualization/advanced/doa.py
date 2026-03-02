@@ -43,7 +43,7 @@ class DirectionOfArrival(PyAedtBase):
     with coordinates in meters and user-defined frequency.
     """
 
-    def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
+    def __init__(self, x_position: np.array, y_position: np.array, frequency: float):
         """
         Initialize with antenna element positions in meters and signal frequency in Hertz.
 

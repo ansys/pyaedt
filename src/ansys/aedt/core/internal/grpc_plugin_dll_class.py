@@ -66,7 +66,7 @@ class AedtBlockObj(list):
                 return super().__getitem__(idx)
         return super().__getitem__(idxOrKey)
 
-    def __setitem__(self, idxOrKey, newVal) -> None:
+    def __setitem__(self, idxOrKey, newVal):
         if isinstance(idxOrKey, int):
             if idxOrKey >= 0 or idxOrKey < len(self):
                 oldItem = self.__getitem__(idxOrKey)
@@ -96,7 +96,7 @@ exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
 
 
 class AedtObjWrapper:
-    def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
+    def __init__(self, objID, listFuncs, AedtAPI=None):
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
         self.dllapi = AedtAPI
@@ -149,7 +149,7 @@ class AedtObjWrapper:
         except Exception:
             raise GrpcApiError(f"Failed to get gRPC API AEDT attribute {funcName}")
 
-    def __setattr__(self, attrName, val) -> None:
+    def __setattr__(self, attrName, val):
         if attrName == "objectID" or attrName == "__methodNames__":
             raise GrpcApiError("This attribute cannot be modified.")
         elif attrName in self.__methodNames__:
@@ -180,7 +180,7 @@ class AedtObjWrapper:
 
 
 class AedtPropServer(AedtObjWrapper):
-    def __init__(self, objID, listFuncs, aedtapi) -> None:
+    def __init__(self, objID, listFuncs, aedtapi):
         AedtObjWrapper.__init__(self, objID, listFuncs, aedtapi)
         self.__dict__["__propMap__"] = None
         self.__dict__["__propNames__"] = None
@@ -226,7 +226,7 @@ class AedtPropServer(AedtObjWrapper):
                 return self.GetPropValue(propMap[attrName])
             raise GrpcApiError(f"Failed to retrieve attribute {attrName} from gRPC API")
 
-    def __setattr__(self, attr, val) -> None:
+    def __setattr__(self, attr, val):
         if attr in self.__dict__:
             self.__dict__[attr] = val
             return
@@ -263,7 +263,7 @@ class AedtPropServer(AedtObjWrapper):
 
 
 class AEDT:
-    def __init__(self, pathDir) -> None:
+    def __init__(self, pathDir):
         is_linux = os.name == "posix"
         is_windows = not is_linux
         pathDir = Path(pathDir)
@@ -386,7 +386,7 @@ class AEDT:
     def InvokeAedtObjMethod(self, objectID, funcName, argv):
         return self.AedtAPI.InvokeAedtObjMethod(objectID, funcName, argv)
 
-    def ReleaseAedtObject(self, objectID) -> None:
+    def ReleaseAedtObject(self, objectID):
         self.AedtAPI.ReleaseAedtObject(objectID)
 
     def ReleaseAll(self) -> None:

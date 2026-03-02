@@ -57,7 +57,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         PostProcessorCommon.__init__(self, app)
 
     @pyaedt_function_handler()

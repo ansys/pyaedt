@@ -81,7 +81,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         Path for the touchstone file. The default is ``None``.
     """
 
-    def __init__(self, solution_data=None, touchstone_file=None) -> None:
+    def __init__(self, solution_data=None, touchstone_file=None):
         # Check if scikit-rf is available by inspecting the base class
         if _TouchstoneBase.__name__ == "_TouchstoneBase":
             raise ImportError(

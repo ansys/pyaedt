@@ -727,7 +727,7 @@ class VariableManager(PyAedtBase):
         """Logger."""
         return self._app.logger
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         # Global Desktop Environment
         self._app = app
         self.__independent_design_variables = {}
@@ -759,7 +759,7 @@ class VariableManager(PyAedtBase):
         return all_variables
 
     @pyaedt_function_handler()
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
 
@@ -768,7 +768,7 @@ class VariableManager(PyAedtBase):
         return self.variables[variable_name]
 
     @pyaedt_function_handler()
-    def __setitem__(self, variable, value) -> None:
+    def __setitem__(self, variable, value):
         self.set_variable(variable, value)
         return True
 
@@ -787,7 +787,7 @@ class VariableManager(PyAedtBase):
                     del dict_var[var_name]
 
     @pyaedt_function_handler()
-    def _update_variable_dict(self, object_list) -> None:
+    def _update_variable_dict(self, object_list):
         """Update variable dictionary.
 
         Parameters
@@ -1612,7 +1612,7 @@ class Variable(PyAedtBase):
         return self._variable_name
 
     @name.setter
-    def name(self, value: str) -> None:
+    def name(self, value: str):
         fallback_val = self._variable_name
         self._variable_name = value
         if not self.update_var():
@@ -1638,7 +1638,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Optimization/Included")
 
     @is_optimization_enabled.setter
-    def is_optimization_enabled(self, value: bool) -> None:
+    def is_optimization_enabled(self, value: bool):
         self._set_prop_val("Optimization/Included", value, 10)
 
     @property
@@ -1647,7 +1647,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Optimization/Min")
 
     @optimization_min_value.setter
-    def optimization_min_value(self, value: bool) -> None:
+    def optimization_min_value(self, value: bool):
         self._set_prop_val("Optimization/Min", value, 10)
 
     @property
@@ -1656,7 +1656,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Optimization/Max")
 
     @optimization_max_value.setter
-    def optimization_max_value(self, value: bool) -> None:
+    def optimization_max_value(self, value: bool):
         self._set_prop_val("Optimization/Max", value, 10)
 
     @property
@@ -1665,7 +1665,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Sensitivity/Included")
 
     @is_sensitivity_enabled.setter
-    def is_sensitivity_enabled(self, value: bool) -> None:
+    def is_sensitivity_enabled(self, value: bool):
         self._set_prop_val("Sensitivity/Included", value, 10)
 
     @property
@@ -1674,7 +1674,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Sensitivity/Min")
 
     @sensitivity_min_value.setter
-    def sensitivity_min_value(self, value: bool) -> None:
+    def sensitivity_min_value(self, value: bool):
         self._set_prop_val("Sensitivity/Min", value, 10)
 
     @property
@@ -1683,7 +1683,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Sensitivity/Max")
 
     @sensitivity_max_value.setter
-    def sensitivity_max_value(self, value: bool) -> None:
+    def sensitivity_max_value(self, value: bool):
         self._set_prop_val("Sensitivity/Max", value, 10)
 
     @property
@@ -1692,7 +1692,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Sensitivity/IDisp")
 
     @sensitivity_initial_disp.setter
-    def sensitivity_initial_disp(self, value: bool) -> None:
+    def sensitivity_initial_disp(self, value: bool):
         self._set_prop_val("Sensitivity/IDisp", value, 10)
 
     @property
@@ -1701,7 +1701,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Tuning/Included")
 
     @is_tuning_enabled.setter
-    def is_tuning_enabled(self, value: bool) -> None:
+    def is_tuning_enabled(self, value: bool):
         self._set_prop_val("Tuning/Included", value, 10)
 
     @property
@@ -1710,7 +1710,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Tuning/Min")
 
     @tuning_min_value.setter
-    def tuning_min_value(self, value: bool) -> None:
+    def tuning_min_value(self, value: bool):
         self._set_prop_val("Tuning/Min", value, 10)
 
     @property
@@ -1719,7 +1719,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Tuning/Max")
 
     @tuning_max_value.setter
-    def tuning_max_value(self, value: bool) -> None:
+    def tuning_max_value(self, value: bool):
         self._set_prop_val("Tuning/Max", value, 10)
 
     @property
@@ -1728,7 +1728,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Tuning/Step")
 
     @tuning_step_value.setter
-    def tuning_step_value(self, value: bool) -> None:
+    def tuning_step_value(self, value: bool):
         self._set_prop_val("Tuning/Step", value, 10)
 
     @property
@@ -1737,7 +1737,7 @@ class Variable(PyAedtBase):
         return self._get_prop_val("Statistical/Included")
 
     @is_statistical_enabled.setter
-    def is_statistical_enabled(self, value: bool) -> None:
+    def is_statistical_enabled(self, value: bool):
         self._set_prop_val("Statistical/Included", value, 10)
 
     @property
@@ -1747,7 +1747,7 @@ class Variable(PyAedtBase):
         return self._readonly
 
     @read_only.setter
-    def read_only(self, value: bool) -> None:
+    def read_only(self, value: bool):
         fallback_val = self._readonly
         self._readonly = value
         if not self.update_var():
@@ -1762,7 +1762,7 @@ class Variable(PyAedtBase):
         return self._hidden
 
     @hidden.setter
-    def hidden(self, value: bool) -> None:
+    def hidden(self, value: bool):
         fallback_val = self._hidden
         self._hidden = value
         if not self.update_var():
@@ -1777,7 +1777,7 @@ class Variable(PyAedtBase):
         return self._sweep
 
     @sweep.setter
-    def sweep(self, value: bool) -> None:
+    def sweep(self, value: bool):
         fallback_val = self._sweep
         self._sweep = value
         if not self.update_var():
@@ -1792,7 +1792,7 @@ class Variable(PyAedtBase):
         return self._description
 
     @description.setter
-    def description(self, value: str) -> None:
+    def description(self, value: str):
         fallback_val = self._description
         self._description = value
         if not self.update_var():
@@ -1835,7 +1835,7 @@ class Variable(PyAedtBase):
         return expression
 
     @expression.setter
-    def expression(self, value: str) -> None:
+    def expression(self, value: str):
         fallback_val = self._expression
         self._expression = value
         if not self.update_var():

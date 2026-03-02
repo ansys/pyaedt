@@ -168,7 +168,7 @@ class TabConfigParser:
     >>> parser.save()
     """
 
-    def __init__(self, xml_path: str | Path | None = None) -> None:
+    def __init__(self, xml_path: str | Path | None = None):
         self._path: Path | None = None
         self._root: ET.Element = ET.Element("TabConfig")
         if xml_path:
@@ -182,7 +182,7 @@ class TabConfigParser:
     def path(self) -> Path | None:
         return self._path
 
-    def load(self, xml_path: str | Path) -> None:
+    def load(self, xml_path: str | Path):
         path = Path(xml_path)
         if not path.is_file():
             raise FileNotFoundError(f"TabConfig.xml not found: {path}")
@@ -443,6 +443,6 @@ class TabConfigParser:
             parent.insert(index, element)
         return element
 
-    def add_buttons(self, panel_label: str, buttons: Iterable[ButtonSpec]) -> None:
+    def add_buttons(self, panel_label: str, buttons: Iterable[ButtonSpec]):
         for button in buttons:
             self.add_button(panel_label, button)

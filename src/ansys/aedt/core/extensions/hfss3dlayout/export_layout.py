@@ -64,7 +64,7 @@ class ExportLayoutExtensionData(ExtensionCommonData):
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting layout data in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class
         super().__init__(
             EXTENSION_TITLE,

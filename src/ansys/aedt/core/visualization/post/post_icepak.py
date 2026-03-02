@@ -60,7 +60,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler()

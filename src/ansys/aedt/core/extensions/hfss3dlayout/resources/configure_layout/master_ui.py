@@ -81,10 +81,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             return self.__selected_design
 
     @selected_edb.setter
-    def selected_edb(self, value: str | Path) -> None:
+    def selected_edb(self, value: str | Path):
         self.__selected_design = value
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
@@ -100,10 +100,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         return
 
-    def add_toggle_theme_button_(self, parent) -> None:
+    def add_toggle_theme_button_(self, parent):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"

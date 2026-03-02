@@ -66,7 +66,7 @@ class ExtensionData:
 class TemplateExtension(ExtensionProjectCommon):
     """Extension template to help get started."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",

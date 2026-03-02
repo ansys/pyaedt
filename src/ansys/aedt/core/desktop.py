@@ -98,7 +98,7 @@ class _ServerArgs:
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
-    def __init__(self, mode, host=None, port=None) -> None:
+    def __init__(self, mode, host=None, port=None):
         """Initialize server arguments.
 
         Parameters
@@ -706,7 +706,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_version_id
 
     @aedt_version_id.setter
-    def aedt_version_id(self, value: str) -> None:
+    def aedt_version_id(self, value: str):
         if isinstance(value, int):
             value = f"20{str(value)[:2]}.{str(value)[2:3]}"
         elif isinstance(value, float):
@@ -719,7 +719,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_process_id
 
     @aedt_process_id.setter
-    def aedt_process_id(self, value: int) -> None:
+    def aedt_process_id(self, value: int):
         self.__aedt_process_id = value
 
     @pyaedt_function_handler()
@@ -738,7 +738,7 @@ class Desktop(PyAedtBase):
         return self.__launched_by_pyaedt
 
     @launched_by_pyaedt.setter
-    def launched_by_pyaedt(self, value: bool) -> None:
+    def launched_by_pyaedt(self, value: bool):
         self.__launched_by_pyaedt = value
 
     @property
@@ -747,7 +747,7 @@ class Desktop(PyAedtBase):
         return self.__non_graphical
 
     @non_graphical.setter
-    def non_graphical(self, value: bool) -> None:
+    def non_graphical(self, value: bool):
         self.__non_graphical = value
 
     @property
@@ -756,7 +756,7 @@ class Desktop(PyAedtBase):
         return self.__close_on_exit
 
     @close_on_exit.setter
-    def close_on_exit(self, value: bool) -> None:
+    def close_on_exit(self, value: bool):
         self.__close_on_exit = value
 
     @property
@@ -767,7 +767,7 @@ class Desktop(PyAedtBase):
         return self.__machine
 
     @machine.setter
-    def machine(self, value: str) -> None:
+    def machine(self, value: str):
         self.__machine = value
 
     @property
@@ -778,7 +778,7 @@ class Desktop(PyAedtBase):
         return self.__port
 
     @port.setter
-    def port(self, value: int) -> None:
+    def port(self, value: int):
         self.__port = value
 
     @property
@@ -787,7 +787,7 @@ class Desktop(PyAedtBase):
         return self.__is_grpc_api
 
     @is_grpc_api.setter
-    def is_grpc_api(self, value: bool) -> None:
+    def is_grpc_api(self, value: bool):
         self.__is_grpc_api = value
 
     @property
@@ -796,7 +796,7 @@ class Desktop(PyAedtBase):
         return self.__student_version
 
     @student_version.setter
-    def student_version(self, value: bool) -> None:
+    def student_version(self, value: bool):
         self.__student_version = value
 
     @property
@@ -805,7 +805,7 @@ class Desktop(PyAedtBase):
         return self.__new_desktop
 
     @new_desktop.setter
-    def new_desktop(self, value: bool) -> None:
+    def new_desktop(self, value: bool):
         self.__new_desktop = value
 
     @property
@@ -814,7 +814,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_version_string
 
     @aedt_version_string.setter
-    def aedt_version_string(self, value: str) -> None:
+    def aedt_version_string(self, value: str):
         self.__aedt_version_string = value
 
     @pyaedt_function_handler()
@@ -876,7 +876,7 @@ class Desktop(PyAedtBase):
         return self.__aedt_install_dir
 
     @aedt_install_dir.setter
-    def aedt_install_dir(self, value) -> None:
+    def aedt_install_dir(self, value):
         self.__aedt_install_dir = value
 
     @pyaedt_function_handler()
@@ -1089,7 +1089,7 @@ class Desktop(PyAedtBase):
         return self.__desktop
 
     @odesktop.setter
-    def odesktop(self, val: object) -> None:
+    def odesktop(self, val: object):
         self.__desktop = val
 
     @property
@@ -2476,7 +2476,7 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
-    def __dispatch_win32(self, version) -> None:  # pragma: no cover
+    def __dispatch_win32(self, version):  # pragma: no cover
         from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)

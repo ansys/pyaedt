@@ -75,7 +75,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
         return None
 
-    def __init__(self, modeler) -> None:
+    def __init__(self, modeler):
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler

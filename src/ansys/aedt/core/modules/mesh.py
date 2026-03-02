@@ -71,7 +71,7 @@ mesh_props = {
 class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
@@ -82,7 +82,7 @@ class MeshProps(dict):
             if not res:
                 self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, mesh_object, props) -> None:
+    def __init__(self, mesh_object, props):
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -92,7 +92,7 @@ class MeshProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_mesh = mesh_object
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
 
@@ -111,7 +111,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, mesh, name: str, props, meshoptype) -> None:
+    def __init__(self, mesh, name: str, props, meshoptype):
         self._mesh = mesh
         self._app = self._mesh._app
         self._legacy_props = None
@@ -212,7 +212,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, meshop_name) -> None:
+    def name(self, meshop_name):
         if self._child_object:
             try:
                 self.properties["Name"] = meshop_name
@@ -360,7 +360,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_property(self, name: str, arg) -> None:
+    def _change_property(self, name: str, arg):
         """Update properties of the mesh operation.
 
         Parameters
@@ -424,7 +424,7 @@ class Mesh(PyAedtBase):
     >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign

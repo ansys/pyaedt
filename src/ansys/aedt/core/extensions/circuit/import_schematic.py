@@ -60,7 +60,7 @@ class ImportSchematicData(ExtensionCommonData):
 class ImportSchematicExtension(ExtensionCircuitCommon):
     """Extension for importing schematic into Circuit."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",

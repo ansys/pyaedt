@@ -120,7 +120,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     can be passed to any method that creates a primitive.
     """
 
-    def __init__(self, application) -> None:
+    def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 

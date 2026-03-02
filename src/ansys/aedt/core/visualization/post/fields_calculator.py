@@ -92,7 +92,7 @@ class FieldsCalculator(PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self.expression_catalog = read_configuration_file(
             PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml"
         )

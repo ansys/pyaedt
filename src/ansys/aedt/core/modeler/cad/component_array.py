@@ -55,7 +55,7 @@ class ComponentArray(PyAedtBase):
     >>> array = aedtapp.component_array[array_names[0]]
     """
 
-    def __init__(self, app, name: str | None = None) -> None:
+    def __init__(self, app, name: str | None = None):
         # Public attributes
         self.logger = app.logger
         self.update_cells = True
@@ -286,7 +286,7 @@ class ComponentArray(PyAedtBase):
         return self.__name
 
     @name.setter
-    def name(self, array_name) -> None:
+    def name(self, array_name):
         if array_name not in self.__app.component_array_names:
             if array_name != self.__name:
                 self.__oarray.SetPropValue("Name", array_name)
@@ -325,7 +325,7 @@ class ComponentArray(PyAedtBase):
         return self.__post_processing_cells
 
     @post_processing_cells.setter
-    def post_processing_cells(self, val) -> None:
+    def post_processing_cells(self, val):
         if isinstance(val, dict):
             self.__post_processing_cells = val
             self.edit_array()
@@ -338,7 +338,7 @@ class ComponentArray(PyAedtBase):
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Visible")
 
     @visible.setter
-    def visible(self, val) -> None:
+    def visible(self, val):
         self.__oarray.SetPropValue("Visible", val)
 
     @property
@@ -347,7 +347,7 @@ class ComponentArray(PyAedtBase):
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Show Cell Number")
 
     @show_cell_number.setter
-    def show_cell_number(self, val) -> None:
+    def show_cell_number(self, val):
         self.__oarray.SetPropValue("Show Cell Number", val)
 
     @property
@@ -361,7 +361,7 @@ class ComponentArray(PyAedtBase):
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Render")
 
     @render.setter
-    def render(self, val) -> None:
+    def render(self, val):
         if val not in self.render_choices:
             self.logger.warning("Render value is not available.")
         else:
@@ -389,7 +389,7 @@ class ComponentArray(PyAedtBase):
         return self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector")
 
     @a_vector_name.setter
-    def a_vector_name(self, val) -> None:
+    def a_vector_name(self, val):
         if val in self.a_vector_choices:
             self.__oarray.SetPropValue("A Vector", val)
         else:
@@ -401,7 +401,7 @@ class ComponentArray(PyAedtBase):
         return self.__oarray.GetPropValue("B Vector")
 
     @b_vector_name.setter
-    def b_vector_name(self, val) -> None:
+    def b_vector_name(self, val):
         if val in self.b_vector_choices:
             self.__oarray.SetPropValue("B Vector", val)
         else:
@@ -413,7 +413,7 @@ class ComponentArray(PyAedtBase):
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "A Cell Count"))
 
     @a_size.setter
-    def a_size(self, val) -> None:  # pragma: no cover
+    def a_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("A Cell Count", val)
         self.logger.warning("A size cannot be modified.")
@@ -424,7 +424,7 @@ class ComponentArray(PyAedtBase):
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "B Cell Count"))
 
     @b_size.setter
-    def b_size(self, val) -> None:  # pragma: no cover
+    def b_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("B Cell Count", val)
         self.logger.warning("B size cannot be modified.")
@@ -457,7 +457,7 @@ class ComponentArray(PyAedtBase):
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
 
     @padding_cells.setter
-    def padding_cells(self, val) -> None:
+    def padding_cells(self, val):
         self.__oarray.SetPropValue("Padding", val)
 
     @property
@@ -473,7 +473,7 @@ class ComponentArray(PyAedtBase):
         return res
 
     @coordinate_system.setter
-    def coordinate_system(self, name: str) -> None:
+    def coordinate_system(self, name: str):
         cs_dict = self.__map_coordinate_system_to_id()
         if name not in cs_dict:
             self.logger.warning("Coordinate system is not loaded. Save the project.")
@@ -902,7 +902,7 @@ class CellArray(PyAedtBase):
 
     """
 
-    def __init__(self, row, col, array_props, component_names, array_obj) -> None:
+    def __init__(self, row, col, array_props, component_names, array_obj):
         self.__row = row + 1
         self.__col = col + 1
         self.__array_obj = array_obj
@@ -927,7 +927,7 @@ class CellArray(PyAedtBase):
         return self.__rotation
 
     @rotation.setter
-    def rotation(self, val) -> None:
+    def rotation(self, val):
         if val in [0, 90, 180, 270]:
             self.__rotation = val
             self.__array_obj.update_cells = False
@@ -942,7 +942,7 @@ class CellArray(PyAedtBase):
         return self.__component
 
     @component.setter
-    def component(self, val) -> None:
+    def component(self, val):
         component_names = self.__array_obj.component_names
         if val in component_names.values() or val is None:
             self.__array_obj.update_cells = False
@@ -968,7 +968,7 @@ class CellArray(PyAedtBase):
         return self.__is_active
 
     @is_active.setter
-    def is_active(self, val) -> None:
+    def is_active(self, val):
         if isinstance(val, bool):
             self.__is_active = val
             self.__array_obj.update_cells = False

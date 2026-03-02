@@ -104,7 +104,7 @@ class VersionManager:
     def personal_lib(self) -> str:
         return self.desktop.personallib
 
-    def __init__(self, ui, desktop) -> None:
+    def __init__(self, ui, desktop):
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
         self.desktop = desktop
@@ -205,7 +205,7 @@ class VersionManager:
 
         menu_bar.pack(fill="x")
 
-    def create_ui_basic(self, parent: tkinter.Widget) -> None:
+    def create_ui_basic(self, parent: tkinter.Widget):
         def create_ui_wheelhouse(frame: tkinter.Widget) -> None:
             buttons = [
                 ["Update from wheelhouse", self.update_from_wheelhouse],
@@ -268,7 +268,7 @@ class VersionManager:
         create_ui_wheelhouse(frame2)
         create_ui_info(frame3)
 
-    def create_ui_advanced(self, parent: tkinter.Widget) -> None:
+    def create_ui_advanced(self, parent: tkinter.Widget):
         def create_ui_pyaedt(frame: tkinter.Widget) -> None:
             label = ttk.Label(frame, text="PyAEDT", width=10, style="PyAEDT.TLabel")
             label.pack(side="left")
@@ -352,19 +352,19 @@ class VersionManager:
         else:
             subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
-    def show_loading(self, key: str) -> None:
+    def show_loading(self, key: str):
         """Show loading indicator for a specific operation."""
         if key in self.loading_labels:
             self.loading_labels[key].config(text="⏳")
             self.root.update_idletasks()
 
-    def hide_loading(self, key: str) -> None:
+    def hide_loading(self, key: str):
         """Hide loading indicator for a specific operation."""
         if key in self.loading_labels:
             self.loading_labels[key].config(text="")
             self.root.update_idletasks()
 
-    def update_and_reload(self, pip_args: list, loading_key: str | None = None) -> None: # pragma: no cover
+    def update_and_reload(self, pip_args: list, loading_key: str | None = None): # pragma: no cover
         """Run pip install/upgrade and refresh the UI."""
         # Confirm action
         response = messagebox.askyesno(
@@ -633,7 +633,7 @@ class VersionManager:
             except Exception:  # pragma: no cover
                 return "Please restart"
 
-    def clicked_refresh(self, need_restart: bool=False) -> None:
+    def clicked_refresh(self, need_restart: bool=False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
@@ -704,7 +704,7 @@ class VersionManager:
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path) -> None: # pragma: no cover
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
             dlg = tkinter.Toplevel(self.root)

@@ -90,7 +90,7 @@ class ColorMapSettings(BaseFolderPlot):
         Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
     """
 
-    def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow") -> None:
+    def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow"):
         self._map_type = None
         self.map_type = map_type
 
@@ -141,7 +141,7 @@ class ColorMapSettings(BaseFolderPlot):
             return self._color_uniform
 
     @color.setter
-    def color(self, v) -> None:
+    def color(self, v):
         """Set the colormap based on the map type.
 
         Parameters
@@ -203,7 +203,7 @@ class ColorMapSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, settings) -> None:
+    def from_dict(self, settings):
         """Initialize the number format settings of the colormap settings from a dictionary.
 
         Parameters
@@ -277,7 +277,7 @@ class AutoScale(BaseFolderPlot):
             "AnimationStaticScale": self.use_current_scale_for_animation,
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the auto-scale settings from a dictionary.
 
         Parameters
@@ -305,7 +305,7 @@ class MinMaxScale(BaseFolderPlot):
         Maximum value of the scale. Default is `1`.
     """
 
-    def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1) -> None:
+    def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1):
         self.n_levels = n_levels
         self.min_value = min_value
         self.max_value = max_value
@@ -327,7 +327,7 @@ class MinMaxScale(BaseFolderPlot):
         """
         return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the min-max scale settings from a dictionary.
 
         Parameters
@@ -350,7 +350,7 @@ class SpecifiedScale(PyAedtBase):
         Scale levels. Default is `None`.
     """
 
-    def __init__(self, scale_values=None) -> None:
+    def __init__(self, scale_values=None):
         if scale_values is None:
             scale_values = []
         if not isinstance(scale_values, list):
@@ -374,7 +374,7 @@ class SpecifiedScale(PyAedtBase):
         """
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the specified scale settings from a dictionary.
 
         Parameters
@@ -399,7 +399,7 @@ class NumberFormat(BaseFolderPlot):
         Precision of the numbers. Default is `4`.
     """
 
-    def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4) -> None:
+    def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4):
         self._format_type = format_type
         self.width = width
         self.precision = precision
@@ -450,7 +450,7 @@ class NumberFormat(BaseFolderPlot):
             "ValueNumberFormatPrecision": self.precision,
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the number format settings of the field plot settings from a dictionary.
 
         Parameters
@@ -615,7 +615,7 @@ class Scale3DSettings(BaseFolderPlot):
         arg_out["Scale3DSettings"].update(self.scale_settings.to_dict())
         return arg_out
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the scale settings of the field plot settings from a dictionary.
 
         Parameters
@@ -714,7 +714,7 @@ class MarkerSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the marker settings of the field plot settings from a dictionary.
 
         Parameters
@@ -844,7 +844,7 @@ class ArrowSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the arrow settings of the field plot settings from a dictionary.
 
         Parameters
@@ -921,7 +921,7 @@ class FolderPlotSettings(BaseFolderPlot):
         out.update(self.color_map_settings.to_dict())
         return {"FieldsPlotSettings": out}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the field plot settings from a dictionary.
 
         Parameters
@@ -1083,7 +1083,7 @@ class FieldPlot(PyAedtBase):
         return self._filter_boxes
 
     @filter_boxes.setter
-    def filter_boxes(self, val) -> None:
+    def filter_boxes(self, val):
         if isinstance(val, str):
             val = [val]
         self._filter_boxes = val

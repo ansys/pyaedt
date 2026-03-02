@@ -74,7 +74,7 @@ class Generic(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None):
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -104,7 +104,7 @@ class Person(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None):
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -121,11 +121,11 @@ class Person(Actor, PyAedtBase):
         return self._stride
 
     @stride.setter
-    def stride(self, s) -> None:
+    def stride(self, s):
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
-    def _add_walking(self, app) -> None:
+    def _add_walking(self, app):
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
         for k, p in self.parts.items():
@@ -147,7 +147,7 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = True) -> None:
+    def insert(self, app, motion: bool = True):
         """Insert the person in HFSS SBR+.
 
         Parameters
@@ -195,12 +195,12 @@ class Bird(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None) -> None:
+    def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None):
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
 
-    def _add_flying(self, app) -> None:
+    def _add_flying(self, app):
         # Update expressions for wheel motion:
 
         for k, p in self.parts.items():
@@ -211,7 +211,7 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = True) -> None:
+    def insert(self, app, motion: bool = True):
         """Insert the bird in HFSS SBR+.
 
         Parameters
@@ -255,12 +255,12 @@ class Vehicle(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None) -> None:
+    def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None):
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
     @pyaedt_function_handler()
-    def _add_driving(self, app) -> None:
+    def _add_driving(self, app):
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to determine if there is motion of the wheel.
@@ -381,11 +381,11 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s) -> None:
+    def speed_expression(self, s):
         self._speed_expression = s
 
     @pyaedt_function_handler()
-    def _add_speed(self, app) -> None:
+    def _add_speed(self, app):
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )

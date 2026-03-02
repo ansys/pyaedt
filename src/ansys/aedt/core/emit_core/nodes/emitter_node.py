@@ -52,7 +52,7 @@ class EmitterNode(EmitNode):
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj, result_id, node_id) -> None:
+    def __init__(self, emit_obj, result_id, node_id):
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
         self._radio_node = RadioNode(emit_obj, result_id, node_id)

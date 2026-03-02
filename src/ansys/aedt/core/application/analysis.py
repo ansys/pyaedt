@@ -340,7 +340,7 @@ class Analysis(Design, PyAedtBase):
 
     @active_setup.setter
     @pyaedt_function_handler()
-    def active_setup(self, name: str) -> None:
+    def active_setup(self, name: str):
         setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
@@ -2362,7 +2362,7 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         """Contains available variations.
 
         Parameters

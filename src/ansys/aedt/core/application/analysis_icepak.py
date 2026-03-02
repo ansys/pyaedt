@@ -197,7 +197,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         Icepak application that is to initialize the call.
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self.app = app
 
     def execute(self, k: str, v: float | int | str) -> str:

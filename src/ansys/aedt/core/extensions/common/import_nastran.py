@@ -72,7 +72,7 @@ class ImportNastranExtensionData(ExtensionCommonData):
 class ImportNastranExtension(ExtensionProjectCommon):
     """Extension for importing Nastran or STL files in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",

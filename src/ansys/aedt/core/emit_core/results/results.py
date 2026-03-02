@@ -47,7 +47,7 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj) -> None:
+    def __init__(self, emit_obj):
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -99,7 +99,7 @@ class Results:
             return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name: str) -> None:
+    def delete_revision(self, revision_name: str):
         """Delete the specified revision from the results.
 
         Parameters

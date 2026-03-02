@@ -37,7 +37,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
 class UserDefinedComponentParameters(dict):
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         try:
             self._component._m_Editor.ChangeProperty(
                 [
@@ -53,7 +53,7 @@ class UserDefinedComponentParameters(dict):
         except Exception:
             self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __init__(self, component, *args, **kw) -> None:
+    def __init__(self, component, *args, **kw):
         dict.__init__(self, *args, **kw)
         self._component = component
 
@@ -61,7 +61,7 @@ class UserDefinedComponentParameters(dict):
 class UserDefinedComponentProps(dict):
     """User Defined Component Internal Parameters."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_user_defined_component.auto_update:
@@ -69,7 +69,7 @@ class UserDefinedComponentProps(dict):
             if not res:
                 self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, user_defined_components, props) -> None:
+    def __init__(self, user_defined_components, props):
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -79,7 +79,7 @@ class UserDefinedComponentProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_user_defined_component = user_defined_components
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
 
@@ -112,7 +112,7 @@ class UserDefinedComponent(PyAedtBase):
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
-    def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
+    def __init__(self, primitives, name: str | None = None, props=None, component_type=None):
         self._fix_udm_props = [
             "General[Name]",
             "Group",
@@ -258,7 +258,7 @@ class UserDefinedComponent(PyAedtBase):
         return group
 
     @group_name.setter
-    def group_name(self, name: str) -> None:
+    def group_name(self, name: str):
         """Assign component to a specific group. A new group is created if the specified group doesn't exist.
 
         Parameters
@@ -345,7 +345,7 @@ class UserDefinedComponent(PyAedtBase):
             return None
 
     @mesh_assembly.setter
-    def mesh_assembly(self, ma) -> None:
+    def mesh_assembly(self, ma):
         key = "Do Mesh Assembly"
         if (
             self.is3dcomponent
@@ -373,7 +373,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, component_name) -> None:
+    def name(self, component_name):
         if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
             self._primitives.oeditor.Get3DComponentDefinitionNames()
         ):
@@ -465,7 +465,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._target_coordinate_system
 
     @target_coordinate_system.setter
-    def target_coordinate_system(self, tCS) -> None:
+    def target_coordinate_system(self, tCS):
         if (
             "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
             and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
@@ -912,7 +912,7 @@ class LayoutComponent(PyAedtBase):
 
     """
 
-    def __init__(self, component) -> None:
+    def __init__(self, component):
         self._primitives = component._primitives
         self._name = component.name
         self._component = component
@@ -1028,7 +1028,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_layout.setter
-    def show_layout(self, show_layout) -> None:
+    def show_layout(self, show_layout):
         key = "Show Layout"
         if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1055,7 +1055,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @fast_transformation.setter
-    def fast_transformation(self, fast_transformation) -> None:
+    def fast_transformation(self, fast_transformation):
         key = "Fast Transformation"
         if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1083,7 +1083,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_dielectric.setter
-    def show_dielectric(self, show_dielectric) -> None:
+    def show_dielectric(self, show_dielectric):
         key = "Object Attributes/ShowDielectric"
         if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1114,7 +1114,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @display_mode.setter
-    def display_mode(self, display_mode) -> None:
+    def display_mode(self, display_mode):
         key = "Object Attributes/DisplayMode"
         if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name

@@ -38,7 +38,7 @@ class ModelerRMxprt(Modeler, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         app.logger.reset_timer()
         Modeler.__init__(self, app)
         app.logger.info_timer("ModelerRMxprt class has been initialized!")
@@ -67,7 +67,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, application) -> None:
+    def __init__(self, application):
         Primitives2D.__init__(self, application)
         self._primitives = self
         self.logger.info("Modeler2D class has been initialized!")

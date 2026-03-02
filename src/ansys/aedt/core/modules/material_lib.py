@@ -61,7 +61,7 @@ class Materials(PyAedtBase):
     >>> materials = app.materials
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         self._color_id = 0
         self._mats = []

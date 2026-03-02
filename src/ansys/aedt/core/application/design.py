@@ -340,7 +340,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name: str, design_name: str, solution_type: str = None) -> None:
+    def _init_design(self, project_name: str, design_name: str, solution_type: str = None):
         """Initializes a new design.
 
         Parameters
@@ -598,7 +598,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key: str):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
@@ -741,7 +741,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._design_name
 
     @design_name.setter
-    def design_name(self, new_name: str) -> None:
+    def design_name(self, new_name: str):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
@@ -925,7 +925,7 @@ class Design(AedtObjects, PyAedtBase):
         return None
 
     @solution_type.setter
-    def solution_type(self, soltype: str) -> None:
+    def solution_type(self, soltype: str):
         if self.design_solutions:
             if (
                 self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
@@ -1204,7 +1204,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._odesign
 
     @odesign.setter
-    def odesign(self, des_name) -> None:
+    def odesign(self, des_name):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
@@ -1250,7 +1250,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._oproject
 
     @oproject.setter
-    def oproject(self, proj_name: str = None) -> None:
+    def oproject(self, proj_name: str = None):
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
@@ -4292,7 +4292,7 @@ class DesignSettings(PyAedtBase):
     >>> oDesign.GetChildObject("Design Settings")
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app: Any = app
         self.manipulate_inputs: DesignSettingsManipulation | None = None
         self.manipulate_inputs: DesignSettingsManipulation | None = None

@@ -522,7 +522,7 @@ class GeneticAlgorithm(PyAedtBase):
             self.evaluate()
         return self.evaluate_val
 
-    def progress(self, count: int, total: int, status: str = "") -> None:
+    def progress(self, count: int, total: int, status: str = ""):
         bar_len = 50
         filled_len = int(round(bar_len * count / float(total)))
 

@@ -73,7 +73,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
+    def __init__(self, parent_results, emit_obj, name: str | None = None):
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -960,7 +960,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.get_emi_category_filter_enabled(category)
 
-    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool) -> None:
+    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
 
         Parameters

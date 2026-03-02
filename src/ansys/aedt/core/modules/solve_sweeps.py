@@ -111,7 +111,7 @@ class SweepHFSS(SweepCommon):
 
     """
 
-    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -637,7 +637,7 @@ class SweepMatrix(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None):
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -869,7 +869,7 @@ class SweepMaxwellEC(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
+    def __init__(self, setup, sweep_type: str = "LinearStep", props=None):
         self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -1005,7 +1005,7 @@ class SweepMaxwellEC(SweepCommon):
 class SetupProps(dict):
     """Provides internal parameters for the AEDT boundary component."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         if isinstance(value, dict):
             dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
         else:
@@ -1016,7 +1016,7 @@ class SetupProps(dict):
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, setup, props) -> None:
+    def __init__(self, setup, props):
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -1026,7 +1026,7 @@ class SetupProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:

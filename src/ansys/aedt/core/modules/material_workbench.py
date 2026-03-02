@@ -52,7 +52,7 @@ class MaterialWorkbench(PyAedtBase):
         Inherited parent object.
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         self._mat_name_suffix = "_wb"
 
@@ -61,7 +61,7 @@ class MaterialWorkbench(PyAedtBase):
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
-    def mat_name_suffix(self, suffix) -> None:
+    def mat_name_suffix(self, suffix):
         self._mat_name_suffix = str(suffix)
 
     @staticmethod

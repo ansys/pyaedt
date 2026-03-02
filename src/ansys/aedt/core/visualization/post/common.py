@@ -100,7 +100,7 @@ class PostProcessorCommon(PyAedtBase):
     >>> q3d.post.get_solution_data(domain="Original")
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         self._scratch = self._app.working_directory
         self.__plots = self._get_plot_inputs()
@@ -120,7 +120,7 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value) -> None:
+    def plots(self, value):
         self.__plots = value
 
     @property
@@ -151,7 +151,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @update_report_dynamically.setter
-    def update_report_dynamically(self, value) -> None:
+    def update_report_dynamically(self, value):
         if value:
             self._app.odesktop.SetRegistryInt(
                 f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1
@@ -2053,7 +2053,7 @@ class PostProcessorCommon(PyAedtBase):
 class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
-    def __init__(self, post_app, design_type) -> None:
+    def __init__(self, post_app, design_type):
         self._post_app = post_app
         self._design_type = design_type
         self._templates = self._post_app._app._design_type.report_templates

@@ -39,7 +39,7 @@ class RMXprtModule(PyAedtBase):
 
     component = None
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         self.oeditor = app.oeditor
 
@@ -63,7 +63,7 @@ class RMXprtModule(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def __setitem__(self, parameter_name, value) -> None:
+    def __setitem__(self, parameter_name, value):
         def _apply_val(dict_in, name: str, value) -> bool:
             if name in dict_in.properties:
                 if (
@@ -273,7 +273,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return str(self.design_solutions._design_type)
 
     @design_type.setter
-    def design_type(self, value) -> None:
+    def design_type(self, value):
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()

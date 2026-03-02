@@ -184,7 +184,7 @@ class AdvancedReport(ReportBase):
 class SpiSim(PyAedtBase):
     """Provides support to SpiSim batch mode."""
 
-    def __init__(self, touchstone_file: str = "") -> None:
+    def __init__(self, touchstone_file: str = ""):
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
@@ -209,7 +209,7 @@ class SpiSim(PyAedtBase):
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, val) -> None:
+    def working_directory(self, val):
         self._working_directory = val
 
     def _copy_to_relative_path(self, file_name: str):
@@ -831,7 +831,7 @@ class SpiSimRawRead(PyAedtBase):
         s = f.read(4)
         return unpack("f", s)[0]
 
-    def __init__(self, raw_filename: str, **kwargs) -> None:
+    def __init__(self, raw_filename: str, **kwargs):
         raw_filename = Path(raw_filename)
 
         raw_file = open(raw_filename, "rb")

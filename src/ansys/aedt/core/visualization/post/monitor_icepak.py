@@ -91,7 +91,7 @@ quantities_type_dict = {  # pragma: no cover
 class Monitor(PyAedtBase):
     """Provides Icepak monitor methods."""
 
-    def __init__(self, p_app) -> None:
+    def __init__(self, p_app):
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
@@ -681,7 +681,7 @@ class Monitor(PyAedtBase):
 class ObjectMonitor(PyAedtBase):
     """Provides Icepak Monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app) -> None:
+    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
         self._name = monitor_name
         self._type = monitor_type
         self._id = monitor_id
@@ -849,7 +849,7 @@ class ObjectMonitor(PyAedtBase):
 class PointMonitor(ObjectMonitor):
     """Provides Icepak point monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, point_id, quantity, app) -> None:
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
@@ -874,7 +874,7 @@ class PointMonitor(ObjectMonitor):
 class FaceMonitor(ObjectMonitor):
     """Provides Icepak face monitor properties and methods."""
 
-    def __init__(self, monitor_name, monitor_type, face_id, quantity, app) -> None:
+    def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property

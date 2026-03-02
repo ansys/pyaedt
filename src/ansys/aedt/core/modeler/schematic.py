@@ -59,7 +59,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         app.logger.reset_timer()
         self._app = app
         self._schematic_units = "meter"
@@ -82,7 +82,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value) -> None:
+    def schematic_units(self, value):
         if value in list(AEDT_UNITS["Length"].keys()):
             self._schematic_units = value
         else:
@@ -463,7 +463,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
@@ -597,7 +597,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._primitives
 
     @model_units.setter
-    def model_units(self, units) -> None:
+    def model_units(self, units):
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 
@@ -702,7 +702,7 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
@@ -738,7 +738,7 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
         if not (3, 7) < sys.version_info < (3, 13):
@@ -778,7 +778,7 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = MaxwellCircuitComponents(self)

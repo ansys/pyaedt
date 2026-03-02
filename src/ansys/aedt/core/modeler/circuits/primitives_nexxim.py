@@ -109,7 +109,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def _logger(self):
         return self._app.logger
 
-    def __init__(self, modeler) -> None:
+    def __init__(self, modeler):
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler

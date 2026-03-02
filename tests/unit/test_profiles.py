@@ -34,7 +34,7 @@ import ansys.aedt.core.modules.profile as profiles
 
 # Mock Node class to simulate the structure used in profiles
 class Node:
-    def __init__(self, properties=None, children=None) -> None:
+    def __init__(self, properties=None, children=None):
         self.properties = properties or {}
         self.children = children or {}
 
@@ -83,7 +83,7 @@ def test_merge_dict_all_paths_and_ordering() -> None:
 
 def test_merge_profiles_calls_add() -> None:
     class Sim:
-        def __init__(self, v) -> None:
+        def __init__(self, v):
             self.v = v
 
         def __add__(self, other):

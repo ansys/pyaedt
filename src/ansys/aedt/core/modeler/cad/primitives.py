@@ -103,7 +103,7 @@ class Objects(dict):
         else:
             return len(self.__parent.user_defined_component_names)
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key):
         try:
             name = [i for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
             key = [k for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
@@ -154,7 +154,7 @@ class Objects(dict):
         self._parse_objs()
         return dict.__iter__(self)
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
@@ -199,7 +199,7 @@ class Objects(dict):
             return self.__obj_names[item]
         raise KeyError(item)
 
-    def __init__(self, parent, obj_type: str = "o", props=None) -> None:
+    def __init__(self, parent, obj_type: str = "o", props=None):
         dict.__init__(self)
         self.__obj_names = {}
         self.__parent = parent
@@ -274,7 +274,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 pass
         return
 
-    def __init__(self, app, is3d: bool = True) -> None:
+    def __init__(self, app, is3d: bool = True):
         self._app = app
         self._model_data = {}
         Modeler.__init__(self, app)
@@ -306,7 +306,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, value) -> None:
+    def rescale_model(self, value):
         self._app.units.rescale_model = value
 
     class Position:
@@ -333,7 +333,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 raise IndexError
 
         @pyaedt_function_handler()
-        def __setitem__(self, item, value) -> None:
+        def __setitem__(self, item, value):
             if item == 0:
                 self.X = value
             elif item == 1:
@@ -388,7 +388,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
 
         @pyaedt_function_handler()
-        def __init__(self, draftType: str = "Round", draftAngle: str = "0deg", twistAngle: str = "0deg") -> None:
+        def __init__(self, draftType: str = "Round", draftAngle: str = "0deg", twistAngle: str = "0deg"):
             self.DraftType = draftType
             self.DraftAngle = draftAngle
             self.TwistAngle = twistAngle
@@ -483,7 +483,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.length
 
     @model_units.setter
-    def model_units(self, units) -> None:
+    def model_units(self, units):
         self._app.units.length = units
 
     @property
@@ -9229,7 +9229,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp.desktop_class.close_desktop()
     """
 
-    def __init__(self, app, input_file: str | None = None, input_dict=None) -> None:
+    def __init__(self, app, input_file: str | None = None, input_dict=None):
         self._app = app
         props = {}
         if not input_dict and not input_file:  # pragma: no cover

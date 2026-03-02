@@ -86,7 +86,7 @@ class Object3d(PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name: str | None = None) -> None:
+    def __init__(self, primitives, name: str | None = None):
         self._id = None
         self._positions = None
         if name:
@@ -133,7 +133,7 @@ class Object3d(PyAedtBase):
         return self._is_polyline
 
     @is_polyline.setter
-    def is_polyline(self, value) -> None:
+    def is_polyline(self, value):
         self._is_polyline = value
 
     @pyaedt_function_handler()
@@ -862,7 +862,7 @@ class Object3d(PyAedtBase):
         return self._m_groupName
 
     @group_name.setter
-    def group_name(self, name: str) -> None:
+    def group_name(self, name: str):
         """Assign Object to a specific group. It creates a new group if the group doesn't exist.
 
         Parameters
@@ -944,7 +944,7 @@ class Object3d(PyAedtBase):
         return ""
 
     @material_name.setter
-    def material_name(self, mat) -> None:
+    def material_name(self, mat):
         matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
@@ -962,7 +962,7 @@ class Object3d(PyAedtBase):
             self.logger.warning("Material %s does not exist.", mat)
 
     @surface_material_name.setter
-    def surface_material_name(self, mat) -> None:
+    def surface_material_name(self, mat):
         try:
             if not self.model:
                 self.model = True
@@ -1121,7 +1121,7 @@ class Object3d(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, obj_name) -> None:
+    def name(self, obj_name):
         if obj_name != self._m_name and obj_name not in self._primitives.object_names:
             vName = ["NAME:Name", "Value:=", obj_name]
             vChangedProps = ["NAME:ChangedProps", vName]
@@ -1188,7 +1188,7 @@ class Object3d(PyAedtBase):
         return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
     @color.setter
-    def color(self, color_value) -> None:
+    def color(self, color_value):
         color_tuple = None
         if isinstance(color_value, str):
             try:
@@ -1241,7 +1241,7 @@ class Object3d(PyAedtBase):
             return self._transparency
 
     @transparency.setter
-    def transparency(self, T) -> None:
+    def transparency(self, T):
         try:
             trans_float = float(T)
             if trans_float < 0.0:
@@ -1285,7 +1285,7 @@ class Object3d(PyAedtBase):
             return self._part_coordinate_system
 
     @part_coordinate_system.setter
-    def part_coordinate_system(self, sCS) -> None:
+    def part_coordinate_system(self, sCS):
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
@@ -1317,7 +1317,7 @@ class Object3d(PyAedtBase):
         return None
 
     @solve_inside.setter
-    def solve_inside(self, S) -> None:
+    def solve_inside(self, S):
         if not self.model:
             self.model = True
         vSolveInside = []
@@ -1355,7 +1355,7 @@ class Object3d(PyAedtBase):
             return self._wireframe
 
     @display_wireframe.setter
-    def display_wireframe(self, fWireframe) -> None:
+    def display_wireframe(self, fWireframe):
         vWireframe = ["NAME:Display Wireframe", "Value:=", fWireframe]
         # fwf = self._to_boolean(wf)
 
@@ -1390,7 +1390,7 @@ class Object3d(PyAedtBase):
             return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, material_appearance) -> None:
+    def material_appearance(self, material_appearance):
         vMaterialAppearance = [
             "NAME:Material Appearance",
             "Value:=",
@@ -1443,7 +1443,7 @@ class Object3d(PyAedtBase):
             return self._model
 
     @is_model.setter
-    def is_model(self, fModel) -> None:
+    def is_model(self, fModel):
         vArg1 = ["NAME:Model", "Value:=", fModel]
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
@@ -1471,7 +1471,7 @@ class Object3d(PyAedtBase):
         return self.is_model
 
     @model.setter
-    def model(self, fModel) -> None:
+    def model(self, fModel):
         self.is_model = fModel
 
     @pyaedt_function_handler()

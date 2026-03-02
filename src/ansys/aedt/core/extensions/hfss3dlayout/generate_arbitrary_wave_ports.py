@@ -72,7 +72,7 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
 class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for generating arbitrary wave ports in HFSS 3D Layout."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,

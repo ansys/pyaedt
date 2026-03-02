@@ -126,7 +126,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     local_path = ""
     config_data: dict = dict()
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
@@ -187,7 +187,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
         create_tab_main(self.tab_frame_main, self)
 
-    def run(self, config_data: dict) -> None:
+    def run(self, config_data: dict):
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
         app = MCADAssemblyBackend.load(data=config_data, cur_dir=self.local_path)
         app.run(hfss)
@@ -303,11 +303,11 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
-    def assemble_sub_components(self, hfss, cs_prefix: str = "") -> None:
+    def assemble_sub_components(self, hfss, cs_prefix: str = ""):
         for name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 
-    def apply_arrange(self, hfss: "Hfss") -> None:
+    def apply_arrange(self, hfss: "Hfss"):
         for i in self.arranges:
             if i.operation == "rotate":
                 self.__rotate_index = self.__rotate_index + 1
@@ -325,7 +325,7 @@ class Component(BaseModel):
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector)
 
-    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None) -> None:
+    def assemble(self, hfss: "Hfss", cs_prefix: str | None = None):
         """
         Parameters
         ----------
@@ -405,7 +405,7 @@ class MCADAssemblyBackend(BaseModel):
             sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
-    def run(self, hfss: "Hfss") -> None:
+    def run(self, hfss: "Hfss"):
         for name, value in self.coordinate_system.items():
             hfss.modeler.create_coordinate_system(name=name, **value)
 

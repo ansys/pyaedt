@@ -24,7 +24,7 @@
 
 
 class Variation(dict):
-    def __init__(self, variation_string) -> None:
+    def __init__(self, variation_string):
         super().__init__()
         if variation_string:
             pairs = variation_string.split(" ")

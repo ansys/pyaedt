@@ -85,7 +85,7 @@ class Quantity(float, PyAedtBase):
         else:
             return []
 
-    def _parse_units(self, unit) -> None:
+    def _parse_units(self, unit):
         if unit:
             self._unit_system = unit_system(unit)
             if self._unit_system == "None":
@@ -100,7 +100,7 @@ class Quantity(float, PyAedtBase):
         return f"{self._value}{self._unit}"
 
     @expression.setter
-    def expression(self, value: str) -> None:
+    def expression(self, value: str):
         """Value number with unit.
 
         Returns
@@ -132,7 +132,7 @@ class Quantity(float, PyAedtBase):
         return self._unit
 
     @unit.setter
-    def unit(self, value: str) -> None:
+    def unit(self, value: str):
         if value in AEDT_UNITS[self.unit_system]:
             self._unit = value
 
@@ -147,7 +147,7 @@ class Quantity(float, PyAedtBase):
         return self._value
 
     @value.setter
-    def value(self, value: float) -> None:
+    def value(self, value: float):
         _value, _unit = decompose_variable_value(value)
         self._value = _value
         self._parse_units(_unit)

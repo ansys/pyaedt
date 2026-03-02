@@ -80,7 +80,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 class FieldsDistributionExtension(ExtensionCommon):
     """Extension for fields distribution in Maxwell."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -155,7 +155,7 @@ class FieldsDistributionExtension(ExtensionCommon):
             self.release_desktop()
             raise AEDTRuntimeError("No solved analysis sweeps found.")
 
-    def _text_size(self, path, entry) -> None:
+    def _text_size(self, path, entry):
         """Adjust text widget size based on content."""
         text_length = len(path)
         height = 1
@@ -165,7 +165,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         entry.delete("1.0", tkinter.END)
         entry.insert(tkinter.END, path)
 
-    def _populate_listbox(self, frame, listbox, listbox_height, items_list) -> None:
+    def _populate_listbox(self, frame, listbox, listbox_height, items_list):
         """Populate listbox with items and add scrollbar if needed."""
         listbox.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         if len(items_list) > 6:

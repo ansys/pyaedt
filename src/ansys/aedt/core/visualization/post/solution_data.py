@@ -49,7 +49,7 @@ except ImportError:
 class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
-    def __init__(self, aedtdata) -> None:
+    def __init__(self, aedtdata):
         start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata
@@ -83,7 +83,7 @@ class SolutionData(PyAedtBase):
         return self._active_variation
 
     @active_variation.setter
-    def active_variation(self, value) -> None:
+    def active_variation(self, value):
         if value in self.variations:
             self._active_variation = value
             self.nominal_variation = self.variations.index(value)
@@ -105,7 +105,7 @@ class SolutionData(PyAedtBase):
         return True if self._enable_pandas_output and pd else False
 
     @enable_pandas_output.setter
-    def enable_pandas_output(self, val) -> None:
+    def enable_pandas_output(self, val):
         if val != self._enable_pandas_output and pd:
             self._enable_pandas_output = val
             self.init_solutions_data()
@@ -211,7 +211,7 @@ class SolutionData(PyAedtBase):
         return self._nominal_variation
 
     @nominal_variation.setter
-    def nominal_variation(self, val) -> None:
+    def nominal_variation(self, val):
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
         else:
@@ -229,7 +229,7 @@ class SolutionData(PyAedtBase):
         return self._primary_sweep
 
     @primary_sweep.setter
-    def primary_sweep(self, ps) -> None:
+    def primary_sweep(self, ps):
         if ps in self._sweeps_names:
             self._primary_sweep = ps
 

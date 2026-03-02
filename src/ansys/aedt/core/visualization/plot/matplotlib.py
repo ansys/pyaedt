@@ -108,7 +108,7 @@ class Note(PyAedtBase):
         return self._text
 
     @text.setter
-    def text(self, value) -> None:
+    def text(self, value):
         self._text = value
 
     @property
@@ -122,7 +122,7 @@ class Note(PyAedtBase):
         return self._back_color
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value):
         self._back_color = value
 
     @property
@@ -136,7 +136,7 @@ class Note(PyAedtBase):
         return self._background_visibility
 
     @background_visibility.setter
-    def background_visibility(self, value) -> None:
+    def background_visibility(self, value):
         self._background_visibility = value
 
     @property
@@ -150,7 +150,7 @@ class Note(PyAedtBase):
         return self._border_visibility
 
     @border_visibility.setter
-    def border_visibility(self, value) -> None:
+    def border_visibility(self, value):
         self._border_visibility = value
 
     @property
@@ -164,7 +164,7 @@ class Note(PyAedtBase):
         return self._border_width
 
     @border_width.setter
-    def border_width(self, value) -> None:
+    def border_width(self, value):
         self._border_width = value
 
     @property
@@ -178,7 +178,7 @@ class Note(PyAedtBase):
         return self._font
 
     @font.setter
-    def font(self, value) -> None:
+    def font(self, value):
         self._font = value
 
     @property
@@ -192,7 +192,7 @@ class Note(PyAedtBase):
         return self._font_size
 
     @font_size.setter
-    def font_size(self, value) -> None:
+    def font_size(self, value):
         self._font_size = value
 
     @property
@@ -206,7 +206,7 @@ class Note(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value):
         self._color = value
 
     @property
@@ -220,7 +220,7 @@ class Note(PyAedtBase):
         return self._bold
 
     @bold.setter
-    def bold(self, value) -> None:
+    def bold(self, value):
         self._bold = value
 
     @property
@@ -234,7 +234,7 @@ class Note(PyAedtBase):
         return self._italic
 
     @italic.setter
-    def italic(self, value) -> None:
+    def italic(self, value):
         self._italic = value
 
 
@@ -306,23 +306,23 @@ class Trace(PyAedtBase):
         return self.__fill_symbol
 
     @trace_style.setter
-    def trace_style(self, val) -> None:
+    def trace_style(self, val):
         self.__trace_style = val
 
     @trace_width.setter
-    def trace_width(self, val) -> None:
+    def trace_width(self, val):
         self.__trace_width = val
 
     @trace_color.setter
-    def trace_color(self, val) -> None:
+    def trace_color(self, val):
         self.__trace_color = val
 
     @symbol_style.setter
-    def symbol_style(self, val) -> None:
+    def symbol_style(self, val):
         self.__symbol_style = val
 
     @fill_symbol.setter
-    def fill_symbol(self, val) -> None:
+    def fill_symbol(self, val):
         self.__fill_symbol = val
 
     @property
@@ -337,7 +337,7 @@ class Trace(PyAedtBase):
         return self._cartesian_data
 
     @cartesian_data.setter
-    def cartesian_data(self, val) -> None:
+    def cartesian_data(self, val):
         self._cartesian_data = []
         for el in val:
             if not isinstance(el, (float, int, str)):
@@ -360,7 +360,7 @@ class Trace(PyAedtBase):
         return self._spherical_data
 
     @spherical_data.setter
-    def spherical_data(self, rthetaphi) -> None:
+    def spherical_data(self, rthetaphi):
         self._spherical_data = []
         for el in rthetaphi:
             if not isinstance(el, (float, int, str)):
@@ -556,7 +556,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_style
 
     @grid_style.setter
-    def grid_style(self, val) -> None:
+    def grid_style(self, val):
         self.__grid_style = val
 
     @property
@@ -570,7 +570,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_x
 
     @grid_enable_major_x.setter
-    def grid_enable_major_x(self, val) -> None:
+    def grid_enable_major_x(self, val):
         self.__grid_enable_major_x = val
 
     @property
@@ -584,7 +584,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_y
 
     @grid_enable_major_y.setter
-    def grid_enable_major_y(self, val) -> None:
+    def grid_enable_major_y(self, val):
         self.__grid_enable_major_y = val
 
     @property
@@ -598,7 +598,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_x
 
     @grid_enable_minor_x.setter
-    def grid_enable_minor_x(self, val) -> None:
+    def grid_enable_minor_x(self, val):
         self.__grid_enable_minor_x = val
 
     @property
@@ -612,7 +612,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_y
 
     @grid_enable_minor_y.setter
-    def grid_enable_minor_y(self, val) -> None:
+    def grid_enable_minor_y(self, val):
         self.__grid_enable_minor_y = val
 
     @property
@@ -627,7 +627,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_color
 
     @grid_color.setter
-    def grid_color(self, val) -> None:
+    def grid_color(self, val):
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -644,7 +644,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_back_color
 
     @general_back_color.setter
-    def general_back_color(self, val) -> None:
+    def general_back_color(self, val):
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -661,7 +661,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_plot_color
 
     @general_plot_color.setter
-    def general_plot_color(self, val) -> None:
+    def general_plot_color(self, val):
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -752,7 +752,7 @@ class ReportPlotter(PyAedtBase):
         return self.__y_scale
 
     @y_scale.setter
-    def y_scale(self, val) -> None:
+    def y_scale(self, val):
         self.__y_scale = val
 
     @property
@@ -766,7 +766,7 @@ class ReportPlotter(PyAedtBase):
         return self.__x_scale
 
     @x_scale.setter
-    def x_scale(self, val) -> None:
+    def x_scale(self, val):
         self.__x_scale = val
 
     @property
@@ -780,7 +780,7 @@ class ReportPlotter(PyAedtBase):
         return plt.isinteractive()
 
     @interactive.setter
-    def interactive(self, val) -> None:
+    def interactive(self, val):
         if val:
             plt.ion()
         else:
@@ -931,7 +931,7 @@ class ReportPlotter(PyAedtBase):
         return [i * px for i in self.plt_params["figure.figsize"]]
 
     @size.setter
-    def size(self, val, is_pixel: bool = True) -> None:
+    def size(self, val, is_pixel: bool = True):
         if is_pixel:
             px = 1 / self.plt_params["figure.dpi"]  # pixel in inches
             self.plt_params["figure.figsize"] = [i * px for i in val]
@@ -1346,7 +1346,7 @@ class ReportPlotter(PyAedtBase):
                 t.set_bbox(bbox)
 
     @pyaedt_function_handler()
-    def _plot_limit_lines(self, convert_to_radians: bool = False) -> None:
+    def _plot_limit_lines(self, convert_to_radians: bool = False):
         rate = 1
         if convert_to_radians:
             rate = np.pi / 180

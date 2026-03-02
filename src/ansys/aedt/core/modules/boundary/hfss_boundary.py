@@ -45,7 +45,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> sphere1.delete()
     """
 
-    def __init__(self, app, component_name, props, component_type) -> None:
+    def __init__(self, app, component_name, props, component_type):
         self.auto_update = False
         self._app = app
         self.type = component_type
@@ -103,7 +103,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value):
         if self._child_object:
             try:
                 self.properties["Name"] = value
@@ -203,7 +203,7 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.delete()
     """
 
-    def __init__(self, app, component_name, props, component_type, units: str = "deg") -> None:
+    def __init__(self, app, component_name, props, component_type, units: str = "deg"):
         FieldSetup.__init__(self, app, component_name, props, component_type)
         self.units = units
 
@@ -213,7 +213,7 @@ class FarFieldSetup(FieldSetup):
         return self.props["CSDefinition"]
 
     @definition.setter
-    def definition(self, value) -> None:
+    def definition(self, value):
         actual_value = self.props["CSDefinition"]
         self.props["CSDefinition"] = value
         actual_defs = None
@@ -275,7 +275,7 @@ class FarFieldSetup(FieldSetup):
         return self.props["UseCustomRadiationSurface"]
 
     @use_custom_radiation_surface.setter
-    def use_custom_radiation_surface(self, value) -> None:
+    def use_custom_radiation_surface(self, value):
         self.props["UseCustomRadiationSurface"] = value
         self.update()
 
@@ -285,7 +285,7 @@ class FarFieldSetup(FieldSetup):
         return self.props["CustomRadiationSurface"]
 
     @custom_radiation_surface.setter
-    def custom_radiation_surface(self, value) -> None:
+    def custom_radiation_surface(self, value):
         if value:
             self.props["UseCustomRadiationSurface"] = True
             self.props["CustomRadiationSurface"] = value
@@ -300,7 +300,7 @@ class FarFieldSetup(FieldSetup):
         return self.props["UseLocalCS"]
 
     @use_local_coordinate_system.setter
-    def use_local_coordinate_system(self, value) -> None:
+    def use_local_coordinate_system(self, value):
         self.props["UseLocalCS"] = value
         self.update()
 
@@ -313,7 +313,7 @@ class FarFieldSetup(FieldSetup):
             return None
 
     @local_coordinate_system.setter
-    def local_coordinate_system(self, value) -> None:
+    def local_coordinate_system(self, value):
         if value:
             self.props["UseLocalCS"] = True
             self.props["CoordSystem"] = value
@@ -328,7 +328,7 @@ class FarFieldSetup(FieldSetup):
         return self.props["Polarization"]
 
     @polarization.setter
-    def polarization(self, value) -> None:
+    def polarization(self, value):
         self.props["Polarization"] = value
         self.update()
 
@@ -341,7 +341,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @slant_angle.setter
-    def slant_angle(self, value) -> None:
+    def slant_angle(self, value):
         self.props["Polarization"] = "Slant"
         self.props["SlantAngle"] = value
         self.update()
@@ -443,73 +443,73 @@ class FarFieldSetup(FieldSetup):
             return
 
     @theta_start.setter
-    def theta_start(self, value) -> None:
+    def theta_start(self, value):
         if "ThetaStart" in self.props:
             self.props["ThetaStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @theta_stop.setter
-    def theta_stop(self, value) -> None:
+    def theta_stop(self, value):
         if "ThetaStop" in self.props:
             self.props["ThetaStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @theta_step.setter
-    def theta_step(self, value) -> None:
+    def theta_step(self, value):
         if "ThetaStep" in self.props:
             self.props["ThetaStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_start.setter
-    def phi_start(self, value) -> None:
+    def phi_start(self, value):
         if "PhiStart" in self.props:
             self.props["PhiStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_stop.setter
-    def phi_stop(self, value) -> None:
+    def phi_stop(self, value):
         if "PhiStop" in self.props:
             self.props["PhiStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_step.setter
-    def phi_step(self, value) -> None:
+    def phi_step(self, value):
         if "PhiStep" in self.props:
             self.props["PhiStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_start.setter
-    def azimuth_start(self, value) -> None:
+    def azimuth_start(self, value):
         if "AzimuthStart" in self.props:
             self.props["AzimuthStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_stop.setter
-    def azimuth_stop(self, value) -> None:
+    def azimuth_stop(self, value):
         if "AzimuthStop" in self.props:
             self.props["AzimuthStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_step.setter
-    def azimuth_step(self, value) -> None:
+    def azimuth_step(self, value):
         if "AzimuthStep" in self.props:
             self.props["AzimuthStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_start.setter
-    def elevation_start(self, value) -> None:
+    def elevation_start(self, value):
         if "ElevationStart" in self.props:
             self.props["ElevationStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_stop.setter
-    def elevation_stop(self, value) -> None:
+    def elevation_stop(self, value):
         if "ElevationStop" in self.props:
             self.props["ElevationStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_step.setter
-    def elevation_step(self, value) -> None:
+    def elevation_step(self, value):
         if "ElevationStep" in self.props:
             self.props["ElevationStep"] = self._app.value_with_units(value, self.units)
             self.update()
@@ -528,5 +528,5 @@ class NearFieldSetup(FieldSetup):
     >>> rectangle1 = hfss.insert_near_field_rectangle()
     """
 
-    def __init__(self, app, component_name, props, component_type) -> None:
+    def __init__(self, app, component_name, props, component_type):
         FieldSetup.__init__(self, app, component_name, props, component_type)

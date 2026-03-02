@@ -103,7 +103,7 @@ AVAILABLE_QUANTITIES = [
 class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
-    def __init__(self, app) -> None:
+    def __init__(self, app):
         self._app = app
         self.calculations = []
 
@@ -286,7 +286,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self, setup, variation) -> None:
+    def _create_field_summary(self, setup, variation):
         arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")

@@ -87,7 +87,7 @@ class KernelConverterExtensionData(ExtensionCommonData):
 class KernelConverterExtension(ExtensionProjectCommon):
     """Extension for kernel converter in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class
         super().__init__(
             EXTENSION_TITLE,
@@ -230,7 +230,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             self.file_path_entry.delete("1.0", tkinter.END)
             self.file_path_entry.insert(tkinter.END, filename)
 
-    def _update_solutions(self, event=None) -> None:
+    def _update_solutions(self, event=None):
         """Update solution options based on selected application."""
         app_name = self.application_combo.get()
         for k in dir(DesignType):

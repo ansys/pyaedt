@@ -87,7 +87,7 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for parametrizing EDB layouts in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -272,7 +272,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message: str) -> None:
+    def show_error_message(self, message: str):
         """Show error message."""
         import tkinter.messagebox
 

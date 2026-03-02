@@ -31,7 +31,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
-    def __init__(self, emit_instance) -> None:
+    def __init__(self, emit_instance):
         """Initialize the EmitSchematic class.
 
         Parameters
@@ -189,7 +189,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
 
     @pyaedt_function_handler
-    def connect_components(self, component_name_1: str, component_name_2: str) -> None:
+    def connect_components(self, component_name_1: str, component_name_2: str):
         """Connect two components in the schematic.
 
         Parameters
@@ -216,7 +216,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")
 
     @pyaedt_function_handler
-    def delete_component(self, name: str) -> None:
+    def delete_component(self, name: str):
         """Delete a component from the schematic.
 
         Parameters

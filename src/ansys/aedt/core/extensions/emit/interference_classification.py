@@ -45,7 +45,7 @@ class _MatrixData:
 class InterferenceClassificationExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for Protection Level and Interference Type classification."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         self._matrix = {"protection": None, "interference": None}
         self._filters_interf = {}
         self._filters_prot = {}
@@ -339,7 +339,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             self._current_radio = None  # Clear tracking when back to global
             self._global_protection_level = True
 
-    def _on_radio_dropdown_changed(self, _evt=None) -> None:
+    def _on_radio_dropdown_changed(self, _evt=None):
         """Update legend entry values when selected radio changes."""
         # First, save the current Entry values to the previously selected radio
         prev_radio = getattr(self, "_current_radio", None)
@@ -492,7 +492,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         return tx, rx, colors, matrix
 
     # --------------- UI rendering helpers ----------------
-    def _render_matrix(self, tab: str) -> None:
+    def _render_matrix(self, tab: str):
         """Display the results matrix on the canvas for the given tab."""
         matrix = self._matrix.get(tab)
         if not matrix:

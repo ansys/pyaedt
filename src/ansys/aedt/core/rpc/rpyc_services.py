@@ -37,10 +37,10 @@ logger = logging.getLogger(__name__)
 class FileManagement(PyAedtBase):
     """Class to manage file transfer."""
 
-    def __init__(self, client) -> None:
+    def __init__(self, client):
         self.client = client
 
-    def upload(self, localpath, remotepath, overwrite: bool=False) -> None:
+    def upload(self, localpath, remotepath, overwrite: bool=False):
         """Upload a file or a directory to the given remote path.
 
         Parameters
@@ -57,7 +57,7 @@ class FileManagement(PyAedtBase):
         elif os.path.isfile(localpath):
             self._upload_file(localpath, remotepath)
 
-    def download_folder(self, remotepath, localpath, overwrite: bool=True) -> None:
+    def download_folder(self, remotepath, localpath, overwrite: bool=True):
         """Download a directory from a given remote path to the local path.
 
         Parameters
@@ -71,7 +71,7 @@ class FileManagement(PyAedtBase):
         """
         self._download_dir(remotepath, localpath, overwrite=True)
 
-    def download_file(self, remotepath, localpath, overwrite: bool=True) -> None:
+    def download_file(self, remotepath, localpath, overwrite: bool=True):
         """Download a file from a given remote path to the local path.
 
         Parameters
@@ -98,7 +98,7 @@ class FileManagement(PyAedtBase):
         new_file.close()
         logger.info("File %s uploaded to %s", local_file, remote_file)
 
-    def _upload_dir(self, localpath, remotepath, overwrite: bool=False) -> None:
+    def _upload_dir(self, localpath, remotepath, overwrite: bool=False):
         if self.client.root.pathexists(remotepath):
             logger.warning("Folder already exists on the server.")
         self.client.root.makedirs(remotepath)
@@ -113,7 +113,7 @@ class FileManagement(PyAedtBase):
             i += 1
         logger.info("Directory %s uploaded. %s files copied", localpath, i)
 
-    def _download_file(self, remote_file, local_file, overwrite: bool=True) -> None:
+    def _download_file(self, remote_file, local_file, overwrite: bool=True):
         if self.client.root.pathexists(local_file):
             if overwrite:
                 logger.warning("File already exists on the client. Overwriting it.")
@@ -125,7 +125,7 @@ class FileManagement(PyAedtBase):
         shutil.copyfileobj(remote, new_file)
         logger.info("File %s downloaded to %s", remote_file, local_file)
 
-    def _download_dir(self, remotepath, localpath, overwrite: bool=True) -> None:
+    def _download_dir(self, remotepath, localpath, overwrite: bool=True):
         if os.path.exists(localpath):
             logger.warning("Folder already exists on the local machine.")
         if not os.path.isdir(localpath):
@@ -213,7 +213,7 @@ def check_port(port):
 class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
     """Server Pyaedt rpyc Service."""
 
-    def on_connect(self, connection) -> None:
+    def on_connect(self, connection):
         """Run when a connection is created.
 
         Parameters
@@ -232,7 +232,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         self._beta_options = []
         pass
 
-    def on_disconnect(self, connection) -> None:
+    def on_disconnect(self, connection):
         """Run after the connection was closed.
 
         Returns
@@ -865,14 +865,14 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 class GlobalService(rpyc.Service, PyAedtBase):
     """Global class to manage rpyc Server of PyAEDT."""
 
-    def on_connect(self, connection) -> None:
+    def on_connect(self, connection):
         """Initialize the service when the connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
         pass
 
-    def on_disconnect(self, connection) -> None:
+    def on_disconnect(self, connection):
         """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
@@ -888,7 +888,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         pid = os.getpid()
         os.kill(pid, signal.SIGTERM)
 
-    def exposed_redirect(self, stdout) -> None:
+    def exposed_redirect(self, stdout):
         sys.stdout = stdout
 
     def exposed_restore(self) -> None:
@@ -1136,7 +1136,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 class ServiceManager(rpyc.Service, PyAedtBase):
     """Global class to manage rpyc Server of PyAEDT."""
 
-    def on_connect(self, connection) -> None:
+    def on_connect(self, connection):
         """Initiate the service when a connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
@@ -1144,7 +1144,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         self._processes = {}
         self._edb = []
 
-    def on_disconnect(self, connection) -> None:
+    def on_disconnect(self, connection):
         """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)

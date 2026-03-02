@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class RxSelectivityNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id) -> None:
+    def __init__(self, emit_obj, result_id, node_id):
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -85,5 +85,5 @@ class RxSelectivityNode(EmitNode):
         return val == "true"
 
     @use_arithmetic_mean.setter
-    def use_arithmetic_mean(self, value: bool) -> None:
+    def use_arithmetic_mean(self, value: bool):
         self._set_property("Use Arithmetic Mean", f"{str(value).lower()}")

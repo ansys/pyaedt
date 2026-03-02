@@ -78,7 +78,7 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for post-layout design operations in AEDT."""
 
-    def __init__(self, withdraw: bool = False) -> None:
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
