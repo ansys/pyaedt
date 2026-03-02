@@ -31,6 +31,7 @@ from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Simulation:
@@ -61,6 +62,7 @@ class Simulation:
         """Parent Revision object."""
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
     def get_interaction(self, domain):
         """
         Create a new interaction for a domain.
@@ -91,6 +93,7 @@ class Simulation:
         return interaction
 
     @pyaedt_function_handler()
+    @min_aedt_version("2023.2")
     def run(self, domain):
         """
         Load the revision and then analyze along the given domain.
@@ -140,6 +143,7 @@ class Simulation:
         return interaction
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
     def is_domain_valid(self, domain):
         """
         Return ``True`` if the given domain is valid for the current revision.
@@ -161,6 +165,7 @@ class Simulation:
         return engine.is_domain_valid(domain)
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
     def get_instance_count(self, domain):
         """
         Return the number of instances in the domain for the current revision.
@@ -186,6 +191,7 @@ class Simulation:
         return engine.get_instance_count(domain)
 
     @property
+    @min_aedt_version("2027.1")
     def n_to_1_limit(self):
         """
         Maximum number of interference combinations to run per receiver for N to 1.
@@ -200,8 +206,6 @@ class Simulation:
         >>> sim.n_to_1_limit
         1048576
         """
-        if self._revision.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self._revision.revision_loaded:
             engine = self._revision.emit_project._emit_api.get_engine()
             max_instances = engine.n_to_1_limit
@@ -210,13 +214,13 @@ class Simulation:
         return max_instances
 
     @n_to_1_limit.setter
+    @min_aedt_version("2025.2")
     def n_to_1_limit(self, max_instances):
-        if self._revision.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self._revision.revision_loaded:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
 
+    @min_aedt_version("2025.2")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
 
@@ -230,11 +234,10 @@ class Simulation:
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
-        if self._revision.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self._revision.emit_project._emit_api.get_engine()
         return engine.get_emi_category_filter_enabled(category)
 
+    @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
 
@@ -245,12 +248,11 @@ class Simulation:
         enabled : bool
             Whether to enable the EMI category filter.
         """
-        if self._revision.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self._revision.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
 
     @pyaedt_function_handler
+    @min_aedt_version("2024.2")
     def get_license_session(self):
         """Get a license session.
 
@@ -266,12 +268,11 @@ class Simulation:
             domain = aedtapp.interaction_domain()
             sim.run(domain)
         """
-        if self._revision.emit_project._aedt_version < "2024.2":  # pragma: no cover
-            raise RuntimeError("This function is only supported in AEDT version 2024 R2 and later.")
         engine = self._revision.emit_project._emit_api.get_engine()
         return engine.license_session()
 
     @pyaedt_function_handler()
+    @min_aedt_version("2023.2")
     def interference_type_classification(
         self,
         domain,
@@ -423,6 +424,7 @@ class Simulation:
         return all_colors, power_matrix
 
     @pyaedt_function_handler()
+    @min_aedt_version("2023.2")
     def protection_level_classification(
         self,
         domain,

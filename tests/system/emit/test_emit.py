@@ -1061,6 +1061,8 @@ def test_optimal_n_to_1_feature(emit_app):
     assert sim.n_to_1_limit == 1
     sim.n_to_1_limit = 0
     assert sim.n_to_1_limit == 0
+    sim.n_to_1_limit = -1
+    assert sim.n_to_1_limit == -1
 
     # get number of 1-1 instances
     assert sim.get_instance_count(domain) == 52851
@@ -1398,6 +1400,57 @@ def test_result_categories(emit_app):
 
     # disable last existing category and confirm expected exceptions and error messages
     rev.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_value(ResultType.EMI)
+        assert "Unable to evaluate value: No power received." in str(e)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_largest_emi_problem_type()
+        assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_result_categories_with_simulation(emit_app):
+    # set up project and run
+    rad1, ant1 = emit_app.schematic.create_radio_antenna(
+        radio_type="GPS Receiver", radio_name="GPS Receiver", antenna_name="Antenna"
+    )
+    rad2, ant2 = emit_app.schematic.create_radio_antenna(
+        radio_type="Bluetooth Low Energy (LE)", radio_name="Bluetooth Low Energy (LE)", antenna_name="Antenna"
+    )
+    rev = emit_app.results.analyze()
+    r1_bands = rev.get_all_band_nodes(rad1)
+    for band in r1_bands:
+        band.enabled = True
+    sim = rev.get_simulation()
+    domain = emit_app.results.interaction_domain()
+    interaction = sim.run(domain)
+
+    # initially all categories are enabled
+    for category in EmiCategoryFilter.members():
+        assert sim.get_emi_category_filter_enabled(category)
+    # confirm the emi value when all categories are enabled
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.64
+    assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+    # disable one category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 2.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+    # disable another category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == -58.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+    # disable last existing category and confirm expected exceptions and error messages
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     with pytest.raises(RuntimeError) as e:
         instance.get_value(ResultType.EMI)
