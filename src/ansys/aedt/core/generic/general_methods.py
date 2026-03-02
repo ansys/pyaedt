@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import datetime
 import difflib
 import functools
@@ -37,10 +39,11 @@ import sys
 import time
 import traceback
 from typing import TYPE_CHECKING
-import warnings
 
 if TYPE_CHECKING:
     from numpy import array
+import warnings
+
 import psutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
