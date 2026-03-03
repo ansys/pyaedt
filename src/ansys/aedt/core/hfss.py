@@ -5421,7 +5421,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         u_length: float | int | str = 20.0,
         u_samples: int | str = 21,
         v_length: float | int | str = 20.0,
-        v_samples:  int | str = 21,
+        v_samples: int | str = 21,
         w_length: float | int | str = 20.0,
         w_samples: int | str = 21,
         units: str = "mm",
