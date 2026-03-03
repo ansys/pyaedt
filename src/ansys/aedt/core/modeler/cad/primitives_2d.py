@@ -71,7 +71,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         material: str | None = None,
         non_model: bool = False,
         **kwargs,
-    ) -> Object3d:
+    ) -> "Object3d":
         """Create a circle.
 
         Parameters
@@ -161,7 +161,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         non_model: bool=False,
         segments: int=0,
         **kwargs
-    ) -> Object3d:  # fmt: on
+    ) -> "Object3d":  # fmt: on
         """Create an ellipse.
 
         Parameters
@@ -233,7 +233,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         material: str | None=None,
         non_model: bool = False,
         **kwargs
-    ) -> Object3d:
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -299,7 +299,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         material: str | None = None,
         non_model: bool = False,
         **kwargs
-    ) -> Object3d:
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -368,7 +368,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         pad_value: int = 300,
         pad_type: str = "Percentage Offset",
         name: str = "Region", **kwarg
-    ) -> Object3d:
+    ) -> "Object3d":
         """Create an air region.
 
         Parameters
