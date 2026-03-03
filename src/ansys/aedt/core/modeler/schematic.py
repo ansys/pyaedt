@@ -566,7 +566,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return False
 
     @property
-    def edb(self) -> Edb:
+    def edb(self) -> "Edb":
         """EDB.
 
         Returns
