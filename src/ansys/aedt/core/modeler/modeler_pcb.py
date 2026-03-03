@@ -39,7 +39,7 @@ from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.layer_stackup import Layers
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.edb import Edb
+    from ansys.aedt.core import Edb
     from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 
 
