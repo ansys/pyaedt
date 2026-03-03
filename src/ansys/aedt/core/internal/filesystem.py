@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -34,7 +35,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 
 
-def search_files(dirname, pattern: str = "*"):
+def search_files(dirname: str, pattern: str = "*") -> list:
     """Search for files inside a directory given a specific pattern.
 
     Parameters
@@ -49,7 +50,7 @@ def search_files(dirname, pattern: str = "*"):
     return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
 
-def my_location():
+def my_location() -> Path:
     """ """
     return Path(__file__).parent.resolve(strict=False)
 
@@ -58,16 +59,16 @@ class Scratch(PyAedtBase):
     """ """
 
     @property
-    def path(self):
+    def path(self) -> str:
         """ """
         return self._scratch_path
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """ """
         return self._cleaned
 
-    def __init__(self, local_path, permission: int = 0o777, volatile: bool = False):
+    def __init__(self, local_path: str, permission: int = 0o777, volatile: bool = False):
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
@@ -92,7 +93,7 @@ class Scratch(PyAedtBase):
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
-    def copyfile(self, src_file, dst_filename=None):
+    def copyfile(self, src_file: str | Path, dst_filename: str | Path = None) -> str:
         """Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.
@@ -127,7 +128,7 @@ class Scratch(PyAedtBase):
 
         return str(dst_file)
 
-    def copyfolder(self, src_folder, destfolder) -> bool:
+    def copyfolder(self, src_folder: str | Path, destfolder: str | Path) -> bool:
         """
 
         Parameters
@@ -173,7 +174,7 @@ class Scratch(PyAedtBase):
         return str(sub_folder)
 
 
-def get_json_files(start_folder):
+def get_json_files(start_folder: str) -> list[str]:
     """
     Get the absolute path to all *.json files in start_folder.
 
@@ -184,11 +185,13 @@ def get_json_files(start_folder):
 
     Returns
     -------
+    list[str]
+        List of absolute paths to all *.json files in start_folder.
     """
     return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]
 
 
-def is_safe_path(path, allowed_extensions=None) -> bool:
+def is_safe_path(path: str | Path, allowed_extensions: list[str] | None = None) -> bool:
     """Validate if a path is safe to use."""
     # Ensure path is an existing file or directory
     path = Path(path)

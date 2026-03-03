@@ -34,6 +34,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 if TYPE_CHECKING or (3, 7) < sys.version_info < (3, 13):
+    from ansys.aedt.core.edb import Edb
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
@@ -73,7 +74,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._app.odefinition_manager
 
     @property
-    def schematic_units(self):
+    def schematic_units(self) -> str:
         """Schematic units.
 
         Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
@@ -82,7 +83,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value: str):
         if value in list(AEDT_UNITS["Length"].keys()):
             self._schematic_units = value
         else:
@@ -120,7 +121,12 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_schematic_components(
-        self, starting_component, ending_component, pin_starting: int = 2, pin_ending: int = 1, use_wire: bool = True
+        self,
+        starting_component: str,
+        ending_component: str,
+        pin_starting: int = 2,
+        pin_ending: int = 1,
+        use_wire: bool = True,
     ) -> bool:
         """Connect schematic components.
 
@@ -173,7 +179,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_text(
         self,
-        text,
+        text: str,
         x_origin: int = 0,
         y_origin: int = 0,
         text_size: int = 12,
@@ -188,7 +194,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         rect_border_color: int = 0,
         rect_fill: int = 0,
         rect_color: int = 0,
-    ):
+    ) -> str | bool:
         """Draw Text.
 
         Parameters
@@ -343,7 +349,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_text_property(self, assignment, name: str, value) -> bool:
+    def change_text_property(self, assignment: str, name: str, value) -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -485,7 +491,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._app.layouteditor
 
     @property
-    def schematic(self):
+    def schematic(self) -> NexximComponents:
         """Schematic Component.
 
         Returns
@@ -495,7 +501,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._schematic
 
     @property
-    def pages(self):
+    def pages(self) -> int:
         """Return the number of pages of the current schematic.
 
         Returns
@@ -508,7 +514,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._pages
 
     @property
-    def page_names(self) -> list:
+    def page_names(self) -> list[str]:
         """Page names in the schematic."""
         if self._page_names:
             return self._page_names
@@ -543,7 +549,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             return pnames.index(name)
 
     @pyaedt_function_handler()
-    def rename_page(self, page, name: str) -> bool:
+    def rename_page(self, page: str | int, name: str) -> bool:
         """Rename a page in the schematic."""
         pnames = self.page_names
         if page in pnames:
@@ -560,7 +566,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return False
 
     @property
-    def edb(self):
+    def edb(self) -> Edb:
         """EDB.
 
         Returns
@@ -573,7 +579,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return None
 
     @property
-    def model_units(self):
+    def model_units(self) -> str:
         """Layout model units.
 
         References
@@ -584,7 +590,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._app.units.length
 
     @property
-    def layout(self):
+    def layout(self) -> Primitives3DLayout:
         """Primitives.
 
         Returns
@@ -597,12 +603,12 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._primitives
 
     @model_units.setter
-    def model_units(self, units):
+    def model_units(self, units: str):
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 
     @pyaedt_function_handler()
-    def move(self, assignment, offset, units=None) -> bool:
+    def move(self, assignment: list, offset: list, units: str = None) -> bool:
         """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
@@ -654,7 +660,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def rotate(self, assignment, degrees: int = 90) -> bool:
+    def rotate(self, assignment: list, degrees: int = 90) -> bool:
         """Rotate the selections by degrees.
 
         Parameters
@@ -709,7 +715,7 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
         self.logger.info("ModelerTwinBuilder class has been initialized!")
 
     @property
-    def components(self):
+    def components(self) -> TwinBuilderComponents:
         """
         .. deprecated:: 0.4.13
            Use :func:`TwinBuilder.modeler.schematic` instead.
@@ -718,7 +724,7 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
         return self._components
 
     @property
-    def schematic(self):
+    def schematic(self) -> TwinBuilderComponents:
         """Schematic Object.
 
         Returns
@@ -785,7 +791,7 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
         self.logger.info("ModelerMaxwellCircuit class has been initialized!")
 
     @property
-    def schematic(self):
+    def schematic(self) -> MaxwellCircuitComponents:
         """Schematic Object.
 
         Returns

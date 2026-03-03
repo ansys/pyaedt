@@ -22,20 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 
 
-def read_actors(fn, actor_lib):
+def read_actors(fn: str, actor_lib: str) -> dict:
     """Read and map actors in a JSON file to a list of actor objects.
 
     Parameters
     ----------
-    fn : str
+    fn : str | Path
         Name of the JSON file describing the actors.
     actor_lib : str
         Full path to the library containing the actor definitions.
@@ -111,7 +117,7 @@ class Person(Actor, PyAedtBase):
         self._stride = stride
 
     @property
-    def stride(self):
+    def stride(self) -> str:
         """Stride in meters.
 
         Returns
@@ -121,7 +127,7 @@ class Person(Actor, PyAedtBase):
         return self._stride
 
     @stride.setter
-    def stride(self, s):
+    def stride(self, s: str):
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
@@ -147,12 +153,12 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = True):
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the person in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
             HFSS application instance.
         motion : bool, optional
             Whether the person is in motion. The default is ``True``.
@@ -211,12 +217,12 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = True):
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the bird in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool
             Whether the bird is in motion. The default is ``True``.
 
@@ -276,12 +282,12 @@ class Vehicle(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = True) -> bool:
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool, optional
             Whether the vehicle is in motion. The default is ``True``.
 
@@ -348,7 +354,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         self.pair = []
 
     @property
-    def units(self):
+    def units(self) -> str:
         """Multi-part units.
 
         Returns
@@ -359,7 +365,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._local_units
 
     @property
-    def speed_name(self):
+    def speed_name(self) -> str:
         """Speed variable name.
 
         Returns
@@ -370,7 +376,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self.name + "_speed"
 
     @property
-    def speed_expression(self):
+    def speed_expression(self) -> str:
         """Speed variable expression.
 
         Returns
@@ -381,7 +387,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s):
+    def speed_expression(self, s: str):
         self._speed_expression = s
 
     @pyaedt_function_handler()
@@ -399,12 +405,12 @@ class Radar(MultiPartComponent, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool = False):
+    def insert(self, app: "Hfss", motion: bool = False) -> list:
         """Insert radar in the HFSS application instance.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool, optional
             Whether the actor is in motion. The default is ``False``.
 

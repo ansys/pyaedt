@@ -1087,12 +1087,12 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_length_mesh(
         self,
-        assignment,
+        assignment: list | str,
         inside_selection: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
         name: str | None = None,
-    ):
+    ) -> "MeshOperation":
         """Assign a length for the model resolution.
 
         Parameters

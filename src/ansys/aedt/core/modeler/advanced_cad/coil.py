@@ -22,9 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
 COIL_PARAMETERS = {
@@ -100,7 +105,7 @@ class Coil(PyAedtBase):
         object.__setattr__(self, name, value)
 
     @pyaedt_function_handler()
-    def create_flat_path(self):
+    def create_flat_path(self) -> list:
         num_points = 13 * self.turns + 7
 
         start_x = self.centre_x + 0.25 * self.inner_width
@@ -265,7 +270,7 @@ class Coil(PyAedtBase):
         return polyline
 
     @pyaedt_function_handler()
-    def create_vertical_path(self):
+    def create_vertical_path(self) -> list:
         num_points = 12 * self.turns + 2
 
         start_x, start_y, start_z = (
@@ -369,7 +374,7 @@ class Coil(PyAedtBase):
         return polyline
 
     @pyaedt_function_handler()
-    def create_sweep_profile(self, start_point, polyline):
+    def create_sweep_profile(self, start_point: list[float], polyline: "Object3d") -> str:
         profile = self._app.modeler.create_circle("YZ", start_point, "wire_radius", num_sides="section_segmentation")
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
         return profile.name

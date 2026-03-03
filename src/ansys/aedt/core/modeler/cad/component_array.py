@@ -24,6 +24,7 @@
 import ast
 import os
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -31,6 +32,9 @@ from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -86,7 +90,7 @@ class ComponentArray(PyAedtBase):
         self.__post_processing_cells = {}
 
     @classmethod
-    def create(cls, app, input_data, name: str | None = None):
+    def create(cls, app: "Hfss", input_data: dict, name: str | None = None) -> "ComponentArray":
         """Create a component array.
 
         Parameters
@@ -257,12 +261,12 @@ class ComponentArray(PyAedtBase):
         return self.cells[key[0] - 1][key[1] - 1]
 
     @property
-    def component_names(self):
+    def component_names(self) -> list:
         """List of component names."""
         return self.properties["component"]
 
     @property
-    def cells(self):
+    def cells(self) -> list:
         """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects."""
         if not self.update_cells:
             return self.__cells
@@ -281,12 +285,12 @@ class ComponentArray(PyAedtBase):
         return self.__cells
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the array."""
         return self.__name
 
     @name.setter
-    def name(self, array_name):
+    def name(self, array_name: str):
         if array_name not in self.__app.component_array_names:
             if array_name != self.__name:
                 self.__oarray.SetPropValue("Name", array_name)
@@ -298,7 +302,7 @@ class ComponentArray(PyAedtBase):
             self.logger.warning("Name %s already assigned in the design", array_name)
 
     @property
-    def properties(self):
+    def properties(self) -> dict:
         """Ordered dictionary of the properties of the component array."""
         # From 2024R1, array information can be loaded from a CSV
         if self.__array_info_path and os.path.exists(self.__array_info_path):  # pragma: no cover
@@ -308,7 +312,7 @@ class ComponentArray(PyAedtBase):
         return res
 
     @property
-    def post_processing_cells(self):
+    def post_processing_cells(self) -> dict:
         """Dictionary of each component's postprocessing cells."""
         if not self.__post_processing_cells:
             self.__post_processing_cells = {}
@@ -325,7 +329,7 @@ class ComponentArray(PyAedtBase):
         return self.__post_processing_cells
 
     @post_processing_cells.setter
-    def post_processing_cells(self, val):
+    def post_processing_cells(self, val: dict):
         if isinstance(val, dict):
             self.__post_processing_cells = val
             self.edit_array()
@@ -333,104 +337,104 @@ class ComponentArray(PyAedtBase):
             self.logger.error("Dictionary with component names and cell is not correct.")
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """Flag indicating if the array is visible."""
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Visible")
 
     @visible.setter
-    def visible(self, val):
+    def visible(self, val: bool):
         self.__oarray.SetPropValue("Visible", val)
 
     @property
-    def show_cell_number(self):
+    def show_cell_number(self) -> bool:
         """Flag indicating if the array cell number is shown."""
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Show Cell Number")
 
     @show_cell_number.setter
-    def show_cell_number(self, val):
+    def show_cell_number(self, val: bool):
         self.__oarray.SetPropValue("Show Cell Number", val)
 
     @property
-    def render_choices(self):
+    def render_choices(self) -> list:
         """List of rendered name choices."""
         return list(self.__oarray.GetPropValue("Render/Choices"))
 
     @property
-    def render(self):
+    def render(self) -> str:
         """Array rendering."""
         return self.__app.get_oo_property_value(self.__omodel, self.name, "Render")
 
     @render.setter
-    def render(self, val):
+    def render(self, val: str):
         if val not in self.render_choices:
             self.logger.warning("Render value is not available.")
         else:
             self.__oarray.SetPropValue("Render", val)
 
     @property
-    def render_id(self):
+    def render_id(self) -> int:
         """Array rendering ID."""
         res = self.render_choices.index(self.render)
         return res
 
     @property
-    def a_vector_choices(self):
+    def a_vector_choices(self) -> list:
         """List of name choices for vector A."""
         return list(self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector/Choices"))
 
     @property
-    def b_vector_choices(self):
+    def b_vector_choices(self) -> list:
         """List of name choices for vector B."""
         return list(self.__app.get_oo_property_value(self.__omodel, self.name, "B Vector/Choices"))
 
     @property
-    def a_vector_name(self):
+    def a_vector_name(self) -> str:
         """Name of vector A."""
         return self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector")
 
     @a_vector_name.setter
-    def a_vector_name(self, val):
+    def a_vector_name(self, val: str):
         if val in self.a_vector_choices:
             self.__oarray.SetPropValue("A Vector", val)
         else:
             self.logger.warning("A vector name not available")
 
     @property
-    def b_vector_name(self):
+    def b_vector_name(self) -> str:
         """Name of vector B."""
         return self.__oarray.GetPropValue("B Vector")
 
     @b_vector_name.setter
-    def b_vector_name(self, val):
+    def b_vector_name(self, val: str):
         if val in self.b_vector_choices:
             self.__oarray.SetPropValue("B Vector", val)
         else:
             self.logger.warning("B vector name not available")
 
     @property
-    def a_size(self):
+    def a_size(self) -> int:
         """Number of cells in the vector A direction."""
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "A Cell Count"))
 
     @a_size.setter
-    def a_size(self, val):  # pragma: no cover
+    def a_size(self, val: int):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("A Cell Count", val)
         self.logger.warning("A size cannot be modified.")
 
     @property
-    def b_size(self):
+    def b_size(self) -> int:
         """Number of cells in the vector B direction."""
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "B Cell Count"))
 
     @b_size.setter
-    def b_size(self, val):  # pragma: no cover
+    def b_size(self, val: int):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("B Cell Count", val)
         self.logger.warning("B size cannot be modified.")
 
     @property
-    def a_length(self):
+    def a_length(self) -> float:
         """Length of the array in A direction."""
         lattice_vector = self.lattice_vector()
         if lattice_vector[0] != 0:  # pragma: no cover
@@ -441,7 +445,7 @@ class ComponentArray(PyAedtBase):
         return x_spacing * self.a_size
 
     @property
-    def b_length(self):
+    def b_length(self) -> float:
         """Length of the array in B direction."""
         lattice_vector = self.lattice_vector()
         if lattice_vector[1] != 0:
@@ -452,16 +456,16 @@ class ComponentArray(PyAedtBase):
         return y_spacing * self.b_size
 
     @property
-    def padding_cells(self):
+    def padding_cells(self) -> int:
         """Number of padding cells."""
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
 
     @padding_cells.setter
-    def padding_cells(self, val):
+    def padding_cells(self, val: int):
         self.__oarray.SetPropValue("Padding", val)
 
     @property
-    def coordinate_system(self):
+    def coordinate_system(self) -> str:
         """Coordinate system name."""
         cs_dict = self.__map_coordinate_system_to_id()
         res = "Global"
@@ -482,7 +486,7 @@ class ComponentArray(PyAedtBase):
             self.edit_array()
 
     @pyaedt_function_handler()
-    def update_properties(self):
+    def update_properties(self) -> dict:
         """Update component array properties.
 
         Returns
@@ -518,7 +522,7 @@ class ComponentArray(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2024.1")
-    def export_array_info(self, output_file=None):  # pragma: no cover
+    def export_array_info(self, output_file: str = None) -> str:  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -536,7 +540,7 @@ class ComponentArray(PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def parse_array_info_from_csv(self, input_file: str):  # pragma: no cover
+    def parse_array_info_from_csv(self, input_file: str) -> dict:  # pragma: no cover
         """Parse component array information from the CSV file.
 
         Parameters
@@ -728,7 +732,7 @@ class ComponentArray(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_cell(self, row, col):
+    def get_cell(self, row: int, col: int) -> "CellArray":
         """Get cell object corresponding to a row and column.
 
         Returns
@@ -739,7 +743,7 @@ class ComponentArray(PyAedtBase):
         return self[row, col]
 
     @pyaedt_function_handler()
-    def lattice_vector(self):
+    def lattice_vector(self) -> list:
         """Get model lattice vector.
 
         Returns
@@ -758,7 +762,7 @@ class ComponentArray(PyAedtBase):
         return lattice_vectors
 
     @pyaedt_function_handler()
-    def get_component_objects(self):
+    def get_component_objects(self) -> dict:
         """Get 3D component center.
 
         Returns
@@ -784,7 +788,7 @@ class ComponentArray(PyAedtBase):
         return component_info
 
     @pyaedt_function_handler()
-    def get_cell_position(self):
+    def get_cell_position(self) -> list:
         """Get cell position.
 
         Returns
@@ -922,12 +926,12 @@ class CellArray(PyAedtBase):
             self.__component = component_names[component_index]
 
     @property
-    def rotation(self):
+    def rotation(self) -> int:
         """Rotation value of the cell object."""
         return self.__rotation
 
     @rotation.setter
-    def rotation(self, val):
+    def rotation(self, val: int):
         if val in [0, 90, 180, 270]:
             self.__rotation = val
             self.__array_obj.update_cells = False
@@ -942,7 +946,7 @@ class CellArray(PyAedtBase):
         return self.__component
 
     @component.setter
-    def component(self, val):
+    def component(self, val: str):
         component_names = self.__array_obj.component_names
         if val in component_names.values() or val is None:
             self.__array_obj.update_cells = False
@@ -963,12 +967,12 @@ class CellArray(PyAedtBase):
             self.__array_obj.logger.error("Component must be defined.")
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         """Flag indicating if the cell object is active or passive."""
         return self.__is_active
 
     @is_active.setter
-    def is_active(self, val):
+    def is_active(self, val: bool):
         if isinstance(val, bool):
             self.__is_active = val
             self.__array_obj.update_cells = False

@@ -56,7 +56,7 @@ class Object3DLayout(PyAedtBase):
         self._points = []
 
     @property
-    def object_units(self):
+    def object_units(self) -> str:
         """Object units.
 
         Returns
@@ -66,7 +66,7 @@ class Object3DLayout(PyAedtBase):
         return self._primitives.model_units
 
     @pyaedt_function_handler()
-    def change_property(self, value, names=None) -> bool:
+    def change_property(self, value: list, names: list = None) -> bool:
         """Modify a property.
 
         Parameters
@@ -99,14 +99,14 @@ class Object3DLayout(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_property_value(self, name: str, value):
+    def set_property_value(self, name: str, value: str):
         """Set a property value.
 
         Parameters
         ----------
         name : str
             Name of the property.
-        value :
+        value : str
             Value of the property.
 
         Returns
@@ -126,7 +126,7 @@ class Object3DLayout(PyAedtBase):
         return self.change_property(vProp)
 
     @property
-    def angle(self):
+    def angle(self) -> str:
         """Get/Set the circle radius.
 
         Returns
@@ -142,13 +142,13 @@ class Object3DLayout(PyAedtBase):
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Angle")
 
     @angle.setter
-    def angle(self, value):
+    def angle(self, value: str):
         if self.prim_type in ["component", "pin", "via"]:
             vMaterial = ["NAME:Angle", "Value:=", value]
             self.change_property(vMaterial)
 
     @property
-    def absolute_angle(self):
+    def absolute_angle(self) -> float:
         """Get the absolute angle location for 2 pins components.
 
         Returns
@@ -182,7 +182,7 @@ class Object3DLayout(PyAedtBase):
         return 0.0
 
     @property
-    def net_name(self):
+    def net_name(self) -> str:
         """Get/Set the net name.
 
         Returns
@@ -204,7 +204,7 @@ class Object3DLayout(PyAedtBase):
             self.change_property(vMaterial)
 
     @property
-    def placement_layer(self):
+    def placement_layer(self) -> str:
         """Get/Set the placement layer of the object.
 
         Returns
@@ -220,13 +220,13 @@ class Object3DLayout(PyAedtBase):
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "PlacementLayer")
 
     @placement_layer.setter
-    def placement_layer(self, layer_name):
+    def placement_layer(self, layer_name: str):
         if self.prim_type not in ["pin", "via"]:
             vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
             self.change_property(vMaterial)
 
     @property
-    def bounding_box(self):
+    def bounding_box(self) -> list[float]:
         """Get component bounding box.
 
         Returns
@@ -297,7 +297,7 @@ class Object3DLayout(PyAedtBase):
         return True
 
     @property
-    def location(self):
+    def location(self) -> list[float]:
         """Retrieve/Set the absolute location in model units.
 
         Location is computed with combination of 3d Layout location and model center.
@@ -341,7 +341,7 @@ class Object3DLayout(PyAedtBase):
             return None
 
     @location.setter
-    def location(self, position):
+    def location(self, position: list[float]):
         if self.prim_type in ["component", "pin", "via"]:
             props = [
                 "NAME:Location",
@@ -380,7 +380,7 @@ class Object3DLayout(PyAedtBase):
                 self.change_property(props)
 
     @property
-    def lock_position(self):
+    def lock_position(self) -> bool:
         """Get/Set the lock position.
 
         Parameters
@@ -414,7 +414,7 @@ class ModelInfoRlc(PyAedtBase):
         self._name = name
 
     @property
-    def rlc_model_type(self):
+    def rlc_model_type(self) -> list:
         props = self._comp._oeditor.GetComponentInfo(self._name)
         model = ""
         for p in props:
@@ -435,22 +435,22 @@ class ModelInfoRlc(PyAedtBase):
         return vals
 
     @property
-    def res(self):
+    def res(self) -> str:
         if self.rlc_model_type:
             return self.rlc_model_type[0]
 
     @property
-    def cap(self):
+    def cap(self) -> str:
         if self.rlc_model_type:
             return self.rlc_model_type[4]
 
     @property
-    def ind(self):
+    def ind(self) -> str:
         if self.rlc_model_type:
             return self.rlc_model_type[2]
 
     @property
-    def is_parallel(self):
+    def is_parallel(self) -> bool:
         if self.rlc_model_type:
             return self.rlc_model_type[6]
 
@@ -496,7 +496,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return rh, rsa, rsx, rsy
 
     @property
-    def part(self):
+    def part(self) -> str:
         """Retrieve the component part.
 
         Returns
@@ -511,7 +511,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part")
 
     @property
-    def part_type(self):
+    def part_type(self) -> str:
         """Retrieve the component part type.
 
         Returns
@@ -554,7 +554,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return True
 
     @enabled.setter
-    def enabled(self, status) -> bool:
+    def enabled(self, status: bool) -> bool:
         if self.__part_type_id() in [0, 4, 5]:
             return False
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
@@ -691,7 +691,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         auto_reference: bool = True,
         reference_x: str = "0.1mm",
         reference_y: str = "0.1mm",
-    ):
+    ) -> bool:
         """Set the die type.
 
         Parameters
@@ -761,8 +761,8 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         mid_diameter: str = "0.1mm",
         height: str = "0.2mm",
         material: str | None = "solder",
-        reference_offset=None,
-    ):
+        reference_offset: str | None = None,
+    ) -> bool:
         """Set solderball on the active component.
 
         The method applies to these component types: ``Other``, ``IC`` and ``IO``.
@@ -866,7 +866,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return model_info
 
     @property
-    def pins(self):
+    def pins(self) -> dict:
         """Component pins.
 
         Returns
@@ -880,7 +880,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         return self._pins
 
     @property
-    def model(self):
+    def model(self) -> "ModelInfoRlc":
         """RLC model if available.
 
         Returns
@@ -901,7 +901,7 @@ class Nets3DLayout(PyAedtBase):
         self.name = name
 
     @property
-    def components(self):
+    def components(self) -> "Components3DLayout":
         """Components that belongs to the Nets.
 
         Returns
@@ -914,7 +914,7 @@ class Nets3DLayout(PyAedtBase):
         return comps
 
     @property
-    def geometry_names(self):
+    def geometry_names(self) -> list:
         """List of geometry names.
 
         Returns
@@ -929,11 +929,11 @@ class Nets3DLayout(PyAedtBase):
     @pyaedt_function_handler()
     def plot(
         self,
-        layers=None,
+        layers: str | list = None,
         show_legend: bool = True,
-        save_plot=None,
-        outline=None,
-        size=(1920, 1440),
+        save_plot: str = None,
+        outline: list = None,
+        size: tuple = (1920, 1440),
         plot_components_on_top: bool = False,
         plot_components_on_bottom: bool = False,
         show: bool = True,

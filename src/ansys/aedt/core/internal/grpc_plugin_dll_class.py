@@ -161,7 +161,9 @@ class AedtObjWrapper:
         if "ReleaseAedtObject" in dir(self.dllapi):
             self.dllapi.ReleaseAedtObject(self.objectID)
 
-    def match(self, patternStr):  # IronPython wrapper implemented this function return IEnumerable<string>.
+    def match(
+        self, patternStr: str
+    ) -> list[str]:  # IronPython wrapper implemented this function return IEnumerable<string>.
         class IEnumerable(list):
             def __getattr__(self, key):
                 if key == "Count":
