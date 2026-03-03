@@ -1,6 +1,6 @@
-[AntennaWizard]
-name = "Antenna Toolkit"
-url = "https://aedt.antenna.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
+[RadarExplorer]
+name = "Radar Explorer Toolkit"
+url = "https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
 
 [PushfromTransient]
 icon = "images/large/push.png"
@@ -58,9 +58,12 @@ script = "mcad_assembly.py"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/mcad_assembly.html"
 
-
 [Fresnel]
 name = "Fresnel"
 script = "fresnel.py"
 icon = "images/large/fresnel.png"
 template = "run_pyaedt_toolkit_script"
+
+[AntennaWizard]
+name = "Antenna Toolkit"
+url = "https://aedt.antenna.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"

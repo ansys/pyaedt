@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,5 +36,5 @@ def flatten(add_app_example):
     app.close_project(save=False)
 
 
-def test_flatten_3d_components(flatten):
+def test_flatten_3d_components(flatten) -> None:
     assert flatten.flatten_3d_components()

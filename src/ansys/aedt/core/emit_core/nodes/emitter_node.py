@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+from __future__ import annotations
 
 from typing import cast
 
@@ -50,7 +52,7 @@ class EmitterNode(EmitNode):
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
         self._radio_node = RadioNode(emit_obj, result_id, node_id)
@@ -71,11 +73,11 @@ class EmitterNode(EmitNode):
         """The type of this emit node"""
         return "EmitterNode"
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str) -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -108,7 +110,7 @@ class EmitterNode(EmitNode):
         return self._antenna_node
 
     @property
-    def children(self):
+    def children(self) -> list[EmitNode]:
         """Overridden to return the Waveforms
 
         Returns

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +28,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class SceneGroupNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -43,31 +42,27 @@ class SceneGroupNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_emitter(self):
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
-    def add_group(self):
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name):
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
-    def add_antenna(self):
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -88,7 +83,7 @@ class SceneGroupNode(EmitNode):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    def position(self) -> str:
         """Set position of the Scene Group in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -97,11 +92,11 @@ class SceneGroupNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value):
+    def position(self, value: str):
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    def relative_position(self) -> str:
         """Set position of the Scene Group relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -110,7 +105,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value):
+    def relative_position(self, value: str):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -132,7 +127,7 @@ class SceneGroupNode(EmitNode):
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """Orientation.
 
         Set orientation of the Scene Group relative to parent-node coordinates.
@@ -143,11 +138,11 @@ class SceneGroupNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value):
+    def orientation(self, value: str):
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    def relative_orientation(self) -> str:
         """Relative Orientation.
 
         Set orientation of the Scene Group relative to placement coordinates.
@@ -158,7 +153,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value):
+    def relative_orientation(self, value: str):
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -177,7 +172,7 @@ class SceneGroupNode(EmitNode):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def box_color(self):
+    def box_color(self) -> str:
         """Set color of the bounding box of the Scene Group.
 
         Color should be in RGB form: #RRGGBB.
@@ -186,7 +181,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @box_color.setter
-    def box_color(self, value):
+    def box_color(self, value: str):
         self._set_property("Box Color", f"{value}")
 
     @property

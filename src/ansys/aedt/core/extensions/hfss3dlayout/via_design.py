@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from functools import partial
 import os
@@ -30,8 +32,6 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 import tkinter.ttk as ttk
-from typing import List
-from typing import Optional
 
 import PIL.Image
 import PIL.ImageTk
@@ -80,7 +80,14 @@ EXPORT_EXAMPLES = [
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for advanced fields calculator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
+        # Check for unsupported version
+        if VERSION == "2026.1":
+            raise AEDTRuntimeError(
+                "Via Design extension is not supported in AEDT 2026.1 due to a known bug. "
+                "Please use a different AEDT version."
+            )
+
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -88,14 +95,14 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
             withdraw=withdraw,
             add_custom_content=False,
         )
-        self.__create_design_path = None
-        self.__export_examples: List[ExportExampleData] = EXPORT_EXAMPLES
+        self.__create_design_path: Path | None = None
+        self.__export_examples: list[ExportExampleData] = EXPORT_EXAMPLES
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
 
-        def save_example(toml_file_path: Path):
+        def save_example(toml_file_path: Path) -> None:
             file_path = filedialog.asksaveasfilename(
                 initialfile=toml_file_path.name,
                 defaultextension=".toml",
@@ -163,7 +170,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         )
         change_theme_button.grid(row=0, column=1)
 
-    def create_design(self, create_design_path: Optional[Path] = None):
+    def create_design(self, create_design_path: Path | None = None):
         """Create via design in AEDT"""
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(
@@ -203,11 +210,11 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         return True
 
     @property
-    def create_design_path(self):
+    def create_design_path(self) -> Path | None:
         return self.__create_design_path
 
     @property
-    def export_examples(self):
+    def export_examples(self) -> list[ExportExampleData]:
         return self.__export_examples
 
 

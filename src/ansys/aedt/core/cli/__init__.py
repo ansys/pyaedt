@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,9 +31,11 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
+
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.panels import panels_app
+from ansys.aedt.core.cli.process import attach
 from ansys.aedt.core.cli.process import processes
 from ansys.aedt.core.cli.process import start
 from ansys.aedt.core.cli.process import stop
@@ -51,6 +53,7 @@ app.command()(version)
 app.command()(processes)
 app.command()(start)
 app.command()(stop)
+app.command()(attach)
 
 if __name__ == "__main__":
     app()

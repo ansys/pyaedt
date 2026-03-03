@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +28,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class EmiPlotMarkerNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -175,7 +174,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._set_property("Text Alignment", f"{value.value}")
 
     @property
-    def font(self):
+    def font(self) -> str:
         """Specify font used for the label.
 
         Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
@@ -188,7 +187,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._set_property("Font", f"{value}")
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Specify color of the label text.
 
         Color should be in RGB form: #RRGGBB.
@@ -201,7 +200,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._set_property("Color", f"{value}")
 
     @property
-    def background_color(self):
+    def background_color(self) -> str:
         """Set color of the label text background.
 
         Color should be in RGBA form: #AARRGGBB.
@@ -240,7 +239,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._set_property("Border Width", f"{value}")
 
     @property
-    def border_color(self):
+    def border_color(self) -> str:
         """Set color of the border around the label text.
 
         Color should be in RGB form: #RRGGBB.
@@ -308,7 +307,7 @@ class EmiPlotMarkerNode(EmitNode):
         self._set_property("Symbol Size", f"{value}")
 
     @property
-    def symbol_color(self):
+    def symbol_color(self) -> str:
         """Set color of the symbol used for this marker.
 
         Color should be in RGB form: #RRGGBB.

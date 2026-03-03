@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -50,7 +50,7 @@ class CreateBoundaryMixin:
     """
 
     @pyaedt_function_handler()
-    def _create_boundary(self, name, props, boundary_type):
+    def _create_boundary(self, name: str, props, boundary_type):
         """Create a boundary.
 
         Parameters

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +28,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class RxSusceptibilityProfNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -43,19 +42,19 @@ class RxSusceptibilityProfNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def add_rx_saturation(self):
+    def add_rx_saturation(self) -> EmitNode:
         """Add a Saturation Profile"""
         return self._add_child_node("Rx Saturation")
 
-    def add_rx_selectivity(self):
+    def add_rx_selectivity(self) -> EmitNode:
         """Add a Selectivity Profile"""
         return self._add_child_node("Rx Selectivity")
 
-    def add_mixer_products(self):
+    def add_mixer_products(self) -> EmitNode:
         """Add a Receiver Mixer Product Node"""
         return self._add_child_node("Mixer Products")
 
-    def add_spurious_responses(self):
+    def add_spurious_responses(self) -> EmitNode:
         """Add Receiver Spurs"""
         return self._add_child_node("Spurious Responses")
 

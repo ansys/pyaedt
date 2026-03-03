@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,7 @@ from ansys.aedt.core.extensions.templates.template_get_started import main
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
 
-def test_create_sphere_success(add_app):
+def test_create_sphere_success(add_app) -> None:
     """Test that the extension works correctly when creating a sphere."""
     DATA = ExtensionData()
     aedtapp = add_app(application=Hfss)
@@ -42,7 +42,7 @@ def test_create_sphere_success(add_app):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_load_aedt_file_success(add_app, test_tmp_dir):
+def test_load_aedt_file_success(add_app, test_tmp_dir) -> None:
     """Test that the extension works correctly when loading a project."""
     AEDT_PATH = test_tmp_dir / "workflow_template_extension.aedt"
     DATA = ExtensionData(file_path=AEDT_PATH)
@@ -52,7 +52,7 @@ def test_load_aedt_file_success(add_app, test_tmp_dir):
     app_0 = add_app(application=Hfss)
     _ = app_0.modeler.create_box([10, 10, 10], [20, 20, 20], OBJECT_NAME, display_wireframe=True)
     app_0.save_project(file_name=str(AEDT_PATH))
-    app_0.close_project(app_0.project_name)
+    app_0.close_project(name=app_0.project_name, save=False)
 
     # Load the project with the extension
     add_app(application=Hfss)
@@ -62,4 +62,4 @@ def test_load_aedt_file_success(add_app, test_tmp_dir):
     # Assert that the object was loaded correctly
     assert 1 == len(app.modeler.object_list)
     assert OBJECT_NAME == app.modeler.object_list[0].name
-    app.close_project(app.project_name, save=False)
+    app.close_project(name=app.project_name, save=False)

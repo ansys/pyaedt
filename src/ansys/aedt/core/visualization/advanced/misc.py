@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,20 +43,20 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 class BoxFacePointsAndFields(PyAedtBase):
     """Data model class containing field component and coordinates."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.x = []
         self.y = []
         self.z = []
         self.re = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
-    def set_xyz_points(self, x, y, z):
+    def set_xyz_points(self, x, y, z) -> None:
         """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
 
-    def set_field_component(self, field_component, real, imag, invert):
+    def set_field_component(self, field_component, real, imag, invert) -> None:
         """Set Field component Real and imaginary parts."""
         if field_component in self.re:
             if invert:
@@ -68,7 +68,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         else:
             print("Error in set_field_component function.")
 
-    def fill_empty_data(self):
+    def fill_empty_data(self) -> None:
         """Fill empty data with zeros."""
         for el, val in self.re.items():
             if not val:
@@ -81,7 +81,9 @@ class BoxFacePointsAndFields(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None):
+def convert_nearfield_data(
+    dat_folder, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder=None
+):
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -213,7 +215,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
 
 
 @pyaedt_function_handler()
-def convert_farfield_data(input_file, output_file=None) -> str:
+def convert_farfield_data(input_file: str | Path, output_file=None) -> str:
     """Convert a far field data file to hfss `ffd` file.
 
     Parameters
@@ -241,7 +243,7 @@ def convert_farfield_data(input_file, output_file=None) -> str:
 
 
 @pyaedt_function_handler()
-def __convert_ffs_data(input_file, output_file):
+def __convert_ffs_data(input_file: str, output_file):
     freqs = []
     output_data = {}
     if not input_file.exists():
@@ -327,7 +329,7 @@ def __convert_ffs_data(input_file, output_file):
 
 
 @pyaedt_function_handler()
-def __convert_ffe_data(input_file, output_file):
+def __convert_ffe_data(input_file: str, output_file):
     data = []
     quantity = []
 
@@ -453,7 +455,7 @@ def parse_rdat_file(file_path):
 
 @pyaedt_function_handler()
 @graphics_required
-def preview_pyvista(dict_in, decimation=0, output_stls=None):
+def preview_pyvista(dict_in, decimation: int = 0, output_stls=None) -> None:
     import pyvista as pv
 
     if decimation > 0:
@@ -525,7 +527,7 @@ def preview_pyvista(dict_in, decimation=0, output_stls=None):
 
 @pyaedt_function_handler()
 @graphics_required
-def simplify_and_preview_stl(input_file, output_file=None, decimation=0.5, preview=False):
+def simplify_and_preview_stl(input_file: str, output_file=None, decimation: float = 0.5, preview: bool = False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters

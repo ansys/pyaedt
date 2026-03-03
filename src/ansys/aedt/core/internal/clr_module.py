@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,7 +34,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 existing_showwarning = warnings.showwarning
 
 
-def custom_show_warning(message, category, filename, lineno, file=None, line=None):
+def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
     """Custom warning used to remove <stdin>:loc: pattern."""
     print(f"{category.__name__}: {message}", file=file or sys.stderr)
 

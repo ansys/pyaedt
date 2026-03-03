@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,8 +35,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
 
-@pytest.mark.flaky_linux
-def test_via_clustering_main_function(test_tmp_dir):
+def test_via_clustering_main_function(test_tmp_dir) -> None:
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
     file_path = test_tmp_dir / "test_via_merging.aedb"
@@ -70,7 +69,7 @@ def test_via_clustering_main_function(test_tmp_dir):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_via_clustering_extension_ui(add_app_example):
+def test_via_clustering_extension_ui(add_app_example) -> None:
     """Test the Via Clustering extension UI components."""
     # Create an HFSS 3D Layout application for testing
     hfss3d = add_app_example(
@@ -105,7 +104,7 @@ def test_via_clustering_extension_ui(add_app_example):
     hfss3d.close_project(save=False)
 
 
-def test_via_clustering_exceptions():
+def test_via_clustering_exceptions() -> None:
     """Test exceptions thrown by the Via Clustering extension."""
     # Test missing AEDB path
     data = ViaClusteringExtensionData(aedb_path="", design_name="test", new_aedb_path="new_test")
@@ -128,7 +127,7 @@ def test_via_clustering_exceptions():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_via_clustering_button_functions(add_app_example):
+def test_via_clustering_button_functions(add_app_example) -> None:
     """Test the button functions in the Via Clustering extension."""
     # Copy the test model to scratch directory
     hfss3d = add_app_example(
@@ -159,7 +158,7 @@ def test_via_clustering_button_functions(add_app_example):
     hfss3d.close_project(save=False)
 
 
-def test_via_clustering_data_class():
+def test_via_clustering_data_class() -> None:
     """Test the ViaClusteringExtensionData data class."""
     # Test default initialization
     data = ViaClusteringExtensionData()

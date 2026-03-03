@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,12 +28,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CADNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -43,15 +42,11 @@ class CADNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -81,7 +76,7 @@ class CADNode(EmitNode):
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    def position(self) -> str:
         """Set position of the CAD node in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -198,7 +193,7 @@ class CADNode(EmitNode):
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def min(self):
+    def min(self) -> str:
         """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -207,7 +202,7 @@ class CADNode(EmitNode):
         return val
 
     @property
-    def max(self):
+    def max(self) -> str:
         """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -222,7 +217,7 @@ class CADNode(EmitNode):
         return int(val)
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.

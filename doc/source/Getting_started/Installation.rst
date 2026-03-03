@@ -1,7 +1,7 @@
 Installation
 ============
 PyAEDT consolidates and extends all existing capital around scripting for AEDT,
-allowing re-use of existing code, sharing of best practices, and collaboration.
+allowing reuse of existing code, sharing of best practices, and collaboration.
 
 This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides
 basic support for EDB and Circuit (Nexxim).
@@ -37,11 +37,12 @@ In order to do that you can:
   :width: 800
   :alt: PyAEDT run script
 
-Starting from 2023R2, buttons are available in the Automation Tab as in the example below.
+Starting from 2023R2, panels are available in the Automation Tab. For detailed information about
+PyAEDT panels, see :doc:`panels`.
 
 .. image:: ../Resources/toolkits_ribbon.png
   :width: 800
-  :alt: PyAEDT toolkit buttons available in AEDT
+  :alt: PyAEDT toolkit panels available in AEDT
 
 If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
 
@@ -99,7 +100,7 @@ Once configured, click **OK** to register the extension. It then appears alongsi
 
 A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
-For additional information about AEDT extensions, 
+For additional information about AEDT extensions,
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
 
 .. raw:: html
@@ -143,34 +144,35 @@ Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT on CPython from PyPI:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt
 
 You can also install PyAEDT from Conda-Forge:
 
-.. code:: python
+.. code:: bash
 
     conda install -c conda-forge pyaedt
 
 To ensure you have all the necessary dependencies, including optional components, use the following command:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt[all]
 
 If you are not utilizing gRPC, you can install the required dotnet dependencies separately:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt[dotnet]
 
 Finally, in the Python console, run the following commands:
 
-.. code::
+.. code:: python
 
-     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+
+    add_pyaedt_to_aedt("path_to_aedtlib")
 
 - Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
@@ -180,7 +182,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
 
 .. note::
   If you created your own virtual environment and you are managing a centralized installation of pyAEDT,
@@ -222,7 +224,7 @@ Finally, in the Python console, run the following commands:
 .. code::
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
+     add_pyaedt_to_aedt(r“path_to_aedtlib")
 
 - Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
@@ -230,7 +232,7 @@ Finally, in the Python console, run the following commands:
 
   .. code::
 
-      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib", skip_version_manager=True)
+      add_pyaedt_to_aedt(r“path_to_aedtlib", skip_version_manager=True)
 
 
 Using uv to manage virtual environments
@@ -293,7 +295,8 @@ Once PyAEDT is installed in your virtual environment, you can run the
 .. code:: python
 
     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-    add_pyaedt_to_aedt("your_aedt_version", r"path_to_aedtlib")
+
+    add_pyaedt_to_aedt(r"path_to_aedtlib")
 
 Note
 ~~~~

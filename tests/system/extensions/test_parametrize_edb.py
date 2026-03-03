@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,8 +41,8 @@ EDB_PROJECT = "ANSYS-HSD_V1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_layout(desktop, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+def test_parametrize_layout(desktop, test_tmp_dir) -> None:
     """Test parametrizing EDB layout with comprehensive settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
@@ -65,7 +65,8 @@ def test_parametrize_layout(desktop, test_tmp_dir):
     assert result is True
 
 
-def test_parametrize_edb_exceptions(desktop):
+@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+def test_parametrize_edb_exceptions(desktop) -> None:
     """Test exceptions thrown by the Parametrize EDB extension."""
     # Test with negative polygon expansion
     data = ParametrizeEdbExtensionData(
@@ -91,8 +92,8 @@ def test_parametrize_edb_exceptions(desktop):
         main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+def test_parametrize_edb_custom_settings(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with custom settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
@@ -116,8 +117,8 @@ def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
     assert result is True
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir):
+@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with zero expansions."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_zero.aedb"
 

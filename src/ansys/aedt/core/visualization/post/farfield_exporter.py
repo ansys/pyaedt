@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -91,11 +91,11 @@ class FfdSolutionDataExporter(PyAedtBase):
         sphere_name,
         setup_name,
         frequencies,
-        variations=None,
-        overwrite=True,
-        export_touchstone=True,
-        set_phase_center_per_port=True,
-    ):
+        variations: dict | None = None,
+        overwrite: bool = True,
+        export_touchstone: bool = True,
+        set_phase_center_per_port: bool = True,
+    ) -> None:
         # Public
         self.sphere_name = sphere_name
         self.setup_name = setup_name

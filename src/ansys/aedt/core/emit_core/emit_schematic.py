@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,7 +31,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
-    def __init__(self, emit_instance):
+    def __init__(self, emit_instance) -> None:
         """Initialize the EmitSchematic class.
 
         Parameters
@@ -216,7 +216,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")
 
     @pyaedt_function_handler
-    def delete_component(self, name: str):
+    def delete_component(self, name: str) -> None:
         """Delete a component from the schematic.
 
         Parameters

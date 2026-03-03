@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,12 +34,12 @@ class GraphSetup:
     This class allows you to configure the graph limit parameters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_graph_dll_functions()
 
-    def _define_graph_dll_functions(self):
+    def _define_graph_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setPlotMinimumFrequency.argtype = c_char_p
         self._dll.setPlotMinimumFrequency.restype = c_int
@@ -73,7 +73,7 @@ class GraphSetup:
         return min_freq_string
 
     @minimum_frequency.setter
-    def minimum_frequency(self, min_freq_string):
+    def minimum_frequency(self, min_freq_string) -> None:
         self._dll_interface.set_string(self._dll.setPlotMinimumFrequency, min_freq_string)
 
     @property
@@ -88,7 +88,7 @@ class GraphSetup:
         return max_freq_string
 
     @maximum_frequency.setter
-    def maximum_frequency(self, max_freq_string):
+    def maximum_frequency(self, max_freq_string) -> None:
         self._dll_interface.set_string(self._dll.setPlotMaximumFrequency, max_freq_string)
 
     @property
@@ -103,7 +103,7 @@ class GraphSetup:
         return min_time_string
 
     @minimum_time.setter
-    def minimum_time(self, min_time_string):
+    def minimum_time(self, min_time_string) -> None:
         self._dll_interface.set_string(self._dll.setPlotMinimumTime, min_time_string)
 
     @property
@@ -118,5 +118,5 @@ class GraphSetup:
         return max_time_string
 
     @maximum_time.setter
-    def maximum_time(self, max_time_string):
+    def maximum_time(self, max_time_string) -> None:
         self._dll_interface.set_string(self._dll.setPlotMaximumTime, max_time_string)

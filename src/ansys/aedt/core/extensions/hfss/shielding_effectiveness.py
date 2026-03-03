@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -83,7 +83,7 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
 class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
     """Extension for shielding effectiveness in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -120,7 +120,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
             self.release_desktop()
             raise AEDTRuntimeError("There should be only one object in the design.")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Sphere size entry
         sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
@@ -273,7 +273,7 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
         ok_button.grid(row=9, column=0, columnspan=2, padx=15, pady=10)
 
 
-def main(data: ShieldingEffectivenessExtensionData):
+def main(data: ShieldingEffectivenessExtensionData) -> bool:
     """Main function to run the shielding effectiveness extension."""
     if data.sphere_size <= 0:
         raise AEDTRuntimeError("Sphere size must be greater than zero.")
@@ -379,7 +379,7 @@ def main(data: ShieldingEffectivenessExtensionData):
 
     aedtapp.create_linear_count_sweep(
         setup_name,
-        units=data.frequency_units,
+        unit=data.frequency_units,
         start_frequency=data.start_frequency,
         stop_frequency=data.stop_frequency,
         num_of_freq_points=data.points,

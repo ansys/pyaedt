@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,7 +42,7 @@ class Parser(PyAedtBase):
     Except for the header, the binary content is not parsed until an explicit call to parse_message.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """Initialize parser object with the interpreted header and a pointer to the binary data."""
         self.parser_types = {}
         self.parser_flags = {}
@@ -77,7 +77,7 @@ class Parser(PyAedtBase):
         else:
             return self._parse_list(**self.parser_types[type_name])
 
-    def _parse_simple_base_type(self, format="i", size=4, how_many=1, final_type=None):
+    def _parse_simple_base_type(self, format: str = "i", size: int = 4, how_many: int = 1, final_type=None):
         """Parser for int, float, complex, enum or flag.
 
         Can also parse a list of base types and convert them to another type if possible.
@@ -107,7 +107,7 @@ class Parser(PyAedtBase):
         self.idx = end
         return res
 
-    def _parse_list(self, type=None, base=None, size=1):
+    def _parse_list(self, type=None, base=None, size: int = 1):
         """Parser for vector or list.
 
         A vector is interpreted in the linear algebra sense and converted to a NumPy array.
@@ -139,7 +139,7 @@ class Parser(PyAedtBase):
         else:
             return res
 
-    def _parse_object(self, name):
+    def _parse_object(self, name: str):
         """Parser for an object message."""
         namesdict = {}
         for layout in self.parser_types[name]["layout"]:
@@ -191,7 +191,7 @@ class Parser(PyAedtBase):
 
         return self.objects[name](namesdict)
 
-    def _read_header(self):
+    def _read_header(self) -> None:
         """Parse the header and prepare all data structures to interpret the binary content."""
 
         def build_type(self, key, val):
@@ -241,7 +241,7 @@ class Parser(PyAedtBase):
                     __qualname__ = key
                     __name__ = key
 
-                    def __init__(self, dictionary):
+                    def __init__(self, dictionary) -> None:
                         for k, v in dictionary.items():
                             setattr(self, k, v)
 
@@ -253,5 +253,5 @@ class Parser(PyAedtBase):
             self.parser_types[key] = build_type(self, key, val)
         self.message = self.header["message"]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.parser_types)

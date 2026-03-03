@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,13 +25,13 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
 from pathlib import Path
-from typing import Union
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
 
 class RMXprtModule(PyAedtBase):
@@ -39,17 +39,17 @@ class RMXprtModule(PyAedtBase):
 
     component = None
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.oeditor = app.oeditor
 
     @property
-    def properties(self):
+    def properties(self) -> BinaryTreeNode | bool:
         """Object parameters.
 
         Returns
         -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode` when successful,
             ``False`` when failed.
 
         """
@@ -63,11 +63,12 @@ class RMXprtModule(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def __setitem__(self, parameter_name, value):
-        def _apply_val(dict_in, name, value):
+    def __setitem__(self, parameter_name, value) -> None:
+        def _apply_val(dict_in, name: str, value) -> bool:
             if name in dict_in.properties:
                 if (
                     isinstance(dict_in.properties[name], list)
+                    and len(dict_in.properties[name]) > 0
                     and isinstance(dict_in.properties[name][0], str)
                     and ":=" in dict_in.properties[name][0]
                     and not isinstance(value, list)
@@ -93,7 +94,7 @@ class RMXprtModule(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
-        def _get_val(dict_in, name):
+        def _get_val(dict_in, name: str):
             if name in dict_in.properties:
                 return dict_in.properties[name]
             else:
@@ -170,7 +171,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -218,24 +219,23 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     >>> app = Rmxprt("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        model_units=None,
-        setup=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        model_units: str | None = None,
+        setup: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         FieldAnalysisRMxprt.__init__(
             self,
             "RMXPRT",
@@ -264,7 +264,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         self.shaft = Shaft(self)
         self.circuit = Circuit(self)
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
@@ -273,11 +273,13 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return str(self.design_solutions._design_type)
 
     @design_type.setter
-    def design_type(self, value):
+    def design_type(self, value) -> None:
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(
+        self, name: str | None = "MySetupAuto", setup_type: int | str | None = None, **kwargs
+    ) -> SetupHFSS:
         """Create an analysis setup for RmXport.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``
@@ -329,7 +331,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def export_configuration(self, output_file: Union[str, Path]) -> str:
+    def export_configuration(self, output_file: str | Path) -> str:
         """Export Rmxprt project to config file.
 
         Parameters
@@ -343,7 +345,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
            Full path to json file created.
         """
 
-        def jsonalize(dict_in, dict_out):
+        def jsonalize(dict_in, dict_out) -> None:
             dict_out[dict_in._node] = {}
             for k, v in dict_in.properties.items():
                 if not k.endswith("/Choices"):
@@ -363,7 +365,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def import_configuration(self, input_file):
+    def import_configuration(self, input_file: str) -> bool:
         """Parse a json file and assign all the properties to the Rmxprt design.
 
         Parameters

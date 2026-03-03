@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 
-def post_processor(app=None, project=None, design=None, version=None):
+def post_processor(app=None, project: str | None = None, design: str | None = None, version: str | None = None):
     """PostProcessor.
 
     Returns

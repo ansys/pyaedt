@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,7 +33,7 @@ MOCK_JSON_PATH = "/mock/path/configuration.json"
 MOCK_PATH = "/mock/path"
 
 
-def test_circuit_configuration_default(mock_circuit_app):
+def test_circuit_configuration_default(mock_circuit_app) -> None:
     """Test instantiation of the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
 
@@ -43,7 +43,7 @@ def test_circuit_configuration_default(mock_circuit_app):
 
 
 @patch("tkinter.filedialog.askopenfilenames", return_value=[MOCK_JSON_PATH])
-def test_apply_configuration_file(mock_askopenfilenames, mock_circuit_app):
+def test_apply_configuration_file(mock_askopenfilenames, mock_circuit_app) -> None:
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["import_button"].invoke()
@@ -51,7 +51,7 @@ def test_apply_configuration_file(mock_askopenfilenames, mock_circuit_app):
 
 
 @patch("tkinter.filedialog.askopenfilenames", return_value="")
-def test_apply_configuration_file_empty(mock_askopenfilenames, mock_circuit_app):
+def test_apply_configuration_file_empty(mock_askopenfilenames, mock_circuit_app) -> None:
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["import_button"].invoke()
@@ -60,7 +60,7 @@ def test_apply_configuration_file_empty(mock_askopenfilenames, mock_circuit_app)
 
 
 @patch("tkinter.filedialog.askdirectory", return_value=MOCK_PATH)
-def test_export_configuration_file(mock_askdirectory, mock_circuit_app):
+def test_export_configuration_file(mock_askdirectory, mock_circuit_app) -> None:
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["export_button"].invoke()
@@ -68,7 +68,7 @@ def test_export_configuration_file(mock_askdirectory, mock_circuit_app):
 
 
 @patch("tkinter.filedialog.askdirectory", return_value="")
-def test_export_configuration_file_empty(mock_askdirectory, mock_circuit_app):
+def test_export_configuration_file_empty(mock_askdirectory, mock_circuit_app) -> None:
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["export_button"].invoke()

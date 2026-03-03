@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -71,21 +71,23 @@ def mock_hfss_3d_layout_app():
 
 
 @pytest.fixture
-def mock_maxwell_3d_app():
+def mock_maxwell_3d_app(request):
     """Fixture to mock Maxwell 3D application."""
     with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Maxwell 3D"
+        mock_instance._aedt_version = getattr(request, "param", "2026.1")
         mock_property.return_value = mock_instance
         yield mock_instance
 
 
 @pytest.fixture
-def mock_maxwell_2d_app():
+def mock_maxwell_2d_app(request):
     """Fixture to mock Maxwell 2D application."""
     with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Maxwell 2D"
+        mock_instance._aedt_version = getattr(request, "param", "2026.1")
         mock_property.return_value = mock_instance
         yield mock_instance
 
@@ -96,6 +98,17 @@ def mock_circuit_app():
     with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Circuit Design"
+        mock_property.return_value = mock_instance
+
+        yield mock_instance
+
+
+@pytest.fixture
+def mock_emit_app():
+    """Fixture to mock EMIT application."""
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
+        mock_instance = MagicMock()
+        mock_instance.design_type = "EMIT"
         mock_property.return_value = mock_instance
 
         yield mock_instance

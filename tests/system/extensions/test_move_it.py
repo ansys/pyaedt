@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,7 +33,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 
 
-def test_move_it_generate_button(add_app):
+def test_move_it_generate_button(add_app) -> None:
     """Test the Generate button in the Move IT extension."""
     data = MoveItExtensionData(velocity=1.4, acceleration=0.0, delay=0.0)
 
@@ -59,7 +59,7 @@ def test_move_it_generate_button(add_app):
     aedt_app.close_project(aedt_app.project_name, save=False)
 
 
-def test_move_it_exceptions(add_app):
+def test_move_it_exceptions(add_app) -> None:
     """Test exceptions thrown by the Move IT extension."""
     data = MoveItExtensionData(choice=None)
     with pytest.raises(AEDTRuntimeError):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,26 +30,42 @@ import toml
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+from ansys.aedt.core.generic.file_utils import read_configuration_file
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests.conftest import DESKTOP_VERSION
 
 
 @pytest.mark.skipif(
-    is_linux and DESKTOP_VERSION > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
+    DESKTOP_VERSION != "2026.1",
+    reason="Only test 2026.1 version restriction",
+)
+def test_via_design_blocked_on_2026_1() -> None:
+    """Test that Via Design extension raises error on version 2026.1."""
+    with pytest.raises(AEDTRuntimeError, match="Via Design extension is not supported in AEDT 2026.1"):
+        ViaDesignExtension(withdraw=True)
+
+
+@pytest.mark.skipif(
+    (is_linux and DESKTOP_VERSION > "2025.1") or DESKTOP_VERSION == "2026.1",
+    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399 and via design bug in 2026.1",
 )
 @patch.object(ViaDesignExtension, "check_design_type", return_value=None)
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app):
+def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app, test_tmp_dir) -> None:
     """Test the creation of a design from examples in the via design extension."""
     app = add_app(application=Hfss3dLayout)
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
+        conf = read_configuration_file(example.toml_file_path)
+        conf["general"]["version"] = DESKTOP_VERSION
+        output_path = test_tmp_dir / example.toml_file_path.name
+        write_configuration_file(conf, output_path)
+        mock_askopenfilename.return_value = output_path
+        extension.create_design()
+        with output_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
         app.close_project(save=False)

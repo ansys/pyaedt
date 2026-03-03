@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,19 +35,19 @@ from tests.system.filter_solutions.resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_lumped_source_resistance_30(self, lumped_design):
+    def test_lumped_source_resistance_30(self, lumped_design) -> None:
         assert lumped_design.topology.source_resistance == "50"
         lumped_design.topology.source_resistance = "30"
         assert lumped_design.topology.source_resistance == "30"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("source_resistance.ckt", "Lumped")
 
-    def test_lumped_load_resistance_30(self, lumped_design):
+    def test_lumped_load_resistance_30(self, lumped_design) -> None:
         assert lumped_design.topology.load_resistance == "50"
         lumped_design.topology.load_resistance = "30"
         assert lumped_design.topology.load_resistance == "30"
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("laod_resistance.ckt", "Lumped")
 
-    def test_lumped_current_source(self, lumped_design):
+    def test_lumped_current_source(self, lumped_design) -> None:
         assert lumped_design.topology.current_source is False
         lumped_design.topology.current_source = True
         assert lumped_design.topology.current_source
@@ -56,7 +56,7 @@ class TestClass:
             lumped_design.topology.current_source = True
         assert info.value.args[0] == "Current Source topology is not applicable for diplexer filters"
 
-    def test_lumped_first_shunt(self, lumped_design):
+    def test_lumped_first_shunt(self, lumped_design) -> None:
         assert lumped_design.topology.first_shunt
         lumped_design.topology.first_shunt = True
         assert lumped_design.topology.first_shunt
@@ -66,13 +66,13 @@ class TestClass:
             lumped_design.topology.first_shunt = True
         assert info.value.args[0] == "First Element topology is not applicable for diplexer filters"
 
-    def test_lumped_first_series(self, lumped_design):
+    def test_lumped_first_series(self, lumped_design) -> None:
         assert lumped_design.topology.first_shunt
         lumped_design.topology.first_shunt = False
         assert lumped_design.topology.first_shunt is False
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("first_series.ckt", "Lumped")
 
-    def test_lumped_bridge_t(self, lumped_design):
+    def test_lumped_bridge_t(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.bridge_t = True
         assert info.value.args[0] == "BridgeT topology is not applicable for this type of filter"
@@ -83,7 +83,7 @@ class TestClass:
         assert lumped_design.topology.bridge_t
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("bridge_t.ckt", "Lumped")
 
-    def test_lumped_bridge_t_low(self, lumped_design):
+    def test_lumped_bridge_t_low(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.bridge_t_low = True
         assert info.value.args[0] == "BridgeT Low topology is not applicable for this type of filter"
@@ -98,7 +98,7 @@ class TestClass:
         assert lumped_design.topology.bridge_t_low
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("bridge_t_low.ckt", "Lumped")
 
-    def test_lumped_bridge_t_high(self, lumped_design):
+    def test_lumped_bridge_t_high(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.bridge_t_high = True
         assert info.value.args[0] == "BridgeT High topology is not applicable for this type of filter"
@@ -113,7 +113,7 @@ class TestClass:
         assert lumped_design.topology.bridge_t_high
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("bridge_t_high.ckt", "Lumped")
 
-    def test_lumped_equal_inductors(self, lumped_design):
+    def test_lumped_equal_inductors(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.equal_inductors = True
         assert info.value.args[0] == "Equal Inductors topology is not applicable for this type of filter"
@@ -124,7 +124,7 @@ class TestClass:
         assert lumped_design.topology.equal_inductors
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("equal_inductors.ckt", "Lumped")
 
-    def test_lumped_equal_capacitors(self, lumped_design):
+    def test_lumped_equal_capacitors(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.equal_capacitors = True
         assert info.value.args[0] == "Equal Capacitors topology is not applicable for this type of filter"
@@ -142,7 +142,7 @@ class TestClass:
         assert lumped_design.topology.equal_capacitors
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("equal_capacitors.ckt", "Lumped")
 
-    def test_lumped_equal_legs(self, lumped_design):
+    def test_lumped_equal_legs(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.equal_legs = True
         assert info.value.args[0] == "Equal Legs topology is not applicable for this type of filter"
@@ -153,7 +153,7 @@ class TestClass:
         assert lumped_design.topology.equal_legs
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("equal_legs.ckt", "Lumped")
 
-    def test_lumped_high_low_pass(self, lumped_design):
+    def test_lumped_high_low_pass(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.high_low_pass = True
         assert info.value.args[0] == "High Low pass topology is not applicable for this type of filter"
@@ -164,7 +164,7 @@ class TestClass:
         assert lumped_design.topology.high_low_pass
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("high_low_pass.ckt", "Lumped")
 
-    def test_lumped_high_low_pass_min_ind(self, lumped_design):
+    def test_lumped_high_low_pass_min_ind(self, lumped_design) -> None:
         misspelled_error = "High Low pass with Minmum Inductors topology is not applicable for this type of filter"  # codespell:ignore  # noqa: E501
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.high_low_pass_min_ind = True
@@ -186,7 +186,7 @@ class TestClass:
             "high_low_pass_min_ind.ckt", "Lumped"
         )
 
-    def test_lumped_zig_zag(self, lumped_design):
+    def test_lumped_zig_zag(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.zig_zag = True
         assert info.value.args[0] == "Zig Zag topology is not applicable for this type of filter"
@@ -199,7 +199,7 @@ class TestClass:
         assert lumped_design.topology.zig_zag
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("zig_zag.ckt", "Lumped")
 
-    def test_lumped_min_ind(self, lumped_design):
+    def test_lumped_min_ind(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.min_ind = True
         if config["desktopVersion"] > "2025.1":
@@ -217,7 +217,7 @@ class TestClass:
         assert lumped_design.topology.min_ind
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("min_ind.ckt", "Lumped")
 
-    def test_lumped_min_cap(self, lumped_design):
+    def test_lumped_min_cap(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.min_cap = True
         if config["desktopVersion"] > "2025.1":
@@ -235,7 +235,7 @@ class TestClass:
         assert lumped_design.topology.min_cap
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("min_cap.ckt", "Lumped")
 
-    def test_lumped_set_source_res(self, lumped_design):
+    def test_lumped_set_source_res(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.set_source_res = True
         if config["desktopVersion"] > "2025.1":
@@ -254,7 +254,7 @@ class TestClass:
         assert lumped_design.topology.set_source_res
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("set_source_res.ckt", "Lumped")
 
-    def test_lumped_trap_topology(self, lumped_design):
+    def test_lumped_trap_topology(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.trap_topology = True
         assert info.value.args[0] == "Trap topology is not applicable for this type of filter"
@@ -269,7 +269,7 @@ class TestClass:
         assert lumped_design.topology.trap_topology
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("trap_topology.ckt", "Lumped")
 
-    def test_lumped_node_cap_ground(self, lumped_design):
+    def test_lumped_node_cap_ground(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.node_cap_ground = True
         assert (
@@ -284,7 +284,7 @@ class TestClass:
         assert lumped_design.topology.node_cap_ground
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("node_cap_ground.ckt", "Lumped")
 
-    def test_lumped_match_impedance(self, lumped_design):
+    def test_lumped_match_impedance(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.match_impedance = True
         assert info.value.args[0] == "Automatic Matched Impedance topology is not applicable for this type of filter"
@@ -297,12 +297,12 @@ class TestClass:
         assert lumped_design.topology.match_impedance
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("match_impedance.ckt", "Lumped")
 
-    def test_lumped_complex_termination(self, lumped_design):
+    def test_lumped_complex_termination(self, lumped_design) -> None:
         assert lumped_design.topology.complex_termination is False
         lumped_design.topology.complex_termination = True
         assert lumped_design.topology.complex_termination
 
-    def test_complex_element_tune_enabled(self, lumped_design):
+    def test_complex_element_tune_enabled(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.complex_element_tune_enabled = True
         if config["desktopVersion"] > "2025.1":
@@ -314,38 +314,38 @@ class TestClass:
         lumped_design.topology.complex_element_tune_enabled = False
         assert lumped_design.topology.complex_element_tune_enabled is False
 
-    def test_lumped_circuit_export(self, lumped_design):
+    def test_lumped_circuit_export(self, lumped_design) -> None:
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("netlist.ckt", "Lumped")
 
-    def test_lumped_diplexer1_hi_lo(self, lumped_design):
+    def test_lumped_diplexer1_hi_lo(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
         lumped_design.attributes.diplexer_type = DiplexerType.HI_LO
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumped_design.attributes.diplexer_type == DiplexerType.HI_LO
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("diplexer1_hi_lo.ckt", "Lumped")
 
-    def test_lumped_diplexer1_bp_1(self, lumped_design):
+    def test_lumped_diplexer1_bp_1(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
         lumped_design.attributes.diplexer_type = DiplexerType.BP_1
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumped_design.attributes.diplexer_type == DiplexerType.BP_1
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("diplexer1_bp_1.ckt", "Lumped")
 
-    def test_lumped_diplexer1_bp_2(self, lumped_design):
+    def test_lumped_diplexer1_bp_2(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
         lumped_design.attributes.diplexer_type = DiplexerType.BP_2
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumped_design.attributes.diplexer_type == DiplexerType.BP_2
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("diplexer1_bp_2.ckt", "Lumped")
 
-    def test_lumped_diplexer2_bp_bs(self, lumped_design):
+    def test_lumped_diplexer2_bp_bs(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_2
         lumped_design.attributes.diplexer_type = DiplexerType.BP_BS
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumped_design.attributes.diplexer_type == DiplexerType.BP_BS
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("diplexer2_bp_bs.ckt", "Lumped")
 
-    def test_lumped_diplexer2_triplexer_1(self, lumped_design):
+    def test_lumped_diplexer2_triplexer_1(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_2
         lumped_design.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_2
@@ -354,7 +354,7 @@ class TestClass:
             "diplexer2_triplexer_1.ckt", "Lumped"
         )
 
-    def test_lumped_diplexer2_triplexer_2(self, lumped_design):
+    def test_lumped_diplexer2_triplexer_2(self, lumped_design) -> None:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_2
         lumped_design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert lumped_design.attributes.filter_class == FilterClass.DIPLEXER_2

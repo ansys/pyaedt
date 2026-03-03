@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,12 +26,12 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CouplingLinkNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
@@ -55,7 +54,7 @@ class CouplingLinkNode(EmitNode):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
-    def ports(self):
+    def ports(self) -> str:
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val

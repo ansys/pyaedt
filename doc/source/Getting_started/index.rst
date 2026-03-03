@@ -3,19 +3,19 @@ Getting started
 
 .. grid:: 2
 
-   .. grid-item-card:: About PyAnsys and AEDT
-            :link: About
-            :link-type: doc
-            :margin: 2 2 0 0
-            
-            Learn more about PyAnsys and AEDT.
-
    .. grid-item-card:: Installation
             :link: Installation
             :link-type: doc
             :margin: 2 2 0 0
 
             Learn how to install PyAEDT from PyPi or Conda.
+
+   .. grid-item-card:: Troubleshooting
+            :link: Troubleshooting
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Any questions? Refer to Q&A before submitting an issue.
 
    .. grid-item-card:: User guide
             :link: ../User_guide/index
@@ -38,6 +38,13 @@ Getting started
 
             Learn how to use the PyAEDT command line interface (CLI) for managing AEDT processes.
 
+   .. grid-item-card:: AEDT Panels
+            :link: panels
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Discover the PyAEDT panels available in the AEDT Automation tab.
+
    .. grid-item-card:: Versions and interfaces
             :link: versioning
             :link-type: doc
@@ -45,12 +52,26 @@ Getting started
 
             Discover the compatibility between PyAEDT and Ansys AEDT versions.
 
-   .. grid-item-card:: Troubleshooting
-            :link: Troubleshooting
+   .. grid-item-card:: Contributing
+            :link: Contributing
             :link-type: doc
             :margin: 2 2 0 0
 
-            Any questions? Refer to Q&A before submitting an issue.
+            Learn how to contribute to the PyAEDT project.
+
+   .. grid-item-card:: Developer notes
+            :link: Developer_notes
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Notes for developers working on PyAEDT.
+
+   .. grid-item-card:: About PyAnsys and AEDT
+            :link: About
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Learn more about PyAnsys and AEDT.
 
 
 What is PyAEDT?
@@ -133,7 +154,9 @@ page on the Ansys website.
    ../User_guide/index
    ClientServer
    cli
+   panels
    versioning
    Contributing
+   Developer_notes
    About
 

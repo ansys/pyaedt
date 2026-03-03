@@ -9,6 +9,866 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.0.0rc1 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0rc1>`_ - February 25, 2026
+========================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add radar explorer to catalog
+          - `#7286 <https://github.com/ansys/pyaedt/pull/7286>`_
+
+        * - Add Q3D RLGC
+          - `#7287 <https://github.com/ansys/pyaedt/pull/7287>`_
+
+        * - Add delete all points
+          - `#7291 <https://github.com/ansys/pyaedt/pull/7291>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump astral-sh/setup-uv from 7.2.0 to 7.3.0
+          - `#7293 <https://github.com/ansys/pyaedt/pull/7293>`_
+
+        * - Bump uv from 0.10.0 to 0.10.2
+          - `#7294 <https://github.com/ansys/pyaedt/pull/7294>`_
+
+        * - Bump vtk from 9.5.2 to 9.6.0, pyvista from 0.46.5 to 0.47.0
+          - `#7295 <https://github.com/ansys/pyaedt/pull/7295>`_
+
+        * - Bump jupyterlab from 4.5.3 to 4.5.4
+          - `#7296 <https://github.com/ansys/pyaedt/pull/7296>`_
+
+        * - Bump typer from 0.21.1 to 0.23.1
+          - `#7297 <https://github.com/ansys/pyaedt/pull/7297>`_
+
+        * - Update cache actions to v5.0.1 and enable cross-OS archive support
+          - `#7304 <https://github.com/ansys/pyaedt/pull/7304>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added property file unit to import_3d model
+          - `#6678 <https://github.com/ansys/pyaedt/pull/6678>`_
+
+        * - Fix model type in AMIReader to support mixed ibis files
+          - `#7285 <https://github.com/ansys/pyaedt/pull/7285>`_
+
+        * - PyAEDT Examples issues
+          - `#7299 <https://github.com/ansys/pyaedt/pull/7299>`_
+
+        * - Added an encoding while reading json
+          - `#7300 <https://github.com/ansys/pyaedt/pull/7300>`_
+
+        * - Open street map issues
+          - `#7310 <https://github.com/ansys/pyaedt/pull/7310>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 2026 R1 compatibility fixes #6874
+          - `#7066 <https://github.com/ansys/pyaedt/pull/7066>`_
+
+        * - Update caches if tests dependencies change
+          - `#7277 <https://github.com/ansys/pyaedt/pull/7277>`_
+
+        * - Update CHANGELOG for v0.25.1
+          - `#7283 <https://github.com/ansys/pyaedt/pull/7283>`_
+
+        * - New testmon CI approach
+          - `#7301 <https://github.com/ansys/pyaedt/pull/7301>`_
+
+        * - Test only working with main as key
+          - `#7305 <https://github.com/ansys/pyaedt/pull/7305>`_
+
+        * - Testmon fix
+          - `#7307 <https://github.com/ansys/pyaedt/pull/7307>`_
+
+        * - Pre-commit automatic update
+          - `#7308 <https://github.com/ansys/pyaedt/pull/7308>`_
+
+        * - Separate windows and linux
+          - `#7309 <https://github.com/ansys/pyaedt/pull/7309>`_
+
+        * - Rollback to previous testmon implementation
+          - `#7311 <https://github.com/ansys/pyaedt/pull/7311>`_
+
+        * - Fixed analyze changes
+          - `#7316 <https://github.com/ansys/pyaedt/pull/7316>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Compatibility 261
+          - `#7114 <https://github.com/ansys/pyaedt/pull/7114>`_
+
+        * - Fixed hfss typings
+          - `#7284 <https://github.com/ansys/pyaedt/pull/7284>`_
+
+
+`0.25.1 <https://github.com/ansys/pyaedt/releases/tag/v0.25.1>`_ - February 19, 2026
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added method for adding sweep in q2d for Closed solution type
+          - `#7201 <https://github.com/ansys/pyaedt/pull/7201>`_
+
+        * - Panel button groups
+          - `#7272 <https://github.com/ansys/pyaedt/pull/7272>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump uv from 0.9.26 to 0.10.0
+          - `#7259 <https://github.com/ansys/pyaedt/pull/7259>`_
+
+        * - Bump grpcio from 1.76.0 to 1.78.0
+          - `#7260 <https://github.com/ansys/pyaedt/pull/7260>`_
+
+        * - Bump jupyterlab from 4.5.2 to 4.5.3
+          - `#7261 <https://github.com/ansys/pyaedt/pull/7261>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update parameter names from 'specified_version' to 'version' in multiple files
+          - `#7279 <https://github.com/ansys/pyaedt/pull/7279>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Handle files in local example-data repo
+          - `#7263 <https://github.com/ansys/pyaedt/pull/7263>`_
+
+        * - Constructor parameters order
+          - `#7266 <https://github.com/ansys/pyaedt/pull/7266>`_
+
+        * - Aedt_grpc always failing
+          - `#7276 <https://github.com/ansys/pyaedt/pull/7276>`_
+
+        * - Update gRPC API version check and improve exception handling
+          - `#7278 <https://github.com/ansys/pyaedt/pull/7278>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.25.0
+          - `#7247 <https://github.com/ansys/pyaedt/pull/7247>`_
+
+        * - Bump dev version into v0.26.dev0
+          - `#7250 <https://github.com/ansys/pyaedt/pull/7250>`_
+
+        * - Leverage dependency groups (PEP 735) to avoid including dev dependencies in package distributions
+          - `#7256 <https://github.com/ansys/pyaedt/pull/7256>`_
+
+        * - Add missing doc-build conf in worklflows
+          - `#7267 <https://github.com/ansys/pyaedt/pull/7267>`_
+
+        * - Pre-commit automatic update
+          - `#7273 <https://github.com/ansys/pyaedt/pull/7273>`_
+
+        * - Clean unnecessary added folder
+          - `#7282 <https://github.com/ansys/pyaedt/pull/7282>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Application and cli typing
+          - `#7243 <https://github.com/ansys/pyaedt/pull/7243>`_
+
+        * - Fix dependency issue (transitive/optional)
+          - `#7255 <https://github.com/ansys/pyaedt/pull/7255>`_
+
+        * - Maxwell boundary definitions and usage
+          - `#7269 <https://github.com/ansys/pyaedt/pull/7269>`_
+
+
+`0.25.0 <https://github.com/ansys/pyaedt/releases/tag/v0.25.0>`_ - February 12, 2026
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add EMIT extension
+          - `#7083 <https://github.com/ansys/pyaedt/pull/7083>`_
+
+        * - New method to export matrix and add new AC Magnetic APhi solver
+          - `#7090 <https://github.com/ansys/pyaedt/pull/7090>`_
+
+        * - AEDT startup issue and add \`pyaedt attach\` command
+          - `#7093 <https://github.com/ansys/pyaedt/pull/7093>`_
+
+        * - Add circuit netlist report functionalities
+          - `#7159 <https://github.com/ansys/pyaedt/pull/7159>`_
+
+        * - Add EMIT EMI Heatmap extension
+          - `#7160 <https://github.com/ansys/pyaedt/pull/7160>`_
+
+        * - Added the possibility to customize image in touchstones in circuit
+          - `#7166 <https://github.com/ansys/pyaedt/pull/7166>`_
+
+        * - Add emit node duplicate
+          - `#7183 <https://github.com/ansys/pyaedt/pull/7183>`_
+
+        * - Add pyedb grpc support to pyaedt
+          - `#7195 <https://github.com/ansys/pyaedt/pull/7195>`_
+
+        * - Add classes for force and torque assignments
+          - `#7203 <https://github.com/ansys/pyaedt/pull/7203>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump astral-sh/setup-uv from 7.1.5 to 7.2.0
+          - `#7109 <https://github.com/ansys/pyaedt/pull/7109>`_
+
+        * - Bump actions/setup-python from 6.1.0 to 6.2.0
+          - `#7139 <https://github.com/ansys/pyaedt/pull/7139>`_, `#7208 <https://github.com/ansys/pyaedt/pull/7208>`_
+
+        * - Bump actions/checkout from 6.0.1 to 6.0.2
+          - `#7140 <https://github.com/ansys/pyaedt/pull/7140>`_, `#7205 <https://github.com/ansys/pyaedt/pull/7205>`_
+
+        * - Update ansys-sphinx-theme requirement from <1.7,>=1.0.0 to >=1.0.0,<1.8
+          - `#7163 <https://github.com/ansys/pyaedt/pull/7163>`_
+
+        * - Bump ansys/actions from 10.2.3 to 10.2.4
+          - `#7179 <https://github.com/ansys/pyaedt/pull/7179>`_, `#7213 <https://github.com/ansys/pyaedt/pull/7213>`_
+
+        * - Bump django from 5.2.10 to 5.2.11 in /.ci
+          - `#7188 <https://github.com/ansys/pyaedt/pull/7188>`_
+
+        * - Bump ansys-sphinx-theme from 1.6.4 to 1.7.0 in /.ci
+          - `#7204 <https://github.com/ansys/pyaedt/pull/7204>`_
+
+        * - Bump pyedb from 0.67.3 to 0.68.0 in /.ci
+          - `#7206 <https://github.com/ansys/pyaedt/pull/7206>`_
+
+        * - Bump psutil from 7.2.1 to 7.2.2 in /.ci
+          - `#7207 <https://github.com/ansys/pyaedt/pull/7207>`_
+
+        * - Bump cryptography from 46.0.3 to 46.0.5
+          - `#7235 <https://github.com/ansys/pyaedt/pull/7235>`_
+
+        * - Bump protobuf from 4.25.8 to 5.29.6
+          - `#7236 <https://github.com/ansys/pyaedt/pull/7236>`_
+
+        * - Bump nbconvert from 7.16.6 to 7.17.0
+          - `#7237 <https://github.com/ansys/pyaedt/pull/7237>`_
+
+        * - Bump pyedb from 0.68.0 to 0.68.3
+          - `#7238 <https://github.com/ansys/pyaedt/pull/7238>`_
+
+        * - Bump ansys/actions from 10.2.4 to 10.2.5
+          - `#7239 <https://github.com/ansys/pyaedt/pull/7239>`_
+
+        * - Bump scikit-rf from 1.9.0 to 1.10.0
+          - `#7240 <https://github.com/ansys/pyaedt/pull/7240>`_
+
+        * - Bump pillow from 12.1.0 to 12.1.1
+          - `#7245 <https://github.com/ansys/pyaedt/pull/7245>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Extend troubleshooting with uv venv issue
+          - `#7085 <https://github.com/ansys/pyaedt/pull/7085>`_
+
+        * - Add modifications in docstrings
+          - `#7117 <https://github.com/ansys/pyaedt/pull/7117>`_
+
+        * - Refactor README.md for improved structure and readability
+          - `#7127 <https://github.com/ansys/pyaedt/pull/7127>`_
+
+        * - Add testmon documentation
+          - `#7191 <https://github.com/ansys/pyaedt/pull/7191>`_
+
+        * - Encourage the use of prek instead of pre-commit
+          - `#7229 <https://github.com/ansys/pyaedt/pull/7229>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Move native API Points definition to data_handlers.py
+          - `#6851 <https://github.com/ansys/pyaedt/pull/6851>`_
+
+        * - Remove un-needed warning message when modifying mesh regions
+          - `#7033 <https://github.com/ansys/pyaedt/pull/7033>`_
+
+        * - B1378361
+          - `#7077 <https://github.com/ansys/pyaedt/pull/7077>`_
+
+        * - Make sure rename fcn is in pyaedt
+          - `#7079 <https://github.com/ansys/pyaedt/pull/7079>`_
+
+        * - Fixed touchstone naming convention
+          - `#7092 <https://github.com/ansys/pyaedt/pull/7092>`_
+
+        * - Rpyc secure grpc
+          - `#7096 <https://github.com/ansys/pyaedt/pull/7096>`_
+
+        * - Pin orientation which due to tolerance could be connected with page ports in wrong direction
+          - `#7107 <https://github.com/ansys/pyaedt/pull/7107>`_
+
+        * - Issue when closing PRs manually
+          - `#7115 <https://github.com/ansys/pyaedt/pull/7115>`_
+
+        * - Wrong Edit sources performance in Terminal solution type
+          - `#7118 <https://github.com/ansys/pyaedt/pull/7118>`_
+
+        * - Condition update to skip desktop tests
+          - `#7122 <https://github.com/ansys/pyaedt/pull/7122>`_
+
+        * - Add suspend_logging feature to the AedtLogger
+          - `#7123 <https://github.com/ansys/pyaedt/pull/7123>`_
+
+        * - Fix a regression on _validate_port
+          - `#7132 <https://github.com/ansys/pyaedt/pull/7132>`_
+
+        * - SurfaceGround assignment bug in Q2D boundary module
+          - `#7134 <https://github.com/ansys/pyaedt/pull/7134>`_
+
+        * - 7142 - error in polar plotting.
+          - `#7143 <https://github.com/ansys/pyaedt/pull/7143>`_
+
+        * - Handling of duplicate infinite sphere
+          - `#7149 <https://github.com/ansys/pyaedt/pull/7149>`_
+
+        * - Improve desktop init robustness in linux
+          - `#7156 <https://github.com/ansys/pyaedt/pull/7156>`_
+
+        * - Fixed EditExternalCircuit with parameters
+          - `#7165 <https://github.com/ansys/pyaedt/pull/7165>`_
+
+        * - Changed the position of the image_path for touchstone from component to model
+          - `#7171 <https://github.com/ansys/pyaedt/pull/7171>`_
+
+        * - Improved the way the symbol is edited in case an image is added to it.
+          - `#7174 <https://github.com/ansys/pyaedt/pull/7174>`_
+
+        * - Linux extensions issues
+          - `#7176 <https://github.com/ansys/pyaedt/pull/7176>`_
+
+        * - Units create linear count sweep
+          - `#7217 <https://github.com/ansys/pyaedt/pull/7217>`_
+
+        * - Allow non-unique Sweep values in SolutionData
+          - `#7227 <https://github.com/ansys/pyaedt/pull/7227>`_
+
+        * - Normalize student version format by removing 'SV' suffix
+          - `#7232 <https://github.com/ansys/pyaedt/pull/7232>`_
+
+        * - Regression in function definitions
+          - `#7244 <https://github.com/ansys/pyaedt/pull/7244>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Revert temporary doc build fix
+          - `#6673 <https://github.com/ansys/pyaedt/pull/6673>`_
+
+        * - Add Testmon cache restoration for test selective run
+          - `#7035 <https://github.com/ansys/pyaedt/pull/7035>`_
+
+        * - Pre-commit automatic update
+          - `#7081 <https://github.com/ansys/pyaedt/pull/7081>`_, `#7155 <https://github.com/ansys/pyaedt/pull/7155>`_, `#7223 <https://github.com/ansys/pyaedt/pull/7223>`_
+
+        * - Update CHANGELOG for v0.24.1
+          - `#7084 <https://github.com/ansys/pyaedt/pull/7084>`_
+
+        * - Remove methods and tests
+          - `#7101 <https://github.com/ansys/pyaedt/pull/7101>`_
+
+        * - Skip tests docstrings
+          - `#7106 <https://github.com/ansys/pyaedt/pull/7106>`_
+
+        * - Delete PyAEDT alias
+          - `#7113 <https://github.com/ansys/pyaedt/pull/7113>`_
+
+        * - Assign matrix refactoring
+          - `#7116 <https://github.com/ansys/pyaedt/pull/7116>`_
+
+        * - Update following bandit report
+          - `#7120 <https://github.com/ansys/pyaedt/pull/7120>`_
+
+        * - Add uv lock file for testmon and reproducibility
+          - `#7131 <https://github.com/ansys/pyaedt/pull/7131>`_
+
+        * - Temporary remove jupyter target from all
+          - `#7138 <https://github.com/ansys/pyaedt/pull/7138>`_
+
+        * - Update permission to delete cache
+          - `#7157 <https://github.com/ansys/pyaedt/pull/7157>`_
+
+        * - Fix block cache update
+          - `#7162 <https://github.com/ansys/pyaedt/pull/7162>`_
+
+        * - Skip tests in update-testmon-cache action
+          - `#7164 <https://github.com/ansys/pyaedt/pull/7164>`_
+
+        * - Check extension changes
+          - `#7167 <https://github.com/ansys/pyaedt/pull/7167>`_
+
+        * - Fix dependabot update of uv.lock file
+          - `#7170 <https://github.com/ansys/pyaedt/pull/7170>`_
+
+        * - Re add jupyter
+          - `#7172 <https://github.com/ansys/pyaedt/pull/7172>`_
+
+        * - Add workflow dedicated to release
+          - `#7177 <https://github.com/ansys/pyaedt/pull/7177>`_
+
+        * - Add dependabot cooldown settings
+          - `#7197 <https://github.com/ansys/pyaedt/pull/7197>`_
+
+        * - Remove codecov logic for unwanted workflows
+          - `#7209 <https://github.com/ansys/pyaedt/pull/7209>`_
+
+        * - Use uv lock for CI and development
+          - `#7210 <https://github.com/ansys/pyaedt/pull/7210>`_
+
+        * - Add job to interrupt PR workflows when merge on main
+          - `#7211 <https://github.com/ansys/pyaedt/pull/7211>`_
+
+        * - Not use testmon extensions
+          - `#7220 <https://github.com/ansys/pyaedt/pull/7220>`_
+
+        * - Remove cancel PR workflows from update-testmondata-cache.yml
+          - `#7221 <https://github.com/ansys/pyaedt/pull/7221>`_
+
+        * - Uncomment wait for master cache update step in ci_cd.yml
+          - `#7222 <https://github.com/ansys/pyaedt/pull/7222>`_, `#7226 <https://github.com/ansys/pyaedt/pull/7226>`_
+
+        * - Comment out wait for master cache update step in workflow files
+          - `#7225 <https://github.com/ansys/pyaedt/pull/7225>`_
+
+        * - Add cancel PR workflows
+          - `#7228 <https://github.com/ansys/pyaedt/pull/7228>`_
+
+        * - Temporary revert of PR stop until fixed
+          - `#7233 <https://github.com/ansys/pyaedt/pull/7233>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Desktop initialization with launch AEDT
+          - `#7124 <https://github.com/ansys/pyaedt/pull/7124>`_
+
+        * - Remove unused aedt_version parameter
+          - `#7129 <https://github.com/ansys/pyaedt/pull/7129>`_
+
+        * - Use radar explorer for radar visualization
+          - `#7130 <https://github.com/ansys/pyaedt/pull/7130>`_
+
+        * - Remove automatic Emit warning unless required
+          - `#7135 <https://github.com/ansys/pyaedt/pull/7135>`_
+
+        * - Improve usability of near and far-field setup.
+          - `#7147 <https://github.com/ansys/pyaedt/pull/7147>`_
+
+        * - Improve typing and add return types
+          - `#7182 <https://github.com/ansys/pyaedt/pull/7182>`_
+
+        * - Use pathlib in configurations
+          - `#7194 <https://github.com/ansys/pyaedt/pull/7194>`_
+
+        * - Leverage powershell over WMIC to avoid messages
+          - `#7218 <https://github.com/ansys/pyaedt/pull/7218>`_
+
+
+`0.24.1 <https://github.com/ansys/pyaedt/releases/tag/v0.24.1>`_ - January 13, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactored environment variables for panel scripts
+          - `#6981 <https://github.com/ansys/pyaedt/pull/6981>`_
+
+        * - Add fields calc expressions and update fields distribution extension
+          - `#6996 <https://github.com/ansys/pyaedt/pull/6996>`_
+
+        * - Update_get_coupling_in_range
+          - `#7061 <https://github.com/ansys/pyaedt/pull/7061>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump astral-sh/setup-uv from 7.1.6 to 7.2.0
+          - `#7074 <https://github.com/ansys/pyaedt/pull/7074>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix version in cheatsheet
+          - `#7078 <https://github.com/ansys/pyaedt/pull/7078>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 6744-Update analysis.py
+          - `#6770 <https://github.com/ansys/pyaedt/pull/6770>`_
+
+        * - Update a couple emit tests
+          - `#7073 <https://github.com/ansys/pyaedt/pull/7073>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.24.0
+          - `#7072 <https://github.com/ansys/pyaedt/pull/7072>`_
+
+        * - Bump 0.25.dev0
+          - `#7076 <https://github.com/ansys/pyaedt/pull/7076>`_
+
+
+`0.24.0 <https://github.com/ansys/pyaedt/releases/tag/v0.24.0>`_ - January 09, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add documentation commands
+          - `#6948 <https://github.com/ansys/pyaedt/pull/6948>`_
+
+        * - Add method export_inception_voltage
+          - `#6950 <https://github.com/ansys/pyaedt/pull/6950>`_
+
+        * - Update coil extension
+          - `#6982 <https://github.com/ansys/pyaedt/pull/6982>`_
+
+        * - Modify_inception_parameters along with tests
+          - `#6997 <https://github.com/ansys/pyaedt/pull/6997>`_
+
+        * - Maxwell electric solvers: assign_sink and tests
+          - `#7013 <https://github.com/ansys/pyaedt/pull/7013>`_
+
+        * - Update Icepak mesh settings for 25R2 and mesh fusion support
+          - `#7016 <https://github.com/ansys/pyaedt/pull/7016>`_
+
+        * - Improve assign_em_loss method
+          - `#7041 <https://github.com/ansys/pyaedt/pull/7041>`_
+
+        * - Wrap AssignFarFieldWave
+          - `#7053 <https://github.com/ansys/pyaedt/pull/7053>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump actions/checkout from 5.0.0 to 6.0.0
+          - `#6963 <https://github.com/ansys/pyaedt/pull/6963>`_
+
+        * - Update plotly requirement from <6.5,>=6.0 to >=6.0,<6.6
+          - `#6964 <https://github.com/ansys/pyaedt/pull/6964>`_
+
+        * - Bump astral-sh/setup-uv from 6.8.0 to 7.1.4
+          - `#6965 <https://github.com/ansys/pyaedt/pull/6965>`_, `#6989 <https://github.com/ansys/pyaedt/pull/6989>`_
+
+        * - Update jupyterlab requirement from <4.5,>=3.6.0 to >=3.6.0,<4.6
+          - `#6966 <https://github.com/ansys/pyaedt/pull/6966>`_
+
+        * - Bump actions/setup-python from 6.0.0 to 6.1.0
+          - `#6987 <https://github.com/ansys/pyaedt/pull/6987>`_
+
+        * - Bump ansys/actions from 10.1.5 to 10.2.2
+          - `#6988 <https://github.com/ansys/pyaedt/pull/6988>`_
+
+        * - Bump astral-sh/setup-uv from 7.1.4 to 7.1.5
+          - `#6992 <https://github.com/ansys/pyaedt/pull/6992>`_
+
+        * - Bump actions/checkout from 6.0.0 to 6.0.1
+          - `#6993 <https://github.com/ansys/pyaedt/pull/6993>`_
+
+        * - Update scikit-rf requirement from <1.9,>=0.30.0 to >=0.30.0,<1.10
+          - `#6994 <https://github.com/ansys/pyaedt/pull/6994>`_
+
+        * - Bump codecov/codecov-action from 5.5.1 to 5.5.2
+          - `#7004 <https://github.com/ansys/pyaedt/pull/7004>`_
+
+        * - Bump actions/download-artifact from 6.0.0 to 7.0.0
+          - `#7005 <https://github.com/ansys/pyaedt/pull/7005>`_
+
+        * - Bump actions/upload-artifact from 5.0.0 to 6.0.0
+          - `#7006 <https://github.com/ansys/pyaedt/pull/7006>`_
+
+        * - Bump ansys/actions from 10.2.2 to 10.2.3
+          - `#7007 <https://github.com/ansys/pyaedt/pull/7007>`_
+
+        * - Update numpydoc requirement from <1.9,>=1.5.0 to >=1.5.0,<1.11
+          - `#7008 <https://github.com/ansys/pyaedt/pull/7008>`_
+
+        * - Update sphinx-gallery requirement from <0.20,>=0.14.0 to >=0.14.0,<0.21
+          - `#7009 <https://github.com/ansys/pyaedt/pull/7009>`_
+
+        * - Bump astral-sh/setup-uv from 7.1.5 to 7.1.6
+          - `#7044 <https://github.com/ansys/pyaedt/pull/7044>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add panels docs
+          - `#7032 <https://github.com/ansys/pyaedt/pull/7032>`_
+
+        * - Use generate-release-notes input in the release-github action.
+          - `#7047 <https://github.com/ansys/pyaedt/pull/7047>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Emit properties cleanup
+          - `#6835 <https://github.com/ansys/pyaedt/pull/6835>`_
+
+        * - Removed LD_LIBRARY_PATH from cicd.yml
+          - `#6958 <https://github.com/ansys/pyaedt/pull/6958>`_
+
+        * - Found a workaround when trace has variable set as array which was preventing to retrieve aedt name
+          - `#6969 <https://github.com/ansys/pyaedt/pull/6969>`_
+
+        * - Icepak generate fluent mesh
+          - `#6972 <https://github.com/ansys/pyaedt/pull/6972>`_
+
+        * - Update pip install command to use eager upgrade strategy for pyaedt and pyedb
+          - `#6979 <https://github.com/ansys/pyaedt/pull/6979>`_
+
+        * - Nastran import fix to correctly support quad and ports
+          - `#6983 <https://github.com/ansys/pyaedt/pull/6983>`_
+
+        * - Allow EMIT table string inputs
+          - `#6999 <https://github.com/ansys/pyaedt/pull/6999>`_
+
+        * - Fix a bug in plots where properties were not retrieved in case of plot information parsed from AEDT project
+          - `#7000 <https://github.com/ansys/pyaedt/pull/7000>`_
+
+        * - A small bug on method to insert a layout component when coordinate systems are inserted into the layout component
+          - `#7003 <https://github.com/ansys/pyaedt/pull/7003>`_
+
+        * - Pin project extensions
+          - `#7014 <https://github.com/ansys/pyaedt/pull/7014>`_
+
+        * - Create variable array
+          - `#7020 <https://github.com/ansys/pyaedt/pull/7020>`_
+
+        * - Update FilterSolutions export to desktop test
+          - `#7022 <https://github.com/ansys/pyaedt/pull/7022>`_
+
+        * - Edge_by_point when point is on edge
+          - `#7025 <https://github.com/ansys/pyaedt/pull/7025>`_
+
+        * - Fix a bug in port assignment when the names of the pin where similar
+          - `#7028 <https://github.com/ansys/pyaedt/pull/7028>`_
+
+        * - Issue in layout edb test in Linux
+          - `#7037 <https://github.com/ansys/pyaedt/pull/7037>`_
+
+        * - Filtersolutions export to desktop
+          - `#7046 <https://github.com/ansys/pyaedt/pull/7046>`_
+
+        * - RMxprt constant fix
+          - `#7060 <https://github.com/ansys/pyaedt/pull/7060>`_
+
+        * - Failure in filter solutions tests
+          - `#7062 <https://github.com/ansys/pyaedt/pull/7062>`_
+
+        * - Desktop new session issues in Linux
+          - `#7067 <https://github.com/ansys/pyaedt/pull/7067>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update missing or outdated files
+          - `#6842 <https://github.com/ansys/pyaedt/pull/6842>`_
+
+        * - Add missing env variables in nightly tests
+          - `#6952 <https://github.com/ansys/pyaedt/pull/6952>`_
+
+        * - Update CHANGELOG for v0.23.0
+          - `#6957 <https://github.com/ansys/pyaedt/pull/6957>`_
+
+        * - Update version to 0.24.dev0
+          - `#6959 <https://github.com/ansys/pyaedt/pull/6959>`_
+
+        * - Use python 3.13 in ci
+          - `#6978 <https://github.com/ansys/pyaedt/pull/6978>`_
+
+        * - Fix typo in labeler
+          - `#6984 <https://github.com/ansys/pyaedt/pull/6984>`_
+
+        * - Add explanatory comment on job permission changes
+          - `#6990 <https://github.com/ansys/pyaedt/pull/6990>`_
+
+        * - Perform minor improvements related to \`\`ansys/actions/check-actions-security\`\`
+          - `#6991 <https://github.com/ansys/pyaedt/pull/6991>`_
+
+        * - Make \`\`ansys/actions/check-vulnerabilities\`\` and \`\`ansys/actions/check-actions-security\`\` dependent on dependabot checks
+          - `#7012 <https://github.com/ansys/pyaedt/pull/7012>`_
+
+        * - Bump year in headers
+          - `#7054 <https://github.com/ansys/pyaedt/pull/7054>`_
+
+        * - Update pre-commit configuration
+          - `#7056 <https://github.com/ansys/pyaedt/pull/7056>`_
+
+        * - Delete flaky tests
+          - `#7068 <https://github.com/ansys/pyaedt/pull/7068>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - MCAD Assembly
+          - `#6910 <https://github.com/ansys/pyaedt/pull/6910>`_
+
+        * - Cli split into files
+          - `#6949 <https://github.com/ansys/pyaedt/pull/6949>`_
+
+        * - Remove print when loading pyaedt settings
+          - `#6986 <https://github.com/ansys/pyaedt/pull/6986>`_
+
+        * - Removed all deprecation for 1.0 releases
+          - `#7001 <https://github.com/ansys/pyaedt/pull/7001>`_
+
+        * - Fix constants to be compatible with multiple versions
+          - `#7026 <https://github.com/ansys/pyaedt/pull/7026>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Make AedtLogger and DynamicCircuit independent
+          - `#6932 <https://github.com/ansys/pyaedt/pull/6932>`_
+
+        * - Independent 3dlayout modeler tests
+          - `#6947 <https://github.com/ansys/pyaedt/pull/6947>`_
+
+        * - Refactor tests in \`\`test_07_Object3D.py\`\` to make them independent
+          - `#6956 <https://github.com/ansys/pyaedt/pull/6956>`_
+
+
 `0.23.0 <https://github.com/ansys/pyaedt/releases/tag/v0.23.0>`_ - November 27, 2025
 ====================================================================================
 
@@ -139,7 +999,7 @@ This document contains the release notes for the project.
         * - Message manager tests independent
           - `#6911 <https://github.com/ansys/pyaedt/pull/6911>`_
 
-        * - Indepedent Setup tests
+        * - Independent Setup tests
           - `#6916 <https://github.com/ansys/pyaedt/pull/6916>`_
 
         * - Refactor test_15_ibis_reader to follow test guidelines
@@ -1063,7 +1923,7 @@ This document contains the release notes for the project.
         * - Configure layout test
           - `#6577 <https://github.com/ansys/pyaedt/pull/6577>`_
 
-        * - Setting rigth default TDR options
+        * - Setting right default TDR options
           - `#6578 <https://github.com/ansys/pyaedt/pull/6578>`_
 
         * - Fix problem with extension manager hanging on some extensions
@@ -1240,7 +2100,7 @@ This document contains the release notes for the project.
         * - Fix issue in method to create tdr analysis which caused failure when more than 1 input is present
           - `#6460 <https://github.com/ansys/pyaedt/pull/6460>`_
 
-        * - Fixed issue in export_results fro q3d
+        * - Fixed issue in export_results for q3d
           - `#6467 <https://github.com/ansys/pyaedt/pull/6467>`_
 
         * - Icepak boundary update is missing
@@ -2008,7 +2868,7 @@ This document contains the release notes for the project.
         * - Update ``CONTRIBUTORS.md`` with the latest contributors
           - `#6105 <https://github.com/ansys/pyaedt/pull/6105>`_, `#6144 <https://github.com/ansys/pyaedt/pull/6144>`_
 
-        * - Add hint for toolkit icon visiblity
+        * - Add hint for toolkit icon visibility
           - `#6123 <https://github.com/ansys/pyaedt/pull/6123>`_
 
 
@@ -2643,7 +3503,7 @@ This document contains the release notes for the project.
         * - Reduce number of units call from odesktop
           - `#5927 <https://github.com/ansys/pyaedt/pull/5927>`_
 
-        * - "Time" removed from intrinsincs keys in Steady State simulations
+        * - "Time" removed from intrinsic keys in Steady State simulations
           - `#5928 <https://github.com/ansys/pyaedt/pull/5928>`_
 
         * - colormap names in folder settings

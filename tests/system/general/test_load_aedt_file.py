@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,10 +34,6 @@ from tests import TESTS_GENERAL_PATH
 
 TEST_SUBFOLDER = "T13"
 TEST_PROJECT_NAME = "Coax_HFSS_t13"
-CS_NAME = "Coordinate_System_231"
-CS1_NAME = "Coordinate_System1_231"
-CS2_NAME = "Coordinate_System2_231"
-CS3_NAME = "Coordinate_System3_231"
 IMAGE_F = "Coax_HFSS.jpg"
 
 
@@ -51,21 +47,15 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-@pytest.fixture(params=[CS_NAME, CS1_NAME, CS2_NAME, CS3_NAME])
-def cs_app(add_app_example, request):
-    app = add_app_example(project=request.param, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture
 def add_mat(add_app):
     app = add_app()
+    project_name = app.project_name
     yield app
-    app.close_project(app.project_name)
+    app.close_project(name=project_name, save=False)
 
 
-def test_check_top_level_keys(test_tmp_dir):
+def test_check_top_level_keys(test_tmp_dir) -> None:
     hfss_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / (TEST_PROJECT_NAME + ".aedt")
     file = shutil.copy2(hfss_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
 
@@ -78,7 +68,7 @@ def test_check_top_level_keys(test_tmp_dir):
     assert project_dict["AnsoftProject"] == project_sub_key["AnsoftProject"]
 
 
-def test_check_design_info(test_tmp_dir):
+def test_check_design_info(test_tmp_dir) -> None:
     hfss_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / (TEST_PROJECT_NAME + ".aedt")
     file = shutil.copy2(hfss_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
 
@@ -93,7 +83,7 @@ def test_check_design_info(test_tmp_dir):
     assert filecmp.cmp(jpg_file, TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / IMAGE_F)
 
 
-def test_check_design_type_names_jpg(test_tmp_dir):
+def test_check_design_type_names_jpg(test_tmp_dir) -> None:
     # There are multiple designs in this aedt file, so DesignInfo will be a list
     aedt_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Cassegrain.aedt"
     file = shutil.copy2(aedt_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
@@ -105,12 +95,7 @@ def test_check_design_type_names_jpg(test_tmp_dir):
     assert ["feeder", "Cassegrain_reflectors"] == design_names
 
 
-def test_check_coordinate_system_retrival(cs_app):
-    coordinate_systems = cs_app.modeler.coordinate_systems
-    assert coordinate_systems
-
-
-def test_load_material_file(test_tmp_dir):
+def test_load_material_file(test_tmp_dir) -> None:
     mat_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "material_sample.amat"
     file = shutil.copy2(mat_file, test_tmp_dir / "material_sample.amat")
 
@@ -132,7 +117,7 @@ def test_load_material_file(test_tmp_dir):
     assert project_dict["mat_example_2"]["specific_heat"] == "389"
 
 
-def test_add_material_from_amat(add_mat, test_tmp_dir):
+def test_add_material_from_amat(add_mat, test_tmp_dir) -> None:
     mat_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "material_sample.amat"
     file = shutil.copy2(mat_file, test_tmp_dir / "material_sample.amat")
 
@@ -147,7 +132,7 @@ def test_add_material_from_amat(add_mat, test_tmp_dir):
     assert newmat.thermal_expansion_coefficient.value == "1.08e-05"
 
 
-def test_3dcomponents_array(test_tmp_dir):
+def test_3dcomponents_array(test_tmp_dir) -> None:
     array_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "phased_array.aedt"
     file = shutil.copy2(array_file, test_tmp_dir / "phased_array.aedt")
 

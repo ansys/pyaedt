@@ -25,57 +25,47 @@
 """
 Launches an interactive shell with an instance of HFSS.
 
-Omitting the .py in the name of this file hides it from the Electronics Desktop Toolkit menu.
-It should be hidden from this menu because the scripts in that menu are meant to be executed using IronPython
-cpython_console.py should be run instead of this script.
-
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
 """
 
 import atexit
+import os
 from pathlib import Path
 import sys
-from IPython import get_ipython
 import tempfile
 
-aedt_process_id = int(sys.argv[1])
-version = sys.argv[2]
+
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) 
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) 
 print("Loading the PyAEDT Console.")
 
-try:  # pragma: no cover
-    if version <= "2023.1":
-        from pyaedt import Desktop
-        from pyaedt.generic.general_methods import active_sessions
-        from pyaedt.generic.general_methods import is_windows
-    else:
-        from ansys.aedt.core import *
-        import ansys.aedt.core  # noqa: F401
-        from ansys.aedt.core import Desktop
-        from ansys.aedt.core.generic.general_methods import active_sessions
-        from ansys.aedt.core.generic.general_methods import is_windows
-        from ansys.aedt.core.generic.file_utils import available_file_name
+try:
+    from ansys.aedt.core import *  # noqa: F401
+    from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
+    from ansys.aedt.core.generic.general_methods import active_sessions
+    from ansys.aedt.core.generic.general_methods import is_windows
+    from ansys.aedt.core import settings
+    settings.release_on_exception = False
 
-except ImportError:  # pragma: no cover
+except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
     console_setup_dir = Path(__file__).resolve().parent
     if "PersonalLib" in console_setup_dir.parts:
         sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
-    if version <= "2023.1":
-        from pyaedt import Desktop
-        from pyaedt.generic.general_methods import active_sessions
-        from pyaedt.generic.general_methods import is_windows
-    else:
-        from ansys.aedt.core import *  # noqa: F401
-        import ansys.aedt.core  # noqa: F401
-        from ansys.aedt.core import Desktop
-        from ansys.aedt.core.generic.general_methods import active_sessions
-        from ansys.aedt.core.generic.general_methods import is_windows
-        from ansys.aedt.core.generic.file_utils import available_file_name
+
+    from ansys.aedt.core import *  # noqa: F401
+    from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.file_utils import available_file_name
+    from ansys.aedt.core.generic.general_methods import active_sessions
+    from ansys.aedt.core.generic.general_methods import is_windows
+    from ansys.aedt.core import settings
+    settings.release_on_exception = False
 
 
-def release(d):  # pragma: no cover
+def release(d) -> None:
     d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False, False)
@@ -87,11 +77,11 @@ student_version = False
 
 
 sessions = active_sessions(version=version, student_version=False)
-if aedt_process_id in sessions:  # pragma: no cover
+if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
         port = sessions[aedt_process_id]
-if not session_found:  # pragma: no cover
+if not session_found:
     sessions = active_sessions(version=version, student_version=True)
     if aedt_process_id in sessions:
         session_found = True
@@ -100,7 +90,7 @@ if not session_found:  # pragma: no cover
             port = sessions[aedt_process_id]
 
 error = False
-if port:  # pragma: no cover
+if port:
     desktop = Desktop(
         version=version,
         port=port,
@@ -109,7 +99,7 @@ if port:  # pragma: no cover
         close_on_exit=False,
         student_version=student_version,
     )
-elif is_windows:  # pragma: no cover
+elif is_windows:
     desktop = Desktop(
         version=version,
         aedt_process_id=aedt_process_id,
@@ -118,12 +108,12 @@ elif is_windows:  # pragma: no cover
         close_on_exit=False,
         student_version=student_version,
     )
-else:  # pragma: no cover
+else:
     print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
 
-if not error:  # pragma: no cover
+if not error:
     print(" ")
 
     print("\033[92m****************************************************************")
@@ -142,7 +132,7 @@ if not error:  # pragma: no cover
             import win32api
             import win32con
 
-            def handler(ctrl_type):
+            def handler(ctrl_type) -> bool:
                 if ctrl_type == win32con.CTRL_CLOSE_EVENT:
                     release(desktop)
                     return False
@@ -155,7 +145,7 @@ if not error:  # pragma: no cover
         try:
             import signal
 
-            def signal_handler(sig, frame):
+            def signal_handler(sig, frame) -> None:
                 release(desktop)
                 sys.exit(0)
 
@@ -165,7 +155,7 @@ if not error:  # pragma: no cover
             pass
         atexit.register(release, desktop)
 
-if version > "2023.1":  # pragma: no cover
+if version > "2023.1":
 
     log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
     log_file = available_file_name(log_file)
@@ -175,7 +165,7 @@ if version > "2023.1":  # pragma: no cover
         f.write("import ansys.aedt.core\n")
         f.write("from ansys.aedt.core import *\n")
 
-    def log_successful_command(result):
+    def log_successful_command(result) -> None:
         """
         IPython Hook: Executes after every command (cell).
         Logs the input command only if 'result.error_in_exec' is False (no exception).

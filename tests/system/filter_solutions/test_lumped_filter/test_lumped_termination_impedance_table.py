@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,7 +51,7 @@ class TestClass:
     empty_row_insert_err_msg = "Insertion at row index 5 is not permitted, valid indices range from 0 to 3"
     empty_row_remove_err_msg = "Removal of row at index 5 is not permitted, valid indices range from 0 to 2"
 
-    def test_row_count(self, lumped_design):
+    def test_row_count(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.row_count == 3
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -59,7 +59,7 @@ class TestClass:
         assert lumped_design.source_impedance_table.row_count == 3
         assert lumped_design.load_impedance_table.row_count == 3
 
-    def test_row(self, lumped_design):
+    def test_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(0)
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -82,7 +82,7 @@ class TestClass:
             lumped_design.source_impedance_table.row(4)
             assert info.value.args[0] == self.empty_row_err_msg
 
-    def test_update_row(self, lumped_design):
+    def test_update_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(150)
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -118,7 +118,7 @@ class TestClass:
             lumped_design.load_impedance_table.update_row(4, "2G", "50")
             assert info.value.args[0] == self.empty_row_err_msg
 
-    def test_append_row(self, lumped_design):
+    def test_append_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.append_row("100M", "10", "20")
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -131,7 +131,7 @@ class TestClass:
         assert lumped_design.load_impedance_table.row_count == 4
         assert lumped_design.load_impedance_table.row(3) == ("100M", "10", "20")
 
-    def test_insert_row(self, lumped_design):
+    def test_insert_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.insert_row(0, "100M", "10", "20")
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -173,7 +173,7 @@ class TestClass:
                 lumped_design.load_impedance_table.insert_row(5, "2G", "22", "0")
             assert info.value.args[0] == self.empty_row_insert_err_msg
 
-    def test_remove_row(self, lumped_design):
+    def test_remove_row(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.remove_row(0)
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -196,7 +196,7 @@ class TestClass:
                 lumped_design.load_impedance_table.remove_row(5)
             assert info.value.args[0] == self.empty_row_remove_err_msg
 
-    def test_complex_definition(self, lumped_design):
+    def test_complex_definition(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -211,7 +211,7 @@ class TestClass:
             lumped_design.load_impedance_table.complex_definition = cdef
             assert lumped_design.load_impedance_table.complex_definition == cdef
 
-    def test_reactance_type(self, lumped_design):
+    def test_reactance_type(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.reactance_type == ComplexReactanceType.REAC
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -226,7 +226,7 @@ class TestClass:
             lumped_design.load_impedance_table.reactance_type = creac
             assert lumped_design.load_impedance_table.reactance_type == creac
 
-    def test_element_tune_enabled(self, lumped_design):
+    def test_element_tune_enabled(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.element_tune_enabled is False
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -238,7 +238,7 @@ class TestClass:
         lumped_design.load_impedance_table.element_tune_enabled = True
         assert lumped_design.load_impedance_table.element_tune_enabled
 
-    def test_compensation_enabled(self, lumped_design):
+    def test_compensation_enabled(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.compensation_enabled
         assert info.value.args[0] == self.complex_termination_not_enabled
@@ -250,7 +250,7 @@ class TestClass:
         lumped_design.load_impedance_table.compensation_enabled = True
         assert lumped_design.load_impedance_table.compensation_enabled
 
-    def test_compensation_order(self, lumped_design):
+    def test_compensation_order(self, lumped_design) -> None:
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.source_impedance_table.compensation_order == 2
         assert info.value.args[0] == self.complex_termination_not_enabled

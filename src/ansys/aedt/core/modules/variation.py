@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,7 @@
 
 
 class Variation(dict):
-    def __init__(self, variation_string):
+    def __init__(self, variation_string) -> None:
         super().__init__()
         if variation_string:
             pairs = variation_string.split(" ")
