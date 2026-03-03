@@ -7780,16 +7780,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         """
         self.create_fresnel_variables(setup_sweep=setup_sweep)
 
-        def _create_var(variable: str, expression: str) -> None:
-            self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
-
-        # Always create variables defining the direction of incidence
-        _create_var("inc_T", f"abs({theta_name})")
-        _create_var(
-            "inc_P",
-            f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))"
-            f"+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)",
-        )
+        # def _create_var(variable: str, expression: str) -> None:
+        #     self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
+        #
+        # # Always create variables defining the direction of incidence
+        # _create_var("inc_T", f"abs({theta_name})")
+        # _create_var(
+        #     "inc_P",
+        #     f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))"
+        #     f"+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)",
+        # )
 
         floquet_ports = self.get_fresnel_floquet_ports()
 
@@ -7881,15 +7881,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 theta = var[theta_name]
                 if theta_max < theta <= 90.0:
                     theta_max = theta
-                key = f"{phi}{phi_units}"
-                angles.setdefault(key, []).append(theta)
-                phi_values.append(phi)
-                var_index[(theta, phi)] = var
+
+                phase_shift = phi + np.pi * (1 if theta >= 0 else 0)
+                z = np.exp(1j * phase_shift)
+                new_phi = np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0)
+
+                phi_values.append(new_phi)
+                var_index[(abs(theta), new_phi)] = var
+
+                key = f"{new_phi}{phi_units}"
+                angles.setdefault(key, []).append(abs(theta))
+
             if 360.0 in phi_values:
                 is_360_defined = True
 
-            theta_step = angles[f"{phi}{phi_units}"][1] - angles[f"{phi}{phi_units}"][0]
-            phi_step = phi_values[1] - phi_values[0]
+            theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
+            phi_step = abs(phi_values[1] - phi_values[0])
 
         # Write output file
         with open(output_file, "w") as ofile:
@@ -7920,7 +7927,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if is_isotropic:
                 nb_theta_points = int(90 / theta_step)  # until ThetaMax key becomes allowed
             else:
-                nb_theta_points = len(angles["0.0deg"]) - 1
+                angles_keys = list(angles.keys())
+                nb_theta_points = len(angles[angles_keys[0]]) - 1
             ofile.write(f"{nb_theta_points}\n")
             ofile.write(f"# theta_step is {theta_step} {theta_units}.\n")
             if not is_isotropic:

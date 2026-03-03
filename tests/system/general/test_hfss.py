@@ -2421,14 +2421,15 @@ def test_get_fresnel_coefficients(fresnel):
     name = f"fresnel_coefficients_{fresnel.design_name}.rttbl"
     file_name = Path(fresnel.toolkit_directory) / name
 
-    # Multi frequency
-    output1 = fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
-    assert output1.is_file()
-
+    # Anisotropic
     output1_anisotropic = fresnel.get_fresnel_coefficients(
         setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
     )
     assert output1_anisotropic.is_file()
+
+    # Multi frequency
+    output1 = fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
+    assert output1.is_file()
 
     # Duplicated file
     output2 = fresnel.get_fresnel_coefficients(
