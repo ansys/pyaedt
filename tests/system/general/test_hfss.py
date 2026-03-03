@@ -1675,17 +1675,24 @@ def test_create_near_field_rectangle(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_near_field_rectangle(
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
+        u_length=1,
+        u_samples=2,
+        v_length=3,
+        v_samples=4,
         units="mm",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
         name=None,
     )
-    bound.props["Length"] = "50mm"
-    assert bound
+    assert bound.properties["U Size"] == "1mm"
+    assert bound.properties["V Size"] == "3mm"
+    assert int(bound.properties["U Samples"]) == 2
+    assert int(bound.properties["V Samples"]) == 4
+
+    assert bound.props["Length"] == "1mm"
+
+    bound.props["Length"] = "10mm"
+    assert bound.properties["U Size"] == "10mm"
 
 
 def test_create_near_field_line(aedt_app) -> None:
