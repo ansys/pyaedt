@@ -1642,41 +1642,67 @@ def test_create_near_field_sphere(aedt_app) -> None:
     bound.name = "Test_Sphere"
     assert aedt_app.field_setup_names[0] == bound.name
 
+    assert bound.props["Radius"] == "20cm"
+    assert bound.properties["Radius"] == "20cm"
+
+    bound.properties["Radius"] = "2cm"
+    assert bound.properties["Radius"] == "2cm"
+
+    bound.props["Radius"] = "25cm"
+    assert bound.props["Radius"] == "25cm"
+    assert bound.properties["Radius"] == "25cm"
+
 
 def test_create_near_field_box(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_near_field_box(
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
-        w_length=20,
-        w_samples=21,
+        u_length=2,
+        u_samples=3,
+        v_length=4,
+        v_samples=5,
+        w_length=6,
+        w_samples=7,
         units="mm",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
         name=None,
     )
 
-    assert bound
+    assert bound.properties["U Size"] == "2mm"
+    assert bound.properties["V Size"] == "4mm"
+    assert bound.properties["W Size"] == "6mm"
+    assert int(bound.properties["U Samples"]) == 3
+    assert int(bound.properties["V Samples"]) == 5
+    assert int(bound.properties["W Samples"]) == 7
+    bound.props["Length"] = "50mm"
+    assert bound.properties["U Size"] == "50mm"
+    bound.properties["U Size"] = "20mm"
+    assert bound.properties["U Size"] == "20mm"
 
 
 def test_create_near_field_rectangle(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_near_field_rectangle(
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
+        u_length=1,
+        u_samples=2,
+        v_length=3,
+        v_samples=4,
         units="mm",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
         name=None,
     )
-    bound.props["Length"] = "50mm"
-    assert bound
+    assert bound.properties["U Size"] == "1mm"
+    assert bound.properties["V Size"] == "3mm"
+    assert int(bound.properties["U Samples"]) == 2
+    assert int(bound.properties["V Samples"]) == 4
+
+    assert bound.props["Length"] == "1mm"
+
+    bound.props["Length"] = "10mm"
+    assert bound.properties["U Size"] == "10mm"
 
 
 def test_create_near_field_line(aedt_app) -> None:
@@ -1691,7 +1717,10 @@ def test_create_near_field_line(aedt_app) -> None:
     line = aedt_app.modeler.create_polyline(test_points)
     bound = aedt_app.insert_near_field_line(assignment=line.name, points=1000, custom_radiation_faces=None, name=None)
     bound.props["NumPts"] = "200"
-    assert bound
+    assert bound.properties["Num Points"] == 200
+
+    bound.properties["Num Points"] = 50
+    assert bound.properties["Num Points"] == 50
 
 
 def test_nastran(aedt_app, test_tmp_dir) -> None:
