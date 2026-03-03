@@ -24,10 +24,7 @@
 
 import tkinter
 from tkinter import ttk
-from typing import List
-from typing import Optional
 from typing import Sequence
-from typing import Tuple
 
 import numpy as np
 
@@ -895,7 +892,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         values: Sequence[float],
         float_precision: float = 1e-5,
         min_step_possible: float = 0.01,
-    ) -> Tuple[bool, Optional[float], List[float]]:
+    ) -> tuple[bool, float | None, list[float]]:
         """
         Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
 
