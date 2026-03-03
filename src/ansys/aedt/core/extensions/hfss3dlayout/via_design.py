@@ -81,6 +81,13 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for advanced fields calculator in AEDT."""
 
     def __init__(self, withdraw: bool = False):
+        # Check for unsupported version
+        if VERSION == "2026.1":
+            raise AEDTRuntimeError(
+                "Via Design extension is not supported in AEDT 2026.1 due to a known bug. "
+                "Please use a different AEDT version."
+            )
+
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -163,7 +170,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         )
         change_theme_button.grid(row=0, column=1)
 
-    def create_design(self, create_design_path: Path | None = None):
+    def create_design(self, create_design_path: Path | None = None) -> bool:
         """Create via design in AEDT"""
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(

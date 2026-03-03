@@ -82,6 +82,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [doc-style]
     steps:
+      - name: Install quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2.2.0
+        with:
+          tinytex: true
+          version: 1.8.25
+
       - name: Documentation build
         uses: ansys/actions/doc-build@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
         with:
@@ -91,7 +97,7 @@ jobs:
           use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
-          needs-quarto: true
+          needs-quarto: false
           group-dependencies-name: 'doc'
 
   smoke-tests:
