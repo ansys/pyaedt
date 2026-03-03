@@ -38,6 +38,8 @@ This module contains these data classes for creating a material library:
 """
 
 import copy
+import csv
+from pathlib import Path
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -430,7 +432,7 @@ class MatProperty(PyAedtBase):
             return [i.value for i in self._property_value]
 
     @value.setter
-    def value(self, val) -> None:
+    def value(self, val: str | list | Path | float | int) -> None:
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
             self.set_non_linear()
@@ -452,6 +454,24 @@ class MatProperty(PyAedtBase):
             if len(val) == 4:
                 self._property_value[0].value = val
                 self._material._update_props(self.name, val, update_aedt=self._material._material_update)
+        elif isinstance(val, (str, Path)):
+            val = Path(val)
+            if not val.is_file():
+                raise FileNotFoundError(f"Argument {val} is not a file.")
+            try:
+                datalist = []
+                with open(val) as f:
+                    reader = csv.reader(f, delimiter="\t")
+                    next(reader)
+                    for row in reader:
+                        if len(row) != 2:
+                            raise ValueError(f"Line {lineno}: expected 2 columns, got {len(parts)}")
+                        if not (row[0].isnumeric() and row[1].isnumeric()):
+                            raise ValueError(f"Line {lineno}: expected numeric values, got {row[0]} and {row[1]}")
+                        datalist.append([float(row[0]), float(row[1])])
+                    self.value = datalist
+            except AttributeError:
+                raise FileNotFoundError(f"Argument {val} is not a file.")
         else:
             self.type = "simple"
             self._property_value[0].value = val
