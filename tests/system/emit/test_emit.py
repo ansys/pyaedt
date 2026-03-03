@@ -841,10 +841,10 @@ def test_get_active_frequencies_band(emit_app):
     rev = emit_app.results.analyze()
 
     # Tx Band Check
-    band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
-    band.enabled = True
-    tx_freqs_mhz = band.get_active_frequencies(is_rx=False, units="MHz")
-    tx_freqs_hz = band.get_active_frequencies(is_rx=False, units="Hz")
+    tx_band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
+    tx_band.enabled = True
+    tx_freqs_mhz = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    tx_freqs_hz = tx_band.get_active_frequencies(is_rx=False, units="Hz")
 
     assert len(tx_freqs_mhz) == 13
     assert tx_freqs_hz[0] == 2412000000.0
@@ -854,16 +854,36 @@ def test_get_active_frequencies_band(emit_app):
     rev2 = emit_app.results.analyze()
 
     # Rx Band Check
-    band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
-    rx_freqs_mhz = band.get_active_frequencies(is_rx=True, units="MHz")
+    rx_band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
+    rx_freqs_mhz = rx_band.get_active_frequencies(is_rx=True, units="MHz")
 
     assert len(rx_freqs_mhz) == 1
     assert rx_freqs_mhz[0] == 1575.42
 
     # Disabled Band Check
-    band.enabled = False
-    rx_freqs_mhz_disabled = band.get_active_frequencies(is_rx=True, units="MHz")
+    rx_band.enabled = False
+    rx_freqs_mhz_disabled = rx_band.get_active_frequencies(is_rx=True, units="MHz")
     assert len(rx_freqs_mhz_disabled) == 0
+
+    # Tx Offset Check
+    tx_band.tx_offset = 1e6
+    tx_freqs_mhz_offset = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert tx_freqs_mhz_offset[0] == 2413.0
+
+    # Tx Sampling Check
+    tx_sampling = next((child for child in rad1.children if child.node_type == "SamplingNode"), None)
+    tx_sampling.table_data = [("2410 MHz", "2416 MHz")]
+    tx_freqs_mhz_sampling = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert len(tx_freqs_mhz_sampling) == 1
+    assert tx_freqs_mhz_sampling[0] == 2413.0
+
+    # Check incorrect band ID error
+    exception_raised = False
+    try:
+        tx_band._oRevisionData.GetActiveBandFrequencies(tx_band._result_id, -99, False)
+    except GrpcApiError:
+        exception_raised = True
+    assert exception_raised
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
