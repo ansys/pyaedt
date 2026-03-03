@@ -1642,6 +1642,16 @@ def test_create_near_field_sphere(aedt_app) -> None:
     bound.name = "Test_Sphere"
     assert aedt_app.field_setup_names[0] == bound.name
 
+    assert bound.props["Radius"] == "20cm"
+    assert bound.properties["Radius"] == "20cm"
+
+    bound.properties["Radius"] = "2cm"
+    assert bound.properties["Radius"] == "2cm"
+
+    bound.props["Radius"] = "25cm"
+    assert bound.props["Radius"] == "25cm"
+    assert bound.properties["Radius"] == "25cm"
+
 
 def test_create_near_field_box(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
@@ -1707,7 +1717,10 @@ def test_create_near_field_line(aedt_app) -> None:
     line = aedt_app.modeler.create_polyline(test_points)
     bound = aedt_app.insert_near_field_line(assignment=line.name, points=1000, custom_radiation_faces=None, name=None)
     bound.props["NumPts"] = "200"
-    assert bound
+    assert bound.properties["Num Points"] == 200
+
+    bound.properties["Num Points"] = 50
+    assert bound.properties["Num Points"] == 50
 
 
 def test_nastran(aedt_app, test_tmp_dir) -> None:
