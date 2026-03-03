@@ -7879,24 +7879,29 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             for var in r_te.variations:
                 phi = var[phi_name]
                 theta = var[theta_name]
-                if theta_max < theta <= 90.0:
-                    theta_max = theta
 
-                phase_shift = phi + np.pi * (1 if theta >= 0 else 0)
+                phase_shift = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
                 z = np.exp(1j * phase_shift)
                 new_phi = np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0)
 
-                phi_values.append(new_phi)
-                var_index[(abs(theta), new_phi)] = var
+                if new_phi >= 0:
+                    phi_values.append(new_phi)
+                    var_index[(abs(theta), new_phi)] = var
 
-                key = f"{new_phi}{phi_units}"
-                angles.setdefault(key, []).append(abs(theta))
+                    key = f"{new_phi}{phi_units}"
+                    angles.setdefault(key, []).append(abs(theta))
+                    if theta_max < theta <= 90.0:
+                        theta_max = theta
 
             if 360.0 in phi_values:
                 is_360_defined = True
 
+            # Reorder Phi angles to ensure they are in ascending order
+            angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
+
             theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
-            phi_step = abs(phi_values[1] - phi_values[0])
+            phi_diff = sorted(set(phi_values))
+            phi_step = abs(phi_diff[1] - phi_diff[0])
 
         # Write output file
         with open(output_file, "w") as ofile:
