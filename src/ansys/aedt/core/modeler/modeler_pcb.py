@@ -117,7 +117,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return Path(self._edb_folder) / "edb.def"
 
     @property
-    def edb(self) -> Edb:
+    def edb(self) -> "Edb":
         """EBD. Supported only in IronPython.
 
         Returns
