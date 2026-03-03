@@ -2359,7 +2359,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             "UseCustomRadiationSurface": False,
             "Length": self.value_with_units(u_length, units),
             "Width": self.value_with_units(v_length, units),
-            "Height": self.value_with_units(v_length, units),
+            "Height": self.value_with_units(w_length, units),
             "LengthSamples": u_samples,
             "WidthSamples": v_samples,
             "HeightSamples": w_samples,
