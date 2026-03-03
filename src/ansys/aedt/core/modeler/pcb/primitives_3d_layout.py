@@ -25,13 +25,13 @@
 
 # import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
@@ -43,6 +43,9 @@ from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Pins3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Polygons3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
 
 
 class Primitives3DLayout(PyAedtBase):
