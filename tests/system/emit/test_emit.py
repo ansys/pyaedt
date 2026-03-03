@@ -1057,12 +1057,12 @@ def test_optimal_n_to_1_feature(emit_app):
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
+    sim.n_to_1_limit = -1
+    assert sim.n_to_1_limit == -1
     sim.n_to_1_limit = 1
     assert sim.n_to_1_limit == 1
     sim.n_to_1_limit = 0
     assert sim.n_to_1_limit == 0
-    sim.n_to_1_limit = -1
-    assert sim.n_to_1_limit == -1
 
     # get number of 1-1 instances
     assert sim.get_instance_count(domain) == 52851
@@ -1228,7 +1228,7 @@ def test_radio_protection_levels(interference):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
+    DESKTOP_VERSION <= "2025.1",
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_filtering(interference):

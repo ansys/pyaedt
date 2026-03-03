@@ -61,6 +61,12 @@ class Simulation:
         self._revision = revision
         """Parent Revision object."""
 
+        self.aedt_version = revision.aedt_version
+        """AEDT version."""
+
+        self.odesktop = revision.odesktop
+        """Desktop object."""
+
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
     def get_interaction(self, domain):
