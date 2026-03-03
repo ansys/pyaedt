@@ -5418,12 +5418,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def insert_near_field_box(
         self,
-        u_length: float | int | str = 20,
-        u_samples: float | int | str = 21,
-        v_length: float | int | str = 20,
-        v_samples: float | int | str = 21,
-        w_length: float | int | str = 20,
-        w_samples: float | int | str = 21,
+        u_length: float | int | str = 20.0,
+        u_samples: int | str = 21,
+        v_length: float | int | str = 20.0,
+        v_samples: int | str = 21,
+        w_length: float | int | str = 20.0,
+        w_samples: int | str = 21,
         units: str = "mm",
         custom_radiation_faces: str | None = None,
         custom_coordinate_system: str | None = None,
@@ -5436,17 +5436,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        u_length : float, str, optional
+        u_length : float, int, str, optional
             U axis length. The default is ``20``.
-        u_samples : float, str, optional
+        u_samples : int, str, optional
             U axis samples. The default is ``21``.
-        v_length : float, str, optional
+        v_length : float, int, str, optional
             V axis length. The default is ``20``.
-        v_samples : float, str, optional
+        v_samples : int, str, optional
             V axis samples. The default is ``21``.
-        w_length : float, str, optional
+        w_length : float, int, str, optional
             W axis length. The default is ``20``.
-        w_samples : float, str, optional
+        w_samples : int, str, optional
             W axis samples. The default is ``21``.
         units : str
             Length units. The default is ``"mm"``.
@@ -5472,13 +5472,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             props["CustomRadiationSurface"] = ""
 
-        defs = ["U Size", "V Size", "W Size", "U Samples", "V Samples", "W Samples"]
-        props[defs[0]] = self.value_with_units(u_length, units)
-        props[defs[1]] = self.value_with_units(v_length, units)
-        props[defs[2]] = self.value_with_units(w_length, units)
-        props[defs[3]] = self.value_with_units(u_samples, units)
-        props[defs[4]] = self.value_with_units(v_samples, units)
-        props[defs[5]] = self.value_with_units(w_samples, units)
+        props["Length"] = self.value_with_units(u_length, units)
+        props["Width"] = self.value_with_units(v_length, units)
+        props["Height"] = self.value_with_units(w_length, units)
+        props["LengthSamples"] = u_samples
+        props["WidthSamples"] = v_samples
+        props["HeightSamples"] = w_samples
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system

@@ -2310,11 +2310,11 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def insert_em_field_box(
         self,
         u_length: int | float | str = 20,
-        u_samples: int | float | str = 21,
+        u_samples: int | str = 21,
         v_length: int | float | str = 20,
-        v_samples: int | float | str = 21,
+        v_samples: int | str = 21,
         w_length: int | float | str = 20,
-        w_samples: int | float | str = 21,
+        w_samples: int | str = 21,
         units: str | None = "mm",
         custom_coordinate_system: str | None = None,
         name: str | None = None,
@@ -2325,15 +2325,15 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         ----------
         u_length : float, str, optional
             U axis length. The default is ``20``.
-        u_samples : float, str, optional
+        u_samples : int, str, optional
             U axis samples. The default is ``21``.
         v_length : float, str, optional
             V axis length. The default is ``20``.
-        v_samples : float, str, optional
+        v_samples : int, str, optional
             V axis samples. The default is ``21``.
         w_length : float, str, optional
             W axis length. The default is ``20``.
-        w_samples : float, str, optional
+        w_samples : int, str, optional
             W axis samples. The default is ``21``.
         units : str
             Length units. The default is ``"mm"``.
@@ -2359,7 +2359,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             "UseCustomRadiationSurface": False,
             "Length": self.value_with_units(u_length, units),
             "Width": self.value_with_units(v_length, units),
-            "Height": self.value_with_units(v_length, units),
+            "Height": self.value_with_units(w_length, units),
             "LengthSamples": u_samples,
             "WidthSamples": v_samples,
             "HeightSamples": w_samples,
