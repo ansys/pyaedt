@@ -25,7 +25,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from build.lib.ansys.aedt.core.modeler.schematic import ModelerNexxim
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerNexxim
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
