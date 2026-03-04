@@ -101,7 +101,7 @@ class EmitNode:
         return self._get_property("Name", True)
 
     @name.setter
-    def name(self, requested_name: str):
+    def name(self, requested_name: str) -> None:
         """Renames the node/component.
 
         Parameters
@@ -557,7 +557,7 @@ class EmitNode:
             raise Exception(error_text)
         return self._get_node(node_id)
 
-    def _export_model(self, file_path: str) -> None:
+    def _export_model(self, file_path: str):
         """Exports an Emit node's model to a file.
 
         Parameters
@@ -708,7 +708,7 @@ class EmitNode:
             data_return.append(tuple(row_list))
         return data_return
 
-    def _check_valid_function(self, expr: str) -> None:
+    def _check_valid_function(self, expr: str):
         """Validates a function expression for use in table data.
 
         Parameters

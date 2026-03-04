@@ -309,7 +309,7 @@ class CommonRegion(PyAedtBase):
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
 
-    def _set_region_data(self, value, direction=None, padding_type: bool = True) -> None:
+    def _set_region_data(self, value, direction=None, padding_type: bool = True):
         self._update_region_data()
         region = self.object
         create_region = region.history()
@@ -584,7 +584,7 @@ class MeshSettings(PyAedtBase):
         else:
             raise KeyError("Setting not available.")
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
@@ -608,7 +608,7 @@ class MeshSettings(PyAedtBase):
         else:
             self._app.logger.error("Setting not available.")
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
@@ -698,7 +698,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             else:
                 return self.__dict__[name]
 
-    def __setattr__(self, name: str, value) -> None:
+    def __setattr__(self, name: str, value):
         skip_properties = [
             "manual_settings",
             "settings",

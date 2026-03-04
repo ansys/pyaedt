@@ -60,7 +60,7 @@ class RxSelectivityNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -69,7 +69,7 @@ class RxSelectivityNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property

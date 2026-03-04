@@ -70,7 +70,7 @@ class RxMeasNode(EmitNode):
         return val == "true"
 
     @exclude_mixer_products_below_noise.setter
-    def exclude_mixer_products_below_noise(self, value: bool):
+    def exclude_mixer_products_below_noise(self, value: bool) -> None:
         self._set_property("Exclude Mixer Products Below Noise", f"{str(value).lower()}")
 
     @property
@@ -79,5 +79,5 @@ class RxMeasNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")

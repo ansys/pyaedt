@@ -104,7 +104,7 @@ class AnsysReport(FPDF, PyAedtBase):
         )
         self.alias_nb_pages()
 
-    def read_template(self, template_file) -> None:
+    def read_template(self, template_file):
         """Reade pdf template.
 
         template_file : str
@@ -371,7 +371,7 @@ class AnsysReport(FPDF, PyAedtBase):
     def aedt_version(self, value) -> None:
         self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=None, page_format: str = "a4") -> None:
+    def add_section(self, portrait=None, page_format: str = "a4"):
         """Add a new section to Pdf.
 
         Parameters
@@ -516,7 +516,7 @@ class AnsysReport(FPDF, PyAedtBase):
         # Add the image to the PDF
         return self.add_image(path, caption=caption, width=width, height=height)
 
-    def add_caption(self, content) -> None:
+    def add_caption(self, content):
         """Add a new caption.
 
         Parameters
@@ -539,7 +539,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
         self.set_text_color(*self.report_specs.font_color)
 
-    def add_empty_line(self, num_lines: int = 1) -> None:
+    def add_empty_line(self, num_lines: int = 1):
         """Add a new empty line.
 
         Parameters
@@ -608,7 +608,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.add_caption(f"Table {self.__table_idx}: {title}")
         self.__table_idx += 1
 
-    def add_text(self, content, bold: bool = False, italic: bool = False) -> None:
+    def add_text(self, content, bold: bool = False, italic: bool = False):
         """Add a new text.
 
         Parameters
@@ -694,7 +694,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return os.path.join(file_path, file_name)
 
     @graphics_required
-    def add_chart(self, x_values, y_values, x_caption, y_caption, title) -> None:
+    def add_chart(self, x_values, y_values, x_caption, y_caption, title):
         """Add a chart to the report using matplotlib.
 
         Parameters

@@ -93,7 +93,7 @@ class CouplingsEmit(object):
         """
         return self._odesign.GetLinkNames()
 
-    def add_link(self, new_coupling_name: str) -> None:
+    def add_link(self, new_coupling_name: str):
         """Add a new link if it's not already there.
 
         Parameters
@@ -114,7 +114,7 @@ class CouplingsEmit(object):
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
 
-    def delete_link(self, coupling_link_name: str) -> None:
+    def delete_link(self, coupling_link_name: str):
         """Delete a link from the EMIT design.
 
         Parameters
@@ -133,7 +133,7 @@ class CouplingsEmit(object):
         """
         self._odesign.DeleteLink(coupling_link_name)
 
-    def update_link(self, coupling_name: str) -> None:
+    def update_link(self, coupling_name: str):
         """Update the link if it's a valid link.
 
         Check if anything in the linked design has changed and retrieve updated data if it has.

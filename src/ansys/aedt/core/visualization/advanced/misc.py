@@ -50,13 +50,13 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.re = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
-    def set_xyz_points(self, x, y, z) -> None:
+    def set_xyz_points(self, x, y, z):
         """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
 
-    def set_field_component(self, field_component, real, imag, invert) -> None:
+    def set_field_component(self, field_component, real, imag, invert):
         """Set Field component Real and imaginary parts."""
         if field_component in self.re:
             if invert:

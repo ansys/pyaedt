@@ -194,7 +194,7 @@ class LumpedTerminationImpedance:
         self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
-    def row(self, row_index):
+    def row(self, row_index: int) -> tuple[str, str, str]:
         """Get frequency and complex impedance values from a row in the complex impedance table.
 
         Parameters
@@ -226,7 +226,7 @@ class LumpedTerminationImpedance:
         imag_value_string = imag_value_buffer.value.decode("utf-8")
         return frequency_value_string, real_value_string, imag_value_string
 
-    def update_row(self, row_index, frequency=None, real=None, imag=None) -> None:
+    def update_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
         """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
@@ -249,7 +249,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, frequency=None, real=None, imag=None) -> None:
+    def append_row(self, frequency: str = None, real: str = None, imag: str = None) -> None:
         """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
@@ -271,7 +271,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, frequency=None, real=None, imag=None) -> None:
+    def insert_row(self, row_index: int, frequency: str = None, real: str = None, imag: str = None) -> None:
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
@@ -294,7 +294,7 @@ class LumpedTerminationImpedance:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index) -> None:
+    def remove_row(self, row_index: int) -> None:
         """Remove frequency and complex impedance at a specified index from the complex impedance table.
 
         Parameters
@@ -372,7 +372,7 @@ class LumpedTerminationImpedance:
         return bool(element_tune_enabled.value)
 
     @element_tune_enabled.setter
-    def element_tune_enabled(self, element_tune_enabled) -> None:
+    def element_tune_enabled(self, element_tune_enabled: bool) -> None:
         status = self._dll.setLumpedComplexElementTuneEnabled(element_tune_enabled)
         self._dll_interface.raise_error(status)
 

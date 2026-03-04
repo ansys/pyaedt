@@ -108,7 +108,7 @@ class ColorMapSettings(BaseFolderPlot):
         return self._map_type
 
     @map_type.setter
-    def map_type(self, value):
+    def map_type(self, value) -> None:
         """Set the type of color mapping for the field plot.
 
         Parameters
@@ -203,7 +203,7 @@ class ColorMapSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, settings) -> None:
+    def from_dict(self, settings):
         """Initialize the number format settings of the colormap settings from a dictionary.
 
         Parameters
@@ -277,7 +277,7 @@ class AutoScale(BaseFolderPlot):
             "AnimationStaticScale": self.use_current_scale_for_animation,
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the auto-scale settings from a dictionary.
 
         Parameters
@@ -327,7 +327,7 @@ class MinMaxScale(BaseFolderPlot):
         """
         return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the min-max scale settings from a dictionary.
 
         Parameters
@@ -374,7 +374,7 @@ class SpecifiedScale(PyAedtBase):
         """
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the specified scale settings from a dictionary.
 
         Parameters
@@ -411,7 +411,7 @@ class NumberFormat(BaseFolderPlot):
         return self._format_type
 
     @format_type.setter
-    def format_type(self, v):
+    def format_type(self, v) -> None:
         """Set the numeric format type of the scale.
 
         Parameters
@@ -450,7 +450,7 @@ class NumberFormat(BaseFolderPlot):
             "ValueNumberFormatPrecision": self.precision,
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the number format settings of the field plot settings from a dictionary.
 
         Parameters
@@ -514,7 +514,7 @@ class Scale3DSettings(BaseFolderPlot):
         return EnumUnits(self._unit).name
 
     @unit.setter
-    def unit(self, v):
+    def unit(self, v) -> None:
         """Set unit used in the plot.
 
         Parameters
@@ -534,7 +534,7 @@ class Scale3DSettings(BaseFolderPlot):
         return self._scale_type
 
     @scale_type.setter
-    def scale_type(self, value):
+    def scale_type(self, value) -> None:
         """Set the scale type used for the field plot.
 
         Parameters
@@ -566,7 +566,7 @@ class Scale3DSettings(BaseFolderPlot):
         return self._scale_settings
 
     @scale_settings.setter
-    def scale_settings(self, value):
+    def scale_settings(self, value) -> None:
         """Set the current scale settings based on the scale type."""
         if self.scale_type == "Auto":
             if isinstance(value, AutoScale):
@@ -615,7 +615,7 @@ class Scale3DSettings(BaseFolderPlot):
         arg_out["Scale3DSettings"].update(self.scale_settings.to_dict())
         return arg_out
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the scale settings of the field plot settings from a dictionary.
 
         Parameters
@@ -670,7 +670,7 @@ class MarkerSettings(BaseFolderPlot):
         return AllowedMarkers(self._marker_type).name
 
     @marker_type.setter
-    def marker_type(self, v):
+    def marker_type(self, v) -> None:
         """Set the type of maker to use.
 
         Parameters
@@ -714,7 +714,7 @@ class MarkerSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the marker settings of the field plot settings from a dictionary.
 
         Parameters
@@ -785,7 +785,7 @@ class ArrowSettings(BaseFolderPlot):
         return self._arrow_type
 
     @arrow_type.setter
-    def arrow_type(self, v):
+    def arrow_type(self, v) -> None:
         """Set the type of arrows for the field plot.
 
         Parameters
@@ -844,7 +844,7 @@ class ArrowSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the arrow settings of the field plot settings from a dictionary.
 
         Parameters
@@ -921,7 +921,7 @@ class FolderPlotSettings(BaseFolderPlot):
         out.update(self.color_map_settings.to_dict())
         return {"FieldsPlotSettings": out}
 
-    def from_dict(self, dictionary) -> None:
+    def from_dict(self, dictionary):
         """Initialize the field plot settings from a dictionary.
 
         Parameters
@@ -1059,7 +1059,7 @@ class FieldPlot(PyAedtBase):
         return self._folder_settings
 
     @folder_settings.setter
-    def folder_settings(self, v):
+    def folder_settings(self, v) -> None:
         """Set the fieldplot folder settings.
 
         Parameters

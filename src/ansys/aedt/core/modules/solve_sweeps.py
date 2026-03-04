@@ -1005,7 +1005,7 @@ class SweepMaxwellEC(SweepCommon):
 class SetupProps(dict):
     """Provides internal parameters for the AEDT boundary component."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         if isinstance(value, dict):
             dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
         else:
@@ -1026,7 +1026,7 @@ class SetupProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path, overwrite: bool = False) -> bool:

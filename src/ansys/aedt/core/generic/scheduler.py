@@ -85,7 +85,7 @@ class HPCMethod(IntEnum):
     USE_AUTO_HPC = 4
 
 
-def path_string(path: Path):
+def path_string(path: Path) -> str:
     """Convert the path to a string.
 
     If the path has whitespace and the OS is Windows, the path will be
@@ -97,7 +97,7 @@ def path_string(path: Path):
     return path_str
 
 
-def get_aedt_exe(version: str | None = None):
+def get_aedt_exe(version: str | None = None) -> Path:
     """Retrieve the full path to the Ansys AEDT executable.
 
     Parameters
@@ -251,7 +251,7 @@ class _ResourcesConfiguration:
         return self.__exclusive
 
     @exclusive.setter
-    def exclusive(self, value: bool):
+    def exclusive(self, value: bool) -> None:
         """Set whether nodes will be reserved for exclusive use by the HPC job."""
         if not isinstance(value, bool):
             raise ValueError(f"exclusive must be a boolean, got {type(value).__name__}.")
@@ -327,7 +327,7 @@ class _ResourcesConfiguration:
         """Set the total RAM in GB to be used per core for the simulation job."""
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
-    def check_consistency(self):
+    def check_consistency(self) -> None:
         """Check the consistency of the resource configuration."""
         if self.__max_tasks_per_node is not None:
             if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:
@@ -786,7 +786,7 @@ class JobConfigurationData(PyAedtBase):
             "wait_for_license": self.wait_for_license,
         }
 
-    def to_json(self, path: str | Path) -> None:
+    def to_json(self, path: str | Path):
         """Save the job configuration to a JSON file."""
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)

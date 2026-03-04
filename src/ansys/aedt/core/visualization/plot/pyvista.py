@@ -999,7 +999,7 @@ class ModelPlotter(CommonPlotter):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
-    def _read_case(self, field) -> None:
+    def _read_case(self, field):
         file_path = Path(field.path).resolve()
         reader = pv.get_reader(str(file_path)).read()
         field._cached_polydata = reader[reader.keys()[0]].extract_surface()
@@ -1025,7 +1025,7 @@ class ModelPlotter(CommonPlotter):
             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
 
     @pyaedt_function_handler()
-    def _read_aedtplt(self, field) -> None:
+    def _read_aedtplt(self, field):
         vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
         if self.convert_fields_in_db:
             scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1052,7 +1052,7 @@ class ModelPlotter(CommonPlotter):
         field.log = log1
 
     @pyaedt_function_handler()
-    def _read_fld(self, field) -> None:
+    def _read_fld(self, field):
         nodes = []
         values = []
         is_vector = False
@@ -1126,7 +1126,7 @@ class ModelPlotter(CommonPlotter):
             field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
-    def _read_mesh_files(self, read_frames: bool = False) -> None:
+    def _read_mesh_files(self, read_frames: bool = False):
         for cad in self.objects:
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
@@ -1159,7 +1159,7 @@ class ModelPlotter(CommonPlotter):
             def __init__(self, actor) -> None:
                 self.actor = actor
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.actor._cached_mesh.SetVisibility(state)
                 except AttributeError:
@@ -1180,7 +1180,7 @@ class ModelPlotter(CommonPlotter):
                 self.axes_color = axes_color
                 self.text = []
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
                 except Exception:

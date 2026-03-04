@@ -286,7 +286,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self, setup, variation) -> None:
+    def _create_field_summary(self, setup, variation):
         arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")
