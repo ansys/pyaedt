@@ -554,6 +554,14 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
+        warnings.warn(
+            "The ``revision.get_active_frequencies`` method will be removed in future versions.\n"
+            "Use the ``band_node.get_active_frequencies`` method instead. For example: \n\n"
+            ">>> tx_band = [band for band in radio_node.children if band._node_type == 'Band'][0]\n"
+            '>>> freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")\n\n',
+            DeprecationWarning,
+        )
+
         if tx_rx_mode is None or tx_rx_mode == TxRxMode.BOTH:
             raise ValueError("The mode type must be specified as either Tx or Rx.")
         if self.revision_loaded:
@@ -689,16 +697,11 @@ class Revision:
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
                     rx_band: Band
-                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band.name, mode_rx)[0]
+                    rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
 
-                    # The start and stop frequencies define the Band's extents,
-                    # while the active frequencies are a subset of the Band's frequencies
-                    # being used for this specific project as defined in the Radio's Sampling.
-                    # Values are returned in default units, so convert to MHz
-                    hz_to_mhz = 1e-6
-                    rx_start_freq = rx_band.start_frequency * hz_to_mhz
-                    rx_stop_freq = rx_band.stop_frequency * hz_to_mhz
-                    rx_channel_bandwidth = rx_band.channel_bandwidth * hz_to_mhz
+                    rx_start_freq = rx_band.start_frequency
+                    rx_stop_freq = rx_band.stop_frequency
+                    rx_channel_bandwidth = rx_band.channel_bandwidth
 
                     for tx_band in tx_band_nodes:
                         tx_band: Band
@@ -709,10 +712,10 @@ class Revision:
                         if not interaction.is_valid():
                             continue
 
-                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq)
-                        tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
+                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
+                        tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
                         for tx_freq in tx_freqs:
-                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq)
+                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
                             instance = interaction.get_instance(domain)
                             if not instance.has_valid_values():
                                 # check for saturation somewhere in the chain
@@ -855,7 +858,6 @@ class Revision:
                     overload_threshold = protection_levels[rx_radio.name][1]
                     intermod_threshold = protection_levels[rx_radio.name][2]
 
-                rx_band_name = self.get_band_names(radio_node=rx_radio, tx_rx_mode=mode_rx)[0]
                 if tx_radio == rx_radio:
                     # skip self-interaction
                     rx_powers.append("N/A")
@@ -863,27 +865,29 @@ class Revision:
                     continue
 
                 max_power = -200
-                tx_band_names = self.get_band_names(radio_node=tx_radio, tx_rx_mode=mode_tx)
 
-                for tx_band_name in tx_band_names:
+                rx_band = self.get_all_band_nodes(radio=rx_radio, enabled_only=True, tx_rx_mode=mode_rx)[0]
+                tx_band_nodes = self.get_all_band_nodes(radio=tx_radio, enabled_only=True, tx_rx_mode=mode_tx)
+
+                for tx_band in tx_band_nodes:
                     # Find the highest power level at the Rx input due to each Tx Radio.
                     # Can look at any Rx freq since susceptibility won't impact
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
-                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band_name, mode_rx)[0]
-                    domain.set_receiver(rx_radio.name, rx_band_name)
-                    domain.set_interferer(tx_radio.name, tx_band_name)
+                    rx_freq = rx_band.get_active_frequencies(is_rx=True, units="Hz")[0]
+                    domain.set_receiver(rx_radio.name, rx_band.name)
+                    domain.set_interferer(tx_radio.name, tx_band.name)
                     interaction = self.run(domain)
                     # check for valid interaction, this would catch any disabled radio pairs
                     if not interaction.is_valid():
                         continue
-                    domain.set_receiver(rx_radio.name, rx_band_name, rx_freq)
-                    tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band_name, mode_tx)
+                    domain.set_receiver(rx_radio.name, rx_band.name, rx_freq, "Hz")
+                    tx_freqs = tx_band.get_active_frequencies(is_rx=False, units="Hz")
 
                     power_list = []
 
                     for tx_freq in tx_freqs:
-                        domain.set_interferer(tx_radio.name, tx_band_name, tx_freq)
+                        domain.set_interferer(tx_radio.name, tx_band.name, tx_freq, "Hz")
                         instance = interaction.get_instance(domain)
                         if not instance.has_valid_values():
                             # check for saturation somewhere in the chain

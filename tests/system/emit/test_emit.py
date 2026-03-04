@@ -52,7 +52,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.emit_core.results import revision as Revision
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -82,6 +81,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -116,7 +116,8 @@ def tutorial(add_app_example):
     )
     yield app
     app.close_project(app.project_name, save=False)
-    
+
+
 @pytest.fixture
 def hfss_phased_array(add_app_example):
     app = add_app_example(project="HfssPhasedArray", application=Emit, subfolder=TEST_SUBFOLDER)
@@ -815,6 +816,76 @@ def test_radio_band_getters(emit_app):
     assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_waveform(emit_app):
+    emitter_name = "Test Emitter"
+    emitter_node: EmitterNode = emit_app.schematic.create_component(
+        name=emitter_name, component_type="New Emitter", library="Emitters"
+    )
+
+    emitter_band: Waveform = emitter_node.get_waveforms()[0]
+
+    assert emitter_band.get_frequencies(units="MHz") == [100]
+    assert emitter_band.get_frequencies() == [100000000.0]
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_band(emit_app):
+    rad1, ant1 = emit_app.schematic.create_radio_antenna("WiFi - 802.11-2012")
+    rev = emit_app.results.analyze()
+
+    # Tx Band Check
+    tx_band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
+    tx_band.enabled = True
+    tx_freqs_mhz = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    tx_freqs_hz = tx_band.get_active_frequencies(is_rx=False, units="Hz")
+
+    assert len(tx_freqs_mhz) == 13
+    assert tx_freqs_hz[0] == 2412000000.0
+    assert tx_freqs_mhz[0] == 2412.0
+
+    rad2, ant2 = emit_app.schematic.create_radio_antenna("GPS Receiver")
+    rev2 = emit_app.results.analyze()
+
+    # Rx Band Check
+    rx_band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
+    rx_freqs_mhz = rx_band.get_active_frequencies(is_rx=True, units="MHz")
+
+    assert len(rx_freqs_mhz) == 1
+    assert rx_freqs_mhz[0] == 1575.42
+
+    # Disabled Band Check
+    rx_band.enabled = False
+    rx_freqs_mhz_disabled = rx_band.get_active_frequencies(is_rx=True, units="MHz")
+    assert len(rx_freqs_mhz_disabled) == 0
+
+    # Tx Offset Check
+    tx_band.tx_offset = 1e6
+    tx_freqs_mhz_offset = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert tx_freqs_mhz_offset[0] == 2413.0
+
+    # Tx Sampling Check
+    tx_sampling = next((child for child in rad1.children if child.node_type == "SamplingNode"), None)
+    tx_sampling.table_data = [("2410 MHz", "2416 MHz")]
+    tx_freqs_mhz_sampling = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert len(tx_freqs_mhz_sampling) == 1
+    assert tx_freqs_mhz_sampling[0] == 2413.0
+
+    # Check incorrect band ID error
+    exception_raised = False
+    try:
+        tx_band._oRevisionData.GetActiveBandFrequencies(tx_band._result_id, -99, False)
+    except GrpcApiError:
+        exception_raised = True
+    assert exception_raised
+
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
 def test_sampling_getters(emit_app):
     rad, ant = emit_app.modeler.components.create_radio_antenna("New Radio")
@@ -1121,8 +1192,8 @@ def test_availability_1_to_1(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_scripts_no_filter(interference):
     # Generate a revision
@@ -1163,6 +1234,10 @@ def test_interference_scripts_no_filter(interference):
     assert pro_power_matrix == expected_protection_power
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1190,8 +1265,8 @@ def test_radio_protection_levels(interference):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_filtering(interference):
     # Generate a revision
@@ -1231,6 +1306,10 @@ def test_interference_filtering(interference):
         assert interference_power_matrix == expected_interference_power
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_protection_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1278,6 +1357,7 @@ that the AEDT app functions as intended.
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -2576,14 +2656,14 @@ def test_units(emit_app):
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_hfss_phased_array_antennas(hfss_phased_array):
-    rev : Revision = hfss_phased_array.results.analyze()
+    rev: Revision = hfss_phased_array.results.analyze()
     domain = hfss_phased_array.results.interaction_domain()
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
     assert engine.is_domain_valid(domain)
     assert rev.is_domain_valid(domain)
-    
+
     # run the interaction
     domain = hfss_phased_array.results.interaction_domain()
     interaction = engine.run(domain)
@@ -2591,42 +2671,42 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 35.1
-    
-    bowtie_ant : AntennaNode = rev.get_component_node("Bowtie")
+
+    bowtie_ant: AntennaNode = rev.get_component_node("Bowtie")
     assert bowtie_ant is not None
-    
+
     # scan the antenna array and recompute EMI
     bowtie_ant.elevation_angle = 45
     bowtie_ant.azimuth_angle = 45
     assert bowtie_ant.elevation_angle == 45
     assert bowtie_ant.azimuth_angle == 45
-    
-    rev : Revision = hfss_phased_array.results.analyze()
+
+    rev: Revision = hfss_phased_array.results.analyze()
     interaction = engine.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.78
-    
+
     # set taper to Cosine
-    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE    
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
     bowtie_ant.edge_taper = 10
     bowtie_ant.cosine_power = 10
     bowtie_ant.max_taper_distance_x = 0.1
     bowtie_ant.max_taper_distance_y = 0.1
     assert bowtie_ant.edge_taper == 10
     assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.COSINE
-    assert round(bowtie_ant.cosine_power,1) == 10.0
+    assert round(bowtie_ant.cosine_power, 1) == 10.0
     assert bowtie_ant.max_taper_distance_x == 0.1
     assert bowtie_ant.max_taper_distance_y == 0.1
-    
-    rev : Revision = hfss_phased_array.results.analyze()
+
+    rev: Revision = hfss_phased_array.results.analyze()
     interaction = engine.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 17.5
-    
+
     # set taper to Hamming
     bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.HAMMING
     bowtie_ant.max_taper_distance_x = 0.004
@@ -2634,31 +2714,32 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.HAMMING
     assert bowtie_ant.max_taper_distance_x == 0.004
     assert bowtie_ant.max_taper_distance_y == 0.004
-    
-    rev : Revision = hfss_phased_array.results.analyze()
+
+    rev: Revision = hfss_phased_array.results.analyze()
     interaction = engine.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.79
-    
+
     # set taper to Triangular
     bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.TRIANGULAR
     bowtie_ant.edge_taper = 3
-    bowtie_ant.max_taper_distance_x = .008
-    bowtie_ant.max_taper_distance_y = .008
+    bowtie_ant.max_taper_distance_x = 0.008
+    bowtie_ant.max_taper_distance_y = 0.008
     assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.TRIANGULAR
     assert bowtie_ant.edge_taper == 3
-    assert bowtie_ant.max_taper_distance_x == .008
-    assert bowtie_ant.max_taper_distance_y == .008
-    
-    rev : Revision = hfss_phased_array.results.analyze()
+    assert bowtie_ant.max_taper_distance_x == 0.008
+    assert bowtie_ant.max_taper_distance_y == 0.008
+
+    rev: Revision = hfss_phased_array.results.analyze()
     interaction = engine.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 21.08
-    
+
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app):
     comp_list = emit_app.modeler.components.components_catalog["LTE"]
