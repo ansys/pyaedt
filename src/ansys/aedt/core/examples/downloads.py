@@ -176,7 +176,7 @@ def _download_folder(
         match = re.search(r'>({"payload".+)</script>', tree)
         json_data = json.loads(match.group(1))
         if "tree" in json_data["payload"]:  # pragma: no cover
-            items = json_data["payload"]["codeViewTreeRoute"]["tree"]["items"]
+            items = json_data["payload"]["tree"]["items"]
         elif "codeViewTreeRoute" in json_data["payload"]:
             items = json_data["payload"]["codeViewTreeRoute"]["tree"]["items"]
         else:  # pragma: no cover
