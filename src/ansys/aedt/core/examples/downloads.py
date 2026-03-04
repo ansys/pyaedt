@@ -40,7 +40,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/tree/main"
+EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
@@ -175,7 +175,13 @@ def _download_folder(
         tree = [i for i in data if '"payload"' in i][0]
         match = re.search(r'>({"payload".+)</script>', tree)
         json_data = json.loads(match.group(1))
-        items = json_data["payload"]["tree"]["items"]
+        if "tree" in json_data["payload"]:  # pragma: no cover
+            items = json_data["payload"]["codeViewTreeRoute"]["tree"]["items"]
+        elif "codeViewTreeRoute" in json_data["payload"]:
+            items = json_data["payload"]["codeViewTreeRoute"]["tree"]["items"]
+        else:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to find tree in {github_relative_path}.")
+
         for item in items:
             # Skip if filter_func is provided and returns False
             if filter_func and filter_func(item["path"]):
