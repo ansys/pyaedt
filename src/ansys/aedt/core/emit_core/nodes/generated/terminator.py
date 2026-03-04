@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Terminator(EmitNode):
@@ -33,19 +34,23 @@ class Terminator(EmitNode):
         self._is_component = True
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Parametric VSWR Table.
         Table consists of 3 columns.
@@ -59,10 +64,12 @@ class Terminator(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
+    @min_aedt_version("2025.2")
     def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
+    @min_aedt_version("2025.2")
     def filename(self) -> str:
         """Name of file defining the Terminator.
 
@@ -72,10 +79,12 @@ class Terminator(EmitNode):
         return val
 
     @filename.setter
+    @min_aedt_version("2025.2")
     def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
         """System Noise temperature (K) of the component.
 
@@ -85,16 +94,19 @@ class Terminator(EmitNode):
         return float(val)
 
     @noise_temperature.setter
+    @min_aedt_version("2025.2")
     def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
+    @min_aedt_version("2025.2")
     def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
@@ -103,6 +115,7 @@ class Terminator(EmitNode):
         PARAMETRIC = "Parametric"
 
     @property
+    @min_aedt_version("2025.2")
     def terminator_type(self) -> TerminatorTypeOption:
         """Terminator Type.
 
@@ -114,10 +127,12 @@ class Terminator(EmitNode):
         return val
 
     @terminator_type.setter
+    @min_aedt_version("2025.2")
     def terminator_type(self, value: TerminatorTypeOption) -> None:
         self._set_property("Terminator Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def vswr(self) -> float:
         """VSWR.
 
@@ -131,10 +146,12 @@ class Terminator(EmitNode):
         return float(val)
 
     @vswr.setter
+    @min_aedt_version("2025.2")
     def vswr(self, value: float) -> None:
         self._set_property("VSWR", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def warnings(self) -> str:
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
