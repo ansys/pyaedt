@@ -298,7 +298,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         report_name = self.aedt_name.split(":")[0]
         prop_name = report_name + ":" + self.name
 
@@ -482,7 +482,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("differential_pairs", False)
 
     @differential_pairs.setter
-    def differential_pairs(self, value):
+    def differential_pairs(self, value) -> None:
         self._legacy_props["context"]["differential_pairs"] = value
 
     @property
@@ -511,7 +511,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("matrix", None)
 
     @matrix.setter
-    def matrix(self, value):
+    def matrix(self, value) -> None:
         self._legacy_props["context"]["matrix"] = value
 
     @property
@@ -526,7 +526,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("reduced_matrix", None)
 
     @reduced_matrix.setter
-    def reduced_matrix(self, value):
+    def reduced_matrix(self, value) -> None:
         self._legacy_props["context"]["reduced_matrix"] = value
 
     @property
@@ -546,7 +546,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("polyline", None)
 
     @polyline.setter
-    def polyline(self, value):
+    def polyline(self, value) -> None:
         self._legacy_props["context"]["polyline"] = value
 
     @property
@@ -566,7 +566,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
-    def expressions(self, value):
+    def expressions(self, value) -> None:
         if isinstance(value, dict):
             self._legacy_props["expressions"].append(value)
         elif isinstance(value, list):
@@ -597,7 +597,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["report_category"]
 
     @report_category.setter
-    def report_category(self, value):
+    def report_category(self, value) -> None:
         if not self._is_created:
             self._legacy_props["report_category"] = value
 
@@ -620,7 +620,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["report_type"]
 
     @report_type.setter
-    def report_type(self, report):
+    def report_type(self, report) -> None:
         if not self._is_created:
             self._legacy_props["report_type"] = report
             if not self.primary_sweep:
@@ -1072,7 +1072,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["plot_name"]
 
     @plot_name.setter
-    def plot_name(self, name: str):
+    def plot_name(self, name: str) -> None:
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
@@ -1114,7 +1114,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._variations
 
     @variations.setter
-    def variations(self, value):
+    def variations(self, value) -> None:
         if isinstance(value, list):
             value_dict = {}
             for i in range(0, len(value), 2):
@@ -1141,7 +1141,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"]["primary_sweep"]
 
     @primary_sweep.setter
-    def primary_sweep(self, value):
+    def primary_sweep(self, value) -> None:
         if value == self._legacy_props["context"].get("secondary_sweep", None):
             self._legacy_props["context"]["secondary_sweep"] = self._legacy_props["context"]["primary_sweep"]
         self._legacy_props["context"]["primary_sweep"] = value
@@ -1168,7 +1168,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
-    def secondary_sweep(self, value):
+    def secondary_sweep(self, value) -> None:
         if value == self._legacy_props["context"]["primary_sweep"]:
             self._legacy_props["context"]["primary_sweep"] = self._legacy_props["context"]["secondary_sweep"]
         self._legacy_props["context"]["secondary_sweep"] = value
@@ -1191,7 +1191,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
-    def primary_sweep_range(self, value):
+    def primary_sweep_range(self, value) -> None:
         self._legacy_props["context"]["primary_sweep_range"] = value
 
     @property
@@ -1206,7 +1206,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
-    def secondary_sweep_range(self, value):
+    def secondary_sweep_range(self, value) -> None:
         self._legacy_props["context"]["secondary_sweep_range"] = value
 
     @property
@@ -1282,7 +1282,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"]["domain"]
 
     @domain.setter
-    def domain(self, domain):
+    def domain(self, domain) -> None:
         self._legacy_props["context"]["domain"] = domain
         if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
             return
@@ -1314,7 +1314,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["context"].get("use_pulse_in_tdr", False)
 
     @use_pulse_in_tdr.setter
-    def use_pulse_in_tdr(self, val):
+    def use_pulse_in_tdr(self, val) -> None:
         self._legacy_props["context"]["use_pulse_in_tdr"] = val
 
     @pyaedt_function_handler()

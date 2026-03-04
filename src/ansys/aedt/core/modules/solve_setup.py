@@ -302,7 +302,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return self._legacy_props
 
     @props.setter
-    def props(self, value):
+    def props(self, value) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -345,7 +345,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, name: str):
+    def name(self, name: str) -> None:
         self._name = name
         self.props["Name"] = name
 
@@ -1896,7 +1896,7 @@ class Setup3DLayout(CommonSetup):
         return self._legacy_props
 
     @props.setter
-    def props(self, value):
+    def props(self, value) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -4381,7 +4381,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._ac_rl_enbled
 
     @ac_rl_enabled.setter
-    def ac_rl_enabled(self, value):
+    def ac_rl_enabled(self, value) -> None:
         if value or (self._dc_enabled or self._capacitance_enabled):
             self._ac_rl_enbled = value
             self.update()
@@ -4397,7 +4397,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._capacitance_enabled
 
     @capacitance_enabled.setter
-    def capacitance_enabled(self, value):
+    def capacitance_enabled(self, value) -> None:
         if value or (self._dc_enabled or self._ac_rl_enbled):
             self._capacitance_enabled = value
             self.update()
@@ -4413,7 +4413,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._dc_enabled
 
     @dc_enabled.setter
-    def dc_enabled(self, value):
+    def dc_enabled(self, value) -> None:
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
@@ -4432,7 +4432,7 @@ class SetupQ3D(Setup, PyAedtBase):
             return False
 
     @dc_resistance_only.setter
-    def dc_resistance_only(self, value):
+    def dc_resistance_only(self, value) -> None:
         if self.dc_enabled:
             self.props["DC"]["SolveResOnly"] = value
 

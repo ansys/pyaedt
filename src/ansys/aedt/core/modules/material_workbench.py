@@ -61,7 +61,7 @@ class MaterialWorkbench(PyAedtBase):
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
-    def mat_name_suffix(self, suffix):
+    def mat_name_suffix(self, suffix) -> None:
         self._mat_name_suffix = str(suffix)
 
     @staticmethod

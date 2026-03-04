@@ -127,7 +127,7 @@ class Person(Actor, PyAedtBase):
         return self._stride
 
     @stride.setter
-    def stride(self, s: str):
+    def stride(self, s: str) -> None:
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
@@ -387,7 +387,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s: str):
+    def speed_expression(self, s: str) -> None:
         self._speed_expression = s
 
     @pyaedt_function_handler()

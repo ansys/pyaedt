@@ -331,7 +331,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self.design_solutions.hybrid
 
     @hybrid.setter
-    def hybrid(self, value):
+    def hybrid(self, value) -> None:
         if value != self.design_solutions.hybrid and isinstance(value, bool):
             self.design_solutions.hybrid = value
 
@@ -346,7 +346,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self.design_solutions.composite
 
     @composite.setter
-    def composite(self, value):
+    def composite(self, value) -> None:
         self.design_solutions.composite = value
 
     @property

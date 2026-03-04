@@ -63,7 +63,7 @@ class Component(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._name = value
 
     @property
@@ -81,7 +81,7 @@ class Component(PyAedtBase):
         return self._manufacturer
 
     @manufacturer.setter
-    def manufacturer(self, value):
+    def manufacturer(self, value) -> None:
         self._manufacturer = value
 
     @property
@@ -99,7 +99,7 @@ class Component(PyAedtBase):
         return self._pins
 
     @pins.setter
-    def pins(self, value):
+    def pins(self, value) -> None:
         self._pins = value
 
     @property
@@ -117,7 +117,7 @@ class Component(PyAedtBase):
         return self._differential_pins
 
     @differential_pins.setter
-    def differential_pins(self, value):
+    def differential_pins(self, value) -> None:
         self._differential_pins = value
 
 
@@ -156,7 +156,7 @@ class Pin(PyAedtBase):
         return self._is_differential
 
     @is_differential.setter
-    def is_differential(self, val: bool):
+    def is_differential(self, val: bool) -> None:
         self._is_differential = val
 
     @property
@@ -191,7 +191,7 @@ class Pin(PyAedtBase):
         return self._short_name
 
     @short_name.setter
-    def short_name(self, value: str):
+    def short_name(self, value: str) -> None:
         self._short_name = value
 
     @property
@@ -208,7 +208,7 @@ class Pin(PyAedtBase):
         return self._signal
 
     @signal.setter
-    def signal(self, value: str):
+    def signal(self, value: str) -> None:
         self._signal = value
 
     @property
@@ -225,7 +225,7 @@ class Pin(PyAedtBase):
         return self._model
 
     @model.setter
-    def model(self, value: str):
+    def model(self, value: str) -> None:
         self._model = value
 
     @property
@@ -242,7 +242,7 @@ class Pin(PyAedtBase):
         return self._r_value
 
     @r_value.setter
-    def r_value(self, value: float):
+    def r_value(self, value: float) -> None:
         self._r_value = value
 
     @property
@@ -259,7 +259,7 @@ class Pin(PyAedtBase):
         return self._l_value
 
     @l_value.setter
-    def l_value(self, value: float):
+    def l_value(self, value: float) -> None:
         self._l_value = value
 
     @property
@@ -276,7 +276,7 @@ class Pin(PyAedtBase):
         return self._c_value
 
     @c_value.setter
-    def c_value(self, value: float):
+    def c_value(self, value: float) -> None:
         self._c_value = value
 
     def add(self) -> None:
@@ -375,7 +375,7 @@ class DifferentialPin(PyAedtBase):
         return self._model
 
     @model.setter
-    def model(self, value: str):
+    def model(self, value: str) -> None:
         self._model = value
 
     @property
@@ -590,7 +590,7 @@ class ModelSelector(PyAedtBase):
         return self._model_selector_items
 
     @model_selector_items.setter
-    def model_selector_items(self, value: list):
+    def model_selector_items(self, value: list) -> None:
         self._model_selector_items = value
 
     @property
@@ -599,7 +599,7 @@ class ModelSelector(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
 
 
@@ -614,7 +614,7 @@ class ModelSelectorItem(PyAedtBase):
         return self._description
 
     @description.setter
-    def description(self, value: list):
+    def description(self, value: list) -> None:
         self._description = value
 
     @property
@@ -623,7 +623,7 @@ class ModelSelectorItem(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
 
 
@@ -643,7 +643,7 @@ class Model(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
 
     @property
@@ -652,7 +652,7 @@ class Model(PyAedtBase):
         return self._model_type
 
     @model_type.setter
-    def model_type(self, value: str):
+    def model_type(self, value: str) -> None:
         self._model_type = value
 
     @property
@@ -661,7 +661,7 @@ class Model(PyAedtBase):
         return self._clamp
 
     @clamp.setter
-    def clamp(self, value: str):
+    def clamp(self, value: str) -> None:
         self._clamp = value
 
     @property
@@ -670,7 +670,7 @@ class Model(PyAedtBase):
         return self._enable
 
     @enable.setter
-    def enable(self, value: bool):
+    def enable(self, value: bool) -> None:
         self._enable = value
 
     @property
@@ -679,7 +679,7 @@ class Model(PyAedtBase):
         return self._ami
 
     @ami.setter
-    def ami(self, value: bool):
+    def ami(self, value: bool) -> None:
         self._ami = value
 
     @property
@@ -688,7 +688,7 @@ class Model(PyAedtBase):
         return self._c_comp
 
     @c_comp.setter
-    def c_comp(self, value: bool):
+    def c_comp(self, value: bool) -> None:
         self._c_comp = value
 
 
@@ -723,7 +723,7 @@ class Ibis(PyAedtBase):
         return self._components
 
     @components.setter
-    def components(self, value: dict):
+    def components(self, value: dict) -> None:
         self._components = value
 
     @property
@@ -732,7 +732,7 @@ class Ibis(PyAedtBase):
         return self._model_selectors
 
     @model_selectors.setter
-    def model_selectors(self, value: list):
+    def model_selectors(self, value: list) -> None:
         self._model_selectors = value
 
     @property
@@ -741,7 +741,7 @@ class Ibis(PyAedtBase):
         return self._models
 
     @models.setter
-    def models(self, value: list):
+    def models(self, value: list) -> None:
         self._models = value
 
     @property
@@ -750,7 +750,7 @@ class Ibis(PyAedtBase):
         return self._buffers
 
     @buffers.setter
-    def buffers(self, value: list):
+    def buffers(self, value: list) -> None:
         self._buffers = value
 
 
@@ -785,7 +785,7 @@ class AMI(PyAedtBase):
         return self._components
 
     @components.setter
-    def components(self, value: dict):
+    def components(self, value: dict) -> None:
         self._components = value
 
     @property
@@ -794,7 +794,7 @@ class AMI(PyAedtBase):
         return self._model_selectors
 
     @model_selectors.setter
-    def model_selectors(self, value: list):
+    def model_selectors(self, value: list) -> None:
         self._model_selectors = value
 
     @property
@@ -803,7 +803,7 @@ class AMI(PyAedtBase):
         return self._models
 
     @models.setter
-    def models(self, value: list):
+    def models(self, value: list) -> None:
         self._models = value
 
     @property
@@ -812,7 +812,7 @@ class AMI(PyAedtBase):
         return self._buffers
 
     @buffers.setter
-    def buffers(self, value: list):
+    def buffers(self, value: list) -> None:
         self._buffers = value
 
 

@@ -50,7 +50,7 @@ class CouplingLinkNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -60,5 +60,5 @@ class CouplingLinkNode(EmitNode):
         return val
 
     @ports.setter
-    def ports(self, value):
+    def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")

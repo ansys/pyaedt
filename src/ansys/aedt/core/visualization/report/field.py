@@ -59,7 +59,7 @@ class AntennaParameters(Standard):
         return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
-    def far_field_sphere(self, value):
+    def far_field_sphere(self, value) -> None:
         self._legacy_props["context"]["far_field_sphere"] = value
 
     @property
@@ -89,7 +89,7 @@ class Fields(CommonReport):
         return self._legacy_props["context"].get("point_number", 1001)
 
     @point_number.setter
-    def point_number(self, value):
+    def point_number(self, value) -> None:
         self._legacy_props["context"]["point_number"] = value
 
     @property
@@ -125,7 +125,7 @@ class NearField(CommonReport):
         return self._legacy_props["context"].get("near_field", None)
 
     @near_field.setter
-    def near_field(self, value):
+    def near_field(self, value) -> None:
         self._legacy_props["context"]["near_field"] = value
 
 
@@ -163,7 +163,7 @@ class FarField(CommonReport):
         return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
-    def far_field_sphere(self, value):
+    def far_field_sphere(self, value) -> None:
         self._legacy_props["context"]["far_field_sphere"] = value
 
     @property

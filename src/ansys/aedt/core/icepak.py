@@ -215,7 +215,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    def problem_type(self, value: str = "TemperatureAndFlow"):
+    def problem_type(self, value: str = "TemperatureAndFlow") -> None:
         self.design_solutions.problem_type = value
 
     @property

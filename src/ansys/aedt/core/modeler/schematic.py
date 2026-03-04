@@ -83,7 +83,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value: str):
+    def schematic_units(self, value: str) -> None:
         if value in list(AEDT_UNITS["Length"].keys()):
             self._schematic_units = value
         else:
@@ -603,7 +603,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._primitives
 
     @model_units.setter
-    def model_units(self, units: str):
+    def model_units(self, units: str) -> None:
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 

@@ -58,7 +58,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -71,7 +71,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -90,7 +90,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val == "true"
 
     @enable_em_isolation.setter
-    def enable_em_isolation(self, value: bool):
+    def enable_em_isolation(self, value: bool) -> None:
         self._set_property("Enable EM Isolation", f"{str(value).lower()}")
 
     @property
@@ -100,7 +100,7 @@ class TouchstoneCouplingNode(EmitNode):
         return val
 
     @port_antenna_assignment.setter
-    def port_antenna_assignment(self, value: str):
+    def port_antenna_assignment(self, value: str) -> None:
         self._set_property("Port-Antenna Assignment", f"{value}")
 
     @property
@@ -110,5 +110,5 @@ class TouchstoneCouplingNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

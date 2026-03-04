@@ -308,7 +308,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, value: bool):
+    def rescale_model(self, value: bool) -> None:
         self._app.units.rescale_model = value
 
     class Position:
@@ -485,7 +485,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return self._app.units.length
 
     @model_units.setter
-    def model_units(self, units: str):
+    def model_units(self, units: str) -> None:
         self._app.units.length = units
 
     @property

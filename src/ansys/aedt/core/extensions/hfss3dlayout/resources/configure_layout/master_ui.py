@@ -81,7 +81,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             return self.__selected_design
 
     @selected_edb.setter
-    def selected_edb(self, value: str | Path):
+    def selected_edb(self, value: str | Path) -> None:
         self.__selected_design = value
 
     def __init__(self, withdraw: bool = False):

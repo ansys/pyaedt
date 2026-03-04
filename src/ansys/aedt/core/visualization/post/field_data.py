@@ -108,7 +108,7 @@ class ColorMapSettings(BaseFolderPlot):
         return self._map_type
 
     @map_type.setter
-    def map_type(self, value):
+    def map_type(self, value) -> None:
         """Set the type of color mapping for the field plot.
 
         Parameters
@@ -141,7 +141,7 @@ class ColorMapSettings(BaseFolderPlot):
             return self._color_uniform
 
     @color.setter
-    def color(self, v):
+    def color(self, v) -> None:
         """Set the colormap based on the map type.
 
         Parameters
@@ -411,7 +411,7 @@ class NumberFormat(BaseFolderPlot):
         return self._format_type
 
     @format_type.setter
-    def format_type(self, v):
+    def format_type(self, v) -> None:
         """Set the numeric format type of the scale.
 
         Parameters
@@ -514,7 +514,7 @@ class Scale3DSettings(BaseFolderPlot):
         return EnumUnits(self._unit).name
 
     @unit.setter
-    def unit(self, v):
+    def unit(self, v) -> None:
         """Set unit used in the plot.
 
         Parameters
@@ -534,7 +534,7 @@ class Scale3DSettings(BaseFolderPlot):
         return self._scale_type
 
     @scale_type.setter
-    def scale_type(self, value):
+    def scale_type(self, value) -> None:
         """Set the scale type used for the field plot.
 
         Parameters
@@ -566,7 +566,7 @@ class Scale3DSettings(BaseFolderPlot):
         return self._scale_settings
 
     @scale_settings.setter
-    def scale_settings(self, value):
+    def scale_settings(self, value) -> None:
         """Set the current scale settings based on the scale type."""
         if self.scale_type == "Auto":
             if isinstance(value, AutoScale):
@@ -670,7 +670,7 @@ class MarkerSettings(BaseFolderPlot):
         return AllowedMarkers(self._marker_type).name
 
     @marker_type.setter
-    def marker_type(self, v):
+    def marker_type(self, v) -> None:
         """Set the type of maker to use.
 
         Parameters
@@ -785,7 +785,7 @@ class ArrowSettings(BaseFolderPlot):
         return self._arrow_type
 
     @arrow_type.setter
-    def arrow_type(self, v):
+    def arrow_type(self, v) -> None:
         """Set the type of arrows for the field plot.
 
         Parameters
@@ -1059,7 +1059,7 @@ class FieldPlot(PyAedtBase):
         return self._folder_settings
 
     @folder_settings.setter
-    def folder_settings(self, v):
+    def folder_settings(self, v) -> None:
         """Set the fieldplot folder settings.
 
         Parameters
@@ -1083,7 +1083,7 @@ class FieldPlot(PyAedtBase):
         return self._filter_boxes
 
     @filter_boxes.setter
-    def filter_boxes(self, val):
+    def filter_boxes(self, val) -> None:
         if isinstance(val, str):
             val = [val]
         self._filter_boxes = val

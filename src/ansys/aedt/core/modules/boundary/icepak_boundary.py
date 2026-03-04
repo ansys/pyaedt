@@ -385,7 +385,7 @@ class NetworkObject(BoundaryObject):
         return False
 
     @auto_update.setter
-    def auto_update(self, b):
+    def auto_update(self, b) -> None:
         """
         Set auto-update on or off.
 
@@ -543,7 +543,7 @@ class NetworkObject(BoundaryObject):
         return self._name
 
     @name.setter
-    def name(self, new_network_name):
+    def name(self, new_network_name) -> None:
         """
         Set new name of the network.
 
@@ -1120,7 +1120,7 @@ class NetworkObject(BoundaryObject):
             return self._props
 
         @props.setter
-        def props(self, props):
+        def props(self, props) -> None:
             """Set properties of the node.
 
             Parameters

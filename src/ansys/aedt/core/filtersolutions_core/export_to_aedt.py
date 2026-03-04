@@ -1377,7 +1377,7 @@ class ExportToAedt:
             return substrate_er_value_str.value.decode("ascii")
 
     @substrate_er.setter
-    def substrate_er(self, substrate_input: SubstrateEr | str):
+    def substrate_er(self, substrate_input: SubstrateEr | str) -> None:
         if substrate_input in list(SubstrateEr):
             substrate_er_index = SubstrateEr(substrate_input).value
             substrate_er_value = ""
@@ -1411,7 +1411,7 @@ class ExportToAedt:
             return substrate_resistivity_value_str.value.decode("ascii")
 
     @substrate_resistivity.setter
-    def substrate_resistivity(self, substrate_input: SubstrateResistivity | str):
+    def substrate_resistivity(self, substrate_input: SubstrateResistivity | str) -> None:
         if substrate_input in list(SubstrateResistivity):
             substrate_resistivity_index = SubstrateResistivity(substrate_input).value
             substrate_resistivity_value = ""
@@ -1445,7 +1445,7 @@ class ExportToAedt:
             return substrate_loss_tangent_value_str.value.decode("ascii")
 
     @substrate_loss_tangent.setter
-    def substrate_loss_tangent(self, substrate_input: SubstrateEr | str):
+    def substrate_loss_tangent(self, substrate_input: SubstrateEr | str) -> None:
         if substrate_input in list(SubstrateEr):
             substrate_loss_tangent_index = SubstrateEr(substrate_input).value
             substrate_loss_tangent_value = ""

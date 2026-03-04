@@ -69,7 +69,7 @@ class AedtUnits(PyAedtBase):
         return self._rescale_model
 
     @rescale_model.setter
-    def rescale_model(self, val: bool):
+    def rescale_model(self, val: bool) -> None:
         self._rescale_model = val
 
     def _get_model_unit(self, unit_system: str) -> str | None:
@@ -111,7 +111,7 @@ class AedtUnits(PyAedtBase):
         return self._length
 
     @length.setter
-    def length(self, value: str):
+    def length(self, value: str) -> None:
         if value in AEDT_UNITS["Length"]:
             self._length = value
             if "SetModelUnits" in dir(self.__app.oeditor):

@@ -67,7 +67,7 @@ class DesignSolution(PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value: str):
+    def solution_type(self, value: str) -> None:
         if value is None:
             if self._design_type in [
                 DesignType.CIRCUIT,
@@ -153,7 +153,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value: str):
+    def solution_type(self, value: str) -> None:
         if self._aedt_version < "2021.2":
             if not value:
                 self._solution_type = "DrivenModal"
@@ -216,7 +216,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._hybrid
 
     @hybrid.setter
-    def hybrid(self, value: bool):
+    def hybrid(self, value: bool) -> None:
         if self._aedt_version < "2021.2":
             return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
@@ -240,7 +240,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._composite
 
     @composite.setter
-    def composite(self, val: bool):
+    def composite(self, val: bool) -> None:
         if self._aedt_version < "2021.2":
             return
         if val:
@@ -291,7 +291,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    def xy_plane(self, value: bool = True):
+    def xy_plane(self, value: bool = True) -> None:
         if value:
             self._geometry_mode = "XY"
         else:
@@ -310,7 +310,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value: str):
+    def solution_type(self, value: str) -> None:
         if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
@@ -356,7 +356,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._problem_type
 
     @problem_type.setter
-    def problem_type(self, value: str = "TemperatureAndFlow"):
+    def problem_type(self, value: str = "TemperatureAndFlow") -> None:
         if value == "TemperatureAndFlow":
             self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type
@@ -393,7 +393,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type: str):
+    def solution_type(self, solution_type: str) -> None:
         if solution_type:
             if "SteadyState" in solution_type:
                 self._solution_type = "SteadyState"
@@ -431,7 +431,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type: str):
+    def solution_type(self, solution_type: str) -> None:
         if solution_type:
             try:
                 self._odesign.SetDesignFlow(self._design_type.NAME, solution_type)
@@ -445,7 +445,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         return self._design_type
 
     @design_type.setter
-    def design_type(self, value: str):
+    def design_type(self, value: str) -> None:
         if value:
             self._design_type = value
             self.solution_type = self._solution_type

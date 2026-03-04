@@ -175,7 +175,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self._app.units.length
 
     @model_units.setter
-    def model_units(self, units: str):
+    def model_units(self, units: str) -> None:
         self._app.units.length = units
 
     @pyaedt_function_handler()

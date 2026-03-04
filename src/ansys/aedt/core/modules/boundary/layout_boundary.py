@@ -141,7 +141,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if self._child_object:
             try:
                 legacy_name = self._name
@@ -187,7 +187,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return "Global"
 
     @targetcs.setter
-    def targetcs(self, cs):
+    def targetcs(self, cs) -> None:
         self.props["TargetCS"] = cs
 
     def _update_props(self, d, u):
@@ -330,7 +330,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if "Port" in self.props:
             self.auto_update = False
             self.props["Port"] = value

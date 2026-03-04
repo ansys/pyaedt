@@ -172,7 +172,7 @@ class CircuitComponents(PyAedtBase):
         return self._modeler.schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value: str):
+    def schematic_units(self, value: str) -> None:
         self._modeler.schematic_units = value
 
     @property

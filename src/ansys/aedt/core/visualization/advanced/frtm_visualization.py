@@ -253,7 +253,7 @@ class FRTMData(PyAedtBase):
         return self.__receiver_position
 
     @receiver_position.setter
-    def receiver_position(self, value):
+    def receiver_position(self, value) -> None:
         """Position of receivers respected the transmitters."""
         self.__receiver_position = value
 
@@ -312,7 +312,7 @@ class FRTMData(PyAedtBase):
         return self.__data_conversion_function
 
     @data_conversion_function.setter
-    def data_conversion_function(self, val):
+    def data_conversion_function(self, val) -> None:
         available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
         if val in available_functions:
             self.__data_conversion_function = val

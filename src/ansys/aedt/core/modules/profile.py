@@ -1107,7 +1107,7 @@ class SimulationProfile(PyAedtBase):
         return self.__product
 
     @product.setter
-    def product(self, value):
+    def product(self, value) -> None:
         self.__product = str(value)
 
     @property

@@ -95,7 +95,7 @@ class AMIConturEyeDiagram(CommonReport):
         return new_exprs
 
     @expressions.setter
-    def expressions(self, value):
+    def expressions(self, value) -> None:
         if isinstance(value, dict):
             self._legacy_props["expressions"].append = value
         elif isinstance(value, list):
@@ -129,7 +129,7 @@ class AMIConturEyeDiagram(CommonReport):
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
-    def quantity_type(self, value):
+    def quantity_type(self, value) -> None:
         self._legacy_props["quantity_type"] = value
 
     @property
@@ -554,7 +554,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
-    def quantity_type(self, value):
+    def quantity_type(self, value) -> None:
         self._legacy_props["quantity_type"] = value
 
     @property
@@ -574,7 +574,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["report_category"]
 
     @report_category.setter
-    def report_category(self, value):
+    def report_category(self, value) -> None:
         self._legacy_props["report_category"] = value
         if self._legacy_props["report_category"] == "Statistical Eye" and self.report_type == "Rectangular Plot":
             self._legacy_props["report_type"] = "Statistical Eye Plot"
@@ -599,7 +599,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("unit_interval", None)
 
     @unit_interval.setter
-    def unit_interval(self, value):
+    def unit_interval(self, value) -> None:
         self._legacy_props["context"]["unit_interval"] = value
 
     @property
@@ -614,7 +614,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("offset", None)
 
     @offset.setter
-    def offset(self, value):
+    def offset(self, value) -> None:
         self._legacy_props["context"]["offset"] = value
 
     @property
@@ -629,7 +629,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_delay", None)
 
     @auto_delay.setter
-    def auto_delay(self, value):
+    def auto_delay(self, value) -> None:
         self._legacy_props["context"]["auto_delay"] = value
 
     @property
@@ -644,7 +644,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("manual_delay", None)
 
     @manual_delay.setter
-    def manual_delay(self, value):
+    def manual_delay(self, value) -> None:
         self._legacy_props["context"]["manual_delay"] = value
 
     @property
@@ -659,7 +659,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_cross_amplitude", None)
 
     @auto_cross_amplitude.setter
-    def auto_cross_amplitude(self, value):
+    def auto_cross_amplitude(self, value) -> None:
         self._legacy_props["context"]["auto_cross_amplitude"] = value
 
     @property
@@ -674,7 +674,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("cross_amplitude", None)
 
     @cross_amplitude.setter
-    def cross_amplitude(self, value):
+    def cross_amplitude(self, value) -> None:
         self._legacy_props["context"]["cross_amplitude"] = value
 
     @property
@@ -689,7 +689,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("auto_compute_eye_meas", None)
 
     @auto_compute_eye_meas.setter
-    def auto_compute_eye_meas(self, value):
+    def auto_compute_eye_meas(self, value) -> None:
         self._legacy_props["context"]["auto_compute_eye_meas"] = value
 
     @property
@@ -704,7 +704,7 @@ class AMIEyeDiagram(CommonReport):
         return self._legacy_props["context"].get("eye_measurement_point", None)
 
     @eye_measurement_point.setter
-    def eye_measurement_point(self, value):
+    def eye_measurement_point(self, value) -> None:
         self._legacy_props["context"]["eye_measurement_point"] = value
 
     @property
@@ -1075,7 +1075,7 @@ class EyeDiagram(AMIEyeDiagram):
         return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
-    def expressions(self, value):
+    def expressions(self, value) -> None:
         if isinstance(value, dict):
             self._legacy_props["expressions"].append = value
         elif isinstance(value, list):
@@ -1103,7 +1103,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
@@ -1118,7 +1118,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
@@ -1133,7 +1133,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("thinning", None)
 
     @thinning.setter
-    def thinning(self, value):
+    def thinning(self, value) -> None:
         self._legacy_props["context"]["thinning"] = value
 
     @property
@@ -1148,7 +1148,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("dy_dx_tolerance", None)
 
     @dy_dx_tolerance.setter
-    def dy_dx_tolerance(self, value):
+    def dy_dx_tolerance(self, value) -> None:
         self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
@@ -1163,7 +1163,7 @@ class EyeDiagram(AMIEyeDiagram):
         return self._legacy_props["context"].get("thinning_points", None)
 
     @thinning_points.setter
-    def thinning_points(self, value):
+    def thinning_points(self, value) -> None:
         self._legacy_props["context"]["thinning_points"] = value
 
     @property

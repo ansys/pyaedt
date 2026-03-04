@@ -99,7 +99,7 @@ class CommonTemplate(PyAedtBase):
         return
 
     @project_name.setter
-    def project_name(self, val):
+    def project_name(self, val) -> None:
         self._project_name = val
 
     @property
@@ -108,7 +108,7 @@ class CommonTemplate(PyAedtBase):
         return self._project
 
     @project.setter
-    def project(self, val):
+    def project(self, val) -> None:
         self._project = val
 
     @property
@@ -122,7 +122,7 @@ class CommonTemplate(PyAedtBase):
         return self._report_type
 
     @report_type.setter
-    def report_type(self, val):
+    def report_type(self, val) -> None:
         self._report_type = val
 
     @property
@@ -136,7 +136,7 @@ class CommonTemplate(PyAedtBase):
         return self._config_file
 
     @config_file.setter
-    def config_file(self, val):
+    def config_file(self, val) -> None:
         self._config_file = val
 
     @property
@@ -150,7 +150,7 @@ class CommonTemplate(PyAedtBase):
         return self._design_name
 
     @design_name.setter
-    def design_name(self, val):
+    def design_name(self, val) -> None:
         self._design_name = val
 
     @property
@@ -164,7 +164,7 @@ class CommonTemplate(PyAedtBase):
         return self._traces
 
     @traces.setter
-    def traces(self, val):
+    def traces(self, val) -> None:
         if not isinstance(val, list):
             self._traces = [val]
         else:
@@ -181,7 +181,7 @@ class CommonTemplate(PyAedtBase):
         return self._pass_fail
 
     @pass_fail.setter
-    def pass_fail(self, val):
+    def pass_fail(self, val) -> None:
         self._pass_fail = val
 
     @property
@@ -195,7 +195,7 @@ class CommonTemplate(PyAedtBase):
         return self._pass_fail_criteria
 
     @pass_fail_criteria.setter
-    def pass_fail_criteria(self, val):
+    def pass_fail_criteria(self, val) -> None:
         self._pass_fail_criteria = val
 
 
@@ -215,7 +215,7 @@ class ReportTemplate(CommonTemplate):
         return self._group_plots
 
     @group_plots.setter
-    def group_plots(self, val):
+    def group_plots(self, val) -> None:
         self._group_plots = val
 
 
@@ -236,7 +236,7 @@ class ReportParametersTemplate(CommonTemplate):
         return self._parameter_name
 
     @parameter_name.setter
-    def parameter_name(self, val):
+    def parameter_name(self, val) -> None:
         self._parameter_name = val
 
 
@@ -257,7 +257,7 @@ class ParametersTemplate(CommonTemplate):
         return self._trace_pins
 
     @trace_pins.setter
-    def trace_pins(self, val):
+    def trace_pins(self, val) -> None:
         self._trace_pins = val
 
 
@@ -303,7 +303,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         return self.config["general"]["project"]
 
     @project_file.setter
-    def project_file(self, val):
+    def project_file(self, val) -> None:
         self.config["general"]["project"] = val
 
     @pyaedt_function_handler()
@@ -559,7 +559,7 @@ class VirtualComplianceData(PyAedtBase):
         return self._chapters
 
     @chapters.setter
-    def chapters(self, val):
+    def chapters(self, val) -> None:
         self._chapters = val
 
     def add_chapter(self, chapter, position=None) -> VirtualComplianceChaptersData:
@@ -619,7 +619,7 @@ class VirtualCompliance(PyAedtBase):
         return self._image_width
 
     @image_width.setter
-    def image_width(self, val):
+    def image_width(self, val) -> None:
         self._image_width = val
 
     @property
@@ -628,7 +628,7 @@ class VirtualCompliance(PyAedtBase):
         return self._image_height
 
     @image_height.setter
-    def image_height(self, val):
+    def image_height(self, val) -> None:
         self._image_height = val
 
     @property
@@ -642,7 +642,7 @@ class VirtualCompliance(PyAedtBase):
         return self._dut
 
     @dut_image.setter
-    def dut_image(self, val):
+    def dut_image(self, val) -> None:
         self._dut = val
 
     @pyaedt_function_handler()
@@ -677,7 +677,7 @@ class VirtualCompliance(PyAedtBase):
         return self._reports
 
     @reports.setter
-    def reports(self, val):
+    def reports(self, val) -> None:
         self._reports = val
 
     @property
@@ -691,7 +691,7 @@ class VirtualCompliance(PyAedtBase):
         return self._parameters
 
     @parameters.setter
-    def parameters(self, val):
+    def parameters(self, val) -> None:
         self._parameters = val
 
     @property
@@ -700,7 +700,7 @@ class VirtualCompliance(PyAedtBase):
         return self._add_project_info
 
     @add_project_info.setter
-    def add_project_info(self, val):
+    def add_project_info(self, val) -> None:
         self._add_project_info = val
 
     @property
@@ -709,7 +709,7 @@ class VirtualCompliance(PyAedtBase):
         return self._add_specs_info
 
     @add_specs_info.setter
-    def add_specs_info(self, val):
+    def add_specs_info(self, val) -> None:
         self._add_specs_info = val
 
     @property
@@ -718,7 +718,7 @@ class VirtualCompliance(PyAedtBase):
         return self._specs_folder
 
     @specs_folder.setter
-    def specs_folder(self, val):
+    def specs_folder(self, val) -> None:
         self._specs_folder = val
         if self._specs_folder and (Path(self._template_folder) / self._specs_folder).exists():
             self._specs_folder = str(Path(self._template_folder) / self._specs_folder)
@@ -729,7 +729,7 @@ class VirtualCompliance(PyAedtBase):
         return self._template_name
 
     @template_name.setter
-    def template_name(self, val):
+    def template_name(self, val) -> None:
         self._template_name = val
 
     @property
@@ -738,7 +738,7 @@ class VirtualCompliance(PyAedtBase):
         return self._project_file
 
     @project_file.setter
-    def project_file(self, val):
+    def project_file(self, val) -> None:
         self._project_file = val
 
     @property
@@ -752,7 +752,7 @@ class VirtualCompliance(PyAedtBase):
         return self._use_portrait
 
     @use_portrait.setter
-    def use_portrait(self, val):
+    def use_portrait(self, val) -> None:
         self._use_portrait = val
 
     @pyaedt_function_handler()

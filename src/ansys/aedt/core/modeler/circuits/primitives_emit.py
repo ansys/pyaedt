@@ -152,7 +152,7 @@ class EmitComponents(PyAedtBase):
         return self.include_personal_lib
 
     @include_personal_library.setter
-    def include_personal_library(self, value: str):
+    def include_personal_library(self, value: str) -> None:
         self.include_personal_lib = value
 
     @property

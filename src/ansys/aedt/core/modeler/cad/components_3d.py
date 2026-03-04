@@ -353,7 +353,7 @@ class UserDefinedComponent(PyAedtBase):
             return None
 
     @mesh_assembly.setter
-    def mesh_assembly(self, ma: bool):
+    def mesh_assembly(self, ma: bool) -> None:
         key = "Do Mesh Assembly"
         if (
             self.is3dcomponent
@@ -381,7 +381,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, component_name: str):
+    def name(self, component_name: str) -> None:
         if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
             self._primitives.oeditor.Get3DComponentDefinitionNames()
         ):
@@ -473,7 +473,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._target_coordinate_system
 
     @target_coordinate_system.setter
-    def target_coordinate_system(self, tCS: str):
+    def target_coordinate_system(self, tCS: str) -> None:
         if (
             "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
             and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
@@ -1040,7 +1040,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_layout.setter
-    def show_layout(self, show_layout: bool):
+    def show_layout(self, show_layout: bool) -> None:
         key = "Show Layout"
         if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1067,7 +1067,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @fast_transformation.setter
-    def fast_transformation(self, fast_transformation: bool):
+    def fast_transformation(self, fast_transformation: bool) -> None:
         key = "Fast Transformation"
         if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1095,7 +1095,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_dielectric.setter
-    def show_dielectric(self, show_dielectric: bool):
+    def show_dielectric(self, show_dielectric: bool) -> None:
         key = "Object Attributes/ShowDielectric"
         if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
@@ -1126,7 +1126,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @display_mode.setter
-    def display_mode(self, display_mode: int):
+    def display_mode(self, display_mode: int) -> None:
         key = "Object Attributes/DisplayMode"
         if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name

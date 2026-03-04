@@ -127,7 +127,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._object_mapping_tolerance
 
     @object_mapping_tolerance.setter
-    def object_mapping_tolerance(self, val: float):
+    def object_mapping_tolerance(self, val: float) -> None:
         self._object_mapping_tolerance = val
 
     @property
@@ -147,7 +147,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_variables
 
     @export_variables.setter
-    def export_variables(self, val: bool):
+    def export_variables(self, val: bool) -> None:
         self._export_variables = val
 
     @property
@@ -167,7 +167,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_setups
 
     @export_setups.setter
-    def export_setups(self, val: bool):
+    def export_setups(self, val: bool) -> None:
         self._export_setups = val
 
     @property
@@ -187,7 +187,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_optimizations
 
     @export_optimizations.setter
-    def export_optimizations(self, val: bool):
+    def export_optimizations(self, val: bool) -> None:
         self._export_optimizations = val
 
     @property
@@ -207,7 +207,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_parametrics
 
     @export_parametrics.setter
-    def export_parametrics(self, val: bool):
+    def export_parametrics(self, val: bool) -> None:
         self._export_parametrics = val
 
     @property
@@ -227,7 +227,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_boundaries
 
     @export_boundaries.setter
-    def export_boundaries(self, val: bool):
+    def export_boundaries(self, val: bool) -> None:
         self._export_boundaries = val
 
     @property
@@ -242,7 +242,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_datasets
 
     @import_datasets.setter
-    def import_datasets(self, val: bool):
+    def import_datasets(self, val: bool) -> None:
         self._import_datasets = val
 
     @property
@@ -257,7 +257,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_datasets
 
     @export_datasets.setter
-    def export_datasets(self, val: bool):
+    def export_datasets(self, val: bool) -> None:
         self._export_datasets = val
 
     @property
@@ -277,7 +277,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_mesh_operations
 
     @export_mesh_operations.setter
-    def export_mesh_operations(self, val: bool):
+    def export_mesh_operations(self, val: bool) -> None:
         self._export_mesh_operations = val
 
     @property
@@ -297,7 +297,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_coordinate_systems
 
     @export_coordinate_systems.setter
-    def export_coordinate_systems(self, val: bool):
+    def export_coordinate_systems(self, val: bool) -> None:
         self._export_coordinate_systems = val
 
     # @property
@@ -337,7 +337,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_materials
 
     @export_materials.setter
-    def export_materials(self, val: bool):
+    def export_materials(self, val: bool) -> None:
         self._export_materials = val
 
     @property
@@ -357,7 +357,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._export_object_properties
 
     @export_object_properties.setter
-    def export_object_properties(self, val: bool):
+    def export_object_properties(self, val: bool) -> None:
         self._export_object_properties = val
 
     @property
@@ -377,7 +377,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_variables
 
     @import_variables.setter
-    def import_variables(self, val: bool):
+    def import_variables(self, val: bool) -> None:
         self._import_variables = val
 
     @property
@@ -397,7 +397,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_setups
 
     @import_setups.setter
-    def import_setups(self, val: bool):
+    def import_setups(self, val: bool) -> None:
         self._import_setups = val
 
     @property
@@ -417,7 +417,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_optimizations
 
     @import_optimizations.setter
-    def import_optimizations(self, val: bool):
+    def import_optimizations(self, val: bool) -> None:
         self._import_optimizations = val
 
     @property
@@ -437,7 +437,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_parametrics
 
     @import_parametrics.setter
-    def import_parametrics(self, val: bool):
+    def import_parametrics(self, val: bool) -> None:
         self._import_parametrics = val
 
     @property
@@ -457,7 +457,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_boundaries
 
     @import_boundaries.setter
-    def import_boundaries(self, val: bool):
+    def import_boundaries(self, val: bool) -> None:
         self._import_boundaries = val
 
     @property
@@ -477,7 +477,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_mesh_operations
 
     @import_mesh_operations.setter
-    def import_mesh_operations(self, val: bool):
+    def import_mesh_operations(self, val: bool) -> None:
         self._import_mesh_operations = val
 
     @property
@@ -497,7 +497,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_coordinate_systems
 
     @import_coordinate_systems.setter
-    def import_coordinate_systems(self, val: bool):
+    def import_coordinate_systems(self, val: bool) -> None:
         self._import_coordinate_systems = val
 
     # @property
@@ -553,11 +553,11 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_output_variables
 
     @import_output_variables.setter
-    def import_output_variables(self, val: bool):
+    def import_output_variables(self, val: bool) -> None:
         self._import_output_variables = val
 
     @import_materials.setter
-    def import_materials(self, val: bool):
+    def import_materials(self, val: bool) -> None:
         self._import_materials = val
 
     @property
@@ -577,7 +577,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._import_object_properties
 
     @import_object_properties.setter
-    def import_object_properties(self, val: bool):
+    def import_object_properties(self, val: bool) -> None:
         self._import_object_properties = val
 
     @property
@@ -597,7 +597,7 @@ class ConfigurationsOptions(PyAedtBase):
         return self._skip_import_if_exists
 
     @skip_import_if_exists.setter
-    def skip_import_if_exists(self, val: bool):
+    def skip_import_if_exists(self, val: bool) -> None:
         self._skip_import_if_exists = val
 
     @property
@@ -1542,7 +1542,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._import_monitor
 
     @import_monitor.setter
-    def import_monitor(self, val: bool):
+    def import_monitor(self, val: bool) -> None:
         self._import_monitor = val
 
     @property
@@ -1550,7 +1550,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._export_monitor
 
     @export_monitor.setter
-    def export_monitor(self, val: bool):
+    def export_monitor(self, val: bool) -> None:
         self._export_monitor = val
 
     @property
@@ -1558,7 +1558,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._import_native_components
 
     @import_native_components.setter
-    def import_native_components(self, val: bool):
+    def import_native_components(self, val: bool) -> None:
         self._import_native_components = val
 
     @property
@@ -1566,7 +1566,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
         return self._export_native_components
 
     @export_native_components.setter
-    def export_native_components(self, val: bool):
+    def export_native_components(self, val: bool) -> None:
         self._export_native_components = val
 
 

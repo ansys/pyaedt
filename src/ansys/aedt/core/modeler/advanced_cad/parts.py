@@ -304,7 +304,7 @@ class Part(PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw: str):
+    def yaw(self, yaw: str) -> None:
         self._yaw = yaw
 
     @property
@@ -319,7 +319,7 @@ class Part(PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch: str):
+    def pitch(self, pitch: str) -> None:
         self._pitch = pitch
 
     @property
@@ -334,7 +334,7 @@ class Part(PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll: str):
+    def roll(self, roll: str) -> None:
         self._roll = roll
 
     @property

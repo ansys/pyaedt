@@ -62,7 +62,7 @@ class TxHarmonicNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -71,7 +71,7 @@ class TxHarmonicNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class HarmonicTableUnitsOption(Enum):
@@ -86,5 +86,5 @@ class TxHarmonicNode(EmitNode):
         return val
 
     @harmonic_table_units.setter
-    def harmonic_table_units(self, value: HarmonicTableUnitsOption):
+    def harmonic_table_units(self, value: HarmonicTableUnitsOption) -> None:
         self._set_property("Harmonic Table Units", f"{value.value}")

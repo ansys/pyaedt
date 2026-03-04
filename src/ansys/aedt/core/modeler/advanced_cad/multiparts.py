@@ -292,7 +292,7 @@ class MultiPartComponent(PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw_str: str):
+    def yaw(self, yaw_str: str) -> None:
         # TODO: Need variable checking for yaw angle.
         # yaw is the rotation about the object z-axis.
         self._use_global_cs = False
@@ -322,7 +322,7 @@ class MultiPartComponent(PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch_str: str):
+    def pitch(self, pitch_str: str) -> None:
         # TODO: Need variable checking for pitch angle.
         # pitch is the rotation about the object y-axis.
         self._use_global_cs = False
@@ -352,7 +352,7 @@ class MultiPartComponent(PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll_str: str):
+    def roll(self, roll_str: str) -> None:
         # TODO: Need variable checking for pitch angle.
         # roll is the rotation about the object x-axis.
         self._use_global_cs = False
@@ -406,7 +406,7 @@ class MultiPartComponent(PyAedtBase):
         return self._offset_values
 
     @offset.setter
-    def offset(self, o: list):
+    def offset(self, o: list) -> None:
         # TODO: Add check for validity
         self._use_global_cs = False
         self._offset_values = o  # Expect tuple or list of strings
@@ -542,7 +542,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw_str: str):
+    def yaw(self, yaw_str: str) -> None:
         self._yaw = yaw_str
 
     @property
@@ -557,7 +557,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch_str: str):
+    def pitch(self, pitch_str: str) -> None:
         self._pitch = pitch_str
 
     @property
@@ -572,7 +572,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll_str: str):
+    def roll(self, roll_str: str) -> None:
         self._roll = roll_str
 
     @property
@@ -586,7 +586,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         return self._offset_values
 
     @offset.setter
-    def offset(self, o: list):
+    def offset(self, o: list) -> None:
         if isinstance(o, list) or isinstance(o, tuple) and len(o) == 3:
             self._offset_values = o
 
@@ -638,7 +638,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s: str):  # TODO: Add validation of the expression.
+    def speed_expression(self, s: str) -> None:  # TODO: Add validation of the expression.
         self._speed_expression = s
 
     @pyaedt_function_handler()

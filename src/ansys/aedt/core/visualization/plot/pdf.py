@@ -326,7 +326,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.template_name
 
     @template_name.setter
-    def template_name(self, value):
+    def template_name(self, value) -> None:
         self.report_specs.template_name = value
 
     @property
@@ -340,7 +340,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.design_name
 
     @design_name.setter
-    def design_name(self, value):
+    def design_name(self, value) -> None:
         self.report_specs.design_name = value
 
     @property
@@ -354,7 +354,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.project_name
 
     @project_name.setter
-    def project_name(self, value):
+    def project_name(self, value) -> None:
         self.report_specs.project_name = value
 
     @property
@@ -368,7 +368,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.ansys_version
 
     @aedt_version.setter
-    def aedt_version(self, value):
+    def aedt_version(self, value) -> None:
         self.report_specs.ansys_version = value
 
     def add_section(self, portrait=None, page_format: str = "a4"):

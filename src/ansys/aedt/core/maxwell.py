@@ -3890,7 +3890,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    def xy_plane(self, value: bool = True):
+    def xy_plane(self, value: bool = True) -> None:
         self.design_solutions.xy_plane = value
 
     @property
@@ -3904,7 +3904,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
             return None
 
     @model_depth.setter
-    def model_depth(self, value):
+    def model_depth(self, value) -> None:
         """Set model depth."""
         if isinstance(value, float) or isinstance(value, int):
             value = self.value_with_units(value, self.modeler.model_units)

@@ -137,7 +137,7 @@ class Object3d(PyAedtBase):
         return self._is_polyline
 
     @is_polyline.setter
-    def is_polyline(self, value: bool):
+    def is_polyline(self, value: bool) -> None:
         self._is_polyline = value
 
     @pyaedt_function_handler()
@@ -948,7 +948,7 @@ class Object3d(PyAedtBase):
         return ""
 
     @material_name.setter
-    def material_name(self, mat: str):
+    def material_name(self, mat: str) -> None:
         matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
@@ -966,7 +966,7 @@ class Object3d(PyAedtBase):
             self.logger.warning("Material %s does not exist.", mat)
 
     @surface_material_name.setter
-    def surface_material_name(self, mat: str):
+    def surface_material_name(self, mat: str) -> None:
         try:
             if not self.model:
                 self.model = True
@@ -1125,7 +1125,7 @@ class Object3d(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, obj_name: str):
+    def name(self, obj_name: str) -> None:
         if obj_name != self._m_name and obj_name not in self._primitives.object_names:
             vName = ["NAME:Name", "Value:=", obj_name]
             vChangedProps = ["NAME:ChangedProps", vName]
@@ -1192,7 +1192,7 @@ class Object3d(PyAedtBase):
         return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
     @color.setter
-    def color(self, color_value: str | tuple[int, int, int]):
+    def color(self, color_value: str | tuple[int, int, int]) -> None:
         color_tuple = None
         if isinstance(color_value, str):
             try:
@@ -1245,7 +1245,7 @@ class Object3d(PyAedtBase):
             return self._transparency
 
     @transparency.setter
-    def transparency(self, T: float | str):
+    def transparency(self, T: float | str) -> None:
         try:
             trans_float = float(T)
             if trans_float < 0.0:
@@ -1289,7 +1289,7 @@ class Object3d(PyAedtBase):
             return self._part_coordinate_system
 
     @part_coordinate_system.setter
-    def part_coordinate_system(self, sCS: str):
+    def part_coordinate_system(self, sCS: str) -> None:
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
@@ -1321,7 +1321,7 @@ class Object3d(PyAedtBase):
         return None
 
     @solve_inside.setter
-    def solve_inside(self, S: bool):
+    def solve_inside(self, S: bool) -> None:
         if not self.model:
             self.model = True
         vSolveInside = []
@@ -1359,7 +1359,7 @@ class Object3d(PyAedtBase):
             return self._wireframe
 
     @display_wireframe.setter
-    def display_wireframe(self, fWireframe: bool):
+    def display_wireframe(self, fWireframe: bool) -> None:
         vWireframe = ["NAME:Display Wireframe", "Value:=", fWireframe]
         # fwf = self._to_boolean(wf)
 
@@ -1394,7 +1394,7 @@ class Object3d(PyAedtBase):
             return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, material_appearance: bool):
+    def material_appearance(self, material_appearance: bool) -> None:
         vMaterialAppearance = [
             "NAME:Material Appearance",
             "Value:=",
@@ -1447,7 +1447,7 @@ class Object3d(PyAedtBase):
             return self._model
 
     @is_model.setter
-    def is_model(self, fModel: bool):
+    def is_model(self, fModel: bool) -> None:
         vArg1 = ["NAME:Model", "Value:=", fModel]
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
@@ -1475,7 +1475,7 @@ class Object3d(PyAedtBase):
         return self.is_model
 
     @model.setter
-    def model(self, fModel: bool):
+    def model(self, fModel: bool) -> None:
         self.is_model = fModel
 
     @pyaedt_function_handler()

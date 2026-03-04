@@ -142,7 +142,7 @@ class MonostaticRCSExporter(PyAedtBase):
         return self.__column_name
 
     @column_name.setter
-    def column_name(self, value: str):
+    def column_name(self, value: str) -> None:
         """Column name."""
         self.__column_name = value
 

@@ -491,7 +491,7 @@ class CircuitComponent(PyAedtBase):
         return self._InstanceName
 
     @instance_name.setter
-    def instance_name(self, value: str):
+    def instance_name(self, value: str) -> None:
         if "InstanceName" in self.parameters:
             self.parameters["InstanceName"] = value
             self._InstanceName = value
@@ -584,7 +584,7 @@ class CircuitComponent(PyAedtBase):
         return self.__name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self.__name = value
 
     @property
@@ -795,7 +795,7 @@ class CircuitComponent(PyAedtBase):
         return self._location
 
     @location.setter
-    def location(self, location_xy: list[float | str]):
+    def location(self, location_xy: list[float | str]) -> None:
         """Set the part location.
 
         Parameters
@@ -842,7 +842,7 @@ class CircuitComponent(PyAedtBase):
         return self._angle
 
     @angle.setter
-    def angle(self, angle: float | int | None = None):
+    def angle(self, angle: float | int | None = None) -> None:
         """Set the part angle."""
         from ansys.aedt.core.generic.settings import settings
 
@@ -887,7 +887,7 @@ class CircuitComponent(PyAedtBase):
         return self._mirror
 
     @mirror.setter
-    def mirror(self, mirror_value: bool = True):
+    def mirror(self, mirror_value: bool = True) -> None:
         """Mirror part.
 
         Parameters
@@ -1443,7 +1443,7 @@ class Excitations(CircuitComponent):
         return self._name
 
     @name.setter
-    def name(self, port_name: str):
+    def name(self, port_name: str) -> None:
         if port_name not in self._circuit_components._app.excitation_names:
             if port_name != self._name:
                 # Take previous properties
@@ -1469,7 +1469,7 @@ class Excitations(CircuitComponent):
         return [self._props["rz"], self._props["iz"]]
 
     @impedance.setter
-    def impedance(self, termination: list = None):
+    def impedance(self, termination: list = None) -> None:
         if termination and len(termination) == 2:
             self.change_property(["NAME:rz", "Value:=", termination[0]])
             self.change_property(["NAME:iz", "Value:=", termination[1]])
@@ -1487,7 +1487,7 @@ class Excitations(CircuitComponent):
         return self._props["EnableNoise"]
 
     @enable_noise.setter
-    def enable_noise(self, enable: bool = False):
+    def enable_noise(self, enable: bool = False) -> None:
         self.change_property(["NAME:EnableNoise", "Value:=", enable])
         self._props["EnableNoise"] = enable
 
@@ -1502,7 +1502,7 @@ class Excitations(CircuitComponent):
         return self._props["noisetemp"]
 
     @noise_temperature.setter
-    def noise_temperature(self, noise: str = None):
+    def noise_temperature(self, noise: str = None) -> None:
         if noise:
             self.change_property(["NAME:noisetemp", "Value:=", noise])
             self._props["noisetemp"] = noise
@@ -1521,7 +1521,7 @@ class Excitations(CircuitComponent):
             return False
 
     @microwave_symbol.setter
-    def microwave_symbol(self, enable: bool = False):
+    def microwave_symbol(self, enable: bool = False) -> None:
         if enable:
             self._props["SymbolType"] = 1
         else:
@@ -1546,7 +1546,7 @@ class Excitations(CircuitComponent):
         return self.__reference_node
 
     @reference_node.setter
-    def reference_node(self, value: str):
+    def reference_node(self, value: str) -> None:
         """Set the reference node of the port.
 
         Parameters
@@ -1593,7 +1593,7 @@ class Excitations(CircuitComponent):
         return self._props["EnabledPorts"]
 
     @enabled_sources.setter
-    def enabled_sources(self, sources: list = None):
+    def enabled_sources(self, sources: list = None) -> None:
         if sources:
             self._props["EnabledPorts"] = sources
             self.update()
@@ -1609,7 +1609,7 @@ class Excitations(CircuitComponent):
         return self._props["EnabledAnalyses"]
 
     @enabled_analyses.setter
-    def enabled_analyses(self, analyses: dict = None):
+    def enabled_analyses(self, analyses: dict = None) -> None:
         if analyses:
             self._props["EnabledAnalyses"] = analyses
             self.update()

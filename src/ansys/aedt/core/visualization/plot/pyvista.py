@@ -323,7 +323,7 @@ class ObjClass(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value):
+    def color(self, value) -> None:
         if isinstance(value, (tuple, list)):
             self._color = value
         elif value in CSS4_COLORS:
@@ -446,7 +446,7 @@ class CommonPlotter(PyAedtBase):
         return self._field_scale
 
     @vector_field_scale.setter
-    def vector_field_scale(self, value):
+    def vector_field_scale(self, value) -> None:
         self._field_scale = value
 
     @property
@@ -460,7 +460,7 @@ class CommonPlotter(PyAedtBase):
         return self._convert_fields_in_db
 
     @convert_fields_in_db.setter
-    def convert_fields_in_db(self, value):
+    def convert_fields_in_db(self, value) -> None:
         self._convert_fields_in_db = value
         for f in self.fields:
             f._cached_polydata = None
@@ -478,7 +478,7 @@ class CommonPlotter(PyAedtBase):
         return self._log_multiplier
 
     @log_multiplier.setter
-    def log_multiplier(self, value):
+    def log_multiplier(self, value) -> None:
         self._log_multiplier = value
 
     @property
@@ -492,7 +492,7 @@ class CommonPlotter(PyAedtBase):
         return self._x_scale
 
     @x_scale.setter
-    def x_scale(self, value):
+    def x_scale(self, value) -> None:
         self._x_scale = value
 
     @property
@@ -506,7 +506,7 @@ class CommonPlotter(PyAedtBase):
         return self._y_scale
 
     @y_scale.setter
-    def y_scale(self, value):
+    def y_scale(self, value) -> None:
         self._y_scale = value
 
     @property
@@ -520,7 +520,7 @@ class CommonPlotter(PyAedtBase):
         return self._z_scale
 
     @z_scale.setter
-    def z_scale(self, value):
+    def z_scale(self, value) -> None:
         self._z_scale = value
 
     @property
@@ -539,7 +539,7 @@ class CommonPlotter(PyAedtBase):
         return self._isometric_view
 
     @isometric_view.setter
-    def isometric_view(self, value: bool = True):
+    def isometric_view(self, value: bool = True) -> None:
         self._isometric_view = value
 
     @property
@@ -558,7 +558,7 @@ class CommonPlotter(PyAedtBase):
         return self._view_up
 
     @view_up.setter
-    def view_up(self, value):
+    def view_up(self, value) -> None:
         if isinstance(value, list):
             self._view_up = tuple(value)
         else:
@@ -581,7 +581,7 @@ class CommonPlotter(PyAedtBase):
         return self._focal_point
 
     @focal_point.setter
-    def focal_point(self, value):
+    def focal_point(self, value) -> None:
         if isinstance(value, list):
             self._focal_point = tuple(value)
         else:
@@ -601,7 +601,7 @@ class CommonPlotter(PyAedtBase):
         return self._camera_position
 
     @camera_position.setter
-    def camera_position(self, value):
+    def camera_position(self, value) -> None:
         if isinstance(value, list):
             self._camera_position = tuple(value)
         else:
@@ -624,7 +624,7 @@ class CommonPlotter(PyAedtBase):
         return self._roll_angle
 
     @roll_angle.setter
-    def roll_angle(self, value: int = 20):
+    def roll_angle(self, value: int = 20) -> None:
         self._roll_angle = value
         self.isometric_view = False
 
@@ -644,7 +644,7 @@ class CommonPlotter(PyAedtBase):
         return self._azimuth_angle
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value: int = 45):
+    def azimuth_angle(self, value: int = 45) -> None:
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
@@ -664,7 +664,7 @@ class CommonPlotter(PyAedtBase):
         return self._elevation_angle
 
     @elevation_angle.setter
-    def elevation_angle(self, value: int = 45):
+    def elevation_angle(self, value: int = 45) -> None:
         self._elevation_angle = value
         self.use_default_iso_view = False
 
@@ -684,7 +684,7 @@ class CommonPlotter(PyAedtBase):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value: int = 1):
+    def zoom(self, value: int = 1) -> None:
         self._zoom = value
 
     @pyaedt_function_handler()
@@ -727,7 +727,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_color
 
     @background_color.setter
-    def background_color(self, value):
+    def background_color(self, value) -> None:
         if isinstance(value, (tuple, list)):
             self._background_color = value
         elif value in CSS4_COLORS:
@@ -745,7 +745,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_image
 
     @background_image.setter
-    def background_image(self, value):
+    def background_image(self, value) -> None:
         if Path(value).exists():
             self._background_image = value
 

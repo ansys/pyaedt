@@ -82,7 +82,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return self._version
 
     @version.setter
-    def version(self, value: str):
+    def version(self, value: str) -> None:
         """Set the documentation version."""
         if not value:
             raise ValueError("Version cannot be an empty string.")
@@ -104,7 +104,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return self._browser
 
     @browser.setter
-    def browser(self, value: str):
+    def browser(self, value: str) -> None:
         """Set the browser used to open URLs.
 
         Parameters
@@ -135,7 +135,7 @@ class Help(PyAedtBase):  # pragma: no cover
         return self._silent
 
     @silent.setter
-    def silent(self, value: bool):
+    def silent(self, value: bool) -> None:
         """Enable or disable silent mode."""
         self._silent = bool(value)
 

@@ -116,7 +116,7 @@ class COMParameters:
         return self._standard  # pragma: no cover
 
     @standard.setter
-    def standard(self, value):
+    def standard(self, value) -> None:
         std_table = self._STD_TABLE_MAPPING[COMStandards(value).name]
         cfg_path = self._CFG_DIR / std_table
         self.load(cfg_path)

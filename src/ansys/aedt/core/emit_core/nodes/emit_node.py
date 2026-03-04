@@ -101,7 +101,7 @@ class EmitNode:
         return self._get_property("Name", True)
 
     @name.setter
-    def name(self, requested_name: str):
+    def name(self, requested_name: str) -> None:
         """Renames the node/component.
 
         Parameters

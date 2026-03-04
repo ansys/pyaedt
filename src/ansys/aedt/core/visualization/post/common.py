@@ -120,7 +120,7 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value):
+    def plots(self, value) -> None:
         self.__plots = value
 
     @property
@@ -151,7 +151,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @update_report_dynamically.setter
-    def update_report_dynamically(self, value):
+    def update_report_dynamically(self, value) -> None:
         if value:
             self._app.odesktop.SetRegistryInt(
                 f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1

@@ -88,7 +88,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @minimum_allowed_coupling.setter
-    def minimum_allowed_coupling(self, value: float):
+    def minimum_allowed_coupling(self, value: float) -> None:
         self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
@@ -101,7 +101,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @global_default_coupling.setter
-    def global_default_coupling(self, value: float):
+    def global_default_coupling(self, value: float) -> None:
         self._set_property("Global Default Coupling", f"{value}")
 
     @property

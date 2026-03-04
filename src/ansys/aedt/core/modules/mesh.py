@@ -212,7 +212,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, meshop_name):
+    def name(self, meshop_name) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = meshop_name

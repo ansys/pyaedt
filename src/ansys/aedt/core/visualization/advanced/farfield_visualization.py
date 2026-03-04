@@ -286,7 +286,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phi_scan
 
     @phi_scan.setter
-    def phi_scan(self, value):
+    def phi_scan(self, value) -> None:
         self.__phi_scan = value
         self.__element_weight()
 
@@ -296,7 +296,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__theta_scan
 
     @theta_scan.setter
-    def theta_scan(self, value):
+    def theta_scan(self, value) -> None:
         self.__theta_scan = value
         self.__element_weight()
 
@@ -443,7 +443,7 @@ class FfdSolutionData(PyAedtBase):
         return self._frequency
 
     @frequency.setter
-    def frequency(self, val):
+    def frequency(self, val) -> None:
         if isinstance(val, str):
             frequency, units = decompose_variable_value(val)
             unit_converter(frequency, "Freq", units, "Hz")
@@ -460,7 +460,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__phase
 
     @phase.setter
-    def phase(self, phases):
+    def phase(self, phases) -> None:
         if len(phases) != len(self.all_element_names):
             self.__logger.error("Number of phases must be equal to number of ports.")
         else:
@@ -472,7 +472,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__magnitude
 
     @magnitude.setter
-    def magnitude(self, mags):
+    def magnitude(self, mags) -> None:
         if len(mags) != len(self.all_element_names):
             self.__logger.error("Number of magnitude values must be equal to number of ports.")
         else:
@@ -493,7 +493,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__taper
 
     @taper.setter
-    def taper(self, val):
+    def taper(self, val) -> None:
         if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
             self.__taper = val
 
@@ -506,7 +506,7 @@ class FfdSolutionData(PyAedtBase):
         return self.__origin
 
     @origin.setter
-    def origin(self, vals):
+    def origin(self, vals) -> None:
         if len(vals) != 3:
             self.__logger.error("Origin is wrong.")
         else:

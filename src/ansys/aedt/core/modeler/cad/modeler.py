@@ -720,7 +720,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._mode
 
     @mode.setter
-    def mode(self, value: str):
+    def mode(self, value: str) -> None:
         self._mode = value
 
     @property
@@ -751,7 +751,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._ref_cs
 
     @ref_cs.setter
-    def ref_cs(self, value: str):
+    def ref_cs(self, value: str) -> None:
         if settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()
@@ -1224,7 +1224,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return [x, y, z]
 
     @origin.setter
-    def origin(self, origin: list):
+    def origin(self, origin: list) -> None:
         """Set the coordinate system origin in model units."""
         previous_auto_update = self.auto_update
         self.auto_update = False
@@ -1293,7 +1293,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._ref_cs
 
     @ref_cs.setter
-    def ref_cs(self, value: str):
+    def ref_cs(self, value: str) -> None:
         if settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()

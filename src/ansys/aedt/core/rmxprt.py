@@ -273,7 +273,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return str(self.design_solutions._design_type)
 
     @design_type.setter
-    def design_type(self, value):
+    def design_type(self, value) -> None:
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()

@@ -577,7 +577,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__data
 
     @data.setter
-    def data(self, value: ExtensionCommonData):
+    def data(self, value: ExtensionCommonData) -> None:
         if not isinstance(value, ExtensionCommonData):
             raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
         self.__data = value

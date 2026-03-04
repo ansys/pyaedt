@@ -1219,7 +1219,7 @@ class Point(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, point_name: str):
+    def name(self, point_name: str) -> None:
         if point_name not in self._primitives.points.keys:
             if point_name != self._name:
                 name_property = []
@@ -1322,7 +1322,7 @@ class Point(PyAedtBase):
             return self._point_coordinate_system
 
     @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
+    def coordinate_system(self, new_coordinate_system) -> None:
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
@@ -1415,7 +1415,7 @@ class Plane(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, plane_name: str):
+    def name(self, plane_name: str) -> None:
         if plane_name not in self._primitives.planes.keys():
             plane_old_name = self._name
             if plane_name != self._name:

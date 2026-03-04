@@ -332,7 +332,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return self._type
 
     @type.setter
-    def type(self, value):
+    def type(self, value) -> None:
         self._type = value
 
     @property
@@ -343,7 +343,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if getattr(self, "child_object", None):
             try:
                 self.properties["Name"] = value

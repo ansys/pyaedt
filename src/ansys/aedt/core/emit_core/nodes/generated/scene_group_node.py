@@ -79,7 +79,7 @@ class SceneGroupNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool):
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
@@ -92,7 +92,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value: str):
+    def position(self, value: str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
@@ -105,7 +105,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value: str):
+    def relative_position(self, value: str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -123,7 +123,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption):
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
@@ -138,7 +138,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value: str):
+    def orientation(self, value: str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
@@ -153,7 +153,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value: str):
+    def relative_orientation(self, value: str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -168,7 +168,7 @@ class SceneGroupNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool):
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
@@ -181,7 +181,7 @@ class SceneGroupNode(EmitNode):
         return val
 
     @box_color.setter
-    def box_color(self, value: str):
+    def box_color(self, value: str) -> None:
         self._set_property("Box Color", f"{value}")
 
     @property
@@ -191,5 +191,5 @@ class SceneGroupNode(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

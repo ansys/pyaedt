@@ -209,7 +209,7 @@ class SpiSim(PyAedtBase):
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, val):
+    def working_directory(self, val) -> None:
         self._working_directory = val
 
     def _copy_to_relative_path(self, file_name: str):

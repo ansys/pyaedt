@@ -284,7 +284,7 @@ class AedtLogger:
             return False
 
     @_log_on_desktop.setter
-    def _log_on_desktop(self, val):
+    def _log_on_desktop(self, val) -> None:
         settings.enable_desktop_logs = val
 
     @property
@@ -292,7 +292,7 @@ class AedtLogger:
         return settings.enable_file_logs
 
     @_log_on_file.setter
-    def _log_on_file(self, val):
+    def _log_on_file(self, val) -> None:
         settings.enable_file_logs = val
 
     @property
@@ -300,7 +300,7 @@ class AedtLogger:
         return settings.enable_screen_logs
 
     @_log_on_screen.setter
-    def _log_on_screen(self, val):
+    def _log_on_screen(self, val) -> None:
         settings.enable_screen_logs = val
 
     @property
@@ -742,7 +742,7 @@ class AedtLogger:
         return None  # pragma: no cover
 
     @oproject.setter
-    def oproject(self, val: object):
+    def oproject(self, val: object) -> None:
         self._oproject = val
         try:
             self._project_name = self._oproject.GetName()
@@ -750,7 +750,7 @@ class AedtLogger:
             self._project_name = ""
 
     @odesign.setter
-    def odesign(self, val: object):
+    def odesign(self, val: object) -> None:
         self._odesign = val
         try:
             self._design_name = self._odesign.GetName()
@@ -827,7 +827,7 @@ class AedtLogger:
         return self._log_on_desktop
 
     @log_on_desktop.setter
-    def log_on_desktop(self, value: bool):
+    def log_on_desktop(self, value: bool) -> None:
         """Enable or disable the log in AEDT."""
         if value:
             self.enable_desktop_log()
@@ -856,7 +856,7 @@ class AedtLogger:
         return self._log_on_screen
 
     @log_on_stdout.setter
-    def log_on_stdout(self, value: bool):
+    def log_on_stdout(self, value: bool) -> None:
         """Enable or disable printing log messages to stdout."""
         if value:
             self.enable_stdout_log()
@@ -894,7 +894,7 @@ class AedtLogger:
         return self._log_on_file
 
     @log_on_file.setter
-    def log_on_file(self, value: bool):
+    def log_on_file(self, value: bool) -> None:
         """Enable or disable printing log messages to a file."""
         if value:
             self.enable_log_on_file()

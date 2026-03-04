@@ -209,65 +209,65 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Z", False)
 
     @padding_types.setter
-    def padding_types(self, values):
+    def padding_types(self, values) -> None:
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, True)
 
     @padding_values.setter
-    def padding_values(self, values):
+    def padding_values(self, values) -> None:
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, False)
 
     @positive_x_padding_type.setter
-    def positive_x_padding_type(self, value):
+    def positive_x_padding_type(self, value) -> None:
         self._set_region_data(value, "+X", True)
 
     @negative_x_padding_type.setter
-    def negative_x_padding_type(self, value):
+    def negative_x_padding_type(self, value) -> None:
         self._set_region_data(value, "-X", True)
 
     @positive_y_padding_type.setter
-    def positive_y_padding_type(self, value):
+    def positive_y_padding_type(self, value) -> None:
         self._set_region_data(value, "+Y", True)
 
     @negative_y_padding_type.setter
-    def negative_y_padding_type(self, value):
+    def negative_y_padding_type(self, value) -> None:
         self._set_region_data(value, "-Y", True)
 
     @positive_z_padding_type.setter
-    def positive_z_padding_type(self, value):
+    def positive_z_padding_type(self, value) -> None:
         self._set_region_data(value, "+Z", True)
 
     @negative_z_padding_type.setter
-    def negative_z_padding_type(self, value):
+    def negative_z_padding_type(self, value) -> None:
         self._set_region_data(value, "-Z", True)
 
     @positive_x_padding.setter
-    def positive_x_padding(self, value):
+    def positive_x_padding(self, value) -> None:
         self._set_region_data(value, "+X", False)
 
     @negative_x_padding.setter
-    def negative_x_padding(self, value):
+    def negative_x_padding(self, value) -> None:
         self._set_region_data(value, "-X", False)
 
     @positive_y_padding.setter
-    def positive_y_padding(self, value):
+    def positive_y_padding(self, value) -> None:
         self._set_region_data(value, "+Y", False)
 
     @negative_y_padding.setter
-    def negative_y_padding(self, value):
+    def negative_y_padding(self, value) -> None:
         self._set_region_data(value, "-Y", False)
 
     @positive_z_padding.setter
-    def positive_z_padding(self, value):
+    def positive_z_padding(self, value) -> None:
         self._set_region_data(value, "+Z", False)
 
     @negative_z_padding.setter
-    def negative_z_padding(self, value):
+    def negative_z_padding(self, value) -> None:
         self._set_region_data(value, "-Z", False)
 
     @property
@@ -301,7 +301,7 @@ class CommonRegion(PyAedtBase):
         return self.object.name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         try:
             if self._app.modeler.objects_by_name[self._name].name != value:
                 self._app.modeler.objects_by_name[self._name].name = value
@@ -433,7 +433,7 @@ class SubRegion(CommonRegion):
             return {}
 
     @parts.setter
-    def parts(self, parts):
+    def parts(self, parts) -> None:
         """Parts included in the subregion.
 
         Parameters
@@ -849,7 +849,7 @@ class MeshRegion(MeshRegionCommon):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         self._app.odesign.ChangeProperty(
             [
                 "NAME:AllTabs",
@@ -958,7 +958,7 @@ class MeshRegion(MeshRegionCommon):
             return [self._assignment]
 
     @assignment.setter
-    def assignment(self, value):
+    def assignment(self, value) -> None:
         arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
         try:
             self._app.omeshmodule.ReassignMeshRegion(self.name, arg)

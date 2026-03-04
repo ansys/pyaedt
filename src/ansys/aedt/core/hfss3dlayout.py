@@ -204,7 +204,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
 
     @ic_mode.setter
-    def ic_mode(self, value: str):
+    def ic_mode(self, value: str) -> None:
         self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
     @pyaedt_function_handler()

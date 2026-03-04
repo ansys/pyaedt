@@ -741,7 +741,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._design_name
 
     @design_name.setter
-    def design_name(self, new_name: str):
+    def design_name(self, new_name: str) -> None:
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
@@ -925,7 +925,7 @@ class Design(AedtObjects, PyAedtBase):
         return None
 
     @solution_type.setter
-    def solution_type(self, soltype: str):
+    def solution_type(self, soltype: str) -> None:
         if self.design_solutions:
             if (
                 self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
@@ -1204,7 +1204,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._odesign
 
     @odesign.setter
-    def odesign(self, des_name):
+    def odesign(self, des_name) -> None:
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
@@ -1250,7 +1250,7 @@ class Design(AedtObjects, PyAedtBase):
         return self._oproject
 
     @oproject.setter
-    def oproject(self, proj_name: str = None):
+    def oproject(self, proj_name: str = None) -> None:
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
