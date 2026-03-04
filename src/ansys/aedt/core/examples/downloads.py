@@ -26,21 +26,16 @@
 
 from pathlib import Path
 import shutil
-import ssl
 import tempfile
-from typing import Callable
-from urllib.parse import quote
-from urllib.parse import urljoin
-from urllib.parse import urlparse
-import urllib.request
 import zipfile
+
+from ansys.tools.common.example_download import download_manager
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
@@ -49,64 +44,54 @@ def delete_downloads() -> None:
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
-def _build_safe_url(github_relative_path: str) -> str:
-    """Safely construct a URL using the user-provided input.
-
-    This function ensures that the user-provided path does not contain an unsupported scheme
-    (like 'file://', 'ftp://', or a full URL), preventing the risk of overriding the base
-    or accessing unintended resources.
+def _download_file(
+    github_relative_path: str,
+    local_path: str | Path = None,
+    strip_prefix: str | Path = None,
+    force: bool = False,
+) -> Path:
+    """Download a file from a URL.
 
     Parameters
     ----------
     github_relative_path : str
         A relative path provided by the user, such as ``"pyaedt/sbr/Cassegrain.aedt"``.
+    local_path : str | Path, optional
+        The local path where the file should be saved.
+        If not provided, the file will be saved in the default examples path.
+    strip_prefix : str | Path, optional
+        A prefix to strip from the relative path when saving the file locally.
+    force : bool, optional
+        If True, force the download even if the file already exists.
 
     Returns
     -------
-    str
-        The safely constructed URL combining the hardcoded base and the user path.
+    Path
+        The path to the downloaded file.
     """
-    # Strip dangerous schemes
-    parsed = urlparse(github_relative_path)
-    if parsed.scheme:  # pragma: no cover
-        raise ValueError(f"User path contains a scheme: {parsed.scheme}")
-
-    url = urljoin(EXAMPLES_DATA_REPO + "/", quote(github_relative_path) + "/")
-
-    return url
-
-
-def _download_file(
-    github_relative_path: str,
-    local_path: str | Path = None,
-    strip_prefix: str | Path = None,
-) -> Path:
-    """Download a file from a URL."""
-    url = _build_safe_url(github_relative_path)
     relative_path: Path = Path(github_relative_path.strip("/"))
-
+    # Strip "pyaedt" prefix for local storage to avoid redundant folder structure
     if strip_prefix:
-        relative_path = relative_path.relative_to(Path(strip_prefix))
+        local_relative_path = relative_path.relative_to(strip_prefix)
 
     if not local_path:  # pragma: no cover
-        local_path = EXAMPLES_PATH / relative_path
+        local_path = EXAMPLES_PATH / local_relative_path
     else:
-        local_path = Path(local_path) / relative_path
-    local_path.parent.mkdir(parents=True, exist_ok=True)
+        local_path = Path(local_path) / local_relative_path
 
     try:
-        if not local_path.exists():
-            ssl_context = ssl.create_default_context()
-            pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with (
-                urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
-                open(local_path, "wb") as out_file,
-            ):
-                shutil.copyfileobj(response, out_file)
+        if not local_path.exists() or force:
+            pyaedt_logger.debug(f"Downloading file from {github_relative_path} to {local_path}")
+            download_manager.download_file(
+                filename=relative_path.name,
+                directory=relative_path.parent.as_posix(),
+                destination=str(local_path.parent),
+                force=force,
+            )
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
     except Exception as e:
-        raise AEDTRuntimeError(f"Failed to download file from URL {url}.") from e
+        raise AEDTRuntimeError(f"Failed to download file from URL {github_relative_path}.") from e
 
     return local_path.resolve()
 
@@ -143,60 +128,71 @@ def _copy_local_example(
     return dst
 
 
+def list_examples_files(folder) -> list:
+    """List all files in a folder of the example-data repository.
+
+    Parameters
+    ----------
+    folder : str
+        The folder in the GitHub repository to list files from, e.g., "pyaedt/sbr/".
+
+    Returns
+    -------
+    list
+        A list of file paths in the specified folder.
+    """
+    import requests
+
+    # Adding a trailing slash to ensure we only match files in the specified folder
+    # Otherwise an input of "project/folder" would also match "project/folder_diff"
+    folder_prefix = folder if folder.endswith("/") else folder + "/"
+    url = "https://api.github.com/repos/ansys/example-data/git/trees/main?recursive=1"
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    tree = response.json()["tree"]
+
+    files = []
+    for item in tree:
+        if item["type"] == "blob" and item["path"].startswith(folder_prefix):
+            files.append(item["path"])
+    return files
+
+
 def _download_folder(
     github_relative_path: str,
     local_path: str | Path = None,
-    filter_func: Callable[[str], bool] | None = None,
     strip_prefix: str | Path = None,
+    force: bool = False,
 ) -> Path:
-    """Download a folder from the example data repository."""
-    import json
-    import re
+    """Download a folder from the example data repository.
 
-    url = _build_safe_url(github_relative_path)
-    relative_path: Path = Path(github_relative_path.strip("/"))
+    Parameters
+    ----------
+    github_relative_path : str
+        The relative path to the folder in the GitHub repository.
+    local_path : str or :class:`pathlib.Path`, optional
+        Path for downloading files. The default is the user's temp folder.
+    strip_prefix : str or :class:`pathlib.Path`, optional
+        Prefix to strip from the downloaded file paths. The default is None.
+    force : bool, optional
+        Force to delete cache and download files again. The default is False.
 
-    if strip_prefix:
-        relative_path = relative_path.relative_to(Path(strip_prefix))
-
+    Returns
+    -------
+    Path
+        Path to the downloaded folder.
+    """
     if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     else:
         local_path = Path(local_path)
 
-    base_local_path = local_path / relative_path
-    base_local_path.mkdir(parents=True, exist_ok=True)
+    files = list_examples_files(github_relative_path)
+    for file in files:
+        _download_file(file, local_path=local_path, strip_prefix=strip_prefix, force=force)
 
-    ssl_context = ssl.create_default_context()
-    with urllib.request.urlopen(url, context=ssl_context) as response:  # nosec
-        data = response.read().decode("utf-8").splitlines()
-
-    try:
-        tree = [i for i in data if '"payload"' in i][0]
-        match = re.search(r'>({"payload".+)</script>', tree)
-        json_data = json.loads(match.group(1))
-        if "tree" in json_data["payload"]:  # pragma: no cover
-            items = json_data["payload"]["tree"]["items"]
-        elif "codeViewTreeRoute" in json_data["payload"]:
-            items = json_data["payload"]["codeViewTreeRoute"]["tree"]["items"]
-        else:  # pragma: no cover
-            raise AEDTRuntimeError(f"Failed to find tree in {github_relative_path}.")
-
-        for item in items:
-            # Skip if filter_func is provided and returns False
-            if filter_func and filter_func(item["path"]):
-                pyaedt_logger.debug(f"Skipping {item['path']} due to filter")
-                continue
-            if item["contentType"] == "directory":
-                pyaedt_logger.debug(f"Calling download folder {item['path']} into {local_path}")
-                _download_folder(item["path"], local_path, filter_func=filter_func, strip_prefix=strip_prefix)
-            else:
-                pyaedt_logger.debug(f"Calling download file {item['path']} into {local_path}")
-                _download_file(item["path"], local_path, strip_prefix=strip_prefix)
-    except Exception as e:
-        raise AEDTRuntimeError(f"Failed to download {relative_path}.") from e
-
-    return base_local_path
+    return local_path
 
 
 ###############################################################################
@@ -818,7 +814,7 @@ def download_twin_builder_data(
 
 
 @pyaedt_function_handler()
-def download_file(source: str, name: str = None, local_path: str | Path = None) -> str:
+def download_file(source: str, name: str = None, local_path: str | Path = None, force: bool = False) -> str:
     """Download a file or files from the online examples repository.
 
     Files are downloaded from the
@@ -837,6 +833,8 @@ def download_file(source: str, name: str = None, local_path: str | Path = None) 
         will be downloaded.
     local_path : str or :class:`pathlib.Path`, optional
         Path where the files will be saved locally. Default is the user temp folder.
+    force : bool, optional
+        If True, force the download even if the file already exists. Default is False.
 
     Returns
     -------
@@ -861,10 +859,10 @@ def download_file(source: str, name: str = None, local_path: str | Path = None) 
         path = _copy_local_example(source, local_path)
     else:
         if not name:  # Download all files in the folder if name is not provided.
-            path = _download_folder(source, local_path, strip_prefix="pyaedt")
+            path = _download_folder(source, local_path, force=force)
         else:
             source = source + "/" + name
-            path = _download_file(source, local_path, strip_prefix="pyaedt")
+            path = _download_file(source, local_path, force=force)
 
     if settings.remote_rpc_session:  # pragma: no cover
         path = Path(settings.remote_rpc_session_temp_folder) / path.name
