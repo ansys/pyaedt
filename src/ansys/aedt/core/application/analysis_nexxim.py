@@ -257,7 +257,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self) -> ModelerNexxim:
+    def modeler(self) -> "ModelerNexxim":
         """Modeler object.
 
         Returns
