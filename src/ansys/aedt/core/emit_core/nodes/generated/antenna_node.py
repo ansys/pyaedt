@@ -25,46 +25,55 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class AntennaNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def add_antenna_passband(self):
+    @min_aedt_version("2025.2")
+    def add_antenna_passband(self) -> EmitNode:
         """Add a New Passband to this Antenna"""
         return self._add_child_node("Antenna Passband")
 
-    def duplicate(self, new_name: str = ""):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def tags(self) -> str:
         """Space delimited list of tags for coupling selections."""
         val = self._get_property("Tags")
         return val
 
     @tags.setter
-    def tags(self, value: str):
+    @min_aedt_version("2025.2")
+    def tags(self, value: str) -> None:
         self._set_property("Tags", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_relative_coordinates(self) -> bool:
         """Show Relative Coordinates.
 
@@ -77,11 +86,13 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    @min_aedt_version("2025.2")
+    def position(self) -> str:
         """Set position of the antenna in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -90,11 +101,13 @@ class AntennaNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value):
+    @min_aedt_version("2025.2")
+    def position(self, value: str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    @min_aedt_version("2025.2")
+    def relative_position(self) -> str:
         """Set position of the antenna relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -103,7 +116,8 @@ class AntennaNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value):
+    @min_aedt_version("2025.2")
+    def relative_position(self, value: str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -111,6 +125,7 @@ class AntennaNode(EmitNode):
         AZ_EL_TWIST = "aetDeg"
 
     @property
+    @min_aedt_version("2025.2")
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode.
 
@@ -121,11 +136,13 @@ class AntennaNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption):
+    @min_aedt_version("2025.2")
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    @min_aedt_version("2025.2")
+    def orientation(self) -> str:
         """Set orientation of the antenna relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -134,11 +151,13 @@ class AntennaNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value):
+    @min_aedt_version("2025.2")
+    def orientation(self, value: str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self) -> str:
         """Set orientation of the antenna relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -147,10 +166,12 @@ class AntennaNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self, value: str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def position_defined(self) -> bool:
         """Toggles on/off the ability to define a position for the antenna.
 
@@ -160,10 +181,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @position_defined.setter
-    def position_defined(self, value: bool):
+    @min_aedt_version("2025.2")
+    def position_defined(self, value: bool) -> None:
         self._set_property("Position Defined", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def antenna_temperature(self) -> float:
         """Antenna noise temperature.
 
@@ -173,7 +196,8 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @antenna_temperature.setter
-    def antenna_temperature(self, value: float):
+    @min_aedt_version("2025.2")
+    def antenna_temperature(self, value: float) -> None:
         self._set_property("Antenna Temperature", f"{value}")
 
     class AntennaTypeOption(Enum):
@@ -191,6 +215,7 @@ class AntennaNode(EmitNode):
         PYRAMIDAL_HORN = "PyramidalHorn"
 
     @property
+    @min_aedt_version("2025.2")
     def antenna_type(self) -> AntennaTypeOption:
         """Defines the type of antenna."""
         val = self._get_property("Antenna Type")
@@ -198,20 +223,24 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_type.setter
-    def antenna_type(self, value: AntennaTypeOption):
+    @min_aedt_version("2025.2")
+    def antenna_type(self, value: AntennaTypeOption) -> None:
         self._set_property("Antenna Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def antenna_file(self) -> str:
         """Antenna File."""
         val = self._get_property("Antenna File")
         return val
 
     @antenna_file.setter
-    def antenna_file(self, value: str):
+    @min_aedt_version("2025.2")
+    def antenna_file(self, value: str) -> None:
         self._set_property("Antenna File", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def antenna_metadata_file(self) -> str:
         """Name of HFSS exported file with antenna metadata.
 
@@ -221,10 +250,12 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_metadata_file.setter
-    def antenna_metadata_file(self, value: str):
+    @min_aedt_version("2025.2")
+    def antenna_metadata_file(self, value: str) -> None:
         self._set_property("Antenna Metadata File", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def project_name(self) -> str:
         """Name of imported HFSS Antenna project.
 
@@ -234,10 +265,12 @@ class AntennaNode(EmitNode):
         return val
 
     @project_name.setter
-    def project_name(self, value: str):
+    @min_aedt_version("2025.2")
+    def project_name(self, value: str) -> None:
         self._set_property("Project Name", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def peak_gain(self) -> float:
         """Set peak gain of antenna (dBi).
 
@@ -247,10 +280,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @peak_gain.setter
-    def peak_gain(self, value: float):
+    @min_aedt_version("2025.2")
+    def peak_gain(self, value: float) -> None:
         self._set_property("Peak Gain", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def vertical_beamwidth(self) -> float:
         """Set half-power beamwidth in local-coordinates elevation plane.
 
@@ -260,10 +295,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @vertical_beamwidth.setter
-    def vertical_beamwidth(self, value: float):
+    @min_aedt_version("2025.2")
+    def vertical_beamwidth(self, value: float) -> None:
         self._set_property("Vertical Beamwidth", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def horizontal_beamwidth(self) -> float:
         """Set half-power beamwidth in local-coordinates azimuth plane.
 
@@ -273,10 +310,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @horizontal_beamwidth.setter
-    def horizontal_beamwidth(self, value: float):
+    @min_aedt_version("2025.2")
+    def horizontal_beamwidth(self, value: float) -> None:
         self._set_property("Horizontal Beamwidth", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def extra_sidelobe(self) -> bool:
         """Toggle (on/off) option to define two sidelobe levels.
 
@@ -286,10 +325,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @extra_sidelobe.setter
-    def extra_sidelobe(self, value: bool):
+    @min_aedt_version("2025.2")
+    def extra_sidelobe(self, value: bool) -> None:
         self._set_property("Extra Sidelobe", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def first_sidelobe_level(self) -> float:
         """First Sidelobe Level.
 
@@ -302,10 +343,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_level.setter
-    def first_sidelobe_level(self, value: float):
+    @min_aedt_version("2025.2")
+    def first_sidelobe_level(self, value: float) -> None:
         self._set_property("First Sidelobe Level", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def first_sidelobe_vert_bw(self) -> float:
         """Set beamwidth of first sidelobe beam in theta direction.
 
@@ -315,10 +358,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_vert_bw.setter
-    def first_sidelobe_vert_bw(self, value: float):
+    @min_aedt_version("2025.2")
+    def first_sidelobe_vert_bw(self, value: float) -> None:
         self._set_property("First Sidelobe Vert. BW", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def first_sidelobe_hor_bw(self) -> float:
         """Set beamwidth of first sidelobe beam in phi direction.
 
@@ -328,10 +373,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @first_sidelobe_hor_bw.setter
-    def first_sidelobe_hor_bw(self, value: float):
+    @min_aedt_version("2025.2")
+    def first_sidelobe_hor_bw(self, value: float) -> None:
         self._set_property("First Sidelobe Hor. BW", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def outerbacklobe_level(self) -> float:
         """Outer/Backlobe Level.
 
@@ -344,10 +391,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @outerbacklobe_level.setter
-    def outerbacklobe_level(self, value: float):
+    @min_aedt_version("2025.2")
+    def outerbacklobe_level(self, value: float) -> None:
         self._set_property("Outer/Backlobe Level", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def resonant_frequency(self) -> float:
         """Resonant Frequency.
 
@@ -361,11 +410,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @resonant_frequency.setter
-    def resonant_frequency(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def resonant_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Resonant Frequency", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def mouth_width(self) -> float:
         """Set mouth width (along local y-axis) of the horn antenna.
 
@@ -376,11 +427,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @mouth_width.setter
-    def mouth_width(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def mouth_width(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Mouth Width", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def mouth_height(self) -> float:
         """Set mouth height (along local x-axis) of the horn antenna.
 
@@ -391,11 +444,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @mouth_height.setter
-    def mouth_height(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def mouth_height(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Mouth Height", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def waveguide_width(self) -> float:
         """Waveguide Width.
 
@@ -409,11 +464,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @waveguide_width.setter
-    def waveguide_width(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def waveguide_width(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Waveguide Width", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def width_flare_half_angle(self) -> float:
         """Width Flare Half-angle.
 
@@ -426,10 +483,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @width_flare_half_angle.setter
-    def width_flare_half_angle(self, value: float):
+    @min_aedt_version("2025.2")
+    def width_flare_half_angle(self, value: float) -> None:
         self._set_property("Width Flare Half-angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def height_flare_half_angle(self) -> float:
         """Height Flare Half-angle.
 
@@ -442,10 +501,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @height_flare_half_angle.setter
-    def height_flare_half_angle(self, value: float):
+    @min_aedt_version("2025.2")
+    def height_flare_half_angle(self, value: float) -> None:
         self._set_property("Height Flare Half-angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def elevation_angle(self) -> float:
         """Beam steering angle in elevation.
 
@@ -455,10 +516,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @elevation_angle.setter
-    def elevation_angle(self, value: float):
+    @min_aedt_version("2025.2")
+    def elevation_angle(self, value: float) -> None:
         self._set_property("Elevation Angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def azimuth_angle(self) -> float:
         """Beam steering angle in azimuth.
 
@@ -468,7 +531,8 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value: float):
+    @min_aedt_version("2025.2")
+    def azimuth_angle(self, value: float) -> None:
         self._set_property("Azimuth Angle", f"{value}")
 
     class TaperingFunctionOption(Enum):
@@ -478,6 +542,7 @@ class AntennaNode(EmitNode):
         TRIANGULAR = "Triangular"
 
     @property
+    @min_aedt_version("2025.2")
     def tapering_function(self) -> TaperingFunctionOption:
         """Tapering function."""
         val = self._get_property("Tapering Function")
@@ -485,10 +550,12 @@ class AntennaNode(EmitNode):
         return val
 
     @tapering_function.setter
-    def tapering_function(self, value: TaperingFunctionOption):
+    @min_aedt_version("2025.2")
+    def tapering_function(self, value: TaperingFunctionOption) -> None:
         self._set_property("Tapering Function", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_taper_distance_x(self) -> float:
         """Maximum distance for tapering calculation in x-direction.
 
@@ -499,11 +566,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @max_taper_distance_x.setter
-    def max_taper_distance_x(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def max_taper_distance_x(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Max Taper Distance X", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_taper_distance_y(self) -> float:
         """Maximum distance for tapering calculation in y-direction.
 
@@ -514,11 +583,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @max_taper_distance_y.setter
-    def max_taper_distance_y(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def max_taper_distance_y(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Max Taper Distance Y", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def cosine_power(self) -> float:
         """Power for cosine tapering.
 
@@ -529,11 +600,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @cosine_power.setter
-    def cosine_power(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def cosine_power(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Cosine Power", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def edge_taper(self) -> float:
         """Edge taper level in dB.
 
@@ -543,10 +616,12 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @edge_taper.setter
-    def edge_taper(self, value: float):
+    @min_aedt_version("2025.2")
+    def edge_taper(self, value: float) -> None:
         self._set_property("Edge Taper", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def vswr(self) -> float:
         """VSWR.
 
@@ -559,7 +634,8 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @vswr.setter
-    def vswr(self, value: float):
+    @min_aedt_version("2025.2")
+    def vswr(self, value: float) -> None:
         self._set_property("VSWR", f"{value}")
 
     class AntennaPolarizationOption(Enum):
@@ -569,6 +645,7 @@ class AntennaNode(EmitNode):
         LHCP = "LHCP"
 
     @property
+    @min_aedt_version("2025.2")
     def antenna_polarization(self) -> AntennaPolarizationOption:
         """Choose local-coordinates polarization along boresight."""
         val = self._get_property("Antenna Polarization")
@@ -576,10 +653,12 @@ class AntennaNode(EmitNode):
         return val
 
     @antenna_polarization.setter
-    def antenna_polarization(self, value: AntennaPolarizationOption):
+    @min_aedt_version("2025.2")
+    def antenna_polarization(self, value: AntennaPolarizationOption) -> None:
         self._set_property("Antenna Polarization", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_axes(self) -> bool:
         """Toggle (on/off) display of antenna coordinate axes in 3-D window.
 
@@ -589,10 +668,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_icon(self) -> bool:
         """Toggle (on/off) display of antenna marker (cone) in 3-D window.
 
@@ -602,10 +683,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_icon.setter
-    def show_icon(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_icon(self, value: bool) -> None:
         self._set_property("Show Icon", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def size(self) -> float:
         """Adjust relative size of antenna marker (cone) in 3-D window.
 
@@ -615,11 +698,13 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @size.setter
-    def size(self, value: float):
+    @min_aedt_version("2025.2")
+    def size(self, value: float) -> None:
         self._set_property("Size", f"{value}")
 
     @property
-    def color(self):
+    @min_aedt_version("2025.2")
+    def color(self) -> str:
         """Set color of antenna marker (cone) in 3-D window.
 
         Color should be in RGB form: #RRGGBB.
@@ -628,22 +713,26 @@ class AntennaNode(EmitNode):
         return val
 
     @color.setter
-    def color(self, value):
+    @min_aedt_version("2025.2")
+    def color(self, value: str) -> None:
         self._set_property("Color", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def el_sample_interval(self) -> float:
         """Space between elevation-angle samples of pattern."""
         val = self._get_property("El Sample Interval")
         return float(val)
 
     @property
+    @min_aedt_version("2025.2")
     def az_sample_interval(self) -> float:
         """Space between azimuth-angle samples of pattern."""
         val = self._get_property("Az Sample Interval")
         return float(val)
 
     @property
+    @min_aedt_version("2025.2")
     def has_frequency_domain(self) -> bool:
         """False if antenna can be used at any frequency.
 
@@ -653,12 +742,14 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @property
-    def frequency_domain(self):
+    @min_aedt_version("2025.2")
+    def frequency_domain(self) -> str:
         """Frequency sample(s) defining antenna."""
         val = self._get_property("Frequency Domain")
         return val
 
     @property
+    @min_aedt_version("2025.2")
     def waveguide_height(self) -> float:
         """Waveguide Height.
 
@@ -670,6 +761,7 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @property
+    @min_aedt_version("2025.2")
     def waveguide_cutoff_frequency(self) -> float:
         """Implied lowest operating frequency of pyramidal horn antenna."""
         val = self._get_property("Waveguide Cutoff Frequency")
@@ -677,16 +769,19 @@ class AntennaNode(EmitNode):
         return float(val)
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_composite_passband(self) -> bool:
         """Show plot instead of 3D window.
 
@@ -696,10 +791,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @show_composite_passband.setter
-    def show_composite_passband(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_composite_passband(self, value: bool) -> None:
         self._set_property("Show Composite Passband", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def use_phase_center(self) -> bool:
         """Use the phase center defined in the HFSS design.
 
@@ -709,10 +806,12 @@ class AntennaNode(EmitNode):
         return val == "true"
 
     @use_phase_center.setter
-    def use_phase_center(self, value: bool):
+    @min_aedt_version("2025.2")
+    def use_phase_center(self, value: bool) -> None:
         self._set_property("Use Phase Center", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def coordinate_systems(self) -> str:
         """Coordinate Systems.
 
@@ -722,7 +821,8 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterposition(self):
+    @min_aedt_version("2025.2")
+    def phasecenterposition(self) -> str:
         """Set position of the antennas linked coordinate system.
 
         Value should be x/y/z, delimited by spaces.
@@ -731,11 +831,11 @@ class AntennaNode(EmitNode):
         return val
 
     @property
-    def phasecenterorientation(self):
+    @min_aedt_version("2025.2")
+    def phasecenterorientation(self) -> str:
         """Set orientation of the antennas linked coordinate system.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
-
