@@ -29,6 +29,8 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 """
 
+from __future__ import annotations
+
 import os.path
 from pathlib import Path
 import re
