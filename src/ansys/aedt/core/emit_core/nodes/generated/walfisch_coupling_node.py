@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class WalfischCouplingNode(EmitNode):
@@ -33,24 +34,29 @@ class WalfischCouplingNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enable/Disable coupling.
 
@@ -60,26 +66,31 @@ class WalfischCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def base_antenna(self) -> EmitNode:
         """First antenna of the pair to apply the coupling values to."""
         val = self._get_property("Base Antenna")
         return val
 
     @base_antenna.setter
+    @min_aedt_version("2025.2")
     def base_antenna(self, value: EmitNode) -> None:
         self._set_property("Base Antenna", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def mobile_antenna(self) -> EmitNode:
         """Second antenna of the pair to apply the coupling values to."""
         val = self._get_property("Mobile Antenna")
         return val
 
     @mobile_antenna.setter
+    @min_aedt_version("2025.2")
     def mobile_antenna(self, value: EmitNode) -> None:
         self._set_property("Mobile Antenna", f"{value}")
 
@@ -88,6 +99,7 @@ class WalfischCouplingNode(EmitNode):
         NLOS = "WalfischNLOS"
 
     @property
+    @min_aedt_version("2025.2")
     def path_loss_type(self) -> PathLossTypeOption:
         """Specify LOS vs NLOS for the Walfisch-Ikegami model."""
         val = self._get_property("Path Loss Type")
@@ -95,6 +107,7 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @path_loss_type.setter
+    @min_aedt_version("2025.2")
     def path_loss_type(self, value: PathLossTypeOption) -> None:
         self._set_property("Path Loss Type", f"{value.value}")
 
@@ -103,6 +116,7 @@ class WalfischCouplingNode(EmitNode):
         SMALLMEDIUM_CITY_OR_SUBURBAN = "SmallUrbanOrSuburban"
 
     @property
+    @min_aedt_version("2025.2")
     def environment(self) -> EnvironmentOption:
         """Specify the environment type for the Walfisch model."""
         val = self._get_property("Environment")
@@ -114,6 +128,7 @@ class WalfischCouplingNode(EmitNode):
         self._set_property("Environment", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def roof_height(self) -> float:
         """The height of the building where the antenna is located.
 
@@ -124,11 +139,13 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @roof_height.setter
+    @min_aedt_version("2025.2")
     def roof_height(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Roof Height", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def distance_between_buildings(self) -> float:
         """The distance between two buildings.
 
@@ -139,11 +156,13 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @distance_between_buildings.setter
+    @min_aedt_version("2025.2")
     def distance_between_buildings(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Distance Between Buildings", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def street_width(self) -> float:
         """Width of the street.
 
@@ -154,11 +173,13 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @street_width.setter
+    @min_aedt_version("2025.2")
     def street_width(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Street Width", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def incidence_angle(self) -> float:
         """Angle between the street orientation and direction of incidence.
 
@@ -168,10 +189,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @incidence_angle.setter
+    @min_aedt_version("2025.2")
     def incidence_angle(self, value: float) -> None:
         self._set_property("Incidence Angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def custom_fading_margin(self) -> float:
         """Custom Fading Margin.
 
@@ -184,10 +207,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
+    @min_aedt_version("2025.2")
     def custom_fading_margin(self, value: float) -> None:
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def polarization_mismatch(self) -> float:
         """Polarization Mismatch.
 
@@ -200,10 +225,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
+    @min_aedt_version("2025.2")
     def polarization_mismatch(self, value: float) -> None:
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def pointing_error_loss(self) -> float:
         """Pointing Error Loss.
 
@@ -216,6 +243,7 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
+    @min_aedt_version("2025.2")
     def pointing_error_loss(self, value: float) -> None:
         self._set_property("Pointing Error Loss", f"{value}")
 
@@ -226,6 +254,7 @@ class WalfischCouplingNode(EmitNode):
         FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
+    @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
         """Specify the type of fading to include."""
         val = self._get_property("Fading Type")
@@ -233,10 +262,12 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @fading_type.setter
+    @min_aedt_version("2025.2")
     def fading_type(self, value: FadingTypeOption) -> None:
         self._set_property("Fading Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def fading_availability(self) -> float:
         """Fading Availability.
 
@@ -249,10 +280,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @fading_availability.setter
+    @min_aedt_version("2025.2")
     def fading_availability(self, value: float) -> None:
         self._set_property("Fading Availability", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def std_deviation(self) -> float:
         """Standard deviation modeling the random amount of shadowing loss.
 
@@ -262,10 +295,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @std_deviation.setter
+    @min_aedt_version("2025.2")
     def std_deviation(self, value: float) -> None:
         self._set_property("Std Deviation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_rain_attenuation(self) -> bool:
         """Adds a margin for rain attenuation to the computed coupling.
 
@@ -275,10 +310,12 @@ class WalfischCouplingNode(EmitNode):
         return val == "true"
 
     @include_rain_attenuation.setter
+    @min_aedt_version("2025.2")
     def include_rain_attenuation(self, value: bool) -> None:
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def rain_availability(self) -> float:
         """Rain Availability.
 
@@ -291,10 +328,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @rain_availability.setter
+    @min_aedt_version("2025.2")
     def rain_availability(self, value: float) -> None:
         self._set_property("Rain Availability", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def rain_rate(self) -> float:
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
@@ -304,10 +343,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @rain_rate.setter
+    @min_aedt_version("2025.2")
     def rain_rate(self, value: float) -> None:
         self._set_property("Rain Rate", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def polarization_tilt_angle(self) -> float:
         """Polarization Tilt Angle.
 
@@ -320,10 +361,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
+    @min_aedt_version("2025.2")
     def polarization_tilt_angle(self, value: float) -> None:
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_atmospheric_absorption(self) -> bool:
         """Include Atmospheric Absorption.
 
@@ -336,10 +379,12 @@ class WalfischCouplingNode(EmitNode):
         return val == "true"
 
     @include_atmospheric_absorption.setter
+    @min_aedt_version("2025.2")
     def include_atmospheric_absorption(self, value: bool) -> None:
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def temperature(self) -> float:
         """Air temperature in degrees Celsius.
 
@@ -349,10 +394,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @temperature.setter
+    @min_aedt_version("2025.2")
     def temperature(self, value: float) -> None:
         self._set_property("Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def total_air_pressure(self) -> float:
         """Total air pressure.
 
@@ -362,10 +409,12 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
+    @min_aedt_version("2025.2")
     def total_air_pressure(self, value: float) -> None:
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def water_vapor_concentration(self) -> float:
         """Water vapor concentration.
 
@@ -375,5 +424,6 @@ class WalfischCouplingNode(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
+    @min_aedt_version("2025.2")
     def water_vapor_concentration(self, value: float) -> None:
         self._set_property("Water Vapor Concentration", f"{value}")

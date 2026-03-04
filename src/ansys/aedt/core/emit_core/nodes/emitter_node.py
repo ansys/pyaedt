@@ -31,6 +31,7 @@ from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.emit_core.nodes.generated import BandFolder
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmitterNode(EmitNode):
@@ -69,18 +70,22 @@ class EmitterNode(EmitNode):
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node"""
         return "EmitterNode"
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str) -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
+    @min_aedt_version("2025.2")
     def get_radio(self) -> RadioNode:
         """Get the radio associated with this Emitter.
 
@@ -95,6 +100,7 @@ class EmitterNode(EmitNode):
         """
         return self._radio_node
 
+    @min_aedt_version("2025.2")
     def get_antenna(self) -> AntennaNode:
         """Get the antenna associated with this Emitter.
 
@@ -110,6 +116,7 @@ class EmitterNode(EmitNode):
         return self._antenna_node
 
     @property
+    @min_aedt_version("2025.2")
     def children(self) -> list[EmitNode]:
         """Overridden to return the Waveforms
 
@@ -124,6 +131,7 @@ class EmitterNode(EmitNode):
         """
         return self.get_waveforms()
 
+    @min_aedt_version("2025.2")
     def get_waveforms(self) -> list[Waveform]:
         """Get the waveform nodes for the Emitter.
 
