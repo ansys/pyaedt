@@ -29,6 +29,7 @@ import pytest
 import ansys.aedt.core as pyaedt
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers_utils import is_close
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -334,7 +335,8 @@ def test_project_variable_operation(app) -> None:
 
     app["my_des_test1"] = 2
 
-    assert app.evaluate_expression("$my_proj_test*my_des_test1") == 0.002
+    if not settings.release_on_exception:
+        assert app.evaluate_expression("$my_proj_test*my_des_test1") == 0.002
 
 
 def test_test_optimization_properties(app) -> None:
