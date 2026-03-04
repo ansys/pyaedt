@@ -58,7 +58,7 @@ class CsProps(dict):
             if not res:
                 self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, cs_object, props):
+    def __init__(self, cs_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -83,7 +83,7 @@ class ListsProps(dict):
             if not res:
                 self._pyaedt_lists._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, cs_object, props):
+    def __init__(self, cs_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -111,7 +111,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, name: str | None = None):
+    def __init__(self, modeler, name: str | None = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
@@ -411,7 +411,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: str | None = None, face_id=None):
+    def __init__(self, modeler, props=None, name: str | None = None, face_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
         self._props = None
@@ -693,7 +693,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, modeler, props=None, name: str | None = None):
+    def __init__(self, modeler, props=None, name: str | None = None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
         self._props = None
@@ -1268,7 +1268,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: str | None = None, entity_id=None):
+    def __init__(self, modeler, props=None, name: str | None = None, entity_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.entity_id = entity_id
         self._props = None
@@ -1732,7 +1732,7 @@ class Lists(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: str | None = None):
+    def __init__(self, modeler, props=None, name: str | None = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.name = name
@@ -1909,7 +1909,7 @@ class Modeler(PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     # Properties derived from internal parent data

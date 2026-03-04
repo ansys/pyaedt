@@ -49,7 +49,7 @@ class BoundaryProps(dict):
             if not res:
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, boundary, props):
+    def __init__(self, boundary, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -227,7 +227,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True):
+    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
         self.auto_update = False
         self._app = app
         self._name = name

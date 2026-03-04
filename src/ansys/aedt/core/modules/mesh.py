@@ -82,7 +82,7 @@ class MeshProps(dict):
             if not res:
                 self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, mesh_object, props):
+    def __init__(self, mesh_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -111,7 +111,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, mesh, name: str, props, meshoptype):
+    def __init__(self, mesh, name: str, props, meshoptype) -> None:
         self._mesh = mesh
         self._app = self._mesh._app
         self._legacy_props = None
@@ -424,7 +424,7 @@ class Mesh(PyAedtBase):
     >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign

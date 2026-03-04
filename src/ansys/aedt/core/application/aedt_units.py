@@ -28,7 +28,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 class AedtUnits(PyAedtBase):
     """Class containing all default AEDT units. All properties are read-only except length units."""
 
-    def __init__(self, aedt_object=None):
+    def __init__(self, aedt_object=None) -> None:
         self.__app = aedt_object
         self._frequency = self._get_model_unit("Frequency")
         self._length = None

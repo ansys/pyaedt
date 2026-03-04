@@ -63,7 +63,7 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
 class ChokeDesignerExtension(ExtensionHFSSCommon):
     """Extension for Choke Designer in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",

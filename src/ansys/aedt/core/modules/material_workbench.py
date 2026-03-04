@@ -52,7 +52,7 @@ class MaterialWorkbench(PyAedtBase):
         Inherited parent object.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._mat_name_suffix = "_wb"
 

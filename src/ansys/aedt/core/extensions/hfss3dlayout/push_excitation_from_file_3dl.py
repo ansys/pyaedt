@@ -61,7 +61,7 @@ class PushExcitation3DLayoutExtensionData(ExtensionCommonData):
 class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for push excitation from file in HFSS 3D Layout."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
         # Initialize the common extension class
         super().__init__(

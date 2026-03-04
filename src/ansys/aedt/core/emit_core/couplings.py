@@ -48,7 +48,7 @@ class CouplingsEmit(object):
     >>> my_couplings = app.couplings
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     # Properties derived from internal parent data

@@ -90,7 +90,7 @@ class Object3d(PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name: str | None = None):
+    def __init__(self, primitives, name: str | None = None) -> None:
         self._id = None
         self._positions = None
         if name:

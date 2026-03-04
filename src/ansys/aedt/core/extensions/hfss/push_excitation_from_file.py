@@ -60,7 +60,7 @@ class PushExcitationExtensionData(ExtensionCommonData):
 class PushExcitationExtension(ExtensionHFSSCommon):
     """Extension for push excitation from file in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         """Initialize the extension."""
         # Initialize the common extension class
         super().__init__(

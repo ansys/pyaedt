@@ -87,7 +87,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler

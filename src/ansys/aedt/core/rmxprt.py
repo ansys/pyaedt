@@ -39,7 +39,7 @@ class RMXprtModule(PyAedtBase):
 
     component = None
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.oeditor = app.oeditor
 

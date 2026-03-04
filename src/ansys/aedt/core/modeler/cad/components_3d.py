@@ -61,7 +61,7 @@ class UserDefinedComponentParameters(dict):
         except Exception:
             self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __init__(self, component, *args, **kw):
+    def __init__(self, component, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
         self._component = component
 
@@ -77,7 +77,7 @@ class UserDefinedComponentProps(dict):
             if not res:
                 self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, user_defined_components, props):
+    def __init__(self, user_defined_components, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -120,7 +120,7 @@ class UserDefinedComponent(PyAedtBase):
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
-    def __init__(self, primitives, name: str | None = None, props=None, component_type=None):
+    def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
         self._fix_udm_props = [
             "General[Name]",
             "Group",
@@ -924,7 +924,7 @@ class LayoutComponent(PyAedtBase):
 
     """
 
-    def __init__(self, component):
+    def __init__(self, component) -> None:
         self._primitives = component._primitives
         self._name = component.name
         self._component = component

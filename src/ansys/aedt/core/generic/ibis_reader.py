@@ -132,7 +132,7 @@ class Pin(PyAedtBase):
         Circuit in which the pin will be added to.
     """
 
-    def __init__(self, name: str, buffername, app):
+    def __init__(self, name: str, buffername, app) -> None:
         self._name = name
         self._buffer_name = buffername
         self._app = app
@@ -349,7 +349,7 @@ class DifferentialPin(PyAedtBase):
         Circuit to add the pin to.
     """
 
-    def __init__(self, name: str, buffer_name, app):
+    def __init__(self, name: str, buffer_name, app) -> None:
         self._buffer_name = buffer_name
         self._app = app
         self._circuit = app._circuit
@@ -511,7 +511,7 @@ class DifferentialPin(PyAedtBase):
 
 
 class Buffer(PyAedtBase):
-    def __init__(self, ibis_name: str, short_name: str, app):
+    def __init__(self, ibis_name: str, short_name: str, app) -> None:
         self._ibis_name = ibis_name
         self._short_name = short_name
         self._app = app
@@ -704,7 +704,7 @@ class Ibis(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name: str, app):
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name
@@ -766,7 +766,7 @@ class AMI(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name: str, app):
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name
@@ -829,7 +829,7 @@ class IbisReader(PyAedtBase):
         Circuit in which the ibis components will be used.
     """
 
-    def __init__(self, filename, circuit):
+    def __init__(self, filename, circuit) -> None:
         filename = Path(filename)
         self._filename = filename
         self._circuit = circuit
@@ -1286,7 +1286,7 @@ class AMIReader(IbisReader, PyAedtBase):
         Circuit in which the ibis components will be used.
     """
 
-    def __init__(self, filename, circuit):
+    def __init__(self, filename, circuit) -> None:
         self._filename = filename
         self._circuit = circuit
         self._ami_model = None

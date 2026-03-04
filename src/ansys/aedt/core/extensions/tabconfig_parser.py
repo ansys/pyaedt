@@ -168,7 +168,7 @@ class TabConfigParser:
     >>> parser.save()
     """
 
-    def __init__(self, xml_path: str | Path | None = None):
+    def __init__(self, xml_path: str | Path | None = None) -> None:
         self._path: Path | None = None
         self._root: ET.Element = ET.Element("TabConfig")
         if xml_path:

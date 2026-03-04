@@ -48,7 +48,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 

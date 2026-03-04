@@ -40,7 +40,7 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 
 
 class CommonRegion(PyAedtBase):
-    def __init__(self, app, name: str):
+    def __init__(self, app, name: str) -> None:
         self._app = app
         self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
@@ -344,7 +344,7 @@ class CommonRegion(PyAedtBase):
 class Region(CommonRegion):
     """Provides Icepak global mesh region properties and methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         super(Region, self).__init__(app, None)
         try:
             self._update_region_data()
@@ -355,7 +355,7 @@ class Region(CommonRegion):
 class SubRegion(CommonRegion):
     """Provides Icepak mesh subregions properties and methods."""
 
-    def __init__(self, app, parts, name: str | None = None):
+    def __init__(self, app, parts, name: str | None = None) -> None:
         if name is None:
             name = generate_unique_name("SubRegion")
         super(SubRegion, self).__init__(app, name)
@@ -496,7 +496,7 @@ class MeshSettings(PyAedtBase):
         "Enforce2dot5DCutCell",
     ]
 
-    def __init__(self, mesh_class, app):
+    def __init__(self, mesh_class, app) -> None:
         self._app = app
         self._mesh_class = mesh_class
         self._instance_settings = self._common_mesh_settings.copy()
@@ -635,7 +635,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             Dictionary-like object to handle settings.
     """
 
-    def __init__(self, units, app, name: str):
+    def __init__(self, units, app, name: str) -> None:
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
         self._name = name
@@ -736,7 +736,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 class GlobalMeshRegion(MeshRegionCommon):
     """Provides Icepak global mesh properties and methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
             app.modeler.model_units,
@@ -794,7 +794,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 class MeshRegion(MeshRegionCommon):
     """Provides Icepak subregions mesh properties and methods."""
 
-    def __init__(self, app, objects=None, name: str | None = None, **kwargs):
+    def __init__(self, app, objects=None, name: str | None = None, **kwargs) -> None:
         if name is None:
             name = generate_unique_name("MeshRegion")
         super(MeshRegion, self).__init__(
@@ -1002,7 +1002,7 @@ class IcepakMesh(PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
         self._odesign = self._app._odesign

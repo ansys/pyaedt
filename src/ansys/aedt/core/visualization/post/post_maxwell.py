@@ -55,7 +55,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 

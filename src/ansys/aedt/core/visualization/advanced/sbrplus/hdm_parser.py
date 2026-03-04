@@ -42,7 +42,7 @@ class Parser(PyAedtBase):
     Except for the header, the binary content is not parsed until an explicit call to parse_message.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """Initialize parser object with the interpreted header and a pointer to the binary data."""
         self.parser_types = {}
         self.parser_flags = {}
@@ -241,7 +241,7 @@ class Parser(PyAedtBase):
                     __qualname__ = key
                     __name__ = key
 
-                    def __init__(self, dictionary):
+                    def __init__(self, dictionary) -> None:
                         for k, v in dictionary.items():
                             setattr(self, k, v)
 

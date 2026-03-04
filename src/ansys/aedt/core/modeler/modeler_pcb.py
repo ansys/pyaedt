@@ -61,7 +61,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     >>> my_modeler = hfss.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._edb = None
         self.logger.info("Loading Modeler.")

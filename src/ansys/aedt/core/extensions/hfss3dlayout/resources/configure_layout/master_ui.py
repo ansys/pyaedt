@@ -84,7 +84,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     def selected_edb(self, value: str | Path) -> None:
         self.__selected_design = value
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )

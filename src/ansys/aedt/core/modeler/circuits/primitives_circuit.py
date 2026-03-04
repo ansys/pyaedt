@@ -75,7 +75,7 @@ class CircuitComponents(PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
@@ -1611,7 +1611,7 @@ class CircuitComponents(PyAedtBase):
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
-    def __init__(self, name: str, component_manager, file_name: str, component_library):
+    def __init__(self, name: str, component_manager, file_name: str, component_library) -> None:
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name
@@ -1706,7 +1706,7 @@ class ComponentCatalog(PyAedtBase):
                 self._component_manager._logger.warning("Component not found.")
                 return None
 
-    def __init__(self, component_manager):
+    def __init__(self, component_manager) -> None:
         self._component_manager = component_manager
         self._app = self._component_manager._app
         self.components = {}

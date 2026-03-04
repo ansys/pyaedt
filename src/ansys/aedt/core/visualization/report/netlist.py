@@ -52,7 +52,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class CircuitNetlistReport(CommonReport):
     """Provides a reporting class that fits Circuit Netlist reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property

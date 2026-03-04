@@ -186,7 +186,7 @@ class MemoryGB(PyAedtBase):
     _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "MB": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
 
     @pyaedt_function_handler()
-    def __init__(self, memory_value: int | float | str | None = None):
+    def __init__(self, memory_value: int | float | str | None = None) -> None:
         """Initialize the instance."""
         if isinstance(memory_value, (int, float)):
             self._memory_str = f"{memory_value} G"
@@ -399,7 +399,7 @@ class ProfileStepSummary(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, props: dict):
+    def __init__(self, props: dict) -> None:
         self.name = props.get("Name", None)
         if "Cpu time" in props.keys():
             self.cpu_time = string_to_time(props["Cpu time"])
@@ -439,7 +439,7 @@ class ProfileStep(PyAedtBase):
     __timedelta_props = ["elapsed_time", "cpu_time", "real_time"]
 
     @pyaedt_function_handler()
-    def __init__(self, data):  # data is the dict with the profile step data
+    def __init__(self, data) -> None:  # data is the dict with the profile step data
         for key, value in data.properties.items():
             if key in PROFILE_PROP_MAPPING:
                 setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
@@ -672,7 +672,7 @@ class TransientProfile(ProfileStep):
     _SELECT_TRANSIENT = re.compile(r"(\d+(?:\.\d+)?s)")  # Matches a time-step name like "0.01s"
 
     @pyaedt_function_handler()
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         super().__init__(data)
         self._time_step_keys = []
         for sim_key in self.steps:
@@ -731,7 +731,7 @@ class FrequencySweepProfile(ProfileStep):
     _SELECT_FREQ = re.compile(r"Frequency - (.*?) Group")
 
     @pyaedt_function_handler()
-    def __init__(self, data, sweep_name=None):
+    def __init__(self, data, sweep_name=None) -> None:
         super().__init__(data)
         self._create_summary(data.properties)
         if sweep_name:
@@ -860,7 +860,7 @@ class AdaptivePass(ProfileStep):
     """Information for a single adaptive pass."""
 
     @pyaedt_function_handler()
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         super().__init__(data)
         if "Frequency" in data.properties.keys():
             self._adapt_frequency = Quantity(data.properties["Frequency"])
@@ -952,7 +952,7 @@ class SimulationProfile(PyAedtBase):
     )
 
     @pyaedt_function_handler()
-    def __init__(self, group_data: BinaryTreeNode):
+    def __init__(self, group_data: BinaryTreeNode) -> None:
         for name in self._dict_attributes:
             setattr(self, name, dict())
         self._update_props_from_dict(group_data.properties)
@@ -1456,7 +1456,7 @@ class Profiles(Mapping, PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, profile_dict):  # Omit setup_type ? setup_type="HFSS 3D Layout"
+    def __init__(self, profile_dict) -> None:  # Omit setup_type ? setup_type="HFSS 3D Layout"
         self._profile_data = dict()
         if isinstance(profile_dict, dict):
             self._profile_dict = profile_dict

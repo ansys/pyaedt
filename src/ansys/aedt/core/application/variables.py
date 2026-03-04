@@ -727,7 +727,7 @@ class VariableManager(PyAedtBase):
         """Logger."""
         return self._app.logger
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         # Global Desktop Environment
         self._app = app
         self.__independent_design_variables = {}

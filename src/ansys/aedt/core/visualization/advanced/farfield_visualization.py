@@ -1601,7 +1601,7 @@ class UpdateBeamForm(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, ff, farfield_quantity: str = "RealizedGain", quantity_format: str = "abs"):
+    def __init__(self, ff, farfield_quantity: str = "RealizedGain", quantity_format: str = "abs") -> None:
         self.output = ff._mesh
         self.__phi = 0
         self.__theta = 0

@@ -111,7 +111,7 @@ class SweepHFSS(SweepCommon):
 
     """
 
-    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None):
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -637,7 +637,7 @@ class SweepMatrix(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None):
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -869,7 +869,7 @@ class SweepMaxwellEC(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, sweep_type: str = "LinearStep", props=None):
+    def __init__(self, setup, sweep_type: str = "LinearStep", props=None) -> None:
         self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -1016,7 +1016,7 @@ class SetupProps(dict):
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, setup, props):
+    def __init__(self, setup, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():

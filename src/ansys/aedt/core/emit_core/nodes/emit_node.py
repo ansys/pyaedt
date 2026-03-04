@@ -44,7 +44,7 @@ T = TypeVar("T", bound="EmitNode")
 class EmitNode:
     """Emit node class for managing and interacting with EMIT nodes."""
 
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         self._emit_obj = emit_obj
         self._oDesign = emit_obj.odesign
         self._oRevisionData = self._oDesign.GetModule("EmitCom")

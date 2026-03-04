@@ -134,7 +134,7 @@ class EmitComponents(PyAedtBase):
     def __iter__(self):
         return self.components.keys().__iter__()
 
-    def __init__(self, parent, modeler):
+    def __init__(self, parent, modeler) -> None:
         self._parent = parent
         self.modeler = modeler
         self._currentId = 0
@@ -386,7 +386,7 @@ class EmitComponent(PyAedtBase):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         self.name = component_name
         """Name of the component."""
 
@@ -625,7 +625,7 @@ class EmitComponent(PyAedtBase):
 class EmitAntennaComponent(EmitComponent):
     """An Antenna component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitAntennaComponent, self).__init__(components, component_name)
 
     def get_pattern_filename(self) -> str:
@@ -711,7 +711,7 @@ class EmitAntennaComponent(EmitComponent):
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def is_emitter(self) -> bool:
@@ -996,7 +996,7 @@ class EmitRadioComponent(EmitComponent):
 
 
 class EmitComponentPropNode(PyAedtBase):
-    def __init__(self, editor, design, parent_component, node_name):
+    def __init__(self, editor, design, parent_component, node_name) -> None:
         self.oeditor = editor
         """Oeditor module"""
 

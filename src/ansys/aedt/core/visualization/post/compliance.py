@@ -62,7 +62,7 @@ default_keys = [
 
 
 class CommonTemplate(PyAedtBase):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         self._name = report["name"]
         self.report_type = report.get("type", "frequency")
         self.config_file = report.get("config", "")
@@ -200,7 +200,7 @@ class CommonTemplate(PyAedtBase):
 
 
 class ReportTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.group_plots = report.get("group_plots", False)
 
@@ -220,7 +220,7 @@ class ReportTemplate(CommonTemplate):
 
 
 class ReportParametersTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self._parameter_name = report.get("parameter_name", "")
         self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
@@ -241,7 +241,7 @@ class ReportParametersTemplate(CommonTemplate):
 
 
 class ParametersTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
         self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
@@ -264,7 +264,7 @@ class ParametersTemplate(CommonTemplate):
 class VirtualComplianceGenerator(PyAedtBase):
     """Class to generate a Virtual Compliance configuration."""
 
-    def __init__(self, compliance_name, project_name, specification_folder=None):
+    def __init__(self, compliance_name, project_name, specification_folder=None) -> None:
         self.config = {
             "general": {
                 "name": compliance_name,
@@ -504,7 +504,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
 
 class VirtualComplianceChaptersData(PyAedtBase):
-    def __init__(self, title):
+    def __init__(self, title) -> None:
         self.title = title
         self.content = []
 
@@ -589,7 +589,7 @@ class VirtualCompliance(PyAedtBase):
 
     """
 
-    def __init__(self, desktop, template):
+    def __init__(self, desktop, template) -> None:
         self._add_project_info = True
         self._add_specs_info = False
         self._specs_folder = None

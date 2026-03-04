@@ -37,7 +37,7 @@ from ansys.aedt.core.visualization.report.standard import Standard
 class AntennaParameters(Standard):
     """Provides a reporting class that fits antenna parameter reports in an HFSS plot."""
 
-    def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None):
+    def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None) -> None:
         Standard.__init__(self, app, report_category, setup_name, expressions)
         self.far_field_sphere = far_field_sphere
 
@@ -72,7 +72,7 @@ class Fields(CommonReport):
     """Handler to manage fields."""
 
     @pyaedt_function_handler()
-    def __init__(self, post_app, report_category, setup_name, expressions=None):
+    def __init__(self, post_app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, post_app, report_category, setup_name, expressions)
         self.domain = "Sweep"
         self.primary_sweep = "Distance"
@@ -105,7 +105,7 @@ class Fields(CommonReport):
 class NearField(CommonReport):
     """Provides for managing near field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Sweep"
 
@@ -132,7 +132,7 @@ class NearField(CommonReport):
 class FarField(CommonReport):
     """Provides for managing far field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None, **variations):
+    def __init__(self, app, report_category, setup_name, expressions=None, **variations) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         variation_defaults = {"Phi": ["All"], "Theta": ["All"], "Freq": ["Nominal"]}
         self.domain = "Sweep"
@@ -178,6 +178,6 @@ class FarField(CommonReport):
 class Emission(CommonReport):
     """Provides for managing emission reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Sweep"

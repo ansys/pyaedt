@@ -68,7 +68,7 @@ class Coil(PyAedtBase):
         Whether the coil is vertical or flat. The default is ``True``.
     """
 
-    def __init__(self, app, is_vertical: bool = True):
+    def __init__(self, app, is_vertical: bool = True) -> None:
         self._app = app
         self._values = {}
         self.is_vertical = is_vertical

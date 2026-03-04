@@ -58,7 +58,7 @@ class FRTMData(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, input_file: str | Path):
+    def __init__(self, input_file: str | Path) -> None:
         input_file = Path(input_file)
 
         if not input_file.is_file():
@@ -872,7 +872,7 @@ class FRTMPlotter(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, frtm_data):
+    def __init__(self, frtm_data) -> None:
         if not isinstance(frtm_data, dict):
             frtm_data = {0: frtm_data}
 

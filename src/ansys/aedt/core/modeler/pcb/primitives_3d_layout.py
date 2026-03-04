@@ -93,7 +93,7 @@ class Primitives3DLayout(PyAedtBase):
             return partname
         return None
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._padstacks = {}
         self._components3d = {}

@@ -47,7 +47,7 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj):
+    def __init__(self, emit_obj) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 

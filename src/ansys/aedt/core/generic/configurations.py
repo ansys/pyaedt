@@ -89,7 +89,7 @@ class ConfigurationsOptions(PyAedtBase):
     User can enable or disable import export components.
     """
 
-    def __init__(self, is_layout: bool = False):
+    def __init__(self, is_layout: bool = False) -> None:
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -711,7 +711,7 @@ class ImportResults(PyAedtBase):
 class Configurations(PyAedtBase):
     """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
@@ -1530,7 +1530,7 @@ class Configurations(PyAedtBase):
 
 
 class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
         self._import_monitor = True
@@ -1571,7 +1571,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
 
 
 class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
         self._export_coordinate_systems = False
@@ -1586,7 +1586,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
 class Configurations3DLayout(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         Configurations.__init__(self, app)
         self.options = ConfigurationOptions3DLayout(app)
 
@@ -1594,7 +1594,7 @@ class Configurations3DLayout(Configurations, PyAedtBase):
 class ConfigurationsIcepak(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied on a new or existing design."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         Configurations.__init__(self, app)
         self.options = ConfigurationOptionsIcepak(app)
 

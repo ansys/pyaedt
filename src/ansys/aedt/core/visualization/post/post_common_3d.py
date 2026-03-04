@@ -83,7 +83,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     >>> post = hfss.post
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._post_osolution = self._app.osolution

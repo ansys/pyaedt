@@ -39,7 +39,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 class CircuitPins(PyAedtBase):
     """Manages circuit component pins."""
 
-    def __init__(self, circuit_comp, pinname, pin_number):
+    def __init__(self, circuit_comp, pinname, pin_number) -> None:
         self._circuit_comp = circuit_comp
         self.name = pinname
         self.pin_number = pin_number
@@ -401,7 +401,7 @@ class ComponentParameters(dict):
         self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
         return False
 
-    def __init__(self, component, tab, *args, **kw):
+    def __init__(self, component, tab, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
         self._component = component
         self._tab = tab
@@ -428,7 +428,7 @@ class ModelParameters(PyAedtBase):
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
             return False
 
-    def __init__(self, component, name: str, props):
+    def __init__(self, component, name: str, props) -> None:
         self.props = props
         self._component = component
         self.name = name
@@ -453,7 +453,7 @@ class CircuitComponent(PyAedtBase):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, tabname: str = "PassedParameterTab", custom_editor=None):
+    def __init__(self, circuit_components, tabname: str = "PassedParameterTab", custom_editor=None) -> None:
         self.__name = ""
 
         self._circuit_components = circuit_components
@@ -1275,7 +1275,7 @@ class CircuitComponent(PyAedtBase):
 class Wire(PyAedtBase):
     """Creates and manipulates a wire."""
 
-    def __init__(self, modeler, composed_name=None):
+    def __init__(self, modeler, composed_name=None) -> None:
         self.composed_name = composed_name
         self._app = modeler._app
         self._modeler = modeler
@@ -1425,7 +1425,7 @@ class Wire(PyAedtBase):
 class Excitations(CircuitComponent):
     """Manages Excitations in Circuit Projects."""
 
-    def __init__(self, circuit_components, name: str):
+    def __init__(self, circuit_components, name: str) -> None:
         self._name = name
         CircuitComponent.__init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None)
 

@@ -31,7 +31,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
-    def __init__(self, emit_instance):
+    def __init__(self, emit_instance) -> None:
         """Initialize the EmitSchematic class.
 
         Parameters

@@ -204,7 +204,7 @@ class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, objid, position=None):
+    def __init__(self, object3d, objid, position=None) -> None:
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -259,7 +259,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
 
     """
 
-    def __init__(self, object3d, edge_id):
+    def __init__(self, object3d, edge_id) -> None:
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
@@ -651,7 +651,7 @@ class FacePrimitive(PyAedtBase):
     def __repr__(self) -> str:
         return str(self.id)
 
-    def __init__(self, object3d, obj_id):
+    def __init__(self, object3d, obj_id) -> None:
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
@@ -1175,7 +1175,7 @@ class Point(PyAedtBase):
     >>> my_point = primitives.points[point.name]
     """
 
-    def __init__(self, primitives, name: str):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._point_coordinate_system = "Global"
         self._color = None
@@ -1369,7 +1369,7 @@ class Plane(PyAedtBase):
     >>> my_plane = primitives.planes[plane.name]
     """
 
-    def __init__(self, primitives, name: str):
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._plane_coordinate_system = "Global"
         self._color = None
@@ -1557,7 +1557,7 @@ class HistoryProps(dict):
         if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
-    def __init__(self, child_object, props):
+    def __init__(self, child_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():

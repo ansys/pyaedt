@@ -49,7 +49,7 @@ except ImportError:
 class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
-    def __init__(self, aedtdata):
+    def __init__(self, aedtdata) -> None:
         start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata

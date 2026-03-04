@@ -1108,7 +1108,7 @@ def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
 class ToolTip:
     """Create a tooltip for a given widget."""
 
-    def __init__(self, widget, text: str = "Widget info"):
+    def __init__(self, widget, text: str = "Widget info") -> None:
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)

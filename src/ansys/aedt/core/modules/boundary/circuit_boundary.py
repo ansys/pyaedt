@@ -33,7 +33,7 @@ from ansys.aedt.core.modules.circuit_templates import SourceKeys
 class Sources(PyAedtBase):
     """Manages sources in Circuit projects."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         self._app = app
         self._name = name
         self._props = self._source_props(name, source_type)
@@ -321,7 +321,7 @@ class Sources(PyAedtBase):
 class PowerSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -482,7 +482,7 @@ class PowerSinSource(Sources):
 class PowerIQSource(Sources):
     """Power IQ Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -732,7 +732,7 @@ class PowerIQSource(Sources):
 class VoltageFrequencyDependentSource(Sources):
     """Voltage Frequency Dependent Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -894,7 +894,7 @@ class VoltageFrequencyDependentSource(Sources):
 class VoltageDCSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -950,7 +950,7 @@ class VoltageDCSource(Sources):
 class VoltageSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -1111,7 +1111,7 @@ class VoltageSinSource(Sources):
 class CurrentSinSource(Sources):
     """Current Sinusoidal Class."""
 
-    def __init__(self, app, name: str, source_type=None):
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property

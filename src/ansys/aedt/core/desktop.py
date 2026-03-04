@@ -98,7 +98,7 @@ class _ServerArgs:
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
-    def __init__(self, mode, host=None, port=None):
+    def __init__(self, mode, host=None, port=None) -> None:
         """Initialize server arguments.
 
         Parameters

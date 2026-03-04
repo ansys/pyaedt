@@ -2362,7 +2362,7 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         """Contains available variations.
 
         Parameters

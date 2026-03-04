@@ -90,7 +90,7 @@ class ColorMapSettings(BaseFolderPlot):
         Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
     """
 
-    def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow"):
+    def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow") -> None:
         self._map_type = None
         self.map_type = map_type
 
@@ -305,7 +305,7 @@ class MinMaxScale(BaseFolderPlot):
         Maximum value of the scale. Default is `1`.
     """
 
-    def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1):
+    def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1) -> None:
         self.n_levels = n_levels
         self.min_value = min_value
         self.max_value = max_value
@@ -350,7 +350,7 @@ class SpecifiedScale(PyAedtBase):
         Scale levels. Default is `None`.
     """
 
-    def __init__(self, scale_values=None):
+    def __init__(self, scale_values=None) -> None:
         if scale_values is None:
             scale_values = []
         if not isinstance(scale_values, list):
@@ -399,7 +399,7 @@ class NumberFormat(BaseFolderPlot):
         Precision of the numbers. Default is `4`.
     """
 
-    def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4):
+    def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4) -> None:
         self._format_type = format_type
         self.width = width
         self.precision = precision

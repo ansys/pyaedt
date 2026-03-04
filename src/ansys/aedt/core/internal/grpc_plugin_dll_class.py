@@ -96,7 +96,7 @@ exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
 
 
 class AedtObjWrapper:
-    def __init__(self, objID, listFuncs, AedtAPI=None):
+    def __init__(self, objID, listFuncs, AedtAPI=None) -> None:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
         self.dllapi = AedtAPI
@@ -182,7 +182,7 @@ class AedtObjWrapper:
 
 
 class AedtPropServer(AedtObjWrapper):
-    def __init__(self, objID, listFuncs, aedtapi):
+    def __init__(self, objID, listFuncs, aedtapi) -> None:
         AedtObjWrapper.__init__(self, objID, listFuncs, aedtapi)
         self.__dict__["__propMap__"] = None
         self.__dict__["__propNames__"] = None
@@ -265,7 +265,7 @@ class AedtPropServer(AedtObjWrapper):
 
 
 class AEDT:
-    def __init__(self, pathDir):
+    def __init__(self, pathDir) -> None:
         is_linux = os.name == "posix"
         is_windows = not is_linux
         pathDir = Path(pathDir)

@@ -80,7 +80,7 @@ EXPORT_EXAMPLES = [
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for advanced fields calculator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Check for unsupported version
         if VERSION == "2026.1":
             raise AEDTRuntimeError(

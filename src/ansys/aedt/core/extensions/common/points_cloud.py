@@ -68,7 +68,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
 class PointsCloudExtension(ExtensionProjectCommon):
     """Extension for point cloud generator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,

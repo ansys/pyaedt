@@ -45,7 +45,7 @@ class _MatrixData:
 class InterferenceClassificationExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for Protection Level and Interference Type classification."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self._matrix = {"protection": None, "interference": None}
         self._filters_interf = {}
         self._filters_prot = {}

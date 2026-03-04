@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 class LimitLine(BinaryTreeNode, PyAedtBase):
     """Line Limit Management Class."""
 
-    def __init__(self, post, trace_name, oo=None):
+    def __init__(self, post, trace_name, oo=None) -> None:
         self._oo = oo
         self._app = post._app
         self._oreport_setup = post.oreportsetup
@@ -110,7 +110,7 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
 class Note(BinaryTreeNode, PyAedtBase):
     """Note Management Class."""
 
-    def __init__(self, post, plot_note_name, oo=None):
+    def __init__(self, post, plot_note_name, oo=None) -> None:
         self._oo = oo
         self._app = post._app
         self._oreport_setup = post.oreportsetup
@@ -407,7 +407,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def __str__(self) -> str:
         return self.plot_name
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         self._variations = None
         self._post = app
         self._app = self._post._app

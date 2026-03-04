@@ -63,7 +63,7 @@ class COMParameters:
         "COM_100GBASE_KP4": "com_94_17.json",
     }
 
-    def __init__(self, standard):
+    def __init__(self, standard) -> None:
         self.table_93a1 = {}
         self.filter_and_eq = {}
         self.io_control = {}
@@ -256,7 +256,7 @@ class COMParameters:
 class COMParametersVer3p4(COMParameters):
     """Manages COM parameters of version 3.4."""
 
-    def __init__(self, standard: int = 1):
+    def __init__(self, standard: int = 1) -> None:
         super().__init__(standard)
 
     @pyaedt_function_handler

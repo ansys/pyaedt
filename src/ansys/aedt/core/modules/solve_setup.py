@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         self.auto_update = False
         self._app = app
         if solution_type is None:
@@ -596,7 +596,7 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -1158,7 +1158,7 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -1853,7 +1853,7 @@ class Setup3DLayout(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -2546,7 +2546,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3280,7 +3280,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3570,7 +3570,7 @@ class SetupSBR(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3649,7 +3649,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -4029,7 +4029,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True):
+    def __init__(self, app, solution_type, name: str = "MySetupAuto", is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
         self._dc_enabled = True
         self._ac_rl_enbled = True
@@ -4474,7 +4474,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
 
 class SetupIcepak(Setup, PyAedtBase):
-    def __init__(self, app, solution_type, setup_name, is_new_setup: bool = True):
+    def __init__(self, app, solution_type, setup_name, is_new_setup: bool = True) -> None:
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(

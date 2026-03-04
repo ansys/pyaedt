@@ -126,7 +126,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     local_path = ""
     config_data: dict = dict()
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )

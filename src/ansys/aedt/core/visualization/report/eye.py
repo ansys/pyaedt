@@ -40,7 +40,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class AMIConturEyeDiagram(CommonReport):
     """Provides for managing eye contour diagram reports in AMI analysis."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         self._legacy_props["report_type"] = "Rectangular Contour Plot"
@@ -481,7 +481,7 @@ class AMIConturEyeDiagram(CommonReport):
 class AMIEyeDiagram(CommonReport):
     """Provides for managing eye diagram reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         if report_category == "Statistical Eye":
@@ -1051,7 +1051,7 @@ class AMIEyeDiagram(CommonReport):
 class EyeDiagram(AMIEyeDiagram):
     """Provides for managing eye diagram reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         AMIEyeDiagram.__init__(self, app, report_category, setup_name, expressions)
         self.time_start = "0ns"
         self.time_stop = "200ns"

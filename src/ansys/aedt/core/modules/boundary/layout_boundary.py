@@ -62,7 +62,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> par_beam.delete()
     """
 
-    def __init__(self, app, component_type, component_name, props):
+    def __init__(self, app, component_type, component_name, props) -> None:
         self.auto_update = False
         self._app = app
         self._name = component_name
@@ -295,7 +295,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype: str = "Port"):
+    def __init__(self, app, name: str, props=None, boundarytype: str = "Port") -> None:
         self.auto_update = False
         self._app = app
         self._name = name
@@ -427,7 +427,7 @@ class NativeComponentPCB(NativeComponentObject):
         Properties of the boundary.
     """
 
-    def __init__(self, app, component_type, component_name, props):
+    def __init__(self, app, component_type, component_name, props) -> None:
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
 
     @pyaedt_function_handler()
@@ -882,7 +882,7 @@ class PCBSettingsPackageParts(PyAedtBase):
             Inherited application object.
     """
 
-    def __init__(self, pcb_obj, app):
+    def __init__(self, pcb_obj, app) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
@@ -1013,7 +1013,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
             Inherited application object.
     """
 
-    def __init__(self, pcb_obj, app):
+    def __init__(self, pcb_obj, app) -> None:
         self._app = app
         self.pcb = pcb_obj
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}

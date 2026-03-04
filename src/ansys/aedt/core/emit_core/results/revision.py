@@ -73,7 +73,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name: str | None = None):
+    def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 

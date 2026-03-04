@@ -96,7 +96,7 @@ class Layer(PyAedtBase):
     >>> layers = app.modeler.layers["Top"]
     """
 
-    def __init__(self, app, layertype: str = "signal", negative: bool = False):
+    def __init__(self, app, layertype: str = "signal", negative: bool = False) -> None:
         self.LengthUnit = app.LengthUnit
         self.LengthUnitRough = app.LengthUnit
         self._layers = app
@@ -1085,7 +1085,7 @@ class Layers(PyAedtBase):
     >>> layers = app.modeler.layers
     """
 
-    def __init__(self, modeler, roughnessunits: str = "um"):
+    def __init__(self, modeler, roughnessunits: str = "um") -> None:
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0

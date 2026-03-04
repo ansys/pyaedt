@@ -46,7 +46,7 @@ class BoundaryDictionary(PyAedtBase):
         ``"Sinusoidal"``, and ``"Square Wave"``.
     """
 
-    def __init__(self, assignment_type, function_type):
+    def __init__(self, assignment_type, function_type) -> None:
         if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
             raise AttributeError(f"The argument {assignment_type} for ``assignment_type`` is not valid.")
         if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
@@ -90,7 +90,7 @@ class LinearDictionary(BoundaryDictionary):
         corresponds to the coefficient ``b`` in the formula.
     """
 
-    def __init__(self, intercept, slope):
+    def __init__(self, intercept, slope) -> None:
         super().__init__("Transient", "Linear")
         self.intercept = intercept
         self.slope = slope
@@ -119,7 +119,7 @@ class PowerLawDictionary(BoundaryDictionary):
          corresponds to the coefficient ``c`` in the formula.
     """
 
-    def __init__(self, intercept, coefficient, scaling_exponent):
+    def __init__(self, intercept, coefficient, scaling_exponent) -> None:
         super().__init__("Transient", "Power Law")
         self.intercept = intercept
         self.coefficient = coefficient
@@ -149,7 +149,7 @@ class ExponentialDictionary(BoundaryDictionary):
         corresponds to the coefficient ``c`` in the formula.
     """
 
-    def __init__(self, vertical_offset, coefficient, exponent_coefficient):
+    def __init__(self, vertical_offset, coefficient, exponent_coefficient) -> None:
         super().__init__("Transient", "Exponential")
         self.vertical_offset = vertical_offset
         self.coefficient = coefficient
@@ -182,7 +182,7 @@ class SinusoidalDictionary(BoundaryDictionary):
         corresponds to the coefficient ``t0`` in the formula.
     """
 
-    def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
+    def __init__(self, vertical_offset, vertical_scaling, period, period_offset) -> None:
         super().__init__("Transient", "Sinusoidal")
         self.vertical_offset = vertical_offset
         self.vertical_scaling = vertical_scaling
@@ -211,7 +211,7 @@ class SquareWaveDictionary(BoundaryDictionary):
         Minimum value of the square wave.
     """
 
-    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value):
+    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value) -> None:
         super().__init__("Transient", "Square Wave")
         self.on_value = on_value
         self.initial_time_off = initial_time_off
@@ -239,7 +239,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         Scaling factor for the y values of the dataset.
     """
 
-    def __init__(self, assignment_type, ds, scale):
+    def __init__(self, assignment_type, ds, scale) -> None:
         super().__init__(assignment_type, "Piecewise Linear")
         self.scale = scale
         self._assignment_type = assignment_type
@@ -258,7 +258,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name: str | None = None, props=None, create: bool = False):
+    def __init__(self, app, name: str | None = None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -1015,7 +1015,7 @@ class NetworkObject(BoundaryObject):
         return self.update()
 
     class _Link:
-        def __init__(self, node_1, node_2, value, name: str, network):
+        def __init__(self, node_1, node_2, value, name: str, network) -> None:
             self.name = name
             if not isinstance(node_1, str):
                 node_1 = "FaceID" + str(node_1)
@@ -1071,7 +1071,7 @@ class NetworkObject(BoundaryObject):
             self._network._links.remove(self)
 
     class _Node:
-        def __init__(self, name: str, app, network, node_type=None, props=None):
+        def __init__(self, name: str, app, network, node_type=None, props=None) -> None:
             self.name = name
             self._type = node_type
             self._app = app

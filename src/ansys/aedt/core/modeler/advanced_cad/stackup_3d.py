@@ -97,7 +97,7 @@ class NamedVariable(PyAedtBase):
 
     """
 
-    def __init__(self, application, name: str, expression):
+    def __init__(self, application, name: str, expression) -> None:
         self._application = application
         self._name = name
         self._expression = expression
@@ -220,7 +220,7 @@ class DuplicatedParametrizedMaterial(PyAedtBase):
 
     """
 
-    def __init__(self, application, material_name, cloned_material_name, list_of_properties=None):
+    def __init__(self, application, material_name, cloned_material_name, list_of_properties=None) -> None:
         self._thickness = None
         self._permittivity = None
         self._permeability = None
@@ -866,7 +866,7 @@ class Layer3D(PyAedtBase):
 class PadstackLayer(PyAedtBase):
     """Provides a data class for the definition of a padstack layer and relative pad and antipad values."""
 
-    def __init__(self, padstack, layer_name, elevation, thickness):
+    def __init__(self, padstack, layer_name, elevation, thickness) -> None:
         self._padstack = padstack
         self._layer_name = layer_name
         self._layer_elevation = elevation
@@ -920,7 +920,7 @@ class PadstackLayer(PyAedtBase):
 class Padstack(PyAedtBase):
     """Provides the ``Padstack`` class member of Stackup3D."""
 
-    def __init__(self, app, stackup, name: str, material: str = "copper"):
+    def __init__(self, app, stackup, name: str, material: str = "copper") -> None:
         self._app = app
         self._stackup = stackup
         self.name = name
@@ -1178,7 +1178,7 @@ class Stackup3D(PyAedtBase):
 
     """
 
-    def __init__(self, application, frequency=None):
+    def __init__(self, application, frequency=None) -> None:
         self._app = application
         self._layer_name = []
         self._layer_position = []
@@ -1801,7 +1801,7 @@ class Stackup3D(PyAedtBase):
 class CommonObject(PyAedtBase):
     """CommonObject Class in Stackup3D. This class must not be directly used."""
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         self._app = application
         self._name = None
         self._dielectric_layer = None

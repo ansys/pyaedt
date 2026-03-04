@@ -227,7 +227,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None):
+    def __init__(self, app, name, props=None, boundarytype=None) -> None:
         self.auto_update = True
         self._app = app
         self._name = name
@@ -385,7 +385,7 @@ class MaxwellMatrix(MaxwellParameters):
     >>> m2d.release_desktop(True, True)
     """
 
-    def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None):
+    def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
         """Initialize Maxwell matrix.
 
         Parameters
@@ -763,7 +763,7 @@ class MaxwellReducedMatrix:
 class MaxwellReducedMatrixOperation:
     """Represent a reduced matrix operation in Maxwell (join in series or parallel)."""
 
-    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]):
+    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]) -> None:
         self.parent_matrix = parent_matrix
         self.reduced_matrix = reduced_matrix
         self.name = name
@@ -773,7 +773,7 @@ class MaxwellReducedMatrixOperation:
 class MaxwellForce(MaxwellParameters):
     """Initialize Maxwell force."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Force")
         self._app = app
 
@@ -781,7 +781,7 @@ class MaxwellForce(MaxwellParameters):
 class MaxwellTorque(MaxwellParameters):
     """Initialize Maxwell torque."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Torque")
         self._app = app
 
@@ -789,6 +789,6 @@ class MaxwellTorque(MaxwellParameters):
 class MaxwellLayoutForce(MaxwellParameters):
     """Initialize Maxwell layout force."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="LayoutForce")
         self._app = app

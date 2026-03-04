@@ -47,7 +47,7 @@ class Object3DLayout(PyAedtBase):
     primitives : :class:`ansys.aedt.core.modeler.Model3DLayout.Modeler3dLayout`
     """
 
-    def __init__(self, primitives, prim_type=None):
+    def __init__(self, primitives, prim_type=None) -> None:
         self._primitives = primitives
         self.logger = self._primitives.logger
         self._oeditor = self._primitives.oeditor
@@ -409,7 +409,7 @@ class Object3DLayout(PyAedtBase):
 
 
 class ModelInfoRlc(PyAedtBase):
-    def __init__(self, component, name: str):
+    def __init__(self, component, name: str) -> None:
         self._comp = component
         self._name = name
 
@@ -458,7 +458,7 @@ class ModelInfoRlc(PyAedtBase):
 class Components3DLayout(Object3DLayout, PyAedtBase):
     """Contains components in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name: str = "", edb_object=None):
+    def __init__(self, primitives, name: str = "", edb_object=None) -> None:
         Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
@@ -894,7 +894,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 class Nets3DLayout(PyAedtBase):
     """Contains Nets in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name: str = ""):
+    def __init__(self, primitives, name: str = "") -> None:
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
         self._n = 10
@@ -982,7 +982,7 @@ class Nets3DLayout(PyAedtBase):
 class Pins3DLayout(Object3DLayout, PyAedtBase):
     """Contains the pins in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name: str = "", component_name=None, is_pin: bool = True):
+    def __init__(self, primitives, name: str = "", component_name=None, is_pin: bool = True) -> None:
         Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
@@ -1037,7 +1037,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """Contains geometries in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False):
+    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False) -> None:
         Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
@@ -1289,7 +1289,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout polygons."""
 
-    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False):
+    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
         self._points = []
 
@@ -1323,7 +1323,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 class Circle3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout circles."""
 
-    def __init__(self, primitives, name: str, is_void: bool = False):
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "circle", is_void)
 
     @property
@@ -1372,7 +1372,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 class Rect3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout rectangles."""
 
-    def __init__(self, primitives, name: str, is_void: bool = False):
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "rect", is_void)
 
     @property
@@ -1539,7 +1539,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 class Line3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout lines."""
 
-    def __init__(self, primitives, name: str, is_void: bool = False):
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
         self._points = []
         self._center_line = {}
@@ -1770,7 +1770,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 class Points3dLayout(PyAedtBase):
     """Manages HFSS 3D Layout points."""
 
-    def __init__(self, primitives, point):
+    def __init__(self, primitives, point) -> None:
         self._primitives = primitives
         self.point = point
 
@@ -1828,7 +1828,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     """
 
-    def __init__(self, primitives, name: str = ""):
+    def __init__(self, primitives, name: str = "") -> None:
         Object3DLayout.__init__(self, primitives, "component")
         self.name = name
 
@@ -2010,7 +2010,7 @@ class Padstack(PyAedtBase):
 
     """
 
-    def __init__(self, name: str = "Padstack", padstackmanager=None, units: str = "mm"):
+    def __init__(self, name: str = "Padstack", padstackmanager=None, units: str = "mm") -> None:
         self.name = name
         self.padstackmgr = padstackmanager
         self.units = units
@@ -2062,7 +2062,7 @@ class Padstack(PyAedtBase):
     class PDSLayer(PyAedtBase):
         """Manages properties of a padstack layer."""
 
-        def __init__(self, layername: str = "Default", layer_id: int = 1):
+        def __init__(self, layername: str = "Default", layer_id: int = 1) -> None:
             self.layername = layername
             self.id = layer_id
             self._pad = None
@@ -2381,7 +2381,7 @@ class CoordinateSystems3DLayout(PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, primitives):
+    def __init__(self, primitives) -> None:
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
         self.logger = self._primitives.logger

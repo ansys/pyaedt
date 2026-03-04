@@ -41,7 +41,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class Standard(CommonReport, PyAedtBase):
     """Provides a reporting class that fits most of the app's standard reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
@@ -543,7 +543,7 @@ class Standard(CommonReport, PyAedtBase):
 class Spectral(CommonReport, PyAedtBase):
     """Provides for managing spectral reports from transient data."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Spectrum"
         self.algorithm = "FFT"

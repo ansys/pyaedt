@@ -45,7 +45,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> sphere1.delete()
     """
 
-    def __init__(self, app, component_name, props, component_type):
+    def __init__(self, app, component_name, props, component_type) -> None:
         self.auto_update = False
         self._app = app
         self.type = component_type
@@ -203,7 +203,7 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.delete()
     """
 
-    def __init__(self, app, component_name, props, component_type, units: str = "deg"):
+    def __init__(self, app, component_name, props, component_type, units: str = "deg") -> None:
         FieldSetup.__init__(self, app, component_name, props, component_type)
         self.units = units
 
@@ -528,5 +528,5 @@ class NearFieldSetup(FieldSetup):
     >>> rectangle1 = hfss.insert_near_field_rectangle()
     """
 
-    def __init__(self, app, component_name, props, component_type):
+    def __init__(self, app, component_name, props, component_type) -> None:
         FieldSetup.__init__(self, app, component_name, props, component_type)

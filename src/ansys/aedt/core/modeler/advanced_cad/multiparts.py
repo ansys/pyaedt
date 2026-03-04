@@ -516,7 +516,7 @@ class Environment(MultiPartComponent, PyAedtBase):
         global coordinate system is used.
     """
 
-    def __init__(self, env_folder, relative_cs_name=None):
+    def __init__(self, env_folder, relative_cs_name=None) -> None:
         super(Environment, self).__init__(env_folder, motion=False)
 
     @property
@@ -610,7 +610,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         in which case the global coordinate system is used.
     """
 
-    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.

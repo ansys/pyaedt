@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class FileManagement(PyAedtBase):
     """Class to manage file transfer."""
 
-    def __init__(self, client):
+    def __init__(self, client) -> None:
         self.client = client
 
     def upload(self, localpath, remotepath, overwrite: bool=False):

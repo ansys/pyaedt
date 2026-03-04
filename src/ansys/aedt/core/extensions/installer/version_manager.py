@@ -104,7 +104,7 @@ class VersionManager:
     def personal_lib(self) -> str:
         return self.desktop.personallib
 
-    def __init__(self, ui, desktop):
+    def __init__(self, ui, desktop) -> None:
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
         self.desktop = desktop

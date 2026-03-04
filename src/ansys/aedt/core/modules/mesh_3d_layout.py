@@ -53,7 +53,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, app, hfss_setup_name, name: str, props):
+    def __init__(self, app, hfss_setup_name, name: str, props) -> None:
         self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
@@ -147,7 +147,7 @@ class Mesh3d(PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
 

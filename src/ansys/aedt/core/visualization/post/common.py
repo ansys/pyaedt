@@ -100,7 +100,7 @@ class PostProcessorCommon(PyAedtBase):
     >>> q3d.post.get_solution_data(domain="Original")
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._scratch = self._app.working_directory
         self.__plots = self._get_plot_inputs()
@@ -2053,7 +2053,7 @@ class PostProcessorCommon(PyAedtBase):
 class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
-    def __init__(self, post_app, design_type):
+    def __init__(self, post_app, design_type) -> None:
         self._post_app = post_app
         self._design_type = design_type
         self._templates = self._post_app._app._design_type.report_templates

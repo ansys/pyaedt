@@ -4292,7 +4292,7 @@ class DesignSettings(PyAedtBase):
     >>> oDesign.GetChildObject("Design Settings")
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app: Any = app
         self.manipulate_inputs: DesignSettingsManipulation | None = None
         self.manipulate_inputs: DesignSettingsManipulation | None = None

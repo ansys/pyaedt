@@ -307,7 +307,7 @@ class ObjClass(PyAedtBase):
 
     """
 
-    def __init__(self, path, color, opacity, units):
+    def __init__(self, path, color, opacity, units) -> None:
         self.path = path
         self._color = (0, 0, 0)
         self.color = color
@@ -1156,7 +1156,7 @@ class ModelPlotter(CommonPlotter):
         class SetVisibilityCallback:
             """Helper callback to keep a reference to the actor being modified."""
 
-            def __init__(self, actor):
+            def __init__(self, actor) -> None:
                 self.actor = actor
 
             def __call__(self, state):
@@ -1168,7 +1168,7 @@ class ModelPlotter(CommonPlotter):
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
 
-            def __init__(self, plot, actor, axes_color):
+            def __init__(self, plot, actor, axes_color) -> None:
                 self.plot = plot
                 self.actors = actor
                 self.id = 0

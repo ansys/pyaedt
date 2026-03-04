@@ -201,7 +201,7 @@ class Objects(dict):
             return self.__obj_names[item]
         raise KeyError(item)
 
-    def __init__(self, parent, obj_type: str = "o", props=None):
+    def __init__(self, parent, obj_type: str = "o", props=None) -> None:
         dict.__init__(self)
         self.__obj_names = {}
         self.__parent = parent
@@ -276,7 +276,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 pass
         return
 
-    def __init__(self, app, is3d: bool = True):
+    def __init__(self, app, is3d: bool = True) -> None:
         self._app = app
         self._model_data = {}
         Modeler.__init__(self, app)
@@ -390,7 +390,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
 
         @pyaedt_function_handler()
-        def __init__(self, draftType: str = "Round", draftAngle: str = "0deg", twistAngle: str = "0deg"):
+        def __init__(self, draftType: str = "Round", draftAngle: str = "0deg", twistAngle: str = "0deg") -> None:
             self.DraftType = draftType
             self.DraftAngle = draftAngle
             self.TwistAngle = twistAngle
@@ -9308,7 +9308,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp.desktop_class.close_desktop()
     """
 
-    def __init__(self, app, input_file: str | None = None, input_dict=None):
+    def __init__(self, app, input_file: str | None = None, input_dict=None) -> None:
         self._app = app
         props = {}
         if not input_dict and not input_file:  # pragma: no cover

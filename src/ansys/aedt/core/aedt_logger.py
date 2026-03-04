@@ -68,7 +68,7 @@ class MessageList:
 
     """
 
-    def __init__(self, msg_list):
+    def __init__(self, msg_list) -> None:
         self.info_level = []
         self.warning_level = []
         self.error_level = []
@@ -116,7 +116,7 @@ class AppFilter(logging.Filter):
         Name of the design or project. The default is ``""``.
     """
 
-    def __init__(self, destination: str = "Global", extra: str = ""):
+    def __init__(self, destination: str = "Global", extra: str = "") -> None:
         self._destination = destination
         self._extra = extra
 
@@ -157,7 +157,7 @@ class AedtLogger:
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None):
+    def __init__(self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None) -> None:
         self._desktop_class = desktop
         self._oproject = None
         self._odesign = None

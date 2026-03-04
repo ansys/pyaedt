@@ -59,7 +59,7 @@ class ComponentArray(PyAedtBase):
     >>> array = aedtapp.component_array[array_names[0]]
     """
 
-    def __init__(self, app, name: str | None = None):
+    def __init__(self, app, name: str | None = None) -> None:
         # Public attributes
         self.logger = app.logger
         self.update_cells = True
@@ -906,7 +906,7 @@ class CellArray(PyAedtBase):
 
     """
 
-    def __init__(self, row, col, array_props, component_names, array_obj):
+    def __init__(self, row, col, array_props, component_names, array_obj) -> None:
         self.__row = row + 1
         self.__col = col + 1
         self.__array_obj = array_obj

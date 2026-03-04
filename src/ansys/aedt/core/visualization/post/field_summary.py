@@ -103,7 +103,7 @@ AVAILABLE_QUANTITIES = [
 class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.calculations = []
 

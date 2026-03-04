@@ -78,7 +78,7 @@ class CutoutData(ExtensionCommonData):
 class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
