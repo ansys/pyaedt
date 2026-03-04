@@ -119,7 +119,7 @@ class DistributedParasitics:
         return capacitor_q_string
 
     @capacitor_q.setter
-    def capacitor_q(self, capacitor_q_string: str):
+    def capacitor_q(self, capacitor_q_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCapacitorQ, capacitor_q_string)
 
     @property
@@ -135,7 +135,7 @@ class DistributedParasitics:
         return capacitor_rs_string
 
     @capacitor_rs.setter
-    def capacitor_rs(self, capacitor_rs_string: str):
+    def capacitor_rs(self, capacitor_rs_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCapacitorRs, capacitor_rs_string)
 
     @property
@@ -151,7 +151,7 @@ class DistributedParasitics:
         return capacitor_rp_string
 
     @capacitor_rp.setter
-    def capacitor_rp(self, capacitor_rp_string: str):
+    def capacitor_rp(self, capacitor_rp_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCapacitorRp, capacitor_rp_string)
 
     @property
@@ -167,7 +167,7 @@ class DistributedParasitics:
         return capacitor_ls_string
 
     @capacitor_ls.setter
-    def capacitor_ls(self, capacitor_ls_string: str):
+    def capacitor_ls(self, capacitor_ls_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCapacitorLs, capacitor_ls_string)
 
     @property
@@ -183,7 +183,7 @@ class DistributedParasitics:
         return inductor_q_string
 
     @inductor_q.setter
-    def inductor_q(self, inductor_q_string: str):
+    def inductor_q(self, inductor_q_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedInductorQ, inductor_q_string)
 
     @property
@@ -199,7 +199,7 @@ class DistributedParasitics:
         return inductor_rs_string
 
     @inductor_rs.setter
-    def inductor_rs(self, inductor_rs_string: str):
+    def inductor_rs(self, inductor_rs_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedInductorRs, inductor_rs_string)
 
     @property
@@ -215,7 +215,7 @@ class DistributedParasitics:
         return inductor_rp_string
 
     @inductor_rp.setter
-    def inductor_rp(self, inductor_rp_string: str):
+    def inductor_rp(self, inductor_rp_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedInductorRp, inductor_rp_string)
 
     @property
@@ -231,7 +231,7 @@ class DistributedParasitics:
         return inductor_cp_string
 
     @inductor_cp.setter
-    def inductor_cp(self, inductor_cp_string: str):
+    def inductor_cp(self, inductor_cp_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedInductorCp, inductor_cp_string)
 
     @property
@@ -248,7 +248,7 @@ class DistributedParasitics:
         return odd_resistance_string
 
     @line_odd_resistance.setter
-    def line_odd_resistance(self, odd_resistance_string: str):
+    def line_odd_resistance(self, odd_resistance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedOddResistance, odd_resistance_string)
 
     @property
@@ -265,7 +265,7 @@ class DistributedParasitics:
         return even_resistance_string
 
     @line_even_resistance.setter
-    def line_even_resistance(self, even_resistance_string: str):
+    def line_even_resistance(self, even_resistance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedEvenResistance, even_resistance_string)
 
     @property
@@ -282,7 +282,7 @@ class DistributedParasitics:
         return odd_conductance_string
 
     @line_odd_conductance.setter
-    def line_odd_conductance(self, odd_conductance_string: str):
+    def line_odd_conductance(self, odd_conductance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedOddConductance, odd_conductance_string)
 
     @property
@@ -299,7 +299,7 @@ class DistributedParasitics:
         return even_conductance_string
 
     @line_even_conductance.setter
-    def line_even_conductance(self, even_conductance_string: str):
+    def line_even_conductance(self, even_conductance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedEvenConductance, even_conductance_string)
 
     @property
@@ -316,5 +316,5 @@ class DistributedParasitics:
         return line_min_segment_length_string
 
     @line_min_segment_lengths.setter
-    def line_min_segment_lengths(self, line_min_segment_length_string: str):
+    def line_min_segment_lengths(self, line_min_segment_length_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedMinSegmentLength, line_min_segment_length_string)

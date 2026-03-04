@@ -58,7 +58,7 @@ class TransmissionZeros:
     The position is defined automatically if no value is provided.
     """
 
-    def __init__(self, table_format):
+    def __init__(self, table_format) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_transmission_zeros_dll_functions()
@@ -172,7 +172,7 @@ class TransmissionZeros:
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
 
-    def update_row(self, row_index: int, zero: str = None, position: str = None):
+    def update_row(self, row_index: int, zero: str = None, position: str = None) -> None:
         """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
@@ -194,7 +194,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, zero: str = None, position: str = None):
+    def append_row(self, zero: str = None, position: str = None) -> None:
         """Append a new row that includes the ratio or bandwidth and position.
 
         Parameters
@@ -211,7 +211,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index: int, zero: str = None, position: str = None):
+    def insert_row(self, row_index: int, zero: str = None, position: str = None) -> None:
         """Insert a new row that includes the ratio or bandwidth and the position.
 
         Parameters
@@ -231,7 +231,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index: int):
+    def remove_row(self, row_index: int) -> None:
         """Remove a row, including the ratio or bandwidth and the position.
 
         Parameters

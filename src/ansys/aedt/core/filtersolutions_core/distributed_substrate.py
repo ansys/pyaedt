@@ -121,7 +121,7 @@ class DistributedSubstrate:
         return substrate_type
 
     @substrate_type.setter
-    def substrate_type(self, substrate_type: SubstrateType):
+    def substrate_type(self, substrate_type: SubstrateType) -> None:
         status = self._dll.setDistributedSubstrateType(substrate_type.value)
         self._dll_interface.raise_error(status)
 
@@ -147,7 +147,7 @@ class DistributedSubstrate:
             return substrate_er_value_str.value.decode("ascii")
 
     @substrate_er.setter
-    def substrate_er(self, substrate_input: SubstrateEr | str):
+    def substrate_er(self, substrate_input: SubstrateEr | str) -> None:
         if substrate_input in list(SubstrateEr):
             substrate_er_index = SubstrateEr(substrate_input).value
             substrate_er_value = ""
@@ -184,7 +184,7 @@ class DistributedSubstrate:
             return substrate_resistivity_value_str.value.decode("ascii")
 
     @substrate_resistivity.setter
-    def substrate_resistivity(self, substrate_input: SubstrateResistivity | str):
+    def substrate_resistivity(self, substrate_input: SubstrateResistivity | str) -> None:
         if substrate_input in list(SubstrateResistivity):
             substrate_resistivity_index = SubstrateResistivity(substrate_input).value
             substrate_resistivity_value = ""
@@ -220,7 +220,7 @@ class DistributedSubstrate:
             return substrate_loss_tangent_value_str.value.decode("ascii")
 
     @substrate_loss_tangent.setter
-    def substrate_loss_tangent(self, substrate_input: SubstrateEr | str):
+    def substrate_loss_tangent(self, substrate_input: SubstrateEr | str) -> None:
         if substrate_input in list(SubstrateEr):
             substrate_loss_tangent_index = SubstrateEr(substrate_input).value
             substrate_loss_tangent_value = ""
@@ -249,7 +249,7 @@ class DistributedSubstrate:
         return substrate_conductor_thickness_string
 
     @substrate_conductor_thickness.setter
-    def substrate_conductor_thickness(self, substrate_conductor_thickness_string: str):
+    def substrate_conductor_thickness(self, substrate_conductor_thickness_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedConductorThickness, substrate_conductor_thickness_string)
 
     @property
@@ -266,7 +266,7 @@ class DistributedSubstrate:
         return substrate_dielectric_height_string
 
     @substrate_dielectric_height.setter
-    def substrate_dielectric_height(self, substrate_dielectric_height_string: str):
+    def substrate_dielectric_height(self, substrate_dielectric_height_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedDielectricHeight, substrate_dielectric_height_string)
 
     @property
@@ -308,7 +308,7 @@ class DistributedSubstrate:
         return substrate_suspend_dielectric_height_string
 
     @substrate_suspend_dielectric_height.setter
-    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string: str):
+    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedSuspendDielectricHeight, substrate_suspend_dielectric_height_string
         )
@@ -326,7 +326,7 @@ class DistributedSubstrate:
         return substrate_cover_height_string
 
     @substrate_cover_height.setter
-    def substrate_cover_height(self, substrate_cover_height_string: str):
+    def substrate_cover_height(self, substrate_cover_height_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCoverHeight, substrate_cover_height_string)
 
     @property
@@ -343,7 +343,7 @@ class DistributedSubstrate:
         return bool(substrate_unbalanced_stripline_enabled.value)
 
     @substrate_unbalanced_stripline_enabled.setter
-    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
+    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool) -> None:
         status = self._dll.setDistributedUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
         self._dll_interface.raise_error(status)
 
@@ -361,6 +361,6 @@ class DistributedSubstrate:
         return bool(substrate_cover_height_enabled.value)
 
     @substrate_cover_height_enabled.setter
-    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
+    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool) -> None:
         status = self._dll.setDistributedGroundedCoverAboveLine(substrate_cover_height_enabled)
         self._dll_interface.raise_error(status)

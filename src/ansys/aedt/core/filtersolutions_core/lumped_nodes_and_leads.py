@@ -98,7 +98,7 @@ class LumpedNodesandLeads:
         return c_node_capacitor
 
     @c_node_capacitor.setter
-    def c_node_capacitor(self, c_node_capacitor: str):
+    def c_node_capacitor(self, c_node_capacitor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCNodeCapacitor, c_node_capacitor)
 
     @property
@@ -114,7 +114,7 @@ class LumpedNodesandLeads:
         return c_lead_inductor
 
     @c_lead_inductor.setter
-    def c_lead_inductor(self, c_lead_inductor: str):
+    def c_lead_inductor(self, c_lead_inductor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedCLeadInductor, c_lead_inductor)
 
     @property
@@ -131,7 +131,7 @@ class LumpedNodesandLeads:
         return l_node_capacitor
 
     @l_node_capacitor.setter
-    def l_node_capacitor(self, l_node_capacitor: str):
+    def l_node_capacitor(self, l_node_capacitor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedLNodeCapacitor, l_node_capacitor)
 
     @property
@@ -148,7 +148,7 @@ class LumpedNodesandLeads:
         return l_lead_inductor
 
     @l_lead_inductor.setter
-    def l_lead_inductor(self, l_lead_inductor: str):
+    def l_lead_inductor(self, l_lead_inductor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedLLeadInductor, l_lead_inductor)
 
     @property
@@ -164,7 +164,7 @@ class LumpedNodesandLeads:
         return r_node_capacitor
 
     @r_node_capacitor.setter
-    def r_node_capacitor(self, r_node_capacitor: str):
+    def r_node_capacitor(self, r_node_capacitor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedRNodeCapacitor, r_node_capacitor)
 
     @property
@@ -181,7 +181,7 @@ class LumpedNodesandLeads:
         return r_lead_inductor
 
     @r_lead_inductor.setter
-    def r_lead_inductor(self, r_lead_inductor: str):
+    def r_lead_inductor(self, r_lead_inductor: str) -> None:
         self._dll_interface.set_string(self._dll.setLumpedRLeadInductor, r_lead_inductor)
 
     @property
@@ -198,7 +198,7 @@ class LumpedNodesandLeads:
         return bool(c_node_compensate.value)
 
     @c_node_compensate.setter
-    def c_node_compensate(self, c_node_compensate: bool):
+    def c_node_compensate(self, c_node_compensate: bool) -> None:
         status = self._dll.setLumpedCNodeLedComensate(c_node_compensate)
         self._dll_interface.raise_error(status)
 
@@ -216,6 +216,6 @@ class LumpedNodesandLeads:
         return bool(l_node_compensate.value)
 
     @l_node_compensate.setter
-    def l_node_compensate(self, l_node_compensate: bool):
+    def l_node_compensate(self, l_node_compensate: bool) -> None:
         status = self._dll.setLumpedLNodeLedComensate(l_node_compensate)
         self._dll_interface.raise_error(status)
