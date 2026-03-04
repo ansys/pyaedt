@@ -123,7 +123,7 @@ class COMParameters:
         self._standard = value
 
     @pyaedt_function_handler
-    def set_parameter(self, keyword, value) -> None:
+    def set_parameter(self, keyword, value):
         """Set a COM parameter.
 
         Parameters
@@ -161,7 +161,7 @@ class COMParameters:
             self.other_parameters[keyword] = value
 
     @pyaedt_function_handler
-    def export(self, file_path) -> None:
+    def export(self, file_path):
         """Export COM parameter to a JSON file.
 
         Parameters
@@ -188,7 +188,7 @@ class COMParameters:
             f.write(json.dumps(temp, indent=4, ensure_ascii=False))
 
     @pyaedt_function_handler
-    def load(self, file_path) -> None:
+    def load(self, file_path):
         """Load COM parameters from a JSON file.
 
         Parameters

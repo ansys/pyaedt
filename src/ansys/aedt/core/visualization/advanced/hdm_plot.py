@@ -81,7 +81,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename, units=None) -> None:
+    def add_hdm_bundle_from_file(self, filename, units=None):
         """Add hdm bundle from file."""
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -195,7 +195,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_first_bounce_currents(self, snapshot_path=None) -> None:
+    def plot_first_bounce_currents(self, snapshot_path=None):
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters

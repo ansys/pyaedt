@@ -1214,7 +1214,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def update_expressions_with_defaults(self, quantities_category=None) -> None:
+    def update_expressions_with_defaults(self, quantities_category=None):
         """Update the list of expressions by taking all quantities from a given category.
 
         Parameters
@@ -1392,7 +1392,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _export_context(self, output_dict) -> None:
+    def _export_context(self, output_dict):
         from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
         from ansys.aedt.core.visualization.report.eye import EyeDiagram
         from ansys.aedt.core.visualization.report.field import AntennaParameters
@@ -1456,7 +1456,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 output_dict["context"]["thinning_points"] = self.thinning_points
 
     @pyaedt_function_handler()
-    def _export_expressions(self, output_dict) -> None:
+    def _export_expressions(self, output_dict):
         output_dict["expressions"] = {}
         for expr in self.traces:
             name = self.properties[expr.name].split(" ,")[-1]
@@ -1482,7 +1482,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 output_dict["expressions"][name].update(symbol_dict)
 
     @pyaedt_function_handler()
-    def _export_graphical_objects(self, output_dict) -> None:
+    def _export_graphical_objects(self, output_dict):
         from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
         from ansys.aedt.core.visualization.report.eye import EyeDiagram
 
@@ -1549,7 +1549,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             }
 
     @pyaedt_function_handler()
-    def _export_general_appearance(self, output_dict) -> None:
+    def _export_general_appearance(self, output_dict):
         from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
         from ansys.aedt.core.visualization.report.eye import EyeDiagram
 

@@ -65,7 +65,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -80,7 +80,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -102,7 +102,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @enable_em_isolation.setter
     @min_aedt_version("2025.2")
-    def enable_em_isolation(self, value: bool):
+    def enable_em_isolation(self, value: bool) -> None:
         self._set_property("Enable EM Isolation", f"{str(value).lower()}")
 
     @property
@@ -114,7 +114,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @port_antenna_assignment.setter
     @min_aedt_version("2025.2")
-    def port_antenna_assignment(self, value: str):
+    def port_antenna_assignment(self, value: str) -> None:
         self._set_property("Port-Antenna Assignment", f"{value}")
 
     @property
@@ -126,5 +126,5 @@ class TouchstoneCouplingNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

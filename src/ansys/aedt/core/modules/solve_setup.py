@@ -2081,7 +2081,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def _get_net_names(self, app, file_fullname, unite) -> None:
+    def _get_net_names(self, app, file_fullname, unite):
         """Identify nets and unite bodies that belong to the same net."""
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         self._app.logger.info("Processing vias...")
@@ -2245,7 +2245,7 @@ class Setup3DLayout(CommonSetup):
                     return [x, y]
 
     @pyaedt_function_handler()
-    def _convert_edb_to_aedt_units(self, input_dict=None, output_unit: float = 0.001) -> None:
+    def _convert_edb_to_aedt_units(self, input_dict=None, output_unit: float = 0.001):
         if input_dict:
             for k, v in input_dict.items():
                 new_pts = []
@@ -2274,7 +2274,7 @@ class Setup3DLayout(CommonSetup):
         return via_dict
 
     @pyaedt_function_handler()
-    def _convert_edb_layer_elevation_to_aedt_units(self, input_dict=None, output_units: float = 0.001) -> None:
+    def _convert_edb_layer_elevation_to_aedt_units(self, input_dict=None, output_units: float = 0.001):
         if input_dict:
             for k, v in input_dict.items():
                 input_dict[k] = round(v / output_units, 5)

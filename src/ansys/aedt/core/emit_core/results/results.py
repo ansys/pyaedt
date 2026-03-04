@@ -99,7 +99,7 @@ class Results:
             return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name: str) -> None:
+    def delete_revision(self, revision_name: str):
         """Delete the specified revision from the results.
 
         Parameters

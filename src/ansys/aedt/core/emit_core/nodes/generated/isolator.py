@@ -61,7 +61,7 @@ class Isolator(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -76,7 +76,7 @@ class Isolator(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -88,7 +88,7 @@ class Isolator(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class IsolatorTypeOption(Enum):
@@ -109,7 +109,7 @@ class Isolator(EmitNode):
 
     @isolator_type.setter
     @min_aedt_version("2025.2")
-    def isolator_type(self, value: IsolatorTypeOption):
+    def isolator_type(self, value: IsolatorTypeOption) -> None:
         self._set_property("Isolator Type", f"{value.value}")
 
     @property
@@ -124,7 +124,7 @@ class Isolator(EmitNode):
 
     @insertion_loss.setter
     @min_aedt_version("2025.2")
-    def insertion_loss(self, value: float):
+    def insertion_loss(self, value: float) -> None:
         self._set_property("Insertion Loss", f"{value}")
 
     @property
@@ -142,7 +142,7 @@ class Isolator(EmitNode):
 
     @finite_reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def finite_reverse_isolation(self, value: bool):
+    def finite_reverse_isolation(self, value: bool) -> None:
         self._set_property("Finite Reverse Isolation", f"{str(value).lower()}")
 
     @property
@@ -157,7 +157,7 @@ class Isolator(EmitNode):
 
     @reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def reverse_isolation(self, value: float):
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -175,7 +175,7 @@ class Isolator(EmitNode):
 
     @finite_bandwidth.setter
     @min_aedt_version("2025.2")
-    def finite_bandwidth(self, value: bool):
+    def finite_bandwidth(self, value: bool) -> None:
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
@@ -190,7 +190,7 @@ class Isolator(EmitNode):
 
     @out_of_band_attenuation.setter
     @min_aedt_version("2025.2")
-    def out_of_band_attenuation(self, value: float):
+    def out_of_band_attenuation(self, value: float) -> None:
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
@@ -206,7 +206,7 @@ class Isolator(EmitNode):
 
     @lower_stop_band.setter
     @min_aedt_version("2025.2")
-    def lower_stop_band(self, value: float | str):
+    def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -223,7 +223,7 @@ class Isolator(EmitNode):
 
     @lower_cutoff.setter
     @min_aedt_version("2025.2")
-    def lower_cutoff(self, value: float | str):
+    def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -240,7 +240,7 @@ class Isolator(EmitNode):
 
     @higher_cutoff.setter
     @min_aedt_version("2025.2")
-    def higher_cutoff(self, value: float | str):
+    def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -257,7 +257,7 @@ class Isolator(EmitNode):
 
     @higher_stop_band.setter
     @min_aedt_version("2025.2")
-    def higher_stop_band(self, value: float | str):
+    def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 

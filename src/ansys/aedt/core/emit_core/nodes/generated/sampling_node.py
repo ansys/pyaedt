@@ -59,7 +59,7 @@ class SamplingNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     class SamplingTypeOption(Enum):
@@ -77,7 +77,7 @@ class SamplingNode(EmitNode):
 
     @sampling_type.setter
     @min_aedt_version("2025.2")
-    def sampling_type(self, value: SamplingTypeOption):
+    def sampling_type(self, value: SamplingTypeOption) -> None:
         self._set_property("Sampling Type", f"{value.value}")
 
     @property
@@ -95,7 +95,7 @@ class SamplingNode(EmitNode):
 
     @specify_percentage.setter
     @min_aedt_version("2025.2")
-    def specify_percentage(self, value: bool):
+    def specify_percentage(self, value: bool) -> None:
         self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
@@ -110,7 +110,7 @@ class SamplingNode(EmitNode):
 
     @percentage_of_channels.setter
     @min_aedt_version("2025.2")
-    def percentage_of_channels(self, value: float):
+    def percentage_of_channels(self, value: float) -> None:
         self._set_property("Percentage of Channels", f"{value}")
 
     @property
@@ -125,7 +125,7 @@ class SamplingNode(EmitNode):
 
     @max_channels_range_band.setter
     @min_aedt_version("2025.2")
-    def max_channels_range_band(self, value: int):
+    def max_channels_range_band(self, value: int) -> None:
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
@@ -140,7 +140,7 @@ class SamplingNode(EmitNode):
 
     @seed.setter
     @min_aedt_version("2025.2")
-    def seed(self, value: int):
+    def seed(self, value: int) -> None:
         self._set_property("Seed", f"{value}")
 
     @property

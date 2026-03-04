@@ -58,5 +58,5 @@ class SolutionCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")

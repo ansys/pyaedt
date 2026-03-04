@@ -72,7 +72,7 @@ class CustomCouplingNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -87,7 +87,7 @@ class CustomCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -99,7 +99,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_a.setter
     @min_aedt_version("2025.2")
-    def antenna_a(self, value: EmitNode):
+    def antenna_a(self, value: EmitNode) -> None:
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -111,5 +111,5 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_b.setter
     @min_aedt_version("2025.2")
-    def antenna_b(self, value: EmitNode):
+    def antenna_b(self, value: EmitNode) -> None:
         self._set_property("Antenna B", f"{value}")

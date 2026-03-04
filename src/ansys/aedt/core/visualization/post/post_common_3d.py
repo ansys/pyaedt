@@ -357,7 +357,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return plots
 
     @pyaedt_function_handler()
-    def change_field_property(self, plot_name: str, property_name: str, property_value: Any) -> None:
+    def change_field_property(self, plot_name: str, property_name: str, property_value: Any):
         """Modify a field plot property.
 
         Parameters

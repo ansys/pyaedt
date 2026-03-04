@@ -67,7 +67,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -79,7 +79,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @antenna_a.setter
     @min_aedt_version("2025.2")
-    def antenna_a(self, value: EmitNode):
+    def antenna_a(self, value: EmitNode) -> None:
         self._set_property("Antenna A", f"{value}")
 
     @property
@@ -91,7 +91,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @antenna_b.setter
     @min_aedt_version("2025.2")
-    def antenna_b(self, value: EmitNode):
+    def antenna_b(self, value: EmitNode) -> None:
         self._set_property("Antenna B", f"{value}")
 
     @property
@@ -109,7 +109,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @custom_fading_margin.setter
     @min_aedt_version("2025.2")
-    def custom_fading_margin(self, value: float):
+    def custom_fading_margin(self, value: float) -> None:
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
@@ -127,7 +127,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @polarization_mismatch.setter
     @min_aedt_version("2025.2")
-    def polarization_mismatch(self, value: float):
+    def polarization_mismatch(self, value: float) -> None:
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
@@ -145,7 +145,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @pointing_error_loss.setter
     @min_aedt_version("2025.2")
-    def pointing_error_loss(self, value: float):
+    def pointing_error_loss(self, value: float) -> None:
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -164,7 +164,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @fading_type.setter
     @min_aedt_version("2025.2")
-    def fading_type(self, value: FadingTypeOption):
+    def fading_type(self, value: FadingTypeOption) -> None:
         self._set_property("Fading Type", f"{value.value}")
 
     @property
@@ -182,7 +182,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @fading_availability.setter
     @min_aedt_version("2025.2")
-    def fading_availability(self, value: float):
+    def fading_availability(self, value: float) -> None:
         self._set_property("Fading Availability", f"{value}")
 
     @property
@@ -197,7 +197,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @std_deviation.setter
     @min_aedt_version("2025.2")
-    def std_deviation(self, value: float):
+    def std_deviation(self, value: float) -> None:
         self._set_property("Std Deviation", f"{value}")
 
     @property
@@ -212,7 +212,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     @min_aedt_version("2025.2")
-    def include_rain_attenuation(self, value: bool):
+    def include_rain_attenuation(self, value: bool) -> None:
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
@@ -230,7 +230,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @rain_availability.setter
     @min_aedt_version("2025.2")
-    def rain_availability(self, value: float):
+    def rain_availability(self, value: float) -> None:
         self._set_property("Rain Availability", f"{value}")
 
     @property
@@ -245,7 +245,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @rain_rate.setter
     @min_aedt_version("2025.2")
-    def rain_rate(self, value: float):
+    def rain_rate(self, value: float) -> None:
         self._set_property("Rain Rate", f"{value}")
 
     @property
@@ -263,7 +263,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @polarization_tilt_angle.setter
     @min_aedt_version("2025.2")
-    def polarization_tilt_angle(self, value: float):
+    def polarization_tilt_angle(self, value: float) -> None:
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
@@ -281,7 +281,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     @min_aedt_version("2025.2")
-    def include_atmospheric_absorption(self, value: bool):
+    def include_atmospheric_absorption(self, value: bool) -> None:
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
@@ -296,7 +296,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @temperature.setter
     @min_aedt_version("2025.2")
-    def temperature(self, value: float):
+    def temperature(self, value: float) -> None:
         self._set_property("Temperature", f"{value}")
 
     @property
@@ -311,7 +311,7 @@ class PropagationLossCouplingNode(EmitNode):
 
     @total_air_pressure.setter
     @min_aedt_version("2025.2")
-    def total_air_pressure(self, value: float):
+    def total_air_pressure(self, value: float) -> None:
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
@@ -326,5 +326,5 @@ class PropagationLossCouplingNode(EmitNode):
 
     @water_vapor_concentration.setter
     @min_aedt_version("2025.2")
-    def water_vapor_concentration(self, value: float):
+    def water_vapor_concentration(self, value: float) -> None:
         self._set_property("Water Vapor Concentration", f"{value}")

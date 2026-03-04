@@ -90,7 +90,7 @@ class SceneGroupNode(EmitNode):
 
     @show_relative_coordinates.setter
     @min_aedt_version("2025.2")
-    def show_relative_coordinates(self, value: bool):
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
@@ -105,7 +105,7 @@ class SceneGroupNode(EmitNode):
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value: str):
+    def position(self, value: str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
@@ -120,7 +120,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value: str):
+    def relative_position(self, value: str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -140,7 +140,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation_mode.setter
     @min_aedt_version("2025.2")
-    def orientation_mode(self, value: OrientationModeOption):
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
@@ -157,7 +157,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value: str):
+    def orientation(self, value: str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
@@ -174,7 +174,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value: str):
+    def relative_orientation(self, value: str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -191,7 +191,7 @@ class SceneGroupNode(EmitNode):
 
     @show_axes.setter
     @min_aedt_version("2025.2")
-    def show_axes(self, value: bool):
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
@@ -206,7 +206,7 @@ class SceneGroupNode(EmitNode):
 
     @box_color.setter
     @min_aedt_version("2025.2")
-    def box_color(self, value: str):
+    def box_color(self, value: str) -> None:
         self._set_property("Box Color", f"{value}")
 
     @property
@@ -218,5 +218,5 @@ class SceneGroupNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

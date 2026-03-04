@@ -80,7 +80,7 @@ class CADNode(EmitNode):
 
     @show_relative_coordinates.setter
     @min_aedt_version("2025.2")
-    def show_relative_coordinates(self, value: bool):
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
@@ -95,7 +95,7 @@ class CADNode(EmitNode):
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value):
+    def position(self, value) -> None:
         self._set_property("Position", f"{value}")
 
     @property
@@ -112,7 +112,7 @@ class CADNode(EmitNode):
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value):
+    def relative_position(self, value) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -132,7 +132,7 @@ class CADNode(EmitNode):
 
     @orientation_mode.setter
     @min_aedt_version("2025.2")
-    def orientation_mode(self, value: OrientationModeOption):
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
@@ -147,7 +147,7 @@ class CADNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value):
+    def orientation(self, value) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
@@ -164,7 +164,7 @@ class CADNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value):
+    def relative_orientation(self, value) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -179,7 +179,7 @@ class CADNode(EmitNode):
 
     @visible.setter
     @min_aedt_version("2025.2")
-    def visible(self, value: bool):
+    def visible(self, value: bool) -> None:
         self._set_property("Visible", f"{str(value).lower()}")
 
     class RenderModeOption(Enum):
@@ -198,7 +198,7 @@ class CADNode(EmitNode):
 
     @render_mode.setter
     @min_aedt_version("2025.2")
-    def render_mode(self, value: RenderModeOption):
+    def render_mode(self, value: RenderModeOption) -> None:
         self._set_property("Render Mode", f"{value.value}")
 
     @property
@@ -213,7 +213,7 @@ class CADNode(EmitNode):
 
     @show_axes.setter
     @min_aedt_version("2025.2")
-    def show_axes(self, value: bool):
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
@@ -255,7 +255,7 @@ class CADNode(EmitNode):
 
     @color.setter
     @min_aedt_version("2025.2")
-    def color(self, value):
+    def color(self, value) -> None:
         self._set_property("Color", f"{value}")
 
     @property
@@ -267,5 +267,5 @@ class CADNode(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

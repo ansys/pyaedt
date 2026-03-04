@@ -71,7 +71,7 @@ mesh_props = {
 class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
@@ -92,7 +92,7 @@ class MeshProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_mesh = mesh_object
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
 
@@ -360,7 +360,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_property(self, name: str, arg) -> None:
+    def _change_property(self, name: str, arg):
         """Update properties of the mesh operation.
 
         Parameters
@@ -1087,12 +1087,12 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_length_mesh(
         self,
-        assignment,
+        assignment: list | str,
         inside_selection: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
         name: str | None = None,
-    ):
+    ) -> "MeshOperation":
         """Assign a length for the model resolution.
 
         Parameters

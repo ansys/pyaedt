@@ -69,7 +69,7 @@ class TxHarmonicNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -80,7 +80,7 @@ class TxHarmonicNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class HarmonicTableUnitsOption(Enum):
@@ -97,5 +97,5 @@ class TxHarmonicNode(EmitNode):
 
     @harmonic_table_units.setter
     @min_aedt_version("2025.2")
-    def harmonic_table_units(self, value: HarmonicTableUnitsOption):
+    def harmonic_table_units(self, value: HarmonicTableUnitsOption) -> None:
         self._set_property("Harmonic Table Units", f"{value.value}")

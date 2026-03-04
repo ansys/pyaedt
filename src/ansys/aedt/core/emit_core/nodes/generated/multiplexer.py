@@ -66,7 +66,7 @@ class Multiplexer(EmitNode):
 
     @filename.setter
     @min_aedt_version("2025.2")
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -81,7 +81,7 @@ class Multiplexer(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -93,7 +93,7 @@ class Multiplexer(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class MultiplexerTypeOption(Enum):
@@ -115,7 +115,7 @@ class Multiplexer(EmitNode):
 
     @multiplexer_type.setter
     @min_aedt_version("2025.2")
-    def multiplexer_type(self, value: MultiplexerTypeOption):
+    def multiplexer_type(self, value: MultiplexerTypeOption) -> None:
         self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
@@ -127,7 +127,7 @@ class Multiplexer(EmitNode):
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value):
+    def ports(self, value) -> None:
         self._set_property("Ports", f"{value}")
 
     @property

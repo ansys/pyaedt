@@ -69,7 +69,7 @@ class TxNbEmissionNode(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -80,7 +80,7 @@ class TxNbEmissionNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
@@ -97,7 +97,7 @@ class TxNbEmissionNode(EmitNode):
 
     @narrowband_behavior.setter
     @min_aedt_version("2025.2")
-    def narrowband_behavior(self, value: NarrowbandBehaviorOption):
+    def narrowband_behavior(self, value: NarrowbandBehaviorOption) -> None:
         self._set_property("Narrowband Behavior", f"{value.value}")
 
     @property
@@ -110,6 +110,6 @@ class TxNbEmissionNode(EmitNode):
 
     @measurement_frequency.setter
     @min_aedt_version("2025.2")
-    def measurement_frequency(self, value: float | str):
+    def measurement_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Measurement Frequency", f"{value}")

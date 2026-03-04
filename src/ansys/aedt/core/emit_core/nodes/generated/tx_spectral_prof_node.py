@@ -73,7 +73,7 @@ class TxSpectralProfNode(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class SpectrumTypeOption(Enum):
@@ -90,7 +90,7 @@ class TxSpectralProfNode(EmitNode):
 
     @spectrum_type.setter
     @min_aedt_version("2025.2")
-    def spectrum_type(self, value: SpectrumTypeOption):
+    def spectrum_type(self, value: SpectrumTypeOption) -> None:
         self._set_property("Spectrum Type", f"{value.value}")
 
     class TxPowerOption(Enum):
@@ -107,7 +107,7 @@ class TxSpectralProfNode(EmitNode):
 
     @tx_power.setter
     @min_aedt_version("2025.2")
-    def tx_power(self, value: TxPowerOption):
+    def tx_power(self, value: TxPowerOption) -> None:
         self._set_property("Tx Power", f"{value.value}")
 
     @property
@@ -123,7 +123,7 @@ class TxSpectralProfNode(EmitNode):
 
     @peak_power.setter
     @min_aedt_version("2025.2")
-    def peak_power(self, value: float | str):
+    def peak_power(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Peak Power", f"{value}")
 
@@ -140,7 +140,7 @@ class TxSpectralProfNode(EmitNode):
 
     @average_power.setter
     @min_aedt_version("2025.2")
-    def average_power(self, value: float | str):
+    def average_power(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Average Power", f"{value}")
 
@@ -156,7 +156,7 @@ class TxSpectralProfNode(EmitNode):
 
     @include_phase_noise.setter
     @min_aedt_version("2025.2")
-    def include_phase_noise(self, value: bool):
+    def include_phase_noise(self, value: bool) -> None:
         self._set_property("Include Phase Noise", f"{str(value).lower()}")
 
     @property
@@ -171,7 +171,7 @@ class TxSpectralProfNode(EmitNode):
 
     @tx_broadband_noise.setter
     @min_aedt_version("2025.2")
-    def tx_broadband_noise(self, value: float):
+    def tx_broadband_noise(self, value: float) -> None:
         self._set_property("Tx Broadband Noise", f"{value}")
 
     class HarmonicTaperOption(Enum):
@@ -190,7 +190,7 @@ class TxSpectralProfNode(EmitNode):
 
     @harmonic_taper.setter
     @min_aedt_version("2025.2")
-    def harmonic_taper(self, value: HarmonicTaperOption):
+    def harmonic_taper(self, value: HarmonicTaperOption) -> None:
         self._set_property("Harmonic Taper", f"{value.value}")
 
     @property
@@ -205,7 +205,7 @@ class TxSpectralProfNode(EmitNode):
 
     @harmonic_amplitude.setter
     @min_aedt_version("2025.2")
-    def harmonic_amplitude(self, value: float):
+    def harmonic_amplitude(self, value: float) -> None:
         self._set_property("Harmonic Amplitude", f"{value}")
 
     @property
@@ -220,7 +220,7 @@ class TxSpectralProfNode(EmitNode):
 
     @harmonic_slope.setter
     @min_aedt_version("2025.2")
-    def harmonic_slope(self, value: float):
+    def harmonic_slope(self, value: float) -> None:
         self._set_property("Harmonic Slope", f"{value}")
 
     @property
@@ -235,7 +235,7 @@ class TxSpectralProfNode(EmitNode):
 
     @harmonic_intercept.setter
     @min_aedt_version("2025.2")
-    def harmonic_intercept(self, value: float):
+    def harmonic_intercept(self, value: float) -> None:
         self._set_property("Harmonic Intercept", f"{value}")
 
     @property
@@ -253,7 +253,7 @@ class TxSpectralProfNode(EmitNode):
 
     @enable_harmonic_bw_expansion.setter
     @min_aedt_version("2025.2")
-    def enable_harmonic_bw_expansion(self, value: bool):
+    def enable_harmonic_bw_expansion(self, value: bool) -> None:
         self._set_property("Enable Harmonic BW Expansion", f"{str(value).lower()}")
 
     @property
@@ -268,7 +268,7 @@ class TxSpectralProfNode(EmitNode):
 
     @number_of_harmonics.setter
     @min_aedt_version("2025.2")
-    def number_of_harmonics(self, value: int):
+    def number_of_harmonics(self, value: int) -> None:
         self._set_property("Number of Harmonics", f"{value}")
 
     @property
@@ -283,7 +283,7 @@ class TxSpectralProfNode(EmitNode):
 
     @second_harmonic_level.setter
     @min_aedt_version("2025.2")
-    def second_harmonic_level(self, value: float):
+    def second_harmonic_level(self, value: float) -> None:
         self._set_property("Second Harmonic Level", f"{value}")
 
     @property
@@ -298,7 +298,7 @@ class TxSpectralProfNode(EmitNode):
 
     @third_harmonic_level.setter
     @min_aedt_version("2025.2")
-    def third_harmonic_level(self, value: float):
+    def third_harmonic_level(self, value: float) -> None:
         self._set_property("Third Harmonic Level", f"{value}")
 
     @property
@@ -315,7 +315,7 @@ class TxSpectralProfNode(EmitNode):
 
     @other_harmonic_levels.setter
     @min_aedt_version("2025.2")
-    def other_harmonic_levels(self, value: float):
+    def other_harmonic_levels(self, value: float) -> None:
         self._set_property("Other Harmonic Levels", f"{value}")
 
     @property
@@ -330,7 +330,7 @@ class TxSpectralProfNode(EmitNode):
 
     @perform_tx_intermod_analysis.setter
     @min_aedt_version("2025.2")
-    def perform_tx_intermod_analysis(self, value: bool):
+    def perform_tx_intermod_analysis(self, value: bool) -> None:
         self._set_property("Perform Tx Intermod Analysis", f"{str(value).lower()}")
 
     @property
@@ -345,7 +345,7 @@ class TxSpectralProfNode(EmitNode):
 
     @internal_amp_gain.setter
     @min_aedt_version("2025.2")
-    def internal_amp_gain(self, value: float):
+    def internal_amp_gain(self, value: float) -> None:
         self._set_property("Internal Amp Gain", f"{value}")
 
     @property
@@ -360,7 +360,7 @@ class TxSpectralProfNode(EmitNode):
 
     @noise_figure.setter
     @min_aedt_version("2025.2")
-    def noise_figure(self, value: float):
+    def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
@@ -376,7 +376,7 @@ class TxSpectralProfNode(EmitNode):
 
     @amplifier_saturation_level.setter
     @min_aedt_version("2025.2")
-    def amplifier_saturation_level(self, value: float | str):
+    def amplifier_saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Amplifier Saturation Level", f"{value}")
 
@@ -396,7 +396,7 @@ class TxSpectralProfNode(EmitNode):
 
     @p1_db_point_ref_input.setter
     @min_aedt_version("2025.2")
-    def p1_db_point_ref_input(self, value: float | str):
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input ", f"{value}")
 
@@ -413,7 +413,7 @@ class TxSpectralProfNode(EmitNode):
 
     @ip3_ref_input.setter
     @min_aedt_version("2025.2")
-    def ip3_ref_input(self, value: float | str):
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
@@ -429,7 +429,7 @@ class TxSpectralProfNode(EmitNode):
 
     @reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def reverse_isolation(self, value: float):
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -444,5 +444,5 @@ class TxSpectralProfNode(EmitNode):
 
     @max_intermod_order.setter
     @min_aedt_version("2025.2")
-    def max_intermod_order(self, value: int):
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

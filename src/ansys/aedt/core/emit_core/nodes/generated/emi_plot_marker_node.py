@@ -57,7 +57,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @visible.setter
     @min_aedt_version("2025.2")
-    def visible(self, value: bool):
+    def visible(self, value: bool) -> None:
         self._set_property("Visible", f"{str(value).lower()}")
 
     @property
@@ -89,7 +89,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @floating_label.setter
     @min_aedt_version("2025.2")
-    def floating_label(self, value: bool):
+    def floating_label(self, value: bool) -> None:
         self._set_property("Floating Label", f"{str(value).lower()}")
 
     @property
@@ -107,7 +107,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @position_from_left.setter
     @min_aedt_version("2025.2")
-    def position_from_left(self, value: float):
+    def position_from_left(self, value: float) -> None:
         self._set_property("Position from Left", f"{value}")
 
     @property
@@ -125,7 +125,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @position_from_top.setter
     @min_aedt_version("2025.2")
-    def position_from_top(self, value: float):
+    def position_from_top(self, value: float) -> None:
         self._set_property("Position from Top", f"{value}")
 
     @property
@@ -137,7 +137,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @text.setter
     @min_aedt_version("2025.2")
-    def text(self, value: str):
+    def text(self, value: str) -> None:
         self._set_property("Text", f"{value}")
 
     class HorizontalPositionOption(Enum):
@@ -155,7 +155,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @horizontal_position.setter
     @min_aedt_version("2025.2")
-    def horizontal_position(self, value: HorizontalPositionOption):
+    def horizontal_position(self, value: HorizontalPositionOption) -> None:
         self._set_property("Horizontal Position", f"{value.value}")
 
     class VerticalPositionOption(Enum):
@@ -173,7 +173,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @vertical_position.setter
     @min_aedt_version("2025.2")
-    def vertical_position(self, value: VerticalPositionOption):
+    def vertical_position(self, value: VerticalPositionOption) -> None:
         self._set_property("Vertical Position", f"{value.value}")
 
     class TextAlignmentOption(Enum):
@@ -191,7 +191,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @text_alignment.setter
     @min_aedt_version("2025.2")
-    def text_alignment(self, value: TextAlignmentOption):
+    def text_alignment(self, value: TextAlignmentOption) -> None:
         self._set_property("Text Alignment", f"{value.value}")
 
     @property
@@ -206,7 +206,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @font.setter
     @min_aedt_version("2025.2")
-    def font(self, value):
+    def font(self, value) -> None:
         self._set_property("Font", f"{value}")
 
     @property
@@ -221,7 +221,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @color.setter
     @min_aedt_version("2025.2")
-    def color(self, value):
+    def color(self, value) -> None:
         self._set_property("Color", f"{value}")
 
     @property
@@ -236,7 +236,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @background_color.setter
     @min_aedt_version("2025.2")
-    def background_color(self, value):
+    def background_color(self, value) -> None:
         self._set_property("Background Color", f"{value}")
 
     @property
@@ -251,7 +251,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border.setter
     @min_aedt_version("2025.2")
-    def border(self, value: bool):
+    def border(self, value: bool) -> None:
         self._set_property("Border", f"{str(value).lower()}")
 
     @property
@@ -266,7 +266,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border_width.setter
     @min_aedt_version("2025.2")
-    def border_width(self, value: int):
+    def border_width(self, value: int) -> None:
         self._set_property("Border Width", f"{value}")
 
     @property
@@ -281,7 +281,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border_color.setter
     @min_aedt_version("2025.2")
-    def border_color(self, value):
+    def border_color(self, value) -> None:
         self._set_property("Border Color", f"{value}")
 
     class SymbolOption(Enum):
@@ -312,7 +312,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol.setter
     @min_aedt_version("2025.2")
-    def symbol(self, value: SymbolOption):
+    def symbol(self, value: SymbolOption) -> None:
         self._set_property("Symbol", f"{value.value}")
 
     @property
@@ -327,7 +327,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @arrow_direction.setter
     @min_aedt_version("2025.2")
-    def arrow_direction(self, value: int):
+    def arrow_direction(self, value: int) -> None:
         self._set_property("Arrow Direction", f"{value}")
 
     @property
@@ -342,7 +342,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol_size.setter
     @min_aedt_version("2025.2")
-    def symbol_size(self, value: int):
+    def symbol_size(self, value: int) -> None:
         self._set_property("Symbol Size", f"{value}")
 
     @property
@@ -357,7 +357,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol_color.setter
     @min_aedt_version("2025.2")
-    def symbol_color(self, value):
+    def symbol_color(self, value) -> None:
         self._set_property("Symbol Color", f"{value}")
 
     @property
@@ -372,7 +372,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @line_width.setter
     @min_aedt_version("2025.2")
-    def line_width(self, value: int):
+    def line_width(self, value: int) -> None:
         self._set_property("Line Width", f"{value}")
 
     @property
@@ -390,5 +390,5 @@ class EmiPlotMarkerNode(EmitNode):
 
     @filled.setter
     @min_aedt_version("2025.2")
-    def filled(self, value: bool):
+    def filled(self, value: bool) -> None:
         self._set_property("Filled", f"{str(value).lower()}")

@@ -61,7 +61,7 @@ class Amplifier(EmitNode):
 
     @table_data.setter
     @min_aedt_version("2025.2")
-    def table_data(self, value: list[tuple]):
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
@@ -76,7 +76,7 @@ class Amplifier(EmitNode):
 
     @noise_temperature.setter
     @min_aedt_version("2025.2")
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -88,7 +88,7 @@ class Amplifier(EmitNode):
 
     @notes.setter
     @min_aedt_version("2025.2")
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     @property
@@ -103,7 +103,7 @@ class Amplifier(EmitNode):
 
     @gain.setter
     @min_aedt_version("2025.2")
-    def gain(self, value: float):
+    def gain(self, value: float) -> None:
         self._set_property("Gain", f"{value}")
 
     @property
@@ -119,7 +119,7 @@ class Amplifier(EmitNode):
 
     @center_frequency.setter
     @min_aedt_version("2025.2")
-    def center_frequency(self, value: float | str):
+    def center_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Center Frequency", f"{value}")
 
@@ -136,7 +136,7 @@ class Amplifier(EmitNode):
 
     @bandwidth.setter
     @min_aedt_version("2025.2")
-    def bandwidth(self, value: float | str):
+    def bandwidth(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Bandwidth", f"{value}")
 
@@ -152,7 +152,7 @@ class Amplifier(EmitNode):
 
     @noise_figure.setter
     @min_aedt_version("2025.2")
-    def noise_figure(self, value: float):
+    def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
@@ -168,7 +168,7 @@ class Amplifier(EmitNode):
 
     @saturation_level.setter
     @min_aedt_version("2025.2")
-    def saturation_level(self, value: float | str):
+    def saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Saturation Level", f"{value}")
 
@@ -185,7 +185,7 @@ class Amplifier(EmitNode):
 
     @p1_db_point_ref_input.setter
     @min_aedt_version("2025.2")
-    def p1_db_point_ref_input(self, value: float | str):
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input", f"{value}")
 
@@ -202,7 +202,7 @@ class Amplifier(EmitNode):
 
     @ip3_ref_input.setter
     @min_aedt_version("2025.2")
-    def ip3_ref_input(self, value: float | str):
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
@@ -218,7 +218,7 @@ class Amplifier(EmitNode):
 
     @shape_factor.setter
     @min_aedt_version("2025.2")
-    def shape_factor(self, value: float):
+    def shape_factor(self, value: float) -> None:
         self._set_property("Shape Factor", f"{value}")
 
     @property
@@ -233,7 +233,7 @@ class Amplifier(EmitNode):
 
     @reverse_isolation.setter
     @min_aedt_version("2025.2")
-    def reverse_isolation(self, value: float):
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
@@ -248,5 +248,5 @@ class Amplifier(EmitNode):
 
     @max_intermod_order.setter
     @min_aedt_version("2025.2")
-    def max_intermod_order(self, value: int):
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

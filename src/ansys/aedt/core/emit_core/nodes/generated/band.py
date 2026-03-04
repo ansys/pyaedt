@@ -73,7 +73,7 @@ class Band(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
@@ -88,7 +88,7 @@ class Band(EmitNode):
 
     @use_dd_1494_mode.setter
     @min_aedt_version("2025.2")
-    def use_dd_1494_mode(self, value: bool):
+    def use_dd_1494_mode(self, value: bool) -> None:
         self._set_property("Use DD-1494 Mode", f"{str(value).lower()}")
 
     @property
@@ -105,7 +105,7 @@ class Band(EmitNode):
 
     @use_emission_designator.setter
     @min_aedt_version("2025.2")
-    def use_emission_designator(self, value: bool):
+    def use_emission_designator(self, value: bool) -> None:
         self._set_property("Use Emission Designator", f"{str(value).lower()}")
 
     @property
@@ -120,7 +120,7 @@ class Band(EmitNode):
 
     @emission_designator.setter
     @min_aedt_version("2025.2")
-    def emission_designator(self, value: str):
+    def emission_designator(self, value: str) -> None:
         self._set_property("Emission Designator", f"{value}")
 
     @property
@@ -153,7 +153,7 @@ class Band(EmitNode):
 
     @override_emission_designator_bw.setter
     @min_aedt_version("2025.2")
-    def override_emission_designator_bw(self, value: bool):
+    def override_emission_designator_bw(self, value: bool) -> None:
         self._set_property("Override Emission Designator BW", f"{str(value).lower()}")
 
     @property
@@ -169,7 +169,7 @@ class Band(EmitNode):
 
     @channel_bandwidth.setter
     @min_aedt_version("2025.2")
-    def channel_bandwidth(self, value: float | str):
+    def channel_bandwidth(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Channel Bandwidth", f"{value}")
 
@@ -196,7 +196,7 @@ class Band(EmitNode):
 
     @modulation.setter
     @min_aedt_version("2025.2")
-    def modulation(self, value: ModulationOption):
+    def modulation(self, value: ModulationOption) -> None:
         self._set_property("Modulation", f"{value.value}")
 
     @property
@@ -212,7 +212,7 @@ class Band(EmitNode):
 
     @max_modulating_freq.setter
     @min_aedt_version("2025.2")
-    def max_modulating_freq(self, value: float | str):
+    def max_modulating_freq(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Modulating Freq.", f"{value}")
 
@@ -228,7 +228,7 @@ class Band(EmitNode):
 
     @modulation_index.setter
     @min_aedt_version("2025.2")
-    def modulation_index(self, value: float):
+    def modulation_index(self, value: float) -> None:
         self._set_property("Modulation Index", f"{value}")
 
     @property
@@ -244,7 +244,7 @@ class Band(EmitNode):
 
     @bit_rate.setter
     @min_aedt_version("2025.2")
-    def bit_rate(self, value: float | str):
+    def bit_rate(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Data Rate")
         self._set_property("Bit Rate", f"{value}")
 
@@ -260,7 +260,7 @@ class Band(EmitNode):
 
     @sidelobes.setter
     @min_aedt_version("2025.2")
-    def sidelobes(self, value: int):
+    def sidelobes(self, value: int) -> None:
         self._set_property("Sidelobes", f"{value}")
 
     @property
@@ -276,7 +276,7 @@ class Band(EmitNode):
 
     @freq_deviation.setter
     @min_aedt_version("2025.2")
-    def freq_deviation(self, value: float | str):
+    def freq_deviation(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             if self.modulation == self.ModulationOption.FM:
@@ -304,7 +304,7 @@ class Band(EmitNode):
 
     @psk_type.setter
     @min_aedt_version("2025.2")
-    def psk_type(self, value: PSKTypeOption):
+    def psk_type(self, value: PSKTypeOption) -> None:
         self._set_property("PSK Type", f"{value.value}")
 
     class FSKTypeOption(Enum):
@@ -322,7 +322,7 @@ class Band(EmitNode):
 
     @fsk_type.setter
     @min_aedt_version("2025.2")
-    def fsk_type(self, value: FSKTypeOption):
+    def fsk_type(self, value: FSKTypeOption) -> None:
         self._set_property("FSK Type", f"{value.value}")
 
     class QAMTypeOption(Enum):
@@ -342,7 +342,7 @@ class Band(EmitNode):
 
     @qam_type.setter
     @min_aedt_version("2025.2")
-    def qam_type(self, value: QAMTypeOption):
+    def qam_type(self, value: QAMTypeOption) -> None:
         self._set_property("QAM Type", f"{value.value}")
 
     class APSKTypeOption(Enum):
@@ -362,7 +362,7 @@ class Band(EmitNode):
 
     @apsk_type.setter
     @min_aedt_version("2025.2")
-    def apsk_type(self, value: APSKTypeOption):
+    def apsk_type(self, value: APSKTypeOption) -> None:
         self._set_property("APSK Type", f"{value.value}")
 
     @property
@@ -378,7 +378,7 @@ class Band(EmitNode):
 
     @start_frequency.setter
     @min_aedt_version("2025.2")
-    def start_frequency(self, value: float | str):
+    def start_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
 
@@ -395,7 +395,7 @@ class Band(EmitNode):
 
     @stop_frequency.setter
     @min_aedt_version("2025.2")
-    def stop_frequency(self, value: float | str):
+    def stop_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Stop Frequency", f"{value}")
 
@@ -412,7 +412,7 @@ class Band(EmitNode):
 
     @channel_spacing.setter
     @min_aedt_version("2025.2")
-    def channel_spacing(self, value: float | str):
+    def channel_spacing(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Channel Spacing", f"{value}")
 
@@ -429,7 +429,7 @@ class Band(EmitNode):
 
     @tx_offset.setter
     @min_aedt_version("2025.2")
-    def tx_offset(self, value: float | str):
+    def tx_offset(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Tx Offset", f"{value}")
 
@@ -450,7 +450,7 @@ class Band(EmitNode):
 
     @radar_type.setter
     @min_aedt_version("2025.2")
-    def radar_type(self, value: RadarTypeOption):
+    def radar_type(self, value: RadarTypeOption) -> None:
         self._set_property("Radar Type", f"{value.value}")
 
     @property
@@ -465,7 +465,7 @@ class Band(EmitNode):
 
     @hopping_radar.setter
     @min_aedt_version("2025.2")
-    def hopping_radar(self, value: bool):
+    def hopping_radar(self, value: bool) -> None:
         self._set_property("Hopping Radar", f"{str(value).lower()}")
 
     @property
@@ -483,7 +483,7 @@ class Band(EmitNode):
 
     @post_october_2020_procurement.setter
     @min_aedt_version("2025.2")
-    def post_october_2020_procurement(self, value: bool):
+    def post_october_2020_procurement(self, value: bool) -> None:
         self._set_property("Post October 2020 Procurement", f"{str(value).lower()}")
 
     @property
@@ -499,7 +499,7 @@ class Band(EmitNode):
 
     @hop_range_min_freq.setter
     @min_aedt_version("2025.2")
-    def hop_range_min_freq(self, value: float | str):
+    def hop_range_min_freq(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Hop Range Min Freq", f"{value}")
 
@@ -516,7 +516,7 @@ class Band(EmitNode):
 
     @hop_range_max_freq.setter
     @min_aedt_version("2025.2")
-    def hop_range_max_freq(self, value: float | str):
+    def hop_range_max_freq(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Hop Range Max Freq", f"{value}")
 
@@ -533,7 +533,7 @@ class Band(EmitNode):
 
     @pulse_duration.setter
     @min_aedt_version("2025.2")
-    def pulse_duration(self, value: float | str):
+    def pulse_duration(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Pulse Duration", f"{value}")
 
@@ -550,7 +550,7 @@ class Band(EmitNode):
 
     @pulse_rise_time.setter
     @min_aedt_version("2025.2")
-    def pulse_rise_time(self, value: float | str):
+    def pulse_rise_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Pulse Rise Time", f"{value}")
 
@@ -567,7 +567,7 @@ class Band(EmitNode):
 
     @pulse_fall_time.setter
     @min_aedt_version("2025.2")
-    def pulse_fall_time(self, value: float | str):
+    def pulse_fall_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Pulse Fall Time", f"{value}")
 
@@ -583,7 +583,7 @@ class Band(EmitNode):
 
     @pulse_repetition_rate.setter
     @min_aedt_version("2025.2")
-    def pulse_repetition_rate(self, value: float):
+    def pulse_repetition_rate(self, value: float) -> None:
         self._set_property("Pulse Repetition Rate", f"{value}")
 
     @property
@@ -598,7 +598,7 @@ class Band(EmitNode):
 
     @number_of_chips.setter
     @min_aedt_version("2025.2")
-    def number_of_chips(self, value: float):
+    def number_of_chips(self, value: float) -> None:
         self._set_property("Number of Chips", f"{value}")
 
     @property
@@ -613,7 +613,7 @@ class Band(EmitNode):
 
     @pulse_compression_ratio.setter
     @min_aedt_version("2025.2")
-    def pulse_compression_ratio(self, value: float):
+    def pulse_compression_ratio(self, value: float) -> None:
         self._set_property("Pulse Compression Ratio", f"{value}")
 
     @property
@@ -629,7 +629,7 @@ class Band(EmitNode):
 
     @fm_chirp_period.setter
     @min_aedt_version("2025.2")
-    def fm_chirp_period(self, value: float | str):
+    def fm_chirp_period(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("FM Chirp Period", f"{value}")
 
@@ -648,7 +648,7 @@ class Band(EmitNode):
 
     @fm_freq_deviation.setter
     @min_aedt_version("2025.2")
-    def fm_freq_deviation(self, value: float | str):
+    def fm_freq_deviation(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("FM Freq Deviation", f"{value}")
 
@@ -668,6 +668,6 @@ class Band(EmitNode):
 
     @fm_freq_dev_bandwidth.setter
     @min_aedt_version("2025.2")
-    def fm_freq_dev_bandwidth(self, value: float | str):
+    def fm_freq_dev_bandwidth(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("FM Freq Dev Bandwidth", f"{value}")

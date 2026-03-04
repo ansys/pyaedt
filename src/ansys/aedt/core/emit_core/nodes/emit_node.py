@@ -110,7 +110,7 @@ class EmitNode:
 
     @name.setter
     @min_aedt_version("2025.2")
-    def name(self, requested_name: str):
+    def name(self, requested_name: str) -> None:
         """Renames the node/component.
 
         Parameters

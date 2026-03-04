@@ -102,7 +102,7 @@ class CouplingsNode(EmitNode):
 
     @minimum_allowed_coupling.setter
     @min_aedt_version("2025.2")
-    def minimum_allowed_coupling(self, value: float):
+    def minimum_allowed_coupling(self, value: float) -> None:
         self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
@@ -117,7 +117,7 @@ class CouplingsNode(EmitNode):
 
     @global_default_coupling.setter
     @min_aedt_version("2025.2")
-    def global_default_coupling(self, value: float):
+    def global_default_coupling(self, value: float) -> None:
         self._set_property("Global Default Coupling", f"{value}")
 
     @property

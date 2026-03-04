@@ -46,7 +46,7 @@ class Waveform(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -68,7 +68,7 @@ class Waveform(EmitNode):
 
     @enabled.setter
     @min_aedt_version("2025.2")
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class WaveformOption(Enum):
@@ -88,7 +88,7 @@ class Waveform(EmitNode):
 
     @waveform.setter
     @min_aedt_version("2025.2")
-    def waveform(self, value: WaveformOption):
+    def waveform(self, value: WaveformOption) -> None:
         self._set_property("Waveform", f"{value.value}")
 
     @property
@@ -104,7 +104,7 @@ class Waveform(EmitNode):
 
     @start_frequency.setter
     @min_aedt_version("2025.2")
-    def start_frequency(self, value: float | str):
+    def start_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
 
@@ -120,7 +120,7 @@ class Waveform(EmitNode):
 
     @clock_duty_cycle.setter
     @min_aedt_version("2025.2")
-    def clock_duty_cycle(self, value: float):
+    def clock_duty_cycle(self, value: float) -> None:
         self._set_property("Clock Duty Cycle", f"{value}")
 
     @property
@@ -136,7 +136,7 @@ class Waveform(EmitNode):
 
     @clock_risefall_time.setter
     @min_aedt_version("2025.2")
-    def clock_risefall_time(self, value: float | str):
+    def clock_risefall_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Clock Rise/Fall Time", f"{value}")
 
@@ -155,7 +155,7 @@ class Waveform(EmitNode):
 
     @spreading_type.setter
     @min_aedt_version("2025.2")
-    def spreading_type(self, value: SpreadingTypeOption):
+    def spreading_type(self, value: SpreadingTypeOption) -> None:
         self._set_property("Spreading Type", f"{value.value}")
 
     @property
@@ -170,7 +170,7 @@ class Waveform(EmitNode):
 
     @spread_percentage.setter
     @min_aedt_version("2025.2")
-    def spread_percentage(self, value: float):
+    def spread_percentage(self, value: float) -> None:
         self._set_property("Spread Percentage", f"{value}")
 
     @property
@@ -182,7 +182,7 @@ class Waveform(EmitNode):
 
     @imported_spectrum.setter
     @min_aedt_version("2025.2")
-    def imported_spectrum(self, value: str):
+    def imported_spectrum(self, value: str) -> None:
         self._set_property("Imported Spectrum", f"{value}")
 
     @property
@@ -205,7 +205,7 @@ class Waveform(EmitNode):
 
     @system_impedance.setter
     @min_aedt_version("2025.2")
-    def system_impedance(self, value: float | str):
+    def system_impedance(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Resistance")
         self._set_property("System Impedance", f"{value}")
 
@@ -221,7 +221,7 @@ class Waveform(EmitNode):
 
     @advanced_extraction_params.setter
     @min_aedt_version("2025.2")
-    def advanced_extraction_params(self, value: bool):
+    def advanced_extraction_params(self, value: bool) -> None:
         self._set_property("Advanced Extraction Params", f"{str(value).lower()}")
 
     @property
@@ -239,7 +239,7 @@ class Waveform(EmitNode):
 
     @nb_window_size.setter
     @min_aedt_version("2025.2")
-    def nb_window_size(self, value: float):
+    def nb_window_size(self, value: float) -> None:
         self._set_property("NB Window Size", f"{value}")
 
     @property
@@ -256,7 +256,7 @@ class Waveform(EmitNode):
 
     @bb_smoothing_factor.setter
     @min_aedt_version("2025.2")
-    def bb_smoothing_factor(self, value: float):
+    def bb_smoothing_factor(self, value: float) -> None:
         self._set_property("BB Smoothing Factor", f"{value}")
 
     @property
@@ -271,7 +271,7 @@ class Waveform(EmitNode):
 
     @nb_detector_threshold.setter
     @min_aedt_version("2025.2")
-    def nb_detector_threshold(self, value: float):
+    def nb_detector_threshold(self, value: float) -> None:
         self._set_property("NB Detector Threshold", f"{value}")
 
     class AlgorithmOption(Enum):
@@ -288,7 +288,7 @@ class Waveform(EmitNode):
 
     @algorithm.setter
     @min_aedt_version("2025.2")
-    def algorithm(self, value: AlgorithmOption):
+    def algorithm(self, value: AlgorithmOption) -> None:
         self._set_property("Algorithm", f"{value.value}")
 
     @property
@@ -304,7 +304,7 @@ class Waveform(EmitNode):
 
     @start_time.setter
     @min_aedt_version("2025.2")
-    def start_time(self, value: float | str):
+    def start_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Start Time", f"{value}")
 
@@ -318,7 +318,7 @@ class Waveform(EmitNode):
 
     @stop_time.setter
     @min_aedt_version("2025.2")
-    def stop_time(self, value: float | str):
+    def stop_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Stop Time", f"{value}")
 
@@ -335,7 +335,7 @@ class Waveform(EmitNode):
 
     @max_frequency.setter
     @min_aedt_version("2025.2")
-    def max_frequency(self, value: float | str):
+    def max_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Frequency", f"{value}")
 
@@ -360,7 +360,7 @@ class Waveform(EmitNode):
 
     @window_type.setter
     @min_aedt_version("2025.2")
-    def window_type(self, value: WindowTypeOption):
+    def window_type(self, value: WindowTypeOption) -> None:
         self._set_property("Window Type", f"{value.value}")
 
     @property
@@ -375,7 +375,7 @@ class Waveform(EmitNode):
 
     @kaiser_parameter.setter
     @min_aedt_version("2025.2")
-    def kaiser_parameter(self, value: float):
+    def kaiser_parameter(self, value: float) -> None:
         self._set_property("Kaiser Parameter", f"{value}")
 
     @property
@@ -390,7 +390,7 @@ class Waveform(EmitNode):
 
     @adjust_coherent_gain.setter
     @min_aedt_version("2025.2")
-    def adjust_coherent_gain(self, value: bool):
+    def adjust_coherent_gain(self, value: bool) -> None:
         self._set_property("Adjust Coherent Gain", f"{str(value).lower()}")
 
     @property
@@ -406,7 +406,7 @@ class Waveform(EmitNode):
 
     @data_rate.setter
     @min_aedt_version("2025.2")
-    def data_rate(self, value: float | str):
+    def data_rate(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Data Rate")
         self._set_property("Data Rate", f"{value}")
 
@@ -422,7 +422,7 @@ class Waveform(EmitNode):
 
     @num_of_bits.setter
     @min_aedt_version("2025.2")
-    def num_of_bits(self, value: int):
+    def num_of_bits(self, value: int) -> None:
         self._set_property("Num of Bits", f"{value}")
 
     @property
@@ -437,7 +437,7 @@ class Waveform(EmitNode):
 
     @use_envelope.setter
     @min_aedt_version("2025.2")
-    def use_envelope(self, value: bool):
+    def use_envelope(self, value: bool) -> None:
         self._set_property("Use Envelope", f"{str(value).lower()}")
 
     @property
@@ -452,5 +452,5 @@ class Waveform(EmitNode):
 
     @min_ptsnull.setter
     @min_aedt_version("2025.2")
-    def min_ptsnull(self, value: int):
+    def min_ptsnull(self, value: int) -> None:
         self._set_property("Min Pts/Null", f"{value}")
