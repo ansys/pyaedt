@@ -27,6 +27,7 @@
 from pathlib import Path
 import shutil
 import tempfile
+from typing import Callable
 import zipfile
 
 from ansys.tools.common.example_download import download_manager
@@ -71,6 +72,7 @@ def _download_file(
     """
     relative_path: Path = Path(github_relative_path.strip("/"))
     # Strip "pyaedt" prefix for local storage to avoid redundant folder structure
+    local_relative_path = relative_path
     if strip_prefix:
         local_relative_path = relative_path.relative_to(strip_prefix)
 
@@ -162,6 +164,7 @@ def list_examples_files(folder) -> list:
 def _download_folder(
     github_relative_path: str,
     local_path: str | Path = None,
+    filter_func: Callable[[str], bool] | None = None,
     strip_prefix: str | Path = None,
     force: bool = False,
 ) -> Path:
@@ -173,10 +176,12 @@ def _download_folder(
         The relative path to the folder in the GitHub repository.
     local_path : str or :class:`pathlib.Path`, optional
         Path for downloading files. The default is the user's temp folder.
+    filter_func : Callable[[str], bool], optional
+        Function to filter files to download. The default is ``None``.
     strip_prefix : str or :class:`pathlib.Path`, optional
-        Prefix to strip from the downloaded file paths. The default is None.
+        Prefix to strip from the downloaded file paths. The default is ``None``.
     force : bool, optional
-        Force to delete cache and download files again. The default is False.
+        Force to delete cache and download files again. The default is ``False``.
 
     Returns
     -------
@@ -190,9 +195,16 @@ def _download_folder(
 
     files = list_examples_files(github_relative_path)
     for file in files:
+        if filter_func and filter_func(file):
+            pyaedt_logger.debug(f"Skipping {file} due to filter")
+            continue
         _download_file(file, local_path=local_path, strip_prefix=strip_prefix, force=force)
 
-    return local_path
+    if strip_prefix:
+        res = local_path / Path(github_relative_path).relative_to(strip_prefix)
+    else:
+        res = local_path / github_relative_path
+    return res.resolve()
 
 
 ###############################################################################
@@ -788,24 +800,19 @@ def download_twin_builder_data(
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
-    if force_download:
-        path_to_remove = local_path / "twin_builder"
-        if file_name:
-            path_to_remove = path_to_remove / file_name
-        if path_to_remove.exists():
-            pyaedt_logger.debug(f"Deleting {path_to_remove} to force download.")
-            shutil.rmtree(path_to_remove, ignore_errors=True)
-
     if file_name:
 
         def filter_func(f) -> bool:
             return not f.endswith(file_name)
-
     else:
         filter_func = None
 
     folder_path = _download_folder(
-        "pyaedt/twin_builder", local_path=local_path, filter_func=filter_func, strip_prefix="pyaedt"
+        "pyaedt/twin_builder",
+        local_path=local_path,
+        filter_func=filter_func,
+        strip_prefix="pyaedt",
+        force=force_download,
     )
 
     if file_name:
