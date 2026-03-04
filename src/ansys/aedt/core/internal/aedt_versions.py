@@ -55,7 +55,7 @@ class AedtVersions(PyAedtBase):
         self._latest_version = None
 
     @property
-    def list_installed_ansysem(self):
+    def list_installed_ansysem(self) -> list:
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
 
         The list is ordered: first normal versions, then client versions, finally student versions.
@@ -82,7 +82,7 @@ class AedtVersions(PyAedtBase):
         return self._list_installed_ansysem
 
     @property
-    def installed_versions(self):
+    def installed_versions(self) -> dict:
         """Get the installed AEDT versions.
 
         This method returns a dictionary, with the version as the key and installation path
@@ -141,7 +141,7 @@ class AedtVersions(PyAedtBase):
         return self._installed_versions
 
     @property
-    def stable_versions(self):
+    def stable_versions(self) -> list:
         """Get all stable versions installed on the system"""
         if self._stable_versions is None:
             try:
@@ -153,7 +153,7 @@ class AedtVersions(PyAedtBase):
         return self._stable_versions
 
     @property
-    def current_version(self):
+    def current_version(self) -> str:
         """Get the most recent stable AEDT version."""
         if self._current_version is None:
             if self.stable_versions:
@@ -163,7 +163,7 @@ class AedtVersions(PyAedtBase):
         return self._current_version
 
     @property
-    def current_student_version(self):
+    def current_student_version(self) -> str:
         """Get the current stable AEDT student version."""
         if self._current_student_version is None:
             stable_student_versions = [v for v in self.stable_versions if "SV" in v]
@@ -174,7 +174,7 @@ class AedtVersions(PyAedtBase):
         return self._current_student_version
 
     @property
-    def latest_version(self):
+    def latest_version(self) -> str:
         """Get the latest AEDT version, even if it is pre-release."""
         if self._latest_version is None:
             try:
@@ -184,7 +184,7 @@ class AedtVersions(PyAedtBase):
         return self._latest_version
 
     @staticmethod
-    def get_version_env_variable(version_id):
+    def get_version_env_variable(version_id: str) -> str:
         """Get the environment variable for the AEDT version.
 
         Parameters

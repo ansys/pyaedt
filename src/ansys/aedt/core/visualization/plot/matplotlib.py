@@ -1346,7 +1346,7 @@ class ReportPlotter(PyAedtBase):
                 t.set_bbox(bbox)
 
     @pyaedt_function_handler()
-    def _plot_limit_lines(self, convert_to_radians: bool = False) -> None:
+    def _plot_limit_lines(self, convert_to_radians: bool = False):
         rate = 1
         if convert_to_radians:
             rate = np.pi / 180

@@ -193,7 +193,7 @@ class LumpedTopology:
         return source_resistance_string
 
     @source_resistance.setter
-    def source_resistance(self, source_resistance_string) -> None:
+    def source_resistance(self, source_resistance_string: str) -> None:
         if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedSourceResistance, source_resistance_string)
         else:
@@ -214,7 +214,7 @@ class LumpedTopology:
         return load_resistance_string
 
     @load_resistance.setter
-    def load_resistance(self, load_resistance_string) -> None:
+    def load_resistance(self, load_resistance_string: str) -> None:
         if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedLoadResistance, load_resistance_string)
         else:

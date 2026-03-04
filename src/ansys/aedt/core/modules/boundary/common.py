@@ -38,7 +38,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters."""
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_boundary.auto_update:
@@ -67,7 +67,7 @@ class BoundaryProps(dict):
                     dict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
 
-    def _setitem_without_update(self, key, value) -> None:
+    def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
 

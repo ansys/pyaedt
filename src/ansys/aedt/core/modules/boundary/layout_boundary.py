@@ -531,7 +531,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @power.setter
     @disable_auto_update
-    def power(self, value) -> None:
+    def power(self, value):
         """Assign power dissipation to the PCB.
 
         Parameters
@@ -606,7 +606,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @included_parts.setter
     @disable_auto_update
-    def included_parts(self, value) -> None:
+    def included_parts(self, value):
         """Set PCB parts incusion option.
 
         Parameters
@@ -677,7 +677,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @power.setter
     @disable_auto_update
-    def power(self, value) -> None:
+    def power(self, value):
         """Assign power dissipation to the PCB.
 
         Parameters
@@ -731,7 +731,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @included_parts.setter
     @disable_auto_update
-    def included_parts(self, value) -> None:
+    def included_parts(self, value):
         """Set PCB parts incusion option.
 
         Parameters
@@ -806,7 +806,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @board_cutout_material.setter
     @disable_auto_update
-    def board_cutout_material(self, value) -> None:
+    def board_cutout_material(self, value):
         """Set material to apply to cutout regions.
 
         Parameters
@@ -818,7 +818,7 @@ class NativeComponentPCB(NativeComponentObject):
 
     @via_holes_material.setter
     @disable_auto_update
-    def via_holes_material(self, value) -> None:
+    def via_holes_material(self, value):
         """Set material to apply to via hole regions.
 
         Parameters
@@ -1040,7 +1040,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @simplify_parts.setter
     @pyaedt_function_handler()
-    def simplify_parts(self, value) -> None:
+    def simplify_parts(self, value):
         """Set whether parts are simplified as cuboid.
 
         Parameters
@@ -1058,7 +1058,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @surface_material.setter
     @pyaedt_function_handler()
-    def surface_material(self, value) -> None:
+    def surface_material(self, value):
         """Set surface material to apply to parts.
 
         Parameters
@@ -1088,7 +1088,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @footprint_filter.setter
     @pyaedt_function_handler()
     @disable_auto_update
-    def footprint_filter(self, minimum_footprint) -> None:
+    def footprint_filter(self, minimum_footprint):
         """Set minimum component footprint for filtering.
 
         Parameters
@@ -1133,7 +1133,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @power_filter.setter
     @pyaedt_function_handler()
     @disable_auto_update
-    def power_filter(self, minimum_power) -> None:
+    def power_filter(self, minimum_power):
         """Set minimum component power for filtering.
 
         Parameters
@@ -1176,7 +1176,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @type_filters.setter
     @pyaedt_function_handler()
     @disable_auto_update
-    def type_filters(self, object_type) -> None:
+    def type_filters(self, object_type):
         """Set types of component to filter.
 
         Parameters
@@ -1227,7 +1227,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @height_filter.setter
     @pyaedt_function_handler()
     @disable_auto_update
-    def height_filter(self, minimum_height) -> None:
+    def height_filter(self, minimum_height):
         """Set minimum component height for filtering and whether to filter 2D objects.
 
         Parameters
@@ -1270,7 +1270,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @objects_2d_filter.setter
     @pyaedt_function_handler()
     @disable_auto_update
-    def objects_2d_filter(self, enable) -> None:
+    def objects_2d_filter(self, enable):
         """Set whether 2d objects are filtered.
 
         Parameters

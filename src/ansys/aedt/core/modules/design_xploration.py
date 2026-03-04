@@ -157,7 +157,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
         self.auto_update = True
 
-    def _get_setup_props(self, arg1: dict[str, Any]) -> None:
+    def _get_setup_props(self, arg1: dict[str, Any]):
         for k, v in arg1.items():
             if isinstance(v, dict):
                 arg1[k] = SetupProps(self, v)
@@ -483,7 +483,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def _activate_variable(self, variable_name) -> None:
+    def _activate_variable(self, variable_name):
         if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)
         elif self.soltype == "OptiParametric":

@@ -684,7 +684,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def _add_to_props(self, new_node, type_dict: str = "Nodes") -> None:
+    def _add_to_props(self, new_node, type_dict: str = "Nodes"):
         try:
             self.props[type_dict].update({new_node.name: new_node.props})
         except KeyError:

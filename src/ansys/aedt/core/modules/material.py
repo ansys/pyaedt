@@ -394,8 +394,8 @@ class MatProperty(PyAedtBase):
         return self._type
 
     @type.setter
-    def type(self, type) -> None:
-        self._type = type
+    def type(self, value) -> None:
+        self._type = value
         if self._type == "simple":
             self._property_value = [self._property_value[0]]
         elif self._type == "anisotropic":
@@ -1533,7 +1533,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, appearance_props):
+    def material_appearance(self, appearance_props) -> None:
         if not isinstance(appearance_props, (list, tuple)):
             raise TypeError("`material_appearance` must be a list or tuple.")
         if len(appearance_props) != 3 and len(appearance_props) != 4:
@@ -1876,7 +1876,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._stacking_type
 
     @stacking_type.setter
-    def stacking_type(self, value):
+    def stacking_type(self, value) -> None:
         if value not in ["Solid", "Lamination", "Litz Wire"]:
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
@@ -1908,7 +1908,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_type
 
     @wire_type.setter
-    def wire_type(self, value):
+    def wire_type(self, value) -> None:
         if value not in ["Round", "Square", "Rectangular"]:
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
@@ -1932,7 +1932,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_thickness_direction
 
     @wire_thickness_direction.setter
-    def wire_thickness_direction(self, value):
+    def wire_thickness_direction(self, value) -> None:
         if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
@@ -1956,7 +1956,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._wire_width_direction
 
     @wire_width_direction.setter
-    def wire_width_direction(self, value):
+    def wire_width_direction(self, value) -> None:
         if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
@@ -2085,7 +2085,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self._stacking_direction
 
     @stacking_direction.setter
-    def stacking_direction(self, value):
+    def stacking_direction(self, value) -> None:
         if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 

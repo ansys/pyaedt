@@ -340,7 +340,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name: str, design_name: str, solution_type: str = None) -> None:
+    def _init_design(self, project_name: str, design_name: str, solution_type: str = None):
         """Initializes a new design.
 
         Parameters
@@ -598,7 +598,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key: str):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 

@@ -42,7 +42,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def List2list(input_list):
+    def List2list(input_list: list) -> list:
         """Convert a C# list object to a Python list.
 
         This function performs a deep conversion.
@@ -68,7 +68,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def parse_dim_arg(string, scale_to_unit=None, variable_manager=None):
+    def parse_dim_arg(string: str, scale_to_unit: str = None, variable_manager=None) -> float:
         """Convert a number and unit to a float.
 
         Angles are converted in radians.
@@ -138,7 +138,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_axis_str(val) -> str:
+    def cs_plane_to_axis_str(val: int) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -161,7 +161,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_plane_str(val) -> str:
+    def cs_plane_to_plane_str(val: int) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -184,7 +184,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_axis_str(val) -> str:
+    def cs_axis_str(val: int) -> str:
         """Retrieve a string for a coordinate system axis.
 
         Parameters
@@ -208,7 +208,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def draft_type_str(val) -> str:
+    def draft_type_str(val: int) -> str:
         """Retrieve the draft type.
 
         Parameters
@@ -231,7 +231,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_mid_point(v1, v2):
+    def get_mid_point(v1: list, v2: list) -> list:
         """Evaluate the midpoint between two points.
 
         Parameters
@@ -252,7 +252,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_triangle_area(v1, v2, v3):
+    def get_triangle_area(v1: list, v2: list, v3: list) -> float:
         """Evaluate the area of a triangle defined by its three vertices.
 
         Parameters
@@ -281,7 +281,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_cross(a, b):
+    def v_cross(a: list, b: list) -> list:
         """Evaluate the cross product of two geometry vectors.
 
         Parameters
@@ -301,7 +301,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def _v_dot(a, b):
+    def _v_dot(a: list, b: list) -> float:
         """Evaluate the dot product between two geometry vectors.
 
         Parameters
@@ -327,7 +327,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_dot(a, b):
+    def v_dot(a: list, b: list) -> float:
         """Evaluate the dot product between two geometry vectors.
 
         Parameters
@@ -347,7 +347,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_prod(s, v):
+    def v_prod(s: float, v: list) -> list:
         """Evaluate the product between a scalar value and a vector.
 
         Parameters
@@ -370,7 +370,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_rotate_about_axis(vector, angle, radians: bool = False, axis: str = "z"):
+    def v_rotate_about_axis(vector: list, angle: float, radians: bool = False, axis: str = "z") -> list:
         """Evaluate rotation of a vector around an axis.
 
         Parameters
@@ -412,7 +412,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_sub(a, b):
+    def v_sub(a: list, b: list) -> list:
         """Evaluate two geometry vectors by subtracting them (a-b).
 
         Parameters
@@ -433,7 +433,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_sum(a, b):
+    def v_sum(a: list, b: list) -> list:
         """Evaluate two geometry vectors by adding them (a+b).
 
         Parameters
@@ -454,7 +454,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_norm(a):
+    def v_norm(a: list) -> float:
         """Evaluate the Euclidean norm of a geometry vector.
 
         Parameters
@@ -474,7 +474,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def normalize_vector(v):
+    def normalize_vector(v: list) -> list:
         """Normalize a geometry vector.
 
         Parameters
@@ -497,7 +497,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_points(p1, p2):
+    def v_points(p1: list, p2: list) -> list:
         """Vector from one point to another point.
 
         Parameters
@@ -516,7 +516,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def points_distance(p1, p2):
+    def points_distance(p1: list, p2: list) -> float:
         """Evaluate the distance between two points expressed as their Cartesian coordinates.
 
         Parameters
@@ -542,7 +542,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_point_on_plane(pointlists, direction: int = 0):
+    def find_point_on_plane(pointlists: list, direction: int = 0) -> float:
         """Find a point on a plane.
 
         Parameters
@@ -571,7 +571,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def distance_vector(p, a, b):
+    def distance_vector(p: list, a: list, b: list) -> list:
         """Evaluate the vector distance between point ``p`` and a line defined by two points, ``a`` and ``b``.
 
         .. note::
@@ -603,7 +603,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_between_points(p, a, b, tol: float = 1e-6) -> bool:
+    def is_between_points(p: list, a: list, b: list, tol: float = 1e-6) -> bool:
         """Check if a point lies on the segment defined by two points.
 
         Parameters
@@ -636,7 +636,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_parallel(a1, a2, b1, b2, tol: float = 1e-6) -> bool:
+    def is_parallel(a1: list, a2: list, b1: list, b2: list, tol: float = 1e-6) -> bool:
         """Check if a segment defined by two points is parallel to a segment defined by two other points.
 
         Parameters
@@ -665,7 +665,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def parallel_coeff(a1, a2, b1, b2):
+    def parallel_coeff(a1: list, a2: list, b1: list, b2: list) -> float:
         """ADD DESCRIPTION.
 
         Parameters
@@ -693,7 +693,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_collinear(a, b, tol: float = 1e-6) -> bool:
+    def is_collinear(a: list, b: list, tol: float = 1e-6) -> bool:
         """Check if two vectors are collinear (parallel or anti-parallel).
 
         Parameters
@@ -721,7 +721,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_projection_inside(a1, a2, b1, b2) -> bool:
+    def is_projection_inside(a1: list, a2: list, b1: list, b2: list) -> bool:
         """Project a segment onto another segment and check if the projected segment is inside it.
 
         Parameters
@@ -754,7 +754,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def arrays_positions_sum(vertlist1, vertlist2):
+    def arrays_positions_sum(vertlist1: list, vertlist2: list) -> float:
         """Return the sum of two vertices lists.
 
         Parameters
@@ -776,7 +776,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle(a, b):
+    def v_angle(a: list, b: list) -> float:
         """Evaluate the angle between two geometry vectors.
 
         Parameters
@@ -802,7 +802,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def deg2rad(angle):
+    def deg2rad(angle: float) -> float:
         """Convert the angle from degrees to radians.
 
         Parameters
@@ -821,7 +821,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def rad2deg(angle):
+    def rad2deg(angle: float) -> float:
         """Convert the angle from radians to degrees.
 
         Parameters
@@ -840,7 +840,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthonormal_triplet(x, y, z, tol=None) -> bool:
+    def is_orthonormal_triplet(x: list, y: list, z: list, tol: float = None) -> bool:
         """Check if three vectors are orthonormal.
 
         Parameters
@@ -883,7 +883,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_unit_vector(v, tol=None):
+    def is_unit_vector(v: list, tol: float = None) -> bool:
         """Check if a vector is a unit vector.
 
         Parameters
@@ -907,7 +907,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthogonal_matrix(matrix, tol=None) -> bool:
+    def is_orthogonal_matrix(matrix: list, tol: float = None) -> bool:
         """
         Check if a given 3x3 matrix is orthogonal.
 
@@ -964,7 +964,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_polygon_centroid(pts):
+    def get_polygon_centroid(pts: list) -> list:
         """Evaluate the centroid of a polygon defined by its points.
 
         Parameters
@@ -1000,7 +1000,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_xy_pointing_expression(yaw, pitch, roll):
+    def cs_xy_pointing_expression(yaw: str, pitch: str, roll: str):
         """Return x_pointing and y_pointing vectors as expressions from the yaw, pitch, and roll input (as strings).
 
         Parameters
@@ -1038,7 +1038,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def get_numeric(s):
+    def get_numeric(s: str) -> float:
         """Convert a string to a numeric value. Discard the suffix."""
         if isinstance(s, str):
             if s == "Global":
@@ -1052,7 +1052,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_small(s):
+    def is_small(s: str) -> bool:
         """Return ``True`` if the number represented by s is zero (i.e very small).
 
         Parameters
@@ -1069,7 +1069,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_vector_equal(v1, v2, tolerance=None):
+    def is_vector_equal(v1: list, v2: list, tolerance: float = None) -> bool:
         """Return ``True`` if two vectors are equal.
 
         Parameters
@@ -1095,7 +1095,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def numeric_cs(cs_in):
+    def numeric_cs(cs_in: list | str) -> list:
         """Return a list of [x,y,z] numeric values given a coordinate system as input.
 
         Parameters
@@ -1116,7 +1116,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def orient_polygon(x, y, clockwise: bool = True):
+    def orient_polygon(x: list, y: list, clockwise: bool = True) -> tuple[list, list]:
         """Orient a polygon clockwise or counterclockwise.
 
         The vertices should be already ordered either way.
@@ -1193,7 +1193,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign(va, vb, vn, right_handed: bool = True):
+    def v_angle_sign(va: list, vb: list, vn: list, right_handed: bool = True) -> float:
         """Evaluate the signed angle between two geometry vectors.
 
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
@@ -1238,7 +1238,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign_2D(va, vb, right_handed: bool = True):
+    def v_angle_sign_2D(va: list, vb: list, right_handed: bool = True) -> float:
         """Evaluate the signed angle between two 2D geometry vectors.
 
         It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
@@ -1269,7 +1269,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_in_polygon(point, polygon, tolerance: float = 1e-8):
+    def point_in_polygon(point: list, polygon: list, tolerance: float = 1e-8) -> int:
         """Determine if a point is inside, outside the polygon or at exactly at the border.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1329,7 +1329,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_point_in_polygon(point, polygon) -> bool:
+    def is_point_in_polygon(point: list, polygon: list) -> bool:
         """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1353,7 +1353,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def are_segments_intersecting(a1, a2, b1, b2, include_collinear: bool = True):
+    def are_segments_intersecting(a1: list, a2: list, b1: list, b2: list, include_collinear: bool = True) -> bool:
         """
         Determine if the two segments a and b are intersecting.
 
@@ -1443,7 +1443,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_segment_intersecting_polygon(a, b, polygon) -> bool:
+    def is_segment_intersecting_polygon(a: list, b: list, polygon: list) -> bool:
         """Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
 
         Points on the vertices and on the polygon boundaries are not considered intersecting.
@@ -1481,7 +1481,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_perpendicular(a, b, tol: float = 1e-6) -> bool:
+    def is_perpendicular(a: list, b: list, tol: float = 1e-6) -> bool:
         """Check if two vectors are perpendicular.
 
         Parameters
@@ -1507,7 +1507,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_point_projection_in_segment(p, a, b):
+    def is_point_projection_in_segment(p: list, a: list, b: list) -> bool:
         """Check if a point projection lies on the segment defined by two points.
 
         Parameters
@@ -1534,7 +1534,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_segment_distance(p, a, b):
+    def point_segment_distance(p: list, a: list, b: list) -> float:
         """Calculate the distance between a point ``p`` and a segment defined by two points ``a`` and ``b``.
 
         Parameters
@@ -1560,7 +1560,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_largest_rectangle_inside_polygon(polygon, partition_max_order: int = 16):
+    def find_largest_rectangle_inside_polygon(polygon: list, partition_max_order: int = 16) -> list:
         """Find the largest area rectangles of arbitrary orientation in a polygon.
 
         Implements the algorithm described by Rubén Molano, et al.
@@ -1669,7 +1669,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def degrees_over_rounded(angle, digits):
+    def degrees_over_rounded(angle: float, digits: int) -> float:
         """Ceil of angle.
 
         Parameters
@@ -1688,7 +1688,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def radians_over_rounded(angle, digits):
+    def radians_over_rounded(angle: float, digits: int) -> float:
         """Radian angle ceiling.
 
         Parameters
@@ -1707,7 +1707,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def degrees_default_rounded(angle, digits):
+    def degrees_default_rounded(angle: float, digits: int) -> float:
         """Convert angle to degree with given digits rounding.
 
         Parameters
@@ -1726,7 +1726,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def radians_default_rounded(angle, digits):
+    def radians_default_rounded(angle: float, digits: int) -> float:
         """Convert to radians with given round.
 
         Parameters
@@ -1745,7 +1745,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_closest_points(points_list, reference_point, tol: float = 1e-6):
+    def find_closest_points(points_list: list, reference_point: list, tol: float = 1e-6) -> list:
         """Given a list of points, finds the closest points to a reference point.
         It returns a list of points because more than one can be found.
         It works with 2D or 3D points. The tolerance used to evaluate the distance
@@ -1793,7 +1793,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler
-    def mirror_point(start, reference, vector):
+    def mirror_point(start: list, reference: list, vector: list) -> list:
         """Mirror point about a plane defining by a point on the plane and a normal point.
 
         Parameters

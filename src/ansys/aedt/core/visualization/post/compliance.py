@@ -778,7 +778,7 @@ class VirtualCompliance(PyAedtBase):
                     self._parse_reports(parameter, True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self, report, is_parameter: bool = False, is_report_parameters: bool = False) -> None:
+    def _parse_reports(self, report, is_parameter: bool = False, is_report_parameters: bool = False):
         name = report["name"]
 
         if name in self._reports.values():
@@ -1649,7 +1649,7 @@ class VirtualCompliance(PyAedtBase):
         return new_table
 
     @pyaedt_function_handler()
-    def add_specs_to_report(self, folder) -> None:
+    def add_specs_to_report(self, folder):
         """Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
@@ -1664,7 +1664,7 @@ class VirtualCompliance(PyAedtBase):
             self._add_specs_info = True
 
     @pyaedt_function_handler()
-    def _create_project_info(self, report) -> None:
+    def _create_project_info(self, report):
         report.add_section()
         designs = []
         _design = None

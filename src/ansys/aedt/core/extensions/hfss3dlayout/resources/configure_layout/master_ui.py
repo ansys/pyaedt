@@ -100,10 +100,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         return
 
-    def add_toggle_theme_button_(self, parent) -> None:
+    def add_toggle_theme_button_(self, parent):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
