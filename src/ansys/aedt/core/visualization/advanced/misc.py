@@ -50,13 +50,13 @@ class BoxFacePointsAndFields(PyAedtBase):
         self.re = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
-    def set_xyz_points(self, x, y, z):
+    def set_xyz_points(self, x: float, y: float, z: float) -> None:
         """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
 
-    def set_field_component(self, field_component, real, imag, invert):
+    def set_field_component(self, field_component: str, real: list, imag: list, invert: bool) -> None:
         """Set Field component Real and imaginary parts."""
         if field_component in self.re:
             if invert:
@@ -82,8 +82,8 @@ class BoxFacePointsAndFields(PyAedtBase):
 
 @pyaedt_function_handler()
 def convert_nearfield_data(
-    dat_folder, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder=None
-):
+    dat_folder: str, frequency: int = 6, invert_phase_for_lower_faces: bool = True, output_folder: str = None
+) -> str:
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -215,7 +215,7 @@ def convert_nearfield_data(
 
 
 @pyaedt_function_handler()
-def convert_farfield_data(input_file: str | Path, output_file=None) -> str:
+def convert_farfield_data(input_file: str | Path, output_file: str | Path = None) -> str:
     """Convert a far field data file to hfss `ffd` file.
 
     Parameters
@@ -386,7 +386,7 @@ def __convert_ffe_data(input_file: str, output_file):
 
 
 @pyaedt_function_handler()
-def parse_rdat_file(file_path):
+def parse_rdat_file(file_path: str) -> dict:
     """
     Parse Ansys report '.rdat' file.
 
@@ -455,7 +455,7 @@ def parse_rdat_file(file_path):
 
 @pyaedt_function_handler()
 @graphics_required
-def preview_pyvista(dict_in, decimation: int = 0, output_stls=None) -> None:
+def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None) -> None:
     import pyvista as pv
 
     if decimation > 0:
@@ -527,7 +527,9 @@ def preview_pyvista(dict_in, decimation: int = 0, output_stls=None) -> None:
 
 @pyaedt_function_handler()
 @graphics_required
-def simplify_and_preview_stl(input_file: str, output_file=None, decimation: float = 0.5, preview: bool = False):
+def simplify_and_preview_stl(
+    input_file: str, output_file: str = None, decimation: float = 0.5, preview: bool = False
+) -> str:
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters

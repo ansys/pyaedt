@@ -40,7 +40,7 @@ class FileManagement(PyAedtBase):
     def __init__(self, client) -> None:
         self.client = client
 
-    def upload(self, localpath, remotepath, overwrite: bool=False):
+    def upload(self, localpath: str, remotepath: str, overwrite: bool=False) -> None:
         """Upload a file or a directory to the given remote path.
 
         Parameters
@@ -57,7 +57,7 @@ class FileManagement(PyAedtBase):
         elif os.path.isfile(localpath):
             self._upload_file(localpath, remotepath)
 
-    def download_folder(self, remotepath, localpath, overwrite: bool=True):
+    def download_folder(self, remotepath: str, localpath: str, overwrite: bool=True) -> None:
         """Download a directory from a given remote path to the local path.
 
         Parameters
@@ -71,7 +71,7 @@ class FileManagement(PyAedtBase):
         """
         self._download_dir(remotepath, localpath, overwrite=True)
 
-    def download_file(self, remotepath, localpath, overwrite: bool=True):
+    def download_file(self, remotepath: str, localpath: str, overwrite: bool=True) -> None:
         """Download a file from a given remote path to the local path.
 
         Parameters
@@ -141,48 +141,48 @@ class FileManagement(PyAedtBase):
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
-    def open_file(self, remote_file, open_options: str="r", encoding=None):
+    def open_file(self, remote_file: str, open_options: str="r", encoding: str = None) :
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
-    def create_file(self, remote_file, create_options: str="w", encoding=None, override: bool=True):
+    def create_file(self, remote_file: str, create_options: str="w", encoding: str = None, override: bool = True):
         return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
-    def makedirs(self, remotepath) -> str:
+    def makedirs(self, remotepath: str) -> str:
         if self.client.root.pathexists(remotepath):
             return "Directory Exists!"
         self.client.root.makedirs(remotepath)
         return "Directory created."
 
-    def walk(self, remotepath):
+    def walk(self, remotepath: str):
         if self.client.root.pathexists(remotepath):
             return self.client.root.walk(remotepath)
 
-    def listdir(self, remotepath):
+    def listdir(self, remotepath: str):
         if self.client.root.pathexists(remotepath):
             return self.client.root.listdir(remotepath)
         return []
 
-    def pathexists(self, remotepath) -> bool:
+    def pathexists(self, remotepath: str) -> bool:
         if self.client.root.pathexists(remotepath):
             return True
         return False
 
-    def unlink(self, remotepath) -> bool:
+    def unlink(self, remotepath: str) -> bool:
         if self.client.root.unlink(remotepath):
             return True
         return False
 
-    def normpath(self, remotepath):
+    def normpath(self, remotepath: str) -> str:
         return self.client.root.normpath(remotepath)
 
-    def isdir(self, remotepath):
+    def isdir(self, remotepath: str) -> bool:
         return self.client.root.isdir(remotepath)
 
-    def temp_dir(self):
+    def temp_dir(self) -> str:
         return self.client.root.temp_dir()
 
 
-def check_port(port):
+def check_port(port: int) -> int:
     """Check for an available port on the machine starting from input port.
 
     Parameters
@@ -213,7 +213,7 @@ def check_port(port):
 class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
     """Server Pyaedt rpyc Service."""
 
-    def on_connect(self, connection):
+    def on_connect(self, connection) -> None:
         """Run when a connection is created.
 
         Parameters
@@ -232,7 +232,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         self._beta_options = []
         pass
 
-    def on_disconnect(self, connection):
+    def on_disconnect(self, connection) -> None:
         """Run after the connection was closed.
 
         Returns
@@ -259,7 +259,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
             for opt in range(self._beta_options.__len__()):
                 os.environ["ANSYSEM_FEATURE_" + self._beta_options[opt] + "_ENABLE"] = "1"
 
-    def exposed_run_script(self, script, aedt_version: str="2021.2", ansysem_path=None, non_graphical: bool=True):
+    def exposed_run_script(self, script: str | list, aedt_version: str="2021.2", ansysem_path: str = None, non_graphical: bool=True) -> str:
         """Run script on AEDT in the server.
 
         .. warning::
@@ -327,12 +327,12 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_edb(
         self,
-        edbpath: str | None=None,
-        cellname: str | None=None,
-        isreadonly: bool=False,
-        edbversion: str="2021.2",
-        use_ppe: bool=False,
-    ):
+        edbpath: str = None,
+        cellname: str = None,
+        isreadonly: bool = False,
+        edbversion: str = "2021.2",
+        use_ppe: bool = False,
+    ) -> "Edb":
         """Start a new Hfss session.
 
         Parameters
@@ -368,13 +368,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_hfss(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Hfss":
         """Start a new Hfss session.
 
         Parameters
@@ -423,13 +423,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_hfss3dlayout(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Hfss3dLayout":
         """Start a new Hfss3dLayout session.
 
         Parameters
@@ -478,13 +478,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_maxwell3d(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Maxwell3d":
         """Start a new Maxwell3d session.
 
         Parameters
@@ -533,13 +533,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_maxwell2d(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Maxwell2d":
         """Start a new Maxwell32 session.
 
         Parameters
@@ -588,13 +588,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_icepak(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Icepak":
         """Start a new Icepak session.
 
         Parameters
@@ -643,13 +643,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_circuit(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Circuit":
         """Start a new Circuit session.
 
         Parameters
@@ -698,13 +698,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_mechanical(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Mechanical":
         """Start a new Mechanical session.
 
         Parameters
@@ -753,13 +753,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_q3d(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Q3d":
         """Start a new Q3d session.
 
         Parameters
@@ -808,13 +808,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
 
     def exposed_q2d(
         self,
-        project: str | None=None,
-        design: str | None=None,
-        solution_type: str | None=None,
-        setup: str | None=None,
-        version: str | None=None,
-        non_graphical: bool=True,
-    ):
+        project: str = None,
+        design: str = None,
+        solution_type: str = None,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = True,
+    ) -> "Q2d":
         """Start a new Q2d session.
 
         Parameters
@@ -975,7 +975,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         return False
 
     @property
-    def aedt_port(self):
+    def aedt_port(self) -> int:
         """AEDT active port.
 
         Returns
@@ -989,7 +989,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         return 0
 
     @property
-    def aedt_version(self):
+    def aedt_version(self) -> str:
         """AEDT Version.
 
         Returns
@@ -1003,7 +1003,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         return ""
 
     @property
-    def student_version(self):
+    def student_version(self) -> bool:
         """Student version flag.
 
         Returns
@@ -1017,7 +1017,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         return False
 
     @property
-    def server_name(self):
+    def server_name(self) -> str:
         """Machine name.
 
         Returns
@@ -1030,15 +1030,15 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def edb(
-        edbpath: str | None=None,
-        cellname: str | None=None,
-        isreadonly: bool=False,
-        edbversion: str | None=None,
-        isaedtowned: bool=False,
-        oproject=None,
-        student_version: bool=False,
-        use_ppe: bool=False,
-    ):
+        edbpath: str = None,
+        cellname: str = None,
+        isreadonly: bool = False,
+        edbversion: str = None,
+        isaedtowned: bool = False,
+        oproject = None,
+        student_version: bool = False,
+        use_ppe: bool = False,
+    ) -> "Edb":
         """Starts a new EDB Session.
 
         Parameters
@@ -1156,7 +1156,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             except Exception:
                 logger.warning("Error when trying to close EDB.")
 
-    def start_service(self, port):
+    def start_service(self, port: int) -> int | bool:
         """Connect to remove service manager and run a new server on specified port.
 
         .. warning::
@@ -1196,7 +1196,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
             return False
 
-    def exposed_stop_service(self, port) -> bool:
+    def exposed_stop_service(self, port: int) -> bool:
         """Stops a given Pyaedt Service on specified port.
 
         Parameters
@@ -1218,7 +1218,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         return True
 
     @staticmethod
-    def exposed_check_port():
+    def exposed_check_port() -> int:
         """Check if a random port is available."""
         import secrets
 

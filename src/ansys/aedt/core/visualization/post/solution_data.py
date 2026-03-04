@@ -25,6 +25,7 @@
 import math
 import os
 import time
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
@@ -36,6 +37,9 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 try:
     import pandas as pd
@@ -79,11 +83,11 @@ class SolutionData(PyAedtBase):
         print(f"Time to initialize solution data:{end}")
 
     @property
-    def active_variation(self):
+    def active_variation(self) -> dict:
         return self._active_variation
 
     @active_variation.setter
-    def active_variation(self, value) -> None:
+    def active_variation(self, value: dict) -> None:
         if value in self.variations:
             self._active_variation = value
             self.nominal_variation = self.variations.index(value)
@@ -91,7 +95,7 @@ class SolutionData(PyAedtBase):
             settings.logger.warning("Failed to set active variation")
 
     @property
-    def enable_pandas_output(self):
+    def enable_pandas_output(self) -> bool:
         """Set/Get a flag to use Pandas to export dict and lists.
 
         This applies to Solution data output.
@@ -105,7 +109,7 @@ class SolutionData(PyAedtBase):
         return True if self._enable_pandas_output and pd else False
 
     @enable_pandas_output.setter
-    def enable_pandas_output(self, val) -> None:
+    def enable_pandas_output(self, val: bool) -> None:
         if val != self._enable_pandas_output and pd:
             self._enable_pandas_output = val
             self.init_solutions_data()
@@ -146,7 +150,7 @@ class SolutionData(PyAedtBase):
         return variations_lists
 
     @pyaedt_function_handler()
-    def variation_values(self, variation):
+    def variation_values(self, variation: str) -> list:
         """Get the list of the specific variation available values.
 
         Parameters
@@ -190,13 +194,13 @@ class SolutionData(PyAedtBase):
         return True
 
     @property
-    def intrinsics(self):
+    def intrinsics(self) -> dict:
         """Get intrinsics dictionary on active variation."""
         if not self._intrinsics:
             self._compute_intrinsics()
         return self._intrinsics[self.variations.index(self.active_variation)]
 
-    def intrinsics_by_variation(self, variation):
+    def intrinsics_by_variation(self, variation: int | dict) -> dict:
         """Get intrinsics dictionary on active variation."""
         if not self._intrinsics:
             self._compute_intrinsics()
@@ -211,14 +215,14 @@ class SolutionData(PyAedtBase):
         return self._nominal_variation
 
     @nominal_variation.setter
-    def nominal_variation(self, val) -> None:
+    def nominal_variation(self, val: int) -> None:
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
         else:
             print(str(val) + " not in Variations")
 
     @property
-    def primary_sweep(self):
+    def primary_sweep(self) -> str:
         """Primary sweep.
 
         Parameters
@@ -229,12 +233,12 @@ class SolutionData(PyAedtBase):
         return self._primary_sweep
 
     @primary_sweep.setter
-    def primary_sweep(self, ps) -> None:
+    def primary_sweep(self, ps: str) -> None:
         if ps in self._sweeps_names:
             self._primary_sweep = ps
 
     @property
-    def expressions(self):
+    def expressions(self) -> list:
         """Expressions."""
         if not self._expressions:
             mydata = [i for i in self._nominal_variation.GetDataExpressions()]
@@ -363,7 +367,7 @@ class SolutionData(PyAedtBase):
         return _solutions_mag
 
     @property
-    def full_matrix_real_imag(self):
+    def full_matrix_real_imag(self) -> tuple:
         """Get the full available solution data in Real and Imaginary parts.
 
         Returns
@@ -374,7 +378,7 @@ class SolutionData(PyAedtBase):
         return self._solutions_real, self._solutions_imag
 
     @property
-    def full_matrix_mag_phase(self):
+    def full_matrix_mag_phase(self) -> tuple:
         """Get the full available solution data magnitude and phase in radians.
 
         Returns
@@ -386,7 +390,7 @@ class SolutionData(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def to_degrees(input_list):
+    def to_degrees(input_list: list) -> list:
         """Convert an input list from radians to degrees.
 
         Parameters
@@ -407,7 +411,7 @@ class SolutionData(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def to_radians(input_list):
+    def to_radians(input_list: list) -> list:
         """Convert an input list from degrees to radians.
 
         Parameters
@@ -473,7 +477,9 @@ class SolutionData(PyAedtBase):
         return self.variation_values(self.primary_sweep)
 
     @staticmethod
-    def lookup_column_value(array, match_columns, match_values, output_column=-1):
+    def lookup_column_value(
+        array: np.ndarray, match_columns: list, match_values: list, output_column: int = -1
+    ) -> np.ndarray | None:
         """
         Filters rows in a NumPy array based on column-value matches,
         and returns the last column value of all matching rows.
@@ -510,12 +516,12 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def get_expression_data(
         self,
-        expression=None,
+        expression: str = None,
         formula: str = "real",
         convert_to_SI: bool = False,
         use_quantity: bool = False,
-        sweeps=None,
-    ):
+        sweeps: list | str = None,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Retrieve the real part of the data for an expression.
 
         Parameters
@@ -617,7 +623,7 @@ class SolutionData(PyAedtBase):
         return x_axis, sol
 
     @pyaedt_function_handler()
-    def data_real(self, expression=None, convert_to_SI: bool = False):
+    def data_real(self, expression: str = None, convert_to_SI: bool = False) -> list:
         """Retrieve the real part of the data for an expression.
 
         .. deprecated:: 0.20.0
@@ -641,7 +647,7 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(expression, convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
-    def is_real_only(self, expression=None):
+    def is_real_only(self, expression: str = None) -> bool:
         """Check if the expression has only real values or not.
 
         Parameters
@@ -660,7 +666,7 @@ class SolutionData(PyAedtBase):
         return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
-    def export_data_to_csv(self, output, delimiter: str = ";"):
+    def export_data_to_csv(self, output: str, delimiter: str = ";") -> bool:
         """Save to output csv file the Solution Data.
 
         Parameters
@@ -719,7 +725,9 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
-    def get_report_plotter(self, curves=None, formula=None, to_radians: bool = False, props=None):
+    def get_report_plotter(
+        self, curves: list | str = None, formula: str = None, to_radians: bool = False, props: dict = None
+    ) -> "ReportPlotter":
         """Get the `ReportPlotter` on the specified curves.
 
         Parameters
@@ -763,17 +771,17 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot(
         self,
-        curves=None,
-        formula=None,
-        size=(1920, 1440),
+        curves: list | str = None,
+        formula: str = None,
+        size: tuple = (1920, 1440),
         show_legend: bool = True,
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        snapshot_path=None,
+        snapshot_path: str = None,
         is_polar: bool = False,
         show: bool = True,
-    ):
+    ) -> "ReportPlotter":
         """Create a matplotlib figure based on a list of data.
 
         Parameters
@@ -843,11 +851,11 @@ class SolutionData(PyAedtBase):
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        formula: str | None = None,
-        size: tuple | None = (1920, 1440),
-        snapshot_path: str | None = None,
+        formula: str = None,
+        size: tuple = (1920, 1440),
+        snapshot_path: str = None,
         show: bool = True,
-    ):
+    ) -> "ReportPlotter":
         """Create a matplotlib 3D figure based on a list of data.
 
         Parameters
@@ -946,7 +954,9 @@ class SolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    def ifft(self, curve_header: str = "NearE", u_axis: str = "_u", v_axis: str = "_v", window: bool = False):
+    def ifft(
+        self, curve_header: str = "NearE", u_axis: str = "_u", v_axis: str = "_v", window: bool = False
+    ) -> np.ndarray:
         """Create IFFT of given complex data.
 
         Parameters
@@ -1012,12 +1022,12 @@ class SolutionData(PyAedtBase):
         self,
         u_axis: str = "_u",
         v_axis: str = "_v",
-        coord_system_center=None,
+        coord_system_center: list = None,
         db_val: bool = False,
-        num_frames=None,
-        csv_path=None,
+        num_frames: int = None,
+        csv_path: str = None,
         csv_file_header: str = "res_",
-    ):
+    ) -> str:
         """Save IFFT matrix to a list of CSV files (one per time step).
 
         Parameters
