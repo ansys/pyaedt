@@ -30,6 +30,7 @@ import secrets
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
@@ -39,7 +40,6 @@ from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.edb import Edb
     from ansys.aedt.core.hfss import Hfss
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
@@ -954,7 +954,7 @@ class LayoutComponent(PyAedtBase):
         return self._edb_path
 
     @property
-    def edb_object(self) -> "Edb" | bool:
+    def edb_object(self) -> Edb | bool:
         """EDB object.
 
         Returns
