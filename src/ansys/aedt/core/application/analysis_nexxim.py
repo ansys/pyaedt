@@ -25,6 +25,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from build.lib.ansys.aedt.core.modeler.schematic import ModelerNexxim
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
@@ -41,7 +43,6 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDe
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
-from build.lib.ansys.aedt.core.modeler.schematic import ModelerNexxim
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
