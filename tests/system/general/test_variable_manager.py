@@ -330,6 +330,12 @@ def test_project_variable_operation(app) -> None:
     app["$my_proj_test4"] = ["a", "ab"]
     assert app.variable_manager["$my_proj_test4"].si_value == ["a", "ab"]
 
+    assert app.evaluate_expression("$my_proj_test*$my_proj_test2") == 0.002
+
+    app["my_des_test1"] = 2
+
+    assert app.evaluate_expression("$my_proj_test*my_des_test1") == 0.002
+
 
 def test_test_optimization_properties(app) -> None:
     var = "v1"

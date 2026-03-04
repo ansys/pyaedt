@@ -4050,24 +4050,73 @@ class Design(AedtObjects, PyAedtBase):
             return val
 
     @pyaedt_function_handler()
-    def evaluate_expression(self, expression: str) -> float:
+    def evaluate_expression(self, expression: str) -> float | str | None:
         """Evaluate a valid string expression and return the numerical value in SI units.
+
+        This method evaluates mathematical expressions containing design variables, project variables,
+        units, and mathematical operations. It handles various expression types including:
+        - Simple numeric values, for example ``"42"``.
+        - Values with units, for example ``"10mm"``.
+        - Mathematical expressions, for example ``"34mm*sqrt(2)"`` or ``"pi/2"``.
+        - Variable references, for example ``"$var1"``.
+        - PWL (Piecewise Linear) dataset references.
+        - Combined expressions, for example ``"$G1*p2/34"``.
 
         Parameters
         ----------
         expression : str
             A valid string expression for a design property or project variable.
-            For example, ``"34mm*sqrt(2)"`` or ``"$G1*p2/34"``.
+
+        Examples
+        --------
+            - Simple value: ``"42"``
+            - Value with units: ``"10mm"``, ``"2.5GHz"``
+            - Mathematical expression: ``"34mm*sqrt(2)"``, ``"pi*radius^2"``
+            - Variable reference: ``"$ProjectVar"``, ``"DesignVar"``
+            - Combined expression: ``"$G1*p2/34"``
 
         Returns
         -------
-        float
-            Evaluated value for the string expression.
+        float or str or None
+            Evaluated value for the string expression in SI units.
+            - Returns ``float`` for successfully evaluated numeric expressions
+            - Returns ``str`` for PWL dataset references or invalid expressions
+            - Returns ``None`` if evaluation fails completely
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["width"] = "10mm"
+        >>> hfss["height"] = "20mm"
+        >>> # Evaluate simple numeric value
+        >>> result = hfss.evaluate_expression("42")  # Returns 42.0
+        >>> # Evaluate value with units
+        >>> result = hfss.evaluate_expression("10mm")  # Returns 0.01 (in meters)
+        >>> # Evaluate expression with variables
+        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in m²)
+        >>> # Evaluate mathematical expression
+        >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
+
+        Notes
+        -----
+        - The method attempts multiple strategies to evaluate the expression:
+          1. Direct variable lookup if the expression is a variable name
+          2. Check for PWL dataset references
+          3. Try direct numeric conversion
+          4. Create temporary internal variable to leverage AEDT's expression evaluator
+        - For expressions containing project variables (prefixed with $), AEDT restrictions apply:
+          project variables cannot reference design variables
+        - The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
+        - All results are returned in SI units regardless of the input unit system.
         """
-        # Set the value of an internal reserved design variable to the specified string
+        # Strategy 1: Direct variable lookup
+        # If the expression is exactly a variable name, return its SI value directly
         if expression in self._variable_manager.variables:
             return self._variable_manager.variables[expression].si_value
+
+        # Strategy 2: Check for PWL (Piecewise Linear) dataset references
+        # PWL expressions reference datasets and should be returned as-is
         elif "pwl" in str(expression):
             for ds in self.project_datasets:
                 if ds in expression:
@@ -4075,23 +4124,78 @@ class Design(AedtObjects, PyAedtBase):
             for ds in self.design_datasets:
                 if ds in expression:
                     return expression
+
+        # Strategy 3: Try direct numeric conversion
+        # If the expression is a simple number, convert and return it
         try:
             return float(expression)
         except ValueError:
             pass
+
+        # Strategy 4: Use AEDT's internal expression evaluator
+        # Create a temporary internal variable with the expression and retrieve its evaluated value
         try:
-            variable_name = "pyaedt_evaluator"
-            if "$" in expression:
-                variable_name = "$pyaedt_evaluator"
-            self._variable_manager.set_variable(
-                variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
+            # Determine variable type based on expression content
+            # Project variables (with $) require special handling
+            variable_name = "$pyaedt_evaluator" if "$" in expression else "pyaedt_evaluator"
+
+            try:
+                # Attempt to create the internal evaluator variable
+                result = self._variable_manager.set_variable(
+                    variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
+                )
+
+                if not result and "$" in expression:
+                    # AEDT restriction: Project variables cannot contain design variables
+                    # Fallback to design variable if project variable creation fails
+                    self.logger.debug("Project variable creation failed. Attempting with design variable as fallback.")
+                    variable_name = "pyaedt_evaluator"
+                    result = self._variable_manager.set_variable(
+                        variable_name,
+                        expression=expression,
+                        read_only=True,
+                        hidden=True,
+                        description="Internal_Evaluator",
+                    )
+
+                if result:
+                    # Successfully created the variable, extract its evaluated SI value
+                    eval_value = self._variable_manager.variables[variable_name].si_value
+                    return eval_value
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError(
+                        f"Failed to create internal evaluator variable with expression: {expression}"
+                    )
+
+            except GrpcApiError as e:
+                # If an exception happened during variable creation,
+                # check if it was due to using a project variable with design variable references
+                if "$" in expression and not settings.release_on_exception:
+                    # Retry with design variable if project variable failed
+                    self.logger.debug(f"Retrying with design variable. Original error: {str(e)}")
+                    variable_name = "pyaedt_evaluator"
+                    result = self._variable_manager.set_variable(
+                        variable_name,
+                        expression=expression,
+                        read_only=True,
+                        hidden=True,
+                        description="Internal_Evaluator",
+                    )
+                    if result:
+                        eval_value = self._variable_manager.variables[variable_name].si_value
+                        return eval_value
+                    else:  # pragma: no cover
+                        raise AEDTRuntimeError(
+                            f"Failed to create internal evaluator variable with expression: {expression}"
+                        ) from e
+                else:  # pragma: no cover
+                    raise
+
+        except Exception as e:  # pragma: no cover
+            # Final fallback: log warning and return the original expression
+            self.logger.warning(
+                f"Unable to evaluate expression '{expression}'. Error: {str(e)}. Returning expression as-is."
             )
-            eval_value = self._variable_manager.variables[variable_name].si_value
-            # Extract the numeric value of the expression (in SI units!)
-            self.odesign.Undo()
-            return eval_value
-        except Exception:
-            self.logger.warning(f"Invalid string expression {expression}")
             return expression
 
     @pyaedt_function_handler()
