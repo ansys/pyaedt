@@ -40,7 +40,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
+EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/tree/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
