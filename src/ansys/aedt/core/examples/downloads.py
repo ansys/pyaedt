@@ -148,7 +148,7 @@ def list_examples_files(folder) -> list:
     folder_prefix = folder if folder.endswith("/") else folder + "/"
     url = "https://api.github.com/repos/ansys/example-data/git/trees/main?recursive=1"
     headers = {"Accept": "application/vnd.github.v3+json"}
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers)  # nosec B113 : this is a trusted URL
     response.raise_for_status()
     tree = response.json()["tree"]
 
