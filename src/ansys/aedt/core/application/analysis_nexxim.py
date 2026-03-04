@@ -41,6 +41,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDe
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
+from build.lib.ansys.aedt.core.modeler.schematic import ModelerNexxim
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -254,7 +255,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self) -> object:
+    def modeler(self) -> ModelerNexxim:
         """Modeler object.
 
         Returns
