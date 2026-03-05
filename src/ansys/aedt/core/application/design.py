@@ -4100,15 +4100,18 @@ class Design(AedtObjects, PyAedtBase):
 
         Notes
         -----
-        - The method attempts multiple strategies to evaluate the expression:
-          1. Direct variable lookup if the expression is a variable name
-          2. Check for PWL dataset references
-          3. Try direct numeric conversion
-          4. Create temporary internal variable to leverage AEDT's expression evaluator
-        - For expressions containing project variables (prefixed with $), AEDT restrictions apply:
-          project variables cannot reference design variables
-        - The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
-        - All results are returned in SI units regardless of the input unit system.
+        The method attempts multiple strategies to evaluate the expression:
+
+        * Direct variable lookup if the expression is a variable name.
+        * Check for PWL dataset references.
+        * Try direct numeric conversion.
+        * Create temporary internal variable to leverage AEDT's expression evaluator.
+
+        For expressions containing project variables (prefixed with $), AEDT restrictions apply.
+        Project variables cannot reference design variables.
+
+        The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
+        All results are returned in SI units regardless of the input unit system.
         """
         # Strategy 1: Direct variable lookup
         # If the expression is exactly a variable name, return its SI value directly
