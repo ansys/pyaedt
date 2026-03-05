@@ -25,6 +25,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerNexxim
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
@@ -254,7 +257,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self) -> object:
+    def modeler(self) -> "ModelerNexxim":
         """Modeler object.
 
         Returns

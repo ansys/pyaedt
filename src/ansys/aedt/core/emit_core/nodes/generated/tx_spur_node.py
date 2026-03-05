@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxSpurNode(EmitNode):
@@ -33,24 +34,29 @@ class TxSpurNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name: str):
+    @min_aedt_version("2025.2")
+    def import_csv_file(self, file_name: str) -> EmitNode:
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def table_data(self) -> list[tuple]:
         """Spurs Table.
         Table consists of 3 columns.
@@ -64,15 +70,18 @@ class TxSpurNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
+    @min_aedt_version("2025.2")
     def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
@@ -81,6 +90,7 @@ class TxSpurNode(EmitNode):
         RELATIVE = "Relative"
 
     @property
+    @min_aedt_version("2025.2")
     def spur_table_units(self) -> SpurTableUnitsOption:
         """Specifies the units for the Spurs."""
         val = self._get_property("Spur Table Units")
@@ -88,5 +98,6 @@ class TxSpurNode(EmitNode):
         return val
 
     @spur_table_units.setter
+    @min_aedt_version("2025.2")
     def spur_table_units(self, value: SpurTableUnitsOption) -> None:
         self._set_property("Spur Table Units", f"{value.value}")

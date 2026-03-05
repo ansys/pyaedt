@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class SolutionCouplingNode(EmitNode):
@@ -31,16 +32,19 @@ class SolutionCouplingNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled.
 
@@ -53,5 +57,6 @@ class SolutionCouplingNode(EmitNode):
         return val == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
