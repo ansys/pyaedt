@@ -25,9 +25,13 @@
 from collections import defaultdict
 import math
 import os
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from pyvista import Plotter
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -61,7 +65,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return self._bundle
 
     @pyaedt_function_handler()
-    def add_cad_model(self, filename, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
+    def add_cad_model(self, filename: str, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
         """Add a ``stl`` file to the scenario.
 
         Parameters
@@ -81,7 +85,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename, units=None):
+    def add_hdm_bundle_from_file(self, filename: str, units: str = None):
         """Add hdm bundle from file."""
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -128,7 +132,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_rays(self, snapshot_path=None):
+    def plot_rays(self, snapshot_path: str = None) -> "Plotter":
         """Plot Rays read from an ``hdm`` file.
 
         Parameters
@@ -195,7 +199,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_first_bounce_currents(self, snapshot_path=None):
+    def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters

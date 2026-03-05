@@ -57,11 +57,11 @@ class MaterialWorkbench(PyAedtBase):
         self._mat_name_suffix = "_wb"
 
     @property
-    def mat_name_suffix(self):
+    def mat_name_suffix(self) -> str:
         return self._mat_name_suffix
 
     @mat_name_suffix.setter
-    def mat_name_suffix(self, suffix) -> None:
+    def mat_name_suffix(self, suffix: str) -> None:
         self._mat_name_suffix = str(suffix)
 
     @staticmethod
@@ -121,7 +121,7 @@ class MaterialWorkbench(PyAedtBase):
     def _aedt_material_name(self, wb_material_name) -> str:
         return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
-    def import_materials_from_workbench(self, filename):
+    def import_materials_from_workbench(self, filename: str) -> list[str] | bool:
         """Import materials from Workbench Engineering Data XML file.
 
         Parameters
