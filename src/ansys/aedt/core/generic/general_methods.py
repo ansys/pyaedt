@@ -824,8 +824,12 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
                 )
 
+                # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
+                # especially important for PyInstaller windowed applications.
                 output = subprocess.check_output(
-                    [powershell_path, "-Command", ps_cmd], text=True, creationflags=subprocess.CREATE_NO_WINDOW
+                    [powershell_path, "-Command", ps_cmd],
+                    text=True,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
                 )  # nosec
 
                 # Parse JSON output - can be a single object or array
