@@ -132,7 +132,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_rays(self, snapshot_path: str = None) -> Plotter:
+    def plot_rays(self, snapshot_path: str = None) -> "Plotter":
         """Plot Rays read from an ``hdm`` file.
 
         Parameters

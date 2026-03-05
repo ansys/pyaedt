@@ -908,7 +908,7 @@ class FRTMPlotter(PyAedtBase):
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
         animation: bool = True,
-        figure: Figure = None,
+        figure: "Figure" = None,
     ) -> ReportPlotter:
         """Create a 2D plot of the range profile.
 
@@ -1041,7 +1041,7 @@ class FRTMPlotter(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),
-        figure: Figure = None,
+        figure: "Figure" = None,
     ) -> ReportPlotter:
         """Create range-Doppler contour plot.
 
@@ -1193,7 +1193,7 @@ class FRTMPlotter(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),
-        figure: Figure = None,
+        figure: "Figure" = None,
     ) -> ReportPlotter:
         """Create range-angle map contour plot.
 

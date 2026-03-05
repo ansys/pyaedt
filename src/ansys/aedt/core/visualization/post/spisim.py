@@ -33,9 +33,10 @@ import shutil
 from struct import unpack
 from typing import TYPE_CHECKING
 
+from numpy import float64
+
 if TYPE_CHECKING:
     from numpy import array
-    from numpy import float64
     from numpy import ndarray
 from numpy import zeros
 from pydantic import BaseModel
