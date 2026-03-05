@@ -146,7 +146,10 @@ def add_automation_tab(
     default_icon_path = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
 
     if not is_custom and is_linux:  # pragma: no cover
-        images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
+        if icon_file:
+            images_source = Path(icon_file).parent
+        else:
+            images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
         images_target = lib_dir / product / "images"
         if not images_target.exists() and images_source.exists():
             try:
