@@ -497,9 +497,36 @@ def test_3dl_set_export_touchstone(hfss3dl_solved) -> None:
 def test_3dl_touchstone_results(hfss3dl_solved) -> None:
     assert hfss3dl_solved.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
     assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+
+    # Test case 1: No arguments, when drivers==receivers
+    assert hfss3dl_solved.get_all_insertion_loss_list() == ["S(Port1,Port2)"]
+
+    # Test case 2: With math formula
+    assert hfss3dl_solved.get_all_insertion_loss_list(math_formula="dB") == ["dB(S(Port1,Port2))"]
+
+    # Test case 3: With prefix filtering, results in different lists, pairs by index
     assert hfss3dl_solved.get_all_insertion_loss_list(drivers_prefix_name="Port1", receivers_prefix_name="Port2") == [
         "S(Port1,Port2)"
     ]
+
+    # Test case 4: Explicit different driver/receiver lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1"], receivers=["Port2"]) == ["S(Port1,Port2)"]
+
+    # Test case 5: Explicit same lists, should return all unique combinations
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1", "Port2"]) == [
+        "S(Port1,Port2)"
+    ]
+
+    # Test case 6: Different length lists
+    result = hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1"])
+    assert result == []
+
+    # Test case 7: Multiple pairs with different lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port2", "Port1"]) == [
+        "S(Port1,Port2)",
+        "S(Port2,Port1)",
+    ]
+
     assert hfss3dl_solved.get_next_xtalk_list() == ["S(Port1,Port2)"]
     assert hfss3dl_solved.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
