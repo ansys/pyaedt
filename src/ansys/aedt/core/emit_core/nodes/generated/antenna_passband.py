@@ -30,6 +30,7 @@ class AntennaPassband(EmitNode):
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
+        self.odesktop = emit_obj.odesktop
 
     @property
     @min_aedt_version("2025.2")
