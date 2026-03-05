@@ -112,14 +112,14 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_line_traces(
         self,
-        seeding_faces,
-        in_volume_tracing_objs=None,
-        surface_tracing_objs=None,
-        setup: str | None = None,
-        intrinsics=None,
-        plot_name=None,
+        seeding_faces: list = None,
+        in_volume_tracing_objs: list = None,
+        surface_tracing_objs: list = None,
+        setup: str = None,
+        intrinsics: dict = None,
+        plot_name: str = None,
         field_type: str = "DC R/L Fields",
-    ):
+    ) -> FieldPlot | bool:
         """
         Create a field plot of the line.
 
@@ -232,14 +232,14 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_layers(
         self,
-        layers,
-        quantity,
-        setup: str | None = None,
-        nets=None,
+        layers: list,
+        quantity: str,
+        setup: str = None,
+        nets: list = None,
         plot_on_surface: bool = True,
-        intrinsics=None,
-        name: str | None = None,
-    ):
+        intrinsics: dict = None,
+        name: str = None,
+    ) -> FieldPlot:
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
 
@@ -296,13 +296,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
         self,
-        layers_nets,
-        quantity,
-        setup: str | None = None,
-        intrinsics=None,
+        layers_nets: list,
+        quantity: str,
+        setup: str = None,
+        intrinsics: dict = None,
         plot_on_surface: bool = True,
-        plot_name=None,
-    ):
+        plot_name: str = None,
+    ) -> FieldPlot:
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
 
@@ -356,7 +356,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def evaluate_inception_voltage(self, plot_name, field_line_number=None) -> bool:  # pragma: no cover
+    def evaluate_inception_voltage(self, plot_name: str, field_line_number: list = None) -> bool:  # pragma: no cover
         """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
@@ -415,7 +415,9 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def export_inception_voltage(self, plot_name, output_file, field_line_number=None) -> bool:  # pragma: no cover
+    def export_inception_voltage(
+        self, plot_name: str, output_file: str, field_line_number: list = None
+    ) -> bool:  # pragma: no cover
         """Export inception voltage evaluation results to a TXT file.
 
         .. note::

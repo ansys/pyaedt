@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class FiveGChannelModel(EmitNode):
@@ -33,24 +34,29 @@ class FiveGChannelModel(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
+    @min_aedt_version("2025.2")
     def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enable/Disable coupling.
 
@@ -60,27 +66,32 @@ class FiveGChannelModel(EmitNode):
         return val == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    @min_aedt_version("2025.2")
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def base_antenna(self) -> EmitNode:
         """First antenna of the pair to apply the coupling values to."""
         val = self._get_property("Base Antenna")
         return val
 
     @base_antenna.setter
-    def base_antenna(self, value: EmitNode):
+    @min_aedt_version("2025.2")
+    def base_antenna(self, value: EmitNode) -> None:
         self._set_property("Base Antenna", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def mobile_antenna(self) -> EmitNode:
         """Second antenna of the pair to apply the coupling values to."""
         val = self._get_property("Mobile Antenna")
         return val
 
     @mobile_antenna.setter
-    def mobile_antenna(self, value: EmitNode):
+    @min_aedt_version("2025.2")
+    def mobile_antenna(self, value: EmitNode) -> None:
         self._set_property("Mobile Antenna", f"{value}")
 
     class EnvironmentOption(Enum):
@@ -89,6 +100,7 @@ class FiveGChannelModel(EmitNode):
         RURAL_MACROCELL = "RuralMacrocell"
 
     @property
+    @min_aedt_version("2025.2")
     def environment(self) -> EnvironmentOption:
         """Specify the environment for the 5G channel model."""
         val = self._get_property("Environment")
@@ -96,10 +108,12 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @environment.setter
-    def environment(self, value: EnvironmentOption):
+    @min_aedt_version("2025.2")
+    def environment(self, value: EnvironmentOption) -> None:
         self._set_property("Environment", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def los(self) -> bool:
         """True if the operating environment is line-of-sight.
 
@@ -109,10 +123,12 @@ class FiveGChannelModel(EmitNode):
         return val == "true"
 
     @los.setter
-    def los(self, value: bool):
+    @min_aedt_version("2025.2")
+    def los(self, value: bool) -> None:
         self._set_property("LOS", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_bpl(self) -> bool:
         """Includes building penetration loss if true.
 
@@ -122,7 +138,8 @@ class FiveGChannelModel(EmitNode):
         return val == "true"
 
     @include_bpl.setter
-    def include_bpl(self, value: bool):
+    @min_aedt_version("2025.2")
+    def include_bpl(self, value: bool) -> None:
         self._set_property("Include BPL", f"{str(value).lower()}")
 
     class NYUBPLModelOption(Enum):
@@ -130,6 +147,7 @@ class FiveGChannelModel(EmitNode):
         HIGH_LOSS_MODEL = "HighLossModel"
 
     @property
+    @min_aedt_version("2025.2")
     def nyu_bpl_model(self) -> NYUBPLModelOption:
         """Specify the NYU Building Penetration Loss model."""
         val = self._get_property("NYU BPL Model")
@@ -137,10 +155,12 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @nyu_bpl_model.setter
-    def nyu_bpl_model(self, value: NYUBPLModelOption):
+    @min_aedt_version("2025.2")
+    def nyu_bpl_model(self, value: NYUBPLModelOption) -> None:
         self._set_property("NYU BPL Model", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def custom_fading_margin(self) -> float:
         """Custom Fading Margin.
 
@@ -153,10 +173,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
+    @min_aedt_version("2025.2")
+    def custom_fading_margin(self, value: float) -> None:
         self._set_property("Custom Fading Margin", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def polarization_mismatch(self) -> float:
         """Polarization Mismatch.
 
@@ -169,10 +191,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
+    @min_aedt_version("2025.2")
+    def polarization_mismatch(self, value: float) -> None:
         self._set_property("Polarization Mismatch", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def pointing_error_loss(self) -> float:
         """Pointing Error Loss.
 
@@ -185,7 +209,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
+    @min_aedt_version("2025.2")
+    def pointing_error_loss(self, value: float) -> None:
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
@@ -195,6 +220,7 @@ class FiveGChannelModel(EmitNode):
         FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
+    @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
         """Specify the type of fading to include."""
         val = self._get_property("Fading Type")
@@ -202,10 +228,12 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @fading_type.setter
-    def fading_type(self, value: FadingTypeOption):
+    @min_aedt_version("2025.2")
+    def fading_type(self, value: FadingTypeOption) -> None:
         self._set_property("Fading Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def fading_availability(self) -> float:
         """Fading Availability.
 
@@ -218,10 +246,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
+    @min_aedt_version("2025.2")
+    def fading_availability(self, value: float) -> None:
         self._set_property("Fading Availability", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def std_deviation(self) -> float:
         """Standard deviation modeling the random amount of shadowing loss.
 
@@ -231,10 +261,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
+    @min_aedt_version("2025.2")
+    def std_deviation(self, value: float) -> None:
         self._set_property("Std Deviation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_rain_attenuation(self) -> bool:
         """Adds a margin for rain attenuation to the computed coupling.
 
@@ -244,10 +276,12 @@ class FiveGChannelModel(EmitNode):
         return val == "true"
 
     @include_rain_attenuation.setter
-    def include_rain_attenuation(self, value: bool):
+    @min_aedt_version("2025.2")
+    def include_rain_attenuation(self, value: bool) -> None:
         self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def rain_availability(self) -> float:
         """Rain Availability.
 
@@ -260,10 +294,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
+    @min_aedt_version("2025.2")
+    def rain_availability(self, value: float) -> None:
         self._set_property("Rain Availability", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def rain_rate(self) -> float:
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
@@ -273,10 +309,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
+    @min_aedt_version("2025.2")
+    def rain_rate(self, value: float) -> None:
         self._set_property("Rain Rate", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def polarization_tilt_angle(self) -> float:
         """Polarization Tilt Angle.
 
@@ -289,10 +327,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
+    @min_aedt_version("2025.2")
+    def polarization_tilt_angle(self, value: float) -> None:
         self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def include_atmospheric_absorption(self) -> bool:
         """Include Atmospheric Absorption.
 
@@ -305,10 +345,12 @@ class FiveGChannelModel(EmitNode):
         return val == "true"
 
     @include_atmospheric_absorption.setter
-    def include_atmospheric_absorption(self, value: bool):
+    @min_aedt_version("2025.2")
+    def include_atmospheric_absorption(self, value: bool) -> None:
         self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def temperature(self) -> float:
         """Air temperature in degrees Celsius.
 
@@ -318,10 +360,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @temperature.setter
-    def temperature(self, value: float):
+    @min_aedt_version("2025.2")
+    def temperature(self, value: float) -> None:
         self._set_property("Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def total_air_pressure(self) -> float:
         """Total air pressure.
 
@@ -331,10 +375,12 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
+    @min_aedt_version("2025.2")
+    def total_air_pressure(self, value: float) -> None:
         self._set_property("Total Air Pressure", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def water_vapor_concentration(self) -> float:
         """Water vapor concentration.
 
@@ -344,5 +390,6 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
+    @min_aedt_version("2025.2")
+    def water_vapor_concentration(self, value: float) -> None:
         self._set_property("Water Vapor Concentration", f"{value}")

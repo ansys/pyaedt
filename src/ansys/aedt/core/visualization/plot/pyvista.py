@@ -30,6 +30,7 @@ import os
 from pathlib import Path
 import tempfile
 import time
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
@@ -43,6 +44,9 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.mesh import Mesh
+
 # Check that graphics are available
 try:
     check_graphics_available()
@@ -53,7 +57,7 @@ except ImportError:
 
 
 @pyaedt_function_handler()
-def get_structured_mesh(theta, phi, ff_data):
+def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.StructuredGrid:
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:
@@ -89,7 +93,7 @@ def is_notebook() -> bool:
         return False  # Probably standard Python interpreter
 
 
-def is_float(istring):
+def is_float(istring: str) -> float:
     """Convert a string to a float.
 
     Parameters
@@ -323,7 +327,7 @@ class ObjClass(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value) -> None:
+    def color(self, value: str | tuple | list) -> None:
         if isinstance(value, (tuple, list)):
             self._color = value
         elif value in CSS4_COLORS:
@@ -436,7 +440,7 @@ class CommonPlotter(PyAedtBase):
             self.jupyter_backend = "html"
 
     @property
-    def vector_field_scale(self):
+    def vector_field_scale(self) -> float:
         """Field scale.
 
         Returns
@@ -446,11 +450,11 @@ class CommonPlotter(PyAedtBase):
         return self._field_scale
 
     @vector_field_scale.setter
-    def vector_field_scale(self, value) -> None:
+    def vector_field_scale(self, value: float) -> None:
         self._field_scale = value
 
     @property
-    def convert_fields_in_db(self):
+    def convert_fields_in_db(self) -> bool:
         """Either if convert the fields before plotting in dB. Log scale will be disabled.
 
         Returns
@@ -460,7 +464,7 @@ class CommonPlotter(PyAedtBase):
         return self._convert_fields_in_db
 
     @convert_fields_in_db.setter
-    def convert_fields_in_db(self, value) -> None:
+    def convert_fields_in_db(self, value: bool) -> None:
         self._convert_fields_in_db = value
         for f in self.fields:
             f._cached_polydata = None
@@ -468,7 +472,7 @@ class CommonPlotter(PyAedtBase):
             f._cached_polydata = None
 
     @property
-    def log_multiplier(self):
+    def log_multiplier(self) -> float:
         """Multiply the log value.
 
         Returns
@@ -478,11 +482,11 @@ class CommonPlotter(PyAedtBase):
         return self._log_multiplier
 
     @log_multiplier.setter
-    def log_multiplier(self, value) -> None:
+    def log_multiplier(self, value: float) -> None:
         self._log_multiplier = value
 
     @property
-    def x_scale(self):
+    def x_scale(self) -> float:
         """Scale plot on X.
 
         Returns
@@ -492,11 +496,11 @@ class CommonPlotter(PyAedtBase):
         return self._x_scale
 
     @x_scale.setter
-    def x_scale(self, value) -> None:
+    def x_scale(self, value: float) -> None:
         self._x_scale = value
 
     @property
-    def y_scale(self):
+    def y_scale(self) -> float:
         """Scale plot on Y.
 
         Returns
@@ -506,11 +510,11 @@ class CommonPlotter(PyAedtBase):
         return self._y_scale
 
     @y_scale.setter
-    def y_scale(self, value) -> None:
+    def y_scale(self, value: float) -> None:
         self._y_scale = value
 
     @property
-    def z_scale(self):
+    def z_scale(self) -> float:
         """Scale plot on Z.
 
         Returns
@@ -520,11 +524,11 @@ class CommonPlotter(PyAedtBase):
         return self._z_scale
 
     @z_scale.setter
-    def z_scale(self, value) -> None:
+    def z_scale(self, value: float) -> None:
         self._z_scale = value
 
     @property
-    def isometric_view(self):
+    def isometric_view(self) -> bool:
         """Enable or disable the default iso view.
 
         Parameters
@@ -543,7 +547,7 @@ class CommonPlotter(PyAedtBase):
         self._isometric_view = value
 
     @property
-    def view_up(self):
+    def view_up(self) -> tuple:
         """Get/Set the camera view axis. It disables the default iso view.
 
         Parameters
@@ -558,7 +562,7 @@ class CommonPlotter(PyAedtBase):
         return self._view_up
 
     @view_up.setter
-    def view_up(self, value) -> None:
+    def view_up(self, value: tuple | list) -> None:
         if isinstance(value, list):
             self._view_up = tuple(value)
         else:
@@ -566,7 +570,7 @@ class CommonPlotter(PyAedtBase):
         self.isometric_view = False
 
     @property
-    def focal_point(self):
+    def focal_point(self) -> tuple:
         """Get/Set the camera focal point value. It disables the default iso view.
 
         Parameters
@@ -581,7 +585,7 @@ class CommonPlotter(PyAedtBase):
         return self._focal_point
 
     @focal_point.setter
-    def focal_point(self, value) -> None:
+    def focal_point(self, value: tuple | list) -> None:
         if isinstance(value, list):
             self._focal_point = tuple(value)
         else:
@@ -589,7 +593,7 @@ class CommonPlotter(PyAedtBase):
         self.isometric_view = False
 
     @property
-    def camera_position(self):
+    def camera_position(self) -> str:
         """Get or set the camera position value. This parameter disables the default iso view.
 
         Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
@@ -601,7 +605,7 @@ class CommonPlotter(PyAedtBase):
         return self._camera_position
 
     @camera_position.setter
-    def camera_position(self, value) -> None:
+    def camera_position(self, value: str | list | tuple) -> None:
         if isinstance(value, list):
             self._camera_position = tuple(value)
         else:
@@ -609,7 +613,7 @@ class CommonPlotter(PyAedtBase):
         self.isometric_view = False
 
     @property
-    def roll_angle(self):
+    def roll_angle(self) -> float:
         """Get/Set the roll angle value. It disables the default iso view.
 
         Parameters
@@ -624,12 +628,12 @@ class CommonPlotter(PyAedtBase):
         return self._roll_angle
 
     @roll_angle.setter
-    def roll_angle(self, value: int = 20) -> None:
+    def roll_angle(self, value: float = 20) -> None:
         self._roll_angle = value
         self.isometric_view = False
 
     @property
-    def azimuth_angle(self):
+    def azimuth_angle(self) -> float:
         """Get/Set the azimuth angle value. It disables the default iso view.
 
         Parameters
@@ -644,12 +648,12 @@ class CommonPlotter(PyAedtBase):
         return self._azimuth_angle
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value: int = 45) -> None:
+    def azimuth_angle(self, value: float = 45) -> None:
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
     @property
-    def elevation_angle(self):
+    def elevation_angle(self) -> float:
         """Get/Set the elevation angle value. It disables the default iso view.
 
         Parameters
@@ -664,12 +668,12 @@ class CommonPlotter(PyAedtBase):
         return self._elevation_angle
 
     @elevation_angle.setter
-    def elevation_angle(self, value: int = 45) -> None:
+    def elevation_angle(self, value: float = 45) -> None:
         self._elevation_angle = value
         self.use_default_iso_view = False
 
     @property
-    def zoom(self):
+    def zoom(self) -> float:
         """Get/Set the zoom value.
 
         Parameters
@@ -684,12 +688,12 @@ class CommonPlotter(PyAedtBase):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value: int = 1) -> None:
+    def zoom(self, value: float = 1) -> None:
         self._zoom = value
 
     @pyaedt_function_handler()
     def set_orientation(
-        self, camera_position: str = "xy", roll_angle: int = 0, azimuth_angle: int = 45, elevation_angle: int = 20
+        self, camera_position: str = "xy", roll_angle: float = 0, azimuth_angle: float = 45, elevation_angle: float = 20
     ) -> bool:
         """Change the plot default orientation.
 
@@ -719,7 +723,7 @@ class CommonPlotter(PyAedtBase):
         return True
 
     @property
-    def background_color(self):
+    def background_color(self) -> tuple:
         """Background color.
 
         It can be a tuple of (r,g,b)  or color name.
@@ -727,7 +731,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_color
 
     @background_color.setter
-    def background_color(self, value) -> None:
+    def background_color(self, value: str | tuple | list) -> None:
         if isinstance(value, (tuple, list)):
             self._background_color = value
         elif value in CSS4_COLORS:
@@ -735,7 +739,7 @@ class CommonPlotter(PyAedtBase):
             self._background_color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
     @property
-    def background_image(self):
+    def background_image(self) -> str:
         """Background image.
 
         Returns
@@ -745,7 +749,7 @@ class CommonPlotter(PyAedtBase):
         return self._background_image
 
     @background_image.setter
-    def background_image(self, value) -> None:
+    def background_image(self, value: str) -> None:
         if Path(value).exists():
             self._background_image = value
 
@@ -786,7 +790,7 @@ class ModelPlotter(CommonPlotter):
         CommonPlotter.__init__(self)
 
     @property
-    def fields(self):
+    def fields(self) -> list[FieldClass]:
         """List of fields object.
 
         Returns
@@ -796,7 +800,7 @@ class ModelPlotter(CommonPlotter):
         return self._fields
 
     @property
-    def frames(self):
+    def frames(self) -> list[FieldClass]:
         """Frames list for animation.
 
         Returns
@@ -806,7 +810,7 @@ class ModelPlotter(CommonPlotter):
         return self._frames
 
     @property
-    def objects(self):
+    def objects(self) -> list[ObjClass]:
         """List of class objects.
 
         Returns
@@ -816,7 +820,7 @@ class ModelPlotter(CommonPlotter):
         return self._objects
 
     @pyaedt_function_handler()
-    def add_object(self, cad_path, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
+    def add_object(self, cad_path: str, cad_color: str = "dodgerblue", opacity: float = 1, units: str = "mm") -> bool:
         """Add a mesh file to the scenario.
 
         The mesh file can be an object or any of the PyVista supported files.
@@ -844,10 +848,10 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def add_field_from_file(
         self,
-        field_path,
+        field_path: str,
         log_scale: bool = True,
         coordinate_units: str = "meter",
-        opacity: int = 1,
+        opacity: float = 1,
         color_map: str = "jet",
         label_name: str = "Field",
         surface_mapping_tolerance: float = 1e-3,
@@ -899,10 +903,10 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def add_frames_from_file(
         self,
-        field_files,
+        field_files: list[str],
         log_scale: bool = True,
         coordinate_units: str = "meter",
-        opacity: int = 1,
+        opacity: float = 1,
         color_map: str = "jet",
         label_name: str = "Field",
         surface_mapping_tolerance: float = 1e-3,
@@ -952,11 +956,11 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def add_field_from_data(
         self,
-        coordinates,
-        fields_data,
+        coordinates: list[list[float]],
+        fields_data: list,
         log_scale: bool = True,
         coordinate_units: str = "meter",
-        opacity: int = 1,
+        opacity: float = 1,
         color_map: str = "jet",
         label_name: str = "Field",
         surface_mapping_tolerance: float = 1e-3,
@@ -999,7 +1003,7 @@ class ModelPlotter(CommonPlotter):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
-    def _read_case(self, field) -> None:
+    def _read_case(self, field):
         file_path = Path(field.path).resolve()
         reader = pv.get_reader(str(file_path)).read()
         field._cached_polydata = reader[reader.keys()[0]].extract_surface()
@@ -1025,7 +1029,7 @@ class ModelPlotter(CommonPlotter):
             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
 
     @pyaedt_function_handler()
-    def _read_aedtplt(self, field) -> None:
+    def _read_aedtplt(self, field):
         vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
         if self.convert_fields_in_db:
             scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1052,7 +1056,7 @@ class ModelPlotter(CommonPlotter):
         field.log = log1
 
     @pyaedt_function_handler()
-    def _read_fld(self, field) -> None:
+    def _read_fld(self, field):
         nodes = []
         values = []
         is_vector = False
@@ -1126,7 +1130,7 @@ class ModelPlotter(CommonPlotter):
             field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
-    def _read_mesh_files(self, read_frames: bool = False) -> None:
+    def _read_mesh_files(self, read_frames: bool = False):
         for cad in self.objects:
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
@@ -1159,7 +1163,7 @@ class ModelPlotter(CommonPlotter):
             def __init__(self, actor) -> None:
                 self.actor = actor
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.actor._cached_mesh.SetVisibility(state)
                 except AttributeError:
@@ -1180,7 +1184,7 @@ class ModelPlotter(CommonPlotter):
                 self.axes_color = axes_color
                 self.text = []
 
-            def __call__(self, state) -> None:
+            def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
                 except Exception:
@@ -1353,7 +1357,7 @@ class ModelPlotter(CommonPlotter):
         self.pv.camera.zoom(self.zoom)
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None, show: bool = True) -> bool:
+    def plot(self, export_image_path: str = None, show: bool = True) -> bool:
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
@@ -1442,7 +1446,7 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def animate(self, show: bool = True):
+    def animate(self, show: bool = True) -> bool:
         """Animate the current field plot.
 
         show : bool, optional
@@ -1660,7 +1664,7 @@ class ModelPlotter(CommonPlotter):
             return True
 
     @pyaedt_function_handler()
-    def generate_geometry_mesh(self):
+    def generate_geometry_mesh(self) -> "Mesh":
         """Generate mesh for objects only.
 
         Returns

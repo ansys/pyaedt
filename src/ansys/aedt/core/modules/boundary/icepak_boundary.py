@@ -57,7 +57,7 @@ class BoundaryDictionary(PyAedtBase):
         self.function_type = function_type
 
     @property
-    def props(self):
+    def props(self) -> dict:
         """Dictionary that defines all the boundary condition properties."""
         return {
             "Type": self.assignment_type,
@@ -250,7 +250,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         return [self.scale, self.dataset.name]
 
     @property
-    def dataset_name(self):
+    def dataset_name(self) -> str:
         """Dataset name that defines the piecewise assignment."""
         return self.dataset.name
 
@@ -385,7 +385,7 @@ class NetworkObject(BoundaryObject):
         return False
 
     @auto_update.setter
-    def auto_update(self, b) -> None:
+    def auto_update(self, b: bool) -> None:
         """
         Set auto-update on or off.
 
@@ -401,7 +401,7 @@ class NetworkObject(BoundaryObject):
             )
 
     @property
-    def links(self):
+    def links(self) -> dict:
         """
         Get links of the network.
 
@@ -415,7 +415,7 @@ class NetworkObject(BoundaryObject):
         return {link.name: link for link in self._links}
 
     @property
-    def r_links(self):
+    def r_links(self) -> dict:
         """
         Get r-links of the network.
 
@@ -429,7 +429,7 @@ class NetworkObject(BoundaryObject):
         return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
 
     @property
-    def c_links(self):
+    def c_links(self) -> dict:
         """
         Get c-links of the network.
 
@@ -443,7 +443,7 @@ class NetworkObject(BoundaryObject):
         return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
 
     @property
-    def nodes(self):
+    def nodes(self) -> dict:
         """
         Get nodes of the network.
 
@@ -457,7 +457,7 @@ class NetworkObject(BoundaryObject):
         return {node.name: node for node in self._nodes}
 
     @property
-    def face_nodes(self):
+    def face_nodes(self) -> dict:
         """
         Get face nodes of the network.
 
@@ -471,7 +471,7 @@ class NetworkObject(BoundaryObject):
         return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
 
     @property
-    def faces_ids_in_network(self):
+    def faces_ids_in_network(self) -> list:
         """
         Get ID of faces included in the network.
 
@@ -487,7 +487,7 @@ class NetworkObject(BoundaryObject):
         return out_arr
 
     @property
-    def objects_in_network(self):
+    def objects_in_network(self) -> list:
         """
         Get objects included in the network.
 
@@ -503,7 +503,7 @@ class NetworkObject(BoundaryObject):
         return out_arr
 
     @property
-    def internal_nodes(self):
+    def internal_nodes(self) -> dict:
         """
         Get internal nodes.
 
@@ -517,7 +517,7 @@ class NetworkObject(BoundaryObject):
         return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
 
     @property
-    def boundary_nodes(self):
+    def boundary_nodes(self) -> dict:
         """
         Get boundary nodes.
 
@@ -531,7 +531,7 @@ class NetworkObject(BoundaryObject):
         return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Get network name.
 
@@ -543,7 +543,7 @@ class NetworkObject(BoundaryObject):
         return self._name
 
     @name.setter
-    def name(self, new_network_name) -> None:
+    def name(self, new_network_name: str) -> None:
         """
         Set new name of the network.
 
@@ -564,7 +564,9 @@ class NetworkObject(BoundaryObject):
             self._name = new_network_name
 
     @pyaedt_function_handler()
-    def add_internal_node(self, name: str, power, mass=None, specific_heat=None):
+    def add_internal_node(
+        self, name: str, power: str | float | dict, mass: str | float = None, specific_heat: str | float = None
+    ) -> bool:
         """Add an internal node to the network.
 
         Parameters
@@ -624,7 +626,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def add_boundary_node(self, name: str, assignment_type, value):
+    def add_boundary_node(self, name: str, assignment_type: str, value: str | float | dict) -> bool:
         """
         Add a boundary node to the network.
 
@@ -684,7 +686,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def _add_to_props(self, new_node, type_dict: str = "Nodes") -> None:
+    def _add_to_props(self, new_node, type_dict: str = "Nodes"):
         try:
             self.props[type_dict].update({new_node.name: new_node.props})
         except KeyError:
@@ -693,13 +695,13 @@ class NetworkObject(BoundaryObject):
     @pyaedt_function_handler()
     def add_face_node(
         self,
-        assignment,
-        name: str | None = None,
+        assignment: int,
+        name: str = None,
         thermal_resistance: str = "NoResistance",
-        material: str | None = None,
-        thickness=None,
-        resistance=None,
-    ):
+        material: str = None,
+        thickness: str | float = None,
+        resistance: str | float = None,
+    ) -> bool:
         """
         Create a face node in the network.
 
@@ -783,7 +785,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def add_nodes_from_dictionaries(self, nodes) -> bool:
+    def add_nodes_from_dictionaries(self, nodes: list | dict) -> bool:
         """
         Add nodes to the network from dictionary.
 
@@ -891,7 +893,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1, node2, value, name: str | None = None) -> bool:
+    def add_link(self, node1: str | int, node2: str | int, value: str | float, name: str = None) -> bool:
         """Create links in the network object.
 
         Parameters
@@ -938,7 +940,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_links_from_dictionaries(self, connections) -> bool:
+    def add_links_from_dictionaries(self, connections: dict | list[dict]) -> bool:
         """Create links in the network object.
 
         Parameters
@@ -1010,7 +1012,7 @@ class NetworkObject(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def update_assignment(self):
+    def update_assignment(self) -> bool:
         """Update assignments of the network."""
         return self.update()
 
@@ -1051,7 +1053,7 @@ class NetworkObject(BoundaryObject):
             return unit2type_conversion[unit]
 
         @property
-        def props(self):
+        def props(self) -> list:
             """
             Get link properties.
 
@@ -1086,7 +1088,7 @@ class NetworkObject(BoundaryObject):
             self._network._nodes.remove(self)
 
         @property
-        def node_type(self):
+        def node_type(self) -> str:
             """Get node type.
 
             Returns
@@ -1109,7 +1111,7 @@ class NetworkObject(BoundaryObject):
             return self._type
 
         @property
-        def props(self):
+        def props(self) -> dict:
             """Get properties of the node.
 
             Returns
@@ -1120,7 +1122,7 @@ class NetworkObject(BoundaryObject):
             return self._props
 
         @props.setter
-        def props(self, props) -> None:
+        def props(self, props: dict) -> None:
             """Set properties of the node.
 
             Parameters

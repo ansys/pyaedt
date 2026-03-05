@@ -89,6 +89,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1436,6 +1437,11 @@ def test_couplings_2(tutorial) -> None:
     for key in antenna_nodes.keys():
         assert antenna_nodes[key].name == antenna_names[i]
         i += 1
+
+    rev: Revision = tutorial.results.analyze()
+    gps_ant: AntennaNode = rev.get_component_node("GPS")
+    assert gps_ant.parent_name == "NODE-*-Scene"
+    assert gps_ant._full_node_name == gps_ant.parent_name + "-*-" + gps_ant.name
 
 
 @pytest.mark.skipif(

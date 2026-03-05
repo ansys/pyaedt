@@ -77,9 +77,9 @@ class Matrix(PyAedtBase):
         self,
         get_self_terms: bool = True,
         get_mutual_terms: bool = True,
-        first_element_filter: str | None = None,
-        second_element_filter: str | None = None,
-        category: str | MatrixOperationsQ3D | None = "C",
+        first_element_filter: str = None,
+        second_element_filter: str = None,
+        category: str | MatrixOperationsQ3D = "C",
     ) -> list:
         """Return a list of source of specified matrix ready to be used in plot reports.
 
@@ -146,10 +146,10 @@ class Matrix(PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        source_names: str | list | None = None,
-        new_net_name: str | None = None,
-        new_source_name: str | None = None,
-        new_sink_name: str | None = None,
+        source_names: str | list = None,
+        new_net_name: str = None,
+        new_source_name: str = None,
+        new_sink_name: str = None,
     ) -> bool:
         """Create a new matrix.
 
@@ -195,10 +195,10 @@ class Matrix(PyAedtBase):
     def add_operation(
         self,
         operation_type: str | MatrixOperationsQ3D,
-        source_names: str | list | None = None,
-        new_net_name: str | None = None,
-        new_source_name: str | None = None,
-        new_sink_name: str | None = None,
+        source_names: str | list = None,
+        new_net_name: str = None,
+        new_source_name: str = None,
+        new_sink_name: str = None,
     ) -> bool:
         """Add a new operation to existing matrix.
 

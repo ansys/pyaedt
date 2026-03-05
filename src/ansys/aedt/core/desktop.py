@@ -2476,7 +2476,7 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
-    def __dispatch_win32(self, version) -> None:  # pragma: no cover
+    def __dispatch_win32(self, version):  # pragma: no cover
         from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)

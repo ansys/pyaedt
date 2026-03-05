@@ -86,7 +86,7 @@ class COMParameters:
         pass  # pragma: no cover
 
     @property
-    def parameters(self):
+    def parameters(self) -> dict:
         """All parameters."""
         temp = {
             **self.spisim_control,
@@ -106,7 +106,7 @@ class COMParameters:
         return temp
 
     @property
-    def standard(self):
+    def standard(self) -> str:
         """Standard name.
 
         Returns
@@ -116,14 +116,14 @@ class COMParameters:
         return self._standard  # pragma: no cover
 
     @standard.setter
-    def standard(self, value) -> None:
+    def standard(self, value: str) -> None:
         std_table = self._STD_TABLE_MAPPING[COMStandards(value).name]
         cfg_path = self._CFG_DIR / std_table
         self.load(cfg_path)
         self._standard = value
 
     @pyaedt_function_handler
-    def set_parameter(self, keyword, value) -> None:
+    def set_parameter(self, keyword: str, value: str) -> None:
         """Set a COM parameter.
 
         Parameters
@@ -161,7 +161,7 @@ class COMParameters:
             self.other_parameters[keyword] = value
 
     @pyaedt_function_handler
-    def export(self, file_path) -> None:
+    def export(self, file_path: str) -> None:
         """Export COM parameter to a JSON file.
 
         Parameters
@@ -188,7 +188,7 @@ class COMParameters:
             f.write(json.dumps(temp, indent=4, ensure_ascii=False))
 
     @pyaedt_function_handler
-    def load(self, file_path) -> None:
+    def load(self, file_path: str) -> None:
         """Load COM parameters from a JSON file.
 
         Parameters
@@ -205,7 +205,7 @@ class COMParameters:
                 self.__getattribute__(k)[k2] = v2
 
     @pyaedt_function_handler
-    def export_spisim_cfg(self, file_path) -> bool:
+    def export_spisim_cfg(self, file_path: str) -> bool:
         """Export COM parameter to a SPISim cfg file.
 
         Parameters
@@ -226,7 +226,7 @@ class COMParameters:
         return True
 
     @pyaedt_function_handler
-    def load_spisim_cfg(self, file_path) -> bool:
+    def load_spisim_cfg(self, file_path: str) -> bool:
         """Load a SPIsim configuration file.
 
         Parameters

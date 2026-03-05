@@ -78,6 +78,7 @@ all = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
     "uv>=0.8.17",
+    "ansys-tools-common",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
