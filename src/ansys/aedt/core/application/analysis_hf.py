@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 
+from itertools import combinations
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -197,8 +199,7 @@ class ScatteringMethods(PyAedtBase):
         else:
             # When drivers and receivers are different lists, pair by index
             if drivers != receivers:
-                for idx, driver in enumerate(drivers):
-                    receiver = receivers[idx]
+                for driver, receiver in zip(drivers, receivers):
                     if driver != receiver:
                         if math_formula:
                             spar.append(f"{math_formula}(S({driver},{receiver}))")
@@ -206,13 +207,11 @@ class ScatteringMethods(PyAedtBase):
                             spar.append(f"S({driver},{receiver})")
             # When drivers and receivers are the same list, generate all insertion loss combinations
             else:
-                for i, driver in enumerate(drivers):
-                    for j in range(i + 1, len(receivers)):
-                        receiver = receivers[j]
-                        if math_formula:
-                            spar.append(f"{math_formula}(S({driver},{receiver}))")
-                        else:
-                            spar.append(f"S({driver},{receiver})")
+                for driver, receiver in combinations(drivers, 2):
+                    if math_formula:
+                        spar.append(f"{math_formula}(S({driver},{receiver}))")
+                    else:
+                        spar.append(f"S({driver},{receiver})")
         return spar
 
     @pyaedt_function_handler()
