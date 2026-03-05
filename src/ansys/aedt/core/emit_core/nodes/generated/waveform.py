@@ -33,7 +33,6 @@ class Waveform(EmitNode):
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
-        self.odesktop = emit_obj.odesktop
 
     @property
     @min_aedt_version("2025.2")
@@ -63,7 +62,7 @@ class Waveform(EmitNode):
         return self._import(file_name, "TxMeasurement")
 
     @min_aedt_version("2027.1")
-    def get_frequencies(self, is_rx: bool, units: str = "Hz") -> list[float]:
+    def get_frequencies(self, units: str = "Hz") -> list[float]:
         """Return list of frequencies for the given waveform (empty if disabled)"""
         freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, False)
         freqs_converted = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
