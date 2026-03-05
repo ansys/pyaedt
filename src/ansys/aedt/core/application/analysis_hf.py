@@ -195,10 +195,21 @@ class ScatteringMethods(PyAedtBase):
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for idx, driver in enumerate(drivers):
-                if idx < len(receivers):
-                    receiver = receivers[idx]
-                    if driver != receiver:
+            # When drivers and receivers are different lists, pair by index
+            if drivers != receivers:
+                for idx, driver in enumerate(drivers):
+                    if idx < len(receivers):
+                        receiver = receivers[idx]
+                        if driver != receiver:
+                            if math_formula:
+                                spar.append(f"{math_formula}(S({driver},{receiver}))")
+                            else:
+                                spar.append(f"S({driver},{receiver})")
+            # When drivers and receivers are the same list, generate all insertion loss combinations
+            else:
+                for i, driver in enumerate(drivers):
+                    for j in range(i + 1, len(receivers)):
+                        receiver = receivers[j]
                         if math_formula:
                             spar.append(f"{math_formula}(S({driver},{receiver}))")
                         else:
