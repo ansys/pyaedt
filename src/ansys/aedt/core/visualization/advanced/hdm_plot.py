@@ -199,7 +199,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_first_bounce_currents(self, snapshot_path: str = None) -> Plotter:
+    def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters
