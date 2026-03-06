@@ -66,7 +66,6 @@ TEST_SUBFOLDER = "TMaxwell"
 CYL_GAP_NAME = "Motor3D_cyl_gap"
 
 LAYOUT_COMPONENT_NAME = "LayoutForce"
-MAXWELL_BARS = "maxwell_bars"
 
 
 @pytest.fixture
@@ -84,13 +83,6 @@ def maxwell_versioned():
 @pytest.fixture
 def layout_comp(add_app_example):
     app = add_app_example(application=Maxwell3d, project=LAYOUT_COMPONENT_NAME, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture
-def m3d_app_maxwell_bars(add_app_example):
-    app = add_app_example(application=Maxwell3d, project=MAXWELL_BARS, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -1240,57 +1232,77 @@ def test_assign_sink(m3d_app, maxwell_versioned) -> None:
         m3d_app.assign_sink(assignment=face_sink, name="my_sink")
 
 
-def test_aphi_ac_magnetic_excitations(m3d_app_maxwell_bars) -> None:
-    m3d_app_maxwell_bars.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
-    current1 = m3d_app_maxwell_bars.assign_current(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[0].faces[4], amplitude=1, name="current1"
-    )
-    voltage1 = m3d_app_maxwell_bars.assign_voltage(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[1].faces[0], amplitude=2, name="voltage1"
-    )
-    voltage2 = m3d_app_maxwell_bars.assign_voltage(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[1].faces[4],
-        amplitude=3,
-        name="voltage2",
+def test_aphi_ac_magnetic_excitations(m3d_app) -> None:
+    box1 = m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[1, 1, 1], name="my_box", material="copper")
+    box2 = m3d_app.modeler.create_box(origin=[0, 0, 1], sizes=[1, 1, 1], name="my_box", material="copper")
+    m3d_app.modeler.create_air_region(x_pos=10, x_neg=10, y_pos=10, y_neg=10, is_percentage=True)
+
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
+    voltage1 = m3d_app.assign_voltage(assignment=box1.faces[4], amplitude=0, name="gnd1")
+
+    voltage2 = m3d_app.assign_voltage(assignment=box2.faces[0], amplitude=0, name="gnd2")
+
+    current1 = m3d_app.assign_current(
+        assignment=box1.faces[0],
+        amplitude=1,
+        name="current1",
         excitation_model="Double Potentials with Ground",
-        swap_direction=True,
     )
-    assert m3d_app_maxwell_bars.boundaries[0].name == "current1"
-    assert m3d_app_maxwell_bars.boundaries[1].name == "voltage1"
-    assert m3d_app_maxwell_bars.boundaries[2].name == "voltage2"
 
+    excitation_names = []
+    for excitation in m3d_app.boundaries:
+        excitation_names.append(excitation.name)
+
+    assert "gnd1" in excitation_names
+    assert "current1" in excitation_names
+    assert "gnd2" in excitation_names
     assert current1.props["Current"] == "1A"
-    assert voltage1.props["Voltage"] == "2mV"
-    assert voltage2.props["Voltage"] == "3mV"
+    assert voltage1.props["Voltage"] == "0mV"
+    assert voltage2.props["Voltage"] == "0mV"
+    assert current1.props["CurrentExcitationModel"] == "Double Potentials with Ground"
 
 
-def test_aphi_transient_excitations(m3d_app_maxwell_bars) -> None:
-    m3d_app_maxwell_bars.solution_type = SolutionsMaxwell3D.TransientAPhi
-    current1 = m3d_app_maxwell_bars.assign_current(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[0].faces[4], amplitude=1, name="current1"
-    )
-    voltage1 = m3d_app_maxwell_bars.assign_voltage(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[1].faces[0],
-        amplitude=2,
-        name="voltage1",
+def test_aphi_transient_excitations(m3d_app) -> None:
+    box1 = m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[1, 1, 1], name="my_box", material="copper")
+    box2 = m3d_app.modeler.create_box(origin=[0, 0, 1], sizes=[1, 1, 1], name="my_box", material="copper")
+    m3d_app.modeler.create_air_region(x_pos=10, x_neg=10, y_pos=10, y_neg=10, is_percentage=True)
+    m3d_app.solution_type = SolutionsMaxwell3D.TransientAPhi
+
+    voltage1 = m3d_app.assign_voltage(
+        assignment=box1.faces[4],
+        amplitude=0,
+        name="gnd1",
         initial_current="1A",
         has_initial_current=True,
     )
-    voltage2 = m3d_app_maxwell_bars.assign_voltage(
-        assignment=m3d_app_maxwell_bars.modeler.object_list[1].faces[4],
+
+    voltage2 = m3d_app.assign_voltage(
+        assignment=box2.faces[0],
+        amplitude=0,
+        name="gnd2",
+        initial_current="1A",
+        has_initial_current=True,
+    )
+
+    voltage3 = m3d_app.assign_voltage(
+        assignment=box1.faces[0],
         amplitude=3,
-        name="voltage2",
+        name="voltage",
         initial_current="1A",
         has_initial_current=True,
         excitation_model="Double Potentials with Ground",
         swap_direction=True,
     )
 
-    assert m3d_app_maxwell_bars.boundaries[0].name == "current1"
-    assert m3d_app_maxwell_bars.boundaries[1].name == "voltage1"
-    assert m3d_app_maxwell_bars.boundaries[2].name == "voltage2"
+    excitation_names = []
+    for excitation in m3d_app.boundaries:
+        excitation_names.append(excitation.name)
 
-    assert current1.props["Current"] == "1A"
-    assert voltage1.props["VoltageAPhi"] == "2mV"
+    assert "gnd1" in excitation_names
+    assert "voltage" in excitation_names
+    assert "gnd2" in excitation_names
+    assert voltage1.props["VoltageAPhi"] == "0mV"
     assert voltage1.props["VoltageAPhiInitialCurrent"] == "1A"
-    assert voltage2.props["VoltageAPhi"] == "3mV"
+    assert voltage2.props["VoltageAPhi"] == "0mV"
+    assert voltage2.props["VoltageAPhiInitialCurrent"] == "1A"
+    assert voltage3.props["VoltageAPhiExcitationModel"] == "Double Potentials with Ground"
