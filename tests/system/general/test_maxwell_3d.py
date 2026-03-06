@@ -1230,3 +1230,79 @@ def test_assign_sink(m3d_app, maxwell_versioned) -> None:
     m3d_app.solution_type = maxwell_versioned.Magnetostatic
     with pytest.raises(AEDTRuntimeError):
         m3d_app.assign_sink(assignment=face_sink, name="my_sink")
+
+
+def test_aphi_ac_magnetic_excitations(m3d_app) -> None:
+    box1 = m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[1, 1, 1], name="my_box", material="copper")
+    box2 = m3d_app.modeler.create_box(origin=[0, 0, 1], sizes=[1, 1, 1], name="my_box", material="copper")
+    m3d_app.modeler.create_air_region(x_pos=10, x_neg=10, y_pos=10, y_neg=10, is_percentage=True)
+
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
+    voltage1 = m3d_app.assign_voltage(assignment=box1.faces[4], amplitude=0, name="gnd1")
+
+    voltage2 = m3d_app.assign_voltage(assignment=box2.faces[0], amplitude=0, name="gnd2")
+
+    current1 = m3d_app.assign_current(
+        assignment=box1.faces[0],
+        amplitude=1,
+        name="current1",
+        excitation_model="Double Potentials with Ground",
+    )
+
+    excitation_names = []
+    for excitation in m3d_app.boundaries:
+        excitation_names.append(excitation.name)
+
+    assert "gnd1" in excitation_names
+    assert "current1" in excitation_names
+    assert "gnd2" in excitation_names
+    assert current1.props["Current"] == "1A"
+    assert voltage1.props["Voltage"] == "0mV"
+    assert voltage2.props["Voltage"] == "0mV"
+    assert current1.props["CurrentExcitationModel"] == "Double Potentials with Ground"
+
+
+def test_aphi_transient_excitations(m3d_app) -> None:
+    box1 = m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[1, 1, 1], name="my_box", material="copper")
+    box2 = m3d_app.modeler.create_box(origin=[0, 0, 1], sizes=[1, 1, 1], name="my_box", material="copper")
+    m3d_app.modeler.create_air_region(x_pos=10, x_neg=10, y_pos=10, y_neg=10, is_percentage=True)
+    m3d_app.solution_type = SolutionsMaxwell3D.TransientAPhi
+
+    voltage1 = m3d_app.assign_voltage(
+        assignment=box1.faces[4],
+        amplitude=0,
+        name="gnd1",
+        initial_current="1A",
+        has_initial_current=True,
+    )
+
+    voltage2 = m3d_app.assign_voltage(
+        assignment=box2.faces[0],
+        amplitude=0,
+        name="gnd2",
+        initial_current="1A",
+        has_initial_current=True,
+    )
+
+    voltage3 = m3d_app.assign_voltage(
+        assignment=box1.faces[0],
+        amplitude=3,
+        name="voltage",
+        initial_current="1A",
+        has_initial_current=True,
+        excitation_model="Double Potentials with Ground",
+        swap_direction=True,
+    )
+
+    excitation_names = []
+    for excitation in m3d_app.boundaries:
+        excitation_names.append(excitation.name)
+
+    assert "gnd1" in excitation_names
+    assert "voltage" in excitation_names
+    assert "gnd2" in excitation_names
+    assert voltage1.props["VoltageAPhi"] == "0mV"
+    assert voltage1.props["VoltageAPhiInitialCurrent"] == "1A"
+    assert voltage2.props["VoltageAPhi"] == "0mV"
+    assert voltage2.props["VoltageAPhiInitialCurrent"] == "1A"
+    assert voltage3.props["VoltageAPhiExcitationModel"] == "Double Potentials with Ground"
