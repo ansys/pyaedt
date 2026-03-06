@@ -4066,9 +4066,6 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         expression : str
             A valid string expression for a design property or project variable.
-            Supported formats include simple values (``"42"``), values with units
-            (``"10mm"``, ``"2.5GHz"``), mathematical expressions (``"34mm*sqrt(2)"``),
-            variable references (``"$ProjectVar"``), and combined expressions (``"$G1*p2/34"``).
 
         Returns
         -------
