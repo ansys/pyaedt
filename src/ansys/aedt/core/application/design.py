@@ -4182,10 +4182,9 @@ class Design(AedtObjects, PyAedtBase):
                     if result:
                         eval_value = self._variable_manager.variables[variable_name].si_value
                         return eval_value
-                    else:  # pragma: no cover
-                        raise AEDTRuntimeError(
-                            f"Failed to create internal evaluator variable with expression: {expression}"
-                        ) from e
+                    raise AEDTRuntimeError(
+                        f"Failed to create internal evaluator variable with expression: {expression}"
+                    ) from e
                 else:  # pragma: no cover
                     raise
 
