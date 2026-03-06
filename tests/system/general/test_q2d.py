@@ -97,7 +97,7 @@ def test_add_sweep(aedt_app) -> None:
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
 
-def test_assign_single_signal_line(aedt_app) -> None:
+def test_assign_single_signal_line(aedt_app):
     rect = aedt_app.modeler.create_rectangle([0, 0, 0], [5, 3], name="Rectangle1")
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
 

@@ -192,6 +192,54 @@ def _write_github_output(name: str, value: str):
         print(f"[CI] GitHub output: {name}={value}")
 
 
+def _get_tests_requirements(lockfile_content=None):
+    """
+    Export requirements for the 'tests' group.
+    If lockfile_content is provided, it writes it to disk temporarily.
+    """
+    if lockfile_content is not None:
+        if Path("uv.lock").exists():
+            shutil.copy("uv.lock", "uv.lock.backup")
+        with open("uv.lock", "wb") as file_handle:
+            file_handle.write(lockfile_content)
+
+    try:
+        result = subprocess.run(  # nosec B603 - controlled uv args
+            ["uv", "export", "--no-dev", "--group", "tests", "--no-hashes", "--no-header", "--frozen"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout
+    finally:
+        if lockfile_content is not None and Path("uv.lock.backup").exists():
+            shutil.move("uv.lock.backup", "uv.lock")
+
+
+def _tests_dependencies_changed(base_ref: str) -> bool:
+    try:
+        current_reqs = _get_tests_requirements()
+    except Exception as exc:
+        print(f"[WARN] Failed to export current tests requirements: {exc}")
+        return True
+
+    try:
+        if not _validate_git_ref(base_ref):
+            print(f"[ERR] Invalid git reference: {base_ref}", file=sys.stderr)
+            raise SystemExit(1)
+
+        git_executable = _get_git_executable()
+        git_uv_lock = subprocess.check_output(  # nosec B603 - controlled git args
+            [git_executable, "show", f"{base_ref}:uv.lock"]
+        )
+        old_reqs = _get_tests_requirements(git_uv_lock)
+    except Exception as exc:
+        print(f"[WARN] Failed to export tests requirements from {base_ref}: {exc}")
+        return True
+
+    return current_reqs != old_reqs
+
+
 def analyze_changes(base_ref: str = "origin/main"):
     """
     Analyze code changes to determine what CI/CD jobs should run.
@@ -235,7 +283,18 @@ def analyze_changes(base_ref: str = "origin/main"):
     # Separate Python files and doc files
     python_files = [f for f in all_files if f.endswith(".py") and (f.startswith("tests/") or f.startswith("src/"))]
     doc_files = [f for f in all_files if f.startswith("doc/") or f.startswith("doc\\")]
-    other_files = [f for f in all_files if f not in python_files and f not in doc_files]
+    uv_lock_changed = any(f == "uv.lock" for f in all_files)
+    classified_files = set(python_files) | set(doc_files) | {"uv.lock"}
+    other_files = [f for f in all_files if f not in classified_files]
+
+    tests_deps_changed = False
+    if uv_lock_changed:
+        print("Detected uv.lock change. Checking tests group dependencies...")
+        tests_deps_changed = _tests_dependencies_changed(base_ref)
+        if tests_deps_changed:
+            print("[!] Tests group dependencies changed in uv.lock")
+        else:
+            print("[OK] Tests group dependencies unchanged in uv.lock")
 
     # Define module patterns to check for changes
     module_patterns = {
@@ -273,7 +332,7 @@ def analyze_changes(base_ref: str = "origin/main"):
             print(f"[MODULE] {module_name.upper()} module NOT changed")
 
     # Check if ONLY doc files changed
-    if doc_files and not python_files and not other_files:
+    if doc_files and not python_files and not other_files and not uv_lock_changed:
         print(f"Only documentation files changed ({len(doc_files)} file(s)).")
         for f in doc_files:
             print(f"  [DOC] {f}")
@@ -286,7 +345,7 @@ def analyze_changes(base_ref: str = "origin/main"):
         _write_github_output("skip_tests", "true")
         raise SystemExit(0)
 
-    if not python_files:
+    if not python_files and (other_files or uv_lock_changed):
         print("No Python files changed, but non-doc files were modified.")
         print(f"Changed files: {', '.join(all_files)}")
         _set_ci_env("RUN_ALL", "true")
@@ -371,17 +430,22 @@ def analyze_changes(base_ref: str = "origin/main"):
             print(f"  AST unchanged (both {len(old_ast)} chars)")
 
     print("-" * 40)
-    if logic_changed or other_files:
+    if logic_changed or other_files or tests_deps_changed:
         if logic_changed:
             print("[!] CODE LOGIC CHANGES DETECTED")
         if other_files:
             print(f"[!] NON-PYTHON FILES CHANGED: {len(other_files)}")
+        if tests_deps_changed:
+            print("[!] TESTS DEPENDENCIES CHANGED")
         print("Result: RUN ALL CI/CD JOBS")
         _set_ci_env("RUN_ALL", "true")
         _write_github_output("run_all", "true")
         _write_github_output("skip_tests", "false")
     else:
-        print("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
+        if uv_lock_changed:
+            print("[OK] ONLY uv.lock changed (tests dependencies unchanged)")
+        else:
+            print("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
         print("Result: SKIP CODE TESTS")
         _set_ci_env("SKIP_CODE_TESTS", "true")
         _write_github_output("skip_tests", "true")

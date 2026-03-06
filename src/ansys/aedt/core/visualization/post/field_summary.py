@@ -110,10 +110,10 @@ class FieldSummary(PyAedtBase):
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        entity,
-        geometry,
-        geometry_name,
-        quantity,
+        entity: str,
+        geometry: str,
+        geometry_name: str | list[str],
+        quantity: str,
         normal: str = "",
         side: str = "Default",
         mesh: str = "All",
@@ -187,7 +187,7 @@ class FieldSummary(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_field_summary_data(
-        self, setup: str | None = None, variation=None, intrinsics: str = "", pandas_output: bool = False
+        self, setup: str | None = None, variation: dict | None = None, intrinsics: str = "", pandas_output: bool = False
     ):
         """
         Get  field summary output computation.
@@ -239,7 +239,7 @@ class FieldSummary(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_csv(
-        self, output_file, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
+        self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
     ) -> bool:
         """
         Get the field summary output computation.
@@ -253,7 +253,7 @@ class FieldSummary(PyAedtBase):
             default is ``None``, in which case the nominal variation is used.
         variations : dict, optional
             Dictionary containing the design variation to use for the computation.
-            The default is  ``{}``, in which case the nominal variation is used.
+            The default is ``None``, in which case the nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             which is suitable when no frequency needs to be selected.
@@ -263,8 +263,8 @@ class FieldSummary(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if variations is None:
-            variations = {}
+        if not variations:
+            variations = self._app.available_variations.nominal_values
         if not setup:
             setup = self._app.nominal_sweep
         dv_string = ""
@@ -286,7 +286,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self, setup, variation) -> None:
+    def _create_field_summary(self, setup, variation):
         arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")

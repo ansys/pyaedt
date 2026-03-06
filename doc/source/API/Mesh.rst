@@ -23,9 +23,9 @@ They are accessible through the mesh property:
     from ansys.aedt.core import Maxwell3d
 
     app = Maxwell3d(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )

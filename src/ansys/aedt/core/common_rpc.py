@@ -167,7 +167,7 @@ def pyaedt_service_manager(
 
     """
     port1 = check_port(port)
-    if port == 0:
+    if port1 == 0:
         logger.error("Error. No ports are available.")
         return False
     if port1 != port:
@@ -242,7 +242,7 @@ def launch_server(
 
     """
     port1 = check_port(port)
-    if port == 0:
+    if port1 == 0:
         logger.error("Error. No ports are available.")
         return False
     if port1 != port:

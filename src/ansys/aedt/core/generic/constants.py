@@ -26,6 +26,7 @@ from __future__ import absolute_import
 from enum import IntEnum
 from enum import auto
 import math
+from typing import Callable
 import warnings
 
 from ansys.aedt.core.generic.settings import settings
@@ -44,7 +45,7 @@ MILS2METER = 39370.078740157
 SpeedOfLight = 299792458.0
 
 
-def db20(x, inverse: bool = True):
+def db20(x: float, inverse: bool = True) -> float:
     """Convert db20 to decimal and vice versa."""
     if inverse:
         return 20 * math.log10(x)
@@ -52,7 +53,7 @@ def db20(x, inverse: bool = True):
         return math.pow(10, x / 20.0)
 
 
-def db10(x, inverse: bool = True):
+def db10(x: float, inverse: bool = True) -> float:
     """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -60,7 +61,7 @@ def db10(x, inverse: bool = True):
         return math.pow(10, x / 10.0)
 
 
-def dbw(x, inverse: bool = True):
+def dbw(x: float, inverse: bool = True) -> float:
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -68,7 +69,7 @@ def dbw(x, inverse: bool = True):
         return math.pow(10, x / 10.0)
 
 
-def dbm(x, inverse: bool = True):
+def dbm(x: float, inverse: bool = True) -> float:
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x) + 30
@@ -76,7 +77,7 @@ def dbm(x, inverse: bool = True):
         return math.pow(10, x / 10.0) / 1000
 
 
-def fah2kel(val, inverse: bool = True):
+def fah2kel(val: float, inverse: bool = True) -> float:
     """Convert a temperature from Fahrenheit to Kelvin.
 
     Parameters
@@ -98,7 +99,7 @@ def fah2kel(val, inverse: bool = True):
         return (val - 32) * 5 / 9 + 273.15
 
 
-def cel2kel(val, inverse: bool = True):
+def cel2kel(val: float, inverse: bool = True) -> float:
     """Convert a temperature from Celsius to Kelvin.
 
     Parameters
@@ -120,7 +121,7 @@ def cel2kel(val, inverse: bool = True):
         return val + 273.15
 
 
-def unit_system(units):
+def unit_system(units: str) -> str | bool:
     """Retrieve the name of the unit system associated with a unit string.
 
     Parameters
@@ -142,7 +143,7 @@ def unit_system(units):
     return False
 
 
-def _resolve_unit_system(unit_system_1, unit_system_2, operation):
+def _resolve_unit_system(unit_system_1: str, unit_system_2: str, operation: str) -> str:
     """Retrieve the unit string of an arithmetic operation on ``Variable`` objects.
 
     If no resulting unit system is defined for a specific operation (in unit_system_operations),
@@ -170,7 +171,9 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(values, unit_system: str = "Length", input_units: str = "meter", output_units: str = "mm"):
+def unit_converter(
+    values: float | list, unit_system: str = "Length", input_units: str = "meter", output_units: str = "mm"
+) -> float | list:
     """Convert unit in specified unit system.
 
     Parameters
@@ -231,7 +234,7 @@ def unit_converter(values, unit_system: str = "Length", input_units: str = "mete
     return values
 
 
-def scale_units(scale_to_unit):
+def scale_units(scale_to_unit: str) -> float:
     """Find the scale_to_unit into main system unit.
 
     Parameters
@@ -256,7 +259,7 @@ def scale_units(scale_to_unit):
     return sunit
 
 
-def validate_enum_class_value(cls, value):
+def validate_enum_class_value(cls, value: int) -> bool:
     """Check whether the value for the class ``enumeration-class`` is valid.
 
     Parameters
@@ -690,14 +693,14 @@ CSS4_COLORS = {
 }
 
 
-def deprecate_enum(new_enum):
+def deprecate_enum(new_enum: type) -> Callable:
     """Decorator to mark an enumeration class as deprecated.
 
     It allows you to keep the old enumeration class in the code
     and redirect its attributes to a new enumeration class.
     """
 
-    def decorator(cls):
+    def decorator(cls) -> type:
         class Wrapper:
             # NOTE: Required to handle correctly the documentation, name of the class and nested classes.
             __doc__ = cls.__doc__

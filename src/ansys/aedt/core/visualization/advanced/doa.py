@@ -24,6 +24,7 @@
 
 import sys
 
+from matplotlib.figure import Figure
 import numpy as np
 
 from ansys.aedt.core.base import PyAedtBase
@@ -95,7 +96,7 @@ class DirectionOfArrival(PyAedtBase):
     @pyaedt_function_handler()
     def bartlett(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
-    ):
+    ) -> np.ndarray:
         """
         Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
 
@@ -272,15 +273,15 @@ class DirectionOfArrival(PyAedtBase):
         self,
         signal: np.ndarray,
         doa_method: str = None,
-        field_of_view=None,
+        field_of_view: np.ndarray = None,
         quantity_format: str = None,
         title: str = "Angle of Arrival",
         output_file: str = None,
         show: bool = True,
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
-        figure=None,
-    ):
+        figure: Figure = None,
+    ) -> ReportPlotter:
         """Create angle of arrival plot.
 
         Parameters

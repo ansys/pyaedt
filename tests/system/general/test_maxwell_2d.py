@@ -33,9 +33,15 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.maxwell_boundary import GroupSourcesMagnetostatic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagnetic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixMagnetostatic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellForce
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellTorque
+from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic
+from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceMagnetostatic
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -513,7 +519,7 @@ def test_assign_matrix_electrostatic(m2d_app):
     voltage1 = m2d_app.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
     voltage2 = m2d_app.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
     voltage3 = m2d_app.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
-    matrix_args = MaxwellMatrix.MatrixElectric(
+    matrix_args = MatrixElectric(
         signal_sources=[voltage1.name, voltage2.name],
         ground_sources=[voltage3.name],
     )
@@ -532,24 +538,24 @@ def test_assign_matrix_magnetostatic(m2d_app):
     current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
     current2 = m2d_app.assign_current([rectangle2], amplitude=1, name="Current2")
     current3 = m2d_app.assign_current([rectangle3], amplitude=1, name="Current3")
-    signal_source_1 = MaxwellMatrix.SourceMagnetostatic(
+    signal_source_1 = SourceMagnetostatic(
         name=current1.name,
         return_path=current2.name,
         turns_number=5,
     )
 
-    signal_source_2 = MaxwellMatrix.SourceMagnetostatic(
+    signal_source_2 = SourceMagnetostatic(
         name=current3.name,
         turns_number=2,
     )
 
-    group_source = MaxwellMatrix.GroupSourcesMagnetostatic(
+    group_source = GroupSourcesMagnetostatic(
         source_names=[current1.name, current3.name],
         branches_number=7,
         name="test_group",
     )
 
-    matrix_args = MaxwellMatrix.MatrixMagnetostatic(
+    matrix_args = MatrixMagnetostatic(
         signal_sources=[signal_source_1, signal_source_2],
         group_sources=[group_source],
         matrix_name="test_matrix",
@@ -572,9 +578,9 @@ def test_assign_matrix_ac_magnetic(m2d_app):
     current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
     current2 = m2d_app.assign_current([rectangle2], amplitude=1, name="Current2")
     current3 = m2d_app.assign_current([rectangle3], amplitude=1, name="Current3")
-    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name, return_path=current2.name)
-    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
-    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+    signal_source_1 = SourceACMagnetic(name=current1.name, return_path=current2.name)
+    signal_source_2 = SourceACMagnetic(name=current3.name)
+    matrix_args = MatrixACMagnetic(
         signal_sources=[signal_source_1, signal_source_2],
     )
     matrix = m2d_app.assign_matrix(matrix_args)
@@ -599,7 +605,7 @@ def test_assign_matrix_failure(m2d_app):
     m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
     rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
     current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
-    matrix_args = MaxwellMatrix.MatrixElectric(
+    matrix_args = MatrixElectric(
         signal_sources=[current1.name],
         ground_sources=[],
     )

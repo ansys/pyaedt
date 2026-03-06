@@ -515,7 +515,7 @@ class Desktop(PyAedtBase):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the machine.
+        another instance of the ``version`` is active on the machine.
         The default is ``True``.
     close_on_exit : bool, optional
         Whether to close AEDT on exit. The default is ``True``.
@@ -2476,7 +2476,7 @@ class Desktop(PyAedtBase):
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
-    def __dispatch_win32(self, version) -> None:  # pragma: no cover
+    def __dispatch_win32(self, version):  # pragma: no cover
         from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)
@@ -2804,8 +2804,10 @@ class Desktop(PyAedtBase):
                 is_launched, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
+                self.launched_by_pyaedt = True
+
             self.new_desktop = not is_launched
-            self.launched_by_pyaedt = True
+
             # Establish gRPC connection (implementation details)
             result = self.__initialize()
 

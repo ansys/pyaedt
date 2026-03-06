@@ -63,11 +63,12 @@ class RMXprtModule(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def __setitem__(self, parameter_name, value) -> None:
+    def __setitem__(self, parameter_name, value):
         def _apply_val(dict_in, name: str, value) -> bool:
             if name in dict_in.properties:
                 if (
                     isinstance(dict_in.properties[name], list)
+                    and len(dict_in.properties[name]) > 0
                     and isinstance(dict_in.properties[name][0], str)
                     and ":=" in dict_in.properties[name][0]
                     and not isinstance(value, list)
@@ -170,7 +171,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.

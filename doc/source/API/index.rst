@@ -51,9 +51,9 @@ Example with ``Desktop`` class explicit initialization:
     from ansys.aedt.core import launch_desktop, Circuit
 
     d = launch_desktop(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )
@@ -70,9 +70,9 @@ Example with ``Desktop`` class implicit initialization:
     from ansys.aedt.core import Circuit
 
     circuit = Circuit(
-        specified_version="2025.2",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )

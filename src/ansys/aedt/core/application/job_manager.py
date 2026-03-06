@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 
-def get_hpc_info(filename):
+def get_hpc_info(filename: str) -> tuple[str, str]:
     """Retrieve HPC information.
 
     Parameters
@@ -50,7 +50,9 @@ def get_hpc_info(filename):
     return config_name, design_type
 
 
-def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring: bool = True, separator: str = "=") -> bool:
+def update_hpc_option(
+    filnename: str, propertyname: str, propertyvalue: str, isvaluestring: bool = True, separator: str = "="
+) -> bool:
     """Update an HPC option in the configuration file.
 
     Parameters
@@ -95,7 +97,7 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring: boo
         return False
 
 
-def update_simulation_cores(name: str, nc) -> None:
+def update_simulation_cores(name: str, nc: int | str) -> None:
     """Update the HPC number of cores in the configuration file.
 
     Parameters
@@ -117,7 +119,7 @@ def update_simulation_cores(name: str, nc) -> None:
         f.write(new_line)
 
 
-def update_simulation_engines(name: str, nc) -> None:
+def update_simulation_engines(name: str, nc: int | str) -> None:
     """Update the HPC number of simulaton engines in the configuration file.
 
     Parameters
@@ -139,7 +141,7 @@ def update_simulation_engines(name: str, nc) -> None:
         f.write(new_line)
 
 
-def update_machine_name(name: str, machinename) -> None:
+def update_machine_name(name: str, machinename: str) -> None:
     """Update the machine name.
 
     Parameters
@@ -161,7 +163,7 @@ def update_machine_name(name: str, machinename) -> None:
         f.write(new_line)
 
 
-def update_config_name(name: str, machinename) -> None:
+def update_config_name(name: str, machinename: str) -> None:
     """Update the name of the configuration.
 
     Parameters
@@ -209,7 +211,7 @@ def update_cluster_cores(file_name: str, param_name, param_val) -> None:
         f.write(new_line)
 
 
-def update_hpc_template(file_name: str, param_name, param_val) -> None:
+def update_hpc_template(file_name: str, param_name: str, param_val: int) -> None:
     """Update a parameter in the HPC template file.
 
     Parameters

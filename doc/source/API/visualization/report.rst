@@ -40,7 +40,7 @@ The following code shows how to use report modules in standalone mode.
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.visualization.report.field import Fields
 
-    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    app = Hfss(version="2025.2", non_graphical=False, new_desktop=False)
     test_points = [
         ["0mm", "0mm", "0mm"],
         ["100mm", "20mm", "0mm"],
@@ -70,7 +70,7 @@ You can use these classes directly from the application object:
 
     from ansys.aedt.core import Hfss
 
-    app = Hfss(specified_version="2025.2", non_graphical=False, new_desktop_session=False)
+    app = Hfss(version="2025.2", non_graphical=False, new_desktop=False)
     test_points = [
         ["0mm", "0mm", "0mm"],
         ["100mm", "20mm", "0mm"],

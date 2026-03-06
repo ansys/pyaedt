@@ -29,11 +29,12 @@ This module provides all functionalities for common AEDT post processing.
 
 """
 
+from __future__ import annotations
+
 import os
 import re
 from typing import TYPE_CHECKING
 
-from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
@@ -43,36 +44,36 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
-import ansys.aedt.core.visualization.report.emi
-import ansys.aedt.core.visualization.report.eye
-import ansys.aedt.core.visualization.report.field
-import ansys.aedt.core.visualization.report.netlist
-import ansys.aedt.core.visualization.report.standard
+from ansys.aedt.core.visualization.report import emi as report_emi
+from ansys.aedt.core.visualization.report import eye as report_eye
+from ansys.aedt.core.visualization.report import field as report_field
+from ansys.aedt.core.visualization.report import netlist as report_netlist
+from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
     from ansys.aedt.core.visualization.report.standard import Standard
 
 TEMPLATES_BY_NAME = {
-    "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-    "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
-    "AC Magnetic": ansys.aedt.core.visualization.report.standard.Standard,
-    "Modal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
-    "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
-    "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
-    "Monitor": ansys.aedt.core.visualization.report.standard.Standard,
-    "Far Fields": ansys.aedt.core.visualization.report.field.FarField,
-    "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
-    "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
-    "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
-    "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
-    "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.Standard,
-    "Spectrum": ansys.aedt.core.visualization.report.standard.Spectral,
-    "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
-    "Netlist": ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport,
+    "Standard": report_standard.Standard,
+    "EddyCurrent": report_standard.Standard,
+    "AC Magnetic": report_standard.Standard,
+    "Modal Solution Data": report_standard.Standard,
+    "Terminal Solution Data": report_standard.Standard,
+    "Fields": report_field.Fields,
+    "CG Fields": report_field.Fields,
+    "DC R/L Fields": report_field.Fields,
+    "AC R/L Fields": report_field.Fields,
+    "Matrix": report_standard.Standard,
+    "Monitor": report_standard.Standard,
+    "Far Fields": report_field.FarField,
+    "Near Fields": report_field.NearField,
+    "Eye Diagram": report_eye.EyeDiagram,
+    "Statistical Eye": report_eye.AMIEyeDiagram,
+    "AMI Contour": report_eye.AMIConturEyeDiagram,
+    "Eigenmode Parameters": report_standard.Standard,
+    "Spectrum": report_standard.Spectral,
+    "EMIReceiver": report_emi.EMIReceiver,
+    "Netlist": report_netlist.CircuitNetlistReport,
 }
 
 
@@ -106,12 +107,12 @@ class PostProcessorCommon(PyAedtBase):
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
-    def plots(self) -> list[ansys.aedt.core.visualization.report.standard.Standard]:
+    def plots(self) -> list[Standard]:
         """Plot list.
 
         Returns
         -------
-        list[ansys.aedt.core.visualization.report.standard.Standard]
+        list[report_standard.Standard]
             List of reports created in active design.
         """
         if self.__plots is None:
@@ -119,7 +120,7 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value) -> None:
+    def plots(self, value: list[Standard]) -> None:
         self.__plots = value
 
     @property
@@ -133,7 +134,7 @@ class PostProcessorCommon(PyAedtBase):
         return list(self.oreportsetup.GetAvailableReportTypes())
 
     @property
-    def update_report_dynamically(self):
+    def update_report_dynamically(self) -> bool:
         """Get/Set the boolean to automatically update reports on edits.
 
         Returns
@@ -150,7 +151,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @update_report_dynamically.setter
-    def update_report_dynamically(self, value) -> None:
+    def update_report_dynamically(self, value: bool) -> None:
         if value:
             self._app.odesktop.SetRegistryInt(
                 f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1
@@ -161,7 +162,7 @@ class PostProcessorCommon(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def available_display_types(self, report_category=None) -> list:
+    def available_display_types(self, report_category: str = None) -> list[str]:
         """Retrieve display types for a report categories.
 
         Parameters
@@ -187,12 +188,12 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def available_quantities_categories(
         self,
-        report_category=None,
-        display_type=None,
-        solution: str | None = None,
-        context=None,
+        report_category: str = None,
+        display_type: str = None,
+        solution: str = None,
+        context: str | dict = None,
         is_siwave_dc: bool = False,
-    ):
+    ) -> list:
         """Compute the list of all available report categories.
 
         Parameters
@@ -268,14 +269,14 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def available_report_quantities(
         self,
-        report_category=None,
-        display_type=None,
-        solution: str | None = None,
-        quantities_category=None,
-        context=None,
+        report_category: str = None,
+        display_type: str = None,
+        solution: str = None,
+        quantities_category: str = None,
+        context: str | dict = None,
         is_siwave_dc: bool = False,
         differential_pairs: bool = False,
-    ):
+    ) -> list:
         """Compute the list of all available report quantities of a given report quantity category.
 
         Parameters
@@ -473,10 +474,10 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def get_all_report_quantities(
         self,
-        solution: str | None = None,
-        context=None,
+        solution: str = None,
+        context: str | dict = None,
         is_siwave_dc: bool = False,
-    ):
+    ) -> dict:
         """Return all the possible report categories organized by report types, solution and categories.
 
         Parameters
@@ -529,7 +530,7 @@ class PostProcessorCommon(PyAedtBase):
         return rep_quantities
 
     @pyaedt_function_handler()
-    def available_report_solutions(self, report_category=None):
+    def available_report_solutions(self, report_category: str = None) -> list:
         """Get the list of available solutions that can be used for the reports.
 
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
@@ -638,7 +639,7 @@ class PostProcessorCommon(PyAedtBase):
             return
 
     @property
-    def post_solution_type(self):
+    def post_solution_type(self) -> str:
         """Design solution type.
 
         Returns
@@ -649,7 +650,7 @@ class PostProcessorCommon(PyAedtBase):
         return self._app.solution_type
 
     @property
-    def all_report_names(self):
+    def all_report_names(self) -> list:
         """List of all report names.
 
         Returns
@@ -663,7 +664,7 @@ class PostProcessorCommon(PyAedtBase):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler()
-    def copy_report_data(self, plot_name, paste: bool = True) -> bool:
+    def copy_report_data(self, plot_name: str, paste: bool = True) -> bool:
         """Copy report data as static data.
 
         Parameters
@@ -705,7 +706,7 @@ class PostProcessorCommon(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, plot_name=None) -> bool:
+    def delete_report(self, plot_name: str = None) -> bool:
         """Delete all reports or specific report.
 
         Parameters
@@ -736,7 +737,7 @@ class PostProcessorCommon(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def rename_report(self, plot_name, new_name) -> bool:
+    def rename_report(self, plot_name: str, new_name: str) -> bool:
         """Rename a plot.
 
         Parameters
@@ -769,10 +770,10 @@ class PostProcessorCommon(PyAedtBase):
         self,
         solution_type: str = "Far Fields",
         setup_sweep_name: str = "",
-        context=None,
-        sweeps=None,
+        context: str | dict = None,
+        sweeps: dict = None,
         expressions: str = "",
-    ):
+    ) -> SolutionData | None:
         """Retrieve solution data for each variation.
 
         Parameters
@@ -846,16 +847,16 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def export_report_to_file(
         self,
-        output_dir,
-        plot_name,
-        extension,
+        output_dir: str,
+        plot_name: str,
+        extension: str,
         unique_file: bool = False,
         uniform: bool = False,
-        start=None,
-        end=None,
-        step=None,
+        start: str = None,
+        end: str = None,
+        step: str = None,
         use_trace_number_format: bool = False,
-    ):
+    ) -> str:
         r"""
         Export a 2D Plot data to a file.
 
@@ -938,14 +939,14 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def export_report_to_csv(
         self,
-        project_dir,
-        plot_name,
+        project_dir: str,
+        plot_name: str,
         uniform: bool = False,
-        start=None,
-        end=None,
-        step=None,
+        start: str = None,
+        end: str = None,
+        step: str = None,
         use_trace_number_format: bool = False,
-    ):
+    ) -> str:
         """Export the 2D Plot data to a CSV file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -996,7 +997,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_report_to_jpg(
-        self, project_path, plot_name, width: int = 800, height: int = 450, image_format: str = "jpg"
+        self, project_path: str, plot_name: str, width: int = 800, height: int = 450, image_format: str = "jpg"
     ) -> bool:
         """Export plot to an image file.
 
@@ -1421,19 +1422,19 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions=None,
-        setup_sweep_name=None,
+        expressions: str | list = None,
+        setup_sweep_name: str = None,
         domain: str = "Sweep",
-        variations: dict | None = None,
-        primary_sweep_variable=None,
-        secondary_sweep_variable=None,
-        report_category=None,
+        variations: dict = None,
+        primary_sweep_variable: str = None,
+        secondary_sweep_variable: str = None,
+        report_category: str = None,
         plot_type: str = "Rectangular Plot",
-        context=None,
-        subdesign_id: int | None = None,
+        context: str | dict = None,
+        subdesign_id: int = None,
         polyline_points: int = 1001,
-        plot_name=None,
-    ) -> "Standard":
+        plot_name: str = None,
+    ) -> Standard:
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
@@ -1485,7 +1486,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.report.standard.Standard`
+        :class:`report_standard.Standard`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -1594,16 +1595,16 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def get_solution_data(
         self,
-        expressions=None,
-        setup_sweep_name=None,
-        domain=None,
-        variations: dict | None = None,
-        primary_sweep_variable=None,
-        report_category=None,
-        context=None,
-        subdesign_id: int | None = None,
+        expressions: str | list = None,
+        setup_sweep_name: str = None,
+        domain: str = None,
+        variations: dict = None,
+        primary_sweep_variable: str = None,
+        report_category: str = None,
+        context: str | dict = None,
+        subdesign_id: int = None,
         polyline_points: int = 1001,
-        math_formula=None,
+        math_formula: str = None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
@@ -1752,13 +1753,13 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def create_report_from_configuration(
         self,
-        input_file: str | None = None,
-        report_settings=None,
-        solution_name=None,
-        name: str | None = None,
+        input_file: str = None,
+        report_settings: dict = None,
+        solution_name: str = None,
+        name: str = None,
         matplotlib: bool = False,
         show: bool = True,
-    ):
+    ) -> Standard:
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -2022,6 +2023,8 @@ class PostProcessorCommon(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     def __convert_dict_to_report_sel(sweeps):
+        from ansys.aedt.core import Quantity
+
         if isinstance(sweeps, list):
             return sweeps
         sweep_list = []
@@ -2072,7 +2075,7 @@ class Reports(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def standard(self, expressions=None, setup: str | None = None):
+    def standard(self, expressions: str | list = None, setup: str = None) -> "Standard":
         """Create a standard or default report object.
 
         Parameters
@@ -2104,17 +2107,15 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Standard" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Standard", setup)
+            rep = report_standard.Standard(self._post_app, "Standard", setup)
 
         elif self._post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(
-                self._post_app, self._post_app._app.design_solutions.report_type, setup
-            )
+            rep = report_standard.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup)
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def monitor(self, expressions=None, setup: str | None = None):
+    def monitor(self, expressions: str | list = None, setup: str = None) -> "Standard":
         """Create an Icepak Monitor Report object.
 
         Parameters
@@ -2143,12 +2144,12 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Monitor" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Monitor", setup)
+            rep = report_standard.Standard(self._post_app, "Monitor", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def fields(self, expressions=None, setup: str | None = None, polyline=None):
+    def fields(self, expressions: str | list = None, setup: str = None, polyline: str = None) -> "report_field.Fields":
         """Create a Field Report object.
 
         Parameters
@@ -2183,13 +2184,15 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_adaptive
         rep = None
         if "Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "Fields", setup)
+            rep = report_field.Fields(self._post_app, "Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def cg_fields(self, expressions=None, setup: str | None = None, polyline=None):
+    def cg_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
+    ) -> "report_field.Fields":
         """Create a CG Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2223,13 +2226,15 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "CG Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "CG Fields", setup)
+            rep = report_field.Fields(self._post_app, "CG Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def dc_fields(self, expressions=None, setup: str | None = None, polyline=None):
+    def dc_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
+    ) -> "report_field.Fields":
         """Create a DC Field Report object in Q3D.
 
         Parameters
@@ -2263,13 +2268,15 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "DC R/L Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "DC R/L Fields", setup)
+            rep = report_field.Fields(self._post_app, "DC R/L Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def rl_fields(self, expressions=None, setup: str | None = None, polyline=None):
+    def rl_fields(
+        self, expressions: str | list = None, setup: str | None = None, polyline: str = None
+    ) -> "report_field.Fields":
         """Create an AC RL Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2304,17 +2311,22 @@ class Reports(PyAedtBase):
         rep = None
         if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
             if self._post_app._app.design_type == DesignType.Q3D:
-                rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "AC R/L Fields", setup)
+                rep = report_field.Fields(self._post_app, "AC R/L Fields", setup)
             else:
-                rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "RL Fields", setup)
+                rep = report_field.Fields(self._post_app, "RL Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
     def far_field(
-        self, expressions=None, setup: str | None = None, sphere_name=None, source_context=None, **variations
-    ):
+        self,
+        expressions: str | list = None,
+        setup: str | None = None,
+        sphere_name: str = None,
+        source_context: str = None,
+        **variations,
+    ) -> "report_field.FarField":
         """Create a Far Field Report object.
 
         Parameters
@@ -2350,7 +2362,7 @@ class Reports(PyAedtBase):
         rep = None
         if "Far Fields" in self._templates:
             setup = self._post_app._get_setup_from_sweep_name(setup)
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
+            rep = report_field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.report_type = "Radiation Pattern"
@@ -2364,7 +2376,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def antenna_parameters(self, expressions=None, setup: str | None = None, infinite_sphere=None):
+    def antenna_parameters(
+        self, expressions: str | list = None, setup: str | None = None, infinite_sphere: str = None
+    ) -> "report_field.AntennaParameters":
         """Create an Antenna Parameters Report object.
 
         Parameters
@@ -2396,14 +2410,12 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Antenna Parameters" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.AntennaParameters(
-                self._post_app, "Antenna Parameters", setup, infinite_sphere
-            )
+            rep = report_field.AntennaParameters(self._post_app, "Antenna Parameters", setup, infinite_sphere)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def near_field(self, expressions=None, setup: str | None = None):
+    def near_field(self, expressions: str | list = None, setup: str | None = None) -> "report_field.NearField":
         """Create a Field Report object.
 
         Parameters
@@ -2434,12 +2446,12 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Near Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.NearField(self._post_app, "Near Fields", setup)
+            rep = report_field.NearField(self._post_app, "Near Fields", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def modal_solution(self, expressions=None, setup: str | None = None):
+    def modal_solution(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2469,12 +2481,12 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Modal Solution Data" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Modal Solution Data", setup)
+            rep = report_standard.Standard(self._post_app, "Modal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def terminal_solution(self, expressions=None, setup: str | None = None):
+    def terminal_solution(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2504,14 +2516,12 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Terminal Solution Data" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(
-                self._post_app, "Terminal Solution Data", setup
-            )
+            rep = report_standard.Standard(self._post_app, "Terminal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def eigenmode(self, expressions=None, setup: str | None = None):
+    def eigenmode(self, expressions: str | list = None, setup: str | None = None) -> "report_standard.Standard":
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2541,12 +2551,14 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Eigenmode Parameters" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Eigenmode Parameters", setup)
+            rep = report_standard.Standard(self._post_app, "Eigenmode Parameters", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
-    def statistical_eye_contour(self, expressions=None, setup: str | None = None, quantity_type: int = 3):
+    def statistical_eye_contour(
+        self, expressions: str | list = None, setup: str | None = None, quantity_type: int = 3
+    ) -> "report_eye.AMIConturEyeDiagram":
         """Create a standard statistical AMI contour plot.
 
         Parameters
@@ -2592,7 +2604,7 @@ class Reports(PyAedtBase):
         if isinstance(expressions, list):
             expressions = expressions[0]
         report_cat = "Standard"
-        rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
+        rep = report_eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
         rep.quantity_type = quantity_type
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
@@ -2601,12 +2613,12 @@ class Reports(PyAedtBase):
     @pyaedt_function_handler()
     def eye_diagram(
         self,
-        expressions=None,
+        expressions: str | list = None,
         setup: str | None = None,
         quantity_type: int = 3,
         statistical_analysis: bool = True,
         unit_interval: str = "1ns",
-    ):
+    ) -> "report_eye.EyeDiagram" | "report_eye.AMIEyeDiagram" | None:
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2630,7 +2642,7 @@ class Reports(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.AMIEyeDiagram` | None
 
         Examples
         --------
@@ -2648,7 +2660,7 @@ class Reports(PyAedtBase):
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
-                rep = ansys.aedt.core.visualization.report.eye.AMIEyeDiagram(self._post_app, report_cat, setup)
+                rep = report_eye.AMIEyeDiagram(self._post_app, report_cat, setup)
                 rep.quantity_type = quantity_type
                 expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 if isinstance(expressions, list):
@@ -2656,7 +2668,7 @@ class Reports(PyAedtBase):
                 return rep
 
             else:
-                rep = ansys.aedt.core.visualization.report.eye.EyeDiagram(self._post_app, "Eye Diagram", setup)
+                rep = report_eye.EyeDiagram(self._post_app, "Eye Diagram", setup)
             rep.unit_interval = unit_interval
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
             return rep
@@ -2664,7 +2676,7 @@ class Reports(PyAedtBase):
         return
 
     @pyaedt_function_handler()
-    def spectral(self, expressions=None, setup: str | None = None):
+    def spectral(self, expressions: str | list = None, setup: str = None) -> "report_standard.Spectral":
         """Create a Spectral Report object.
 
         Parameters
@@ -2700,7 +2712,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def emi_receiver(self, expressions=None, setup_name=None):
+    def emi_receiver(self, expressions: str | list = None, setup_name: str = None) -> "report_emi.EMIReceiver":
         """Create an EMI receiver report.
 
         Parameters
@@ -2729,7 +2741,7 @@ class Reports(PyAedtBase):
             setup_name = self._post_app._app.nominal_sweep
         rep = None
         if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
-            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, "EMIReceiver", setup_name)
+            rep = report_emi.EMIReceiver(self._post_app, "EMIReceiver", setup_name)
             if not expressions:
                 expressions = f"Average[{rep.net}]"
             else:
@@ -2746,7 +2758,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def circuit_netlist(self, setup, expressions=None, domain=None):
+    def circuit_netlist(
+        self, setup: str, expressions: str | list = None, domain: str = None
+    ) -> "report_netlist.CircuitNetlistReport":
         """Create a Circuit Netlist Report object.
 
         Parameters
@@ -2787,9 +2801,7 @@ class Reports(PyAedtBase):
                 f"{CircuitNetlistConstants.solution_types.keys()}"
             )
 
-        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(
-            self._post_app, "Standard", setup, expressions
-        )
+        rep = report_netlist.CircuitNetlistReport(self._post_app, "Standard", setup, expressions)
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
         if not domain:

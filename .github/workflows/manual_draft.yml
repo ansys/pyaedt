@@ -114,7 +114,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
           pip install pytest-azurepipelines
 
       - name: Remove Ansys processes (if any)
@@ -181,7 +181,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pip install .[tests]
+          pip install . --group tests
           pip install pytest-azurepipelines
 
       - name: Remove Ansys processes (if any)
@@ -239,7 +239,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
           pip install pytest-azurepipelines
 
       - name: Remove Ansys processes (if any)
@@ -310,7 +310,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pip install .[tests]
+          pip install . --group tests
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -383,7 +383,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -458,7 +458,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -535,7 +535,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -608,7 +608,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -671,7 +671,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -734,7 +734,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install . --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell

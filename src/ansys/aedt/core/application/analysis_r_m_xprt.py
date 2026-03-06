@@ -21,52 +21,106 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.maxwell import Maxwell2d
+    from ansys.aedt.core.maxwell import Maxwell3d
+    from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+
 
 class FieldAnalysisRMxprt(Analysis, PyAedtBase):
-    """Manages RMXprt field analysis setup. (To be implemented.)
+    """Provides the RMxprt field analysis interface.
 
-    This class is automatically initialized by an application call (like HFSS,
-    Q3D...). Refer to the application function for inputs definition.
+    This class is for RMxprt analysis setup. It is automatically
+    initialized by a call from the Rmxprt application.
 
     Parameters
     ----------
-
-    Returns
-    -------
+    application : str
+        Name of the application. The value should be ``"RMxprtSolution"``.
+    project : str
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open.
+    design : str
+        Name of the design to select.
+    solution_type : str
+        Solution type to apply to the design.
+    setup : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or
+        nothing is used.
+    version : str, optional
+        Version of AEDT to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+        This parameter is ignored when a script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
+    new_desktop : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
+    close_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to open the AEDT student version. The default is
+        ``False``. This parameter is ignored when a script is launched
+        within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This parameter works only on
+        2022 R2 or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        starts if it is not present. The default is ``""``.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        The default is ``0``.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     """
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
-        aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
-    ) -> None:
+        application: str,
+        project: str,
+        design: str,
+        solution_type: str,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
+    ):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
@@ -84,7 +138,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """Post Object.
 
         Returns
@@ -99,7 +153,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return self._post
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerRMxprt:
         """Modeler.
 
         Returns
@@ -153,7 +207,9 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_maxwell_design(self, setup_name, variation: str = "", maxwell_2d: bool = True):
+    def create_maxwell_design(
+        self, setup_name: str, variation: str = "", maxwell_2d: bool = True
+    ) -> bool | Maxwell2d | Maxwell3d:
         """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters
@@ -184,7 +240,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_material_threshold(self, conductivity: int = 100000, permeability: int = 100) -> bool:
+    def set_material_threshold(self, conductivity: float = 100000, permeability: float = 100) -> bool:
         """Set material threshold.
 
         Parameters
@@ -208,7 +264,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _check_solution_consistency(self):
+    def _check_solution_consistency(self) -> bool:
         """Check solution consistency."""
         if self.design_solutions:
             return self._odesign.GetSolutionType() == self.design_solutions._solution_type
@@ -216,7 +272,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def _check_design_consistency(self):
+    def _check_design_consistency(self) -> bool:
         """Check design consistency."""
         consistent = False
         destype = self._odesign.GetDesignType()

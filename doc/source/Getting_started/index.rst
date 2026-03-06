@@ -38,6 +38,13 @@ Getting started
 
             Learn how to use the PyAEDT command line interface (CLI) for managing AEDT processes.
 
+   .. grid-item-card:: AEDT Panels
+            :link: panels
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Discover the PyAEDT panels available in the AEDT Automation tab.
+
    .. grid-item-card:: Versions and interfaces
             :link: versioning
             :link-type: doc
@@ -147,6 +154,7 @@ page on the Ansys website.
    ../User_guide/index
    ClientServer
    cli
+   panels
    versioning
    Contributing
    Developer_notes

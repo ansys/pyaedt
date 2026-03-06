@@ -83,6 +83,9 @@ Best practices for coverage tracking
 Testmon considerations
 ~~~~~~~~~~~~~~~~~~~~~~
 
+When direct or transitive test dependencies change (in the ``uv.lock`` file), the CI pipeline triggers a full Testmon run to refresh ``.testmondata`` caches.
+This is necessary to ensure that the dependency graph is accurate and that affected tests are correctly identified.
+
 Edge cases and considerations
 ------------------------------
 

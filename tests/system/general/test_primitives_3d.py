@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
+from pathlib import Path
 import shutil
 
 import pytest
@@ -2535,3 +2537,55 @@ def test_uncover_faces(aedt_app) -> None:
     b3 = aedt_app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box3")
     assert aedt_app.modeler.uncover_faces([c3.faces[0], b3.faces])
     assert len(b3.faces) == 0
+
+
+def test_delete_all_points(aedt_app) -> None:
+    """Test delete_all_points method."""
+    aedt_app.modeler.create_point([0, 0, 0], name="point_1")
+    aedt_app.modeler.create_point([1, 1, 1], name="point_1")
+    aedt_app.modeler.create_point([2, 2, 2], name="point_2")
+
+    result = aedt_app.modeler.delete_all_points()
+
+    assert result
+    assert [] == aedt_app.modeler.oeditor.GetPoints()
+
+
+def test_import_from_open_street_map(add_app, test_tmp_dir):
+    hfss = add_app(application=Hfss, solution_type="SBR+")
+
+    result = hfss.modeler.import_from_openstreet_map(
+        latitude_longitude=[40.273726, -80.168269],
+        env_name="test_hfss_environment",
+        terrain_radius=50,
+        road_step=3,
+        plot_before_importing=False,
+        import_in_aedt=True,
+    )
+
+    # Verify the result structure
+    assert result is not None
+    assert result["name"] == "test_hfss_environment"
+    assert result["type"] == "environment"
+    assert "parts" in result
+    assert "terrain" in result["parts"]
+    assert "buildings" in result["parts"]
+    assert "roads" in result["parts"]
+
+    # Verify objects were imported to HFSS
+    assert len(hfss.modeler.object_names) > 0
+
+    # Verify JSON file was created
+    json_file = Path(hfss.working_directory) / "test_hfss_environment.json"
+    assert json_file.exists()
+
+    # Verify JSON content
+    with open(json_file, "r", encoding="utf-8") as f:
+        json_data = json.load(f)
+        assert json_data["name"] == "test_hfss_environment"
+        assert json_data["radius"] == 50
+
+    # Verify model units are set to meters
+    assert hfss.modeler.model_units == "meter"
+
+    hfss.close_project(save=False)

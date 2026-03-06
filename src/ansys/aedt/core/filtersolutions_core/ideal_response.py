@@ -287,7 +287,7 @@ class IdealResponse:
         values = [float(val) for val in array]
         return values
 
-    def transfer_function_response(self):
+    def transfer_function_response(self) -> str:
         """Get the ideal filter transfer function's parameters.
 
         Returns
@@ -328,11 +328,11 @@ class IdealResponse:
 
     def frequency_response(
         self,
-        y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
-        minimum_frequency=None,
-        maximum_frequency=None,
+        y_axis_parameter: FrequencyResponseColumn = FrequencyResponseColumn.MAGNITUDE_DB,
+        minimum_frequency: str = None,
+        maximum_frequency: str = None,
         vsg_analysis_enabled: bool = False,
-    ):
+    ) -> tuple:
         """Get the ideal filter frequency response for the given parameters.
 
         Parameters
@@ -369,11 +369,11 @@ class IdealResponse:
 
     def time_response(
         self,
-        y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
-        minimum_time=None,
-        maximum_time=None,
+        y_axis_parameter: TimeResponseColumn = TimeResponseColumn.STEP_RESPONSE,
+        minimum_time: str = None,
+        maximum_time: str = None,
         vsg_analysis_enabled: bool = False,
-    ):
+    ) -> tuple:
         """Get the ideal filter time response for the given parameters.
 
         Parameters
@@ -407,10 +407,10 @@ class IdealResponse:
 
     def s_parameters(
         self,
-        y_axis_parameter=SParametersResponseColumn.S21_DB,
-        minimum_frequency=None,
-        maximum_frequency=None,
-    ):
+        y_axis_parameter: SParametersResponseColumn = SParametersResponseColumn.S21_DB,
+        minimum_frequency: str = None,
+        maximum_frequency: str = None,
+    ) -> tuple:
         """Get the ideal filter S parameters response for the given parameters.
 
         Parameters
@@ -446,9 +446,9 @@ class IdealResponse:
 
     def pole_zero_locations(
         self,
-        x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
-        y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
-    ):
+        x_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_X,
+        y_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_Y,
+    ) -> tuple:
         """Get the ideal pole zero location for the given parameters.
 
         Parameters

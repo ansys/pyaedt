@@ -124,7 +124,7 @@ class DllInterface:
         text = text_buffer.value.decode("utf-8")
         return text
 
-    def set_string(self, dll_function: Callable, string: str):
+    def set_string(self, dll_function: Callable, string: str) -> int:
         """Call a DLL function that sets a string.
 
         Parameters
@@ -188,7 +188,7 @@ class DllInterface:
         api_version = f"{api_version_year}.{api_version_release}"
         return api_version
 
-    def raise_error(self, error_status):
+    def raise_error(self, error_status: int) -> None:
         """Raise an exception if the error status is not 0.
 
         Parameters

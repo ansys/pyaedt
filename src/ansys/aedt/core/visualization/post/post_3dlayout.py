@@ -21,13 +21,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from pathlib import Path
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.field_data import FieldPlot
 
 
 class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
@@ -161,7 +166,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_loss_per_layer
 
     @pyaedt_function_handler()
-    def compute_power_by_layer(self, layers=None, solution: str | None = None):
+    def compute_power_by_layer(self, layers: list = None, solution: str = None) -> dict:
         """Compute the power by layer.
 
         This applies only to SIwave DC Analysis.
@@ -190,7 +195,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_by_layers
 
     @pyaedt_function_handler()
-    def compute_power_by_net(self, nets=None, solution: str | None = None):
+    def compute_power_by_net(self, nets: list = None, solution: str = None) -> dict:
         """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
@@ -286,14 +291,14 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_layers(
         self,
-        layers,
-        quantity,
-        setup: str | None = None,
-        nets=None,
+        layers: list,
+        quantity: str,
+        setup: str = None,
+        nets: list = None,
         plot_on_surface: bool = True,
-        intrinsics=None,
-        name: str | None = None,
-    ):
+        intrinsics: dict | str = None,
+        name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
 
@@ -392,14 +397,14 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_nets(
         self,
-        nets,
-        quantity,
-        setup: str | None = None,
-        layers=None,
+        nets: list,
+        quantity: str,
+        setup: str = None,
+        layers: list = None,
         plot_on_surface: bool = True,
-        intrinsics=None,
-        name: str | None = None,
-    ):
+        intrinsics: dict | str = None,
+        name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot based on a net selections.
 
@@ -478,13 +483,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
         self,
-        layers_nets,
-        quantity,
-        setup: str | None = None,
-        intrinsics=None,
+        layers_nets: list,
+        quantity: str,
+        setup: str = None,
+        intrinsics: dict | str = None,
         plot_on_surface: bool = True,
-        plot_name=None,
-    ):
+        plot_name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
 

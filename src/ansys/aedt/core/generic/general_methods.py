@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import datetime
 import difflib
 import functools
@@ -36,6 +38,10 @@ import subprocess  # nosec
 import sys
 import time
 import traceback
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from numpy import array
 import warnings
 
 import psutil
@@ -203,10 +209,8 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                if v.launched_by_pyaedt:
-                    v.close_desktop()
-                else:
-                    v.release_desktop(False, False)
+                v.release_desktop(close_projects=v.close_on_exit, close_on_exit=v.close_on_exit)
+
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return
@@ -262,7 +266,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False):
+def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False) -> callable:
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
@@ -410,7 +414,7 @@ def _log_method(func, new_args, new_kwargs) -> None:
 
 
 @pyaedt_function_handler()
-def get_version_and_release(input_version):
+def get_version_and_release(input_version: str) -> tuple:
     """Convert the standard five-digit AEDT version format to a tuple of version and release.
     Used for environment variable management.
     """
@@ -475,7 +479,7 @@ def _is_version_format_valid(version):
 
 
 @pyaedt_function_handler()
-def env_path(input_version):
+def env_path(input_version: str) -> str:
     """Get the path of the version environment variable for an AEDT version.
 
     Parameters
@@ -499,7 +503,7 @@ def env_path(input_version):
 
 
 @pyaedt_function_handler()
-def env_value(input_version) -> str:
+def env_value(input_version: str) -> str:
     """Get the name of the version environment variable for an AEDT version.
 
     Parameters
@@ -521,7 +525,7 @@ def env_value(input_version) -> str:
 
 
 @pyaedt_function_handler()
-def env_path_student(input_version):
+def env_path_student(input_version: str) -> str:
     """Get the path of the version environment variable for an AEDT student version.
 
     Parameters
@@ -546,7 +550,7 @@ def env_path_student(input_version):
 
 
 @pyaedt_function_handler()
-def env_value_student(input_version) -> str:
+def env_value_student(input_version: str) -> str:
     """Get the name of the version environment variable for an AEDT student version.
 
     Parameters
@@ -612,7 +616,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def time_fn(fn, *args, **kwargs):
+def time_fn(fn: callable, *args, **kwargs):
     start = datetime.datetime.now()
     results = fn(*args, **kwargs)
     end = datetime.datetime.now()
@@ -623,7 +627,7 @@ def time_fn(fn, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def filter_tuple(value, search_key_1, search_key_2) -> bool:
+def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
 
@@ -647,7 +651,7 @@ def filter_tuple(value, search_key_1, search_key_2) -> bool:
 
 
 @pyaedt_function_handler()
-def filter_string(value, search_key_1) -> bool:
+def filter_string(value: str, search_key_1: str) -> bool:
     """Filter a string"""
     ignore_case = True
 
@@ -669,7 +673,7 @@ def filter_string(value, search_key_1) -> bool:
 
 
 @pyaedt_function_handler()
-def number_aware_string_key(s):
+def number_aware_string_key(s: str) -> tuple:
     """Get a key for sorting strings that treats embedded digit sequences as integers.
 
     Parameters
@@ -820,7 +824,13 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
                 )
 
-                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)  # nosec
+                # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
+                # especially important for PyInstaller windowed applications.
+                output = subprocess.check_output(
+                    [powershell_path, "-Command", ps_cmd],
+                    text=True,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                )  # nosec
 
                 # Parse JSON output - can be a single object or array
                 try:
@@ -1164,7 +1174,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data, function=None):  # pragma: no cover
+def conversion_function(data: list | "array", function: str = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
@@ -1255,7 +1265,7 @@ class PropsManager(PyAedtBase):
         self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
         return None
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         """Set the `self.props` key value.
 
         Parameters
@@ -1403,7 +1413,7 @@ def _to_boolean(val):
 
 @pyaedt_function_handler()
 def install_with_pip(
-    package_name, package_path=None, upgrade: bool = False, uninstall: bool = False
+    package_name: str, package_path: str = None, upgrade: bool = False, uninstall: bool = False
 ):  # pragma: no cover
     """Install a new package using pip.
 

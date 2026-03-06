@@ -238,9 +238,9 @@ Usage examples follow.
 from ansys.aedt.core import Desktop, Circuit
 
 with Desktop(
-    specified_version="2022.2",
+    version="2022.2",
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
     student_version=False,
 ):
@@ -259,7 +259,7 @@ with Desktop(
 
 from ansys.aedt.core import Circuit
 
-with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
+with Circuit(version="2022.2", non_graphical=False) as circuit:
     ...
     # Any error here will be caught by Desktop.
     ...

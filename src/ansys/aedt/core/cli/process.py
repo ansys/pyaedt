@@ -163,7 +163,7 @@ def stop(
     pids: list[int] = typer.Option([], "--pid", help="Stop process by PID (can be used multiple times)"),
     ports: list[int] = typer.Option([], "--port", help="Stop process by port (can be used multiple times)"),
     stop_all: bool = typer.Option(False, "--all", "-a", help="Stop all running AEDT processes"),
-):
+) -> None:
     """Stop running AEDT process(es)."""
     import psutil
 

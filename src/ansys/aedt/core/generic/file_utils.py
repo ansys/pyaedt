@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 import codecs
 import csv
@@ -32,7 +33,11 @@ from pathlib import Path
 import re
 import string
 import tempfile
+from typing import TYPE_CHECKING
 from typing import TextIO
+
+if TYPE_CHECKING:
+    import pandas
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -419,13 +424,15 @@ def open_file(
 
 
 @pyaedt_function_handler()
-def read_json(input_file: str | Path) -> dict:
+def read_json(input_file: str | Path, encoding: str = "utf-8") -> dict:
     """Load a JSON file to a dictionary.
 
     Parameters
     ----------
     input_file : str or :class:`pathlib.Path`
         Full path to the JSON file.
+    encoding : str, optional
+        Text encoding used to read the JSON file. The default is ``"utf-8"``.
 
     Returns
     -------
@@ -433,7 +440,7 @@ def read_json(input_file: str | Path) -> dict:
         Parsed JSON file as a dictionary.
     """
     json_data = {}
-    with open_file(input_file) as json_file:
+    with open_file(input_file, encoding=encoding) as json_file:
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
@@ -492,7 +499,7 @@ def read_csv(input_file: str | Path, encoding: str = "utf-8") -> list:
 
 
 @pyaedt_function_handler()
-def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8"):
+def read_csv_pandas(input_file: str | Path, encoding: str = "utf-8") -> "pandas.DataFrame" | None:
     """Read information from a CSV file and return a list.
 
     Parameters
@@ -878,7 +885,9 @@ def write_configuration_file(input_data: dict, output_file: str | Path) -> bool:
 
 # Operators
 @pyaedt_function_handler()
-def compute_fft(time_values, data_values, window=None) -> tuple | bool:  # pragma: no cover
+def compute_fft(
+    time_values: "pandas.Series", data_values: "pandas.Series", window: str = None
+) -> tuple | bool:  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters

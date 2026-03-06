@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import bisect
 from copy import copy
 import itertools
@@ -41,14 +43,27 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+# NOTE: Create a base class that conditionally inherits from skrf.Network.
+# This is to avoid case sceario where scikit-rf is not installed, but
+# TouchstoneData is still imported for type hinting or other purposes.
+# For more information on this workaround, see https://github.com/ansys/pyaedt/pull/7255
 try:
     import skrf as rf
+
+    _TouchstoneBase = rf.Network
 except ImportError:
     warnings.warn(
         "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
         "Install with \n\npip install scikit-rf"
     )
-    rf = None
+
+    # If scikit-rf is not available, create an empty base class
+    # This avoids MRO (Method Resolution Order) conflicts with PyAedtBase
+    class _TouchstoneBase:
+        """Dummy base class when scikit-rf is not available."""
+
+        pass
+
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -57,7 +72,7 @@ DB_ANGLE = "DB"
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
 
 
-class TouchstoneData(rf.Network, PyAedtBase):
+class TouchstoneData(_TouchstoneBase, PyAedtBase):
     """Contains data information from Touchstone Read call.
 
     Parameters
@@ -69,6 +84,12 @@ class TouchstoneData(rf.Network, PyAedtBase):
     """
 
     def __init__(self, solution_data=None, touchstone_file=None) -> None:
+        # Check if scikit-rf is available by inspecting the base class
+        if _TouchstoneBase.__name__ == "_TouchstoneBase":
+            raise ImportError(
+                "The Scikit-rf module is required to use TouchstoneData.\nInstall with: pip install scikit-rf"
+            )
+
         if touchstone_file is not None:
             touchstone_file = Path(touchstone_file)
 
@@ -312,7 +333,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @pyaedt_function_handler()
-    def get_insertion_loss_index(self, threshold=-3):
+    def get_insertion_loss_index(self, threshold: float = -3) -> list:
         """Get all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
@@ -342,7 +363,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot_insertion_losses(self, threshold=-3, plot: bool = True):
+    def plot_insertion_losses(self, threshold: float = -3, plot: bool = True):
         """Plot all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
@@ -369,7 +390,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot(self, index_couples=None, show: bool = True) -> bool:
+    def plot(self, index_couples: list = None, show: bool = True) -> bool:
         """Plot a list of curves.
 
         Parameters
@@ -409,7 +430,9 @@ class TouchstoneData(rf.Network, PyAedtBase):
         plt.show()
         return True
 
-    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering: str = "1234"):
+    def get_mixed_mode_touchstone_data(
+        self, num_of_diff_ports: int = None, port_ordering: str = "1234"
+    ) -> "TouchstoneData":
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
         Parameters
@@ -458,7 +481,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return ts_diff
 
     @pyaedt_function_handler()
-    def get_return_loss_index(self, excitation_name_prefix: str = ""):
+    def get_return_loss_index(self, excitation_name_prefix: str = "") -> list:
         """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
@@ -487,7 +510,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
+    def get_insertion_loss_index_from_prefix(self, tx_prefix: str, rx_prefix: str) -> list:
         """Get the list of all the insertion losses from prefix.
 
         Parameters
@@ -514,7 +537,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_next_xtalk_index(self, tx_prefix: str = ""):
+    def get_next_xtalk_index(self, tx_prefix: str = "") -> list:
         """Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
@@ -543,7 +566,9 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True):
+    def get_fext_xtalk_index_from_prefix(
+        self, tx_prefix: str, rx_prefix: str, skip_same_index_couples: bool = True
+    ) -> list:
         """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
@@ -595,7 +620,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True) -> bool:
+    def plot_fext_xtalk_losses(self, tx_prefix: str, rx_prefix: str, skip_same_index_couples: bool = True) -> bool:
         """Plot all fext crosstalk curves.
 
         Parameters
@@ -624,8 +649,13 @@ class TouchstoneData(rf.Network, PyAedtBase):
     @pyaedt_function_handler()
     @graphics_required
     def get_worst_curve(
-        self, freq_min=None, freq_max=None, worst_is_higher: bool = True, curve_list=None, plot: bool = True
-    ):
+        self,
+        freq_min: float = None,
+        freq_max: float = None,
+        worst_is_higher: bool = True,
+        curve_list: list = None,
+        plot: bool = True,
+    ) -> tuple:
         """Analyze a solution data object with multiple curves and find the worst curve.
 
         Take the mean of the magnitude over the frequency range.
@@ -682,7 +712,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
 
 @pyaedt_function_handler()
-def read_touchstone(input_file: str):
+def read_touchstone(input_file: str) -> TouchstoneData:
     """Load the contents of a Touchstone file into an NPort.
 
     Parameters
@@ -701,7 +731,7 @@ def read_touchstone(input_file: str):
 
 
 @pyaedt_function_handler()
-def check_touchstone_files(input_dir: str = "", passivity: bool = True, causality: bool = True):
+def check_touchstone_files(input_dir: str = "", passivity: bool = True, causality: bool = True) -> dict:
     """Check passivity and causality for all Touchstone files included in the folder.
 
     .. warning::
@@ -777,7 +807,7 @@ def check_touchstone_files(input_dir: str = "", passivity: bool = True, causalit
 
 
 @pyaedt_function_handler()
-def find_touchstone_files(input_dir):
+def find_touchstone_files(input_dir: str) -> dict:
     """Get all Touchstone files in a directory.
 
     Parameters

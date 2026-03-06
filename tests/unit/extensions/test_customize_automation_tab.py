@@ -32,10 +32,17 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.extensions.customize_automation_tab import _iter_panel_button_specs
+from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
+from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
+from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
+from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+from ansys.aedt.core.extensions.tabconfig_parser import TabConfigParser
 
 
 @pytest.fixture
@@ -349,6 +356,8 @@ def test_add_script_to_menu_success(
             panel="Panel_PyAEDT_Extensions",
             is_custom=False,
             odesktop=None,
+            group_name=None,
+            group_icon=None,
         )
 
         # Verify the generated script content
@@ -415,4 +424,216 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
         panel="Panel_PyAEDT_Extensions",
         is_custom=True,
         odesktop=None,
+        group_name=None,
+        group_icon=None,
     )
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", True)
+def test_add_automation_tab_resolves_image_linux(tmp_path) -> None:
+    """Test image resolution for Linux non-custom toolkits."""
+    icon_file = tmp_path / "tool_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="MyToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    assert parser.has_button("Panel_PyAEDT_Extensions", "MyToolkit")
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["image"] == f"images/{icon_file.name}"
+    assert button.attrib["script"] == "MyToolkit/run_pyaedt_toolkit_script"
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_custom_button_attributes(tmp_path) -> None:
+    """Test custom extension attributes for add_automation_tab."""
+    icon_file = tmp_path / "custom_icon.png"
+    icon_file.write_text("icon")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    button = panel.find("./button")
+    assert button.attrib["custom_extension"] == "true"
+    assert button.attrib["type"] == "custom"
+    assert button.attrib["image"] == icon_file.as_posix()
+    assert button.attrib["script"] == "CustomToolkit/run_pyaedt_toolkit_script"
+
+
+def test_is_extension_in_panel(tmp_path) -> None:
+    """Test extension detection with existing and missing entries."""
+    toolkit_dir = tmp_path / "Toolkits"
+    tabconfig_path = toolkit_dir / "Project" / "TabConfig.xml"
+
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+    parser.add_button(
+        "Panel_PyAEDT_Extensions",
+        ButtonSpec("MyExtension", {"script": "MyExtension/run"}),
+    )
+    parser.save(tabconfig_path)
+
+    assert is_extension_in_panel(toolkit_dir, "Project", "MyExtension") is True
+    assert is_extension_in_panel(toolkit_dir, "Project", "MissingExtension") is False
+    assert is_extension_in_panel(tmp_path / "MissingToolkits", "Project", "Any") is False
+
+
+def test_available_toolkits_reads_toml(tmp_path) -> None:
+    """Test reading toolkits catalog from TOML files."""
+    toolkits_dir = tmp_path / "hfss"
+    toolkits_dir.mkdir(parents=True, exist_ok=True)
+    toml_file = toolkits_dir / "toolkits_catalog.toml"
+    toml_file.write_text('[ToolkitA]\nname = "ToolkitA"\n')
+
+    module_path = tmp_path / "customize_automation_tab.py"
+    module_path.write_text("# test module path")
+
+    with patch("ansys.aedt.core.extensions.customize_automation_tab.__file__", str(module_path)):
+        result = available_toolkits()
+
+    assert "HFSS" in result
+    assert result["HFSS"]["ToolkitA"]["name"] == "ToolkitA"
+
+
+def test_remove_script_from_menu_removes_button_and_dir(tmp_path) -> None:
+    """Test removal of toolkit configuration and directory."""
+    desktop_object = MagicMock()
+    desktop_object.personallib = str(tmp_path)
+    desktop_object.aedt_version_id = "2023.2"
+    desktop_object.logger = MagicMock()
+
+    toolkit_dir = tmp_path / "Toolkits" / "Project"
+    toolkit_dir.mkdir(parents=True, exist_ok=True)
+    tabconfig_path = toolkit_dir / "TabConfig.xml"
+
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+    parser.add_button(
+        "Panel_PyAEDT_Extensions",
+        ButtonSpec("RemoveMe", {"script": "RemoveMe/run"}),
+    )
+    parser.save(tabconfig_path)
+
+    tool_dir = toolkit_dir / "RemoveMe"
+    tool_dir.mkdir(parents=True, exist_ok=True)
+
+    result = remove_script_from_menu(desktop_object, "RemoveMe", product="Project")
+
+    assert result is True
+    assert not tool_dir.exists()
+    parser_after = TabConfigParser(tabconfig_path)
+    assert not parser_after.has_button("Panel_PyAEDT_Extensions", "RemoveMe")
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_group_buttons(tmp_path) -> None:
+    """Test grouped button creation with gallery header and group button."""
+    icon_file = tmp_path / "icon.png"
+    group_icon = tmp_path / "group.png"
+    icon_file.write_text("icon")
+    group_icon.write_text("group")
+
+    tabconfig_path = add_automation_tab(
+        name="GroupedToolkit",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        group_name="MyGroup",
+        group_icon=str(group_icon),
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    gallery = panel.find("./gallery")
+    assert gallery is not None
+    header_button = gallery.find("./button")
+    assert header_button is not None
+    assert header_button.attrib["label"] == "MyGroup"
+    assert header_button.attrib["image"] == icon_file.as_posix()
+    group = gallery.find("./group")
+    assert group is not None
+    assert group.attrib["label"] == "MyGroup"
+    assert group.attrib["image"] == group_icon.as_posix()
+    group_button = group.find("./button")
+    assert group_button is not None
+    assert group_button.attrib["label"] == "GroupedToolkit"
+    assert group_button.attrib["script"] == "GroupedToolkit/run_pyaedt_toolkit_script"
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.is_linux", False)
+def test_add_automation_tab_group_buttons_custom(tmp_path) -> None:
+    """Test grouped custom button attributes and script path."""
+    icon_file = tmp_path / "icon.png"
+    group_icon = tmp_path / "group.png"
+    icon_file.write_text("icon")
+    group_icon.write_text("group")
+
+    tabconfig_path = add_automation_tab(
+        name="CustomGrouped",
+        lib_dir=tmp_path,
+        icon_file=str(icon_file),
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        group_name="CustomGroup",
+        group_icon=str(group_icon),
+        is_custom=True,
+    )
+
+    parser = TabConfigParser(tabconfig_path)
+    panel = parser.get_panel("Panel_PyAEDT_Extensions")
+    group_button = panel.find("./gallery/group/button")
+    assert group_button is not None
+    assert group_button.attrib["script"] == "CustomGrouped/run_pyaedt_toolkit_script"
+    assert group_button.attrib["custom_extension"] == "true"
+    assert group_button.attrib["type"] == "custom"
+
+
+def test_add_automation_tab_group_buttons_requires_group_icon(tmp_path) -> None:
+    """Test that missing group icon raises type error."""
+    icon_file = tmp_path / "icon.png"
+    icon_file.write_text("icon")
+
+    with pytest.raises(TypeError):
+        add_automation_tab(
+            name="GroupedToolkit",
+            lib_dir=tmp_path,
+            icon_file=str(icon_file),
+            product="Project",
+            template="run_pyaedt_toolkit_script",
+            group_name="MyGroup",
+            group_icon=None,
+        )
+
+
+def test_iter_panel_button_specs_includes_gallery_header_and_group_buttons() -> None:
+    """Test iteration over gallery header and grouped buttons."""
+    parser = TabConfigParser()
+    parser.ensure_panel("Panel_PyAEDT_Extensions")
+
+    parser.add_group_button(
+        panel_label="Panel_PyAEDT_Extensions",
+        group_label="GroupOne",
+        button=ButtonSpec("GroupedButton", {"script": "Grouped/run"}),
+        group_image="group.png",
+        gallery_button=ButtonSpec("GroupOne", {"image": "header.png"}),
+    )
+
+    labels = [button.label for button in _iter_panel_button_specs(parser, "Panel_PyAEDT_Extensions")]
+    assert "GroupOne" in labels
+    assert "GroupedButton" in labels

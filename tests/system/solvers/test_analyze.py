@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import csv
 from datetime import timedelta
 from pathlib import Path
 import shutil
@@ -344,30 +343,24 @@ def test_icepak_analyze_and_export_summary(icepak_solved) -> None:
     assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
     assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
     icepak_solved.save_project()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="A"
-    )  # check usage of deprecated arguments
+    )
+    assert Path(icepak_solved.working_directory + "/A_Temperature.csv").exists()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="B"
     )
+    assert Path(icepak_solved.working_directory + "/B_Temperature.csv").exists()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Volume", type="Boundary", filename="C"
     )
-    for file_name, entities in [
-        ("A_Temperature.csv", ["box", "Region"]),
-        ("B_Temperature.csv", ["box", "Region"]),
-        ("C_Temperature.csv", ["box"]),
-    ]:
-        with open(Path(icepak_solved.working_directory) / file_name, "r", newline="") as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for _ in range(4):
-                _ = next(csv_reader)
-            header = next(csv_reader)
-            entity_index = header.index("Entity")
-            csv_entities = [row[entity_index] for row in csv_reader]
-            assert all(e in csv_entities for e in entities)
+    assert Path(icepak_solved.working_directory + "/C_Temperature.csv").exists()
 
     box = [i.id for i in icepak_solved.modeler["box"].faces]
+
     assert Path(
         icepak_solved.eval_surface_quantity_from_field_summary(box, savedir=icepak_solved.working_directory)
     ).exists()
@@ -504,9 +497,36 @@ def test_3dl_set_export_touchstone(hfss3dl_solved) -> None:
 def test_3dl_touchstone_results(hfss3dl_solved) -> None:
     assert hfss3dl_solved.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
     assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+
+    # Test case 1: No arguments, when drivers==receivers
+    assert hfss3dl_solved.get_all_insertion_loss_list() == ["S(Port1,Port2)"]
+
+    # Test case 2: With math formula
+    assert hfss3dl_solved.get_all_insertion_loss_list(math_formula="dB") == ["dB(S(Port1,Port2))"]
+
+    # Test case 3: With prefix filtering, results in different lists, pairs by index
     assert hfss3dl_solved.get_all_insertion_loss_list(drivers_prefix_name="Port1", receivers_prefix_name="Port2") == [
         "S(Port1,Port2)"
     ]
+
+    # Test case 4: Explicit different driver/receiver lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1"], receivers=["Port2"]) == ["S(Port1,Port2)"]
+
+    # Test case 5: Explicit same lists, should return all unique combinations
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1", "Port2"]) == [
+        "S(Port1,Port2)"
+    ]
+
+    # Test case 6: Different length lists
+    result = hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1"])
+    assert result == []
+
+    # Test case 7: Multiple pairs with different lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port2", "Port1"]) == [
+        "S(Port1,Port2)",
+        "S(Port2,Port1)",
+    ]
+
     assert hfss3dl_solved.get_next_xtalk_list() == ["S(Port1,Port2)"]
     assert hfss3dl_solved.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 

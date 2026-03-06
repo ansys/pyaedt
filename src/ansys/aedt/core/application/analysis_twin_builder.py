@@ -21,7 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -29,6 +31,10 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class AnalysisTwinBuilder(Analysis, PyAedtBase):
@@ -39,10 +45,52 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     Parameters
     ----------
+    application : str
+        3D application that is to initialize the call.
+    project : str or :class:`pathlib.Path`, optional
+        Name of the project to select or the full path to the project
+        or AEDTZ archive to open. The default is ``None``, in which
+        case an attempt is made to get an active project. If no
+        projects are present, an empty project is created.
+    design : str, optional
+        Name of the design to select. The default is ``None``, in
+        which case an attempt is made to get an active design. If no
+        designs are present, an empty design is created.
+    solution_type : str, optional
+        Solution type to apply to the design. The default is
+        ``None``, in which case the default type is applied.
+    setup : str, optional
+        Name of the setup to use as the nominal. The default is
+        ``None``, in which case the active setup is used or
+        nothing is used.
+    version : str, int, float, optional
+        Version of AEDT  to use. The default is ``None``, in which case
+        the active version or latest installed version is used.
+    non_graphical : bool, optional
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in the graphical mode.
+    new_desktop : bool, optional
+        Whether to launch an instance of AEDT in a new thread, even if
+        another instance of the ``specified_version`` is active on the
+        machine. The default is ``False``.
+    close_on_exit : bool, optional
+        Whether to release AEDT on exit. The default is ``False``.
+    student_version : bool, optional
+        Whether to enable the student version of AEDT. The default
+        is ``False``.
+    port : int, optional
+        Port number to use for the AEDT instance. The default is ``0``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     @property
-    def setup_names(self):
+    def setup_names(self) -> list[str]:
         """Setup names.
 
         References
@@ -53,28 +101,28 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
 
     def __init__(
         self,
-        application,
-        projectname,
-        designname,
-        solution_type,
-        setup_name=None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
-        aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
-    ) -> None:
+        application: str,
+        project: str,
+        design: str,
+        solution_type: str,
+        setup: str = None,
+        version: str = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int = None,
+        remove_lock: bool = False,
+    ):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
+            setup,
             version,
             non_graphical,
             new_desktop,
@@ -92,7 +140,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerTwinBuilder:
         """Design Modeler.
 
         Returns
@@ -106,7 +154,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._modeler
 
     @property
-    def post(self):
+    def post(self) -> PostProcessorCircuit:
         """Design Postprocessor.
 
         Returns
@@ -121,7 +169,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         return self._post
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str = None, **kwargs) -> SetupCircuit:
         """Create a setup.
 
         Parameters
@@ -146,7 +194,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
-        name = self.generate_unique_setup_name(name)
+        name = self.generate_unique_setup(name)
         setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()

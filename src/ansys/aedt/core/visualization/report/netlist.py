@@ -52,7 +52,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class CircuitNetlistReport(CommonReport):
     """Provides a reporting class that fits Circuit Netlist reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None) -> None:
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
@@ -65,7 +65,7 @@ class CircuitNetlistReport(CommonReport):
             return 9
 
     @property
-    def maximum_time(self):
+    def maximum_time(self) -> float:
         """Value of maximum time for TDR plot.
 
         Returns
@@ -76,11 +76,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
     @maximum_time.setter
-    def maximum_time(self, val):
+    def maximum_time(self, val: float) -> None:
         self._legacy_props["context"]["maximum_time"] = val
 
     @property
-    def thinning(self):
+    def thinning(self) -> int:
         """Transient windowing.
 
         Returns
@@ -90,11 +90,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("thinning", 0)
 
     @thinning.setter
-    def thinning(self, value):
+    def thinning(self, value: int) -> None:
         self._legacy_props["context"]["thinning"] = value
 
     @property
-    def thinning_points(self):
+    def thinning_points(self) -> int:
         """Transient thinning points.
 
         Returns
@@ -104,11 +104,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("thinning_points", 500000000)
 
     @thinning_points.setter
-    def thinning_points(self, value):
+    def thinning_points(self, value: int) -> None:
         self._legacy_props["context"]["thinning_points"] = value
 
     @property
-    def dy_dx_tolerance(self):
+    def dy_dx_tolerance(self) -> float:
         """Transient thinning points.
 
         Returns
@@ -118,11 +118,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
 
     @dy_dx_tolerance.setter
-    def dy_dx_tolerance(self, value):
+    def dy_dx_tolerance(self, value: float) -> None:
         self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
-    def time_start(self):
+    def time_start(self) -> str:
         """Time start value.
 
         Returns
@@ -133,11 +133,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("time_start", "0ps")
 
     @time_start.setter
-    def time_start(self, value):
+    def time_start(self, value: str) -> None:
         self._legacy_props["context"]["time_start"] = value
 
     @property
-    def time_stop(self):
+    def time_stop(self) -> str:
         """Time stop value.
 
         Returns
@@ -148,11 +148,11 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("time_stop", "10ns")
 
     @time_stop.setter
-    def time_stop(self, value):
+    def time_stop(self, value: str) -> None:
         self._legacy_props["context"]["time_stop"] = value
 
     @property
-    def step_time(self):
+    def step_time(self) -> float:
         """Value of step time for TDR plot.
 
         Returns
@@ -163,7 +163,7 @@ class CircuitNetlistReport(CommonReport):
         return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
     @step_time.setter
-    def step_time(self, val):
+    def step_time(self, val: float) -> None:
         self._legacy_props["context"]["step_time"] = val
 
     @property
@@ -223,7 +223,7 @@ class CircuitNetlistReport(CommonReport):
         return ctxt
 
     @pyaedt_function_handler()
-    def create(self, name=None):
+    def create(self, name: str = None) -> bool:
         """Create a report.
 
         Parameters
