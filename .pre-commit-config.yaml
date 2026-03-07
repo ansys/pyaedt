@@ -15,13 +15,13 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.4
+  rev: a27a2e47c7751b639d2b5badf0ef6ff11fee893f  # v0.15.4
   hooks:
     - id: ruff-check
     - id: ruff-format
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
+  rev: 63c8f8312b7559622c0d82815639671ae42132ac  # v2.4.1
   hooks:
     - id: codespell
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]
@@ -29,31 +29,31 @@ repos:
         - tomli
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v6.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # v6.0.0
   hooks:
     - id: debug-statements
     - id: trailing-whitespace
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.37.0
+  rev: 8db279a37c552206d2df62269ff6f9d31125815a  # 0.37.0
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.20.0
+  rev: dda8db18cfc68df532abf33b185ecd12d5b7b326  # 1.20.0
   hooks:
     - id: blacken-docs
       additional_dependencies: [black==25.1.0]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-  rev: v1.6.1
+  rev: 500543de231a91e6157db630075d70320709b834  # v1.6.1
   hooks:
     - id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.5.2
+  rev: fd1d6b0b4baeb08e32d4de0909999576695c0433  # v0.5.2
   hooks:
     - id: add-license-headers
       exclude: |
