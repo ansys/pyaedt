@@ -69,7 +69,8 @@ def aedt_script():
         pyaedt_utils.environment_variables(oDesktop)
         # Run workflow
         my_env = dict(os.environ.copy())
-        command = [python_exe, extension_pyaedt_script]
+        error_handler = os.path.normpath(os.path.join(r"##EXTENSION_TEMPLATES##", "extension_error_handler.py"))
+        command = [python_exe, error_handler, extension_pyaedt_script]
         subprocess.Popen(command, env=my_env)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
