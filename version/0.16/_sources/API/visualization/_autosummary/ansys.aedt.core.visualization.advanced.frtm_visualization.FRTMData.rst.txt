@@ -1,0 +1,71 @@
+﻿FRTMData
+========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoclass:: FRTMData
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      FRTMData.range_doppler
+      
+      
+      FRTMData.range_profile
+      
+      
+      FRTMData.window_function
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FRTMData.all_data
+      FRTMData.antenna_names
+      FRTMData.binary_byte_type_line
+      FRTMData.binary_record_length
+      FRTMData.binary_start_byte
+      FRTMData.channel_names
+      FRTMData.channel_number
+      FRTMData.col_count
+      FRTMData.col_header1
+      FRTMData.col_header2
+      FRTMData.coupling_combos
+      FRTMData.cpi_duration
+      FRTMData.cpi_frames
+      FRTMData.data_conversion_function
+      FRTMData.dlxcd_version
+      FRTMData.frequency_bandwidth
+      FRTMData.frequency_center
+      FRTMData.frequency_delta
+      FRTMData.frequency_domain_type
+      FRTMData.frequency_number
+      FRTMData.frequency_start
+      FRTMData.frequency_stop
+      FRTMData.frequency_sweep
+      FRTMData.pulse_repetition_frequency
+      FRTMData.radar_channels
+      FRTMData.radar_waveform
+      FRTMData.range_maximum
+      FRTMData.range_resolution
+      FRTMData.row_count
+      FRTMData.time_duration
+      FRTMData.time_start
+      FRTMData.time_stop
+      FRTMData.time_sweep
+      FRTMData.velocity_maximum
+      FRTMData.velocity_resolution
+   
+   

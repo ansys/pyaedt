@@ -1,0 +1,67 @@
+﻿MaxwellMatrix
+=============
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autoclass:: MaxwellMatrix
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      MaxwellMatrix.create
+      
+      
+      MaxwellMatrix.delete
+      
+      
+      MaxwellMatrix.join_parallel
+      
+      
+      MaxwellMatrix.join_series
+      
+      
+      MaxwellMatrix.jsonalize_tree
+      
+      
+      MaxwellMatrix.suppress_all
+      
+      
+      MaxwellMatrix.unsuppress_all
+      
+      
+      MaxwellMatrix.update
+      
+      
+      MaxwellMatrix.update_property
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      MaxwellMatrix.available_properties
+      MaxwellMatrix.children
+      MaxwellMatrix.command
+      MaxwellMatrix.gc_sources
+      MaxwellMatrix.ground_sources
+      MaxwellMatrix.group_sources
+      MaxwellMatrix.name
+      MaxwellMatrix.properties
+      MaxwellMatrix.props
+      MaxwellMatrix.public_dir
+      MaxwellMatrix.reduced_matrices
+      MaxwellMatrix.rl_sources
+      MaxwellMatrix.signal_sources
+   
+   

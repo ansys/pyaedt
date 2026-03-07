@@ -1,0 +1,6 @@
+AXIS
+====
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.AXIS
