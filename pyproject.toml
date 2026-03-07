@@ -32,6 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "ansys-tools-common",
     "grpcio>=1.50.0,<1.79",
     "jsonschema",
     "psutil",
@@ -78,7 +79,6 @@ all = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
     "uv>=0.8.17",
-    "ansys-tools-common",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
@@ -97,7 +97,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.3.3",
+  "prek==0.3.4",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
