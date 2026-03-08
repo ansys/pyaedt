@@ -577,6 +577,7 @@ class Desktop(PyAedtBase):
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         specified_version = _normalize_version_to_string(specified_version)
+        settings.aedt_version = specified_version
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if not settings.remote_api:
@@ -2464,9 +2465,18 @@ class Desktop(PyAedtBase):
                 return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
             except Exception:
                 return False, "", ""
+
+        # Student version flag
         self.student_version = student_version
+
+        # Save the version information in the instance and global settings for later use
         self.aedt_version_id = specified_version
+        settings.aedt_version = specified_version
+
+        # Save the version string for COM dispatching
         self.aedt_version_string = version
+
+        return student_version, specified_version, version
 
     def __run_student(self):  # pragma: no cover
         executable = Path(Path(self.aedt_install_dir) / "ansysedtsv.exe").resolve(strict=True)
