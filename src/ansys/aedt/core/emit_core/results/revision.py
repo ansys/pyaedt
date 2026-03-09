@@ -545,23 +545,15 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
-        radio_node = self.get_component_node(radio_name)
-        bands = self.get_all_band_nodes(radio_node, tx_rx_mode, enabled_only=True)
-        band_node : Band
-        for band in bands:
-            if band.name == band_name:
-                band_node = band
-
         if tx_rx_mode is None or tx_rx_mode == TxRxMode.BOTH:
             raise ValueError("The mode type must be specified as either Tx or Rx.")
         if self.revision_loaded:
-            freqs = band_node._get_active_band_frequencies(tx_rx_mode, units)
+            freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
             freqs = None
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
             return freqs
-
         return freqs
 
     @property

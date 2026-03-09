@@ -33,10 +33,8 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
-from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
-
 
 
 class EmitNode:
@@ -844,21 +842,3 @@ class EmitNode:
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_node
-    
-    def _get_active_band_frequencies(self, mode, units="Hz"):
-        """Returns the frequencies of the active band for this node.
-
-        Returns
-        -------
-        list of tuples
-            The frequencies of the active band for this node as a list of tuples.
-            [(start_freq1, stop_freq1), (start_freq2, stop_freq2)]
-        """
-        if mode == TxRxMode.RX:
-            isRx = True
-        else:
-            isRx = False
-
-        freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, isRx)
-        freqs = [consts.unit_converter(float(freq), "Frequency", "Hz", units) for freq in freqs]
-        return freqs
