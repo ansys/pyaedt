@@ -910,16 +910,30 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         for attribs in dm:
             pid = int(attribs["id"])
-            o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=None)
-            o._part_coordinate_system = attribs["Orientation"]
-            o._model = True if attribs["Model"] in ["true", True, "True"] else False
-            o._wireframe = True if attribs["Display Wireframe"] in ["true", True, "True"] else False
+            o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=False)
+
+            o._part_coordinate_system = attribs.get("Orientation", None)
+
+            model_value = attribs.get("Model", None)
+            o._model = True if model_value in ["true", True, "True"] else False if model_value else None
+
+            wireframe_value = attribs.get("Display Wireframe", None)
+            o._wireframe = (
+                True if wireframe_value in ["true", True, "True"] else False if wireframe_value else None
+            )  # pragma: no cover
+
             o._m_groupName = attribs.get("Group", None)
-            RGBint = int(attribs["Color"])
-            b = RGBint & 255
-            g = (RGBint >> 8) & 255
-            r = (RGBint >> 16) & 255
-            o._color = (r, g, b)
+
+            color_value = attribs.get("Color", None)
+            if color_value is not None:
+                RGBint = int(color_value)
+                b = RGBint & 255
+                g = (RGBint >> 8) & 255
+                r = (RGBint >> 16) & 255
+                o._color = (r, g, b)
+            else:
+                o._color = None
+
             o._material_name = attribs.get("Material", None)
             if o._material_name:
                 o._material_name = o._material_name[1:-1]
