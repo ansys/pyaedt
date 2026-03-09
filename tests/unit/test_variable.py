@@ -322,6 +322,7 @@ def test_decompose_variable_value() -> None:
     assert decompose_variable_value("3.123456Nm-2") == (3.123456, "Nm-2")
     assert decompose_variable_value("3.123456kg2m2") == (3.123456, "kg2m2")
     assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
+    assert decompose_variable_value("$3W.mm") == ("$3W.mm", "")
 
 
 def test_validator_exact_match(validation_input) -> None:
