@@ -820,28 +820,70 @@ def test_radio_band_getters(emit_app):
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-def test_get_band_frequencies(emit_app):
-    rad1, ant1 = emit_app.schematic.create_radio_antenna("AVQ-30X")
+def test_get_active_frequencies_waveform(emit_app):
+    emitter_name = "Test Emitter"
+    emitter_node: EmitterNode = emit_app.schematic.create_component(
+        name=emitter_name, component_type="New Emitter", library="Emitters"
+    )
 
+    emitter_band: Waveform = emitter_node.get_waveforms()[0]
+
+    assert emitter_band.get_frequencies(units="MHz") == [100]
+    assert emitter_band.get_frequencies() == [100000000.0]
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_band(emit_app):
+    rad1, ant1 = emit_app.schematic.create_radio_antenna("WiFi - 802.11-2012")
     rev = emit_app.results.analyze()
 
-    tx_bands = rev.get_all_band_nodes(radio=rad1, tx_rx_mode=TxRxMode.TX, enabled_only=True)
-    rx_bands = rev.get_all_band_nodes(radio=rad1, tx_rx_mode=TxRxMode.RX, enabled_only=True)
+    # Tx Band Check
+    tx_band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
+    tx_band.enabled = True
+    tx_freqs_mhz = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    tx_freqs_hz = tx_band.get_active_frequencies(is_rx=False, units="Hz")
 
-    assert len(tx_bands) == 1
-    assert len(rx_bands) == 1
+    assert len(tx_freqs_mhz) == 13
+    assert tx_freqs_hz[0] == 2412000000.0
+    assert tx_freqs_mhz[0] == 2412.0
 
-    tx_freqs = tx_bands[0].get_active_frequencies(is_rx=False, units="MHz")
-    rx_freqs = rx_bands[0].get_active_frequencies(is_rx=True, units="MHz")
+    rad2, ant2 = emit_app.schematic.create_radio_antenna("GPS Receiver")
+    rev2 = emit_app.results.analyze()
 
-    assert tx_freqs == [9400.0]
-    assert rx_freqs == [9400.0]
+    # Rx Band Check
+    rx_band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
+    rx_freqs_mhz = rx_band.get_active_frequencies(is_rx=True, units="MHz")
 
-    tx_freqs = tx_bands[0].get_active_frequencies(is_rx=False)
-    rx_freqs = rx_bands[0].get_active_frequencies(is_rx=True)
+    assert len(rx_freqs_mhz) == 1
+    assert rx_freqs_mhz[0] == 1575.42
 
-    assert tx_freqs == [9400000000.0]
-    assert rx_freqs == [9400000000.0]
+    # Disabled Band Check
+    rx_band.enabled = False
+    rx_freqs_mhz_disabled = rx_band.get_active_frequencies(is_rx=True, units="MHz")
+    assert len(rx_freqs_mhz_disabled) == 0
+
+    # Tx Offset Check
+    tx_band.tx_offset = 1e6
+    tx_freqs_mhz_offset = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert tx_freqs_mhz_offset[0] == 2413.0
+
+    # Tx Sampling Check
+    tx_sampling = next((child for child in rad1.children if child.node_type == "SamplingNode"), None)
+    tx_sampling.table_data = [("2410 MHz", "2416 MHz")]
+    tx_freqs_mhz_sampling = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert len(tx_freqs_mhz_sampling) == 1
+    assert tx_freqs_mhz_sampling[0] == 2413.0
+
+    # Check incorrect band ID error
+    exception_raised = False
+    try:
+        tx_band._oRevisionData.GetActiveBandFrequencies(tx_band._result_id, -99, False)
+    except GrpcApiError:
+        exception_raised = True
+    assert exception_raised
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1340,6 +1382,7 @@ that the AEDT app functions as intended.
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
