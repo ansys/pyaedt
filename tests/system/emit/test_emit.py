@@ -1071,8 +1071,8 @@ def test_basic_run(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2024.1",
-    reason="Skipped on versions earlier than 2024.1",
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_optimal_n_to_1_feature(emit_app):
     # place components and generate the appropriate number of revisions
@@ -1090,6 +1090,7 @@ def test_optimal_n_to_1_feature(emit_app):
     ant4.move_and_connect_to(rad4)
     assert len(emit_app.results.revisions) == 0
     rev = emit_app.results.analyze()
+    sim = rev.get_simulation()
     assert len(emit_app.results.revisions) == 1
     radios_rx = rev.get_receiver_names()
     bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
@@ -1098,30 +1099,32 @@ def test_optimal_n_to_1_feature(emit_app):
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
-    emit_app.results.revisions[-1].n_to_1_limit = 1
-    assert emit_app.results.revisions[-1].n_to_1_limit == 1
-    emit_app.results.revisions[-1].n_to_1_limit = 0
-    assert emit_app.results.revisions[-1].n_to_1_limit == 0
+    sim.n_to_1_limit = -1
+    assert sim.n_to_1_limit == -1
+    sim.n_to_1_limit = 1
+    assert sim.n_to_1_limit == 1
+    sim.n_to_1_limit = 0
+    assert sim.n_to_1_limit == 0
 
     # get number of 1-1 instances
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 52851
-    interaction = emit_app.results.revisions[-1].run(domain)
+    assert sim.get_instance_count(domain) == 52851
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 76.02
 
     # rerun with N-1
-    emit_app.results.revisions[-1].n_to_1_limit = 2**20
-    assert emit_app.results.revisions[-1].n_to_1_limit == 2**20
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 11652816
-    interaction = emit_app.results.revisions[-1].run(domain)
+    sim.n_to_1_limit = 2**20
+    assert sim.n_to_1_limit == 2**20
+    assert sim.get_instance_count(domain) == 11652816
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     domain2 = instance.get_domain()
     assert len(domain2.interferer_names) == 2
     assert instance.get_value(ResultType.EMI) == 82.04
     # rerun with 1-1 only (forced by domain)
     domain.set_interferer(radios_tx[0])
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 19829
-    interaction = emit_app.results.revisions[-1].run(domain)
+    assert sim.get_instance_count(domain) == 19829
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 76.02
 
@@ -1195,9 +1198,28 @@ def test_availability_1_to_1(emit_app):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+def test_enable_n_to_1(interference):
+    # Generate a revision
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Enable N to 1 analysis
+    sim.enable_n_to_1(True)
+    assert sim.n_to_1_limit == -1
+
+    # Disable N to 1 analysis
+    sim.enable_n_to_1(False)
+    assert sim.n_to_1_limit == 0
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_interference_scripts_no_filter(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with no filtering
     expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
@@ -1207,10 +1229,10 @@ def test_interference_scripts_no_filter(interference):
 
     domain = interference.results.interaction_domain()
     with pytest.raises(ValueError) as e:
-        _, _ = rev.interference_type_classification(domain, InterfererType.EMITTERS)
+        _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
     with pytest.raises(ValueError) as e:
-        _, _ = rev.protection_level_classification(
+        _, _ = sim.protection_level_classification(
             domain,
             interferer_type=InterfererType.EMITTERS,
             global_protection_level=True,
@@ -1218,10 +1240,10 @@ def test_interference_scripts_no_filter(interference):
         )
     assert str(e.value) == "No interferers defined in the analysis."
 
-    int_colors, int_power_matrix = rev.interference_type_classification(
+    int_colors, int_power_matrix = sim.interference_type_classification(
         domain, interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS
     )
-    pro_colors, pro_power_matrix = rev.protection_level_classification(
+    pro_colors, pro_power_matrix = sim.protection_level_classification(
         domain,
         interferer_type=InterfererType.TRANSMITTERS,
         global_protection_level=True,
@@ -1241,6 +1263,7 @@ def test_interference_scripts_no_filter(interference):
 def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
     domain = interference.results.interaction_domain()
 
     # Test protection level with radio-specific protection levels
@@ -1253,7 +1276,7 @@ def test_radio_protection_levels(interference):
         "WiFi": [-22.0, -25.0, -30.0, -104.0],
     }
 
-    protection_colors, protection_power_matrix = rev.protection_level_classification(
+    protection_colors, protection_power_matrix = sim.protection_level_classification(
         domain,
         interferer_type=InterfererType.TRANSMITTERS,
         global_protection_level=False,
@@ -1265,12 +1288,13 @@ def test_radio_protection_levels(interference):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
+    DESKTOP_VERSION <= "2025.1",
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with active filtering
     domain = interference.results.interaction_domain()
@@ -1298,7 +1322,7 @@ def test_interference_filtering(interference):
         expected_interference_power = all_interference_power[ind]
         interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
-        interference_colors, interference_power_matrix = rev.interference_type_classification(
+        interference_colors, interference_power_matrix = sim.interference_type_classification(
             domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
         )
 
@@ -1313,6 +1337,7 @@ def test_interference_filtering(interference):
 def test_protection_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with active filtering
     domain = interference.results.interaction_domain()
@@ -1335,7 +1360,7 @@ def test_protection_filtering(interference):
         expected_protection_power = all_protection_power[ind]
         protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
 
-        protection_colors, protection_power_matrix = rev.protection_level_classification(
+        protection_colors, protection_power_matrix = sim.protection_level_classification(
             domain,
             interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS,
             global_protection_level=True,
@@ -1417,7 +1442,6 @@ def test_result_categories(emit_app):
     # initially all categories are enabled
     for category in EmiCategoryFilter.members():
         assert rev.get_emi_category_filter_enabled(category)
-
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
@@ -1446,16 +1470,69 @@ def test_result_categories(emit_app):
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+@pytest.mark.skipif(True, reason="Temporarily skipped")
+def test_result_categories_with_simulation(emit_app):
+    # set up project and run
+    rad1, ant1 = emit_app.schematic.create_radio_antenna(
+        radio_type="GPS Receiver", radio_name="GPS Receiver", antenna_name="Antenna"
+    )
+    rad2, ant2 = emit_app.schematic.create_radio_antenna(
+        radio_type="Bluetooth Low Energy (LE)", radio_name="Bluetooth Low Energy (LE)", antenna_name="Antenna"
+    )
+    rev = emit_app.results.analyze()
+    r1_bands = rev.get_all_band_nodes(rad1)
+    for band in r1_bands:
+        band.enabled = True
+    sim = rev.get_simulation()
+    domain = emit_app.results.interaction_domain()
+    interaction = sim.run(domain)
+
+    # initially all categories are enabled
+    for category in EmiCategoryFilter.members():
+        assert sim.get_emi_category_filter_enabled(category)
+    # confirm the emi value when all categories are enabled
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.64
+    assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+    # disable one category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 2.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+    # disable another category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == -58.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+    # disable last existing category and confirm expected exceptions and error messages
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_value(ResultType.EMI)
+        assert "Unable to evaluate value: No power received." in str(e)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_largest_emi_problem_type()
+        assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
     revision = interference.results.analyze()
+    sim = revision.get_simulation()
 
     def do_run():
         domain = results.interaction_domain()
         rev = results.current_revision
-        rev.run(domain)
+        rev.get_simulation().run(domain)
 
     number_of_runs = 5
 
@@ -1516,7 +1593,7 @@ def test_license_session(interference):
         do_run()
 
     # Run with license session
-    with revision.get_license_session():
+    with sim.get_license_session():
         for i in range(number_of_runs):
             do_run()
 
@@ -1536,9 +1613,10 @@ def test_emit_nodes(interference):
     # Generate and run a revision
     results = interference.results
     revision = results.analyze()
+    sim = revision.get_simulation()
 
     domain = results.interaction_domain()
-    _ = revision.run(domain)
+    _ = sim.run(domain)
 
     # set emit to ignore purge warnings
     pref_node = revision.get_preferences_node()
@@ -1658,6 +1736,9 @@ def test_all_generated_emit_node_properties(emit_app):
                 continue
 
             if member.startswith("properties"):
+                continue
+
+            if member.startswith("odesktop"):
                 continue
 
             class_attr = getattr(node.__class__, member)
@@ -2657,12 +2738,13 @@ def test_units(emit_app):
 )
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
+    sim = rev.get_simulation()
     domain = hfss_phased_array.results.interaction_domain()
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
     assert engine.is_domain_valid(domain)
-    assert rev.is_domain_valid(domain)
+    assert sim.is_domain_valid(domain)
 
     # run the interaction
     domain = hfss_phased_array.results.interaction_domain()

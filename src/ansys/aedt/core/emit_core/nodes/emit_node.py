@@ -48,6 +48,7 @@ class EmitNode:
         self._node_id = node_id
         self._valid = True
         self._is_component = False
+        self._odesktop = emit_obj.odesktop
 
     def __eq__(self, other):
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)

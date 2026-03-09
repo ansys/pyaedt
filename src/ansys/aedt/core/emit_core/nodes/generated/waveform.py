@@ -26,35 +26,42 @@ from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 import ansys.aedt.core.generic.constants as consts
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Waveform(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str = ""):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
-    def import_tx_measurement(self, file_name):
+    @min_aedt_version("2025.2")
+    def import_tx_measurement(self, file_name: str) -> None:
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 
+    @min_aedt_version("2027.1")
     def get_frequencies(self, units: str = "Hz") -> list[float]:
         """Return list of frequencies for the given waveform (empty if disabled)"""
         freqs = self._oRevisionData.GetActiveBandFrequencies(self._result_id, self._node_id, False)
@@ -62,12 +69,14 @@ class Waveform(EmitNode):
         return freqs_converted
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    @min_aedt_version("2025.2")
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class WaveformOption(Enum):
@@ -78,6 +87,7 @@ class Waveform(EmitNode):
         IMPORTED = "Imported"
 
     @property
+    @min_aedt_version("2025.2")
     def waveform(self) -> WaveformOption:
         """Modulation used for the transmitted/received signal."""
         val = self._get_property("Waveform")
@@ -85,10 +95,12 @@ class Waveform(EmitNode):
         return val
 
     @waveform.setter
-    def waveform(self, value: WaveformOption):
+    @min_aedt_version("2025.2")
+    def waveform(self, value: WaveformOption) -> None:
         self._set_property("Waveform", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def start_frequency(self) -> float:
         """First frequency for this band.
 
@@ -99,11 +111,13 @@ class Waveform(EmitNode):
         return float(val)
 
     @start_frequency.setter
-    def start_frequency(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def start_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def clock_duty_cycle(self) -> float:
         """Clock signals duty cycle.
 
@@ -113,10 +127,12 @@ class Waveform(EmitNode):
         return float(val)
 
     @clock_duty_cycle.setter
-    def clock_duty_cycle(self, value: float):
+    @min_aedt_version("2025.2")
+    def clock_duty_cycle(self, value: float) -> None:
         self._set_property("Clock Duty Cycle", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def clock_risefall_time(self) -> float:
         """Clock signals rise/fall time.
 
@@ -127,7 +143,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @clock_risefall_time.setter
-    def clock_risefall_time(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def clock_risefall_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Clock Rise/Fall Time", f"{value}")
 
@@ -137,6 +154,7 @@ class Waveform(EmitNode):
         HIGH_SPREAD = "High Spread"
 
     @property
+    @min_aedt_version("2025.2")
     def spreading_type(self) -> SpreadingTypeOption:
         """Type of spreading employed by the Spread Spectrum Clock."""
         val = self._get_property("Spreading Type")
@@ -144,10 +162,12 @@ class Waveform(EmitNode):
         return val
 
     @spreading_type.setter
-    def spreading_type(self, value: SpreadingTypeOption):
+    @min_aedt_version("2025.2")
+    def spreading_type(self, value: SpreadingTypeOption) -> None:
         self._set_property("Spreading Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def spread_percentage(self) -> float:
         """Peak-to-peak spread percentage.
 
@@ -157,26 +177,31 @@ class Waveform(EmitNode):
         return float(val)
 
     @spread_percentage.setter
-    def spread_percentage(self, value: float):
+    @min_aedt_version("2025.2")
+    def spread_percentage(self, value: float) -> None:
         self._set_property("Spread Percentage", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def imported_spectrum(self) -> str:
         """Imported Spectrum."""
         val = self._get_property("Imported Spectrum")
         return val
 
     @imported_spectrum.setter
-    def imported_spectrum(self, value: str):
+    @min_aedt_version("2025.2")
+    def imported_spectrum(self, value: str) -> None:
         self._set_property("Imported Spectrum", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def raw_data_format(self) -> str:
         """Format of the imported raw data."""
         val = self._get_property("Raw Data Format")
         return val
 
     @property
+    @min_aedt_version("2025.2")
     def system_impedance(self) -> float:
         """System impedance for the imported data.
 
@@ -187,11 +212,13 @@ class Waveform(EmitNode):
         return float(val)
 
     @system_impedance.setter
-    def system_impedance(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def system_impedance(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Resistance")
         self._set_property("System Impedance", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def advanced_extraction_params(self) -> bool:
         """Show/hide advanced extraction params.
 
@@ -201,10 +228,12 @@ class Waveform(EmitNode):
         return val == "true"
 
     @advanced_extraction_params.setter
-    def advanced_extraction_params(self, value: bool):
+    @min_aedt_version("2025.2")
+    def advanced_extraction_params(self, value: bool) -> None:
         self._set_property("Advanced Extraction Params", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def nb_window_size(self) -> float:
         """NB Window Size.
 
@@ -217,10 +246,12 @@ class Waveform(EmitNode):
         return float(val)
 
     @nb_window_size.setter
-    def nb_window_size(self, value: float):
+    @min_aedt_version("2025.2")
+    def nb_window_size(self, value: float) -> None:
         self._set_property("NB Window Size", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def bb_smoothing_factor(self) -> float:
         """BB Smoothing Factor.
 
@@ -232,10 +263,12 @@ class Waveform(EmitNode):
         return float(val)
 
     @bb_smoothing_factor.setter
-    def bb_smoothing_factor(self, value: float):
+    @min_aedt_version("2025.2")
+    def bb_smoothing_factor(self, value: float) -> None:
         self._set_property("BB Smoothing Factor", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def nb_detector_threshold(self) -> float:
         """Narrowband Detector threshold standard deviation.
 
@@ -245,7 +278,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @nb_detector_threshold.setter
-    def nb_detector_threshold(self, value: float):
+    @min_aedt_version("2025.2")
+    def nb_detector_threshold(self, value: float) -> None:
         self._set_property("NB Detector Threshold", f"{value}")
 
     class AlgorithmOption(Enum):
@@ -253,6 +287,7 @@ class Waveform(EmitNode):
         FOURIER_TRANSFORM = "Fourier Transform"
 
     @property
+    @min_aedt_version("2025.2")
     def algorithm(self) -> AlgorithmOption:
         """Algorithm used to transform the imported time domain spectrum."""
         val = self._get_property("Algorithm")
@@ -260,10 +295,12 @@ class Waveform(EmitNode):
         return val
 
     @algorithm.setter
-    def algorithm(self, value: AlgorithmOption):
+    @min_aedt_version("2025.2")
+    def algorithm(self, value: AlgorithmOption) -> None:
         self._set_property("Algorithm", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def start_time(self) -> float:
         """Initial time of the imported spectrum.
 
@@ -274,11 +311,13 @@ class Waveform(EmitNode):
         return float(val)
 
     @start_time.setter
-    def start_time(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def start_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Start Time", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def stop_time(self) -> float:
         """Final time of the imported time domain spectrum."""
         val = self._get_property("Stop Time")
@@ -286,11 +325,13 @@ class Waveform(EmitNode):
         return float(val)
 
     @stop_time.setter
-    def stop_time(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def stop_time(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Stop Time", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_frequency(self) -> float:
         """Frequency cutoff of the imported time domain spectrum.
 
@@ -301,7 +342,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @max_frequency.setter
-    def max_frequency(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def max_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Frequency", f"{value}")
 
@@ -317,6 +359,7 @@ class Waveform(EmitNode):
         WEBER = "Weber"
 
     @property
+    @min_aedt_version("2025.2")
     def window_type(self) -> WindowTypeOption:
         """Windowing scheme used for importing time domain spectrum."""
         val = self._get_property("Window Type")
@@ -324,10 +367,12 @@ class Waveform(EmitNode):
         return val
 
     @window_type.setter
-    def window_type(self, value: WindowTypeOption):
+    @min_aedt_version("2025.2")
+    def window_type(self, value: WindowTypeOption) -> None:
         self._set_property("Window Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def kaiser_parameter(self) -> float:
         """Shape factor applied to the transform.
 
@@ -337,10 +382,12 @@ class Waveform(EmitNode):
         return float(val)
 
     @kaiser_parameter.setter
-    def kaiser_parameter(self, value: float):
+    @min_aedt_version("2025.2")
+    def kaiser_parameter(self, value: float) -> None:
         self._set_property("Kaiser Parameter", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def adjust_coherent_gain(self) -> bool:
         """Shape factor applied to the transform.
 
@@ -350,10 +397,12 @@ class Waveform(EmitNode):
         return val == "true"
 
     @adjust_coherent_gain.setter
-    def adjust_coherent_gain(self, value: bool):
+    @min_aedt_version("2025.2")
+    def adjust_coherent_gain(self, value: bool) -> None:
         self._set_property("Adjust Coherent Gain", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def data_rate(self) -> float:
         """Maximum data rate: helps determine shape of spectral profile.
 
@@ -364,11 +413,13 @@ class Waveform(EmitNode):
         return float(val)
 
     @data_rate.setter
-    def data_rate(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def data_rate(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Data Rate")
         self._set_property("Data Rate", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def num_of_bits(self) -> int:
         """Length of the Pseudo Random Binary Sequence.
 
@@ -378,10 +429,12 @@ class Waveform(EmitNode):
         return int(val)
 
     @num_of_bits.setter
-    def num_of_bits(self, value: int):
+    @min_aedt_version("2025.2")
+    def num_of_bits(self, value: int) -> None:
         self._set_property("Num of Bits", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def use_envelope(self) -> bool:
         """Model the waveform as a worst case envelope.
 
@@ -391,10 +444,12 @@ class Waveform(EmitNode):
         return val == "true"
 
     @use_envelope.setter
-    def use_envelope(self, value: bool):
+    @min_aedt_version("2025.2")
+    def use_envelope(self, value: bool) -> None:
         self._set_property("Use Envelope", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def min_ptsnull(self) -> int:
         """Minimum number of points to use between each null frequency.
 
@@ -404,5 +459,6 @@ class Waveform(EmitNode):
         return int(val)
 
     @min_ptsnull.setter
-    def min_ptsnull(self, value: int):
+    @min_aedt_version("2025.2")
+    def min_ptsnull(self, value: int) -> None:
         self._set_property("Min Pts/Null", f"{value}")
