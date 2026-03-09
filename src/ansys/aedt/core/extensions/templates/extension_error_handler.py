@@ -34,7 +34,7 @@ Usage::
 """
 
 import os
-import subprocess
+import subprocess  # nosec
 import sys
 
 
@@ -50,7 +50,7 @@ def main():
         env=os.environ.copy(),
         stderr=subprocess.PIPE,
         text=True,
-    )
+    )  # nosec
 
     if result.returncode != 0:
         error_msg = result.stderr or "Process exited with code {}".format(result.returncode)
@@ -72,7 +72,7 @@ def _show_error(error_msg):
         messagebox.showerror("PyAEDT Extension Error", error_msg)
         root.destroy()
     except Exception:
-        pass
+        print("Failed to show error dialog. Error message:\n" + error_msg)
 
 
 if __name__ == "__main__":
