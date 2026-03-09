@@ -2290,7 +2290,12 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_property(
-        self, aedt_object: object, tab_name: str, property_object: str, property_name: str, property_value: str | list
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_name: str | list,
+        property_value: str | list,
     ) -> bool:
         """Change a property.
 
@@ -2304,11 +2309,14 @@ class Analysis(Design, PyAedtBase):
         property_object : str
             Name of the property object. It can be the name of an excitation or field reporter.
             For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
-        property_name : str
+        property_name : str, list
             Name of the property. For example, ``Rotation Angle``.
+            In case of apply solved variation values, it can be a list of property names.
         property_value : str, list
             Value of the property. It is a string for a single value and a list of three elements for
             ``[x,y,z]`` coordianates.
+            In case of apply solved variation values, it can be a list of property values iwht as many
+            elements as the list of property names.
 
         Returns
         -------
@@ -2319,7 +2327,7 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oEditor.ChangeProperty
         """
-        if isinstance(property_value, list) and len(property_value) == 3:
+        if isinstance(property_value, list) and len(property_value) == 3 and not isinstance(property_name, list):
             xpos, ypos, zpos = self.modeler._pos_with_arg(property_value)
             aedt_object.ChangeProperty(
                 [
@@ -2328,6 +2336,20 @@ class Analysis(Design, PyAedtBase):
                         "NAME:" + tab_name,
                         ["NAME:PropServers", property_object],
                         ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_name, list) and isinstance(property_value, list):
+            changed_props = []
+            for pn, pv in zip(property_name, property_value):
+                changed_props.append(["NAME:" + pn, "Value:=", pv])
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        changed_props,
                     ],
                 ]
             )
