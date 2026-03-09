@@ -199,6 +199,11 @@ class Design(AedtObjects, PyAedtBase):
         self._design_datasets: list = []
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
+
+        if version is not None:
+            # Clear global state before initialization
+            settings.aedt_version = None
+
         self._desktop_class = self.__init_desktop_from_design(
             settings.aedt_version if settings.aedt_version else version,
             non_graphical,
