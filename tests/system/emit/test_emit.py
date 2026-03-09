@@ -1156,6 +1156,24 @@ def test_availability_1_to_1(emit_app):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+def test_enable_n_to_1(interference):
+    # Generate a revision
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Enable N to 1 analysis
+    sim.enable_n_to_1(True)
+    assert sim.n_to_1_limit == -1
+
+    # Disable N to 1 analysis
+    sim.enable_n_to_1(False)
+    assert sim.n_to_1_limit == 0
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_interference_scripts_no_filter(interference):
     # Generate a revision
     rev = interference.results.analyze()

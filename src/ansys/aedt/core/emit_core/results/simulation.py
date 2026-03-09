@@ -53,7 +53,7 @@ class Simulation:
     >>> aedtapp = Emit()
     >>> rev = aedtapp.results.current_revision
     >>> sim = rev.get_simulation()
-    >>> domain = aedtapp.interaction_domain()
+    >>> domain = aedtapp.results.interaction_domain()
     >>> sim.run(domain)
     """
 
@@ -161,7 +161,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain()
+        >>> domain = aedtapp.results.interaction_domain()
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
         True
@@ -188,7 +188,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain()
+        >>> domain = aedtapp.results.interaction_domain()
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> num_instances = sim.get_instance_count(domain)
         """
@@ -256,6 +256,21 @@ class Simulation:
         """
         engine = self._revision.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
+    def enable_n_to_1(self, enabled: bool):
+        """Enables unlimited N to 1 analysis, which runs all combinations of interferers for each receiver.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether to enable unlimited N to 1 analysis.
+        """
+        if enabled:
+            self.n_to_1_limit = -1  # allow unlimited N to 1
+        else:
+            self.n_to_1_limit = 0  # disable N to 1
 
     @pyaedt_function_handler
     @min_aedt_version("2024.2")
