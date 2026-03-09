@@ -545,7 +545,6 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
-        
         radio_node = self.get_component_node(radio_name)
         bands = self.get_all_band_nodes(radio_node, tx_rx_mode, enabled_only=True)
         band_node : Band
