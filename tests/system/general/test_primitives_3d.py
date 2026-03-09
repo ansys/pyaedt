@@ -1590,15 +1590,13 @@ def test_insert_3dcomponent(aedt_app) -> None:
     assert isinstance(obj_3dcomp, UserDefinedComponent)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
 @pytest.mark.skipif(USE_GRPC and DESKTOP_VERSION < "2023.1", reason="Failing in grpc")
 def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
     input_file = shutil.copy2(file_original, test_tmp_dir / ENCRYPTED_CYL)
 
-    assert not aedt_app.modeler.insert_3d_component(str(input_file))
-    # assert not aedt_app.modeler.insert_3d_component(encrypted_cylinder, password="dfgdg")
     assert aedt_app.modeler.insert_3d_component(str(input_file), password="test")
+    assert len(aedt_app.modeler.object_list) == 1
 
 
 def test_group_components(aedt_app) -> None:
