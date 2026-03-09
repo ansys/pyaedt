@@ -6500,7 +6500,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
                 and self.desktop_class.aedt_version_id >= "2024.1"
             )
-            and not reference and not auto_identify
+            and not reference
+            and not auto_identify
         ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
