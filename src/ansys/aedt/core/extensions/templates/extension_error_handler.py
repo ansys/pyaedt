@@ -29,7 +29,7 @@ error traceback when the script exits with a non-zero return code.
 
 Usage::
 
-    python extension_error_handler.py <script_path> [script_args ...]
+    python extension_error_handler.py --script <script_path> [script_args ...]
 
 """
 
@@ -42,8 +42,13 @@ def main():
     if len(sys.argv) < 2:
         sys.exit(1)
 
-    script = sys.argv[1]
-    script_args = sys.argv[2:]
+    script = None
+    script_args = []
+
+    if len(sys.argv) < 3:
+        sys.exit(1)
+    script = sys.argv[2]
+    script_args = sys.argv[3:]
 
     result = subprocess.run(
         [sys.executable, script] + script_args,

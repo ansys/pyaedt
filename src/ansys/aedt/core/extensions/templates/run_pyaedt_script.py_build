@@ -173,6 +173,7 @@ def main():
             command = [
                 python_exe,
                 error_handler,
+                "--script",
                 pyaedt_script,
             ]
             if script_args:
@@ -181,6 +182,7 @@ def main():
             command = [
                 '"{}"'.format(python_exe),
                 '"{}"'.format(error_handler),
+                '"{}"'.format("--script"),
                 '"{}"'.format(pyaedt_script),
             ]
             if script_args:
