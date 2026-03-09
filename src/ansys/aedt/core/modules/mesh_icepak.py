@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -316,7 +316,13 @@ class CommonRegion(PyAedtBase):
 
     def _update_region_data(self):
         region = self.object
-        create_region = region.history()
+        if (
+            hasattr(self._app, "logger") and self._app.logger and hasattr(self._app.logger, "suspend_logic")
+        ):  # pragma: no cover
+            with self._app.logger.suspend_logging():
+                create_region = region.history()
+        else:
+            create_region = region.history()
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:

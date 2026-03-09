@@ -20,7 +20,7 @@
 
 1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.8-3.12` 版本上:
 
-``` python
+``` bash
   pip install pyaedt
 ```
 
@@ -130,33 +130,38 @@ pip install pyaedt[all]
 ### 明确 AEDT 声明 [INFO] 并管理报错 [ERROR]
 
 ``` python
-    # 以非图形模式启动 AEDT 2022 R2
+# 以非图形模式启动 AEDT 2022 R2
 
-    from ansys.aedt.core import Desktop, Circuit
-    with Desktop(specified_version="2022.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False):
-        circuit = Circuit()
-        ...
-        # 此处的任何错误都将被 Desktop 捕获。
-        ...
+from ansys.aedt.core import Desktop, Circuit
 
-    # Desktop 将在此处自动发布。
+with Desktop(
+    specified_version="2022.2",
+    non_graphical=False,
+    new_desktop_session=True,
+    close_on_exit=True,
+    student_version=False,
+):
+    circuit = Circuit()
+    ...
+    # 此处的任何错误都将被 Desktop 捕获。
+    ...
+
+# Desktop 将在此处自动发布。
 ```
 
 ### Implicit AEDT declaration and error management
 
 ``` python
-    # Launch the latest installed version of AEDT in graphical mode
+# Launch the latest installed version of AEDT in graphical mode
 
-    from ansys.aedt.core import Circuit
-    with Circuit(specified_version="2022.2",
-                 non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+from ansys.aedt.core import Circuit
 
-    # Desktop is automatically released here.
+with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
+    ...
+    # Any error here will be caught by Desktop.
+    ...
+
+# Desktop is automatically released here.
 ```
 
 ## 远程应用程序调用
@@ -166,40 +171,43 @@ pip install pyaedt[all]
 CPython 服务器：
 
 ``` python
-    # 在CPython上启动PyAEDT远程服务器
+# 在CPython上启动PyAEDT远程服务器
 
-    from ansys.aedt.core.common_rpc import pyaedt_service_manager
-    pyaedt_service_manager()
+from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+pyaedt_service_manager()
 ```
 
 任意的 Windows 客户端：
 
 ``` python
-    from ansys.aedt.core.common_rpc import create_session
-    cl1 = create_session("server_name")
-    cl1.aedt(port=50000, non_graphical=False)
-    hfss = Hfss(machine="server_name", port=50000)
-    # 在这里编辑您的代码
+from ansys.aedt.core.common_rpc import create_session
+
+cl1 = create_session("server_name")
+cl1.aedt(port=50000, non_graphical=False)
+hfss = Hfss(machine="server_name", port=50000)
+# 在这里编辑您的代码
 ```
 
 ## 变量 Variables
 
 ``` python
-    from ansys.aedt.core.HFSS import HFSS
-    with HFSS as hfss:
-         hfss["dim"] = "1mm"   # design variable
-         hfss["$dim"] = "1mm"  # project variable
+from ansys.aedt.core.HFSS import HFSS
+
+with HFSS as hfss:
+    hfss["dim"] = "1mm"  # design variable
+    hfss["$dim"] = "1mm"  # project variable
 ```
 
 ## 模型 Modeler
 
 ``` python
-    # 创建BOX、分配变量和指定材料。
+# 创建BOX、分配变量和指定材料。
 
-    from ansys.aedt.core.hfss import Hfss
-    with Hfss as hfss:
-         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                 "mybox", "aluminum")
+from ansys.aedt.core.hfss import Hfss
+
+with Hfss as hfss:
+    hfss.modeler.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")
 ```
 
 ## 许可

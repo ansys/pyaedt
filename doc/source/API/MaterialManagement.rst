@@ -27,9 +27,14 @@ This section describes all material-related classes and methods.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Materials class
     my_materials = app.materials

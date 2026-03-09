@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1425,10 +1425,24 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
-                    (Path(root) / name).unlink()
+                    file_dir = Path(root) / name
+                    try:
+                        if file_dir.is_file():
+                            file_dir.unlink(missing_ok=True)
+                    except Exception as e:  # pragma: no cover
+                        self.logger.warning(f"{Path(root) / name} can not be deleted. {str(e)}")
                 for name in dirs:
-                    (Path(root) / name).rmdir()
-            temp_folder.rmdir()
+                    results_dir = Path(root) / name
+                    try:
+                        if results_dir.is_dir():
+                            shutil.rmtree(results_dir, ignore_errors=True)
+                    except Exception as e:  # pragma: no cover
+                        self.logger.warning(f"{results_dir} can not be deleted. {str(e)}")
+            try:
+                shutil.rmtree(temp_folder, ignore_errors=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{temp_folder} can not be deleted. {str(e)}")
+
             phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
@@ -1448,10 +1462,13 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             app.close_project(save=False)
             try:
                 if results_directory.is_dir():
-                    shutil.rmtree(results_directory)
-            except PermissionError:  # pragma: no cover
-                self.logger.warning(f"{results_directory} can not be deleted.")
-            project_file.unlink(missing_ok=True)
+                    shutil.rmtree(results_directory, ignore_errors=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{results_directory} can not be deleted. {str(e)}")
+            try:
+                project_file.unlink(missing_ok=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{project_file} can not be deleted. {str(e)}")
             return assignment.target_coordinate_system
 
     @staticmethod

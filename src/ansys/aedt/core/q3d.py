@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -590,7 +590,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     return False
 
         if variations is None:
-            nominal_values = self.available_variations.get_independent_nominal_values()
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
             if not nominal_values:
                 variations = ""
             else:
@@ -975,7 +975,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
-            nominal_values = self.available_variations.get_independent_nominal_values()
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
 
             if not nominal_values:
                 variations = ""
@@ -1286,7 +1286,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -1955,12 +1954,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData` or bool
+        :class:`ansys.aedt.core.modules.solutions.SolutionData` or bool
             Solution Data object if successful, ``False`` otherwise.
 
         Examples
         --------
-        >>> from pyaedt import Q3d
+        >>> from ansys.aedt.core import Q3d
         >>> aedtapp = Q3d()
         >>> data = aedtapp.modeler.get_mutual_coupling("a1", "a2", "b1", "b2", calculation="DCL")
         """
@@ -2392,7 +2391,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """Dimension."""
         return self.modeler.dimension
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

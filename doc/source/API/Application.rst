@@ -38,31 +38,37 @@ Example with ``Desktop`` class explicit initialization:
 .. code:: python
 
     from ansys.aedt.core import launch_desktop, Circuit
-    d = launch_desktop(specified_version="2025.2",
-                       non_graphical=False,
-                       new_desktop_session=True,
-                       close_on_exit=True,
-                       student_version=False):
-     circuit = Circuit()
-     ...
-     # Any error here will be caught by Desktop.
-     ...
-     d.release_desktop()
+
+    d = launch_desktop(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
+    circuit = Circuit()
+    # ...
+    # Any error here will be caught by Desktop.
+    # ...
+    d.release_desktop()
 
 Example with ``Desktop`` class implicit initialization:
 
 .. code:: python
 
     from ansys.aedt.core import Circuit
-    circuit = Circuit(specified_version="2025.2",
-                      non_graphical=False,
-                      new_desktop_session=True,
-                      close_on_exit=True,
-                      student_version=False):
-     circuit = Circuit()
-     ...
-     # Any error here will be caught by Desktop.
-     ...
-     circuit.release_desktop()
+
+    circuit = Circuit(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
+    circuit = Circuit()
+    # ...
+    # Any error here will be caught by Desktop.
+    # ...
+    circuit.release_desktop()
 
 

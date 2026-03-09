@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1060,6 +1060,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
         TransientAPhiFormulation,
         DCBiasedEddyCurrent,
         ACMagnetic,
+        ACMagneticAPhi,
         TransientAPhi,
         ElectricDCConduction,
         ACMagneticwithDC,
@@ -1075,6 +1076,7 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
         "Transient APhi",
         "AC Magnetic with DC",
         "AC Magnetic",
+        "AC Magnetic APhi",
         "Transient APhi",
         "Electric DC Conduction",
         "AC Magnetic with DC",

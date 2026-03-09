@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,7 +43,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     --------
     Basic usage demonstrated with a Twin Builder design:
 
-    >>> from ansys.aedt.core import Twin Builder
+    >>> from ansys.aedt.core import TwinBuilder
     >>> aedtapp = TwinBuilder()
     >>> prim = aedtapp.modeler.schematic
     """

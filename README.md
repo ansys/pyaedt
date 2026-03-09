@@ -30,10 +30,10 @@ for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 and Q3D Extractor), 2D tools, and Ansys Mechanical inside AEDT. PyAEDT also provides
 support for circuit tools like Nexxim and system simulation tools like
 Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
-tools like HFSS 3D Layout. The Ansys Electronics Database 
+tools like HFSS 3D Layout. The Ansys Electronics Database
 ([EDB](https://edb.docs.pyansys.com/version/stable/)) is included
-with PyAEDT as a dependency and is recommended for any automated manipulation and 
-setup of layout data for PCBs, electronic packages, and integrated circuits. 
+with PyAEDT as a dependency and is recommended for any automated manipulation and
+setup of layout data for PCBs, electronic packages, and integrated circuits.
 
 The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
@@ -76,7 +76,7 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.7 and versions up to Python 3.11.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2024 R1.
--  0.9.0 <= PyAEDT Version < 0.18.0:
+- 0.9.0 <= PyAEDT Version < 0.18.0:
   - Python Compatibility:
     - Dropped support for python 3.7 and below.
     - Compatible with Python 3.8 and versions up to Python 3.12.
@@ -169,13 +169,13 @@ PyAEDT supports AEDT versions 2022 R1 or newer.
 
 ## Contributing
 
-For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com). 
+For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com).
 
 
-Note that PyAEDT uses semantic naming for pull requests (PR). This convention 
+Note that PyAEDT uses semantic naming for pull requests (PR). This convention
 greatly simplifies the review process by providing meaningful
 information in the PR title. The
-following 
+following
 [prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
 should be used for pull request name:
 
@@ -233,33 +233,38 @@ Usage examples follow.
 ## Explicit AEDT declaration and error management
 
 ``` python
-    # Launch AEDT 2022 R2 in non-graphical mode
+# Launch AEDT 2022 R2 in non-graphical mode
 
-    from ansys.aedt.core import Desktop, Circuit
-    with Desktop(specified_version="2022.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False):
-        circuit = Circuit()
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+from ansys.aedt.core import Desktop, Circuit
 
-    # Desktop is automatically released here.
+with Desktop(
+    specified_version="2022.2",
+    non_graphical=False,
+    new_desktop_session=True,
+    close_on_exit=True,
+    student_version=False,
+):
+    circuit = Circuit()
+    ...
+    # Any error here will be caught by Desktop.
+    ...
+
+# Desktop is automatically released here.
 ```
 
 ## Implicit AEDT declaration and error management
 
 ``` python
-    # Launch the latest installed version of AEDT in graphical mode
+# Launch the latest installed version of AEDT in graphical mode
 
-    from ansys.aedt.core import Circuit
-    with Circuit(specified_version="2022.2",
-                 non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+from ansys.aedt.core import Circuit
 
-    # Desktop is automatically released here.
+with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
+    ...
+    # Any error here will be caught by Desktop.
+    ...
+
+# Desktop is automatically released here.
 ```
 
 ## Remote application call
@@ -270,40 +275,43 @@ or any Windows client machine.
 On a CPython Server:
 
 ``` python
-    # Launch PyAEDT remote server on CPython
+# Launch PyAEDT remote server on CPython
 
-    from ansys.aedt.core.common_rpc import pyaedt_service_manager
-    pyaedt_service_manager()
+from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+pyaedt_service_manager()
 ```
 
 On any Windows client machine:
 
 ``` python
-    from ansys.aedt.core.common_rpc import create_session
-    cl1 = create_session("server_name")
-    cl1.aedt(port=50000, non_graphical=False)
-    hfss = Hfss(machine="server_name", port=50000)
-    # your code here
+from ansys.aedt.core.common_rpc import create_session
+
+cl1 = create_session("server_name")
+cl1.aedt(port=50000, non_graphical=False)
+hfss = Hfss(machine="server_name", port=50000)
+# your code here
 ```
 
 ## Variables
 
 ``` python
-    from ansys.aedt.core.HFSS import HFSS
-    with HFSS as hfss:
-         hfss["dim"] = "1mm"   # design variable
-         hfss["$dim"] = "1mm"  # project variable
+from ansys.aedt.core.HFSS import HFSS
+
+with HFSS as hfss:
+    hfss["dim"] = "1mm"  # design variable
+    hfss["$dim"] = "1mm"  # project variable
 ```
 
 ## Modeler
 
 ``` python
-    # Create a box, assign variables, and assign materials.
+# Create a box, assign variables, and assign materials.
 
-    from ansys.aedt.core.hfss import Hfss
-    with Hfss as hfss:
-         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                 "mybox", "aluminum")
+from ansys.aedt.core.hfss import Hfss
+
+with Hfss as hfss:
+    hfss.modeler.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")
 ```
 
 ## License
@@ -330,3 +338,4 @@ page on the Ansys website.
 -  [Index](https://aedt.docs.pyansys.com/version/stable/genindex.html)
 -  [Module Index](https://aedt.docs.pyansys.com/version/stable/py-modindex.html)
 -  [Search Page](https://aedt.docs.pyansys.com/version/stable/search.html)
+

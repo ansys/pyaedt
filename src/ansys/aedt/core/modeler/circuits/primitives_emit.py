@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -69,7 +69,7 @@ class EmitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """Aedt Definition Manager.
+        """AEDT definition manager.
 
         References
         ----------

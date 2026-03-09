@@ -1,7 +1,7 @@
 Installation
 ============
 PyAEDT consolidates and extends all existing capital around scripting for AEDT,
-allowing re-use of existing code, sharing of best practices, and collaboration.
+allowing reuse of existing code, sharing of best practices, and collaboration.
 
 This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides
 basic support for EDB and Circuit (Nexxim).
@@ -99,7 +99,7 @@ Once configured, click **OK** to register the extension. It then appears alongsi
 
 A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
-For additional information about AEDT extensions, 
+For additional information about AEDT extensions,
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
 
 .. raw:: html
@@ -143,34 +143,35 @@ Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT on CPython from PyPI:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt
 
 You can also install PyAEDT from Conda-Forge:
 
-.. code:: python
+.. code:: bash
 
     conda install -c conda-forge pyaedt
 
 To ensure you have all the necessary dependencies, including optional components, use the following command:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt[all]
 
 If you are not utilizing gRPC, you can install the required dotnet dependencies separately:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt[dotnet]
 
 Finally, in the Python console, run the following commands:
 
-.. code::
+.. code:: python
 
-     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+
+    add_pyaedt_to_aedt("your_aedt_version", "path_to_aedtlib")
 
 - Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
@@ -293,6 +294,7 @@ Once PyAEDT is installed in your virtual environment, you can run the
 .. code:: python
 
     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+
     add_pyaedt_to_aedt("your_aedt_version", r"path_to_aedtlib")
 
 Note

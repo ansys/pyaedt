@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -434,7 +434,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
     def solution_type(self, solution_type):
         if solution_type:
             try:
-                self._odesign.SetDesignFlow(self._design_type, solution_type)
+                self._odesign.SetDesignFlow(self._design_type.NAME, solution_type)
                 self._solution_type = solution_type
             except Exception:
                 logger.error("Failed to set design flow.")

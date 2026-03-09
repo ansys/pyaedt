@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -9111,7 +9111,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp = Hfss()
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
-    >>> primitives_builder.create(),,
+    >>> primitives_builder.create()
     >>> aedtapp.desktop_class.close_desktop()
     """
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -120,7 +120,6 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     >>> app = TwinBuilder("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -491,7 +490,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
 
-        var = app.available_variations.get_independent_nominal_values()
+        var = app.available_variations.nominal_variation(dependent_params=False)
 
         props = ["NAME:Properties"]
         for k, v in var.items():
@@ -701,7 +700,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent` or bool
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent` or bool
             Circuit component object if successful or ``False`` if fails.
 
         References

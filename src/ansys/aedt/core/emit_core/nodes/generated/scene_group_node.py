@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,52 +25,58 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class SceneGroupNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def add_emitter(self):
+    @min_aedt_version("2025.2")
+    def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
-    def add_group(self):
+    @min_aedt_version("2025.2")
+    def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name):
+    @min_aedt_version("2025.2")
+    def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
-    def add_antenna(self):
+    @min_aedt_version("2025.2")
+    def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str = ""):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def show_relative_coordinates(self) -> bool:
         """Show Relative Coordinates.
 
@@ -84,11 +89,13 @@ class SceneGroupNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    @min_aedt_version("2025.2")
+    def position(self) -> str:
         """Set position of the Scene Group in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -97,11 +104,13 @@ class SceneGroupNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value):
+    @min_aedt_version("2025.2")
+    def position(self, value: str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    @min_aedt_version("2025.2")
+    def relative_position(self) -> str:
         """Set position of the Scene Group relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -110,7 +119,8 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value):
+    @min_aedt_version("2025.2")
+    def relative_position(self, value: str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -118,6 +128,7 @@ class SceneGroupNode(EmitNode):
         AZ_EL_TWIST = "aetDeg"
 
     @property
+    @min_aedt_version("2025.2")
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode.
 
@@ -128,11 +139,13 @@ class SceneGroupNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption):
+    @min_aedt_version("2025.2")
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    @min_aedt_version("2025.2")
+    def orientation(self) -> str:
         """Orientation.
 
         Set orientation of the Scene Group relative to parent-node coordinates.
@@ -143,11 +156,13 @@ class SceneGroupNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value):
+    @min_aedt_version("2025.2")
+    def orientation(self, value: str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self) -> str:
         """Relative Orientation.
 
         Set orientation of the Scene Group relative to placement coordinates.
@@ -158,10 +173,12 @@ class SceneGroupNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self, value: str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_axes(self) -> bool:
         """Show Axes.
 
@@ -173,11 +190,13 @@ class SceneGroupNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def box_color(self):
+    @min_aedt_version("2025.2")
+    def box_color(self) -> str:
         """Set color of the bounding box of the Scene Group.
 
         Color should be in RGB form: #RRGGBB.
@@ -186,15 +205,18 @@ class SceneGroupNode(EmitNode):
         return val
 
     @box_color.setter
-    def box_color(self, value):
+    @min_aedt_version("2025.2")
+    def box_color(self, value: str) -> None:
         self._set_property("Box Color", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

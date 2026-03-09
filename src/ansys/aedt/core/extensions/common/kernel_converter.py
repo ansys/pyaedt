@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -64,8 +64,9 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 # Extension batch arguments
+PASSWORD = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 EXTENSION_DEFAULT_ARGUMENTS = {
-    "password": "",
+    "password": PASSWORD,
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",

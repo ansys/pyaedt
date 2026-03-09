@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -506,7 +506,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.ofieldsreporter.CalcOp(scalar_function)
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():
@@ -678,7 +678,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return False
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():
@@ -838,7 +838,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():

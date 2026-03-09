@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -231,7 +231,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, output_file)
+        self.odesign.ExportMeshStats(setup, variations, str(output_file))
         return output_file
 
     @property

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,11 +27,15 @@
 import math
 from pathlib import Path
 import tempfile
+from typing import TYPE_CHECKING
 from typing import List
 from typing import Optional
 from typing import Union
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -190,7 +194,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -1325,7 +1328,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
             Start direction for the boundary location.
             It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
-            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``Application.AxisDir.XNeg``.
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``Application.axis_directions.XNeg``.
         source_name : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
@@ -1335,7 +1338,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_infinite_ground : bool, optional
             Whether the impendance is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
-            Whether to create the impedance on the plane orthogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the impedance on the plane orthogonal to ``axis_directions``. The default is ``True``.
 
         Returns
         -------
@@ -1353,7 +1356,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5], "box1", "copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5], "box2", "copper")
         >>> impedance = hfss.create_impedance_between_objects(
-        ...     "box1", "box2", hfss.AxisDir.XPos, "ImpedanceExample", 100, 50
+        ...     "box1", "box2", hfss.axis_directions.XPos, "ImpedanceExample", 100, 50
         ... )
         PyAEDT INFO: Connection Correctly created
 
@@ -2552,7 +2555,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        pars = assignment.available_variations.get_independent_nominal_values()
+        pars = assignment.available_variations.nominal_variation(dependent_params=False)
 
         for el in pars:
             params[el] = pars[el]
@@ -2976,16 +2979,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             First object connected to the voltage source.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Second object connected to the voltage source.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
             Start direction for the port location.
-            It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to
-            ``AxisDir``. The default is ``True``.
+            ``axis_directions``. The default is ``True``.
 
         Returns
         -------
@@ -3002,7 +3005,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "copper")
         >>> box2 = hfss.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "copper")
-        >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2", hfss.AxisDir.XNeg, "VoltageSource")
+        >>> v1 = hfss.create_voltage_source_from_objects(
+        ...     "BoxVolt1", "BoxVolt2", hfss.axis_directions.XNeg, "VoltageSource"
+        ... )
         PyAEDT INFO: Connection Correctly created
         """
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
@@ -3033,11 +3038,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             First object connected to the current source.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Second object connected to the current source.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
             Start direction for the port location.
-            It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
@@ -3060,7 +3065,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5], "BoxCurrent1", "copper")
         >>> box2 = hfss.modeler.create_box([30, 0, 30], [40, 10, 5], "BoxCurrent2", "copper")
         >>> i1 = hfss.create_current_source_from_objects(
-        ...     "BoxCurrent1", "BoxCurrent2", hfss.AxisDir.XPos, "CurrentSource"
+        ...     "BoxCurrent1", "BoxCurrent2", hfss.axis_directions.XPos, "CurrentSource"
         ... )
         PyAEDT INFO: Connection created 'CurrentSource' correctly.
         """
@@ -3584,10 +3589,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Starting object for the integration line.
         reference :
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location.. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Start direction for the boundary location.. It should be one of the values for
+            ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Perfect H name. The default is ``None``, in which
             case a name is automatically assigned.
@@ -3605,7 +3610,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             in which case this parameter is disabled.
         is_boundary_on_plane : bool, optional
             Whether to create the boundary on the plane orthogonal
-            to ``AxisDir``. The default is ``True``.
+            to ``axis_directions``. The default is ``True``.
 
         Returns
         -------
@@ -3623,7 +3628,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "rlc1", "copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "rlc2", "copper")
         >>> rlc = hfss.create_lumped_rlc_between_objects(
-        ...     "rlc1", "rlc2", hfss.AxisDir.XPos, "Lumped RLC", resistance=50, inductance=1e-9, capacitance=1e-6
+        ...     "rlc1",
+        ...     "rlc2",
+        ...     hfss.axis_directions.XPos,
+        ...     "Lumped RLC",
+        ...     resistance=50,
+        ...     inductance=1e-9,
+        ...     capacitance=1e-6,
         ... )
         PyAEDT INFO: Connection Correctly created
 
@@ -3715,11 +3726,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
-            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
 
@@ -3740,7 +3751,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> sheet = hfss.modeler.create_rectangle(
         ...     Plane.XY, [0, 0, -70], [10, 2], name="VoltageSheet", material="copper"
         ... )
-        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.axis_directions.XNeg, "VoltageSheetExample")
         >>> v2 = hfss.assign_voltage_source_to_sheet(
         ...     sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint], 50
         ... )
@@ -3771,11 +3782,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
-            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
 
@@ -3794,7 +3805,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -50], [5, 1], name="CurrentSheet", material="copper")
-        >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
+        >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.axis_directions.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
         >>> c1 = hfss.assign_current_source_to_sheet(
         ...     sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint]
@@ -3835,11 +3846,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
-            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Lumped RLC name. The default is ``None``.
         rlc_type : str, optional
@@ -3870,7 +3881,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -90], [10, 2], name="RLCSheet", material="Copper")
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(
-        ...     sheet.name, hfss.AxisDir.XPos, resistance=50, inductance=1e-9, capacitance=1e-6
+        ...     sheet.name, hfss.axis_directions.XPos, resistance=50, inductance=1e-9, capacitance=1e-6
         ... )
         >>> type(lumped_rlc_to_sheet)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -4105,7 +4116,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     terminated = vals[2]
                 else:
                     terminated = False
-                if use_incident_voltage and self.solution_type == "Terminal":
+                if not use_incident_voltage and self.solution_type == "Terminal":
                     setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
                 else:
                     setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
@@ -4334,7 +4345,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet_for_thickness = hfss.modeler.create_circle(Plane.YZ, [60, 60, 60], 10, name="SheetForThickness")
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(
-        ...     sheet_for_thickness, 5, hfss.AxisDir.XNeg, 40, 2, "WavePortForThickness", True
+        ...     sheet_for_thickness, 5, hfss.axis_directions.XNeg, 40, 2, "WavePortForThickness", True
         ... )
         >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
         PyAEDT INFO: done
@@ -5105,12 +5116,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def insert_infinite_sphere(
         self,
         definition=InfiniteSphereType.ThetaPhi,
-        x_start=0,
-        x_stop=180,
-        x_step=10,
-        y_start=0,
-        y_stop=180,
-        y_step=10,
+        phi_start=0,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=0,
+        theta_stop=180,
+        theta_step=10,
         units="deg",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
@@ -5128,17 +5139,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         definition : str
             Coordinate definition type. The default is ``"Theta-Phi"``.
             It can be a ``ansys.aedt.core.generic.constants.InfiniteSphereType`` enumerator value.
-        x_start : float, str, optional
+        phi_start : float, str, optional
             First angle start value. The default is ``0``.
-        x_stop : float, str, optional
+        phi_stop : float, str, optional
             First angle stop value. The default is ``180``.
-        x_step : float, str, optional
+        phi_step : float, str, optional
             First angle step value. The default is ``10``.
-        y_start : float, str, optional
+        theta_start : float, str, optional
             Second angle start value. The default is ``0``.
-        y_stop : float, str, optional
+        theta_stop : float, str, optional
             Second angle stop value. The default is ``180``.
-        y_step : float, str, optional
+        theta_step : float, str, optional
             Second angle step value. The default is ``10``.
         units : str
             Angle units. The default is ``"deg"``.
@@ -5156,12 +5167,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup`
+            Far field setup object.
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Infinite")
+
+        # Check if name already exists and generate unique name with integer suffix if needed
+        existing_names = [fs.name for fs in self.field_setups]
+        if name in existing_names:
+            original_name = name
+            suffix = 1
+            while f"{original_name}_{suffix}" in existing_names:
+                suffix += 1
+            name = f"{original_name}_{suffix}"
+            self.logger.warning(
+                f"Infinite sphere '{original_name}' already exists. Creating with name '{name}' instead."
+            )
 
         props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
@@ -5181,34 +5205,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.value_with_units(x_start, units)
-        props[defs[1]] = self.value_with_units(x_stop, units)
-        props[defs[2]] = self.value_with_units(x_step, units)
-        props[defs[3]] = self.value_with_units(y_start, units)
-        props[defs[4]] = self.value_with_units(y_stop, units)
-        props[defs[5]] = self.value_with_units(y_step, units)
+        props[defs[0]] = self.value_with_units(phi_start, units)
+        props[defs[1]] = self.value_with_units(phi_stop, units)
+        props[defs[2]] = self.value_with_units(phi_step, units)
+        props[defs[3]] = self.value_with_units(theta_start, units)
+        props[defs[4]] = self.value_with_units(theta_stop, units)
+        props[defs[5]] = self.value_with_units(theta_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        if not bound.create():
+            raise AEDTRuntimeError(f"Failed to create infinite sphere '{name}'.")
+        self.field_setups.append(bound)
+        return bound
 
     @pyaedt_function_handler()
     def insert_near_field_sphere(
         self,
         radius: Union[float, int, str] = 20,
         radius_units="mm",
-        x_start: Union[float, int, str] = 0,
-        x_stop: Union[float, int, str] = 180,
-        x_step: Union[float, int, str] = 10,
-        y_start: Union[float, int, str] = 0,
-        y_stop: Union[float, int, str] = 180,
-        y_step: Union[float, int, str] = 10,
+        phi_start: Union[float, int, str] = 0,
+        phi_stop: Union[float, int, str] = 180,
+        phi_step: Union[float, int, str] = 10,
+        theta_start: Union[float, int, str] = 0,
+        theta_stop: Union[float, int, str] = 180,
+        theta_step: Union[float, int, str] = 10,
         angle_units: str = "deg",
         custom_radiation_faces: Optional[str] = None,
         custom_coordinate_system: Optional[str] = None,
@@ -5225,17 +5249,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Sphere radius. The default is ``20``.
         radius_units : str
             Radius units. The default is ``"mm"``.
-        x_start : float, str, optional
+        phi_start : float, str, optional
             First angle start value. The default is ``0``.
-        x_stop : float, str, optional
+        phi_stop : float, str, optional
             First angle stop value. The default is ``180``.
-        x_step : float, str, optional
+        phi_step : float, str, optional
             First angle step value. The default is ``10``.
-        y_start : float, str, optional
+        theta_start : float, str, optional
             Second angle start value. The default is ``0``.
-        y_stop : float, str, optional
+        theta_stop : float, str, optional
             Second angle stop value. The default is ``180``.
-        y_step : float, str, optional
+        theta_step : float, str, optional
             Second angle step value. The default is ``10``.
         angle_units : str
             Angle units. The default is ``"deg"``.
@@ -5264,12 +5288,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         props["Radius"] = self.value_with_units(radius, radius_units)
 
         defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
-        props[defs[0]] = self.value_with_units(x_start, angle_units)
-        props[defs[1]] = self.value_with_units(x_stop, angle_units)
-        props[defs[2]] = self.value_with_units(x_step, angle_units)
-        props[defs[3]] = self.value_with_units(y_start, angle_units)
-        props[defs[4]] = self.value_with_units(y_stop, angle_units)
-        props[defs[5]] = self.value_with_units(y_step, angle_units)
+        props[defs[0]] = self.value_with_units(phi_start, angle_units)
+        props[defs[1]] = self.value_with_units(phi_stop, angle_units)
+        props[defs[2]] = self.value_with_units(phi_step, angle_units)
+        props[defs[3]] = self.value_with_units(theta_start, angle_units)
+        props[defs[4]] = self.value_with_units(theta_stop, angle_units)
+        props[defs[5]] = self.value_with_units(theta_step, angle_units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5760,7 +5784,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             else:
                 self.insert_infinite_sphere(
-                    x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere
+                    phi_start=0, phi_stop=180, phi_step=5, theta_start=-180, theta_stop=180, theta_step=5, name=sphere
                 )
                 self.logger.info("Far field sphere %s is created.", sphere)
         elif self.field_setups:
@@ -5769,7 +5793,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             sphere = "Infinite Sphere1"
             self.insert_infinite_sphere(
-                x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere
+                phi_start=0, phi_stop=180, phi_step=5, theta_start=-180, theta_stop=180, theta_step=5, name=sphere
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
@@ -5819,61 +5843,112 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_rcs_data(
         self,
-        frequencies=None,
-        setup=None,
-        expression="ComplexMonostaticRCSTheta",
-        variations=None,
-        overwrite=True,
-        link_to_hfss=True,
-        variation_name=None,
-    ):
-        """Export the radar cross-section data.
+        frequencies: Optional[Union[float, List[Union[float, str]]]] = None,
+        setup: Optional[str] = None,
+        expression: str = "ComplexMonostaticRCSTheta",
+        variations: Optional[dict] = None,
+        overwrite: bool = True,
+        link_to_hfss: bool = True,
+        variation_name: Optional[str] = None,
+    ) -> Union["MonostaticRCSExporter", Path, bool]:
+        """Export monostatic radar cross-section (RCS) data from HFSS.
 
-        This method returns an instance of the ``RcsSolutionDataExporter`` object.
+        This method exports RCS simulation data into a standardized metadata format
+        and returns a ``MonostaticRCSExporter`` object for further processing.
+
+        .. note::
+           For advanced RCS analysis and visualization, install the radar explorer toolkit:
+
+           .. code-block:: bash
+
+               pip install ansys-aedt-toolkits-radar-explorer
+
+           Then use ``MonostaticRCSData`` and ``MonostaticRCSPlotter`` from the toolkit.
 
         Parameters
         ----------
-        frequencies : float, list, optional
-            Frequency value or list of frequencies to compute the data. The default is ``None,`` in which case
-            all available frequencies are computed.
+        frequencies : float or list of float or str, optional
+            Frequency value or list of frequencies to export. Frequencies can be specified as
+            floats (in Hz) or strings with units. For example, ``"77GHz"``.
+            The default is ``None``, in which case all available frequencies from the setup are used.
         setup : str, optional
-            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+            Name of the setup and sweep to use in the format ``"SetupName : SweepName"``.
+            The default is ``None``, in which case ``nominal_adaptive`` is used.
         expression : str, optional
-            Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
+            Monostatic RCS expression name to export. Available options include
+            ``"ComplexMonostaticRCSTheta"``, ``"ComplexMonostaticRCSPhi"``, etc.
+            The default is ``"ComplexMonostaticRCSTheta"``.
         variations : dict, optional
-            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+            Dictionary of variation variables and their values.
+            The default is ``None``, in which case the nominal variation is used.
         overwrite : bool, optional
-            Whether to overwrite metadata files. The default is ``True``.
+            Whether to overwrite existing metadata files if they already exist.
+            The default is ``True``.
         link_to_hfss : bool, optional
-            Whether to return an instance of the
-            :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` class,
-            which requires a connection to an instance of the :class:`Hfss` class.
-            The default is `` True``. If ``False``, returns an instance of
-            :class:`ansys.aedt.core.visualization.advanced.rcs_visualization.MonostaticRCSData` class, which is
-            independent of the running HFSS instance.
+            Whether to return a ``MonostaticRCSExporter`` object (``True``) or just the
+            metadata file path (``False``). When ``True``, the returned object maintains
+            a connection to the HFSS instance. When ``False``, returns the path to the
+            metadata file, allowing offline analysis.
+            The default is ``True``.
         variation_name : str, optional
-            Variation name. The default is ``None``, in which case the nominal variation is added.
+            Name to assign to this RCS solution variation. If provided, overrides the
+            default solution name. The default is ``None``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.post.rcs_exporter.MonostaticRCSExporter`
-            SolutionData object.
+        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path or bool
+            - If ``link_to_hfss=True``: Returns a ``MonostaticRCSExporter`` object.
+            - If ``link_to_hfss=False``: Returns a ``Path`` object pointing to the metadata file.
+            - Returns ``False`` if frequencies cannot be obtained.
 
         Examples
         --------
-        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
-
-        Open a design and create the objects.
+        Export RCS data with default settings:
 
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> rcs_data = hfss.get_rcs_data()
+        >>> hfss = Hfss(project="MyRCSProject", design="MyRCSDesign")
+        >>> rcs_exporter = hfss.get_rcs_data()
+        >>> metadata_file = rcs_exporter.metadata_file
+
+        Export RCS data for specific frequencies:
+
+        >>> frequencies = [9e9, 10e9, 11e9]  # Frequencies in Hz
+        >>> rcs_exporter = hfss.get_rcs_data(
+        ...     frequencies=frequencies, setup="Setup1 : Sweep1", expression="ComplexMonostaticRCSTheta"
+        ... )
+
+        Export with frequency strings and custom variation:
+
+        >>> frequencies = ["9GHz", "10GHz", "11GHz"]
+        >>> variations = {"angle": "0deg", "distance": "100mm"}
+        >>> rcs_exporter = hfss.get_rcs_data(
+        ...     frequencies=frequencies, variations=variations, variation_name="angle_0deg"
+        ... )
+
+        Export only metadata file (no link to HFSS):
+
+        >>> metadata_path = hfss.get_rcs_data(frequencies=[77e9], link_to_hfss=False)
+        >>> print(f"RCS data exported to: {metadata_path}")
+
+        Use with radar explorer toolkit for advanced analysis:
+
+        >>> # Export RCS data from HFSS
+        >>> rcs_exporter = hfss.get_rcs_data(frequencies=[77e9])
+        >>> metadata_file = rcs_exporter.metadata_file
+        >>>
+        >>> # Close HFSS and use toolkit for offline analysis
+        >>> hfss.close_project()
+        >>>
+        >>> # Advanced analysis with radar explorer toolkit
+        >>> # pip install ansys-aedt-toolkits-radar-explorer
+        >>> from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
+        >>> rcs_data = MonostaticRCSData(str(metadata_file))
+        >>> rcs_data.plot_3d()
         """
-        from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
-            variations = self.available_variations.get_independent_nominal_values()
+            variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:
             setup = self.nominal_adaptive
 
@@ -5908,7 +5983,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if link_to_hfss:
             return rcs
         elif metadata:
-            return MonostaticRCSData(input_file=metadata)
+            return metadata
 
         raise AEDTRuntimeError("Farfield solution data could not be exported.")
 
@@ -6135,11 +6210,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         reference : int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Reference object.
-        port_location : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+        port_location : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
             Position of the port when an object different from an edge is provided.
-            It should be one of the values for ``Application.AxisDir``,
+            It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Name of the port. The default is ``""``.
         impedance : int, str, or float, optional
@@ -6224,13 +6299,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port sheet.
-        integration_line : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        integration_line : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Position of the port. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
             It can also be a list of 2 points.
         port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``.
+            Whether to create the source on the plane orthogonal to ``axis_directions``.
             The default is ``True``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -6255,7 +6330,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1", "copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2", "copper")
-        >>> hfss.lumped_port("BoxLumped1", "BoxLumped2", hfss.AxisDir.XNeg, 50, "LumpedPort", True, False)
+        >>> hfss.lumped_port("BoxLumped1", "BoxLumped2", hfss.axis_directions.XNeg, 50, "LumpedPort", True, False)
         PyAEDT INFO: Connection Correctly created
         'LumpedPort'
 
@@ -6358,13 +6433,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             to create the port. The default is ``False``.
         create_pec_cap : bool, False
             Whether to create a port cap. The default is ``False``.
-        integration_line : list or int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Position of the integration. It should be one of the values for ``Application.AxisDir``,
+        integration_line : (
+            list or int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`
+        ), optional
+            Position of the integration. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
             It can also be a list of 2 points.
         port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``.
+            Whether to create the source on the plane orthogonal to ``axis_directions``.
             The default is ``True``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -6459,7 +6536,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     oname = ""
             if reference:
                 reference = self.modeler.convert_to_selections(reference, True)
-            #  TODO: integration_line == self.aedtapp.AxisDir.XNeg will be False in next line. Fix this.
+            #  TODO: integration_line == self.aedtapp.axis_directions.XNeg will be False in next line. Fix this.
             if integration_line:
                 if isinstance(integration_line, list):
                     if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
@@ -6597,7 +6674,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         References
@@ -6721,6 +6798,114 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
+    def far_field_wave(
+        self,
+        assignment: Union[str, "Hfss"],
+        setup: Optional[str] = None,
+        simulate_source: bool = True,
+        preserve_source_solution: bool = True,
+        coordinate_system: str = "Global",
+        name: Optional[str] = None,
+    ) -> BoundaryObject:
+        """Create a far field wave excitation.
+
+        Parameters
+        ----------
+        assignment : ansys.aedt.core.Hfss or str
+            Source HFSS object from which to link the far field data, or path to an external
+            far field data file (.ffd file).
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        simulate_source : bool, optional
+            Whether to force the source design to solve. The default is ``True``.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        preserve_source_solution : bool, optional
+            Whether to preserve the source solution. The default is ``True``.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        coordinate_system : str, optional
+            Coordinate system to use for the source. The default is ``"Global"``.
+        name : str, optional
+            Name of the excitation. The default is ``None``, in which
+            case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Far field boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFarFieldWave
+
+        Examples
+        --------
+        Create a far field wave excitation from another design in the same project.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> target = Hfss(project="target_project.aedt")
+        >>> source = Hfss(project="target_project.aedt", design="Source_Design")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_wave_src = target.far_field_wave(assignment=source, setup=setup)
+
+        Create a far field wave excitation from an external project.
+
+        >>> target = Hfss(project="target_project.aedt")
+        >>> source = Hfss(project="source_project.aedt", design="Array_Design")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_wave_src = target.far_field_wave(assignment=source, setup=setup)
+
+        Create a far field wave excitation from an external data file.
+
+        >>> target = Hfss(project="target_project.aedt")
+        >>> far_field_wave_src = target.far_field_wave(assignment="/path/to/farfield.ffd")
+        """
+        name = self._get_unique_source_name(name, "IncFFWave")
+
+        if isinstance(assignment, str):
+            # Use external data file
+            props = {
+                "IsFarField": True,
+                "UseDataLink": False,
+                "ExternalDataFile": assignment,
+                "SourceCoordSystem": coordinate_system,
+            }
+        else:
+            # Use data link to another design
+            if assignment.project_name == self.project_name:
+                project_name = "This Project*"
+            else:
+                project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
+
+            design_name = assignment.design_name
+
+            if not setup.get_sweep():
+                setup = assignment.nominal_adaptive
+
+            params = {}
+            pars = assignment.available_variations.nominal_variation(dependent_params=False)
+            for el in pars:
+                params[el] = pars[el]
+
+            props = {
+                "IsFarField": True,
+                "UseDataLink": True,
+                "ExternalDataFile": "",
+                "Project": str(project_name),
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": setup,
+                "Params": params,
+                "ForceSourceToSolve": simulate_source,
+                "PreservePartnerSoln": preserve_source_solution,
+                "PathRelativeTo": "TargetProject",
+                "SourceCoordSystem": coordinate_system,
+            }
+
+        return self._create_boundary(name, props, "Far Field Wave")
+
+    @pyaedt_function_handler()
     def hertzian_dipole_wave(
         self,
         assignment=None,
@@ -6754,7 +6939,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         References

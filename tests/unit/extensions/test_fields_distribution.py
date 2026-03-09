@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -34,8 +34,9 @@ from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistr
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
 
 
-def test_extension_default(mock_maxwell_3d_app):
-    """Test instantiation of the Fields Distribution extension."""
+@pytest.mark.parametrize("mock_maxwell_3d_app", ["2025.2"], indirect=True)
+def test_extension_default_with_point(mock_maxwell_3d_app):
+    """Test instantiation of the Fields Distribution extension for AEDT version < 2026.1."""
     # Mock the vector fields JSON file
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H", "Vector_B", "Vector_J"],
@@ -51,6 +52,39 @@ def test_extension_default(mock_maxwell_3d_app):
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
+        extension = FieldsDistributionExtension(withdraw=True)
+
+        assert EXTENSION_TITLE == extension.root.title()
+        assert "light" == extension.root.theme
+
+        # Check that UI elements are created
+        assert "export_options_lb" in extension._widgets
+        assert "objects_list_lb" in extension._widgets
+        assert "solution_dropdown_var" in extension._widgets
+        assert "sample_points_entry" in extension._widgets
+        assert "export_file_entry" in extension._widgets
+
+        extension.root.destroy()
+
+
+@pytest.mark.parametrize("mock_maxwell_3d_app", ["2026.1"], indirect=True)
+def test_extension_default_without_point(mock_maxwell_3d_app):
+    """Test instantiation of the Fields Distribution extension for AEDT version 2026.1."""
+    # Mock the vector fields JSON file
+    mock_vector_fields = {
+        "Maxwell 3D": ["Vector_H", "Vector_B", "Vector_J"],
+        "Maxwell 2D": ["A_Vector", "H_Vector", "B_Vector"],
+    }
+
+    # Mock the post processing methods
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
+    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -101,10 +135,6 @@ def test_extension_design_type_check(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -124,9 +154,7 @@ def test_extension_ui_widgets(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive", "Setup2 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
+    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(return_value=["Expr1", "Expr2"])
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -160,10 +188,6 @@ def test_text_size_method(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -194,10 +218,6 @@ def test_populate_listbox_method(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -230,10 +250,6 @@ def test_extension_data_extraction(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -259,9 +275,6 @@ def test_extension_data_extraction(mock_maxwell_3d_app):
 def test_extension_error_handling(mock_maxwell_3d_app):
     """Test error handling for missing objects and solutions."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H"], "Maxwell 2D": ["A_Vector"]}
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     # Test with no objects
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
@@ -287,6 +300,7 @@ def test_extension_error_handling(mock_maxwell_3d_app):
             FieldsDistributionExtension(withdraw=True)
 
 
+@pytest.mark.parametrize("mock_maxwell_2d_app", ["2025.2"], indirect=True)
 def test_extension_with_maxwell_2d(mock_maxwell_2d_app):
     """Test extension with Maxwell 2D application."""
     mock_vector_fields = {"Maxwell 2D": ["A_Vector", "H_Vector"], "Maxwell 3D": ["Vector_H"]}
@@ -327,9 +341,9 @@ def test_callback_export(mock_maxwell_3d_app):
     }
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
+    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(
+        return_value=["Ohmic loss", "Current density"]
+    )
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -364,10 +378,6 @@ def test_callback_export_no_selection(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -410,9 +420,9 @@ def test_callback_preview(mock_maxwell_3d_app):
     mock_plot.fields = ["field1", "field2"]
     mock_maxwell_3d_app.post.plot_field.return_value = mock_plot
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
+    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(
+        return_value=["Ohmic loss", "Current density"]
+    )
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -451,10 +461,6 @@ def test_callback_preview_no_selection(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -485,9 +491,9 @@ def test_callback_preview_exception(mock_maxwell_3d_app):
     # Make plot_field raise an exception
     mock_maxwell_3d_app.post.plot_field.side_effect = Exception("Plot error")
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
+    mock_maxwell_3d_app.post.fields_calculator.get_expressions = MagicMock(
+        return_value=["Ohmic loss", "Current density"]
+    )
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -518,10 +524,6 @@ def test_save_as_files_callback(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -563,10 +565,6 @@ def test_show_points_popup_ui_creation(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -597,10 +595,6 @@ def test_submit_import_file_success(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
@@ -645,10 +639,6 @@ def test_submit_import_file_no_selection(mock_maxwell_3d_app):
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
         patch("json.load", return_value=mock_vector_fields),
@@ -690,10 +680,6 @@ def test_popup_destroy_called(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-
-    mock_point = MagicMock()
-    mock_point.name = "Point1"
-    mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
     with (
         patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -134,7 +134,7 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """Aedt oDefinitionManager.
+        """AEDT oDefinitionManager.
 
         References
         ----------
@@ -462,7 +462,7 @@ class CircuitComponents(PyAedtBase):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True):
+    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True, image_path=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -474,6 +474,8 @@ class CircuitComponents(PyAedtBase):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        image_path : str, optional
+            Path to the image. The default is ``None``.
 
         Returns
         -------
@@ -499,14 +501,19 @@ class CircuitComponents(PyAedtBase):
                 line = line.strip()
                 if line.startswith(("!", "#", "")):
                     if "Port" in line and "=" in line and "Impedance" not in line:
-                        port_names.append(line.split("=")[-1].strip().replace(" ", "_").strip("[]"))
+                        port_names.append(line.split("=")[-1].strip().replace(" ", "_"))
                 else:
                     break
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
-            bmp_file_name = Path(image_subcircuit_path).name
+            if not image_path:
+                image_subcircuit_path = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
+            else:
+                image_subcircuit_path = Path(image_path)
+
+            bmp_file_name = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
+            bmp_file_name = bmp_file_name.name
 
         if not port_names:
             port_names = [str(i + 1) for i in range(num_terminal)]
@@ -960,6 +967,7 @@ class CircuitComponents(PyAedtBase):
         angle=0,
         show_bitmap=True,
         page=1,
+        image_path=None,
     ):
         """Create a component from a Touchstone model.
 
@@ -977,6 +985,8 @@ class CircuitComponents(PyAedtBase):
             The default value is ``True``.
         page: int,  optional
             Schematic page number. The default value is ``1``.
+        image_path : str, optional
+            Path to the image. The default is ``None``.
 
         Returns
         -------
@@ -1000,13 +1010,15 @@ class CircuitComponents(PyAedtBase):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
+        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         # id = self.create_unique_id()
         if Path(model_name).exists():
-            model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
+            model_name = self.create_model_from_touchstone(
+                str(model_name), show_bitmap=show_bitmap, image_path=image_path
+            )
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)

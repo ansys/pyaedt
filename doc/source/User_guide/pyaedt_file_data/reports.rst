@@ -8,6 +8,7 @@ This code shows how to create the JSON file:
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     compfile = hfss.components3d["Dipole_Antenna_DM"]
     geometryparams = hfss.get_component_variables("Dipole_Antenna_DM")

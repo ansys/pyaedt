@@ -21,9 +21,14 @@ They are accessible through the mesh property:
 .. code:: python
 
     from ansys.aedt.core import Maxwell3d
-    app = Maxwell3d(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Maxwell3d(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
     # This call returns the Mesh class
     my_mesh = app.mesh
     # This call executes a ``Mesh`` method and creates an object to control the mesh operation

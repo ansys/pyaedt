@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -280,7 +280,7 @@ class AnsysReport(FPDF, PyAedtBase):
             image_path = os.path.join(design.working_directory, "model.jpg")
             design.plot(
                 show=False,
-                export_path=image_path,
+                output_file=image_path,
                 dark_mode=False,
                 show_grid=False,
                 show_bounding=False,

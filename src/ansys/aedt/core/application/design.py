@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -228,13 +228,13 @@ class Design(AedtObjects, PyAedtBase):
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
-        if self._design_type == "HFSS":
+        if self._design_type == DesignType.HFSS.NAME:
             self.design_solutions = HFSSDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type == "Icepak":
+        elif self._design_type == DesignType.ICEPAK.NAME:
             self.design_solutions = IcepakDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type == "Maxwell 2D":
+        elif self._design_type == DesignType.MAXWELL2D.NAME:
             self.design_solutions = Maxwell2DDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type in ["RMxprt", "ModelCreation"]:
+        elif self._design_type in [DesignType.RMXPRT.NAME, DesignType.MODELCREATION.NAME]:
             self.design_solutions = RmXprtDesignSolution(None, self._design_type, self._aedt_version)
         else:
             self.design_solutions = DesignSolution(None, self._design_type, self._aedt_version)
@@ -253,7 +253,7 @@ class Design(AedtObjects, PyAedtBase):
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
-        self.logger.info("Aedt Objects correctly read")
+        self.logger.info("AEDT objects correctly read")
         if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
@@ -1287,7 +1287,7 @@ class Design(AedtObjects, PyAedtBase):
                                 remove_project_lock(project)
                             else:  # pragma: no cover
                                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-                        self.logger.info("aedt project found. Loading it.")
+                        self.logger.info("AEDT project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
                         self._add_handler()
                         self.logger.info("Project %s has been opened.", self._oproject.GetName())
@@ -1484,7 +1484,7 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         object
-            Aedt Object if Any.
+            AEDT object if any.
         """
         try:
             return aedt_object.GetChildObject(object_name)
@@ -1589,7 +1589,7 @@ class Design(AedtObjects, PyAedtBase):
             output_file = Path(self.working_directory) / (generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            nominal_variation = self.available_variations.get_independent_nominal_values()
+            nominal_variation = self.available_variations.nominal_variation()
             for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
@@ -3275,7 +3275,6 @@ class Design(AedtObjects, PyAedtBase):
         if name == legacy_name:
             self._global_logger.remove_file_logger(name)
             self._logger = self._global_logger
-        self.odesktop.CloseProject(name)
         if name == legacy_name:
             self._init_variables()
             self._oproject = None
@@ -3284,7 +3283,10 @@ class Design(AedtObjects, PyAedtBase):
             self.logger.oproject = None
             self.design_solutions._odesign = None
             AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+            self.odesktop.CloseProject(name)
+
         else:
+            self.odesktop.CloseProject(name)
             self.desktop_class.active_project(legacy_name)
 
         i = 0
@@ -3443,26 +3445,26 @@ class Design(AedtObjects, PyAedtBase):
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
 
-        if design_type == "RMxprt":
+        if design_type == DesignType.RMXPRT.NAME:
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
-        elif design_type == "ModelCreation":
+        elif design_type == DesignType.MODELCREATION.NAME:
             new_design = self._oproject.InsertDesign(
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
-        elif design_type == "Icepak":
+        elif design_type == DesignType.ICEPAK.NAME:
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
-        elif design_type == "Circuit Design":
+        elif design_type == DesignType.CIRCUIT.NAME:
             new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
-            if design_type == "HFSS" and self._aedt_version < "2021.2":
+            if design_type == DesignType.HFSS.NAME and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
-            elif design_type == "HFSS" and self._aedt_version < "2024.1":
+            elif design_type == DesignType.HFSS.NAME and self._aedt_version < "2024.1":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "HFSS Modal Network", "")
             else:
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
-        if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
+        if not is_windows and settings.aedt_version and self.design_type == DesignType.CIRCUIT.NAME:
             time.sleep(1)
             self.desktop_class.close_windows()
         if new_design is None:  # pragma: no cover
@@ -4089,10 +4091,10 @@ class Design(AedtObjects, PyAedtBase):
         if des_name in self.design_list:
             self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
-            if dtype not in {"RMxprt", "ModelCreation"}:
+            if dtype not in ["RMxprt", "ModelCreation"]:
                 if dtype != self._design_type:
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
-            elif self._design_type not in {"RMxprt", "ModelCreation"}:
+            elif self._design_type not in [DesignType.RMXPRT.NAME, DesignType.MODELCREATION.NAME]:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
 
             return True

@@ -1,0 +1,6 @@
+[InterferenceClassification]
+icon = "images/large/interference_classification.png"
+name = "Interference Classification"
+script = "interference_classification.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/interference_classification.html"

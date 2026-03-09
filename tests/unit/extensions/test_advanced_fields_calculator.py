@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -147,7 +147,7 @@ def test_advanced_fields_calculator_extension_ok_button(
     mock_active_sessions.return_value = {0: 0}
 
     extension = AdvancedFieldsCalculatorExtension()
-    assert "Other description" in extension.root.nametowidget("combo_calculation")["values"]
+    assert EXPRESSION_DESCRIPTION in extension.root.nametowidget("combo_calculation")["values"]
     extension.root.nametowidget("ok_button").invoke()
     data: AdvancedFieldsCalculatorExtensionData = extension.data
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,10 +34,6 @@ from tests import TESTS_GENERAL_PATH
 
 TEST_SUBFOLDER = "T13"
 TEST_PROJECT_NAME = "Coax_HFSS_t13"
-CS_NAME = "Coordinate_System_231"
-CS1_NAME = "Coordinate_System1_231"
-CS2_NAME = "Coordinate_System2_231"
-CS3_NAME = "Coordinate_System3_231"
 IMAGE_F = "Coax_HFSS.jpg"
 
 
@@ -51,18 +47,12 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-@pytest.fixture(params=[CS_NAME, CS1_NAME, CS2_NAME, CS3_NAME])
-def cs_app(add_app_example, request):
-    app = add_app_example(project=request.param, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture
 def add_mat(add_app):
     app = add_app()
+    project_name = app.project_name
     yield app
-    app.close_project(app.project_name)
+    app.close_project(name=project_name, save=False)
 
 
 def test_check_top_level_keys(test_tmp_dir):
@@ -103,11 +93,6 @@ def test_check_design_type_names_jpg(test_tmp_dir):
     assert isinstance(design_info, list)
     design_names = [design["DesignName"] for design in design_info]
     assert ["feeder", "Cassegrain_reflectors"] == design_names
-
-
-def test_check_coordinate_system_retrival(cs_app):
-    coordinate_systems = cs_app.modeler.coordinate_systems
-    assert coordinate_systems
 
 
 def test_load_material_file(test_tmp_dir):

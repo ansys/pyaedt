@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,21 +34,21 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 def icepak_app(add_app):
     app = add_app(application=Icepak)
     yield app
-    app.close_project(app.project_name, save=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture
 def layout_app(add_app):
     app = add_app(application=Hfss3dLayout)
     yield app
-    app.close_project(app.project_name, save=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture
 def circuit_app(add_app):
     app = add_app(application=Circuit)
     yield app
-    app.close_project(app.project_name, save=False)
+    app.close_project(save=False)
 
 
 def test_circuit_length(circuit_app):

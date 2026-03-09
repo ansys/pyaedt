@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,7 +40,6 @@ from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
-from tests.conftest import settings
 
 SMALL_NUMBER = 1e-10  # Used for checking equivalence.
 
@@ -78,7 +77,7 @@ def component_array_app(add_app_example):
 
 
 def test_save(aedt_app, test_tmp_dir):
-    project_name = "Test_Exercse201119" + ".aedt"
+    project_name = "Test_Exercse201119.aedt"
     test_project = test_tmp_dir / project_name
     aedt_app.save_project(str(test_project))
     assert test_project.is_file
@@ -424,11 +423,11 @@ def test_create_single_point_sweep(aedt_app):
     assert aedt_app.create_single_point_sweep(
         setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
     )
-    settings.enable_error_handler = True
-    assert not aedt_app.create_single_point_sweep(
-        setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
-    )
-    settings.enable_error_handler = False
+
+    with pytest.raises(AttributeError):
+        aedt_app.create_single_point_sweep(
+            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
 
 
 def test_delete_setup(aedt_app):
@@ -538,50 +537,45 @@ def test_validate_setup(aedt_app):
     assert ok
 
 
-def test_set_power(aedt_app):
-    coax1_len = 200
-    r1 = 3.0
-    r2 = 10.0
-    coax1_origin = aedt_app.modeler.Position(0, 0, 0)
-    # Create inner and outer conductors
-    aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r1, coax1_len, 0, "inner_1")
-    outer_1 = aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r2, coax1_len, 0, "outer_1")
-    udp = aedt_app.modeler.Position(0, 0, 0)
-    o5 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
-    aedt_app.modeler["inner_1"].material_name = "Copper"
+def test_edit_sources_terminal(aedt_app):
+    aedt_app.solution_type = "Terminal"
+    inner, outer, _ = aedt_app.modeler.create_coaxial([0, 0, 0], Axis.X)
+    p1 = aedt_app.lumped_port(inner, outer, create_port_sheet=True)
 
-    aedt_app.wave_port(
-        assignment=o5,
-        reference=[outer_1.name],
-        integration_line=aedt_app.axis_directions.XNeg,
-        modes=2,
-        impedance=40,
-        name="sheet1_Port",
-        renormalize=False,
-        deembed=5,
-        terminals_rename=False,
-    )
-    udp = aedt_app.modeler.Position(200, 0, 0)
-    o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
-    aedt_app.wave_port(
-        assignment=o6,
-        integration_line=aedt_app.axis_directions.XPos,
-        modes=2,
-        impedance=40,
-        name="sheet2_Port",
-        renormalize=True,
-        deembed=5,
+    inner2, outer2, _ = aedt_app.modeler.create_coaxial([10, 10, 0], Axis.X)
+    p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}": "10W", f"{p2.name}": ("20W", "0deg", True)},
+        include_port_post_processing=True,
+        use_incident_voltage=True,
     )
 
     assert aedt_app.edit_sources(
-        {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
+        {f"{p1.name}": "10V", f"{p2.name}": ("20V", "20deg", True)},
         include_port_post_processing=True,
         max_available_power="40W",
     )
+
+
+def test_edit_sources_modal(aedt_app):
+    aedt_app.solution_type = "Modal"
+    inner, outer, _ = aedt_app.modeler.create_coaxial([0, 0, 0], Axis.X)
+    p1 = aedt_app.lumped_port(inner, outer, create_port_sheet=True)
+
+    inner2, outer2, _ = aedt_app.modeler.create_coaxial([10, 10, 0], Axis.X)
+    p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
+
     assert aedt_app.edit_sources(
-        {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "0deg", True)},
+        {f"{p1.name}:1": "10W", f"{p2.name}: 1": ("20W", "0deg", True)},
         include_port_post_processing=True,
         use_incident_voltage=True,
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}:1": "10W", f"{p2.name}:1": ("20W", "20deg")},
+        include_port_post_processing=True,
+        max_available_power="40W",
     )
 
 
@@ -1066,7 +1060,7 @@ def test_add_mesh_link(aedt_app):
     assert not aedt_app.setups[0].add_mesh_link(design="")
     assert aedt_app.setups[0].add_mesh_link(design=design_name, solution="MySetup : LastAdaptive")
     assert not aedt_app.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")
-    nominal_values = aedt_app.available_variations.get_independent_nominal_values()
+    nominal_values = aedt_app.available_variations.nominal_variation(dependent_params=False)
     assert aedt_app.setups[0].add_mesh_link(design=design_name, parameters=nominal_values)
 
 
@@ -1224,12 +1218,12 @@ def test_create_infinite_sphere(aedt_app):
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_infinite_sphere(
         definition="El Over Az",
-        x_start=1,
-        x_stop=91,
-        x_step=45,
-        y_start=2,
-        y_stop=92,
-        y_step=10,
+        phi_start=1,
+        phi_stop=91,
+        phi_step=45,
+        theta_start=2,
+        theta_stop=92,
+        theta_step=10,
         use_slant_polarization=True,
         polarization_angle=30,
     )
@@ -1247,16 +1241,55 @@ def test_create_infinite_sphere(aedt_app):
     assert bound.delete()
     bound = aedt_app.insert_infinite_sphere(
         definition="Az Over El",
-        x_start=1,
-        x_stop=91,
-        x_step=45,
-        y_start=2,
-        y_stop=92,
-        y_step=10,
+        phi_start=1,
+        phi_stop=91,
+        phi_step=45,
+        theta_start=2,
+        theta_stop=92,
+        theta_step=10,
         use_slant_polarization=True,
         polarization_angle=30,
     )
     assert bound.azimuth_start == "2deg"
+    assert bound.delete()
+    # Test with default "Theta-Phi" definition
+    bound = aedt_app.insert_infinite_sphere(
+        definition="Theta-Phi",
+        phi_start=0,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=-180,
+        theta_stop=180,
+        theta_step=10,
+        use_slant_polarization=False,
+        polarization_angle=0,
+    )
+    assert bound
+    assert bound.theta_start == "0deg"
+    assert bound.theta_stop == "180deg"
+    assert bound.theta_step == "10deg"
+    assert bound.phi_start == "-180deg"
+    assert bound.phi_stop == "180deg"
+    assert bound.phi_step == "10deg"
+    assert bound.polarization == "Linear"
+
+    air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+    aedt_app.assign_radiation_boundary_to_objects(air)
+    boundary_name = "TestSphere"
+
+    # Create infinite spheres with a specific name
+    sphere = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_1 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_2 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    boundary_names = [fs.name for fs in aedt_app.field_setups]
+
+    assert sphere
+    assert boundary_name == sphere.name
+    assert sphere_1
+    assert boundary_name + "_1" == sphere_1.name
+    assert sphere_2
+    assert boundary_name + "_2" == sphere_2.name
+    assert all(map(lambda boundary: boundary.name in boundary_names, [sphere, sphere_1, sphere_2]))
 
 
 def test_set_autoopen(aedt_app):
@@ -1592,12 +1625,12 @@ def test_create_near_field_sphere(aedt_app):
     bound = aedt_app.insert_near_field_sphere(
         radius=20,
         radius_units="cm",
-        x_start=-180,
-        x_stop=180,
-        x_step=10,
-        y_start=0,
-        y_stop=180,
-        y_step=10,
+        phi_start=-180,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=0,
+        theta_stop=180,
+        theta_step=10,
         angle_units="deg",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
@@ -1990,6 +2023,65 @@ def test_plane_wave(aedt_app):
     assert len(aedt_app.boundaries) == 10
     new_plane_wave.name = "new_plane_wave"
     assert new_plane_wave.name in aedt_app.excitation_names
+
+
+def test_far_field(aedt_app, add_app, test_tmp_dir):
+    # Create simple geometry in target design
+    _ = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "TargetBox")
+
+    # Create a source design in the same project
+    source_design = add_app(application=Hfss, design="FarFieldSource", close_projects=False)
+    source_design.solution_type = "Modal"
+
+    setup = source_design.create_setup("Setup1", Frequency="10GHz")
+    setup.props["MaximumPasses"] = 2
+
+    # Test far field with assignment from same project
+    far_field_boundary = aedt_app.far_field_wave(
+        assignment=source_design, setup=setup, coordinate_system="Global", name="FarField1"
+    )
+    assert far_field_boundary is not None
+    assert far_field_boundary.name == "FarField1"
+    assert far_field_boundary.name in aedt_app.excitation_names
+    assert far_field_boundary.type == "Far Field Wave"
+
+    # Test far field with external data file
+    ffd_file_original = TESTS_GENERAL_PATH / "example_models" / "T04" / "test.ffd"
+    ffd_file = shutil.copy2(ffd_file_original, test_tmp_dir / "test.ffd")
+
+    far_field_ext = aedt_app.far_field_wave(
+        assignment=str(ffd_file), coordinate_system="Global", name="FarFieldExternal"
+    )
+    assert far_field_ext is not None
+    assert far_field_ext.name == "FarFieldExternal"
+    assert far_field_ext.name in aedt_app.excitation_names
+
+    # Test with different properties
+    far_field_boundary2 = aedt_app.far_field_wave(
+        assignment=source_design,
+        setup=setup,
+        coordinate_system="Global",
+        simulate_source=False,
+        preserve_source_solution=False,
+    )
+    assert far_field_boundary2 is not None
+    assert far_field_boundary2.name in aedt_app.excitation_names
+
+    # Test far field with external project
+    external_source = add_app(
+        application=Hfss, project="ExternalProject", design="ExternalSource", close_projects=False
+    )
+    external_source.solution_type = "Modal"
+    external_setup = external_source.create_setup("Setup1", Frequency="10GHz")
+    external_setup.props["MaximumPasses"] = 2
+
+    far_field_external_project = aedt_app.far_field_wave(
+        assignment=external_source, setup=external_setup, coordinate_system="Global", name="FarFieldExternalProject"
+    )
+    external_source.close_project()
+    assert far_field_external_project is not None
+    assert far_field_external_project.name == "FarFieldExternalProject"
+    assert far_field_external_project.name in aedt_app.excitation_names
 
 
 def test_export_on_completion(aedt_app, test_tmp_dir):

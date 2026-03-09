@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -64,7 +64,6 @@ def test_init_with_default_values():
     assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related

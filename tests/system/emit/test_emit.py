@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -81,6 +81,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -113,6 +114,13 @@ def tutorial(add_app_example):
         application=Emit,
         subfolder=TEST_SUBFOLDER,
     )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def hfss_phased_array(add_app_example):
+    app = add_app_example(project="HfssPhasedArray", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -687,7 +695,7 @@ def test_manual_revision_access_test_getters(emit_app):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-@pytest.mark.skipif(DESKTOP_VERSION <= "2026.1", reason="Not stable test")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Not stable test")
 def test_radio_band_getters(emit_app):
     rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
     rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
@@ -806,6 +814,76 @@ def test_radio_band_getters(emit_app):
     # Get all interferers
     all_ix = rev2.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
     assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_waveform(emit_app):
+    emitter_name = "Test Emitter"
+    emitter_node: EmitterNode = emit_app.schematic.create_component(
+        name=emitter_name, component_type="New Emitter", library="Emitters"
+    )
+
+    emitter_band: Waveform = emitter_node.get_waveforms()[0]
+
+    assert emitter_band.get_frequencies(units="MHz") == [100]
+    assert emitter_band.get_frequencies() == [100000000.0]
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_get_active_frequencies_band(emit_app):
+    rad1, ant1 = emit_app.schematic.create_radio_antenna("WiFi - 802.11-2012")
+    rev = emit_app.results.analyze()
+
+    # Tx Band Check
+    tx_band = next((band for band in rev.get_all_band_nodes(rad1) if band.name == "Tx OFDM - Ch 1-13 (20 MHz)"), None)
+    tx_band.enabled = True
+    tx_freqs_mhz = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    tx_freqs_hz = tx_band.get_active_frequencies(is_rx=False, units="Hz")
+
+    assert len(tx_freqs_mhz) == 13
+    assert tx_freqs_hz[0] == 2412000000.0
+    assert tx_freqs_mhz[0] == 2412.0
+
+    rad2, ant2 = emit_app.schematic.create_radio_antenna("GPS Receiver")
+    rev2 = emit_app.results.analyze()
+
+    # Rx Band Check
+    rx_band = next((band for band in rev2.get_all_band_nodes(rad2) if band.name == "L1 CA"), None)
+    rx_freqs_mhz = rx_band.get_active_frequencies(is_rx=True, units="MHz")
+
+    assert len(rx_freqs_mhz) == 1
+    assert rx_freqs_mhz[0] == 1575.42
+
+    # Disabled Band Check
+    rx_band.enabled = False
+    rx_freqs_mhz_disabled = rx_band.get_active_frequencies(is_rx=True, units="MHz")
+    assert len(rx_freqs_mhz_disabled) == 0
+
+    # Tx Offset Check
+    tx_band.tx_offset = 1e6
+    tx_freqs_mhz_offset = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert tx_freqs_mhz_offset[0] == 2413.0
+
+    # Tx Sampling Check
+    tx_sampling = next((child for child in rad1.children if child.node_type == "SamplingNode"), None)
+    tx_sampling.table_data = [("2410 MHz", "2416 MHz")]
+    tx_freqs_mhz_sampling = tx_band.get_active_frequencies(is_rx=False, units="MHz")
+    assert len(tx_freqs_mhz_sampling) == 1
+    assert tx_freqs_mhz_sampling[0] == 2413.0
+
+    # Check incorrect band ID error
+    exception_raised = False
+    try:
+        tx_band._oRevisionData.GetActiveBandFrequencies(tx_band._result_id, -99, False)
+    except GrpcApiError:
+        exception_raised = True
+    assert exception_raised
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -994,8 +1072,8 @@ def test_basic_run(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2024.1",
-    reason="Skipped on versions earlier than 2024.1",
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_optimal_n_to_1_feature(emit_app):
     # place components and generate the appropriate number of revisions
@@ -1013,6 +1091,7 @@ def test_optimal_n_to_1_feature(emit_app):
     ant4.move_and_connect_to(rad4)
     assert len(emit_app.results.revisions) == 0
     rev = emit_app.results.analyze()
+    sim = rev.get_simulation()
     assert len(emit_app.results.revisions) == 1
     radios_rx = rev.get_receiver_names()
     bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
@@ -1021,30 +1100,32 @@ def test_optimal_n_to_1_feature(emit_app):
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
-    emit_app.results.revisions[-1].n_to_1_limit = 1
-    assert emit_app.results.revisions[-1].n_to_1_limit == 1
-    emit_app.results.revisions[-1].n_to_1_limit = 0
-    assert emit_app.results.revisions[-1].n_to_1_limit == 0
+    sim.n_to_1_limit = -1
+    assert sim.n_to_1_limit == -1
+    sim.n_to_1_limit = 1
+    assert sim.n_to_1_limit == 1
+    sim.n_to_1_limit = 0
+    assert sim.n_to_1_limit == 0
 
     # get number of 1-1 instances
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 52851
-    interaction = emit_app.results.revisions[-1].run(domain)
+    assert sim.get_instance_count(domain) == 52851
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 76.02
 
     # rerun with N-1
-    emit_app.results.revisions[-1].n_to_1_limit = 2**20
-    assert emit_app.results.revisions[-1].n_to_1_limit == 2**20
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 11652816
-    interaction = emit_app.results.revisions[-1].run(domain)
+    sim.n_to_1_limit = 2**20
+    assert sim.n_to_1_limit == 2**20
+    assert sim.get_instance_count(domain) == 11652816
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     domain2 = instance.get_domain()
     assert len(domain2.interferer_names) == 2
     assert instance.get_value(ResultType.EMI) == 82.04
     # rerun with 1-1 only (forced by domain)
     domain.set_interferer(radios_tx[0])
-    assert emit_app.results.revisions[-1].get_instance_count(domain) == 19829
-    interaction = emit_app.results.revisions[-1].run(domain)
+    assert sim.get_instance_count(domain) == 19829
+    interaction = sim.run(domain)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 76.02
 
@@ -1115,12 +1196,31 @@ def test_availability_1_to_1(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_enable_n_to_1(interference):
+    # Generate a revision
+    rev = interference.results.analyze()
+    sim = rev.get_simulation()
+
+    # Enable N to 1 analysis
+    sim.enable_n_to_1(True)
+    assert sim.n_to_1_limit == -1
+
+    # Disable N to 1 analysis
+    sim.enable_n_to_1(False)
+    assert sim.n_to_1_limit == 0
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_scripts_no_filter(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with no filtering
     expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
@@ -1130,10 +1230,10 @@ def test_interference_scripts_no_filter(interference):
 
     domain = interference.results.interaction_domain()
     with pytest.raises(ValueError) as e:
-        _, _ = rev.interference_type_classification(domain, InterfererType.EMITTERS)
+        _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
     with pytest.raises(ValueError) as e:
-        _, _ = rev.protection_level_classification(
+        _, _ = sim.protection_level_classification(
             domain,
             interferer_type=InterfererType.EMITTERS,
             global_protection_level=True,
@@ -1141,10 +1241,10 @@ def test_interference_scripts_no_filter(interference):
         )
     assert str(e.value) == "No interferers defined in the analysis."
 
-    int_colors, int_power_matrix = rev.interference_type_classification(
+    int_colors, int_power_matrix = sim.interference_type_classification(
         domain, interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS
     )
-    pro_colors, pro_power_matrix = rev.protection_level_classification(
+    pro_colors, pro_power_matrix = sim.protection_level_classification(
         domain,
         interferer_type=InterfererType.TRANSMITTERS,
         global_protection_level=True,
@@ -1157,9 +1257,14 @@ def test_interference_scripts_no_filter(interference):
     assert pro_power_matrix == expected_protection_power
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
     domain = interference.results.interaction_domain()
 
     # Test protection level with radio-specific protection levels
@@ -1172,7 +1277,7 @@ def test_radio_protection_levels(interference):
         "WiFi": [-22.0, -25.0, -30.0, -104.0],
     }
 
-    protection_colors, protection_power_matrix = rev.protection_level_classification(
+    protection_colors, protection_power_matrix = sim.protection_level_classification(
         domain,
         interferer_type=InterfererType.TRANSMITTERS,
         global_protection_level=False,
@@ -1184,12 +1289,13 @@ def test_radio_protection_levels(interference):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION <= "2025.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_interference_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with active filtering
     domain = interference.results.interaction_domain()
@@ -1217,7 +1323,7 @@ def test_interference_filtering(interference):
         expected_interference_power = all_interference_power[ind]
         interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
-        interference_colors, interference_power_matrix = rev.interference_type_classification(
+        interference_colors, interference_power_matrix = sim.interference_type_classification(
             domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
         )
 
@@ -1225,9 +1331,14 @@ def test_interference_filtering(interference):
         assert interference_power_matrix == expected_interference_power
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2026.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
 def test_protection_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
+    sim = rev.get_simulation()
 
     # Test with active filtering
     domain = interference.results.interaction_domain()
@@ -1250,7 +1361,7 @@ def test_protection_filtering(interference):
         expected_protection_power = all_protection_power[ind]
         protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
 
-        protection_colors, protection_power_matrix = rev.protection_level_classification(
+        protection_colors, protection_power_matrix = sim.protection_level_classification(
             domain,
             interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS,
             global_protection_level=True,
@@ -1272,6 +1383,7 @@ that the AEDT app functions as intended.
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1331,7 +1443,6 @@ def test_result_categories(emit_app):
     # initially all categories are enabled
     for category in EmiCategoryFilter.members():
         assert rev.get_emi_category_filter_enabled(category)
-
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
@@ -1360,16 +1471,69 @@ def test_result_categories(emit_app):
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+@pytest.mark.skipif(True, reason="Temporarily skipped")
+def test_result_categories_with_simulation(emit_app):
+    # set up project and run
+    rad1, ant1 = emit_app.schematic.create_radio_antenna(
+        radio_type="GPS Receiver", radio_name="GPS Receiver", antenna_name="Antenna"
+    )
+    rad2, ant2 = emit_app.schematic.create_radio_antenna(
+        radio_type="Bluetooth Low Energy (LE)", radio_name="Bluetooth Low Energy (LE)", antenna_name="Antenna"
+    )
+    rev = emit_app.results.analyze()
+    r1_bands = rev.get_all_band_nodes(rad1)
+    for band in r1_bands:
+        band.enabled = True
+    sim = rev.get_simulation()
+    domain = emit_app.results.interaction_domain()
+    interaction = sim.run(domain)
+
+    # initially all categories are enabled
+    for category in EmiCategoryFilter.members():
+        assert sim.get_emi_category_filter_enabled(category)
+    # confirm the emi value when all categories are enabled
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.64
+    assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+    # disable one category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 2.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+    # disable another category and confirm the emi value changes
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == -58.0
+    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+    # disable last existing category and confirm expected exceptions and error messages
+    sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_value(ResultType.EMI)
+        assert "Unable to evaluate value: No power received." in str(e)
+    with pytest.raises(RuntimeError) as e:
+        instance.get_largest_emi_problem_type()
+        assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
     revision = interference.results.analyze()
+    sim = revision.get_simulation()
 
     def do_run():
         domain = results.interaction_domain()
         rev = results.current_revision
-        rev.run(domain)
+        rev.get_simulation().run(domain)
 
     number_of_runs = 5
 
@@ -1430,7 +1594,7 @@ def test_license_session(interference):
         do_run()
 
     # Run with license session
-    with revision.get_license_session():
+    with sim.get_license_session():
         for i in range(number_of_runs):
             do_run()
 
@@ -1450,9 +1614,10 @@ def test_emit_nodes(interference):
     # Generate and run a revision
     results = interference.results
     revision = results.analyze()
+    sim = revision.get_simulation()
 
     domain = results.interaction_domain()
-    _ = revision.run(domain)
+    _ = sim.run(domain)
 
     # set emit to ignore purge warnings
     pref_node = revision.get_preferences_node()
@@ -1568,13 +1733,13 @@ def test_all_generated_emit_node_properties(emit_app):
             if member.startswith("delete"):
                 continue
 
-            if member.startswith("rename"):
-                continue
-
             if member.startswith("props_to_dict"):
                 continue
 
             if member.startswith("properties"):
+                continue
+
+            if member.startswith("odesktop"):
                 continue
 
             class_attr = getattr(node.__class__, member)
@@ -1855,8 +2020,12 @@ def test_all_generated_emit_node_properties(emit_app):
                     if exception:
                         child_node_add_exceptions[node_type] = exception
 
-                if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                if node_type in nodes_to_skip and not dev_only:
+                    print(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
                     continue
+
+                # if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                #    continue
                 node_results = test_all_members(node, max_node_iterations)
                 results_dict.update(node_results)
         return nodes_tested, results_dict
@@ -2084,42 +2253,42 @@ def test_table_inputs(emit_app):
     tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
     spur_data = [("30 kHz", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 0.05), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70e6, 1e6, 60)]
+    assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70, 1e6, 60)]
     spur_data = [("RF+10.0", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70e6, 1e6, 60)]
+    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70.0, 1e6, 60)]
     spur_data = [("trunc(abs(RF)+10.0*2/3-1)", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
     assert tx_spurious_emissions.table_data == [
         ("trunc(abs(RF)+10.0*2/3-1)", 50e6, 80),
         (4, 5e6, 20),
-        (70e6, 1e6, 60),
+        (70, 1e6, 60),
     ]
 
     tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
     spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+    assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70, 1e6, 6)]
     spur_data = [("RF+10.0", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70, 1e6, 6)]
 
     # Rx Spurious Responses Table Data
     rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
     spur_data = [(10e6, 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+    assert rx_spurious_responses.table_data == [(10, 10e6, 80), (20, 1e6, 65), (0.03, 30e6, 75)]
     spur_data = [("RF+10.0", 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20, 1e6, 65), (0.03, 30e6, 75)]
 
     rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
     spur_data = [("5 kHz", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+    assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20, 4e6, 15), (30, 30e6, 25)]
     spur_data = [("RF+10.0", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20, 4e6, 15), (30, 30e6, 25)]
 
     # Test column data tables input conversions
     # Rx Mixer Products Table Data
@@ -2195,7 +2364,7 @@ def test_table_inputs(emit_app):
         tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.EQUATION
         broadband_data = [("RF+10.0", 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
         tx_broadband_noise_profile.table_data = broadband_data
-        assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10e6, 5), (100e6, 30)]
+        assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10, 5), (100, 30)]
         tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
         broadband_data = [(1e6, 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
         tx_broadband_noise_profile.table_data = broadband_data
@@ -2371,6 +2540,12 @@ def test_emitters_radios(emit_app):
     emitter_radio_nodes = rev.get_all_emitter_radios()
     assert emitter_radio_nodes[0] == emitter_radio
 
+    # test retrieving the Waveforms from the Emitter's RadioNode
+    waveforms = rev.get_all_band_nodes(emitter_radio, tx_rx_mode=TxRxMode.TX)
+    assert emitter_node.children == waveforms
+    rx_waveforms = rev.get_all_band_nodes(emitter_radio, tx_rx_mode=TxRxMode.RX)
+    assert len(rx_waveforms) == 0
+
     emitter_ant: AntennaNode = emitter_node.get_antenna()
     assert isinstance(emitter_ant, AntennaNode)
 
@@ -2386,10 +2561,6 @@ def test_emitters_radios(emit_app):
     assert isinstance(tx_spec, TxSpectralProfEmitterNode)
 
     radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
-
-    # test deprecated rename
-    radio_node.rename("Ansys")
-    assert radio_node.name == "Ansys"
 
     # rename the radio
     radio_node.name = "Synopsys"
@@ -2416,7 +2587,7 @@ def test_emitters_radios(emit_app):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
 
-        band.rename("Test 2")
+        band._rename("Test 2")
         if w:
             assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
     assert band.name == "Test 2"
@@ -2560,6 +2731,96 @@ def test_units(emit_app):
 
     cable.length = "0.0031 mile"
     assert round(cable.length, 4) == 4.9890
+
+
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_hfss_phased_array_antennas(hfss_phased_array):
+    rev: Revision = hfss_phased_array.results.analyze()
+    sim = rev.get_simulation()
+    domain = hfss_phased_array.results.interaction_domain()
+    assert domain is not None
+    engine = hfss_phased_array._emit_api.get_engine()
+    assert engine is not None
+    assert engine.is_domain_valid(domain)
+    assert sim.is_domain_valid(domain)
+
+    # run the interaction
+    domain = hfss_phased_array.results.interaction_domain()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 35.1
+
+    bowtie_ant: AntennaNode = rev.get_component_node("Bowtie")
+    assert bowtie_ant is not None
+
+    # scan the antenna array and recompute EMI
+    bowtie_ant.elevation_angle = 45
+    bowtie_ant.azimuth_angle = 45
+    assert bowtie_ant.elevation_angle == 45
+    assert bowtie_ant.azimuth_angle == 45
+
+    rev: Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.78
+
+    # set taper to Cosine
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
+    bowtie_ant.edge_taper = 10
+    bowtie_ant.cosine_power = 10
+    bowtie_ant.max_taper_distance_x = 0.1
+    bowtie_ant.max_taper_distance_y = 0.1
+    assert bowtie_ant.edge_taper == 10
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.COSINE
+    assert round(bowtie_ant.cosine_power, 1) == 10.0
+    assert bowtie_ant.max_taper_distance_x == 0.1
+    assert bowtie_ant.max_taper_distance_y == 0.1
+
+    rev: Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 17.5
+
+    # set taper to Hamming
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.HAMMING
+    bowtie_ant.max_taper_distance_x = 0.004
+    bowtie_ant.max_taper_distance_y = 0.004
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.HAMMING
+    assert bowtie_ant.max_taper_distance_x == 0.004
+    assert bowtie_ant.max_taper_distance_y == 0.004
+
+    rev: Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.79
+
+    # set taper to Triangular
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.TRIANGULAR
+    bowtie_ant.edge_taper = 3
+    bowtie_ant.max_taper_distance_x = 0.008
+    bowtie_ant.max_taper_distance_y = 0.008
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.TRIANGULAR
+    assert bowtie_ant.edge_taper == 3
+    assert bowtie_ant.max_taper_distance_x == 0.008
+    assert bowtie_ant.max_taper_distance_y == 0.008
+
+    rev: Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 21.08
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")

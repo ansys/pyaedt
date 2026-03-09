@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1402,8 +1402,8 @@ class Variable(PyAedtBase):
     Define a variable defined by a numeric result and a unit string.
 
     >>> v = Variable(3.0 * 4.5, units="mm")
-    >>> assert v.numeric_value = 13.5
-    >>> assert v.units = "mm"
+    >>> assert v.numeric_value == 13.5
+    >>> assert v.units == "mm"
 
     """
 

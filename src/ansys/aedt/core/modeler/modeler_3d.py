@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -614,7 +614,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ... )
 
         """
-        if not (outer_radius > diel_radius and diel_radius > inner_radius):
+        if not (outer_radius > diel_radius > inner_radius):
             raise ValueError("Error in coaxial radius.")
         inner = self.create_cylinder(axis, origin, inner_radius, length, 0)
         outer = self.create_cylinder(axis, origin, outer_radius, length, 0)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -218,7 +218,6 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     >>> app = Rmxprt("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

@@ -9,7 +9,7 @@ in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide, paying particular attention to `Guidelines and Best Practices
 <https://dev.docs.pyansys.com/how-to/index.html>`_, before attempting
 to contribute to PyAEDT.
- 
+
 The following contribution information is specific to PyAEDT.
 
 Clone the repository
@@ -34,7 +34,7 @@ To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@a
 View PyAEDT documentation
 -------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
+`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
@@ -94,7 +94,7 @@ explicitly defined by the method name. The variable ``name`` provides
 a more compact
 description of the variable in this context.
 
-In previous PyAEDT versions, you can also find both ``setup_name`` and ``setupname`` used 
+In previous PyAEDT versions, you can also find both ``setup_name`` and ``setupname`` used
 for various methods or classes.
 Improving naming consistency improves maintainability and readability.
 
@@ -163,7 +163,7 @@ For example:
    def my_method(self, var):
        pass
 
-Every method can return a value of ``True`` when successful or 
+Every method can return a value of ``True`` when successful or
 ``False`` when failed. When a failure occurs, the error
 handler returns information about the error in both the console and
 log file.
@@ -225,7 +225,7 @@ Step 1: Create the extension Python file
 Navigate to the directory ``src/ansys/aedt/core/extension/project`` and create a new Python file for
 your extension. The file name should be descriptive and follow the format ``extension_name.py``, where
 ``extension_name`` is a lowercase, hyphen-separated name that describes the extension's functionality.
-The extension file should follow the official 
+The extension file should follow the official
 `template <https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/extensions/templates/template_get_started.py>`_
 and contain at least two classes:
 
@@ -240,6 +240,7 @@ and contain at least two classes:
 .. code-block:: python
 
     from ansys.aedt.core.extensions import ExtensionCommon, ExtensionData
+
 
     class MyExtension(ExtensionCommon):
         def __init__(self, *args, **kwargs):
@@ -258,6 +259,7 @@ and computed through the UI. Below is an example of how to create a data class f
     from dataclasses import dataclass
     from dataclasses import field
 
+
     @dataclass
     class MyExtensionData(ExtensionCommonData):
         setup: str = ""
@@ -273,10 +275,10 @@ function:
 .. code-block:: python
 
     def main(extension_data: MyExtensionData):
-      if not data.setup:
-          raise AEDTRuntimeError("No setup provided to the extension.")
+        if not data.setup:
+            raise AEDTRuntimeError("No setup provided to the extension.")
 
-      # Core logic of the extension goes here
+        # Core logic of the extension goes here
 
 Step 2: Add unit tests
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -298,15 +300,16 @@ is an example of how to create a unit test for your extension:
   from unittest.mock import patch
   from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
 
+
   @patch("ansys.aedt.core.extensions.misc.Desktop")
   def test_my_extension(mock_desktop):
-    extension = MyExtension()
+      extension = MyExtension()
 
-    assert "My extension title" == extension.root.title()
-    assert "light" == extension.root.theme
-    assert "No active project" == extension.active_project_name
+      assert "My extension title" == extension.root.title()
+      assert "light" == extension.root.theme
+      assert "No active project" == extension.active_project_name
 
-    extension.root.destroy()
+      extension.root.destroy()
 
 Step 3: Add system tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,25 +324,35 @@ behaves as expected when integrated into the AEDT environment.
   from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
   from ansys.aedt.core import Hfss
 
+
   def test_my_extension_system(add_app):
-    
-    # Create some data in AEDT to test the extension
-    aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
-    aedt_app["p1"] = "100mm"
-    aedt_app["p2"] = "71mm"
-    test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-    p = aedt_app.modeler.create_polyline(
-      points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
-    )
 
-    # Create the extension and set its data by clicking on the "Generate" button
-    extension = MyExtension()
-    extension.root.nametowidget("generate").invoke()
+      # Create some data in AEDT to test the extension
+      aedt_app = add_app(
+          application=Hfss, project_name="my_project", design_name="my_design"
+      )
+      aedt_app["p1"] = "100mm"
+      aedt_app["p2"] = "71mm"
+      test_points = [
+          ["0mm", "p1", "0mm"],
+          ["-p1", "0mm", "0mm"],
+          ["-p1/2", "-p1/2", "0mm"],
+          ["0mm", "0mm", "0mm"],
+      ]
+      p = aedt_app.modeler.create_polyline(
+          points=test_points,
+          segment_type=PolylineSegment("Spline", num_points=4),
+          name="spline_4pt",
+      )
 
-    # Check that the extension logic executes correctly
-    assert 2 == len(aedt_app.variable_manager.variables)
-    assert main(extension.data)
-    assert 7 == len(aedt_app.variable_manager.variables)
+      # Create the extension and set its data by clicking on the "Generate" button
+      extension = MyExtension()
+      extension.root.nametowidget("generate").invoke()
+
+      # Check that the extension logic executes correctly
+      assert 2 == len(aedt_app.variable_manager.variables)
+      assert main(extension.data)
+      assert 7 == len(aedt_app.variable_manager.variables)
 
 Run tests in VSCode and PyCharm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -369,7 +382,7 @@ VSCode IDE
 
 2. Run tests and view coverage using the GUI
   - VSCode:
-    - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage. 
+    - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage.
     - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
 
 .. image:: ../Resources/coverage_vscode.png
@@ -438,14 +451,14 @@ For example, to add your extension, you would add an entry like this:
     template = "run_pyaedt_toolkit_script"
 
 The path to the image is relative to the directory where your extension is located. For example, if
-the extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
+the extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following
 the previous code block information, the path to the icon should be
 ``src/ansys/aedt/core/extensions/project/images/large/my_extension_icon.png``.
 
 Step 5: Add the extension to the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To ensure that your extension is documented, you need to add a new card to the 
+To ensure that your extension is documented, you need to add a new card to the
 ``doc/source/User_guide/extensions.rst`` file. This card links to the extension's documentation page.
 The documentation page needs to be created in the ``doc/source/User_guide/pyaedt_extensions_doc/project``
 directory and should contain a brief description of the extension, its functionality, and how to use it.
@@ -520,4 +533,4 @@ To replicate the CI/CD environment locally, set this environment variable on you
 
 .. code:: bash
 
-  export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml' 
+  export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'

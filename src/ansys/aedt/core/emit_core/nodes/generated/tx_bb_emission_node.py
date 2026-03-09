@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,33 +25,39 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TxBbEmissionNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name):
+    @min_aedt_version("2025.2")
+    def import_csv_file(self, file_name: str) -> None:
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
-    def table_data(self):
+    @min_aedt_version("2025.2")
+    def table_data(self) -> list[tuple]:
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
         Frequency, Bandwidth, or Offset:
@@ -63,16 +68,19 @@ class TxBbEmissionNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    @min_aedt_version("2025.2")
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    @min_aedt_version("2025.2")
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NoiseBehaviorOption(Enum):
@@ -82,6 +90,7 @@ class TxBbEmissionNode(EmitNode):
         EQUATION = "BroadbandEquation"
 
     @property
+    @min_aedt_version("2025.2")
     def noise_behavior(self) -> NoiseBehaviorOption:
         """Specifies the behavior of the parametric noise profile."""
         val = self._get_property("Noise Behavior")
@@ -89,10 +98,12 @@ class TxBbEmissionNode(EmitNode):
         return val
 
     @noise_behavior.setter
-    def noise_behavior(self, value: NoiseBehaviorOption):
+    @min_aedt_version("2025.2")
+    def noise_behavior(self, value: NoiseBehaviorOption) -> None:
         self._set_property("Noise Behavior", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def use_log_linear_interpolation(self) -> bool:
         """Use Log-Linear Interpolation.
 
@@ -105,5 +116,6 @@ class TxBbEmissionNode(EmitNode):
         return val == "true"
 
     @use_log_linear_interpolation.setter
-    def use_log_linear_interpolation(self, value: bool):
+    @min_aedt_version("2025.2")
+    def use_log_linear_interpolation(self, value: bool) -> None:
         self._set_property("Use Log-Linear Interpolation", f"{str(value).lower()}")

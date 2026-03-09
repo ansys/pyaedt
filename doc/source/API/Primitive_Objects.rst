@@ -12,9 +12,14 @@ They are accessible through the ``modeler.objects`` property:
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call return the Modeler3D class
     modeler = app.modeler
@@ -23,7 +28,7 @@ They are accessible through the ``modeler.objects`` property:
     primitives = modeler
 
     # This call return an Object3d object
-    my_box = primitives.create_box([0,0,0],[10,10,10])
+    my_box = primitives.create_box([0, 0, 0], [10, 10, 10])
     my_box = primitives.objects[my_box.id]
 
     # This call return a FacePrimitive object list
@@ -72,9 +77,14 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Modeler3D class
     modeler = app.modeler
@@ -83,7 +93,7 @@ They contain all getters and setters to simplify object manipulation.
     primitives = modeler
 
     # This call returns an Object3d object
-    my_box = primitives.create_box([0,0,0],[10,10,10])
+    my_box = primitives.create_box([0, 0, 0], [10, 10, 10])
 
     # Getter and setter
     my_box.material_name
@@ -117,9 +127,14 @@ imported and used because it is made by static methods.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the CoordinateSystem object list
     cs = app.modeler.coordinate_systems

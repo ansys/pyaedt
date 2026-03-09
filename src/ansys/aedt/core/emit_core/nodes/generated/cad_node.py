@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,36 +25,38 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CADNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str = ""):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def file(self) -> str:
         """Name of the imported CAD file.
 
@@ -65,6 +66,7 @@ class CADNode(EmitNode):
         return val
 
     @property
+    @min_aedt_version("2025.2")
     def show_relative_coordinates(self) -> bool:
         """Show Relative Coordinates.
 
@@ -77,11 +79,13 @@ class CADNode(EmitNode):
         return val == "true"
 
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_relative_coordinates(self, value: bool) -> None:
         self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
-    def position(self):
+    @min_aedt_version("2025.2")
+    def position(self) -> str:
         """Set position of the CAD node in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -90,11 +94,13 @@ class CADNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value):
+    @min_aedt_version("2025.2")
+    def position(self, value: str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
-    def relative_position(self):
+    @min_aedt_version("2025.2")
+    def relative_position(self) -> str:
         """Relative Position.
 
         Set position of the CAD model node relative to placement coordinates.
@@ -105,7 +111,8 @@ class CADNode(EmitNode):
         return val
 
     @relative_position.setter
-    def relative_position(self, value):
+    @min_aedt_version("2025.2")
+    def relative_position(self, value: str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -113,6 +120,7 @@ class CADNode(EmitNode):
         AZ_EL_TWIST = "aetDeg"
 
     @property
+    @min_aedt_version("2025.2")
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode.
 
@@ -123,11 +131,13 @@ class CADNode(EmitNode):
         return val
 
     @orientation_mode.setter
-    def orientation_mode(self, value: OrientationModeOption):
+    @min_aedt_version("2025.2")
+    def orientation_mode(self, value: OrientationModeOption) -> None:
         self._set_property("Orientation Mode", f"{value.value}")
 
     @property
-    def orientation(self):
+    @min_aedt_version("2025.2")
+    def orientation(self) -> str:
         """Set orientation of the CAD node in parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -136,11 +146,13 @@ class CADNode(EmitNode):
         return val
 
     @orientation.setter
-    def orientation(self, value):
+    @min_aedt_version("2025.2")
+    def orientation(self, value: str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
-    def relative_orientation(self):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self) -> str:
         """Relative Orientation.
 
         Set orientation of the CAD model node relative to placement coordinates.
@@ -151,10 +163,12 @@ class CADNode(EmitNode):
         return val
 
     @relative_orientation.setter
-    def relative_orientation(self, value):
+    @min_aedt_version("2025.2")
+    def relative_orientation(self, value: str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def visible(self) -> bool:
         """Toggle (on/off) display of CAD model in 3-D window.
 
@@ -164,7 +178,8 @@ class CADNode(EmitNode):
         return val == "true"
 
     @visible.setter
-    def visible(self, value: bool):
+    @min_aedt_version("2025.2")
+    def visible(self, value: bool) -> None:
         self._set_property("Visible", f"{str(value).lower()}")
 
     class RenderModeOption(Enum):
@@ -174,6 +189,7 @@ class CADNode(EmitNode):
         OUTLINE = "Outline"
 
     @property
+    @min_aedt_version("2025.2")
     def render_mode(self) -> RenderModeOption:
         """Select drawing style for surfaces."""
         val = self._get_property("Render Mode")
@@ -181,10 +197,12 @@ class CADNode(EmitNode):
         return val
 
     @render_mode.setter
-    def render_mode(self, value: RenderModeOption):
+    @min_aedt_version("2025.2")
+    def render_mode(self, value: RenderModeOption) -> None:
         self._set_property("Render Mode", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def show_axes(self) -> bool:
         """Toggle (on/off) display of CAD model coordinate axes in 3-D window.
 
@@ -194,11 +212,13 @@ class CADNode(EmitNode):
         return val == "true"
 
     @show_axes.setter
-    def show_axes(self, value: bool):
+    @min_aedt_version("2025.2")
+    def show_axes(self, value: bool) -> None:
         self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
-    def min(self):
+    @min_aedt_version("2025.2")
+    def min(self) -> str:
         """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -207,7 +227,8 @@ class CADNode(EmitNode):
         return val
 
     @property
-    def max(self):
+    @min_aedt_version("2025.2")
+    def max(self) -> str:
         """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
@@ -216,13 +237,15 @@ class CADNode(EmitNode):
         return val
 
     @property
+    @min_aedt_version("2025.2")
     def number_of_surfaces(self) -> int:
         """Number of surfaces in the model."""
         val = self._get_property("Number of Surfaces")
         return int(val)
 
     @property
-    def color(self):
+    @min_aedt_version("2025.2")
+    def color(self) -> str:
         """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.
@@ -231,15 +254,18 @@ class CADNode(EmitNode):
         return val
 
     @color.setter
-    def color(self, value):
+    @min_aedt_version("2025.2")
+    def color(self, value: str) -> None:
         self._set_property("Color", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")

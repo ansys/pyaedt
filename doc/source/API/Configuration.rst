@@ -38,13 +38,19 @@ the boundary fails to apply.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(project_name="original_project", specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        project_name="original_project",
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     conf_file = self.aedtapp.configurations.export_config()
 
-    app2 = Hfss(projec_name='newproject')
+    app2 = Hfss(projec_name="newproject")
     app2.modeler.import_3d_cad(file_path)
     out = app2.configurations.import_config(conf_file)
     app2.configurations.results.global_import_success

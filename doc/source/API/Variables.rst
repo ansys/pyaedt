@@ -6,9 +6,14 @@ design and project variables in the 3D tools.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the VariableManager class
     variable_manager = self.aedtapp._variable_manager
@@ -40,6 +45,7 @@ Quantities with units can be managed using the class Quantity.
 .. code:: python
 
     from ansys.aedt.core.generic.numbers_utils import Quantity
+
     a = Quantity(1, "GHz")
     b = a + 1
     c = a + "1MHz"

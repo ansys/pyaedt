@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -105,7 +105,7 @@ class AedtObjWrapper:
     # print(self.objectID)
 
     def __str__(self):
-        return "Instance of an Aedt object:" + str(self.objectID)
+        return "Instance of an AEDT object:" + str(self.objectID)
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
@@ -343,7 +343,7 @@ class AEDT:
                     "Consider using a secure connection."
                 )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-            pyaedt_logger.info("Client application successfully started.")
+            pyaedt_logger.debug("Client application successfully started.")
         except Exception:
             pyaedt_logger.warning("Failed to create AedtApplication.")
             self.aedt = None

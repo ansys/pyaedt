@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -127,6 +127,9 @@ def _dict2arg(d, arg_out):
             else:
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
+        elif k == "Points":
+            arg = ["NAME:" + k, *v]
+            arg_out.append(arg)
         elif k == "Range":
             if isinstance(v[0], dict):
                 for rr in v:
