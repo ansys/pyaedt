@@ -117,6 +117,10 @@ def Edb(
     """
     from pyedb import Edb
 
+    if version is not None:
+        # Clear global state before initialization
+        settings.aedt_version = None
+
     if not settings.aedt_version:  # pragma: no cover
         # If no version is specified, use the passed version or current stable version of AEDT.
         if version:
