@@ -374,7 +374,29 @@ class Coil(PyAedtBase):
         return polyline
 
     @pyaedt_function_handler()
-    def create_sweep_profile(self, start_point: list[float], polyline: "Object3d") -> str:
-        profile = self._app.modeler.create_circle("YZ", start_point, "wire_radius", num_sides="section_segmentation")
+    def create_sweep_profile(self, polyline: "Object3d") -> str:
+        profile = self._app.modeler.create_circle(
+            "YZ", polyline.end_point, "wire_radius", num_sides="section_segmentation"
+        )
+        if not self.is_vertical:
+            arc_center = [
+                polyline.start_point[0],
+                polyline.start_point[1],
+                polyline.start_point[2] - 2 * self._app.variable_manager.design_variables["wire_radius"].numeric_value,
+            ]
+            new_line_end_point = [
+                polyline.end_point[0],
+                polyline.end_point[1],
+                polyline.end_point[2] - 4 * self._app.variable_manager.design_variables["wire_radius"].numeric_value,
+            ]
+            new_line = self._app.modeler.create_polyline(
+                points=[polyline.start_point, new_line_end_point],
+                segment_type=[
+                    PolylineSegment("AngularArc", arc_center=arc_center, arc_angle="180deg", arc_plane="ZX"),
+                    PolylineSegment("Line"),
+                ],
+                name="dummy_line",
+            )
+            polyline = polyline.unite(new_line)
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
         return profile.name

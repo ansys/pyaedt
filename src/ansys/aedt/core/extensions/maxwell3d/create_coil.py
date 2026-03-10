@@ -250,31 +250,32 @@ def main(data: CoilExtensionData) -> bool:
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
 
-    # Define start point based on coil orientation
-    centre_x = coil.centre_x
-    centre_y = coil.centre_y
-    inner_y = coil.inner_length
+    # # Define start point based on coil orientation
+    # centre_x = coil.centre_x
+    # centre_y = coil.centre_y
+    # inner_y = coil.inner_length
+    #
+    # if data.is_vertical:
+    #     centre_z = coil.centre_z
+    #     inner_distance = coil.inner_distance
+    #     pitch = coil.pitch
+    #     turns = coil.turns
+    #     # start_point = [
+    #     #     centre_x,
+    #     #     centre_y - 0.5 * inner_y - inner_distance,
+    #     #     centre_z + pitch * turns * 0.5,
+    #     # ]
+    # else:
+    #     inner_x = coil.inner_width
+    #     start_position = coil.looping_position
+    #     start_point = [
+    #         centre_x + 0.25 * inner_x,
+    #         centre_y - (start_position - 0.5) * inner_y,
+    #         0,
+    #     ]
 
-    if data.is_vertical:
-        centre_z = coil.centre_z
-        inner_distance = coil.inner_distance
-        pitch = coil.pitch
-        turns = coil.turns
-        start_point = [
-            centre_x,
-            centre_y - 0.5 * inner_y - inner_distance,
-            centre_z + pitch * turns * 0.5,
-        ]
-    else:
-        inner_x = coil.inner_width
-        start_position = coil.looping_position
-        start_point = [
-            centre_x + 0.25 * inner_x,
-            centre_y - (start_position - 0.5) * inner_y,
-            0,
-        ]
     # Create coil profile
-    profile_name = coil.create_sweep_profile(start_point, polyline)
+    profile_name = coil.create_sweep_profile(polyline)
 
     # Create and replace 3D Component
     comp_path = Path(aedtapp.working_directory, data.name + ".a3dcomp")
