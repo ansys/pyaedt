@@ -86,9 +86,9 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     def create_resistor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
         """Create a resistor.
@@ -144,9 +144,9 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     def create_inductor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
         """Create an inductor.
@@ -202,9 +202,9 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     def create_capacitor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
         """Create a capacitor.
