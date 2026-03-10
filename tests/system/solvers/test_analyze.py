@@ -770,29 +770,23 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
 def test_apply_solved_variations(m3d_app) -> None:
     m3d_app["a"] = "10mm"
     m3d_app["b"] = "20mm"
-    m3d_app["c"] = "30mm"
-    box = m3d_app.modeler.create_box([0, 0, 0], ["a", "b", "c"], name="Box", material="copper")
+    m3d_app["$c"] = "30mm"
+    box = m3d_app.modeler.create_box([0, 0, 0], ["a", "b", "$c"], name="Box", material="copper")
     m3d_app.modeler.create_region([100, 100, 0, 0, 100, 100])
 
     m3d_app.assign_current(box.bottom_face_y, "1A")
     m3d_app.assign_current(box.top_face_y, "1A", swap_direction=True)
 
-    m3d_app.create_setup()
+    setup = m3d_app.create_setup()
     param = m3d_app.parametrics.add("a", 5, 10, 2, "LinearCount")
     param.add_variation("b", 10, variation_type="SingleValue")
-    param.add_variation("c", 30, variation_type="SingleValue")
+    param.add_variation("$c", 30, variation_type="SingleValue")
     param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
     param.analyze()
 
-    names = ["a", "b", "c"]
-    values = ["5mm", "10mm", "15mm"]
-    assert m3d_app.apply_solved_variations(
-        aedt_object=m3d_app.odesign,
-        tab_name="LocalVariableTab",
-        property_object="LocalVariables",
-        property_name=names,
-        property_value=values,
-    )
+    variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+
+    assert m3d_app.apply_solved_variation(variations[0])
     assert m3d_app["a"] == "5mm"
     assert m3d_app["b"] == "10mm"
-    assert m3d_app["c"] == "15mm"
+    assert m3d_app["$c"] == "30mm"

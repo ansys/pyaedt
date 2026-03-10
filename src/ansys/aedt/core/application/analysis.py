@@ -2380,32 +2380,16 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def apply_solved_variations(
+    def apply_solved_variation(
         self,
-        aedt_object: object,
-        tab_name: str,
-        property_object: str,
-        property_name: str | list,
-        property_value: str | list,
+        variation: dict,
     ) -> bool:
         """Apply solved variation values to a property.
 
         Parameters
         ----------
-        aedt_object :
-            AEDT object. It can be oproject or odesign depending on which the property belongs.
-        tab_name : str
-            Name of the tab to update.
-            Options are ``ProjectVariableTab`` or ``LocalVariableTab``.
-        property_object : str
-            Name of the property object to update.
-            Options are ``ProjectVariables`` or ``LocalVariables``.
-        property_name : str, list
-            Name of the property o list of names of properties to update.
-            They can be the names of design or project variables.
-        property_value : str, list
-            Value or list of values of the properties specified in ``property_name``.
-            If ``property_name`` is a list, ``property_value`` must be a list of the same length.
+        variation : dict
+            Dictionary containing the variations. Keys are variable names and values are their corresponding values.
 
         Returns
         -------
@@ -2436,29 +2420,49 @@ class Analysis(Design, PyAedtBase):
         >>> param.add_variation("c", 15, 30, 2, variation_type="LinearCount")
         >>> param.analyze()
         Plot the magnetic field density on the surface of the box
-        >>> plot = m3d.post.create_fieldplot_surface(
-        >>>     assignment=box,
-        >>>     quantity="Mag_B",
-        >>> )
+        >>> plot = m3d.post.create_fieldplot_surface(assignment=box, quantity="Mag_B")
         Apply solved variation
-        >>> names = ["a", "b", "c"]
-        >>> values = ["5mm", "10mm", "15mm"]
-        >>> m3d.apply_solved_variations(
-        >>>     aedt_object=m3d.odesign,
-        >>>     tab_name="LocalVariableTab",
-        >>>     property_object="LocalVariables",
-        >>>     property_name=names,
-        >>>     property_value=values,
-        >>> )
+        >>> variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+
+        >>> m3d_app.apply_solved_variation(variations[0])
         >>> m3d.release_desktop(False, False)
         """
-        return self.change_property(
-            aedt_object=aedt_object,
-            tab_name=tab_name,
-            property_object=property_object,
-            property_name=property_name,
-            property_value=property_value,
-        )
+        # Separate project variables (starting with $) from design variables
+        project_variables = {
+            variable_name: variable_value
+            for variable_name, variable_value in variation.items()
+            if variable_name.startswith("$")
+        }
+        design_variables = {
+            variable_name: variable_value
+            for variable_name, variable_value in variation.items()
+            if not variable_name.startswith("$")
+        }
+
+        result_design = True
+        result_project = True
+
+        # Apply design variables (local variables)
+        if design_variables:
+            result_design = self.change_property(
+                aedt_object=self.odesign,
+                tab_name="LocalVariableTab",
+                property_object="LocalVariables",
+                property_name=list(design_variables.keys()),
+                property_value=list(design_variables.values()),
+            )
+
+        # Apply project variables (starting with $)
+        if project_variables:
+            result_project = self.change_property(
+                aedt_object=self.oproject,
+                tab_name="ProjectVariableTab",
+                property_object="ProjectVariables",
+                property_name=list(project_variables.keys()),
+                property_value=list(project_variables.values()),
+            )
+
+        return result_design and result_project
 
 
 class AvailableVariations(PyAedtBase):
