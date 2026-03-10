@@ -346,7 +346,7 @@ class ResultPlotNode(EmitNode):
 
     @minor_grid_color.setter
     @min_aedt_version("2025.2")
-    def minor_grid_color(self, value) -> None:
+    def minor_grid_color(self, value: str) -> None:
         self._set_property("Minor Grid Color", f"{value}")
 
     @property

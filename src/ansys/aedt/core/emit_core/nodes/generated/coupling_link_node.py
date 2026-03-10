@@ -67,5 +67,5 @@ class CouplingLinkNode(EmitNode):
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value) -> None:
+    def ports(self, value: str) -> None:
         self._set_property("Ports", f"{value}")

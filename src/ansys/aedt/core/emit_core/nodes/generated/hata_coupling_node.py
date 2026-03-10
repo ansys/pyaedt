@@ -46,7 +46,7 @@ class HataCouplingNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 

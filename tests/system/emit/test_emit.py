@@ -2099,6 +2099,22 @@ def test_bp_bs_filters(emit_app) -> None:
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+def test_get_position_and_orientation(emit_app, file_tmp_root) -> None:
+    antenna: AntennaNode = emit_app.schematic.create_component("Antenna", name="TestAntenna")
+    antenna.position_defined = True
+    assert antenna.position == [0, 0, 0]
+    antenna.position = [1, 2, 3]
+    assert antenna.position == [1, 2, 3]
+    antenna.position = "4 5 6"
+    assert antenna.position == [4, 5, 6]
+    assert antenna.orientation == [0, 0, 0]
+    antenna.orientation = [10, 20, 30]
+    assert antenna.orientation == [10, 20, 30]
+    antenna.orientation = "40 50 60"
+    assert antenna.orientation == [40, 50, 60]
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
 def test_imports(emit_app, file_tmp_root) -> None:
     rev = emit_app.results.analyze()
 
