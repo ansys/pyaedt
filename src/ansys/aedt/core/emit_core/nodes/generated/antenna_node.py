@@ -203,7 +203,6 @@ class AntennaNode(EmitNode):
     class AntennaTypeOption(Enum):
         ISOTROPIC = "Isotropic"
         BY_FILE = "ByFile"
-        HFSS_PHASED_ARRAY = "HfssPhasedArray"
         HEMITROPIC = "Hemitropic"
         SHORT_DIPOLE = "ShortDipole"
         HALF_WAVE_DIPOLE = "HalfWaveDipole"
