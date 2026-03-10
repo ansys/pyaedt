@@ -2311,12 +2311,9 @@ class Analysis(Design, PyAedtBase):
             For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str, list
             Name of the property. For example, ``Rotation Angle``.
-            In case of apply solved variation values, it can be a list of property names.
         property_value : str, list
             Value of the property. It is a string for a single value and a list of three elements for
             ``[x,y,z]`` coordianates.
-            In case of apply solved variation values, it can be a list of property values iwht as many
-            elements as the list of property names.
 
         Returns
         -------
@@ -2381,6 +2378,87 @@ class Analysis(Design, PyAedtBase):
             return False
         self.logger.info(f"Property {property_name} changed correctly.")
         return True
+
+    @pyaedt_function_handler()
+    def apply_solved_variations(
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_name: str | list,
+        property_value: str | list,
+    ) -> bool:
+        """Apply solved variation values to a property.
+
+        Parameters
+        ----------
+        aedt_object :
+            AEDT object. It can be oproject or odesign depending on which the property belongs.
+        tab_name : str
+            Name of the tab to update.
+            Options are ``ProjectVariableTab`` or ``LocalVariableTab``.
+        property_object : str
+            Name of the property object to update.
+            Options are ``ProjectVariables`` or ``LocalVariables``.
+        property_name : str, list
+            Name of the property o list of names of properties to update.
+            They can be the names of design or project variables.
+        property_value : str, list
+            Value or list of values of the properties specified in ``property_name``.
+            If ``property_name`` is a list, ``property_value`` must be a list of the same length.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        Create a simple box where all its dimensions are parametrized
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.2")
+        >>> m3d["a"] = "10mm"
+        >>> m3d["b"] = "20mm"
+        >>> m3d["c"] = "30mm"
+        >>> box = m3d.modeler.create_box([0, 0, 0], ["a", "b", "c"], name="Box", material="copper")
+        >>> m3d.modeler.create_region([100, 100, 0, 0, 100, 100])
+        Assign current excitations
+        >>> current1 = m3d.assign_current(box.bottom_face_y, "1A")
+        >>> current2 = m3d.assign_current(box.top_face_y, "1A", swap_direction=True)
+        Create the parametric setup to sweep the box dimensions and analyze the variations
+        >>> setup = m3d.create_setup()
+        >>> param = m3d.parametrics.add("a", 5, 10, 2, "LinearCount")
+        >>> param.add_variation("b", 10, 20, 2, variation_type="LinearCount")
+        >>> param.add_variation("c", 15, 30, 2, variation_type="LinearCount")
+        >>> param.analyze()
+        Plot the magnetic field density on the surface of the box
+        >>> plot = m3d.post.create_fieldplot_surface(
+        >>>     assignment=box,
+        >>>     quantity="Mag_B",
+        >>> )
+        Apply solved variation
+        >>> names = ["a", "b", "c"]
+        >>> values = ["5mm", "10mm", "15mm"]
+        >>> m3d.apply_solved_variations(
+        >>>     aedt_object=m3d.odesign,
+        >>>     tab_name="LocalVariableTab",
+        >>>     property_object="LocalVariables",
+        >>>     property_name=names,
+        >>>     property_value=values,
+        >>> )
+        >>> m3d.release_desktop(False, False)
+        """
+        return self.change_property(
+            aedt_object=aedt_object,
+            tab_name=tab_name,
+            property_object=property_object,
+            property_name=property_name,
+            property_value=property_value,
+        )
 
 
 class AvailableVariations(PyAedtBase):
