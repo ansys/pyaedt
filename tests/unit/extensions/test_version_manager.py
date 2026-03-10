@@ -76,7 +76,7 @@ def _make_vm():
         def __init__(self, *a, **k) -> None:
             self._v = ""
 
-        def set(self, v) -> None:
+        def set(self, v):
             self._v = v
 
         def get(self):

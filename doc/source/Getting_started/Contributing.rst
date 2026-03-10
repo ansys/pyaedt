@@ -273,7 +273,7 @@ and contain at least two classes:
 
 
     class MyExtension(ExtensionCommon):
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
             self.add_extension_content()
 

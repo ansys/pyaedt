@@ -22,11 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from pandas import Series
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -63,11 +68,11 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def export_model_picture(
         self,
-        output_file=None,
+        output_file: str = None,
         page: int = 1,
         width: int = 1920,
         height: int = 1080,
-    ):
+    ) -> str:
         """Export a snapshot of the schematic to a ``JPG`` file.
 
         Parameters
@@ -109,15 +114,15 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_ami_initial_response_plot(
         self,
-        setup,
-        ami_name,
-        variation_list_w_value,
+        setup: str,
+        ami_name: str,
+        variation_list_w_value: list | dict,
         plot_type: str = "Rectangular Plot",
         plot_initial_response: bool = True,
         plot_intermediate_response: bool = False,
         plot_final_response: bool = False,
-        plot_name=None,
-    ):
+        plot_name: str = None,
+    ) -> str:
         """Create an AMI initial response plot.
 
         Parameters
@@ -222,8 +227,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_ami_statistical_eye_plot(
-        self, setup, ami_name, variation_list_w_value, ami_plot_type: str = "InitialEye", plot_name=None
-    ):
+        self,
+        setup: str,
+        ami_name: str,
+        variation_list_w_value: list | dict,
+        ami_plot_type: str = "InitialEye",
+        plot_name: str = None,
+    ) -> str:
         """Create an AMI statistical eye plot.
 
         Parameters
@@ -334,7 +344,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         return plot_name
 
     @pyaedt_function_handler()
-    def create_statistical_eye_plot(self, setup, probe_names, variation_list_w_value, plot_name=None):
+    def create_statistical_eye_plot(
+        self, setup: str, probe_names: str | list, variation_list_w_value: list | dict, plot_name: str = None
+    ) -> str:
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
@@ -433,14 +445,14 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def sample_waveform(
         self,
-        waveform_data,
-        waveform_sweep,
+        waveform_data: list | "Series",
+        waveform_sweep: list | "Series",
         waveform_unit: str = "V",
         waveform_sweep_unit: str = "s",
         unit_interval: float = 1e-9,
-        clock_tics=None,
+        clock_tics: list = None,
         pandas_enabled: bool = False,
-    ):
+    ) -> list | "Series":
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
@@ -517,15 +529,15 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def sample_ami_waveform(
         self,
-        setup,
-        probe,
-        source,
-        variation_list_w_value,
+        setup: str,
+        probe: str,
+        source: str,
+        variation_list_w_value: list | dict,
         unit_interval: float = 1e-9,
         ignore_bits: int = 0,
-        plot_type=None,
-        clock_tics=None,
-    ):
+        plot_type: str = None,
+        clock_tics: list = None,
+    ) -> list:
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters

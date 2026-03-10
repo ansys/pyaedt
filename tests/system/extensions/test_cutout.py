@@ -31,6 +31,7 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CUTOUT_TYPES
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -40,6 +41,7 @@ TEST_SUBFOLDER = "T45"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
+@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
     test_project = test_tmp_dir / (AEDB_FILE_NAME + ".aedb")

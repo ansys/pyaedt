@@ -47,7 +47,7 @@ __GRAPHICS_AVAILABLE = None
 """Global variable to store the result of the graphics imports."""
 
 
-def min_aedt_version(min_version: str):
+def min_aedt_version(min_version: str) -> callable:
     """Compare a minimum required version to the current AEDT version.
 
     This decorator should only be used on methods where the associated object can reach the desktop instance.
@@ -65,26 +65,26 @@ def min_aedt_version(min_version: str):
         If the method version is higher than the AEDT version.
     """
 
-    def fetch_odesktop_from_common_attributes_names(item):
+    def fetch_odesktop_from_common_attributes_names(item: object) -> object:
         attributes_to_check = ["odesktop", "_odesktop", "_desktop"]
         for attribute in attributes_to_check:
             odesktop = getattr(item, attribute, None)
             if odesktop is not None:
                 return odesktop
 
-    def fetch_odesktop_from_private_app_attribute(item):
+    def fetch_odesktop_from_private_app_attribute(item: object) -> object:
         app = getattr(item, f"_{item.__class__.__name__}__app", None)
         if app is not None:
             return app.odesktop
 
-    def fetch_odesktop_from_desktop_class(item):
+    def fetch_odesktop_from_desktop_class(item: object) -> object:
         attributes_to_check = ["desktop_class", "_desktop_class"]
         for attribute in attributes_to_check:
             desktop_class = getattr(item, attribute, None)
             if desktop_class is not None:
                 return desktop_class.odesktop
 
-    def aedt_version_decorator(method):
+    def aedt_version_decorator(method: callable) -> callable:
         """Decorator to check AEDT version compatibility for a method."""
 
         @wraps(method)
@@ -111,7 +111,7 @@ def min_aedt_version(min_version: str):
     return aedt_version_decorator
 
 
-def check_graphics_available(warning: bool = False):
+def check_graphics_available(warning: bool = False) -> None:
     """Check if graphics are available."""
     global __GRAPHICS_AVAILABLE
 
@@ -142,7 +142,7 @@ def check_graphics_available(warning: bool = False):
             raise ImportError(ERROR_GRAPHICS_REQUIRED)
 
 
-def graphics_required(method):
+def graphics_required(method: callable) -> callable:
     """Decorate a method as requiring graphics.
 
     Parameters

@@ -77,7 +77,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return child_object
 
     @property
-    def props(self):
+    def props(self) -> BoundaryProps:
         """Field Properties."""
         if not self.__props and self._app.design_properties:
             if (
@@ -96,14 +96,14 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self.__props
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Boundary Name."""
         if self._child_object:
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value: str) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = value
@@ -119,7 +119,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a Field Setup Component in HFSS.
 
         Returns
@@ -208,12 +208,12 @@ class FarFieldSetup(FieldSetup):
         self.units = units
 
     @property
-    def definition(self):
+    def definition(self) -> str:
         """Set/Get the Far Field Angle Definition."""
         return self.props["CSDefinition"]
 
     @definition.setter
-    def definition(self, value) -> None:
+    def definition(self, value: str) -> None:
         actual_value = self.props["CSDefinition"]
         self.props["CSDefinition"] = value
         actual_defs = None
@@ -270,22 +270,22 @@ class FarFieldSetup(FieldSetup):
         self.update()
 
     @property
-    def use_custom_radiation_surface(self):
+    def use_custom_radiation_surface(self) -> bool:
         """Set/Get the Far Field Radiation Surface Enable."""
         return self.props["UseCustomRadiationSurface"]
 
     @use_custom_radiation_surface.setter
-    def use_custom_radiation_surface(self, value) -> None:
+    def use_custom_radiation_surface(self, value: bool) -> None:
         self.props["UseCustomRadiationSurface"] = value
         self.update()
 
     @property
-    def custom_radiation_surface(self):
+    def custom_radiation_surface(self) -> str:
         """Set/Get the Far Field Radiation Surface FaceList."""
         return self.props["CustomRadiationSurface"]
 
     @custom_radiation_surface.setter
-    def custom_radiation_surface(self, value) -> None:
+    def custom_radiation_surface(self, value: str) -> None:
         if value:
             self.props["UseCustomRadiationSurface"] = True
             self.props["CustomRadiationSurface"] = value
@@ -295,17 +295,17 @@ class FarFieldSetup(FieldSetup):
         self.update()
 
     @property
-    def use_local_coordinate_system(self):
+    def use_local_coordinate_system(self) -> bool:
         """Set/Get the usage of a custom Coordinate System."""
         return self.props["UseLocalCS"]
 
     @use_local_coordinate_system.setter
-    def use_local_coordinate_system(self, value) -> None:
+    def use_local_coordinate_system(self, value: bool) -> None:
         self.props["UseLocalCS"] = value
         self.update()
 
     @property
-    def local_coordinate_system(self):
+    def local_coordinate_system(self) -> str:
         """Set/Get the custom Coordinate System name."""
         try:
             return self.properties["Coordinate System"]
@@ -313,7 +313,7 @@ class FarFieldSetup(FieldSetup):
             return None
 
     @local_coordinate_system.setter
-    def local_coordinate_system(self, value) -> None:
+    def local_coordinate_system(self, value: str) -> None:
         if value:
             self.props["UseLocalCS"] = True
             self.props["CoordSystem"] = value
@@ -323,17 +323,17 @@ class FarFieldSetup(FieldSetup):
         self.update()
 
     @property
-    def polarization(self):
+    def polarization(self) -> str:
         """Set/Get the Far Field Polarization."""
         return self.props["Polarization"]
 
     @polarization.setter
-    def polarization(self, value) -> None:
+    def polarization(self, value: str) -> None:
         self.props["Polarization"] = value
         self.update()
 
     @property
-    def slant_angle(self):
+    def slant_angle(self) -> float:
         """Set/Get the Far Field Slant Angle if Polarization is Set to `Slant`."""
         if self.props["Polarization"] == "Slant":
             return self.props["SlantAngle"]
@@ -341,13 +341,13 @@ class FarFieldSetup(FieldSetup):
             return
 
     @slant_angle.setter
-    def slant_angle(self, value) -> None:
+    def slant_angle(self, value: float) -> None:
         self.props["Polarization"] = "Slant"
         self.props["SlantAngle"] = value
         self.update()
 
     @property
-    def theta_start(self):
+    def theta_start(self) -> float:
         """Set/Get the Far Field Theta Start Angle if Definition is Set to `Theta-Phi`."""
         if "ThetaStart" in self.props:
             return self.props["ThetaStart"]
@@ -355,7 +355,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def theta_stop(self):
+    def theta_stop(self) -> float:
         """Set/Get the Far Field Theta Stop Angle if Definition is Set to `Theta-Phi`."""
         if "ThetaStop" in self.props:
             return self.props["ThetaStop"]
@@ -363,7 +363,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def theta_step(self):
+    def theta_step(self) -> float:
         """Set/Get the Far Field Theta Step Angle if Definition is Set to `Theta-Phi`."""
         if "ThetaStep" in self.props:
             return self.props["ThetaStep"]
@@ -371,7 +371,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def phi_start(self):
+    def phi_start(self) -> float:
         """Set/Get the Far Field Phi Start Angle if Definition is Set to `Theta-Phi`."""
         if "PhiStart" in self.props:
             return self.props["PhiStart"]
@@ -379,7 +379,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def phi_stop(self):
+    def phi_stop(self) -> float:
         """Set/Get the Far Field Phi Stop Angle if Definition is Set to `Theta-Phi`."""
         if "PhiStop" in self.props:
             return self.props["PhiStop"]
@@ -387,7 +387,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def phi_step(self):
+    def phi_step(self) -> float:
         """Set/Get the Far Field Phi Step Angle if Definition is Set to `Theta-Phi`."""
         if "PhiStep" in self.props:
             return self.props["PhiStep"]
@@ -395,7 +395,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def azimuth_start(self):
+    def azimuth_start(self) -> float:
         """Set/Get the Far Field Azimuth Start Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "AzimuthStart" in self.props:
             return self.props["AzimuthStart"]
@@ -403,7 +403,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def azimuth_stop(self):
+    def azimuth_stop(self) -> float:
         """Set/Get the Far Field Azimuth Stop Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "AzimuthStop" in self.props:
             return self.props["AzimuthStop"]
@@ -411,7 +411,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def azimuth_step(self):
+    def azimuth_step(self) -> float:
         """Set/Get the Far Field Azimuth Step Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "AzimuthStep" in self.props:
             return self.props["AzimuthStep"]
@@ -419,7 +419,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def elevation_start(self):
+    def elevation_start(self) -> float:
         """Set/Get the Far Field Elevation Start Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "ElevationStart" in self.props:
             return self.props["ElevationStart"]
@@ -427,7 +427,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def elevation_stop(self):
+    def elevation_stop(self) -> float:
         """Set/Get the Far Field Elevation Stop Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "ElevationStop" in self.props:
             return self.props["ElevationStop"]
@@ -435,7 +435,7 @@ class FarFieldSetup(FieldSetup):
             return
 
     @property
-    def elevation_step(self):
+    def elevation_step(self) -> float:
         """Set/Get the Far Field Elevation Step Angle if Definition is Set to `Az Over El` or `El Over Az`."""
         if "ElevationStep" in self.props:
             return self.props["ElevationStep"]
@@ -443,73 +443,73 @@ class FarFieldSetup(FieldSetup):
             return
 
     @theta_start.setter
-    def theta_start(self, value) -> None:
+    def theta_start(self, value: float) -> None:
         if "ThetaStart" in self.props:
             self.props["ThetaStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @theta_stop.setter
-    def theta_stop(self, value) -> None:
+    def theta_stop(self, value: float) -> None:
         if "ThetaStop" in self.props:
             self.props["ThetaStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @theta_step.setter
-    def theta_step(self, value) -> None:
+    def theta_step(self, value: float) -> None:
         if "ThetaStep" in self.props:
             self.props["ThetaStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_start.setter
-    def phi_start(self, value) -> None:
+    def phi_start(self, value: float) -> None:
         if "PhiStart" in self.props:
             self.props["PhiStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_stop.setter
-    def phi_stop(self, value) -> None:
+    def phi_stop(self, value: float) -> None:
         if "PhiStop" in self.props:
             self.props["PhiStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @phi_step.setter
-    def phi_step(self, value) -> None:
+    def phi_step(self, value: float) -> None:
         if "PhiStep" in self.props:
             self.props["PhiStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_start.setter
-    def azimuth_start(self, value) -> None:
+    def azimuth_start(self, value: float) -> None:
         if "AzimuthStart" in self.props:
             self.props["AzimuthStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_stop.setter
-    def azimuth_stop(self, value) -> None:
+    def azimuth_stop(self, value: float) -> None:
         if "AzimuthStop" in self.props:
             self.props["AzimuthStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @azimuth_step.setter
-    def azimuth_step(self, value) -> None:
+    def azimuth_step(self, value: float) -> None:
         if "AzimuthStep" in self.props:
             self.props["AzimuthStep"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_start.setter
-    def elevation_start(self, value) -> None:
+    def elevation_start(self, value: float) -> None:
         if "ElevationStart" in self.props:
             self.props["ElevationStart"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_stop.setter
-    def elevation_stop(self, value) -> None:
+    def elevation_stop(self, value: float) -> None:
         if "ElevationStop" in self.props:
             self.props["ElevationStop"] = self._app.value_with_units(value, self.units)
             self.update()
 
     @elevation_step.setter
-    def elevation_step(self, value) -> None:
+    def elevation_step(self, value: float) -> None:
         if "ElevationStep" in self.props:
             self.props["ElevationStep"] = self._app.value_with_units(value, self.units)
             self.update()

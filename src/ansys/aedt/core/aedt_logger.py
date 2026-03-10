@@ -248,7 +248,7 @@ class AedtLogger:
 
         return _project
 
-    def remove_file_logger(self, project_name: str) -> None:
+    def remove_file_logger(self, project_name: str):
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
@@ -482,7 +482,7 @@ class AedtLogger:
                         message_lists.append(levels[message[0]] + message[1])
         return MessageList(message_lists)
 
-    def add_error_message(self, message_text: str, level: int | None = None) -> None:
+    def add_error_message(self, message_text: str, level: int | None = None):
         """
         Add a type 2 "Error" message to the message manager tree.
 
@@ -507,7 +507,7 @@ class AedtLogger:
         """
         self.add_message(2, message_text, level)
 
-    def add_warning_message(self, message_text: str, level: int | None = None) -> None:
+    def add_warning_message(self, message_text: str, level: int | None = None):
         """
         Add a type 1 "Warning" message to the message manager tree.
 
@@ -532,7 +532,7 @@ class AedtLogger:
         """
         self.add_message(1, message_text, level)
 
-    def add_info_message(self, message_text: str, level: int | None = None) -> None:
+    def add_info_message(self, message_text: str, level: int | None = None):
         """Add a type 0 "Info" message to the active design level of the message manager tree.
 
         Also add an info message to the logger if the handler is present.
@@ -556,7 +556,7 @@ class AedtLogger:
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_text: str, level: int | None = None) -> None:
+    def add_debug_message(self, message_text: str, level: int | None = None):
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
@@ -633,7 +633,7 @@ class AedtLogger:
             except Exception:  # pragma: no cover
                 self._log_on_handler(2, "Failed to add desktop message.")
 
-    def _log_on_handler(self, message_type, message_text, *args, **kwargs) -> None:
+    def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
         if args:
             try:
@@ -659,7 +659,7 @@ class AedtLogger:
         except Exception as e:
             print(f"Logging error: {e}", file=sys.stderr)
 
-    def clear_messages(self, proj_name: str | None = None, des_name: str | None = None, level: int | None = 2) -> None:
+    def clear_messages(self, proj_name: str | None = None, des_name: str | None = None, level: int | None = 2):
         """Clear all messages.
 
         Parameters
@@ -922,7 +922,7 @@ class AedtLogger:
             if hasattr(handler, "baseFilename"):
                 self.debug(f"Log on file {handler.baseFilename} is enabled.")
 
-    def info(self, msg: str, *args, **kwargs) -> None:
+    def info(self, msg: str, *args, **kwargs):
         """Write an info message to the global logger."""
         if not settings.enable_logger:
             return
@@ -936,7 +936,7 @@ class AedtLogger:
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def info_timer(self, msg: str, start_time: float | None = None, *args, **kwargs) -> None:
+    def info_timer(self, msg: str, start_time: float | None = None, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time.
         """
@@ -964,7 +964,7 @@ class AedtLogger:
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args, **kwargs) -> None:
+    def warning(self, msg: str, *args, **kwargs):
         """Write a warning message to the global logger."""
         if not settings.enable_logger:
             return
@@ -978,7 +978,7 @@ class AedtLogger:
         self._log_on_dekstop(1, msg1, "Global")
         return self._log_on_handler(1, msg, *args, **kwargs)
 
-    def error(self, msg: str, *args, **kwargs) -> None:
+    def error(self, msg: str, *args, **kwargs):
         """Write an error message to the global logger."""
         if args:
             try:
@@ -990,7 +990,7 @@ class AedtLogger:
         self._log_on_dekstop(2, msg1, "Global")
         return self._log_on_handler(2, msg, *args, **kwargs)
 
-    def debug(self, msg: str, *args, **kwargs) -> None:
+    def debug(self, msg: str, *args, **kwargs):
         """Write a debug message to the global logger."""
         if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
             return

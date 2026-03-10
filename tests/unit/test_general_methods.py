@@ -111,7 +111,7 @@ class TestGeneralMethods:
             "2023.12SV",
         ],
     )
-    def test_valid_versions(self, version) -> None:
+    def test_valid_versions(self, version):
         assert _is_version_format_valid(version)
 
     @pytest.mark.parametrize(
@@ -130,5 +130,5 @@ class TestGeneralMethods:
             2023.2,  # float type
         ],
     )
-    def test_invalid_versions(self, version) -> None:
+    def test_invalid_versions(self, version):
         assert not _is_version_format_valid(version)

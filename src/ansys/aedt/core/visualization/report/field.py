@@ -42,7 +42,7 @@ class AntennaParameters(Standard):
         self.far_field_sphere = far_field_sphere
 
     @property
-    def far_field_sphere(self):
+    def far_field_sphere(self) -> str:
         """Far field sphere name.
 
         Returns
@@ -59,7 +59,7 @@ class AntennaParameters(Standard):
         return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
-    def far_field_sphere(self, value) -> None:
+    def far_field_sphere(self, value: str) -> None:
         self._legacy_props["context"]["far_field_sphere"] = value
 
     @property
@@ -78,7 +78,7 @@ class Fields(CommonReport):
         self.primary_sweep = "Distance"
 
     @property
-    def point_number(self):
+    def point_number(self) -> int:
         """Polygon point number.
 
         Returns
@@ -89,7 +89,7 @@ class Fields(CommonReport):
         return self._legacy_props["context"].get("point_number", 1001)
 
     @point_number.setter
-    def point_number(self, value) -> None:
+    def point_number(self, value: int) -> None:
         self._legacy_props["context"]["point_number"] = value
 
     @property
@@ -114,7 +114,7 @@ class NearField(CommonReport):
         return ["Context:=", self.near_field]
 
     @property
-    def near_field(self):
+    def near_field(self) -> str:
         """Near field name.
 
         Returns
@@ -125,7 +125,7 @@ class NearField(CommonReport):
         return self._legacy_props["context"].get("near_field", None)
 
     @near_field.setter
-    def near_field(self, value) -> None:
+    def near_field(self, value: str) -> None:
         self._legacy_props["context"]["near_field"] = value
 
 
@@ -147,7 +147,7 @@ class FarField(CommonReport):
                 self.variations[key] = default_value
 
     @property
-    def far_field_sphere(self):
+    def far_field_sphere(self) -> str:
         """Far field sphere name.
 
         Returns
@@ -163,7 +163,7 @@ class FarField(CommonReport):
         return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
-    def far_field_sphere(self, value) -> None:
+    def far_field_sphere(self, value: str) -> None:
         self._legacy_props["context"]["far_field_sphere"] = value
 
     @property

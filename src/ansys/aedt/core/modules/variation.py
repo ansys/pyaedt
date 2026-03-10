@@ -36,7 +36,7 @@ class Variation(dict):
     def __getitem__(self, key):
         return super().__getitem__(key)
 
-    def string(self):
+    def string(self) -> str:
         s = ""
         for key, value in self.items():
             s += key + "=" + value + " "

@@ -156,13 +156,13 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         row += 1
         return row
 
-    def _add_export_button(self, tab, row) -> None:
+    def _add_export_button(self, tab, row):
         export_points_button = ttk.Button(
             tab, text="Parameters help", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
-    def create_parameter_inputs(self, tab: tk.Widget, tab_name: str) -> None:
+    def create_parameter_inputs(self, tab: tk.Widget, tab_name: str):
         """Create parameter input widgets for a category."""
         row = 0
         if tab_name == "Common":

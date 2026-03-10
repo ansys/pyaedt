@@ -104,7 +104,7 @@ class FieldsCalculator(PyAedtBase):
         self.ofieldsreporter = app.ofieldsreporter
 
     @property
-    def expression_names(self):
+    def expression_names(self) -> list:
         """List of available expressions.
 
         Returns
@@ -115,7 +115,7 @@ class FieldsCalculator(PyAedtBase):
         return list(self.expression_catalog.keys())
 
     @pyaedt_function_handler()
-    def add_expression(self, calculation, assignment, name: str | None = None):
+    def add_expression(self, calculation: str | dict, assignment, name: str | None = None) -> str | bool:
         """Add named expression.
 
         Parameters
@@ -250,7 +250,7 @@ class FieldsCalculator(PyAedtBase):
         return expression_info["name"]
 
     @pyaedt_function_handler()
-    def create_expression_file(self, name: str, operations):
+    def create_expression_file(self, name: str, operations: list) -> str | bool:
         """Create a calculator expression file.
 
         Parameters
@@ -283,7 +283,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation, assignment, names, setup: str | None = None):
+    def expression_plot(self, calculation: str, assignment: list, names: list, setup: str = None) -> list | bool:
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -426,7 +426,7 @@ class FieldsCalculator(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def is_general_expression(self, name: str):
+    def is_general_expression(self, name: str) -> bool:
         """Check if a named expression is general.
 
         Parameters
@@ -450,7 +450,7 @@ class FieldsCalculator(PyAedtBase):
         return is_general
 
     @pyaedt_function_handler()
-    def load_expression_file(self, input_file: str):
+    def load_expression_file(self, input_file: str) -> dict | bool:
         """Load expressions from an external TOML file.
 
         Parameters
@@ -484,7 +484,7 @@ class FieldsCalculator(PyAedtBase):
         return self.expression_catalog
 
     @pyaedt_function_handler()
-    def validate_expression(self, expression):
+    def validate_expression(self, expression: dict) -> dict | bool:
         """Validate expression file against the schema.
 
         The default schema can be found in ``pyaedt/misc/fields_calculator.schema.json``.
@@ -515,7 +515,9 @@ class FieldsCalculator(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def write(self, expression, output_file, setup: str | None = None, intrinsics=None) -> bool:
+    def write(
+        self, expression: str, output_file: str, setup: str | None = None, intrinsics: dict | None = None
+    ) -> bool:
         """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
@@ -592,7 +594,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression, setup: str | None = None, intrinsics=None):
+    def evaluate(self, expression: str, setup: str | None = None, intrinsics: dict | None = None) -> float:
         """Evaluate an expression and return the value.
 
         Parameters
@@ -638,26 +640,26 @@ class FieldsCalculator(PyAedtBase):
     @pyaedt_function_handler()
     def export(
         self,
-        quantity,
-        solution: str | None = None,
-        variations: dict | None = None,
-        output_file=None,
-        intrinsics=None,
-        phase=None,
-        sample_points=None,
+        quantity: str,
+        solution: str = None,
+        variations: dict = None,
+        output_file: str = None,
+        intrinsics: dict = None,
+        phase: str = None,
+        sample_points: list = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
         export_field_in_reference: bool = True,
-        grid_type=None,
-        grid_center=None,
-        grid_start=None,
-        grid_stop=None,
-        grid_step=None,
+        grid_type: str = None,
+        grid_center: list = None,
+        grid_start: list = None,
+        grid_stop: list = None,
+        grid_step: list = None,
         is_vector: bool = False,
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
-    ):
+    ) -> str | bool:
         """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
         Two options are available for defining the grid points on which to export:

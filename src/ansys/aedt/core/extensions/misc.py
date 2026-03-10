@@ -273,7 +273,7 @@ class ExtensionCommon(PyAedtBase):
 
         self.check_design_type()
 
-    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int) -> None:
+    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent,
@@ -301,7 +301,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent: tkinter.Widget, row: int, column: int) -> None:
+    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
@@ -359,7 +359,7 @@ class ExtensionCommon(PyAedtBase):
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
-    def log_message(self, message: str) -> None:
+    def log_message(self, message: str):
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
             widget = self._widgets["log_text_widget"]
@@ -371,7 +371,7 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb) -> None:  # pragma: no cover
+        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
@@ -441,7 +441,7 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str) -> None:
+    def __apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
@@ -577,7 +577,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__data
 
     @data.setter
-    def data(self, value: ExtensionCommonData):
+    def data(self, value: ExtensionCommonData) -> None:
         if not isinstance(value, ExtensionCommonData):
             raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
         self.__data = value
@@ -731,7 +731,7 @@ def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, E
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb) -> None:
+    def report_callback_exception(self, exc, val, tb):
         showerror("Error", message=str(val))
 
     def report_callback_exception_withdraw(self, exc, val, tb):
@@ -857,15 +857,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         # Set default font
         self.default_font = ("Arial", 12)
 
-    def apply_light_theme(self, style: ttk.Style) -> None:
+    def apply_light_theme(self, style: ttk.Style):
         """Apply light theme."""
         self._apply_theme(style, self.light)
 
-    def apply_dark_theme(self, style: ttk.Style) -> None:
+    def apply_dark_theme(self, style: ttk.Style):
         """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
-    def _apply_theme(self, style, colors) -> None:
+    def _apply_theme(self, style, colors):
         # Apply the colors and font to the style
         style.theme_use("clam")
 
@@ -1115,11 +1115,11 @@ class ToolTip:
         self.widget.bind("<Leave>", self.leave)
         self.tipwindow = None
 
-    def enter(self, event=None) -> None:
+    def enter(self, event=None):
         """Show tooltip on mouse enter."""
         self.show_tooltip()
 
-    def leave(self, event=None) -> None:
+    def leave(self, event=None):
         """Hide tooltip on mouse leave."""
         self.hide_tooltip()
 

@@ -757,7 +757,7 @@ class FrequencySweepProfile(ProfileStep):
                         self.steps[name].elapsed_time = string_to_time(time_match.group(1))
 
     @pyaedt_function_handler()
-    def _create_summary(self, data: dict) -> None:
+    def _create_summary(self, data: dict):
         """Parse the sweep summary ``Info`` block and start time.
 
         Parameters
@@ -1082,7 +1082,7 @@ class SimulationProfile(PyAedtBase):
         return result
 
     @pyaedt_function_handler()
-    def _update_props_from_dict(self, props_dict: dict) -> None:
+    def _update_props_from_dict(self, props_dict: dict):
         """Populate attributes from a properties dict.
 
         Parameters
@@ -1486,7 +1486,7 @@ class Profiles(Mapping, PyAedtBase):
             return iter(self._profile_dict)
 
     @pyaedt_function_handler()
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key, value):
         raise TypeError(f"{self.__class__.__name__} is read-only and does not support item assignment.")
 
     @pyaedt_function_handler()

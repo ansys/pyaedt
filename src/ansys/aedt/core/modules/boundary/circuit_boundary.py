@@ -43,7 +43,7 @@ class Sources(PyAedtBase):
         self._auto_update = True
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Source name.
 
         Returns
@@ -53,7 +53,7 @@ class Sources(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, source_name) -> None:
+    def name(self, source_name: str) -> None:
         if source_name not in self._app.source_names:
             if source_name != self._name:
                 original_name = self._name
@@ -182,7 +182,7 @@ class Sources(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def update(self, original_name=None, new_source=None) -> bool:
+    def update(self, original_name: str = None, new_source: str = None) -> bool:
         """Update the source in AEDT.
 
         Parameters
@@ -329,7 +329,7 @@ class PowerSinSource(Sources):
         return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
     @property
-    def ac_magnitude(self):
+    def ac_magnitude(self) -> str:
         """AC magnitude value.
 
         Returns
@@ -339,12 +339,12 @@ class PowerSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value) -> None:
+    def ac_magnitude(self, value: str) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
     @property
-    def ac_phase(self):
+    def ac_phase(self) -> str:
         """AC phase value.
 
         Returns
@@ -354,12 +354,12 @@ class PowerSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value) -> None:
+    def ac_phase(self, value: str) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
     @property
-    def dc_magnitude(self):
+    def dc_magnitude(self) -> str:
         """DC voltage value.
 
         Returns
@@ -369,12 +369,12 @@ class PowerSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value) -> None:
+    def dc_magnitude(self, value: str) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
     @property
-    def power_offset(self):
+    def power_offset(self) -> str:
         """Power offset from zero watts.
 
         Returns
@@ -384,12 +384,12 @@ class PowerSinSource(Sources):
         return self._props["VO"]
 
     @power_offset.setter
-    def power_offset(self, value) -> None:
+    def power_offset(self, value: str) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
     @property
-    def power_magnitude(self):
+    def power_magnitude(self) -> str:
         """Available power of the source above power offset.
 
         Returns
@@ -399,12 +399,12 @@ class PowerSinSource(Sources):
         return self._props["POWER"]
 
     @power_magnitude.setter
-    def power_magnitude(self, value) -> None:
+    def power_magnitude(self, value: str) -> None:
         self._props["POWER"] = value
         self._child.SetPropValue("POWER", value)
 
     @property
-    def frequency(self):
+    def frequency(self) -> str:
         """Frequency.
 
         Returns
@@ -414,12 +414,12 @@ class PowerSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value) -> None:
+    def frequency(self, value: str) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
     @property
-    def delay(self):
+    def delay(self) -> str:
         """Delay to start of sine wave.
 
         Returns
@@ -429,12 +429,12 @@ class PowerSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value) -> None:
+    def delay(self, value: str) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
     @property
-    def damping_factor(self):
+    def damping_factor(self) -> str:
         """Damping factor.
 
         Returns
@@ -444,12 +444,12 @@ class PowerSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value) -> None:
+    def damping_factor(self, value: str) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
     @property
-    def phase_delay(self):
+    def phase_delay(self) -> str:
         """Phase delay.
 
         Returns
@@ -459,12 +459,12 @@ class PowerSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value) -> None:
+    def phase_delay(self, value: str) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
     @property
-    def tone(self):
+    def tone(self) -> str:
         """Frequency to use for harmonic balance.
 
         Returns
@@ -474,7 +474,7 @@ class PowerSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value) -> None:
+    def tone(self, value: str) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
@@ -490,7 +490,7 @@ class PowerIQSource(Sources):
         return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
     @property
-    def carrier_frequency(self):
+    def carrier_frequency(self) -> str:
         """Carrier frequency value.
 
         Returns
@@ -500,12 +500,12 @@ class PowerIQSource(Sources):
         return self._props["FC"]
 
     @carrier_frequency.setter
-    def carrier_frequency(self, value) -> None:
+    def carrier_frequency(self, value: str) -> None:
         self._props["FC"] = value
         self._child.SetPropValue("FC", value)
 
     @property
-    def sampling_time(self):
+    def sampling_time(self) -> str:
         """Sampling time value.
 
         Returns
@@ -515,12 +515,12 @@ class PowerIQSource(Sources):
         return self._props["TS"]
 
     @sampling_time.setter
-    def sampling_time(self, value) -> None:
+    def sampling_time(self, value: str) -> None:
         self._props["TS"] = value
         self._child.SetPropValue("TS", value)
 
     @property
-    def dc_magnitude(self):
+    def dc_magnitude(self) -> str:
         """DC voltage value.
 
         Returns
@@ -530,12 +530,12 @@ class PowerIQSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value) -> None:
+    def dc_magnitude(self, value: str) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
     @property
-    def repeat_from(self):
+    def repeat_from(self) -> str:
         """Repeat from time.
 
         Returns
@@ -545,12 +545,12 @@ class PowerIQSource(Sources):
         return self._props["R"]
 
     @repeat_from.setter
-    def repeat_from(self, value) -> None:
+    def repeat_from(self, value: str) -> None:
         self._props["R"] = value
         self._child.SetPropValue("R", value)
 
     @property
-    def delay(self):
+    def delay(self) -> str:
         """Delay to start of sine wave.
 
         Returns
@@ -560,12 +560,12 @@ class PowerIQSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value) -> None:
+    def delay(self, value: str) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
     @property
-    def carrier_amplitude_voltage(self):
+    def carrier_amplitude_voltage(self) -> str:
         """Carrier amplitude value, voltage-based.
 
         Returns
@@ -575,12 +575,12 @@ class PowerIQSource(Sources):
         return self._props["V"]
 
     @carrier_amplitude_voltage.setter
-    def carrier_amplitude_voltage(self, value) -> None:
+    def carrier_amplitude_voltage(self, value: str) -> None:
         self._props["V"] = value
         self._child.SetPropValue("V", value)
 
     @property
-    def carrier_amplitude_power(self):
+    def carrier_amplitude_power(self) -> str:
         """Carrier amplitude value, power-based.
 
         Returns
@@ -590,12 +590,12 @@ class PowerIQSource(Sources):
         return self._props["VA"]
 
     @carrier_amplitude_power.setter
-    def carrier_amplitude_power(self, value) -> None:
+    def carrier_amplitude_power(self, value: str) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
     @property
-    def carrier_offset(self):
+    def carrier_offset(self) -> str:
         """Carrier offset.
 
         Returns
@@ -605,12 +605,12 @@ class PowerIQSource(Sources):
         return self._props["VO"]
 
     @carrier_offset.setter
-    def carrier_offset(self, value) -> None:
+    def carrier_offset(self, value: str) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
     @property
-    def real_impedance(self):
+    def real_impedance(self) -> str:
         """Real carrier impedance.
 
         Returns
@@ -620,12 +620,12 @@ class PowerIQSource(Sources):
         return self._props["RZ"]
 
     @real_impedance.setter
-    def real_impedance(self, value) -> None:
+    def real_impedance(self, value: str) -> None:
         self._props["RZ"] = value
         self._child.SetPropValue("RZ", value)
 
     @property
-    def imaginary_impedance(self):
+    def imaginary_impedance(self) -> str:
         """Imaginary carrier impedance.
 
         Returns
@@ -635,12 +635,12 @@ class PowerIQSource(Sources):
         return self._props["IZ"]
 
     @imaginary_impedance.setter
-    def imaginary_impedance(self, value) -> None:
+    def imaginary_impedance(self, value: str) -> None:
         self._props["IZ"] = value
         self._child.SetPropValue("IZ", value)
 
     @property
-    def damping_factor(self):
+    def damping_factor(self) -> str:
         """Damping factor.
 
         Returns
@@ -650,12 +650,12 @@ class PowerIQSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value) -> None:
+    def damping_factor(self, value: str) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
     @property
-    def phase_delay(self):
+    def phase_delay(self) -> str:
         """Phase delay.
 
         Returns
@@ -665,12 +665,12 @@ class PowerIQSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value) -> None:
+    def phase_delay(self, value: str) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
     @property
-    def tone(self):
+    def tone(self) -> str:
         """Frequency to use for harmonic balance.
 
         Returns
@@ -680,12 +680,12 @@ class PowerIQSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value) -> None:
+    def tone(self, value: str) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
     @property
-    def i_q_values(self):
+    def i_q_values(self) -> str:
         """I and Q value at each timepoint.
 
         Returns
@@ -700,7 +700,7 @@ class PowerIQSource(Sources):
         return i_q
 
     @i_q_values.setter
-    def i_q_values(self, value) -> None:
+    def i_q_values(self, value: list) -> None:
         cont = 0
         for point in value:
             self._props["time" + str(cont + 1)] = point[0]
@@ -714,7 +714,7 @@ class PowerIQSource(Sources):
     @property
     def file(
         self,
-    ):
+    ) -> str:
         """File path with I and Q values.
 
         Returns
@@ -724,7 +724,7 @@ class PowerIQSource(Sources):
         return self._props["file"]
 
     @file.setter
-    def file(self, value) -> None:
+    def file(self, value: str) -> None:
         self._props["file"] = str(value)
         self.update()
 
@@ -740,7 +740,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
     @property
-    def frequencies(self):
+    def frequencies(self) -> list:
         """List of frequencies in ``Hz``.
 
         Returns
@@ -750,12 +750,12 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["frequencies"]
 
     @frequencies.setter
-    def frequencies(self, value) -> None:
+    def frequencies(self, value: list) -> None:
         self._props["frequencies"] = [float(i) for i in value]
         self._update_prop()
 
     @property
-    def vmag(self):
+    def vmag(self) -> list:
         """List of magnitudes in ``V``.
 
         Returns
@@ -765,12 +765,12 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vmag"]
 
     @vmag.setter
-    def vmag(self, value) -> None:
+    def vmag(self, value: list) -> None:
         self._props["vmag"] = [float(i) for i in value]
         self._update_prop()
 
     @property
-    def vang(self):
+    def vang(self) -> list:
         """List of angles in ``rad``.
 
         Returns
@@ -780,12 +780,12 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vang"]
 
     @vang.setter
-    def vang(self, value) -> None:
+    def vang(self, value: list) -> None:
         self._props["vang"] = [float(i) for i in value]
         self._update_prop()
 
     @property
-    def vreal(self):
+    def vreal(self) -> list:
         """List of real values in ``V``.
 
         Returns
@@ -795,12 +795,12 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vreal"]
 
     @vreal.setter
-    def vreal(self, value) -> None:
+    def vreal(self, value: list) -> None:
         self._props["vreal"] = [float(i) for i in value]
         self._update_prop()
 
     @property
-    def vimag(self):
+    def vimag(self) -> list:
         """List of imaginary values in ``V``.
 
         Returns
@@ -810,12 +810,12 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vimag"]
 
     @vimag.setter
-    def vimag(self, value) -> None:
+    def vimag(self, value: list) -> None:
         self._props["vimag"] = [float(i) for i in value]
         self._update_prop()
 
     @property
-    def magnitude_angle(self):
+    def magnitude_angle(self) -> bool:
         """Enable magnitude and angle data.
 
         Returns
@@ -825,17 +825,17 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["magnitude_angle"]
 
     @magnitude_angle.setter
-    def magnitude_angle(self, value) -> None:
+    def magnitude_angle(self, value: bool) -> None:
         self._props["magnitude_angle"] = value
         self._update_prop()
 
     @property
-    def fds_filename(self):
+    def fds_filename(self) -> str:
         """FDS file path.
 
         Returns
         -------
-        bool
+        str
         """
         return self._props["fds_filename"]
 
@@ -902,7 +902,7 @@ class VoltageDCSource(Sources):
         return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
     @property
-    def ac_magnitude(self):
+    def ac_magnitude(self) -> str:
         """AC magnitude value.
 
         Returns
@@ -912,12 +912,12 @@ class VoltageDCSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value) -> None:
+    def ac_magnitude(self, value: str) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
     @property
-    def ac_phase(self):
+    def ac_phase(self) -> str:
         """AC phase value.
 
         Returns
@@ -927,12 +927,12 @@ class VoltageDCSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value) -> None:
+    def ac_phase(self, value: str) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
     @property
-    def dc_magnitude(self):
+    def dc_magnitude(self) -> str:
         """DC voltage value.
 
         Returns
@@ -942,7 +942,7 @@ class VoltageDCSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value) -> None:
+    def dc_magnitude(self, value: str) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -958,7 +958,7 @@ class VoltageSinSource(Sources):
         return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
     @property
-    def ac_magnitude(self):
+    def ac_magnitude(self) -> str:
         """AC magnitude value.
 
         Returns
@@ -968,12 +968,12 @@ class VoltageSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value) -> None:
+    def ac_magnitude(self, value: str) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
     @property
-    def ac_phase(self):
+    def ac_phase(self) -> str:
         """AC phase value.
 
         Returns
@@ -983,12 +983,12 @@ class VoltageSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value) -> None:
+    def ac_phase(self, value: str) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
     @property
-    def dc_magnitude(self):
+    def dc_magnitude(self) -> str:
         """DC voltage value.
 
         Returns
@@ -998,12 +998,12 @@ class VoltageSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value) -> None:
+    def dc_magnitude(self, value: str) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
     @property
-    def voltage_amplitude(self):
+    def voltage_amplitude(self) -> str:
         """Voltage amplitude.
 
         Returns
@@ -1013,12 +1013,12 @@ class VoltageSinSource(Sources):
         return self._props["VA"]
 
     @voltage_amplitude.setter
-    def voltage_amplitude(self, value) -> None:
+    def voltage_amplitude(self, value: str) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
     @property
-    def voltage_offset(self):
+    def voltage_offset(self) -> str:
         """Voltage offset from zero watts.
 
         Returns
@@ -1028,12 +1028,12 @@ class VoltageSinSource(Sources):
         return self._props["VO"]
 
     @voltage_offset.setter
-    def voltage_offset(self, value) -> None:
+    def voltage_offset(self, value: str) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
     @property
-    def frequency(self):
+    def frequency(self) -> str:
         """Frequency.
 
         Returns
@@ -1043,12 +1043,12 @@ class VoltageSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value) -> None:
+    def frequency(self, value: str) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
     @property
-    def delay(self):
+    def delay(self) -> str:
         """Delay to start of sine wave.
 
         Returns
@@ -1058,12 +1058,12 @@ class VoltageSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value) -> None:
+    def delay(self, value: str) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
     @property
-    def damping_factor(self):
+    def damping_factor(self) -> str:
         """Damping factor.
 
         Returns
@@ -1073,12 +1073,12 @@ class VoltageSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value) -> None:
+    def damping_factor(self, value: str) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
     @property
-    def phase_delay(self):
+    def phase_delay(self) -> str:
         """Phase delay.
 
         Returns
@@ -1088,12 +1088,12 @@ class VoltageSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value) -> None:
+    def phase_delay(self, value: str) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
     @property
-    def tone(self):
+    def tone(self) -> str:
         """Frequency to use for harmonic balance.
 
         Returns
@@ -1103,7 +1103,7 @@ class VoltageSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value) -> None:
+    def tone(self, value: str) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
@@ -1129,12 +1129,12 @@ class CurrentSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value) -> None:
+    def ac_magnitude(self, value: str) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
     @property
-    def ac_phase(self):
+    def ac_phase(self) -> str:
         """AC phase value.
 
         Returns
@@ -1144,12 +1144,12 @@ class CurrentSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value) -> None:
+    def ac_phase(self, value: str) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
     @property
-    def dc_magnitude(self):
+    def dc_magnitude(self) -> str:
         """DC current value.
 
         Returns
@@ -1159,12 +1159,12 @@ class CurrentSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value) -> None:
+    def dc_magnitude(self, value: str) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
     @property
-    def current_amplitude(self):
+    def current_amplitude(self) -> str:
         """Current amplitude.
 
         Returns
@@ -1174,12 +1174,12 @@ class CurrentSinSource(Sources):
         return self._props["VA"]
 
     @current_amplitude.setter
-    def current_amplitude(self, value) -> None:
+    def current_amplitude(self, value: str) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
     @property
-    def current_offset(self):
+    def current_offset(self) -> str:
         """Current offset.
 
         Returns
@@ -1189,12 +1189,12 @@ class CurrentSinSource(Sources):
         return self._props["VO"]
 
     @current_offset.setter
-    def current_offset(self, value) -> None:
+    def current_offset(self, value: str) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
     @property
-    def frequency(self):
+    def frequency(self) -> str:
         """Frequency.
 
         Returns
@@ -1204,12 +1204,12 @@ class CurrentSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value) -> None:
+    def frequency(self, value: str) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
     @property
-    def delay(self):
+    def delay(self) -> str:
         """Delay to start of sine wave.
 
         Returns
@@ -1219,12 +1219,12 @@ class CurrentSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value) -> None:
+    def delay(self, value: str) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
     @property
-    def damping_factor(self):
+    def damping_factor(self) -> str:
         """Damping factor.
 
         Returns
@@ -1234,12 +1234,12 @@ class CurrentSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value) -> None:
+    def damping_factor(self, value: str) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
     @property
-    def phase_delay(self):
+    def phase_delay(self) -> str:
         """Phase delay.
 
         Returns
@@ -1249,12 +1249,12 @@ class CurrentSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value) -> None:
+    def phase_delay(self, value: str) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
     @property
-    def multiplier(self):
+    def multiplier(self) -> str:
         """Multiplier for simulating multiple parallel current sources.
 
         Returns
@@ -1264,12 +1264,12 @@ class CurrentSinSource(Sources):
         return self._props["M"]
 
     @multiplier.setter
-    def multiplier(self, value) -> None:
+    def multiplier(self, value: str) -> None:
         self._props["M"] = value
         self._child.SetPropValue("M", value)
 
     @property
-    def tone(self):
+    def tone(self) -> str:
         """Frequency to use for harmonic balance.
 
         Returns
@@ -1279,6 +1279,6 @@ class CurrentSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value) -> None:
+    def tone(self, value: str) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)

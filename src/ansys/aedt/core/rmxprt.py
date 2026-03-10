@@ -63,7 +63,7 @@ class RMXprtModule(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def __setitem__(self, parameter_name, value) -> None:
+    def __setitem__(self, parameter_name, value):
         def _apply_val(dict_in, name: str, value) -> bool:
             if name in dict_in.properties:
                 if (
