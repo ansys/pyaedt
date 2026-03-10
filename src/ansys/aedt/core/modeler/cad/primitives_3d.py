@@ -1367,7 +1367,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             parameters: list,
             library: str = "syslib",
             name: str | None = None,
-    ) -> "UserDefinedComponent" | bool:
+    ) -> "UserDefinedComponent | bool":
         """Create a user-defined model.
 
         Parameters
@@ -1456,7 +1456,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         material: str = "copper",
         name: str | None = None,
         **kwargs
-    ) -> "Polyline" | bool:
+    ) -> "Polyline | bool":
         """Create a spiral inductor from a polyline.
 
         Parameters
@@ -1679,7 +1679,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             name: str | None = None,
             password = None,
             auxiliary_parameters: bool = False,
-    ) -> "UserDefinedComponent" | bool:
+    ) -> "UserDefinedComponent | bool":
         """Insert a new 3D component.
 
         Parameters
@@ -2049,7 +2049,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             parameter_mapping: bool = False,
             layout_coordinate_systems: list = None,
             reference_coordinate_system: str = "Global"
-    ) -> "UserDefinedComponent" | bool:
+    ) -> "UserDefinedComponent | bool":
         """Insert a new layout component.
 
         Parameters
