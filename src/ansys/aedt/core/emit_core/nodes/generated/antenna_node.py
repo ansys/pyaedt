@@ -505,7 +505,6 @@ class AntennaNode(EmitNode):
     def height_flare_half_angle(self, value: float) -> None:
         self._set_property("Height Flare Half-angle", f"{value}")
 
-   
     @property
     @min_aedt_version("2025.2")
     def vswr(self) -> float:
