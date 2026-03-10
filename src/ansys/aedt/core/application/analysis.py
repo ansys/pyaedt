@@ -2349,7 +2349,7 @@ class Analysis(Design, PyAedtBase):
                     [
                         "NAME:" + tab_name,
                         ["NAME:PropServers", property_object],
-                        changed_props,
+                        ["NAME:ChangedProps", *changed_props],
                     ],
                 ]
             )
