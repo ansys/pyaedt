@@ -95,7 +95,7 @@ class CADNode(EmitNode):
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value: list[float]) -> None:
+    def position(self, value: list[float] | str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
@@ -112,7 +112,7 @@ class CADNode(EmitNode):
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value: list[float]) -> None:
+    def relative_position(self, value: list[float] | str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -147,7 +147,7 @@ class CADNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value: list[float]) -> None:
+    def orientation(self, value: list[float] | str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
@@ -164,7 +164,7 @@ class CADNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value: list[float]) -> None:
+    def relative_orientation(self, value: list[float] | str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
