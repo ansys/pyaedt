@@ -587,7 +587,8 @@ class PostProcessorCommon(PyAedtBase):
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
-
+                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
+                    report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
 
                 plots.append(report(self, report_type, None))

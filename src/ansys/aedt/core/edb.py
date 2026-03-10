@@ -131,8 +131,11 @@ def Edb(
     if settings.pyedb_use_grpc is None and settings.aedt_version > "2026.1":  # pragma: no cover
         settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
         settings.pyedb_use_grpc = True
+    elif settings.pyedb_use_grpc is None:
+        settings.logger.info("No EDB gRPC setting provided. Disabling gRPC for EDB.")
+        settings.pyedb_use_grpc = False
 
-    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version > "2026.1" else False  # pragma: no cover
+    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2026.1" else False  # pragma: no cover
     grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"  # pragma: no cover
     settings.logger.info(f"Loading EDB with {grpc_enabled}.")
 

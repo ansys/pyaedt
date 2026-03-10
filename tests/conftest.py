@@ -71,6 +71,7 @@ DEFAULT_CONFIG = {
     "local_example_folder": None,
     "skip_circuits": False,
     "skip_modelithics": True,
+    "use_pyedb_grpc": False,
 }
 
 local_path = Path(__file__).parent
@@ -96,6 +97,7 @@ USE_LOCAL_EXAMPLE_DATA = config.get("use_local_example_data", DEFAULT_CONFIG.get
 USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
 SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
+USE_PYEDB_GRPC = config.get("use_pyedb_grpc", DEFAULT_CONFIG.get("use_pyedb_grpc"))
 
 os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
 
@@ -108,7 +110,7 @@ settings.use_grpc_api = USE_GRPC
 settings.use_local_example_data = USE_LOCAL_EXAMPLE_DATA
 if settings.use_local_example_data and USE_LOCAL_EXAMPLE_FOLDER:
     settings.local_example_folder = USE_LOCAL_EXAMPLE_FOLDER
-
+settings.pyedb_use_grpc = USE_PYEDB_GRPC
 # NOTE: Additional environment configuration for error handling when the tests are
 # run locally and not in a CI environment.
 if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
