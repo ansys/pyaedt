@@ -63,7 +63,13 @@ class FilterDesignBase(PyAedtBase):
                 UserWarning,
             )
             FilterDesignBase._active_design.close()
+
+        if version is not None:
+            # Clear global state before initialization
+            settings.aedt_version = None
+
         FilterDesignBase._active_design = self
+
         self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
         self.attributes = Attributes()

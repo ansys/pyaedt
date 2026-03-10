@@ -166,11 +166,14 @@ def main():
 
         # --- Run Script with Arguments ---
         my_env = os.environ.copy()
+        error_handler = os.path.normpath(os.path.join(r"##EXTENSION_TEMPLATES##", "extension_error_handler.py"))
 
         # Build command based on platform
         if is_linux:
             command = [
                 python_exe,
+                error_handler,
+                "--script",
                 pyaedt_script,
             ]
             if script_args:
@@ -178,6 +181,8 @@ def main():
         else:
             command = [
                 '"{}"'.format(python_exe),
+                '"{}"'.format(error_handler),
+                '"{}"'.format("--script"),
                 '"{}"'.format(pyaedt_script),
             ]
             if script_args:
