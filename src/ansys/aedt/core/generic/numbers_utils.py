@@ -396,6 +396,7 @@ def decompose_variable_value(variable_value: str, full_variables: dict[str, Any]
                     units = extract_units
                 except ValueError:
                     float_value = variable_value
+                    units = ""
 
     return float_value, units
 
