@@ -345,7 +345,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
-        convert_to_float = ["Position", "Relative Position", "Orientation", "Relative Orientation"]
+        convert_from_float = ["Position", "Relative Position", "Orientation", "Relative Orientation"]
         if prop in convert_to_float:
             if isinstance(value, list):
                 value = " ".join(str(x) for x in value)
