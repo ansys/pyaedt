@@ -2573,6 +2573,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     self._app.modeler.schematic.create_gnd(location, page=gnd_pin._circuit_comp.page)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
+            elif len(pins) == 1:
+                self._app.modeler.create_page_port(name=i, location=pins[0].location, page=pins[0].page)
 
         for i, j in data["ports"].items():
             if "pin_mapping" in j:

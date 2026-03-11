@@ -814,13 +814,21 @@ class PostProcessorCommon(PyAedtBase):
             setup_sweep_name = self._app.nominal_adaptive
         sweep_list = self.__convert_dict_to_report_sel(sweeps)
         try:
+            self.logger.reset_timer()
             data = list(
                 self.oreportsetup.GetSolutionDataPerVariation(
                     solution_type, setup_sweep_name, context, sweep_list, expressions
                 )
             )
-            self.logger.info("Solution Data Correctly Loaded.")
-            return SolutionData(data)
+            self.logger.info_timer(
+                "Solution Correctly loaded."
+                if data
+                else "Solution Data failed to load. Check solution, context or expression."
+            )
+            self.logger.reset_timer()
+            sol = SolutionData(data)
+            self.logger.info_timer("Solution Correctly parsed.")
+            return sol
         except Exception:
             self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
             return None
