@@ -1138,6 +1138,13 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
                     p1 = [x, y]
         if self.prim_type == "rect":
             edges = [edges[2], edges[3], edges[0], edges[1]]
+        if "center_line" in dir(self):
+            pt0 = [float(i) for i in self.center_line["Pt0"]]
+            dists = [
+                GeometryOperators.v_norm(GeometryOperators.distance_vector(pt0, edge[0], edge[1])) for edge in edges
+            ]
+            min_idx = min(range(len(dists)), key=dists.__getitem__)
+            edges = edges[min_idx:] + edges[:min_idx]
         return edges
 
     @pyaedt_function_handler()
