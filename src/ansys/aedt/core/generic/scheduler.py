@@ -103,7 +103,7 @@ def get_aedt_exe(version: str | None = None) -> Path:
     Parameters
     ----------
     version : str
-        Version of Ansys Electronics Desktop. For example ``"25.2"``.
+        Version of Ansys Electronics Desktop. For example ``"26.1"``.
         The default will be the newest currently installed version of
         AEDT.
 
