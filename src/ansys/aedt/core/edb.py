@@ -128,10 +128,11 @@ def Edb(
         else:
             settings.aedt_version = aedt_versions.current_version
 
-    if settings.pyedb_use_grpc is None and settings.aedt_version > "2026.1":  # pragma: no cover
+if settings.pyedb_use_grpc is None:
+    if settings.aedt_version > "2026.1":  # pragma: no cover
         settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
         settings.pyedb_use_grpc = True
-    elif settings.pyedb_use_grpc is None:
+    else:
         settings.logger.info("No EDB gRPC setting provided. Disabling gRPC for EDB.")
         settings.pyedb_use_grpc = False
 
