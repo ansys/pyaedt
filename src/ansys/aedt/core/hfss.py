@@ -6403,6 +6403,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         renormalize: bool | None = True,
         deembed: bool | None = False,
         terminals_rename: bool | None = True,
+        auto_identify: bool | None = False,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6433,6 +6434,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
+        auto_identify : bool, optional
+            Whether to auto-identify port terminal when ``assignment`` is a sheet object and only one conductor object
+            is touching ``assignment``, as in when creating a "conductor-to-boundary" terminal port. The default is
+            ``False``.
 
         Returns
         -------
@@ -6496,6 +6501,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 and self.desktop_class.aedt_version_id >= "2024.1"
             )
             and not reference
+            and not auto_identify
         ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
