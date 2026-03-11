@@ -790,3 +790,79 @@ def test_apply_solved_variations(m3d_app) -> None:
     assert m3d_app["a"] == "5mm"
     assert m3d_app["b"] == "10mm"
     assert m3d_app["$c"] == "30mm"
+
+
+def test_change_property(m3d_app) -> None:
+    m3d_app["a"] = "10mm"
+    m3d_app["b"] = "20mm"
+
+    assert m3d_app.change_properties(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_names=["a", "b"],
+        property_values=["15mm", "25mm"],
+    )
+
+    assert m3d_app["a"] == "15mm"
+    assert m3d_app["b"] == "25mm"
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names=["a", "b"],
+            property_values=["15mm", "25mm", "35mm"],
+        )
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names="a",
+            property_values=["15mm"],
+        )
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value="150mm",
+    )
+    assert m3d_app["a"] == "150mm"
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value=["15mm", "15mm", "15mm"],
+    )
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value=True,
+    )
+
+    assert not m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value={"test": 1},
+    )
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names=["a"],
+            property_values="15mm",
+        )
