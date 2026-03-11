@@ -15,13 +15,13 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: a27a2e47c7751b639d2b5badf0ef6ff11fee893f  # frozen: v0.15.4
+  rev: b969e2851312ca2b24bbec879ba4954341d1bd12  # frozen: v0.15.5
   hooks:
     - id: ruff-check
     - id: ruff-format
 
 - repo: https://github.com/codespell-project/codespell
-  rev: 63c8f8312b7559622c0d82815639671ae42132ac  # frozen: v2.4.1
+  rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
   hooks:
     - id: codespell
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]

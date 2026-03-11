@@ -752,10 +752,9 @@ class Settings(PyAedtBase):
 
     @aedt_version.setter
     def aedt_version(self, value: str | None) -> None:
-        if value is not None:
-            self.__aedt_version = value
-            if self.__aedt_version >= "2023.1":
-                self.disable_bounding_box_sat = True
+        self.__aedt_version = value
+        if value is not None and self.__aedt_version >= "2023.1":
+            self.disable_bounding_box_sat = True
 
     @property
     def use_multi_desktop(self) -> bool:

@@ -759,7 +759,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.active_extension = option
         self.active_process = subprocess.Popen([
             self.python_interpreter, str(script_file)
-        ], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
+        ], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
 
         # Start streaming logs
         self._start_log_stream_threads()
