@@ -2574,7 +2574,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
             elif len(pins) == 1:
-                self._app.modeler.create_page_port(name=i, location=pins[0].location, page=pins[0].page)
+                self._app.modeler.schematic.create_page_port(name=i, location=pins[0].location, page=pins[0]._circuit_comp.page)
 
         for i, j in data["ports"].items():
             if "pin_mapping" in j:
@@ -2600,7 +2600,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     )
                                     if "properties" in j:
                                         for k, v in j["properties"].items():
-                                            jj._props[k] = v
+                                            jj.parameters[k] = v
                                         jj.update()
                                     if "reference" in j:
                                         jj.reference = j["reference"]
