@@ -1019,7 +1019,7 @@ class Desktop(PyAedtBase):
         >>> from ansys.aedt.core import Desktop
         >>> from pathlib import Path
         >>> working_folder = Path("C:\") / "path" / "to" / "target_folder"  # Windows
-        >>> d = Desktop(version=252)
+        >>> d = Desktop(version=261)
         >>> example_path = d.get_example("5G_SIW_Aperture_Antenna")
         >>> new_project = working_folder / example_path.name
         >>> working_folder.mkdir(parents=True, exist_ok=True)

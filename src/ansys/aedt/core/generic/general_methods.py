@@ -566,7 +566,7 @@ def env_value_student(input_version: str) -> str:
     Examples
     --------
     >>> env_value_student(2026.1)
-    "ANSYSEMSV_ROOT252"
+    "ANSYSEMSV_ROOT261"
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
