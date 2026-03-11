@@ -1789,9 +1789,14 @@ class Excitations(CircuitComponent):
 
         arg1 = [["NAME:Properties", arg2, arg1]]
         self._circuit_components._app.odesign.ChangePortProperty(self.name, arg0, arg1)
-
-        for source in self._circuit_components._app.sources:
-            self._circuit_components._app.sources[source].update()
+        dont_skip = False
+        for prop in self.parameters:
+            dont_skip = (prop == "EnabledPorts" or prop == "EnabledMultipleComponents") and self.parameters[prop] != []
+            if dont_skip:
+                break
+        if dont_skip:
+            for source in self._circuit_components._app.sources:
+                self._circuit_components._app.sources[source].update()
         return True
 
     @pyaedt_function_handler()
