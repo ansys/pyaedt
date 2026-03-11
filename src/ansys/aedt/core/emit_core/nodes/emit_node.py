@@ -323,7 +323,13 @@ class EmitNode:
             val = selected_kv_pair[1]
 
             # Convert position and orientation properties to list of floats
-            convert_to_float = ["Position", "Relative Position", "Orientation", "Relative Orientation"]
+            convert_to_float = [
+                "Position",
+                "Relative Position",
+                "Orientation",
+                "Relative Orientation",
+                "Frequency Domain",
+            ]
             if prop in convert_to_float:
                 return [float(x) for x in val.split()]
 
@@ -345,7 +351,13 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
-        convert_from_float = ["Position", "Relative Position", "Orientation", "Relative Orientation"]
+        convert_from_float = [
+            "Position",
+            "Relative Position",
+            "Orientation",
+            "Relative Orientation",
+            "Frequency Domain",
+        ]
         if prop in convert_from_float:
             if isinstance(value, list):
                 value = " ".join(str(x) for x in value)

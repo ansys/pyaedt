@@ -612,7 +612,7 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def frequency_domain(self) -> str:
+    def frequency_domain(self) -> list[float]:
         """Frequency sample(s) defining antenna."""
         val = self._get_property("Frequency Domain")
         return val
