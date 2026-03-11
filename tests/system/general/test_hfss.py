@@ -1300,7 +1300,6 @@ def test_set_autoopen(aedt_app) -> None:
 
 
 def test_terminal_port_lumped(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal")
     aedt_app.solution_type = "Terminal"
     box1 = aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", material="copper")
     box2 = aedt_app.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", material="copper")
@@ -1341,7 +1340,6 @@ def test_terminal_port_lumped(aedt_app) -> None:
 
 
 def test_terminal_port_lumped_auto_identify(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal")
     aedt_app.solution_type = "Terminal"
     aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="airbox", material="vacuum")
     aedt_app.modeler.create_box([-10, -10, 20], [20, 20, 10], name="sig", material="copper")

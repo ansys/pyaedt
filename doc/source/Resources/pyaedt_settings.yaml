@@ -82,6 +82,7 @@ aedt_env_var:
   ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE: '1'
   # Environment variable useful in Linux to skip the dependency check which improves speed
   ANS_NODEPCHECK: '1'
+  AnsysSendMsg: '1'
 
 general:
   # Enable or disable the lazy load
