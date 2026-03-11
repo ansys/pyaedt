@@ -2338,8 +2338,8 @@ class Analysis(Design, PyAedtBase):
             )
         elif isinstance(property_name, list) and isinstance(property_value, list):
             changed_props = []
-            for pn, pv in zip(property_name, property_value):
-                changed_props.append(["NAME:" + pn, "Value:=", pv])
+            for name, value in zip(property_name, property_value):
+                changed_props.append(["NAME:" + name, "Value:=", value])
             aedt_object.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -2402,7 +2402,7 @@ class Analysis(Design, PyAedtBase):
 
         Examples
         --------
-        Create a simple box where all its dimensions are parametrized
+        # Create a simple box where all its dimensions are parametrized
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.2")
         >>> m3d["a"] = "10mm"
@@ -2410,18 +2410,21 @@ class Analysis(Design, PyAedtBase):
         >>> m3d["c"] = "30mm"
         >>> box = m3d.modeler.create_box([0, 0, 0], ["a", "b", "c"], name="Box", material="copper")
         >>> m3d.modeler.create_region([100, 100, 0, 0, 100, 100])
-        Assign current excitations
+
+        # Assign current excitations
         >>> current1 = m3d.assign_current(box.bottom_face_y, "1A")
         >>> current2 = m3d.assign_current(box.top_face_y, "1A", swap_direction=True)
-        Create the parametric setup to sweep the box dimensions and analyze the variations
+
+        # Create the parametric setup to sweep the box dimensions and analyze the variations
         >>> setup = m3d.create_setup()
         >>> param = m3d.parametrics.add("a", 5, 10, 2, "LinearCount")
         >>> param.add_variation("b", 10, 20, 2, variation_type="LinearCount")
         >>> param.add_variation("c", 15, 30, 2, variation_type="LinearCount")
         >>> param.analyze()
-        Plot the magnetic field density on the surface of the box
+
+        # Plot the magnetic field density on the surface of the box
         >>> plot = m3d.post.create_fieldplot_surface(assignment=box, quantity="Mag_B")
-        Apply solved variation
+        >>> # Apply solved variation
         >>> variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
 
         >>> m3d_app.apply_solved_variation(variations[0])
