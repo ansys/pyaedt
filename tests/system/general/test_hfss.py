@@ -1340,6 +1340,21 @@ def test_terminal_port_lumped(aedt_app) -> None:
     aedt_app.delete_design("Design_Terminal", aedt_app.design_name)
 
 
+def test_terminal_port_lumped_auto_identify(aedt_app) -> None:
+    aedt_app.insert_design("Design_Terminal")
+    aedt_app.solution_type = "Terminal"
+    aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="airbox", material="vacuum")
+    aedt_app.modeler.create_box([-10, -10, 20], [20, 20, 10], name="sig", material="copper")
+    sheet = aedt_app.modeler.create_rectangle(Plane.YZ, [0, -10, 0], [20, 20], "port")
+
+    port = aedt_app.lumped_port(
+        assignment=sheet.name,
+        auto_identify=True,
+    )
+    assert port.name + "_T1" in aedt_app.excitation_names
+    aedt_app.delete_design("Design_Terminal", aedt_app.design_name)
+
+
 def test_terminal_port(aedt_app) -> None:
     aedt_app.insert_design("Design_Terminal_2")
     aedt_app.solution_type = "Terminal"
