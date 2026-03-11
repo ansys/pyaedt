@@ -240,21 +240,6 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def antenna_metadata_file(self) -> str:
-        """Name of HFSS exported file with antenna metadata.
-
-        Value should be a full file path.
-        """
-        val = self._get_property("Antenna Metadata File")
-        return val
-
-    @antenna_metadata_file.setter
-    @min_aedt_version("2025.2")
-    def antenna_metadata_file(self, value: str) -> None:
-        self._set_property("Antenna Metadata File", f"{value}")
-
-    @property
-    @min_aedt_version("2025.2")
     def project_name(self) -> str:
         """Name of imported HFSS Antenna project.
 
