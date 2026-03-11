@@ -115,8 +115,6 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    from pyedb import Edb
-
     if version is not None:
         # Clear global state before initialization
         settings.aedt_version = None
@@ -127,6 +125,7 @@ def Edb(
             settings.aedt_version = version
         else:
             settings.aedt_version = aedt_versions.current_version
+
 
 if settings.pyedb_use_grpc is None:
     if settings.aedt_version > "2026.1":  # pragma: no cover
