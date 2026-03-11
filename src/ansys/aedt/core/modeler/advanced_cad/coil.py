@@ -375,9 +375,22 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_sweep_profile(self, polyline: "Object3d") -> str:
+        """Create the profile to sweep along the coil path and perform the sweep operation.
+
+        Parameters
+        ----------
+        polyline : Object3d
+            The polyline object representing the coil path.
+
+        Returns
+        -------
+        str
+            The name of the profile created for sweeping.
+        """
         profile = self._app.modeler.create_circle(
             "YZ", polyline.end_point, "wire_radius", num_sides="section_segmentation"
         )
+        # For the flat coil, an additional arc and line are added to make the end connection.
         if not self.is_vertical:
             arc_center = [
                 polyline.start_point[0],
