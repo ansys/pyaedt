@@ -777,7 +777,6 @@ def test_create_lumped_on_objects(aedt_app) -> None:
 
 
 def test_create_circuit_on_objects(aedt_app) -> None:
-    aedt_app.insert_design("test")
     aedt_app.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
     box2 = aedt_app.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
     box2.material_name = "Copper"
@@ -789,11 +788,9 @@ def test_create_circuit_on_objects(aedt_app) -> None:
         aedt_app.circuit_port(
             "BoxCircuit44", "BoxCircuit2", aedt_app.axis_directions.XNeg, 50, "Circ1", True, 50, False
         )
-    aedt_app.delete_design("test", aedt_app.design_name)
 
 
 def test_create_perfects_on_objects(aedt_app) -> None:
-    aedt_app.insert_design("test")
     box1 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
     box2 = aedt_app.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
 
@@ -812,7 +809,6 @@ def test_create_perfects_on_objects(aedt_app) -> None:
     assert pe.update()
     assert ph.name in aedt_app.modeler.get_boundaries_name()
     assert ph.update()
-    aedt_app.delete_design("test", aedt_app.design_name)
 
 
 def test_create_impedance_on_objects(aedt_app) -> None:
@@ -1173,7 +1169,6 @@ def test_export_step(aedt_app, test_tmp_dir) -> None:
 
 
 def test_floquet_port(aedt_app) -> None:
-    aedt_app.insert_design("floquet")
     aedt_app.solution_type = "Modal"
 
     box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
@@ -1190,11 +1185,9 @@ def test_floquet_port(aedt_app) -> None:
     assert bound
     bound.name = "Floquet1"
     assert bound.update()
-    aedt_app.delete_design("floquet", aedt_app.design_name)
 
 
 def test_autoassign_pairs(aedt_app) -> None:
-    aedt_app.insert_design("lattice")
     box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
     assert len(aedt_app.auto_assign_lattice_pairs(box1)) == 2
     box1.delete()
@@ -1212,7 +1205,6 @@ def test_autoassign_pairs(aedt_app) -> None:
     sec = aedt_app.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True)
     sec.name = "Sec1"
     assert sec.update()
-    aedt_app.delete_design("lattice", aedt_app.design_name)
 
 
 def test_create_infinite_sphere(aedt_app) -> None:
@@ -1300,7 +1292,6 @@ def test_set_autoopen(aedt_app) -> None:
 
 
 def test_terminal_port_lumped(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal")
     aedt_app.solution_type = "Terminal"
     box1 = aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", material="copper")
     box2 = aedt_app.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", material="copper")
@@ -1337,11 +1328,9 @@ def test_terminal_port_lumped(aedt_app) -> None:
         deembed=True,
     )
     assert port3.name + "_T1" in aedt_app.excitation_names
-    aedt_app.delete_design("Design_Terminal", aedt_app.design_name)
 
 
 def test_terminal_port_lumped_auto_identify(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal")
     aedt_app.solution_type = "Terminal"
     aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="airbox", material="vacuum")
     aedt_app.modeler.create_box([-10, -10, 20], [20, 20, 10], name="sig", material="copper")
@@ -1352,11 +1341,9 @@ def test_terminal_port_lumped_auto_identify(aedt_app) -> None:
         auto_identify=True,
     )
     assert port.name + "_T1" in aedt_app.excitation_names
-    aedt_app.delete_design("Design_Terminal", aedt_app.design_name)
 
 
 def test_terminal_port(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal_2")
     aedt_app.solution_type = "Terminal"
     box1 = aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", material="copper")
     box2 = aedt_app.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", material="copper")
@@ -1418,7 +1405,6 @@ def test_terminal_port(aedt_app) -> None:
             execinfo.args[0]
             == "The closest faces of the two objects must be aligned with the main planes of the reference system."
         )
-    aedt_app.delete_design("Design_Terminal_2", aedt_app.design_name)
 
 
 def test_mesh_settings(aedt_app) -> None:
