@@ -275,7 +275,7 @@ def main(data: CoilExtensionData) -> bool:
     if data.create_3d_comp:
         # Create and replace 3D Component
         comp_path = Path(aedtapp.working_directory, data.name + ".a3dcomp")
-        params = [f.name for f in fields(data)] & aedtapp.variable_manager.design_variables.keys()
+        params = {f.name for f in fields(data)} & aedtapp.variable_manager.design_variables.keys()
         aedtapp.modeler.create_3dcomponent(
             input_file=str(comp_path),
             variables_to_include=list(params),
