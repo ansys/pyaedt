@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from dataclasses import dataclass
+from dataclasses import field
 from dataclasses import fields
 import os
 from pathlib import Path
@@ -53,6 +54,7 @@ DEFAULT_PADDING = {"padx": 5, "pady": 5}
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
     "is_vertical": True,
+    "create_3d_comp": True,
     "Common": {
         "name": "",
         "centre_x": 0.0,
@@ -82,7 +84,8 @@ EXTENSION_TITLE = "Create coil design"
 class CoilExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    is_vertical: bool = EXTENSION_DEFAULT_ARGUMENTS["is_vertical"]
+    is_vertical: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["is_vertical"])
+    create_3d_comp: bool = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["create_3d_comp"])
     name: str = EXTENSION_DEFAULT_ARGUMENTS["Common"]["name"]
     centre_x: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_x"]
     centre_y: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_y"]
@@ -156,9 +159,24 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         row += 1
         return row
 
+    def _create_3d_component(self, tab, row):
+        create_3d_comp_label = ttk.Label(tab, text="Create 3D Component", style="PyAEDT.TLabel", width=20)
+        create_3d_comp_label.grid(row=row, column=0, **DEFAULT_PADDING)
+        create_3d_comp = tk.IntVar(tab, name="create_3d_comp", value=1)
+        self.__widget["create_3d_comp"] = ttk.Checkbutton(
+            tab,
+            variable=create_3d_comp,
+            style="PyAEDT.TCheckbutton",
+            name="create_3d_comp",
+        )
+        self.__widget["create_3d_comp"].var = create_3d_comp
+        self.__widget["create_3d_comp"].grid(row=row, column=1, sticky="", padx=5)
+        row += 1
+        return row
+
     def _add_export_button(self, tab, row):
         export_points_button = ttk.Button(
-            tab, text="Parameters help", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
+            tab, text="Parameters help", command=self.show_pictures_popup, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
@@ -172,6 +190,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             row = self._add_parameter_row(tab, parameter, default_value, row)
 
         if tab_name == "Common":
+            row = self._create_3d_component(tab, row)
             self._add_export_button(tab, row)
 
     def add_extension_content(self) -> None:
@@ -250,46 +269,23 @@ def main(data: CoilExtensionData) -> bool:
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
 
-    # Define start point based on coil orientation
-    centre_x = coil.centre_x
-    centre_y = coil.centre_y
-    inner_y = coil.inner_length
-
-    if data.is_vertical:
-        centre_z = coil.centre_z
-        inner_distance = coil.inner_distance
-        pitch = coil.pitch
-        turns = coil.turns
-        start_point = [
-            centre_x,
-            centre_y - 0.5 * inner_y - inner_distance,
-            centre_z + pitch * turns * 0.5,
-        ]
-    else:
-        inner_x = coil.inner_width
-        start_position = coil.looping_position
-        start_point = [
-            centre_x + 0.25 * inner_x,
-            centre_y - (start_position - 0.5) * inner_y,
-            0,
-        ]
     # Create coil profile
-    profile_name = coil.create_sweep_profile(start_point, polyline)
+    profile_name = coil.create_sweep_profile(polyline)
 
-    # Create and replace 3D Component
-    comp_path = Path(aedtapp.working_directory, data.name + ".a3dcomp")
-    params = [f.name for f in fields(data)] & aedtapp.variable_manager.design_variables.keys()
-    aedtapp.modeler.create_3dcomponent(
-        input_file=str(comp_path),
-        variables_to_include=list(params),
-        # name=data.name,
-        assignment=[profile_name],
-    )
-    aedtapp.modeler.replace_3dcomponent(
-        name=data.name,
-        variables_to_include=list(params),
-        assignment=[profile_name],
-    )
+    if data.create_3d_comp:
+        # Create and replace 3D Component
+        comp_path = Path(aedtapp.working_directory, data.name + ".a3dcomp")
+        params = {f.name for f in fields(data)} & aedtapp.variable_manager.design_variables.keys()
+        aedtapp.modeler.create_3dcomponent(
+            input_file=str(comp_path),
+            variables_to_include=list(params),
+            assignment=[profile_name],
+        )
+        aedtapp.modeler.replace_3dcomponent(
+            name=data.name,
+            variables_to_include=list(params),
+            assignment=[profile_name],
+        )
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         aedtapp.release_desktop(False, False)

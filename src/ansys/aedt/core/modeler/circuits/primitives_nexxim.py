@@ -666,9 +666,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_resistor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
@@ -716,9 +716,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_inductor(
         self,
         name: str | None = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
@@ -769,9 +769,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_capacitor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
