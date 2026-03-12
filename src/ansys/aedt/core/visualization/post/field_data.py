@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from collections import defaultdict
 import csv
@@ -1268,7 +1270,7 @@ class FieldPlot(PyAedtBase):
     @pyaedt_function_handler()
     def get_points_value(
         self, points: list | dict, filename: str | None = None, visibility: bool = False
-    ) -> dict | pd.DataFrame:  # pragma: no cover
+    ) -> "dict | pd.DataFrame":  # pragma: no cover
         """
         Get points data from field plot.
 
