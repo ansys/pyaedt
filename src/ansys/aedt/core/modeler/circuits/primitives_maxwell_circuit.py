@@ -146,7 +146,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         name: str = None,
         value: float = 50.0,
         location: list[float] = None,
-        angle: float = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
     ) -> "CircuitComponent":
         """Create an inductor.
