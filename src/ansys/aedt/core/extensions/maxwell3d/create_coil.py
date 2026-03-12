@@ -279,7 +279,6 @@ def main(data: CoilExtensionData) -> bool:
         aedtapp.modeler.create_3dcomponent(
             input_file=str(comp_path),
             variables_to_include=list(params),
-            # name=data.name,
             assignment=[profile_name],
         )
         aedtapp.modeler.replace_3dcomponent(
