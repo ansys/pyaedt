@@ -265,7 +265,7 @@ class FieldSummary(PyAedtBase):
         """
         if not setup:
             setup = self._app.nominal_sweep
-        if not variations:
+        if not variations and self._app.available_variations.all:
             variations = self._app.available_variations.variations(setup, True)[0]
         dv_string = ""
         for el in variations:
