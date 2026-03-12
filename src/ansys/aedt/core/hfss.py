@@ -6395,15 +6395,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: str | int | list,
         reference: Object3d | int | list | None = None,
-        create_port_sheet: bool | None = False,
-        port_on_plane: bool | None = True,
-        integration_line: int | Gravity | None = 0,
-        impedance: float | None = 50,
+        create_port_sheet: bool = False,
+        port_on_plane: bool = True,
+        integration_line: int | Gravity | list[float] = 0,
+        impedance: float | int = 50,
         name: str | None = None,
-        renormalize: bool | None = True,
-        deembed: bool | None = False,
-        terminals_rename: bool | None = True,
-        auto_identify: bool | None = False,
+        renormalize: bool = True,
+        deembed: bool = False,
+        terminals_rename: bool = True,
+        auto_identify: bool = False,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6430,8 +6430,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
+        deembed : bool, optional
+            Enabling deembeing. The default is ``False``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
         auto_identify : bool, optional
