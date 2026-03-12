@@ -133,6 +133,42 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+  build-wheelhouse-rocky:
+    name: Build wheelhouse (Rocky Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # Required to read repository content for building
+      id-token: write  # Required for OIDC token generation (for provenance signing)
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+    container:
+      image: rockylinux:8
+    steps:
+      - name: Install base tools
+        shell: bash
+        run: |
+          dnf -y update
+          dnf -y install git which zip unzip tar gzip findutils curl
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-rocky
+        uses: ansys/actions/build-wheelhouse@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: rocky-linux
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          target: 'all'
+          attest-provenance: true
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
   unit-tests:
     name: Unit tests
     needs: smoke-tests
@@ -1233,7 +1269,7 @@ jobs:
   # TODO: If we can fix the PDF issue and leverage classic ansys/release-github
   release:
     name: Release project
-    needs: [package, doc-build]
+    needs: [package, doc-build, build-wheelhouse-rocky]
     runs-on: ubuntu-latest
     # Specifying a GitHub environment is optional, but strongly encouraged
     environment: release
