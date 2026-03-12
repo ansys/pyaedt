@@ -587,7 +587,8 @@ class PostProcessorCommon(PyAedtBase):
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
-
+                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
+                    report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
 
                 plots.append(report(self, report_type, None))
@@ -813,13 +814,21 @@ class PostProcessorCommon(PyAedtBase):
             setup_sweep_name = self._app.nominal_adaptive
         sweep_list = self.__convert_dict_to_report_sel(sweeps)
         try:
+            self.logger.reset_timer()
             data = list(
                 self.oreportsetup.GetSolutionDataPerVariation(
                     solution_type, setup_sweep_name, context, sweep_list, expressions
                 )
             )
-            self.logger.info("Solution Data Correctly Loaded.")
-            return SolutionData(data)
+            self.logger.info_timer(
+                "Solution Correctly loaded."
+                if data
+                else "Solution Data failed to load. Check solution, context or expression."
+            )
+            self.logger.reset_timer()
+            sol = SolutionData(data)
+            self.logger.info_timer("Solution Correctly parsed.")
+            return sol
         except Exception:
             self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
             return None

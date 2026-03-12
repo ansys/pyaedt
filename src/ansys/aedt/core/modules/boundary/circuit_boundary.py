@@ -243,7 +243,7 @@ class Sources(PyAedtBase):
             excitation_source = []
             for port in self._app.excitation_names:
                 # self._app.design_excitations[port]._props
-                if source_name in self._app.design_excitations[port]._props["EnabledPorts"]:
+                if source_name in self._app.design_excitations[port].parameters["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")
             arg3.append(excitation_source)
@@ -265,9 +265,9 @@ class Sources(PyAedtBase):
         for source_name in self._app.sources:
             arg6 = ["NAME:" + source_name]
             for port in self._app.excitation_names:
-                if source_name in self._app.design_excitations[port]._props["EnabledAnalyses"]:
+                if source_name in self._app.design_excitations[port].parameters["EnabledAnalyses"]:
                     arg6.append(port + ":=")
-                    arg6.append(self._app.design_excitations[port]._props["EnabledAnalyses"][source_name])
+                    arg6.append(self._app.design_excitations[port].parameters["EnabledAnalyses"][source_name])
                 else:
                     arg6.append(port + ":=")
                     arg6.append([])
