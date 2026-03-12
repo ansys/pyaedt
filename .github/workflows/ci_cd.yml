@@ -259,11 +259,11 @@ jobs:
   build-wheelhouse-rocky:
     name: Build wheelhouse (Rocky Linux)
     runs-on: ubuntu-latest
-    #needs: [analyze-changes]
+    needs: [analyze-changes]
     permissions:
       contents: read   # Required to read repository content for building
     container:
-      image: rockylinux:8@sha256:e8a49c5403b687db05d4d67333fa45808fbe74f36e683cec7abb1f7d0f2338c6
+      image: ghcr.io/easybuilders/rockylinux-8.10:2026-03-02-22574820360.139
     steps:
       - name: Install base tools
         shell: bash
