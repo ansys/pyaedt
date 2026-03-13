@@ -1765,6 +1765,7 @@ def test_transient_fs(transient_app) -> None:
         df = fs2.get_field_summary_data(pandas_output=True)
         assert not df["Mean"].empty
 
+
 def test_folder_settings(transient_app) -> None:
     plot_object = transient_app.post.create_fieldplot_surface(
         assignment=transient_app.modeler["Box1"].faces[0].id, quantity="Temperature"
