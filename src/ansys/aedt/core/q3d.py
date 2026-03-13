@@ -83,7 +83,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -369,7 +369,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Q3d
-        >>> q3d = Q3d(version="2025.2")
+        >>> q3d = Q3d(version="2026.1")
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         Values can also be passed as lists instead of tuples.
@@ -1313,7 +1313,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -1379,18 +1379,18 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
-    Create an instance of Q3D using the 2025 R1 release and open
+    Create an instance of Q3D using the 2026 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> app = Q3d(version=252, project="myfile2.aedt")
+    >>> app = Q3d(version=261, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
-    Create an instance of Q3D using the 2025 R1 student version and open
+    Create an instance of Q3D using the 2026 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> app = Q3d(version="252", project="myfile3.aedt", student_version=True)
+    >>> app = Q3d(version="261", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -2476,7 +2476,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.

@@ -394,7 +394,7 @@ def test_start_command_default_parameters(cli_runner, mock_start_command) -> Non
     result = cli_runner.invoke(app, ["start"])
 
     assert result.exit_code == 0
-    assert "Starting AEDT 2025.2..." in result.stdout
+    assert "Starting AEDT 2026.1..." in result.stdout
     assert "✓ AEDT started successfully" in result.stdout
 
 
@@ -1047,7 +1047,7 @@ def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner) -> N
 
     assert result.exit_code == 0
     assert "Current Test Configuration" in result.stdout
-    assert "2025.2" in result.stdout
+    assert "2026.1" in result.stdout
 
 
 @patch("ansys.aedt.core.cli.common._get_tests_folder")
