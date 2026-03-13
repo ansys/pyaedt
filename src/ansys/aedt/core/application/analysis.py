@@ -2289,8 +2289,70 @@ class Analysis(Design, PyAedtBase):
             return str(f"{value}{units}")
 
     @pyaedt_function_handler()
+    def change_properties(
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_names: list,
+        property_values: list,
+    ) -> bool:
+        """Change multiple properties.
+
+        Parameters
+        ----------
+        aedt_object :
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object.
+        property_names : list
+            List of property names. For example, ``["prop1", "prop2"]``.
+        property_values : list
+            List of property values corresponding to the property names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+        """
+        if not isinstance(property_names, list) or not isinstance(property_values, list):
+            raise ValueError("``property_names`` and ``property_values`` must be lists.")
+
+        if len(property_names) != len(property_values):
+            raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+
+        changed_props = []
+        for name, value in zip(property_names, property_values):
+            changed_props.append(["NAME:" + name, "Value:=", value])
+
+        aedt_object.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:" + tab_name,
+                    ["NAME:PropServers", property_object],
+                    ["NAME:ChangedProps", *changed_props],
+                ],
+            ]
+        )
+        self.logger.info(f"Properties {property_names} changed correctly.")
+        return True
+
+    @pyaedt_function_handler()
     def change_property(
-        self, aedt_object: object, tab_name: str, property_object: str, property_name: str, property_value: str | list
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_name: str,
+        property_value: str | list,
     ) -> bool:
         """Change a property.
 
@@ -2305,10 +2367,10 @@ class Analysis(Design, PyAedtBase):
             Name of the property object. It can be the name of an excitation or field reporter.
             For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
-            Name of the property. For example, ``Rotation Angle``.
+            Name of the property.
         property_value : str, list
             Value of the property. It is a string for a single value and a list of three elements for
-            ``[x,y,z]`` coordianates.
+            ``[x,y,z]`` coordianates. If property_name is a list, this should be a list of corresponding values.
 
         Returns
         -------
@@ -2319,7 +2381,11 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oEditor.ChangeProperty
         """
-        if isinstance(property_value, list) and len(property_value) == 3:
+        if not isinstance(property_name, str):
+            raise ValueError("``property_name`` must be a string.")
+
+        # Single property with [x,y,z] coordinates
+        if isinstance(property_value, list) and len(property_value) == 3 and not isinstance(property_name, list):
             xpos, ypos, zpos = self.modeler._pos_with_arg(property_value)
             aedt_object.ChangeProperty(
                 [
@@ -2359,6 +2425,95 @@ class Analysis(Design, PyAedtBase):
             return False
         self.logger.info(f"Property {property_name} changed correctly.")
         return True
+
+    @pyaedt_function_handler()
+    def apply_solved_variation(
+        self,
+        variation: dict,
+    ) -> bool:
+        """Apply solved variation values to a property.
+
+        Parameters
+        ----------
+        variation : dict
+            Dictionary containing the variations. Keys are variable names and values are their corresponding values.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        # Create a simple box where all its dimensions are parametrized
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.2")
+        >>> m3d["a"] = "10mm"
+        >>> m3d["b"] = "20mm"
+        >>> m3d["c"] = "30mm"
+        >>> box = m3d.modeler.create_box([0, 0, 0], ["a", "b", "c"], name="Box", material="copper")
+        >>> m3d.modeler.create_region([100, 100, 0, 0, 100, 100])
+
+        # Assign current excitations
+        >>> current1 = m3d.assign_current(box.bottom_face_y, "1A")
+        >>> current2 = m3d.assign_current(box.top_face_y, "1A", swap_direction=True)
+
+        # Create the parametric setup to sweep the box dimensions and analyze the variations
+        >>> setup = m3d.create_setup()
+        >>> param = m3d.parametrics.add("a", 5, 10, 2, "LinearCount")
+        >>> param.add_variation("b", 10, 20, 2, variation_type="LinearCount")
+        >>> param.add_variation("c", 15, 30, 2, variation_type="LinearCount")
+        >>> param.analyze()
+
+        # Plot the magnetic field density on the surface of the box
+        >>> plot = m3d.post.create_fieldplot_surface(assignment=box, quantity="Mag_B")
+
+        # Apply solved variation
+        >>> variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+
+        >>> m3d_app.apply_solved_variation(variations[0])
+        >>> m3d.release_desktop(False, False)
+        """
+        # Separate project variables (starting with $) from design variables
+        project_variables = {
+            variable_name: variable_value
+            for variable_name, variable_value in variation.items()
+            if variable_name.startswith("$")
+        }
+        design_variables = {
+            variable_name: variable_value
+            for variable_name, variable_value in variation.items()
+            if not variable_name.startswith("$")
+        }
+
+        result_design = True
+        result_project = True
+
+        # Apply design variables (local variables)
+        if design_variables:
+            result_design = self.change_properties(
+                aedt_object=self.odesign,
+                tab_name="LocalVariableTab",
+                property_object="LocalVariables",
+                property_names=list(design_variables.keys()),
+                property_values=list(design_variables.values()),
+            )
+
+        # Apply project variables (starting with $)
+        if project_variables:
+            result_project = self.change_properties(
+                aedt_object=self.oproject,
+                tab_name="ProjectVariableTab",
+                property_object="ProjectVariables",
+                property_names=list(project_variables.keys()),
+                property_values=list(project_variables.values()),
+            )
+
+        return result_design and result_project
 
 
 class AvailableVariations(PyAedtBase):
