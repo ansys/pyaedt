@@ -2789,19 +2789,44 @@ class Desktop(PyAedtBase):
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
 
             lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
+
+            # Check if lock file exists and is stale (from a previous crashed session)
+            if lock_file.exists():  # pragma: no cover
+                try:
+                    # Get the lock file's modification time
+                    lock_file_age = time.time() - lock_file.stat().st_mtime
+                    # If the lock file is older than the launch timeout, it's likely stale
+                    if lock_file_age > settings.desktop_launch_timeout:
+                        self.logger.warning(
+                            f"Found stale lock file from {lock_file_age:.1f} seconds ago. "
+                            "Removing it as it appears to be from a previous crashed session."
+                        )
+                        lock_file.unlink()
+                    else:
+                        self.logger.debug(
+                            f"Lock file exists and was created {lock_file_age:.1f} seconds ago. "
+                            "Waiting for it to be released..."
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Could not check lock file age: {e}")
+
             start_time = time.time()
-            while lock_file.exists():
+            while lock_file.exists():  # pragma: no cover
                 if time.time() - start_time > settings.desktop_launch_timeout:
-                    self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
+                    self.logger.warning(
+                        f"Lock file still exists after {settings.desktop_launch_timeout} seconds. "
+                        "This may indicate a problem with a concurrent AEDT launch. Proceeding anyway."
+                    )
                     break
                 if not active_sessions():
+                    self.logger.debug("No active AEDT sessions detected. Proceeding with launch.")
                     break
                 time.sleep(1)
 
             try:
                 lock_file.touch(exist_ok=True)
                 self.logger.debug(f"Lock file {lock_file}.")
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.warning(f"Could not create lock file {lock_file}.")
 
             # Validate port availability/compatibility
@@ -2824,7 +2849,8 @@ class Desktop(PyAedtBase):
             # Remove lock file
             try:
                 lock_file.unlink()
-            except Exception:
+                self.logger.debug(f"Removed lock file {lock_file}.")
+            except Exception:  # pragma: no cover
                 self.logger.warning(f"Could not remove lock file {lock_file}.")
 
         if result:

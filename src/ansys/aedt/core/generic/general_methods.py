@@ -806,70 +806,85 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         except subprocess.CalledProcessError:
             pyaedt_logger.debug("No matching processes found.")
 
-    elif platform_system == "Windows":
-        try:
-            import json
-            from pathlib import Path
-            import shutil
+    elif platform_system == "Windows":  # pragma: no cover
+        import json
+        from pathlib import Path
+        import shutil
 
-            powershell = Path("powershell")
-            powershell_path = shutil.which(os.fspath(powershell))
-            if not powershell_path:
-                powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+        # Check if WMIC is available
+        wmic_path = shutil.which("wmic")
 
-            for tgt in target_name:  # pragma: no cover
-                # PowerShell command equivalent to WMIC
-                ps_cmd = (
-                    f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
-                    "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
-                )
+        if wmic_path:
+            # Use WMIC
+            try:
+                for tgt in target_name:
+                    cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
+                    output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
 
-                # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
-                # especially important for PyInstaller windowed applications.
-                output = subprocess.check_output(
-                    [powershell_path, "-Command", ps_cmd],
-                    text=True,
-                    creationflags=subprocess.CREATE_NO_WINDOW,
-                )  # nosec
+                    current_cmd = []
+                    current_pid = None
 
-                # Parse JSON output - can be a single object or array
-                try:
-                    data = json.loads(output)
-                    # If single process, PowerShell returns an object; if multiple, returns an array
-                    if isinstance(data, dict):
-                        data = [data]
+                    for line in output.splitlines():
+                        line = line.strip()
+                        if line.startswith("CommandLine="):
+                            # Extract and parse command line
+                            cmdline_raw = line[len("CommandLine=") :]
+                            current_cmd = cmdline_raw.split()
+                        elif line.startswith("ProcessId="):
+                            current_pid = int(line[len("ProcessId=") :])
+                            if current_pid and current_cmd:
+                                found_data.append((current_pid, current_cmd))
+                                current_pid, current_cmd = None, []
+            except subprocess.CalledProcessError as e:
+                # WMIC failed, fall back to PowerShell
+                pyaedt_logger.debug(f"WMIC command failed, falling back to PowerShell: {str(e)}")
+                wmic_path = None
 
-                    for process in data:
-                        pid = process.get("ProcessId")
-                        cmdline = process.get("CommandLine", "")
-                        if pid and cmdline:
-                            found_data.append((pid, cmdline.split()))
-                except (json.JSONDecodeError, ValueError) as e:
-                    # No processes found or invalid JSON
-                    pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
-                    pass
-        except FileNotFoundError:
-            for tgt in target_name:
-                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
-                print(cmd)
-                exit()
-                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
+        # Fall back to PowerShell if WMIC is not available or failed
+        if not wmic_path:
+            try:
+                powershell = Path("powershell")
+                powershell_path = shutil.which(os.fspath(powershell))
+                if not powershell_path:
+                    powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
 
-                current_cmd = []
+                for tgt in target_name:  # pragma: no cover
+                    # PowerShell command equivalent to WMIC
+                    ps_cmd = (
+                        f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
+                        "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
+                    )
 
-                for line in output.splitlines():
-                    line = line.strip()
-                    if line.startswith("CommandLine="):
-                        # Extract and parse command line
-                        cmdline_raw = line[len("CommandLine=") :]
-                        current_cmd = cmdline_raw.split()
-                    elif line.startswith("ProcessId="):
-                        current_pid = int(line[len("ProcessId=") :])
-                        if current_pid and current_cmd:
-                            found_data.append((current_pid, current_cmd))
-                            current_pid, current_cmd = None, []
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to query Windows processes with Powershell and WMIC: {str(e)}")
+                    # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
+                    # especially important for PyInstaller windowed applications.
+                    output = subprocess.check_output(
+                        [powershell_path, "-Command", ps_cmd],
+                        text=True,
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                    )  # nosec
+
+                    # Skip empty output or just whitespace
+                    if not output or not output.strip():
+                        continue
+
+                    # Parse JSON output - can be a single object or array
+                    try:
+                        data = json.loads(output)
+                        # If single process, PowerShell returns an object; if multiple, returns an array
+                        if isinstance(data, dict):
+                            data = [data]
+
+                        for process in data:
+                            pid = process.get("ProcessId")
+                            cmdline = process.get("CommandLine", "")
+                            if pid and cmdline:
+                                found_data.append((pid, cmdline.split()))
+                    except (json.JSONDecodeError, ValueError) as e:
+                        # No processes found or invalid JSON
+                        pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
+                        pass
+            except Exception as e:
+                pyaedt_logger.debug(f"Failed to query Windows processes with PowerShell: {str(e)}")
 
     return found_data
 
