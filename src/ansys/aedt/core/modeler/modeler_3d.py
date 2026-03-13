@@ -42,7 +42,6 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -1044,6 +1043,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
         List of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, dict
             New object created and nastran dictionary.
         """
+        from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
         )
