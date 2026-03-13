@@ -666,9 +666,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_resistor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
@@ -716,9 +716,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_inductor(
         self,
         name: str | None = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
@@ -769,9 +769,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def create_capacitor(
         self,
         name: str = None,
-        value: int = 50,
+        value: float = 50.0,
         location: list[float] = None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
         page: int = 1,
     ) -> "CircuitComponent":
@@ -2242,7 +2242,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         --------
         >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(version="2025.2")
+        >>> cir = Circuit(version="2026.1")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
         >>> cir.desktop_class.release_desktop(False, False)

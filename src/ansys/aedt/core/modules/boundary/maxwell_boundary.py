@@ -363,7 +363,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
-    >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+    >>> m2d = Maxwell2d(version="2026.1", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
     >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
     >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
     >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -548,7 +548,7 @@ class MaxwellReducedMatrix:
     >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
-    >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
     >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
     >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
@@ -633,7 +633,7 @@ class MaxwellReducedMatrix:
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
-        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
         Assign a matrix and create a reduced matrix by joining sources in series.
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
@@ -718,7 +718,7 @@ class MaxwellReducedMatrix:
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 
-        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
         Assign a matrix and create a reduced matrix by joining sources in series.
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")

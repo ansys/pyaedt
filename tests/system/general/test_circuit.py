@@ -759,6 +759,7 @@ def test_assign_sources(aedt_app, test_tmp_dir) -> None:
 
 def test_assign_excitations(aedt_app) -> None:
     c = aedt_app
+    c.create_source(source_type="PowerSin", name="PowerTest")
     port = c.modeler.schematic.create_interface_port(name="Port1")
 
     # Port angle not working in 2023.1
@@ -773,11 +774,12 @@ def test_assign_excitations(aedt_app) -> None:
     port.use_symbol_color = False
     assert not port.use_symbol_color
     port.impedance = [50, 50]
-    assert port.impedance[0] == 50
+    assert port.impedance[0] == "50"
+    assert port.impedance[1] == "50"
     port.enable_noise = True
     assert port.enable_noise
     port.noise_temperature = "18 cel"
-    assert port.noise_temperature == "18 cel"
+    assert port.noise_temperature == "18cel"
     port.microwave_symbol = True
     assert port.microwave_symbol
 

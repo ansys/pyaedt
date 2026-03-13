@@ -128,3 +128,47 @@ def test_invalid_solution_type(aedt_app) -> None:
     data = CoilExtensionData(is_vertical=True, name="my_coil")
     with pytest.raises(AEDTRuntimeError):
         main(data)
+
+
+def test_create_3d_component_true(m3d_app) -> None:
+    """Test that the coil is created as a 3D component."""
+    data = CoilExtensionData(
+        is_vertical=False,
+        create_3d_comp=True,
+        name="my_coil",
+        centre_x=0.0,
+        centre_y=0.0,
+        turns=5,
+        inner_width=12.0,
+        inner_length=6.0,
+        wire_radius=1.0,
+        inner_distance=2.0,
+        arc_segmentation=3,
+        section_segmentation=4,
+        distance_turns=5.0,
+        looping_position=0.5,
+    )
+    assert main(data)
+    assert "my_coil1" in m3d_app.modeler.user_defined_component_names
+
+
+def test_create_3d_component_false(m3d_app) -> None:
+    """Test that the coil is created as a 3D component."""
+    data = CoilExtensionData(
+        is_vertical=False,
+        create_3d_comp=False,
+        name="my_coil",
+        centre_x=0.0,
+        centre_y=0.0,
+        turns=5,
+        inner_width=12.0,
+        inner_length=6.0,
+        wire_radius=1.0,
+        inner_distance=2.0,
+        arc_segmentation=3,
+        section_segmentation=4,
+        distance_turns=5.0,
+        looping_position=0.5,
+    )
+    assert main(data)
+    assert not m3d_app.modeler.user_defined_component_names
