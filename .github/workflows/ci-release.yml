@@ -141,7 +141,7 @@ jobs:
       id-token: write  # Required for OIDC token generation (for provenance signing)
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
     container:
-      image: ghcr.io/easybuilders/rockylinux-8.10:2026-03-02-22574820360.139
+      image: rockylinux/rockylinux:8
     steps:
       - name: Install base tools
         shell: bash
