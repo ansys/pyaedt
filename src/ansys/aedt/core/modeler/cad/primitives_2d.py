@@ -365,7 +365,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_region(
         self,
-        pad_value: int = 300,
+        pad_value: float | str | list[float | str] = 300,
         pad_type: str = "Percentage Offset",
         name: str = "Region", **kwarg
     ) -> "Object3d":

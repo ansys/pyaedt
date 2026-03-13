@@ -24,7 +24,6 @@
 
 import math
 import os
-import time
 from typing import TYPE_CHECKING
 import warnings
 
@@ -54,7 +53,6 @@ class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata) -> None:
-        start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
@@ -75,12 +73,8 @@ class SolutionData(PyAedtBase):
             self._primary_sweep = list(self.intrinsics.keys())[0]
         else:
             self._primary_sweep = self._sweeps_names[0]
-        end = time.time() - start
-        print(f"Time to initialize solution data:{end}")
         self.init_solutions_data()
         self._ifft = None
-        end = time.time() - start
-        print(f"Time to initialize solution data:{end}")
 
     @property
     def active_variation(self) -> dict:
