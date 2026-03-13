@@ -267,7 +267,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for building
     container:
-      image: rockylinux/rockylinux:8@sha256:2d05a9266523bbf24f33ebc3a9832e4d5fd74b973c220f2204ca802286aa275d
+      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
     steps:
       - name: Install build deps
         shell: bash
