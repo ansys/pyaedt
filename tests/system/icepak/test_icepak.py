@@ -1752,16 +1752,18 @@ def test_global_mesh_region(ipk_app) -> None:
 
 
 def test_transient_fs(transient_app) -> None:
-    fs = transient_app.post.create_field_summary()
-    for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
-        fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
-    df = fs.get_field_summary_data(pandas_output=True)
-    assert not df["Mean"].empty
+    for ds in ["IcepakDesign1", "IcepakDesign2"]:
+        transient_app.set_active_design(ds)
+        fs = transient_app.post.create_field_summary()
+        for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
+            fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
 
-    fs2 = transient_app.post.create_field_summary()
-    fs2.add_calculation("Boundary", "Surface", "Network1", "Temperature", time="4s")
-    df = fs2.get_field_summary_data(pandas_output=True)
-    assert not df["Mean"].empty
+        fs2 = transient_app.post.create_field_summary()
+        fs2.add_calculation("Boundary", "Surface", "Network1", "Temperature", time="4s")
+        df = fs2.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
 
 
 def test_folder_settings(transient_app) -> None:
