@@ -34,10 +34,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
-from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
-from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
@@ -48,7 +45,10 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
     from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+    from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -251,7 +251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle near field setups
-    def _create_boundary(self, name: str, props, boundary_type) -> NearFieldSetup:
+    def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
@@ -5839,7 +5839,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
-    ) -> FfdSolutionDataExporter | FfdSolutionData | bool:
+    ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
 
@@ -5888,6 +5888,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
         """
+        from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+
         if not variations:
             variations = variation_string_to_dict(self.design_variation())
 
@@ -5968,7 +5971,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         overwrite: bool | None = True,
         link_to_hfss: bool | None = True,
         variation_name: str | None = None,
-    ) -> MonostaticRCSExporter | Path | bool:
+    ) -> "MonostaticRCSExporter | Path | bool":
         """Export monostatic radar cross-section (RCS) data from HFSS.
 
         This method exports RCS simulation data into a standardized metadata format
@@ -6063,6 +6066,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> rcs_data = MonostaticRCSData(str(metadata_file))
         >>> rcs_data.plot_3d()
         """
+        from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+
         if not variations:
             variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:

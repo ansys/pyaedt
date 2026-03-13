@@ -30,9 +30,6 @@ import os
 from pathlib import Path
 import tempfile
 
-from jsonschema import exceptions
-from jsonschema import validate
-
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
@@ -1064,6 +1061,9 @@ class Configurations(PyAedtBase):
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
         """
+        from jsonschema import exceptions
+        from jsonschema import validate
+
         if isinstance(config, str):
             try:  # Try to parse config as a file
                 config_data = read_configuration_file(config)
