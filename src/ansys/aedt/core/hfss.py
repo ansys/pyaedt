@@ -117,7 +117,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -190,7 +190,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(version=252, project="myfile2.aedt")
+    >>> hfss = Hfss(version=261, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -199,7 +199,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(version="252", project="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="261", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -2571,8 +2571,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.2", new_desktop=False)
-        >>> source = Hfss(project=source_project, design="feeder", version="2025.2", new_desktop=False)
+        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2026.1", new_desktop=False)
+        >>> source = Hfss(project=source_project, design="feeder", version="2026.1", new_desktop=False)
         >>> target.create_sbr_linked_antenna(
         ...     source, target_cs="feederPosition", field_type="farfield"
         ... )  # doctest: +SKIP
@@ -6395,15 +6395,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: str | int | list,
         reference: Object3d | int | list | None = None,
-        create_port_sheet: bool | None = False,
-        port_on_plane: bool | None = True,
-        integration_line: int | Gravity | None = 0,
-        impedance: float | None = 50,
+        create_port_sheet: bool = False,
+        port_on_plane: bool = True,
+        integration_line: int | Gravity | list[float] = 0,
+        impedance: float | int = 50,
         name: str | None = None,
-        renormalize: bool | None = True,
-        deembed: bool | None = False,
-        terminals_rename: bool | None = True,
-        auto_identify: bool | None = False,
+        renormalize: bool = True,
+        deembed: bool = False,
+        terminals_rename: bool = True,
+        auto_identify: bool = False,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6430,8 +6430,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
+        deembed : bool, optional
+            Enabling deembeing. The default is ``False``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
         auto_identify : bool, optional

@@ -1377,7 +1377,6 @@ class CircuitComponents(PyAedtBase):
                     if name[0].startswith("IPort"):
                         port_name = name[0].replace("IPort@", "")
                         o = Excitations(self, name=port_name)
-                        o.is_port = True
                     else:
                         o = CircuitComponent(self, tabname=self.tab_name)
                         o.name = name[0]
@@ -1390,8 +1389,6 @@ class CircuitComponents(PyAedtBase):
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
 
-                    if o.is_port:
-                        o._props = o._excitation_props()
                     self.components[objID] = o
         return len(self.components)
 
@@ -1430,9 +1427,6 @@ class CircuitComponents(PyAedtBase):
                     o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
-                if o.is_port:
-                    o._props = o._excitation_props()
-
                 self.components[objID] = o
             return len(self.components)
         obj = self.oeditor.GetAllElements()
@@ -1453,9 +1447,6 @@ class CircuitComponents(PyAedtBase):
                 else:
                     o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
-
-                if o.is_port:
-                    o._props = o._excitation_props()
 
                 self.components[objID] = o
 

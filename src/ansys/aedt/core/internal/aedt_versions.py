@@ -37,7 +37,7 @@ import warnings
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
-CURRENT_STABLE_AEDT_VERSION = 2025.2
+CURRENT_STABLE_AEDT_VERSION = 2026.1
 
 
 class AedtVersions(PyAedtBase):
@@ -200,7 +200,7 @@ class AedtVersions(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2025.2")
+        >>> desktop.get_version_env_variable("2026.1")
         'ANSYSEM_ROOT212'
 
         """

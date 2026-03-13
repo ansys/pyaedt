@@ -380,7 +380,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+        >>> m2d = Maxwell2d(version="2026.1", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
         >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
         >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -408,7 +408,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagneticAPhi
-        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet1", material="copper")
         >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], name="Sheet2", material="copper")
         >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet3", material="copper")
@@ -780,6 +780,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         solid: bool | None = True,
         swap_direction: bool | None = False,
         name: str | None = None,
+        excitation_model: str = "Single Potential",
     ) -> BoundaryObject:
         """Assign current excitation.
 
@@ -802,6 +803,15 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the current excitation.
             The default is ``None`` in which case a generic name will be given.
+        excitation_model : str, optional
+            The excitation model to apply for this current excitation. Valid only for A-Phi solvers.
+            Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
+            ``"Double Potentials with Ground"``.
+            The default is ``Single Potential``.
+        swap_direction : bool, optional
+            Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
+        phase : float, optional
+            Voltage phase. Valid only for the A-Phi AC magnetic solver. The default is ``0``.
 
         Returns
         -------
@@ -852,7 +862,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
-            # TO CHECK FOR AC MAGNETIC A-PHI
+
             if self.solution_type not in (
                 maxwell_solutions.DCConduction,
                 maxwell_solutions.ElectricTransient,
@@ -861,6 +871,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
+
+            if self.solution_type in [maxwell_solutions.ACMagneticAPhi, maxwell_solutions.TransientAPhi]:
+                props["CurrentExcitationModel"] = excitation_model
+
         else:
             if type(assignment[0]) is str:
                 props = {"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction}
@@ -1085,7 +1099,17 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler()
-    def assign_voltage(self, assignment: list, amplitude: float | None = 1, name: str | None = None) -> BoundaryObject:
+    def assign_voltage(
+        self,
+        assignment: list,
+        amplitude: float | None = 1,
+        name: str | None = None,
+        excitation_model: str = "Single Potential",
+        initial_current: float | None = 0,
+        swap_direction: bool | None = False,
+        phase: float | None = 0,
+        has_initial_current: bool | None = False,
+    ) -> BoundaryObject:
         """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
@@ -1097,6 +1121,23 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         name : str, optional
             Name of the excitation.
             If not provided, a random name with prefix ``Voltage`` will be generated.
+        excitation_model : str, optional
+            The excitation model to apply for this current excitation. Valid only A-Phi solvers.
+            Possible choices are ``"Single Potential"``, ``"Double Potentials"``, and
+             ``"Double Potentials with Ground"``.
+            The default is ``Single Potential``.
+        initial_current : float, optional
+            The excitation's initial current. Only valid for Transient A-Phi solver.
+            The default is ``0``.
+        swap_direction : bool, optional
+            Whether to swap the direction of the voltage drop. Valid only for A-Phi solvers. The default is ``False``.
+        phase : float, optional
+            The excitation phase. Only valid for AC solvers.
+            The default is ``0``.
+        has_initial_current : bool, optional
+            Whether the excitation has an initial current.
+            The default is ``False``.
+
 
         Returns
         -------
@@ -1113,7 +1154,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Create a region in Maxwell 2D and assign voltage to its edges.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2", solution_type="ElectrostaticZ")
+        >>> m2d = Maxwell2d(version="2026.1", solution_type="ElectrostaticZ")
         >>> region_id = m2d.modeler.create_region(pad_value=[500, 50, 50])
         >>> voltage = m2d.assign_voltage(assignment=region_id.edges, amplitude=0, name="GRD")
         >>> m2d.desktop_class.close_desktop()
@@ -1121,7 +1162,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Create a region in Maxwell 3D and assign voltage to its edges.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic")
+        >>> m3d = Maxwell3d(version="2026.1", solution_type="Electrostatic")
         >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name="GRD")
         >>> m3d.desktop_class.close_desktop()
@@ -1129,26 +1170,39 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if isinstance(amplitude, (int, float)):
             amplitude = f"{amplitude}mV"
 
+        if isinstance(initial_current, (int, float)):
+            initial_current = f"{initial_current}A"
+
         name = name or generate_unique_name("Voltage")
         assignment = self.modeler.convert_to_selections(assignment, True)
         is_maxwell_2d = self.design_type == "Maxwell 2D"
         object_names_set = set(self.modeler.object_names)
+        assignment_key = "Edges" if is_maxwell_2d else "Faces"
+        voltage_boundary_type = "Voltage"
 
-        props = {
-            "Voltage" if not is_maxwell_2d else "Value": amplitude,
-            "Objects": [],
-            "Faces": [] if not is_maxwell_2d else None,
-            "Edges": [] if is_maxwell_2d else None,
-        }
+        props = {"Voltage" if not is_maxwell_2d else "Value": amplitude, "Objects": [], assignment_key: []}
+
+        if self.solution_type == SolutionsMaxwell3D.TransientAPhi:
+            voltage_boundary_type = "VoltageAPhi"
+            props.pop("Voltage")
+            props["VoltageAPhi"] = amplitude
+            props["VoltageAPhiInitialCurrent"] = initial_current
+            props["VoltageAPhiHasInitialCurrent"] = has_initial_current
+            props["VoltageAPhiExcitationModel"] = excitation_model
+            props["VoltageAPhi_Point_out_of_terminal"] = swap_direction
+
+        elif self.solution_type == SolutionsMaxwell3D.ACMagneticAPhi:
+            props["phase"] = phase
+            props["VoltageAPhi_Point_out_of_terminal"] = swap_direction
+            props["VoltageAPhiExcitationModel"] = excitation_model
 
         for element in assignment:
             if isinstance(element, str) and element in object_names_set:
                 props["Objects"].append(element)
             else:
-                key = "Edges" if is_maxwell_2d else "Faces"
-                props[key].append(element)
+                props[assignment_key].append(element)
 
-        return self._create_boundary(name, props, "Voltage")
+        return self._create_boundary(name, props, voltage_boundary_type)
 
     @pyaedt_function_handler()
     def assign_voltage_drop(
@@ -1238,7 +1292,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Assign a floating excitation for a Maxwell 2D Electrostatic design.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2")
+        >>> m2d = Maxwell2d(version="2026.1")
         >>> m2d.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         >>> rect = m2d.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
@@ -1247,7 +1301,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Assign a floating excitation for a Maxwell 3D Electrostatic design providing an object.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.2")
+        >>> m3d = Maxwell3d(version="2026.1")
         >>> m3d.solution_type = SolutionsMaxwell3D.ElectroStatic
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
@@ -1700,7 +1754,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Disable ``solve inside`` of an object.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version=2025.2, solution_type="Transient", new_desktop=False)
+        >>> m3d = Maxwell3d(version=2026.1, solution_type="Transient", new_desktop=False)
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.solve_inside(name=cylinder.name, activate=False)
         >>> m3d.desktop_class.close_desktop()
@@ -1728,7 +1782,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Create a simple conductor model and analyze it starting from 0s.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version=2025.2, solution_type="TransientXY", new_desktop=False)
+        >>> m2d = Maxwell2d(version=2026.1, solution_type="TransientXY", new_desktop=False)
         >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
         >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
         >>> region = m2d.modeler.create_region(pad_percent=100)
@@ -2613,7 +2667,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         The following example shows how to export capacitance matrix from an Electrostatic solution.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic", new_desktop=False)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type="Electrostatic", new_desktop=False)
         >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
         >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
         >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
@@ -2723,7 +2777,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical
@@ -2769,7 +2823,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     Create an instance of Maxwell 3D using the 2025 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(version="2025.2", project="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(version="2026.1", project="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """
@@ -3776,7 +3830,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.

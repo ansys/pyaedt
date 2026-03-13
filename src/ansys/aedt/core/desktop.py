@@ -229,11 +229,11 @@ def launch_aedt(
 
     Examples
     --------
-    Launch AEDT 2025 R2 in non-graphical mode on port 50051:
+    Launch AEDT 2026 R1 in non-graphical mode on port 50051:
 
     >>> from ansys.aedt.core import desktop
     >>> from pathlib import Path
-    >>> aedt_path = Path("C:/Program Files/AnsysEM/v252/Win64/ansysedt.exe")
+    >>> aedt_path = Path("C:/Program Files/AnsysEM/v261/Win64/ansysedt.exe")
     >>> success, port = launch_aedt(full_path=aedt_path, non_graphical=True, port=50051, student_version=False)
     >>> print(f"AEDT started: {success}, Port: {port}")
     AEDT started: True, Port: 50051
@@ -241,7 +241,7 @@ def launch_aedt(
     Launch AEDT student version in graphical mode:
 
     >>> success, port = launch_aedt(
-    ...     full_path="C:/Program Files/AnsysEM/v252/Win64/ansysedtsv.exe",
+    ...     full_path="C:/Program Files/AnsysEM/v261/Win64/ansysedtsv.exe",
     ...     non_graphical=False,
     ...     port=50052,
     ...     student_version=True,
@@ -508,7 +508,7 @@ class Desktop(PyAedtBase):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -539,10 +539,10 @@ class Desktop(PyAedtBase):
 
     Examples
     --------
-    Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2026 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.Desktop(version="2025.2", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2026.1", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -551,7 +551,7 @@ class Desktop(PyAedtBase):
 
     Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop(252)
+    >>> desktop = Desktop(261)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -1019,7 +1019,7 @@ class Desktop(PyAedtBase):
         >>> from ansys.aedt.core import Desktop
         >>> from pathlib import Path
         >>> working_folder = Path("C:\") / "path" / "to" / "target_folder"  # Windows
-        >>> d = Desktop(version=252)
+        >>> d = Desktop(version=261)
         >>> example_path = d.get_example("5G_SIW_Aperture_Antenna")
         >>> new_project = working_folder / example_path.name
         >>> working_folder.mkdir(parents=True, exist_ok=True)
@@ -1696,7 +1696,7 @@ class Desktop(PyAedtBase):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.2")
+        >>> desktop = ansys.aedt.core.Desktop("2026.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False)  # doctest: +SKIP
@@ -1722,7 +1722,7 @@ class Desktop(PyAedtBase):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.2")
+        >>> desktop = ansys.aedt.core.Desktop("2026.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop()  # doctest: +SKIP
@@ -1736,7 +1736,7 @@ class Desktop(PyAedtBase):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.2")
+        >>> desktop = ansys.aedt.core.Desktop("2026.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1750,7 +1750,7 @@ class Desktop(PyAedtBase):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.2")
+        >>> desktop = ansys.aedt.core.Desktop("2026.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()
@@ -2083,7 +2083,7 @@ class Desktop(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.2", new_desktop=False)
+        >>> d = Desktop(version="2026.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -2178,7 +2178,7 @@ class Desktop(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.2", new_desktop=False)
+        >>> d = Desktop(version="2026.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -2252,7 +2252,7 @@ class Desktop(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.2", new_desktop=False)
+        >>> d = Desktop(version="2026.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -2296,7 +2296,7 @@ class Desktop(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.2", new_desktop=False)
+        >>> d = Desktop(version="2026.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
