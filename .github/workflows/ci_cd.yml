@@ -265,11 +265,20 @@ jobs:
     container:
       image: rockylinux/rockylinux:8
     steps:
-      - name: Install base tools
+      - name: Install build deps
         shell: bash
         run: |
+          set -eux
           dnf -y update
-          dnf -y install git which zip unzip tar gzip findutils curl
+          dnf groupinstall -y "Development Tools"
+          dnf -y install \
+            gcc make wget tar xz bzip2 \
+            bzip2-devel zlib-devel xz-devel \
+            openssl-devel libffi-devel sqlite-devel \
+            readline-devel tk-devel \
+            libuuid-devel expat-devel \
+            pkgconf-pkg-config ca-certificates
+          update-ca-trust
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
