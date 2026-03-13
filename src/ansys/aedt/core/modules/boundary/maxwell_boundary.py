@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from dataclasses import field
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -235,6 +236,11 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.type = boundarytype
         self._initialize_tree_node()
 
+        if self._app._aedt_version >= "2026.1":
+            self.__get_props = _get_obj_data
+        else:
+            self.__get_props = lambda obj: None
+
     @property
     def _child_object(self):
         cc = self._app.odesign.GetChildObject("Parameters")
@@ -261,6 +267,19 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         if props:
             self.__props = BoundaryProps(self, props[0])
             self._type = props[1]
+        return self.__props
+
+    @property
+    def props_test(self) -> BoundaryProps:
+        """Maxwell parameter data."""
+        if self.__props:
+            return self.__props
+
+        props = self.__get_props(self.child_object)
+
+        if props:
+            self.__props = BoundaryProps(self, props)
+            self._type = self.get_oo_property_value(self.odesign, f"Parameters\\{self.name}", "Type")
         return self.__props
 
     @property

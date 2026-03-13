@@ -27,6 +27,7 @@
 import os
 import shutil
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -186,6 +187,13 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
                         if int(comp_id) in edge_ids:
                             props["Edges"].append(int(comp_id))
                             continue
+            self._legacy_props = MeshProps(self, props)
+        return self._legacy_props
+
+    @property
+    def props_test(self):
+        if not self._legacy_props:
+            props = _get_obj_data(self._child_object)
             self._legacy_props = MeshProps(self, props)
         return self._legacy_props
 

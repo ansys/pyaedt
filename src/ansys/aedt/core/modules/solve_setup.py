@@ -39,6 +39,7 @@ import time
 from typing import TYPE_CHECKING
 import warnings
 
+from ansys.aedt.core.application import _get_obj_data
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -305,6 +306,24 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
     @props.setter
     def props(self, value: dict) -> None:
+        self._legacy_props = SetupProps(self, value)
+
+    @property
+    def props_test(self) -> SetupProps:
+        """Properties of the setup."""
+        if self._legacy_props:
+            return self._legacy_props
+        if self._is_new_setup:
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
+            setup_template["Name"] = self._name
+            self._legacy_props = SetupProps(self, setup_template)
+            self._is_new_setup = False
+        else:
+            setup_data = _get_obj_data(self._child_object)
+            self._legacy_props = SetupProps(self, setup_data)
+
+    @props_test.setter
+    def props_test(self, value: dict) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -1164,30 +1183,6 @@ class SetupCircuit(CommonSetup):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
-    def props(self) -> SetupProps:
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self.name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-        else:
-            self._legacy_props = SetupProps(self, {})
-            try:
-                setups_data = self._app.design_properties["SimSetups"]["SimSetup"]
-                if not isinstance(setups_data, list):
-                    setups_data = [setups_data]
-                for setup in setups_data:
-                    if self.name == setup["Name"]:
-                        setup_data = setup
-                        setup_data.pop("Sweeps", None)
-                        self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-        return self._legacy_props
-
-    @property
     def _odesign(self):
         """Design."""
         return self._app._odesign
@@ -1875,31 +1870,6 @@ class Setup3DLayout(CommonSetup):
         except (KeyError, TypeError):
             pass
         return self._sweeps
-
-    @property
-    def props(self) -> SetupProps:
-        if self._legacy_props:
-            return self._legacy_props
-        if self._is_new_setup:
-            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            setup_template["Name"] = self.name
-            self._legacy_props = SetupProps(self, setup_template)
-            self._is_new_setup = False
-
-        else:
-            try:
-                setups_data = self._app.design_properties["Setup"]["Data"]
-                if self.name in setups_data:
-                    setup_data = setups_data[self.name]
-                    self._legacy_props = SetupProps(self, setup_data)
-            except Exception:
-                self._legacy_props = SetupProps(self, {})
-                settings.logger.error("Unable to set props.")
-        return self._legacy_props
-
-    @props.setter
-    def props(self, value: dict) -> None:
-        self._legacy_props = SetupProps(self, value)
 
     @property
     def is_solved(self) -> bool:
