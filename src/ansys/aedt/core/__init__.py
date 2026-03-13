@@ -120,6 +120,7 @@ from ansys.aedt.core.twinbuilder import TwinBuilder
 __all__ = [
     "settings",
     "inner_project_settings",
+    "downloads",
     "Edb",
     "Siwave",
     "constants",
