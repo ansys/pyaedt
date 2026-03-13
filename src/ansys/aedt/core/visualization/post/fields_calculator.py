@@ -25,9 +25,6 @@
 import copy
 from pathlib import Path
 
-from jsonschema import exceptions
-from jsonschema import validate
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
@@ -499,6 +496,9 @@ class FieldsCalculator(PyAedtBase):
         dict or bool
             Expression if the input expression is valid, ``False`` otherwise.
         """
+        from jsonschema import exceptions
+        from jsonschema import validate
+
         if not isinstance(expression, dict):
             self.__app.logger.error("Incorrect data type.")
             return False
