@@ -57,7 +57,7 @@ class Waveform(EmitNode):
         self._delete()
 
     @min_aedt_version("2025.2")
-    def import_tx_measurement(self, file_name: str) -> None:
+    def import_tx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 

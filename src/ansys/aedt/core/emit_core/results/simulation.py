@@ -67,6 +67,33 @@ class Simulation:
         self.odesktop = revision.odesktop
         """Desktop object."""
 
+        self.emit_instance = revision.emit_project
+        """Emit project instance."""
+
+        self.results_index = revision.results_index
+        """Revision results index."""
+
+    @property
+    def _emit_com_module(self):
+        """Retrieve the EmitCom module from the Emit instance.
+
+        Returns
+        -------
+        object
+            The EmitCom module.
+
+        Raises
+        ------
+        RuntimeError
+            If the EmitCom module cannot be retrieved.
+        """
+        if not hasattr(self.emit_instance, "_odesign"):
+            raise RuntimeError("Emit instance does not have a valid '_odesign' attribute.")
+        try:
+            return self.emit_instance._odesign.GetModule("EmitCom")
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
+
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
     def get_interaction(self, domain):
@@ -128,9 +155,9 @@ class Simulation:
                 if freq > 0:
                     raise ValueError("The domain must not have channels specified.")
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
         if self._revision.emit_project._aedt_version < "2024.1":
             if len(domain.interferer_names) == 1:
+                engine = self._revision.emit_project._emit_api.get_engine()
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
@@ -143,7 +170,19 @@ class Simulation:
                     "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
                 )
                 warnings.warn(err_msg)
-        interaction = engine.run(domain)
+        if self._revision.emit_project._aedt_version < "2027.1":
+            engine = self._revision.emit_project._emit_api.get_engine()
+            interaction = engine.run(domain)
+        else:
+            interaction = self._emit_com_module.RunEmitDomain(
+                self._revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction

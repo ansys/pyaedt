@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,9 +34,6 @@ class InteractionDomain:
         self.emit_project = emit_obj
         """EMIT project."""
 
-        self.current_revision = None
-        """Current active Revision."""
-
         self.revisions = []
         """List of all result revisions. Only one loaded at a time."""
 
@@ -54,17 +51,22 @@ class InteractionDomain:
         self.interferer_names = []
         """List of interferer names."""
 
-        self.rx_band_name = ""
+        self.receiver_band_name = ""
         """Receiver band name."""
 
-        self.rx_channel_frequency = 0
+        self.receiver_channel_frequency = 0
         """Receiver channel frequency."""
 
-        self.rx_name = ""
+        self.receiver_name = ""
         """Receiver name."""
 
+    @property
+    def current_revision(self):
+        """Current active Revision. Always reflects the latest revision from the project."""
+        return self.emit_project.results.current_revision
+
     @pyaedt_function_handler()
-    def set_receiver(self, name: str, band_name: str, freq: float, units: str):
+    def set_receiver(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
         """
         Set the receiver radio name, band name, and channel frequency.
 
@@ -72,19 +74,24 @@ class InteractionDomain:
         ----------
         name : str
             Name of the receiver radio.
-        band_name : str
-            Name of the receiver band.
-        freq : float
-            Channel frequency of the receiver.
-        units : str
-            Units of the channel frequency.
+        band_name : str, optional
+            Name of the receiver band. Default is ``""``.
+        freq : float, optional
+            Channel frequency of the receiver. Default is ``-1`` (no channel constraint).
+        units : str, optional
+            Units of the channel frequency. Default is ``"Hz"``.
 
         Returns
         -------
         None
         """
-        self.rx_name = name
-        self.rx_band_name = band_name
+        self.receiver_name = name
+        self.receiver_band_name = band_name
+        comp_nodes = self.current_revision.get_all_component_nodes()
+        for node in comp_nodes:
+            if node.name == name:
+                self.receiver_radio = node
+                break
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
             err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
@@ -94,7 +101,7 @@ class InteractionDomain:
         self.rx_channel_frequency = converted_freq
 
     @pyaedt_function_handler()
-    def set_interferer(self, name: str, band_name: str, freq: float, units: str):
+    def set_interferer(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
         """
         Set a single interferer radio name, band name, and channel frequency.
 
@@ -102,12 +109,12 @@ class InteractionDomain:
         ----------
         name : str
             Name of the interferer radio.
-        band_name : str
-            Name of the interferer band.
-        freq : float
-            Channel frequency of the interferer.
-        units : str
-            Units of the channel frequency.
+        band_name : str, optional
+            Name of the interferer band. Default is ``""``.
+        freq : float, optional
+            Channel frequency of the interferer. Default is ``-1`` (no channel constraint).
+        units : str, optional
+            Units of the channel frequency. Default is ``"Hz"``.
 
         Returns
         -------
@@ -119,6 +126,11 @@ class InteractionDomain:
         self.interferer_band_names = []
         self.interferer_band_names.append(band_name)
         self.interferer_channel_frequencies = []
+        comp_nodes = self.current_revision.get_all_component_nodes()
+        for node in comp_nodes:
+            if node.name == name:
+                self.interferer_radios.append(node)
+                break
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
             err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
@@ -128,7 +140,7 @@ class InteractionDomain:
         self.interferer_channel_frequencies.append(converted_freq)
 
     @pyaedt_function_handler()
-    def set_interferers(self, names: list, band_names: list, freqs: list, units: str):
+    def set_interferers(self, names: list, band_names: list = None, freqs: list = None, units: str = "Hz"):
         """
         Set multiple interferer radio names, band names, and channel frequencies.
 
@@ -136,18 +148,23 @@ class InteractionDomain:
         ----------
         names : list
             List of interferer radio names.
-        band_names : list
-            List of interferer band names.
-        freqs : list
-            List of channel frequencies of the interferers.
-        units : str
-            Units of the channel frequencies.
+        band_names : list, optional
+            List of interferer band names. Default is ``None`` (empty list).
+        freqs : list, optional
+            List of channel frequencies of the interferers. Default is ``None`` (empty list).
+        units : str, optional
+            Units of the channel frequencies. Default is ``"Hz"``.
 
         Returns
         -------
         None
 
         """
+        if band_names is None:
+            band_names = []
+        if freqs is None:
+            freqs = []
+
         if len(band_names) > 0 and len(band_names) != len(names):
             err_msg = "When assigning bands you must assign one band per interferer."
             warnings.warn(err_msg)

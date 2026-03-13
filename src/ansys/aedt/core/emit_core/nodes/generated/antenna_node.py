@@ -92,32 +92,32 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def position(self) -> str:
+    def position(self) -> list[float]:
         """Set position of the antenna in parent-node coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Position")
         return val
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value: str) -> None:
+    def position(self, value: list[float] | str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_position(self) -> str:
+    def relative_position(self) -> list[float]:
         """Set position of the antenna relative to placement coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Relative Position")
         return val
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value: str) -> None:
+    def relative_position(self, value: list[float] | str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -142,7 +142,7 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def orientation(self) -> str:
+    def orientation(self) -> list[float]:
         """Set orientation of the antenna relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -152,12 +152,12 @@ class AntennaNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value: str) -> None:
+    def orientation(self, value: list[float] | str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_orientation(self) -> str:
+    def relative_orientation(self) -> list[float]:
         """Set orientation of the antenna relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -167,7 +167,7 @@ class AntennaNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value: str) -> None:
+    def relative_orientation(self, value: list[float] | str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -743,7 +743,7 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def frequency_domain(self) -> str:
+    def frequency_domain(self) -> list[float]:
         """Frequency sample(s) defining antenna."""
         val = self._get_property("Frequency Domain")
         return val
@@ -822,17 +822,17 @@ class AntennaNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def phasecenterposition(self) -> str:
+    def phasecenterposition(self) -> list[float]:
         """Set position of the antennas linked coordinate system.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("PhaseCenterPosition")
         return val
 
     @property
     @min_aedt_version("2025.2")
-    def phasecenterorientation(self) -> str:
+    def phasecenterorientation(self) -> list[float]:
         """Set orientation of the antennas linked coordinate system.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.

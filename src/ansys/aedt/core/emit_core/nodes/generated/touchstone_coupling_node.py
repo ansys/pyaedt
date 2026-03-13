@@ -107,14 +107,14 @@ class TouchstoneCouplingNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def port_antenna_assignment(self) -> str:
+    def port_antenna_assignment(self) -> list[str]:
         """Maps each port in the coupling file to an antenna in the project."""
         val = self._get_property("Port-Antenna Assignment")
         return val
 
     @port_antenna_assignment.setter
     @min_aedt_version("2025.2")
-    def port_antenna_assignment(self, value: str) -> None:
+    def port_antenna_assignment(self, value: list[str]) -> None:
         self._set_property("Port-Antenna Assignment", f"{value}")
 
     @property
