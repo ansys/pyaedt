@@ -164,7 +164,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.

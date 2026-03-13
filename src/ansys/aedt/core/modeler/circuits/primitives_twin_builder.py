@@ -536,7 +536,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> input_file = os.path.join("Your path", "test.sml")
         >>> model = "Thermal_ROM_SML"
         >>> pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
@@ -581,7 +581,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> G = 0.00254
         >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
         >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])

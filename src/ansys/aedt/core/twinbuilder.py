@@ -65,7 +65,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -366,7 +366,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> tb.create_subsheet("subsheet", "parentdesign")
         """
         try:
@@ -713,7 +713,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:

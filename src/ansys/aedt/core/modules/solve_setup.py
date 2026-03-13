@@ -3716,7 +3716,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         --------
         >>> import ansys.aedt.core
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2026.1")
         >>> m2d.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         >>> setup = m2d.create_setup()
         >>> sweep = setup.add_eddy_current_sweep(
@@ -3886,7 +3886,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2026.1")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
         >>> setup = m2d.create_setup()
         >>> setup.set_save_fields(
