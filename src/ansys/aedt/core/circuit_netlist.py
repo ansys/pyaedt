@@ -51,7 +51,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -108,15 +108,15 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
 
     >>> aedtapp = CircuitNetlist("myfile.aedt")
 
-    Create an instance of Circuit using the 2025 R1 version and
+    Create an instance of Circuit using the 2026 R1 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = CircuitNetlist(version=2025.2, project="myfile.aedt")
+    >>> aedtapp = CircuitNetlist(version=2026.1, project="myfile.aedt")
 
-    Create an instance of Circuit using the 2025 R1 student version and open
+    Create an instance of Circuit using the 2026 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = CircuitNetlist(version="2025.2", project="myfile.aedt", student_version=True)
+    >>> hfss = CircuitNetlist(version="2026.1", project="myfile.aedt", student_version=True)
 
     """
 

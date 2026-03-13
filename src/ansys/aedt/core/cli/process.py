@@ -89,7 +89,7 @@ def processes() -> None:
 
 @app.command()
 def start(
-    version: str = typer.Option("2025.2", "--version", "-v", help="AEDT version to start (latest 2025.2)"),
+    version: str = typer.Option("2026.1", "--version", "-v", help="AEDT version to start (latest 2026.1)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start AEDT in non-graphical mode"),
     port: int = typer.Option(0, "--port", "-p", help="Port for AEDT connection (0 for auto)"),
     student_version: bool = typer.Option(False, "--student", help="Start AEDT Student version"),
@@ -278,7 +278,7 @@ def _extract_version_from_cmdline(cmd_line: list) -> str:
     Returns
     -------
     str
-        Version string (e.g., "2025.2") or "unknown"
+        Version string (e.g., "2026.1") or "unknown"
     """
     if not cmd_line:
         return "unknown"

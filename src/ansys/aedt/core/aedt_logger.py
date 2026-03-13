@@ -196,7 +196,7 @@ class AedtLogger:
             my_handler = RotatingFileHandler(
                 log_file,
                 mode="a",
-                maxBytes=int(float(settings.global_log_file_size) * 1024 * 1024),
+                maxBytes=settings.global_log_file_size * 1024 * 1024,
                 backupCount=2,
                 encoding=None,
                 delay=False,
