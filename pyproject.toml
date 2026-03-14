@@ -89,7 +89,7 @@ examples = [
     "pyvista>=0.38.0,<0.48",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.6",
+    "plotly>=6.0,<6.7",
     "scikit-rf>=0.30.0,<1.12",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
