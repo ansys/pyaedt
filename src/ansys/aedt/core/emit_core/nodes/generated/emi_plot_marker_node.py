@@ -206,7 +206,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @font.setter
     @min_aedt_version("2025.2")
-    def font(self, value) -> None:
+    def font(self, value: str) -> None:
         self._set_property("Font", f"{value}")
 
     @property
@@ -221,7 +221,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @color.setter
     @min_aedt_version("2025.2")
-    def color(self, value) -> None:
+    def color(self, value: str) -> None:
         self._set_property("Color", f"{value}")
 
     @property
@@ -236,7 +236,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @background_color.setter
     @min_aedt_version("2025.2")
-    def background_color(self, value) -> None:
+    def background_color(self, value: str) -> None:
         self._set_property("Background Color", f"{value}")
 
     @property
@@ -281,7 +281,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border_color.setter
     @min_aedt_version("2025.2")
-    def border_color(self, value) -> None:
+    def border_color(self, value: str) -> None:
         self._set_property("Border Color", f"{value}")
 
     class SymbolOption(Enum):
@@ -357,7 +357,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol_color.setter
     @min_aedt_version("2025.2")
-    def symbol_color(self, value) -> None:
+    def symbol_color(self, value: str) -> None:
         self._set_property("Symbol Color", f"{value}")
 
     @property
