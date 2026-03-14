@@ -46,7 +46,7 @@ class RxMixerProductNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def import_csv_file(self, file_name: str):
+    def import_csv_file(self, file_name: str) -> EmitNode:
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
@@ -57,7 +57,7 @@ class RxMixerProductNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def table_data(self) -> list:
+    def table_data(self) -> list[tuple]:
         """Edit Mixer Products Table.
         Table consists of 3 columns.
         RF Harmonic Order:
@@ -196,6 +196,7 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @mixer_product_intercept.setter
+    @min_aedt_version("2025.2")
     def mixer_product_intercept(self, value: float) -> None:
         self._set_property("Mixer Product Intercept", f"{value}")
 
@@ -294,7 +295,7 @@ class RxMixerProductNode(EmitNode):
 
     @first_if_frequency.setter
     @min_aedt_version("2025.2")
-    def first_if_frequency(self, value: str | float) -> None:
+    def first_if_frequency(self, value: str) -> None:
         self._set_property("First IF Frequency", f"{value}")
 
     @property

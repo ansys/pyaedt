@@ -46,7 +46,7 @@ class CADNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -85,34 +85,34 @@ class CADNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def position(self) -> str:
+    def position(self) -> list[float]:
         """Set position of the CAD node in parent-node coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Position")
         return val
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value) -> None:
+    def position(self, value: list[float] | str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_position(self):
+    def relative_position(self) -> list[float]:
         """Relative Position.
 
         Set position of the CAD model node relative to placement coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Relative Position")
         return val
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value) -> None:
+    def relative_position(self, value: list[float] | str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -137,7 +137,7 @@ class CADNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def orientation(self):
+    def orientation(self) -> list[float]:
         """Set orientation of the CAD node in parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
@@ -147,12 +147,12 @@ class CADNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value) -> None:
+    def orientation(self, value: list[float] | str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_orientation(self):
+    def relative_orientation(self) -> list[float]:
         """Relative Orientation.
 
         Set orientation of the CAD model node relative to placement coordinates.
@@ -164,7 +164,7 @@ class CADNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value) -> None:
+    def relative_orientation(self, value: list[float] | str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property
@@ -218,20 +218,20 @@ class CADNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def min(self) -> str:
+    def min(self) -> list[float]:
         """Minimum x,y,z extents of CAD model in local coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Min")
         return val
 
     @property
     @min_aedt_version("2025.2")
-    def max(self) -> str:
+    def max(self) -> list[float]:
         """Maximum x,y,z extents of CAD model in local coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Max")
         return val
@@ -255,7 +255,7 @@ class CADNode(EmitNode):
 
     @color.setter
     @min_aedt_version("2025.2")
-    def color(self, value) -> None:
+    def color(self, value: str) -> None:
         self._set_property("Color", f"{value}")
 
     @property
