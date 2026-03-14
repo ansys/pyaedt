@@ -301,7 +301,7 @@ jobs:
           xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -347,7 +347,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -418,7 +418,7 @@ jobs:
           pytest @args --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -489,7 +489,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -563,7 +563,7 @@ jobs:
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -636,7 +636,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
@@ -712,7 +712,7 @@ jobs:
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -786,7 +786,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -857,7 +857,7 @@ jobs:
           pytest @args --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-windows
           path: junit/test-results.xml
@@ -928,7 +928,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-linux
           path: junit/test-results.xml
@@ -999,7 +999,7 @@ jobs:
           pytest @args --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-windows
           path: junit/test-results.xml
@@ -1068,7 +1068,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-linux
           path: junit/test-results.xml
@@ -1133,7 +1133,7 @@ jobs:
           pytest @args --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
@@ -1197,7 +1197,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
@@ -1268,7 +1268,7 @@ jobs:
           pytest @args --timeout=600 tests/system/filter_solutions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
@@ -1339,7 +1339,7 @@ jobs:
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
