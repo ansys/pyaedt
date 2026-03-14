@@ -60,12 +60,12 @@ class CouplingLinkNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def ports(self) -> str:
+    def ports(self) -> list[str]:
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value) -> None:
+    def ports(self, value: list[str]) -> None:
         self._set_property("Ports", f"{value}")

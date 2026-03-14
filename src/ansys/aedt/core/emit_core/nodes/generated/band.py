@@ -46,7 +46,7 @@ class Band(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -56,12 +56,12 @@ class Band(EmitNode):
         self._delete()
 
     @min_aedt_version("2025.2")
-    def import_rx_measurement(self, file_name: str):
+    def import_rx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "RxMeasurement")
 
     @min_aedt_version("2025.2")
-    def import_tx_measurement(self, file_name: str):
+    def import_tx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 

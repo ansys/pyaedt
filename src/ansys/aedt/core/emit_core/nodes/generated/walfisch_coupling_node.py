@@ -46,7 +46,7 @@ class WalfischCouplingNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def duplicate(self, new_name: str = ""):
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -124,6 +124,7 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @environment.setter
+    @min_aedt_version("2025.2")
     def environment(self, value: EnvironmentOption) -> None:
         self._set_property("Environment", f"{value.value}")
 

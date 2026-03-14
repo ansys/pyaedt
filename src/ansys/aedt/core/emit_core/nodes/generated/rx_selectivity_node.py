@@ -44,7 +44,7 @@ class RxSelectivityNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def import_csv_file(self, file_name: str):
+    def import_csv_file(self, file_name: str) -> EmitNode:
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
