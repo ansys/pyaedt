@@ -31,7 +31,7 @@ import pytest
 from ansys.aedt.core.generic.numbers_utils import Quantity
 
 
-def test_quantity_initialization():
+def test_quantity_initialization() -> None:
     q = Quantity(10, "meter")
     assert q.value == 10.0
     assert q.unit == "meter"
@@ -46,7 +46,7 @@ def test_quantity_initialization():
     assert q_negative.value == -5.0
 
 
-def test_quantity_addition():
+def test_quantity_addition() -> None:
     q1 = Quantity(10, "meter")
     q2 = Quantity(5, "meter")
     q3 = q1 + q2
@@ -63,7 +63,7 @@ def test_quantity_addition():
     assert q5 + q6 == Quantity(2, "meter")
 
 
-def test_quantity_subtraction():
+def test_quantity_subtraction() -> None:
     q1 = Quantity(10, "meter")
     q2 = Quantity(5, "meter")
     q3 = q1 - q2
@@ -75,7 +75,7 @@ def test_quantity_subtraction():
         _ = q4 - q1
 
 
-def test_quantity_multiplication():
+def test_quantity_multiplication() -> None:
     q = Quantity(10, "meter")
     q2 = q * 2
     assert q2.value == 20
@@ -86,7 +86,7 @@ def test_quantity_multiplication():
     assert q4.unit == ""
 
 
-def test_quantity_division():
+def test_quantity_division() -> None:
     q = Quantity(10, "meter")
     q2 = q / 2
     assert q2.value == 5
@@ -97,7 +97,7 @@ def test_quantity_division():
     assert q4.unit == ""
 
 
-def test_quantity_conversion():
+def test_quantity_conversion() -> None:
     q = Quantity(1, "km")
     q2 = q.to("meter")
     assert q2.value == 1000.0
@@ -107,7 +107,7 @@ def test_quantity_conversion():
     assert q3.unit == "meter"
 
 
-def test_quantity_equality():
+def test_quantity_equality() -> None:
     q1 = Quantity(10, "meter")
     q2 = Quantity(10, "meter")
     q3 = Quantity(10000, "mm")
@@ -116,7 +116,7 @@ def test_quantity_equality():
     assert q1 == q3
 
 
-def test_quantity_comparison():
+def test_quantity_comparison() -> None:
     q1 = Quantity(10, "meter")
     q2 = Quantity(5, "meter")
     q3 = Quantity(10, "mm")
@@ -139,7 +139,7 @@ def test_quantity_comparison():
     assert q1 != q2
 
 
-def test_math_operations():
+def test_math_operations() -> None:
     q = Quantity(4, "meter")
     assert q.sqrt() == Quantity(2, "meter")
 
@@ -157,7 +157,7 @@ def test_math_operations():
     assert np.isclose(q_x.arctan2(q_y).value, np.arctan2(1, 1))
 
 
-def test_quantity_with_numpy_pandas():
+def test_quantity_with_numpy_pandas() -> None:
     q1 = Quantity(10, "m")
     q2 = Quantity(5, "m")
 

@@ -30,12 +30,14 @@ import pandas as pd
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -57,6 +59,10 @@ TEST_EMI_NAME = "EMI_RCV_251"
 IPK_POST_PROJ = "for_icepak_post_parasolid"
 IPK_MARKERS_PROJ = "ipk_markers"
 TB_SPECTRAL = "TB_excitation_model"
+CIRCUIT_NETLIST_DC = "circuit_netlist_DC"
+CIRCUIT_NETLIST_LNA = "circuit_netlist_LNA"
+CIRCUIT_NETLIST_TRAN = "circuit_netlist_TRAN"
+CIRCUIT_NETLIST_INVALID = "circuit_netlist_invalid"
 
 TEST_SUBFOLDER = "T12"
 
@@ -159,53 +165,60 @@ def tb_app(add_app_example):
     app.close_project(save=False)
 
 
+@pytest.fixture()
+def circuit_netlist(request, add_app_example):
+    app = add_app_example(project=request.param, application=CircuitNetlist, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
 def test_circuit_export_results(circuit_test):
     files = circuit_test.export_results()
     assert len(files) > 0
 
 
-def test_q2d_export_results(q2dtest):
+def test_q2d_export_results(q2dtest) -> None:
     files = q2dtest.export_results()
     assert len(files) > 0
 
 
-def test_q3d_export_results(q3dtest):
+def test_q3d_export_results(q3dtest) -> None:
     files = q3dtest.export_results()
     assert len(files) > 0
 
 
-def test_m3d_export_results(m3d_app):
+def test_m3d_export_results(m3d_app) -> None:
     files = m3d_app.export_results()
     assert len(files) > 0
 
 
-def test_m2d_export_results(m2dtest):
+def test_m2d_export_results(m2dtest) -> None:
     files = m2dtest.export_results()
     assert len(files) > 0
 
 
-def test_circuit_create_report(circuit_test):
+def test_circuit_create_report(circuit_test) -> None:
     assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
 
 
-def test_circuit_reports_by_category_standard(circuit_test):
+def test_circuit_reports_by_category_standard(circuit_test) -> None:
     new_report = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
     assert new_report.create()
 
 
-def test_circuit_reports_by_category_standard_1(diff_test):
+def test_circuit_reports_by_category_standard_1(diff_test) -> None:
     new_report1 = diff_test.post.reports_by_category.standard()
     assert new_report1.expressions
 
 
-def test_circuit_reports_by_category_standard_3(diff_test):
+def test_circuit_reports_by_category_standard_3(diff_test) -> None:
     new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
     new_report.differential_pairs = True
     assert new_report.create()
     assert new_report.get_solution_data()
 
 
-def test_circuit_reports_by_category_standard_4(diff_test):
+def test_circuit_reports_by_category_standard_4(diff_test) -> None:
     new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
     new_report2.differential_pairs = True
     new_report2.pulse_rise_time = 3e-12
@@ -216,17 +229,17 @@ def test_circuit_reports_by_category_standard_4(diff_test):
     assert new_report2.create()
 
 
-def test_circuit_get_solution_data(circuit_test):
+def test_circuit_get_solution_data(circuit_test) -> None:
     data = circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
     assert data.primary_sweep == "Freq"
 
 
-def test_circuit_create_report_1(circuit_test):
+def test_circuit_create_report_1(circuit_test) -> None:
     plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
     assert plot
 
 
-def test_circuit_create_report_from_configuration(circuit_test, test_tmp_dir):
+def test_circuit_create_report_from_configuration(circuit_test, test_tmp_dir) -> None:
     plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
     assert plot.export_config(str(test_tmp_dir / f"{plot.plot_name}.json"))
     assert circuit_test.post.create_report_from_configuration(
@@ -234,33 +247,33 @@ def test_circuit_create_report_from_configuration(circuit_test, test_tmp_dir):
     )
 
 
-def test_circuit_get_solution_data_1(circuit_test):
+def test_circuit_get_solution_data_1(circuit_test) -> None:
     data11 = circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
     assert data11.primary_sweep == "Freq"
     assert "dB(S(Port2,Port1))" in data11.expressions
 
 
-def test_circuit_get_solution_data_2(circuit_test):
+def test_circuit_get_solution_data_2(circuit_test) -> None:
     data2 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
     assert data2.primary_sweep == "Time"
     assert len(data2.get_expression_data(formula="magnitude", sweeps=["Time"])[1]) > 0
 
 
-def test_circuit_get_solution_data_3(circuit_test):
+def test_circuit_get_solution_data_3(circuit_test) -> None:
     context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
     data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
     assert data3.units_sweeps["Spectrum"] == circuit_test.units.frequency
     assert len(data3.get_expression_data()[1]) > 0
 
 
-def test_reports_by_category_standard_1(circuit_test):
+def test_reports_by_category_standard_1(circuit_test) -> None:
     circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
     new_report = circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
     new_report.domain = "Time"
     assert new_report.create()
 
 
-def test_reports_by_category_spectral(circuit_test):
+def test_reports_by_category_spectral(circuit_test) -> None:
     new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
     new_report.window = "Hanning"
     new_report.max_freq = "1GHz"
@@ -270,7 +283,7 @@ def test_reports_by_category_spectral(circuit_test):
     assert new_report.create()
 
 
-def test_reports_by_category_spectral_2(circuit_test):
+def test_reports_by_category_spectral_2(circuit_test) -> None:
     new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
     new_report.window = "Kaiser"
     new_report.adjust_coherent_gain = False
@@ -283,7 +296,7 @@ def test_reports_by_category_spectral_2(circuit_test):
     assert new_report.create()
 
 
-def test_reports_by_category_spectral_3(circuit_test):
+def test_reports_by_category_spectral_3(circuit_test) -> None:
     new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
     new_report.window = "Hanning"
     new_report.max_freq = "1GHz"
@@ -293,25 +306,25 @@ def test_reports_by_category_spectral_3(circuit_test):
     assert new_report.create()
 
 
-def test_create_report_spectrum(circuit_test):
+def test_create_report_spectrum(circuit_test) -> None:
     assert circuit_test.post.create_report(
         ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
     )
 
 
-def test_circuit_available_display_types(diff_test):
+def test_circuit_available_display_types(diff_test) -> None:
     assert len(diff_test.post.available_display_types()) > 0
 
 
-def test_circuit_available_report_quantities(diff_test):
+def test_circuit_available_report_quantities(diff_test) -> None:
     assert len(diff_test.post.available_report_quantities()) > 0
 
 
-def test_circuit_available_report_solutions(diff_test):
+def test_circuit_available_report_solutions(diff_test) -> None:
     assert len(diff_test.post.available_report_solutions()) > 0
 
 
-def test_circuit_create_report_2(diff_test):
+def test_circuit_create_report_2(diff_test) -> None:
     variations = diff_test.available_variations.nominal_variation(dependent_params=False)
     variations["Freq"] = ["All"]
     variations["l1"] = ["All"]
@@ -324,7 +337,7 @@ def test_circuit_create_report_2(diff_test):
     )
 
 
-def test_sbr_get_solution_data(sbr_test):
+def test_sbr_get_solution_data(sbr_test) -> None:
     assert sbr_test.setups[0].is_solved
     solution_data = sbr_test.post.get_solution_data(
         expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
@@ -335,7 +348,7 @@ def test_sbr_get_solution_data(sbr_test):
     assert not solution_data.set_active_variation(99)
 
 
-def test_sbr_solution_data_ifft(sbr_test, test_tmp_dir):
+def test_sbr_solution_data_ifft(sbr_test, test_tmp_dir) -> None:
     solution_data = sbr_test.post.get_solution_data(
         expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
     )
@@ -348,7 +361,7 @@ def test_sbr_solution_data_ifft(sbr_test, test_tmp_dir):
 
 
 @pytest.mark.avoid_ansys_load
-def test_sbr_plot_scene(sbr_test):
+def test_sbr_plot_scene(sbr_test) -> None:
     solution_data = sbr_test.post.get_solution_data(
         expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
     )
@@ -374,63 +387,63 @@ def test_sbr_plot_scene(sbr_test):
     assert os.path.exists(os.path.join(sbr_test.working_directory, "animation2.gif"))
 
 
-def test_q3d_export_convergence(q3dtest):
+def test_q3d_export_convergence(q3dtest) -> None:
     assert os.path.exists(q3dtest.export_convergence("Setup1"))
 
 
-def test_q3d_export_profile(q3dtest):
+def test_q3d_export_profile(q3dtest) -> None:
     assert Path(q3dtest.export_profile("Setup1")).exists()
 
 
-def test_q3d_reports_by_category_standard(q3dtest):
+def test_q3d_reports_by_category_standard(q3dtest) -> None:
     new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
     assert new_report.create()
 
 
-def test_q3d_reports_by_category_cg_fields(q3dtest):
+def test_q3d_reports_by_category_cg_fields(q3dtest) -> None:
     q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
     new_report = q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
     assert new_report.create()
 
 
-def test_q3d_reports_by_category_rl_fields(q3dtest):
+def test_q3d_reports_by_category_rl_fields(q3dtest) -> None:
     q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
     new_report = q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
     assert new_report.create()
 
 
-def test_q3d_reports_by_category_dc_fields(q3dtest):
+def test_q3d_reports_by_category_dc_fields(q3dtest) -> None:
     q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
     new_report = q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
     assert new_report.create()
 
 
-def test_q2d_export_convergence(q2dtest):
+def test_q2d_export_convergence(q2dtest) -> None:
     assert os.path.exists(q2dtest.export_convergence("Setup1"))
 
 
-def test_q2d_export_profile(q2dtest):
+def test_q2d_export_profile(q2dtest) -> None:
     assert Path(q2dtest.export_profile("Setup1")).exists()
 
 
-def test_q2d_reports_by_category_standard(q2dtest):
+def test_q2d_reports_by_category_standard(q2dtest) -> None:
     new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
     assert new_report.create()
 
 
-def test_q2d_reports_by_category_cg_fields(q2dtest):
+def test_q2d_reports_by_category_cg_fields(q2dtest) -> None:
     q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
     new_report = q2dtest.post.reports_by_category.cg_fields("Mag_E", polyline="Poly1")
     assert new_report.create()
 
 
-def test_q2d_reports_by_category_rl_fields(q2dtest):
+def test_q2d_reports_by_category_rl_fields(q2dtest) -> None:
     q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
     new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
     assert new_report.create()
 
 
-def test_q2d_reports_by_category_standard_2(q2dtest):
+def test_q2d_reports_by_category_standard_2(q2dtest) -> None:
     q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
     new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
     sol = new_report.get_solution_data()
@@ -441,18 +454,18 @@ def test_q2d_reports_by_category_standard_2(q2dtest):
     assert new_report.get_solution_data()
 
 
-def test_q3dtest_no_report(q3dtest):
+def test_q3dtest_no_report(q3dtest) -> None:
     assert not q3dtest.post.reports_by_category.modal_solution()
     assert not q3dtest.post.reports_by_category.terminal_solution()
 
 
-def test_q2dtest_no_report(q2dtest):
+def test_q2dtest_no_report(q2dtest) -> None:
     assert not q2dtest.post.reports_by_category.far_field()
     assert not q2dtest.post.reports_by_category.near_field()
     assert not q2dtest.post.reports_by_category.eigenmode()
 
 
-def test_parse_vector_aedtplt():
+def test_parse_vector_aedtplt() -> None:
     out = _parse_aedtplt(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_vector.aedtplt")
     )
@@ -465,19 +478,19 @@ def test_parse_vector_aedtplt():
     )
 
 
-def test_parse_vector():
+def test_parse_vector() -> None:
     out = _parse_streamline(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_streamline.fldplt")
     )
     assert isinstance(out, list)
 
 
-def test_export_mesh(q3dtest):
+def test_export_mesh(q3dtest) -> None:
     assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
     assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
 
 
-def test_eye_diagram(eye_test):
+def test_eye_diagram(eye_test) -> None:
     rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
     rep.time_start = "0ps"
     rep.time_stop = "50us"
@@ -486,7 +499,7 @@ def test_eye_diagram(eye_test):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
-def test_mask(eye_test):
+def test_mask(eye_test) -> None:
     rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
     rep.time_start = "0ps"
     rep.time_stop = "50us"
@@ -503,7 +516,7 @@ def test_mask(eye_test):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
-def test_eye_measurements(eye_test):
+def test_eye_measurements(eye_test) -> None:
     rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
     rep.time_start = "0ps"
     rep.time_stop = "50us"
@@ -514,14 +527,14 @@ def test_eye_measurements(eye_test):
     assert rep.add_trace_characteristics("MinEyeHeight")
 
 
-def test_eye_from_json_simple(eye_test):
+def test_eye_from_json_simple(eye_test) -> None:
     assert eye_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
         solution_name="QuickEyeAnalysis",
     )
 
 
-def test_spectral_from_json_simple(circuit_test):
+def test_spectral_from_json_simple(circuit_test) -> None:
     assert circuit_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
         solution_name="Transient",
@@ -529,7 +542,7 @@ def test_spectral_from_json_simple(circuit_test):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
-def test_eye_from_json(eye_test):
+def test_eye_from_json(eye_test) -> None:
     assert eye_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
         solution_name="QuickEyeAnalysis",
@@ -537,14 +550,14 @@ def test_eye_from_json(eye_test):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
-def test_spectral_from_json(circuit_test):
+def test_spectral_from_json(circuit_test) -> None:
     assert circuit_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report.json"),
         solution_name="Transient",
     )
 
 
-def test_ami_solution_data(ami_test):
+def test_ami_solution_data(ami_test) -> None:
     ami_test.solution_type = "NexximAMI"
     assert ami_test.post.get_solution_data(
         expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
@@ -577,7 +590,7 @@ def test_ami_solution_data(ami_test):
     )
 
 
-def test_ami_sample_ami_waveform(ami_test):
+def test_ami_sample_ami_waveform(ami_test) -> None:
     ami_test.solution_type = "NexximAMI"
     probe_name = "b_input_43"
     source_name = "b_output4_42"
@@ -628,7 +641,7 @@ def test_ami_sample_ami_waveform(ami_test):
     settings.enable_pandas_output = True
 
 
-def test_m2d_plot_field_line_traces(m2dtest):
+def test_m2d_plot_field_line_traces(m2dtest) -> None:
     m2dtest.set_active_design("field_line_trace")
     plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
     assert plot
@@ -668,7 +681,7 @@ def test_m2d_plot_field_line_traces(m2dtest):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2024.1", reason="EMI receiver available from 2024R1.")
-def test_emi_receiver(emi_receiver_test):
+def test_emi_receiver(emi_receiver_test) -> None:
     new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
     new_report.band = "2"
     new_report.rbw = "2"
@@ -687,11 +700,11 @@ def test_emi_receiver(emi_receiver_test):
     assert new_report2.create()
 
 
-def test_cleanup_solution(q3dtest):
+def test_cleanup_solution(q3dtest) -> None:
     assert q3dtest.cleanup_solution()
 
 
-def test_ipk_get_scalar_field_value(icepak_post):
+def test_ipk_get_scalar_field_value(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Heat_Flow_Rate",
         scalar_function="Integrate",
@@ -706,7 +719,7 @@ def test_ipk_get_scalar_field_value(icepak_post):
     )
 
 
-def test_ipk_get_scalar_field_value_1(icepak_post):
+def test_ipk_get_scalar_field_value_1(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Heat_Flow_Rate",
         scalar_function="Integrate",
@@ -721,7 +734,7 @@ def test_ipk_get_scalar_field_value_1(icepak_post):
     )
 
 
-def test_ipk_get_scalar_field_value_2(icepak_post):
+def test_ipk_get_scalar_field_value_2(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Heat_Flow_Rate",
         scalar_function="Integrate",
@@ -736,7 +749,7 @@ def test_ipk_get_scalar_field_value_2(icepak_post):
     )
 
 
-def test_ipk_get_scalar_field_valu_3(icepak_post):
+def test_ipk_get_scalar_field_valu_3(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Temperature",
         scalar_function="Maximum",
@@ -751,7 +764,7 @@ def test_ipk_get_scalar_field_valu_3(icepak_post):
     )
 
 
-def test_ipk_get_scalar_field_value_4(icepak_post):
+def test_ipk_get_scalar_field_value_4(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Temperature",
         scalar_function="Maximum",
@@ -766,7 +779,7 @@ def test_ipk_get_scalar_field_value_4(icepak_post):
     )
 
 
-def test_ipk_get_scalar_field_value_5(icepak_post):
+def test_ipk_get_scalar_field_value_5(icepak_post) -> None:
     assert icepak_post.post.get_scalar_field_value(
         "Temperature",
         scalar_function="Value",
@@ -782,7 +795,7 @@ def test_ipk_get_scalar_field_value_5(icepak_post):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Method does not work in non-graphical mode.")
-def test_markers(markers_test):
+def test_markers(markers_test) -> None:
     f1 = markers_test.modeler["Region"].top_face_z
     p1 = markers_test.post.create_fieldplot_surface(f1.id, "Uz")
     f1_c = f1.center
@@ -822,7 +835,7 @@ def test_markers(markers_test):
     os.path.exists(temp_file.name)
 
 
-def test_m3d_get_solution_data_reduced_matrix(m3d_app):
+def test_m3d_get_solution_data_reduced_matrix(m3d_app) -> None:
     expressions = m3d_app.post.available_report_quantities(
         report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
     )
@@ -830,12 +843,12 @@ def test_m3d_get_solution_data_reduced_matrix(m3d_app):
     assert data
 
 
-def test_m3d_available_report_quantities(m3d_app):
+def test_m3d_available_report_quantities(m3d_app) -> None:
     expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
     assert isinstance(expressions, list)
 
 
-def test_m3d_get_solution_data_matrix(m3d_app):
+def test_m3d_get_solution_data_matrix(m3d_app) -> None:
     expressions = m3d_app.post.available_report_quantities(
         report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
     )
@@ -844,7 +857,7 @@ def test_m3d_get_solution_data_matrix(m3d_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_twinbuilder_spectral(tb_app):
+def test_twinbuilder_spectral(tb_app) -> None:
     assert tb_app.post.create_report(
         expressions="mag(E1.I)", primary_sweep_variable="Spectrum", plot_name="Spectral domain", domain="Spectral"
     )
@@ -857,7 +870,7 @@ def test_twinbuilder_spectral(tb_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
-def test_m2d_evaluate_inception_voltage(m2dtest):
+def test_m2d_evaluate_inception_voltage(m2dtest) -> None:
     m2dtest.set_active_design("field_line_trace")
     with pytest.raises(AEDTRuntimeError):
         m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
@@ -870,7 +883,7 @@ def test_m2d_evaluate_inception_voltage(m2dtest):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
-def test_m2d_export_inception_voltage(m2dtest):
+def test_m2d_export_inception_voltage(m2dtest) -> None:
     m2dtest.set_active_design("field_line_trace")
     file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
     with pytest.raises(AEDTRuntimeError):
@@ -887,7 +900,7 @@ def test_m2d_export_inception_voltage(m2dtest):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
-def test_m2d_modify_inception_parameters(m2dtest):
+def test_m2d_modify_inception_parameters(m2dtest) -> None:
     m2dtest.set_active_design("field_line_trace")
     file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
     with pytest.raises(AEDTRuntimeError):
@@ -915,3 +928,65 @@ def test_m2d_modify_inception_parameters(m2dtest):
     m2dtest.solution_type = "Magnetostatic"
     with pytest.raises(AEDTRuntimeError):
         m2dtest.post.modify_inception_parameters("my_plot", file_path, [1, 2, 4])
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_DC], indirect=True)
+def test_circuit_netlist_report_dc(circuit_netlist):
+    solution = circuit_netlist.post.available_report_solutions()[0]
+    quantities = circuit_netlist.post.available_report_quantities(solution=solution)
+    report = circuit_netlist.post.create_report(
+        expressions=f"dB({quantities[0]})",
+        setup_sweep_name="NexximDC",
+        plot_type="Data Table",
+        primary_sweep_variable="Index",
+    )
+    assert report.expressions == [f"dB({quantities[0]})"]
+    assert report.primary_sweep == "Index"
+    assert report.report_type == "Data Table"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_LNA], indirect=True)
+def test_circuit_netlist_report_lna(circuit_netlist):
+    solution = CircuitNetlistConstants.solution_types["NexximLNA"]["name"]
+    quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
+    report = circuit_netlist.post.create_report(
+        expressions=f"dB({quantities[0]})",
+        setup_sweep_name="NexximLNA",
+        plot_type="Rectangular Plot",
+        domain="Sweep",
+        primary_sweep_variable="Freq",
+    )
+    assert report.domain == "Sweep"
+    assert report.expressions == [f"dB({quantities[0]})"]
+    assert report.primary_sweep == "Freq"
+    assert report.report_type == "Rectangular Plot"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_TRAN], indirect=True)
+def test_circuit_netlist_report_tran(circuit_netlist):
+    solution = CircuitNetlistConstants.solution_types["NexximTransient"]["name"]
+    quantities = circuit_netlist.post.available_report_quantities(quantities_category="Voltage", solution=solution)
+    report = circuit_netlist.post.reports_by_category.circuit_netlist(
+        expressions=f"{quantities[0]}", setup="NexximTransient"
+    )
+    report.time_start = "0us"
+    report.time_stop = "10us"
+    assert report.create()
+    report = circuit_netlist.post.create_report(
+        expressions=f"{quantities[0]}", primary_sweep_variable="Time", setup_sweep_name="NexximTransient", domain="Time"
+    )
+    assert report.expressions == [f"{quantities[0]}"]
+    assert report.primary_sweep == "Time"
+    assert report.report_type == "Rectangular Plot"
+    assert report.domain == "Time"
+
+
+@pytest.mark.parametrize("circuit_netlist", [CIRCUIT_NETLIST_INVALID], indirect=True)
+def test_circuit_netlist_report_invalid(circuit_netlist):
+    with pytest.raises(ValueError):
+        circuit_netlist.post.create_report(
+            expressions="V(Out)",
+            report_category="Standard",
+            plot_type="Rectangular Plot",
+            primary_sweep_variable="Freq",
+        )

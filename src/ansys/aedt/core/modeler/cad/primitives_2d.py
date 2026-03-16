@@ -22,9 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class Primitives2D(GeometryModeler, PyAedtBase):
@@ -44,7 +49,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     """
 
     @property
-    def plane2d(self):
+    def plane2d(self) -> str:
         """Create a 2D plane."""
         plane = "Z"
         if self._app.design_type == "Maxwell 2D":  # Cylindrical symmetry about the z-axis.
@@ -52,13 +57,21 @@ class Primitives2D(GeometryModeler, PyAedtBase):
                 plane = "Y"
         return plane
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         GeometryModeler.__init__(self, application, is3d=False)
 
     @pyaedt_function_handler()
     def create_circle(
-        self, origin, radius, num_sides=0, is_covered=True, name=None, material=None, non_model=False, **kwargs
-    ):
+        self,
+        origin: list,
+        radius: float | str,
+        num_sides: int = 0,
+        is_covered: bool = True,
+        name: str | None = None,
+        material: str | None = None,
+        non_model: bool = False,
+        **kwargs,
+    ) -> "Object3d":
         """Create a circle.
 
         Parameters
@@ -97,7 +110,11 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         --------
         >>> circle1 = aedtapp.modeler.create_circle([0, -2, -2], 3)
         >>> circle2 = aedtapp.modeler.create_circle(
-        ...     origin=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", material="Copper"
+        ...     origin=[0, -2, -2],
+        ...     radius=3,
+        ...     num_sides=6,
+        ...     name="MyCircle",
+        ...     material="Copper",
         ... )
 
 
@@ -123,7 +140,11 @@ class Primitives2D(GeometryModeler, PyAedtBase):
             "NumSegments:=",
             f"{num_sides}",
         ]
-        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        arg_2 = self._default_object_attributes(
+            name=name,
+            material=material,
+            flags="NonModel#" if non_model else "",
+        )
         new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -131,16 +152,16 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_ellipse(
         self,
-        origin,
-        major_radius,
-        ratio,
-        is_covered=True,
-        name=None,
-        material=None,
-        non_model=False,
-        segments=0,
+        origin: list,
+        major_radius: float | str,
+        ratio: float,
+        is_covered: bool=True,
+        name: str | None=None,
+        material: str | None=None,
+        non_model: bool=False,
+        segments: int=0,
         **kwargs
-    ):  # fmt: on
+    ) -> "Object3d":  # fmt: on
         """Create an ellipse.
 
         Parameters
@@ -203,7 +224,16 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, is_covered=True, name=None, material=None, non_model=False, **kwargs):
+    def create_rectangle(
+        self,
+        origin: list,
+        sizes: list,
+        is_covered: bool=True,
+        name: str | None=None,
+        material: str | None=None,
+        non_model: bool = False,
+        **kwargs
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -261,8 +291,15 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides=6, name=None, material=None, non_model=False, **kwargs
-    ):
+        self,
+        origin: list,
+        start_point: list,
+        num_sides: int = 6,
+        name: str | None = None,
+        material: str | None = None,
+        non_model: bool = False,
+        **kwargs
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -326,7 +363,12 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_region(self, pad_value=300, pad_type="Percentage Offset", name="Region", **kwarg):
+    def create_region(
+        self,
+        pad_value: float | str | list[float | str] = 300,
+        pad_type: str = "Percentage Offset",
+        name: str = "Region", **kwarg
+    ) -> "Object3d":
         """Create an air region.
 
         Parameters

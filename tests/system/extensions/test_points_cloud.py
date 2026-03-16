@@ -34,7 +34,7 @@ POINT_CLOUD_GENERATOR = "point_cloud_generator"
 TEST_SUBFOLDER = "T45"
 
 
-def test_point_cloud_extension_logic(add_app_example, test_tmp_dir):
+def test_point_cloud_extension_logic(add_app_example, test_tmp_dir) -> None:
     # Define point cloud extension data to use for call to main
     app = add_app_example(subfolder=TEST_SUBFOLDER, project=POINT_CLOUD_GENERATOR)
     data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=test_tmp_dir)
@@ -42,7 +42,7 @@ def test_point_cloud_extension_logic(add_app_example, test_tmp_dir):
     app.close_project(app.project_name, save=False)
 
 
-def test_point_cloud_exceptions(add_app_example, add_app, test_tmp_dir):
+def test_point_cloud_exceptions(add_app_example, add_app, test_tmp_dir) -> None:
     """Test exceptions thrown by the point cloud extension."""
     app = add_app_example(subfolder=TEST_SUBFOLDER, project=POINT_CLOUD_GENERATOR)
     data = PointsCloudExtensionData(choice=[""])

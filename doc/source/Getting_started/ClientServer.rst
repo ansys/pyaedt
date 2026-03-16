@@ -1,3 +1,5 @@
+.. _client_server:
+
 Client-server
 =============
 You can launch PyAEDT on a remote machine if these conditions are met:

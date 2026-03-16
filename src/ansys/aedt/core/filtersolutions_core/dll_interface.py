@@ -36,11 +36,11 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
-    def __init__(self, show_gui=False, version=None):
+    def __init__(self, show_gui: bool = False, version: str | None = None) -> None:
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         """Restore the state of the API, including all options and values, to the initial startup state."""
         status = self._dll.startApplication(self.show_gui)
         self.raise_error(status)
@@ -69,7 +69,7 @@ class DllInterface:
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
         self._version = version
 
-    def _init_dll(self, show_gui):
+    def _init_dll(self, show_gui) -> None:
         """Load DLL and initialize application parameters to default values."""
         self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
         self._define_dll_functions()
@@ -88,18 +88,18 @@ class DllInterface:
         print("API Ready")
         print("")
 
-    def _app_thread_task(self):  # pragma: no cover
+    def _app_thread_task(self) -> None:  # pragma: no cover
         """Print the status of running application thread."""
         print("Starting Application::Run thread")
         status = self._dll.startApplication(self.show_gui)
         self.raise_error(status)
 
-    def _define_dll_functions(self):
+    def _define_dll_functions(self) -> None:
         """Define DLL function."""
         self._dll.getVersion.argtypes = [ctypes.c_char_p, ctypes.c_int]
         self._dll.getVersion.restype = ctypes.c_int
 
-    def get_string(self, dll_function: Callable, max_size=100) -> str:
+    def get_string(self, dll_function: Callable, max_size: int = 100) -> str:
         """Call a DLL function that returns a string.
 
         Parameters
@@ -124,7 +124,7 @@ class DllInterface:
         text = text_buffer.value.decode("utf-8")
         return text
 
-    def set_string(self, dll_function: Callable, string: str):
+    def set_string(self, dll_function: Callable, string: str) -> int:
         """Call a DLL function that sets a string.
 
         Parameters
@@ -188,7 +188,7 @@ class DllInterface:
         api_version = f"{api_version_year}.{api_version_release}"
         return api_version
 
-    def raise_error(self, error_status):
+    def raise_error(self, error_status: int) -> None:
         """Raise an exception if the error status is not 0.
 
         Parameters

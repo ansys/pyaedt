@@ -24,6 +24,35 @@ development mode, run:
     python -m pip install --upgrade pip
     pip install -e .
 
+Development environment setup
+------------------------------
+
+PyAEDT uses **dependency groups** (PEP 735) for managing development dependencies.
+This is a modern approach that replaces the older ``[project.optional-dependencies]``
+mechanism for development-only dependencies.
+
+Dependency groups vs optional dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PyAEDT uses two mechanisms for managing dependencies:
+
+- **Optional dependencies** (``[project.optional-dependencies]``): Used for runtime features
+  that users can optionally install (e.g., ``dotnet``, ``graphics``, ``jupyter``, ``all``).
+  These are installed with ``pip install pyaedt[graphics]`` or ``uv sync --extra graphics``.
+
+- **Dependency groups** (``[dependency-groups]``): Used for development-only dependencies
+  (e.g., ``dev``, ``doc``, ``tests``). These are NOT included in the package distribution
+  and are only used during development. They are installed with ``pip install --group dev``
+  or ``uv sync --group dev``.
+
+.. note::
+
+  After with PyAEDT 0.25, development dependencies have been migrated from
+  ``[project.optional-dependencies]`` to ``[dependency-groups]`` following PEP 735.
+  This ensures development dependencies are not accidentally included in package
+  distributions. When using pip, ensure you have ``pip`` version 25.1 or later to use the
+  new dependency group syntax.
+
 Post issues
 -----------
 Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
@@ -46,24 +75,25 @@ Code style
 PyAEDT complies with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_.
 `pre-commit <https://pre-commit.com/>`_ is applied within the CI/CD to ensure compliance.
-The ``pre-commit`` Python package can be installed
-and run as follows:
+However, for local development, you might want to use `prek <https://prek.j178.dev/>`_
+which is a drop-in alternative to ``pre-commit`` that is faster and more efficient in
+disk space usage. The ``prek`` Python package can be installed and run as follows:
 
 .. code:: bash
 
-  pip install pre-commit
-  pre-commit run --all-files
+  pip install prek
+  prek run --all-files
 
-You can also install this as a pre-commit hook with:
+You can also install this as a prek hook with:
 
 .. code:: bash
 
-  pre-commit install
+  prek install
 
 This way, it's not possible for you to push code that fails the style checks.
 For example::
 
-  $ pre-commit install
+  $ prek install
   $ git commit -am "Add my cool feature."
   black....................................................................Passed
   isort (python)...........................................................Passed
@@ -243,7 +273,7 @@ and contain at least two classes:
 
 
     class MyExtension(ExtensionCommon):
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
             self.add_extension_content()
 
@@ -498,6 +528,7 @@ at the top level of the repository. Below is an example configuration with descr
       "use_local_example_data": false,
       "local_example_folder": "",
       "skip_modelithics": true
+      "use_pyedb_grpc": true
   }
 
 Parameter descriptions:
@@ -511,6 +542,7 @@ Parameter descriptions:
 - ``use_local_example_data``: When ``true``, uses local example data for tests.
 - ``local_example_folder``: Path to the local example data folder.
 - ``skip_modelithics``: When ``true``, skips Modelithics-related tests.
+- ``use_pyedb_grpc``: When ``true``, use PyEDB with gRPC for database access.
 
 Replicating CI/CD environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

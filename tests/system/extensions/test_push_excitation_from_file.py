@@ -37,7 +37,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 
 
-def test_push_excitation_generate_button(add_app, test_tmp_dir):
+def test_push_excitation_generate_button(add_app, test_tmp_dir) -> None:
     """Test the Generate button in the Push Excitation extension."""
     aedt_app = add_app(application=Hfss)
 
@@ -84,7 +84,7 @@ def test_push_excitation_generate_button(add_app, test_tmp_dir):
         aedt_app.close_project(save=False)
 
 
-def test_push_excitation_exceptions(add_app, test_tmp_dir):
+def test_push_excitation_exceptions(add_app, test_tmp_dir) -> None:
     """Test exceptions thrown by the Push Excitation extension."""
     # Test with no choice
     data = PushExcitationExtensionData(choice=None)
@@ -124,7 +124,7 @@ def test_push_excitation_exceptions(add_app, test_tmp_dir):
         aedt_app.close_project(save=False)
 
 
-def test_push_excitation_with_sinusoidal_input(add_app, test_tmp_dir):
+def test_push_excitation_with_sinusoidal_input(add_app, test_tmp_dir) -> None:
     """Test HFSS push excitation with sinusoidal data from file."""
     aedt_app = add_app(application=Hfss, project="push_excitation", design="sinusoidal_test")
 

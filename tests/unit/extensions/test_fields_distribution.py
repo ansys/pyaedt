@@ -35,7 +35,7 @@ from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistr
 
 
 @pytest.mark.parametrize("mock_maxwell_3d_app", ["2025.2"], indirect=True)
-def test_extension_default_with_point(mock_maxwell_3d_app):
+def test_extension_default_with_point(mock_maxwell_3d_app) -> None:
     """Test instantiation of the Fields Distribution extension for AEDT version < 2026.1."""
     # Mock the vector fields JSON file
     mock_vector_fields = {
@@ -73,7 +73,7 @@ def test_extension_default_with_point(mock_maxwell_3d_app):
 
 
 @pytest.mark.parametrize("mock_maxwell_3d_app", ["2026.1"], indirect=True)
-def test_extension_default_without_point(mock_maxwell_3d_app):
+def test_extension_default_without_point(mock_maxwell_3d_app) -> None:
     """Test instantiation of the Fields Distribution extension for AEDT version 2026.1."""
     # Mock the vector fields JSON file
     mock_vector_fields = {
@@ -105,7 +105,7 @@ def test_extension_default_without_point(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_extension_data_initialization():
+def test_extension_data_initialization() -> None:
     """Test the FieldsDistributionExtensionData initialization."""
     data = FieldsDistributionExtensionData()
 
@@ -116,7 +116,7 @@ def test_extension_data_initialization():
     assert data.solution_option == ""
 
 
-def test_extension_data_post_init():
+def test_extension_data_post_init() -> None:
     """Test the post_init method of FieldsDistributionExtensionData."""
     data = FieldsDistributionExtensionData(objects_list=None)
 
@@ -128,7 +128,7 @@ def test_extension_data_post_init():
     assert data2.objects_list == ["Object1", "Object2"]
 
 
-def test_extension_design_type_check(mock_maxwell_3d_app):
+def test_extension_design_type_check(mock_maxwell_3d_app) -> None:
     """Test design type validation."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H"], "Maxwell 2D": ["A_Vector"]}
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
@@ -147,7 +147,7 @@ def test_extension_design_type_check(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_extension_ui_widgets(mock_maxwell_3d_app):
+def test_extension_ui_widgets(mock_maxwell_3d_app) -> None:
     """Test that all UI widgets are properly created."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H", "Vector_B"], "Maxwell 2D": ["A_Vector"]}
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
@@ -181,7 +181,7 @@ def test_extension_ui_widgets(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_text_size_method(mock_maxwell_3d_app):
+def test_text_size_method(mock_maxwell_3d_app) -> None:
     """Test the _text_size method."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H"], "Maxwell 2D": ["A_Vector"]}
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
@@ -212,7 +212,7 @@ def test_text_size_method(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_populate_listbox_method(mock_maxwell_3d_app):
+def test_populate_listbox_method(mock_maxwell_3d_app) -> None:
     """Test the _populate_listbox method."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H"], "Maxwell 2D": ["A_Vector"]}
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
@@ -243,7 +243,7 @@ def test_populate_listbox_method(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_extension_data_extraction(mock_maxwell_3d_app):
+def test_extension_data_extraction(mock_maxwell_3d_app) -> None:
     """Test data extraction from UI widgets."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H", "Vector_B"], "Maxwell 2D": ["A_Vector"]}
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
@@ -272,7 +272,7 @@ def test_extension_data_extraction(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_extension_error_handling(mock_maxwell_3d_app):
+def test_extension_error_handling(mock_maxwell_3d_app) -> None:
     """Test error handling for missing objects and solutions."""
     mock_vector_fields = {"Maxwell 3D": ["Vector_H"], "Maxwell 2D": ["A_Vector"]}
 
@@ -301,7 +301,7 @@ def test_extension_error_handling(mock_maxwell_3d_app):
 
 
 @pytest.mark.parametrize("mock_maxwell_2d_app", ["2025.2"], indirect=True)
-def test_extension_with_maxwell_2d(mock_maxwell_2d_app):
+def test_extension_with_maxwell_2d(mock_maxwell_2d_app) -> None:
     """Test extension with Maxwell 2D application."""
     mock_vector_fields = {"Maxwell 2D": ["A_Vector", "H_Vector"], "Maxwell 3D": ["Vector_H"]}
     mock_maxwell_2d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
@@ -325,7 +325,7 @@ def test_extension_with_maxwell_2d(mock_maxwell_2d_app):
         extension.root.destroy()
 
 
-def test_callback_export(mock_maxwell_3d_app):
+def test_callback_export(mock_maxwell_3d_app) -> None:
     """Test the callback_export function."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H", "Vector_B"],
@@ -369,7 +369,7 @@ def test_callback_export(mock_maxwell_3d_app):
         assert extension.data.solution_option == "Setup1 : LastAdaptive"
 
 
-def test_callback_export_no_selection(mock_maxwell_3d_app):
+def test_callback_export_no_selection(mock_maxwell_3d_app) -> None:
     """Test callback_export with no export option selected."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -399,7 +399,7 @@ def test_callback_export_no_selection(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_callback_preview(mock_maxwell_3d_app):
+def test_callback_preview(mock_maxwell_3d_app) -> None:
     """Test the callback_preview function."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H", "Vector_B"],
@@ -451,7 +451,7 @@ def test_callback_preview(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_callback_preview_no_selection(mock_maxwell_3d_app):
+def test_callback_preview_no_selection(mock_maxwell_3d_app) -> None:
     """Test callback_preview with no export option selected."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -478,7 +478,7 @@ def test_callback_preview_no_selection(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_callback_preview_exception(mock_maxwell_3d_app):
+def test_callback_preview_exception(mock_maxwell_3d_app) -> None:
     """Test callback_preview when plot_field raises an exception."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -515,7 +515,7 @@ def test_callback_preview_exception(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_save_as_files_callback(mock_maxwell_3d_app):
+def test_save_as_files_callback(mock_maxwell_3d_app) -> None:
     """Test the save_as_files callback function."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -555,7 +555,7 @@ def test_save_as_files_callback(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_show_points_popup_ui_creation(mock_maxwell_3d_app):
+def test_show_points_popup_ui_creation(mock_maxwell_3d_app) -> None:
     """Test that show_points_popup creates all UI elements correctly."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -586,7 +586,7 @@ def test_show_points_popup_ui_creation(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_submit_import_file_success(mock_maxwell_3d_app):
+def test_submit_import_file_success(mock_maxwell_3d_app) -> None:
     """Test submit function with import file option - success path."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -629,7 +629,7 @@ def test_submit_import_file_success(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_submit_import_file_no_selection(mock_maxwell_3d_app):
+def test_submit_import_file_no_selection(mock_maxwell_3d_app) -> None:
     """Test submit function with import file option - no file selected."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
@@ -671,7 +671,7 @@ def test_submit_import_file_no_selection(mock_maxwell_3d_app):
         extension.root.destroy()
 
 
-def test_popup_destroy_called(mock_maxwell_3d_app):
+def test_popup_destroy_called(mock_maxwell_3d_app) -> None:
     """Test that popup.destroy() is called in submit function."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
