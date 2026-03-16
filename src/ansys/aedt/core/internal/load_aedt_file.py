@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 from pathlib import Path
 import re
@@ -32,7 +33,7 @@ from ansys.aedt.core.generic.general_methods import settings
 # public interface
 
 
-def load_entire_aedt_file(filename):
+def load_entire_aedt_file(filename: str | Path) -> dict:
     """Load the entire AEDT file and return the dictionary
 
     Parameters
@@ -53,7 +54,7 @@ def load_entire_aedt_file(filename):
     return f_d
 
 
-def load_keyword_in_aedt_file(filename, keyword, design_name=None):
+def load_keyword_in_aedt_file(filename: str | Path, keyword: str, design_name: str | None = None) -> dict:
     """Load s specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -472,12 +473,14 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
     return _count
 
 
-def _read_aedt_file(filename) -> None:
+def _read_aedt_file(filename: str | Path) -> None:
     """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters
     ----------
-    filename :
+    filename : str | Path
+        AEDT filename with path
+
         AEDT filename with path
 
     Returns

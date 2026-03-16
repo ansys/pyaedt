@@ -584,7 +584,7 @@ class Revision:
         return design.GetResultNotes(self.name)
 
     @notes.setter
-    def notes(self, notes: str):
+    def notes(self, notes: str) -> None:
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project.save_project()
 
@@ -612,7 +612,7 @@ class Revision:
         return max_instances
 
     @n_to_1_limit.setter
-    def n_to_1_limit(self, max_instances: int):
+    def n_to_1_limit(self, max_instances: int) -> None:
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
@@ -960,7 +960,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.get_emi_category_filter_enabled(category)
 
-    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool) -> None:
+    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
 
         Parameters

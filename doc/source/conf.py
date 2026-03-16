@@ -35,7 +35,7 @@ LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
 
 
-def visit_desc_content(self, node: Element) -> None:
+def visit_desc_content(self, node: Element):
     self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
 

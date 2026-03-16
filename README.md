@@ -14,7 +14,7 @@
 [![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)
 [![PyPIact](https://static.pepy.tech/badge/pyaedt/month)](https://www.pepy.tech/projects/pyaedt)
 [![PythonVersion](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/ci_cd.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/ci_cd.yml)
+[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
 [![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)

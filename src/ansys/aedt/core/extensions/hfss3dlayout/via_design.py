@@ -170,7 +170,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         )
         change_theme_button.grid(row=0, column=1)
 
-    def create_design(self, create_design_path: Path | None = None):
+    def create_design(self, create_design_path: Path | None = None) -> bool:
         """Create via design in AEDT"""
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(

@@ -157,7 +157,7 @@ class TestClass:
         assert model_pv_vector.vector_field_scale == 5
 
     @pytest.mark.avoid_ansys_load
-    def test_animate(self, test_tmp_dir) -> None:
+    def test_animate(self, test_tmp_dir):
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_fld])
         model_pv_vector.animate(show=False)

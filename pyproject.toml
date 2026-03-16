@@ -32,6 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "ansys-tools-common",
     "grpcio>=1.50.0,<1.79",
     "jsonschema",
     "psutil",
@@ -71,7 +72,7 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.11",
+    "scikit-rf>=0.30.0,<1.12",
     "pyaedt[jupyter]",
     "requests",
     "typer>=0.20.0",
@@ -88,15 +89,15 @@ examples = [
     "pyvista>=0.38.0,<0.48",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.6",
-    "scikit-rf>=0.30.0,<1.11",
+    "plotly>=6.0,<6.7",
+    "scikit-rf>=0.30.0,<1.12",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
 
 [dependency-groups]
 dev = [
-  "prek==0.3.3",
+  "prek==0.3.4",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
@@ -124,7 +125,7 @@ tests = [
     "pytest-xdist>=3.5.0,<3.9",
     "pytest-testmon>=2.0.0,<3.0",
     "pyvista[io]>=0.38.0,<0.48",
-    "scikit-rf>=0.30.0,<1.11",
+    "scikit-rf>=0.30.0,<1.12",
     "tables",
     "cryptography",
     { include-group = "integration-tests" },

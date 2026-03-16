@@ -67,6 +67,7 @@ CYLINDER_PRIMITIVE_FILE_WRONG_KEYS = "cylinder_geometry_creation_wrong_keys.csv"
 PRISM_PRIMITIVE_FILE = "prism_geometry_creation.csv"
 PRISM_PRIMITIVE_FILE_MISSING_VALUES = "prism_geometry_creation_missing_values.csv"
 PRISM_PRIMITIVE_FILE_WRONG_KEYS = "prism_geometry_creation_wrong_keys.csv"
+ENCRYPTED_DESIGN = "encrypted_design"
 
 TEST_SUBFOLDER = "T08"
 POLYLINE_PROJECT = "polyline_231"
@@ -80,6 +81,17 @@ def aedt_app(add_app):
     project_name = app.project_name
     yield app
     app.close_project(name=project_name, save=False)
+
+
+@pytest.fixture
+def encrypted_app(add_app_example):
+    app = add_app_example(
+        application=Hfss,
+        project=ENCRYPTED_DESIGN,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 # Utils functions
@@ -1590,15 +1602,16 @@ def test_insert_3dcomponent(aedt_app) -> None:
     assert isinstance(obj_3dcomp, UserDefinedComponent)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
-@pytest.mark.skipif(USE_GRPC and DESKTOP_VERSION < "2023.1", reason="Failing in grpc")
 def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
     input_file = shutil.copy2(file_original, test_tmp_dir / ENCRYPTED_CYL)
 
-    assert not aedt_app.modeler.insert_3d_component(str(input_file))
-    # assert not aedt_app.modeler.insert_3d_component(encrypted_cylinder, password="dfgdg")
     assert aedt_app.modeler.insert_3d_component(str(input_file), password="test")
+    assert len(aedt_app.modeler.object_list) == 1
+
+
+def test_encrypted_3dcomp_design(encrypted_app) -> None:
+    assert len(encrypted_app.modeler.object_list) == 1
 
 
 def test_group_components(aedt_app) -> None:

@@ -77,7 +77,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return self
 
     @pyaedt_function_handler()
-    def calculate_radius_2D(self, assignment, inner: bool = False):
+    def calculate_radius_2D(self, assignment: str, inner: bool = False) -> float:
         """Calculate the extremity of an object in the radial direction.
 
         Parameters
@@ -120,7 +120,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return radius
 
     @pyaedt_function_handler()
-    def radial_split_2D(self, radius, name: str) -> bool:
+    def radial_split_2D(self, radius: float, name: str) -> bool:
         """Split the stator and rotor for mesh refinement.
 
         Parameters
@@ -145,7 +145,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_in_bounding_box(self, bounding_box, check_lines: bool = True, check_sheets: bool = True):
+    def objects_in_bounding_box(self, bounding_box: list, check_lines: bool = True, check_sheets: bool = True) -> list:
         """Given a 2D bounding box, check if sheets and lines are inside it.
 
         Parameters

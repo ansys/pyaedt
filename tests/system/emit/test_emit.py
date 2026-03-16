@@ -89,6 +89,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1437,6 +1438,11 @@ def test_couplings_2(tutorial) -> None:
         assert antenna_nodes[key].name == antenna_names[i]
         i += 1
 
+    rev: Revision = tutorial.results.analyze()
+    gps_ant: AntennaNode = rev.get_component_node("GPS")
+    assert gps_ant.parent_name == "NODE-*-Scene"
+    assert gps_ant._full_node_name == gps_ant.parent_name + "-*-" + gps_ant.name
+
 
 @pytest.mark.skipif(
     DESKTOP_VERSION < "2024.1" or DESKTOP_VERSION > "2025.1",
@@ -2090,6 +2096,22 @@ def test_bp_bs_filters(emit_app) -> None:
     assert bs_filter_comp.bs_lower_cutoff == 95e6
     assert bs_filter_comp.bs_higher_cutoff == 105e6
     assert bs_filter_comp.bs_higher_stop_band == 105e6
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+def test_get_position_and_orientation(emit_app, file_tmp_root) -> None:
+    antenna: AntennaNode = emit_app.schematic.create_component("Antenna", name="TestAntenna")
+    antenna.position_defined = True
+    assert antenna.position == [0, 0, 0]
+    antenna.position = [1, 2, 3]
+    assert antenna.position == [1, 2, 3]
+    antenna.position = "4 5 6"
+    assert antenna.position == [4, 5, 6]
+    assert antenna.orientation == [0, 0, 0]
+    antenna.orientation = [10, 20, 30]
+    assert antenna.orientation == [10, 20, 30]
+    antenna.orientation = "40 50 60"
+    assert antenna.orientation == [40, 50, 60]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")

@@ -149,7 +149,7 @@ class Layer(PyAedtBase):
         self._zones = None
 
     @property
-    def color(self):
+    def color(self) -> list:
         """Return or set the property of the active layer. Color it is list of rgb values (0,255).
 
         Returns
@@ -164,7 +164,7 @@ class Layer(PyAedtBase):
             return self._color
 
     @color.setter
-    def color(self, val) -> None:
+    def color(self, val: list) -> None:
         if isinstance(val, list):
             self._color = val
         else:
@@ -172,7 +172,7 @@ class Layer(PyAedtBase):
         self.update_stackup_layer()
 
     @property
-    def transparency(self):
+    def transparency(self) -> int:
         """Get/Set the property to the active layer.
 
         Returns
@@ -182,12 +182,12 @@ class Layer(PyAedtBase):
         return self._transparency
 
     @transparency.setter
-    def transparency(self, val) -> None:
+    def transparency(self, val: int) -> None:
         self._transparency = val
         self.update_stackup_layer()
 
     @property
-    def is_visible(self):
+    def is_visible(self) -> bool:
         """Get/Set the active layer visibility.
 
         Returns
@@ -197,12 +197,12 @@ class Layer(PyAedtBase):
         return self._is_visible
 
     @is_visible.setter
-    def is_visible(self, val) -> None:
+    def is_visible(self, val: bool) -> None:
         self._is_visible = val
         self.update_stackup_layer()
 
     @property
-    def is_visible_shape(self):
+    def is_visible_shape(self) -> bool:
         """Get/Set the active layer shape visibility.
 
         Returns
@@ -212,12 +212,12 @@ class Layer(PyAedtBase):
         return self._is_visible_shape
 
     @is_visible_shape.setter
-    def is_visible_shape(self, val) -> None:
+    def is_visible_shape(self, val: bool) -> None:
         self._is_visible_shape = val
         self.update_stackup_layer()
 
     @property
-    def is_visible_path(self):
+    def is_visible_path(self) -> bool:
         """Get/Set the active layer paths visibility.
 
         Returns
@@ -227,12 +227,12 @@ class Layer(PyAedtBase):
         return self._is_visible_path
 
     @is_visible_path.setter
-    def is_visible_path(self, val) -> None:
+    def is_visible_path(self, val: bool) -> None:
         self._is_visible_path = val
         self.update_stackup_layer()
 
     @property
-    def is_visible_pad(self):
+    def is_visible_pad(self) -> bool:
         """Get/Set the active layer pad visibility.
 
         Returns
@@ -242,12 +242,12 @@ class Layer(PyAedtBase):
         return self._is_visible_pad
 
     @is_visible_pad.setter
-    def is_visible_pad(self, val) -> None:
+    def is_visible_pad(self, val: bool) -> None:
         self._is_visible_pad = val
         self.update_stackup_layer()
 
     @property
-    def is_visible_hole(self):
+    def is_visible_hole(self) -> bool:
         """Get/Set the active layer hole visibility.
 
         Returns
@@ -257,12 +257,12 @@ class Layer(PyAedtBase):
         return self._is_visible_hole
 
     @is_visible_hole.setter
-    def is_visible_hole(self, val) -> None:
+    def is_visible_hole(self, val: bool) -> None:
         self._is_visible_hole = val
         self.update_stackup_layer()
 
     @property
-    def is_visible_component(self):
+    def is_visible_component(self) -> bool:
         """Get/Set the active layer component visibility.
 
         Returns
@@ -272,12 +272,12 @@ class Layer(PyAedtBase):
         return self._is_visible_component
 
     @is_visible_component.setter
-    def is_visible_component(self, val) -> None:
+    def is_visible_component(self, val: bool) -> None:
         self._is_visible_component = val
         self.update_stackup_layer()
 
     @property
-    def is_mesh_background(self):
+    def is_mesh_background(self) -> bool:
         """Get/Set the active layer mesh backgraound.
 
         Returns
@@ -287,12 +287,12 @@ class Layer(PyAedtBase):
         return self._is_mesh_background
 
     @is_mesh_background.setter
-    def is_mesh_background(self, val) -> None:
+    def is_mesh_background(self, val: bool) -> None:
         self._is_mesh_background = val
         self.update_stackup_layer()
 
     @property
-    def is_mesh_overlay(self):
+    def is_mesh_overlay(self) -> bool:
         """Get/Set the active layer mesh overlay.
 
         Returns
@@ -302,12 +302,12 @@ class Layer(PyAedtBase):
         return self._is_mesh_overlay
 
     @is_mesh_overlay.setter
-    def is_mesh_overlay(self, val) -> None:
+    def is_mesh_overlay(self, val: bool) -> None:
         self._is_mesh_overlay = val
         self.update_stackup_layer()
 
     @property
-    def locked(self):
+    def locked(self) -> bool:
         """Get/Set the active layer lock flag.
 
         Returns
@@ -317,12 +317,12 @@ class Layer(PyAedtBase):
         return self._locked
 
     @locked.setter
-    def locked(self, val) -> None:
+    def locked(self, val: bool) -> None:
         self._locked = val
         self.update_stackup_layer()
 
     @property
-    def top_bottom(self):
+    def top_bottom(self) -> str:
         """Get/Set the active layer top bottom alignment.
 
         Returns
@@ -332,12 +332,12 @@ class Layer(PyAedtBase):
         return self._topbottom
 
     @top_bottom.setter
-    def top_bottom(self, val) -> None:
+    def top_bottom(self, val: str) -> None:
         self._topbottom = val
         self.update_stackup_layer()
 
     @property
-    def pattern(self):
+    def pattern(self) -> float:
         """Get/Set the active layer pattern.
 
         Returns
@@ -347,12 +347,12 @@ class Layer(PyAedtBase):
         return self._pattern
 
     @pattern.setter
-    def pattern(self, val) -> None:
+    def pattern(self, val: float) -> None:
         self._pattern = val
         self.update_stackup_layer()
 
     @property
-    def draw_override(self):
+    def draw_override(self) -> float:
         """Get/Set the active layer draw override value.
 
         Returns
@@ -362,12 +362,12 @@ class Layer(PyAedtBase):
         return self._drawoverride
 
     @draw_override.setter
-    def draw_override(self, val) -> None:
+    def draw_override(self, val: float) -> None:
         self._drawoverride = val
         self.update_stackup_layer()
 
     @property
-    def thickness(self):
+    def thickness(self) -> float:
         """Get/Set the active layer thickness value.
 
         Returns
@@ -377,7 +377,7 @@ class Layer(PyAedtBase):
         return self._thickness
 
     @thickness.setter
-    def thickness(self, val) -> None:
+    def thickness(self, val: float) -> None:
         self._thickness = str(Quantity(val, self.thickness_units))
         self.update_stackup_layer()
         tck = decompose_variable_value(self._thickness)
@@ -385,7 +385,7 @@ class Layer(PyAedtBase):
         self._thickness_units = tck[1]
 
     @property
-    def upper_elevation(self):
+    def upper_elevation(self) -> float:
         """Get the active layer upper elevation value with units.
 
         Returns
@@ -398,7 +398,7 @@ class Layer(PyAedtBase):
         )
 
     @property
-    def thickness_units(self):
+    def thickness_units(self) -> str:
         """Get the active layer thickness units value.
 
         Returns
@@ -408,7 +408,7 @@ class Layer(PyAedtBase):
         return self._thickness_units
 
     @property
-    def lower_elevation(self):
+    def lower_elevation(self) -> float:
         """Get/Set the active layer lower elevation.
 
         Returns
@@ -418,12 +418,12 @@ class Layer(PyAedtBase):
         return self._lower_elevation
 
     @lower_elevation.setter
-    def lower_elevation(self, val) -> None:
+    def lower_elevation(self, val: float) -> None:
         self._lower_elevation = val
         self.update_stackup_layer()
 
     @property
-    def roughness(self):
+    def roughness(self) -> str:
         """Return or set the active layer roughness (with units).
 
         Returns
@@ -433,12 +433,12 @@ class Layer(PyAedtBase):
         return self._roughness
 
     @roughness.setter
-    def roughness(self, value) -> None:
+    def roughness(self, value: str) -> None:
         self._roughness = value
         self.update_stackup_layer()
 
     @property
-    def bottom_roughness(self):
+    def bottom_roughness(self) -> str:
         """Return or set the active layer bottom roughness (with units).
 
         Returns
@@ -448,12 +448,12 @@ class Layer(PyAedtBase):
         return self._botroughness
 
     @bottom_roughness.setter
-    def bottom_roughness(self, value) -> None:
+    def bottom_roughness(self, value: str) -> None:
         self._botroughness = value
         self.update_stackup_layer()
 
     @property
-    def top_roughness(self):
+    def top_roughness(self) -> str:
         """Get/Set the active layer top roughness (with units).
 
         Returns
@@ -463,12 +463,12 @@ class Layer(PyAedtBase):
         return self._toprounghenss
 
     @top_roughness.setter
-    def top_roughness(self, val) -> None:
+    def top_roughness(self, val: str) -> None:
         self._toprounghenss = val
         self.update_stackup_layer()
 
     @property
-    def side_roughness(self):
+    def side_roughness(self) -> str:
         """Get/Set the active layer side roughness (with units).
 
         Returns
@@ -478,12 +478,12 @@ class Layer(PyAedtBase):
         return self._sideroughness
 
     @side_roughness.setter
-    def side_roughness(self, val) -> None:
+    def side_roughness(self, val: str) -> None:
         self._sideroughness = val
         self.update_stackup_layer()
 
     @property
-    def material(self):
+    def material(self) -> str:
         """Get/Set the active layer material name.
 
         Returns
@@ -493,12 +493,12 @@ class Layer(PyAedtBase):
         return self._material
 
     @material.setter
-    def material(self, val) -> None:
+    def material(self, val: str) -> None:
         self._material = val
         self.update_stackup_layer()
 
     @property
-    def fill_material(self):
+    def fill_material(self) -> str:
         """Get/Set the active layer filling material.
 
         Returns
@@ -508,12 +508,12 @@ class Layer(PyAedtBase):
         return self._fillmaterial
 
     @fill_material.setter
-    def fill_material(self, val) -> None:
+    def fill_material(self, val: str) -> None:
         self._fillmaterial = val
         self.update_stackup_layer()
 
     @property
-    def index(self):
+    def index(self) -> int:
         """Get/Set the active layer index.
 
         Returns
@@ -523,12 +523,12 @@ class Layer(PyAedtBase):
         return self._index
 
     @index.setter
-    def index(self, val) -> None:
+    def index(self, val: int) -> None:
         self._index = val
         self.update_stackup_layer()
 
     @property
-    def is_negative(self):
+    def is_negative(self) -> bool:
         """Get/Set the active layer negative flag. When `True` the layer will be negative.
 
         Returns
@@ -538,12 +538,12 @@ class Layer(PyAedtBase):
         return self._is_negative
 
     @is_negative.setter
-    def is_negative(self, val) -> None:
+    def is_negative(self, val: bool) -> None:
         self._is_negative = val
         self.update_stackup_layer()
 
     @property
-    def use_etch(self):
+    def use_etch(self) -> bool:
         """Get/Set the active layer etiching flag. When `True` the layer will use etch.
 
         Returns
@@ -553,12 +553,12 @@ class Layer(PyAedtBase):
         return self._useetch
 
     @use_etch.setter
-    def use_etch(self, val) -> None:
+    def use_etch(self, val: bool) -> None:
         self._useetch = val
         self.update_stackup_layer()
 
     @property
-    def etch(self):
+    def etch(self) -> float:
         """Get/Set the active layer etch value.
 
         Returns
@@ -568,12 +568,12 @@ class Layer(PyAedtBase):
         return self._etch
 
     @etch.setter
-    def etch(self, val) -> None:
+    def etch(self, val: float) -> None:
         self._etch = val
         self.update_stackup_layer()
 
     @property
-    def user(self):
+    def user(self) -> bool:
         """Get/Set the active layer user flag.
 
         Returns
@@ -583,12 +583,12 @@ class Layer(PyAedtBase):
         return self._user
 
     @user.setter
-    def user(self, val) -> None:
+    def user(self, val: bool) -> None:
         self._user = val
         self.update_stackup_layer()
 
     @property
-    def top_roughness_model(self):
+    def top_roughness_model(self) -> str:
         """Get/Set the active layer top roughness model.
 
         Returns
@@ -598,12 +598,12 @@ class Layer(PyAedtBase):
         return self._RMdl
 
     @top_roughness_model.setter
-    def top_roughness_model(self, val) -> None:
+    def top_roughness_model(self, val: str) -> None:
         self._RMdl = val
         self.update_stackup_layer()
 
     @property
-    def top_nodule_radius(self):
+    def top_nodule_radius(self) -> float:
         """Get/Set the active layer top roughness radius.
 
         Returns
@@ -613,12 +613,12 @@ class Layer(PyAedtBase):
         return self._NR
 
     @top_nodule_radius.setter
-    def top_nodule_radius(self, val) -> None:
+    def top_nodule_radius(self, val: float) -> None:
         self._NR = val
         self.update_stackup_layer()
 
     @property
-    def top_huray_ratio(self):
+    def top_huray_ratio(self) -> float:
         """Get/Set the active layer top roughness ratio.
 
         Returns
@@ -628,12 +628,12 @@ class Layer(PyAedtBase):
         return self._HRatio
 
     @top_huray_ratio.setter
-    def top_huray_ratio(self, val) -> None:
+    def top_huray_ratio(self, val: float) -> None:
         self._HRatio = val
         self.update_stackup_layer()
 
     @property
-    def bottom_roughness_model(self):
+    def bottom_roughness_model(self) -> str:
         """Get/Set the active layer bottom roughness model.
 
         Returns
@@ -643,12 +643,12 @@ class Layer(PyAedtBase):
         return self._BRMdl
 
     @bottom_roughness_model.setter
-    def bottom_roughness_model(self, val) -> None:
+    def bottom_roughness_model(self, val: str) -> None:
         self._BRMdl = val
         self.update_stackup_layer()
 
     @property
-    def bottom_nodule_radius(self):
+    def bottom_nodule_radius(self) -> float:
         """Get/Set the active layer bottom roughness radius.
 
         Returns
@@ -658,12 +658,12 @@ class Layer(PyAedtBase):
         return self._BNR
 
     @bottom_nodule_radius.setter
-    def bottom_nodule_radius(self, val) -> None:
+    def bottom_nodule_radius(self, val: float) -> None:
         self._BNR = val
         self.update_stackup_layer()
 
     @property
-    def bottom_huray_ratio(self):
+    def bottom_huray_ratio(self) -> float:
         """Get/Set the active layer bottom roughness ratio.
 
         Returns
@@ -673,12 +673,12 @@ class Layer(PyAedtBase):
         return self._BHRatio
 
     @bottom_huray_ratio.setter
-    def bottom_huray_ratio(self, val) -> None:
+    def bottom_huray_ratio(self, val: float) -> None:
         self._BHRatio = val
         self.update_stackup_layer()
 
     @property
-    def side_model(self):
+    def side_model(self) -> str:
         """Get/Set the active layer side roughness model.
 
         Returns
@@ -688,12 +688,12 @@ class Layer(PyAedtBase):
         return self._SRMdl
 
     @side_model.setter
-    def side_model(self, val) -> None:
+    def side_model(self, val: str) -> None:
         self._SRMdl = val
         self.update_stackup_layer()
 
     @property
-    def side_nodule_radius(self):
+    def side_nodule_radius(self) -> float:
         """Get/Set the active layer side roughness radius.
 
         Returns
@@ -703,12 +703,12 @@ class Layer(PyAedtBase):
         return self._SNR
 
     @side_nodule_radius.setter
-    def side_nodule_radius(self, val) -> None:
+    def side_nodule_radius(self, val: float) -> None:
         self._SNR = val
         self.update_stackup_layer()
 
     @property
-    def side_huray_ratio(self):
+    def side_huray_ratio(self) -> float:
         """Get/Set the active layer bottom roughness ratio.
 
         Returns
@@ -718,12 +718,12 @@ class Layer(PyAedtBase):
         return self._SHRatio
 
     @side_huray_ratio.setter
-    def side_huray_ratio(self, val) -> None:
+    def side_huray_ratio(self, val: float) -> None:
         self._SHRatio = val
         self.update_stackup_layer()
 
     @property
-    def usp(self):
+    def usp(self) -> bool:
         """Get/Set the active layer usp flag.
 
         Returns
@@ -733,12 +733,12 @@ class Layer(PyAedtBase):
         return self._usp
 
     @usp.setter
-    def usp(self, val) -> None:
+    def usp(self, val: bool) -> None:
         self._usp = val
         self.update_stackup_layer()
 
     @property
-    def hfss_solver_settings(self):
+    def hfss_solver_settings(self) -> dict:
         """Get/Set the active layer hfss solver settings.
 
         Returns
@@ -748,12 +748,12 @@ class Layer(PyAedtBase):
         return self.hfssSp
 
     @hfss_solver_settings.setter
-    def hfss_solver_settings(self, val) -> None:
+    def hfss_solver_settings(self, val: dict) -> None:
         self.hfssSp = val
         self.update_stackup_layer()
 
     @property
-    def planar_em_solver_settings(self):
+    def planar_em_solver_settings(self) -> dict:
         """Get/Set the active layer PlanarEm solver settings.
 
         Returns
@@ -763,12 +763,12 @@ class Layer(PyAedtBase):
         return self.planaremSp
 
     @planar_em_solver_settings.setter
-    def planar_em_solver_settings(self, val) -> None:
+    def planar_em_solver_settings(self, val: dict) -> None:
         self.planaremSp = val
         self.update_stackup_layer()
 
     @property
-    def zones(self):
+    def zones(self) -> list:
         """Get/Set the active layer zoness.
 
         Returns
@@ -780,7 +780,7 @@ class Layer(PyAedtBase):
         return self._zones
 
     @zones.setter
-    def zones(self, val) -> None:
+    def zones(self, val: list) -> None:
         self._zones = val
         self.update_stackup_layer()
 
@@ -790,7 +790,7 @@ class Layer(PyAedtBase):
         return self._layers.oeditor
 
     @property
-    def visflag(self):
+    def visflag(self) -> int:
         """Visibility flag for objects on the layer."""
         visflag = 0
         if not self._is_visible:
@@ -813,7 +813,7 @@ class Layer(PyAedtBase):
         return visflag
 
     @pyaedt_function_handler()
-    def set_layer_color(self, r, g, b) -> bool:
+    def set_layer_color(self, r: int, g: int, b: int) -> bool:
         """Update the color of the layer.
 
         Parameters
@@ -1103,7 +1103,7 @@ class Layers(PyAedtBase):
         return self._modeler.oeditor
 
     @property
-    def zones(self):
+    def zones(self) -> list:
         """List of all available zones.
 
         Returns
@@ -1118,12 +1118,12 @@ class Layers(PyAedtBase):
         return list(set(zones))
 
     @property
-    def LengthUnit(self):
+    def LengthUnit(self) -> str:
         """Length units."""
         return self._modeler.model_units
 
     @property
-    def all_layers(self):
+    def all_layers(self) -> list:
         """All stackup layers.
 
         Returns
@@ -1138,7 +1138,7 @@ class Layers(PyAedtBase):
         return [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
 
     @property
-    def drawing_layers(self):
+    def drawing_layers(self) -> list:
         """All drawing layers.
 
         Returns
@@ -1153,7 +1153,7 @@ class Layers(PyAedtBase):
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
-    def stackup_layers(self):
+    def stackup_layers(self) -> list:
         """All stackup layers.
 
         Returns
@@ -1168,7 +1168,7 @@ class Layers(PyAedtBase):
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
-    def all_signal_layers(self):
+    def all_signal_layers(self) -> list[Layer]:
         """All signal layers.
 
         Returns
@@ -1179,7 +1179,7 @@ class Layers(PyAedtBase):
         return [v for k, v in self.layers.items() if v.type == "signal"]
 
     @property
-    def signals(self):
+    def signals(self) -> dict[str, Layer]:
         """All signal layers.
 
         Returns
@@ -1194,7 +1194,7 @@ class Layers(PyAedtBase):
         return {k: v for k, v in self.layers.items() if v.type == "signal"}
 
     @property
-    def dielectrics(self):
+    def dielectrics(self) -> dict[str, Layer]:
         """All dielectric layers.
 
         Returns
@@ -1209,7 +1209,7 @@ class Layers(PyAedtBase):
         return {k: v for k, v in self.layers.items() if v.type == "dielectric"}
 
     @property
-    def drawings(self):
+    def drawings(self) -> dict[str, Layer]:
         """All stackup layers.
 
         Returns
@@ -1224,7 +1224,7 @@ class Layers(PyAedtBase):
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
 
     @property
-    def all_diel_layers(self):
+    def all_diel_layers(self) -> list[Layer]:
         """All dielectric layers.
 
         Returns
@@ -1235,7 +1235,7 @@ class Layers(PyAedtBase):
         return [v for k, v in self.layers.items() if v.type == "dielectric"]
 
     @pyaedt_function_handler()
-    def layer_id(self, name: str):
+    def layer_id(self, name: str) -> int | None:
         """Retrieve a layer ID.
 
         Parameters
@@ -1254,7 +1254,7 @@ class Layers(PyAedtBase):
         return None
 
     @property
-    def layers(self):
+    def layers(self) -> dict[int, Layer]:
         """Refresh all layers in the current stackup.
 
         Returns
@@ -1321,13 +1321,13 @@ class Layers(PyAedtBase):
     @pyaedt_function_handler()
     def add_layer(
         self,
-        layer,
-        layer_type: str | None = "signal",
-        thickness: str | None = "0mm",
-        elevation: str | None = "0mm",
-        material: str | None = "copper",
-        isnegative: bool | None = False,
-    ):
+        layer: str,
+        layer_type: str = "signal",
+        thickness: str = "0mm",
+        elevation: str = "0mm",
+        material: str = "copper",
+        isnegative: bool = False,
+    ) -> Layer:
         """Add a layer.
 
         Parameters

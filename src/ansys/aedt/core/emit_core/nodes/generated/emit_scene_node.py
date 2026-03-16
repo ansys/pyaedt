@@ -25,6 +25,7 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class EmitSceneNode(EmitNode):
@@ -33,34 +34,41 @@ class EmitSceneNode(EmitNode):
         self._is_component = False
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
+    @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
         """Add a new scene group"""
         return self._add_child_node("Group")
 
+    @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 
+    @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
@@ -69,6 +77,7 @@ class EmitSceneNode(EmitNode):
         Z_AXIS = "ZAxis"
 
     @property
+    @min_aedt_version("2025.2")
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
         """Specifies the axis of the normal to the ground plane."""
         val = self._get_property("Ground Plane Normal")
@@ -76,10 +85,12 @@ class EmitSceneNode(EmitNode):
         return val
 
     @ground_plane_normal.setter
-    def ground_plane_normal(self, value: GroundPlaneNormalOption):
+    @min_aedt_version("2025.2")
+    def ground_plane_normal(self, value: GroundPlaneNormalOption) -> None:
         self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def gp_position_along_normal(self) -> float:
         """GP Position Along Normal.
 
@@ -91,6 +102,7 @@ class EmitSceneNode(EmitNode):
         return float(val)
 
     @gp_position_along_normal.setter
-    def gp_position_along_normal(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def gp_position_along_normal(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("GP Position Along Normal", f"{value}")

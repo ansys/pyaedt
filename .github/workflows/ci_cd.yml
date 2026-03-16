@@ -102,7 +102,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+      - uses: ansys/actions/check-vulnerabilities@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -117,7 +117,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+      - uses: ansys/actions/check-actions-security@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        uses: ansys/actions/check-pr-title@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -194,7 +194,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        uses: ansys/actions/doc-style@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -211,7 +211,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        uses: ansys/actions/doc-build@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -238,7 +238,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -301,7 +301,7 @@ jobs:
           xvfb-run pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -347,7 +347,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} tests/integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -418,7 +418,7 @@ jobs:
           pytest @args --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -489,7 +489,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -563,7 +563,7 @@ jobs:
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -636,7 +636,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
@@ -712,7 +712,7 @@ jobs:
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -786,7 +786,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -857,7 +857,7 @@ jobs:
           pytest @args --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-windows
           path: junit/test-results.xml
@@ -928,7 +928,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-linux
           path: junit/test-results.xml
@@ -999,7 +999,7 @@ jobs:
           pytest @args --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-windows
           path: junit/test-results.xml
@@ -1068,7 +1068,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-linux
           path: junit/test-results.xml
@@ -1081,7 +1081,7 @@ jobs:
   system-tests-extensions-windows:
     name: Test extensions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (needs.analyze-changes.outputs.run_all == 'true' || needs.analyze-changes.outputs.extensions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1133,7 +1133,7 @@ jobs:
           pytest @args --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
@@ -1145,7 +1145,7 @@ jobs:
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (needs.analyze-changes.outputs.run_all == 'true' || needs.analyze-changes.outputs.extensions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -1197,7 +1197,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
@@ -1210,7 +1210,7 @@ jobs:
   system-tests-filter-windows:
     name: Test filter solutions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (needs.analyze-changes.outputs.run_all == 'true' || needs.analyze-changes.outputs.filter_solutions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1268,7 +1268,7 @@ jobs:
           pytest @args --timeout=600 tests/system/filter_solutions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
@@ -1281,7 +1281,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (needs.analyze-changes.outputs.run_all == 'true' || needs.analyze-changes.outputs.emit_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1339,7 +1339,7 @@ jobs:
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
@@ -1373,7 +1373,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
+        uses: ansys/actions/build-library@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}

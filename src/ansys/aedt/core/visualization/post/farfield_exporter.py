@@ -128,22 +128,22 @@ class FfdSolutionDataExporter(PyAedtBase):
             self.__app.logger.warning("Set phase center in port location manually.")
 
     @property
-    def model_info(self):
+    def model_info(self) -> dict:
         """List of models."""
         return self.__model_info
 
     @property
-    def farfield_data(self):
+    def farfield_data(self) -> FfdSolutionData | None:
         """Farfield data."""
         return self.__farfield_data
 
     @property
-    def metadata_file(self):
+    def metadata_file(self) -> str:
         """Metadata file."""
         return self.__metadata_file
 
     @pyaedt_function_handler()
-    def export_farfield(self):
+    def export_farfield(self) -> bool:
         """Export far field solution data of each element."""
         # Output directory
         exported_name_map = "element.txt"
