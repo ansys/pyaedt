@@ -7887,7 +7887,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     theta_max = th
                 angles["0.0deg"].append(th)
                 var_index[(th, None)] = var
-            theta_step = list(set(angles["0.0deg"]))[1] - list(set(angles["0.0deg"]))[0]
+
+            angles["0.0deg"] = list(set(angles["0.0deg"]))
+            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
 
         else:
             angles = {}
