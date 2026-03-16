@@ -100,7 +100,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
+          pytest ${PYTEST_ARGUMENTS} tests/system/general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
