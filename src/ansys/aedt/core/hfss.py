@@ -7831,11 +7831,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             and phi_name in r_te.active_variation
             and r_te.variations
         ):
-            is_isotropic = True
-            for var in r_te.variations:
-                if var[phi_name] != 0.0:
-                    is_isotropic = False
-                    break
+            # If is_isotropic is None, the following algorithm will choose
+            if is_isotropic is None:
+                is_isotropic = True
+                for var in r_te.variations:
+                    if var[phi_name] != 0.0:
+                        is_isotropic = False
+                        break
+                if is_isotropic:
+                    self.logger.add_info_message("Isotropic mode selected.")
+                else:
+                    self.logger.add_info_message("Anisotropic mode selected.")
 
         # Load required datasets
         r_tm = _get_sd("r_tm")
