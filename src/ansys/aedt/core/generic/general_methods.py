@@ -779,7 +779,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     Notes
     -----
     - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
-    - On Windows: Uses WMIC to query process information or falls back to PowerShell if WMIC is unavailable.
+    - On Windows: Uses PowerShell.
 
     Examples
     --------

@@ -2773,7 +2773,7 @@ class Desktop(PyAedtBase):
         return lock_file
 
     def _release_grpc_lock(self, lock_file: Path):
-        """Release the gRPC launch lock file.
+        """Release the gRPC launch lock file in CI environment.
 
         Parameters
         ----------
