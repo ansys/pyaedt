@@ -7899,8 +7899,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
 
             theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
+            theta_step = np.round(theta_step, 6)
             phi_diff = sorted(set(phi_values))
             phi_step = abs(phi_diff[1] - phi_diff[0])
+            phi_step = np.round(phi_step,6)
 
         # Write output file
         with open(output_file, "w") as ofile:
