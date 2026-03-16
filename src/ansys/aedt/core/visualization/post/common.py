@@ -597,7 +597,7 @@ class PostProcessorCommon(PyAedtBase):
                     try:
                         solution = trc_obj.GetPropValue("Solution")
                         break
-                    except Exception:
+                    except Exception:  # nosec
                         pass
                 plots.append(report(self, report_type, solution))
                 plots[-1]._legacy_props["plot_name"] = name
