@@ -122,6 +122,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
             state=state,
+            name="isotropic_button",
         )
         isotropic_button.grid(row=0, column=0, sticky="w")
         self._widgets["anisotropic_button"] = isotropic_button
@@ -134,6 +135,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
             state=state,
+            name="anisotropic_button",
         )
         anisotropic_button.grid(row=1, column=0, sticky="w")
         self._widgets["isotropic_button"] = anisotropic_button
