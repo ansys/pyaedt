@@ -1242,14 +1242,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.report_category, self.report_type, self.setup, quantities_category
         )
 
-    @property
-    def _trace_info(self):
-        if not self.expressions:
-            self.update_expressions_with_defaults()
-        if isinstance(self.expressions, list):
-            expr = self.expressions
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            if not self.expressions:
+                self.update_expressions_with_defaults()
+            expressions = self.expressions[::]
+        if isinstance(expressions, list):
+            expr = expressions
         else:
-            expr = [self.expressions]
+            expr = [expressions]
         arg = ["X Component:=", self.primary_sweep, "Y Component:=", expr]
         if self.report_type in ["3D Polar Plot", "3D Spherical Plot"]:
             arg = [
@@ -1394,7 +1396,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            self._trace_info,
+            self._trace_info(),
         )
         self._post.plots.append(self)
         self._is_created = True
@@ -2570,7 +2572,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             raise ValueError("Plot does not exist in current project.")
 
         for trace in traces_list:
-            if trace not in self._trace_info[3]:
+            if trace not in self._trace_info()[3]:
                 raise ValueError("Trace does not exist in the selected plot.")
 
         props = [f"{plot_name}:=", traces_list]
@@ -2605,23 +2607,18 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        expr = copy.deepcopy(self.expressions)
-        self.expressions = traces
-
         try:
             self._post.oreportsetup.AddTraces(
                 self.plot_name,
                 setup_name if setup_name else self.setup,
                 context if context else self._context,
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
-                self._trace_info,
+                self._trace_info(traces),
             )
             self._initialize_tree_node()
             return True
         except Exception:
             return False
-        finally:
-            self.expressions = expr
 
     @pyaedt_function_handler()
     def update_trace_in_report(
@@ -2655,7 +2652,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 setup_name if setup_name else self.setup,
                 context if context else self._context,
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
-                self._trace_info,
+                self._trace_info(),
             )
             return True
         except Exception:
