@@ -40,7 +40,6 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -228,6 +227,8 @@ class ImportNastranExtension(ExtensionProjectCommon):
         decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
 
         if file_path_ui.endswith(".nas"):
+            from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+
             nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
             from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
