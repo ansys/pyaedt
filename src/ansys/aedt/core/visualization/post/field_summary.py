@@ -263,10 +263,10 @@ class FieldSummary(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not variations:
-            variations = self._app.available_variations.nominal_values
         if not setup:
             setup = self._app.nominal_sweep
+        if not variations and self._app.available_variations.all:
+            variations = self._app.available_variations.variations(setup, True)[0]
         dv_string = ""
         for el in variations:
             dv_string += el + "='" + variations[el] + "' "

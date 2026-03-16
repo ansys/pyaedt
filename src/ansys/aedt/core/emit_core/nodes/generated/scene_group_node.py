@@ -95,32 +95,32 @@ class SceneGroupNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def position(self) -> str:
+    def position(self) -> list[float]:
         """Set position of the Scene Group in parent-node coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Position")
         return val
 
     @position.setter
     @min_aedt_version("2025.2")
-    def position(self, value: str) -> None:
+    def position(self, value: list[float] | str) -> None:
         self._set_property("Position", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_position(self) -> str:
+    def relative_position(self) -> list[float]:
         """Set position of the Scene Group relative to placement coordinates.
 
-        Value should be x/y/z, delimited by spaces.
+        Value should be a list of 3 floats.
         """
         val = self._get_property("Relative Position")
         return val
 
     @relative_position.setter
     @min_aedt_version("2025.2")
-    def relative_position(self, value: str) -> None:
+    def relative_position(self, value: list[float] | str) -> None:
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
@@ -145,7 +145,7 @@ class SceneGroupNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def orientation(self) -> str:
+    def orientation(self) -> list[float]:
         """Orientation.
 
         Set orientation of the Scene Group relative to parent-node coordinates.
@@ -157,12 +157,12 @@ class SceneGroupNode(EmitNode):
 
     @orientation.setter
     @min_aedt_version("2025.2")
-    def orientation(self, value: str) -> None:
+    def orientation(self, value: list[float] | str) -> None:
         self._set_property("Orientation", f"{value}")
 
     @property
     @min_aedt_version("2025.2")
-    def relative_orientation(self) -> str:
+    def relative_orientation(self) -> list[float]:
         """Relative Orientation.
 
         Set orientation of the Scene Group relative to placement coordinates.
@@ -174,7 +174,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_orientation.setter
     @min_aedt_version("2025.2")
-    def relative_orientation(self, value: str) -> None:
+    def relative_orientation(self, value: list[float] | str) -> None:
         self._set_property("Relative Orientation", f"{value}")
 
     @property

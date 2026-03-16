@@ -322,6 +322,17 @@ class EmitNode:
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
 
+            # Convert position and orientation properties to list of floats
+            convert_to_float = [
+                "Position",
+                "Relative Position",
+                "Orientation",
+                "Relative Orientation",
+                "Frequency Domain",
+            ]
+            if prop in convert_to_float:
+                return [float(x) for x in val.split()]
+
             if isTable:
                 # Node Prop tables
                 # Data formatted using compact string serialization
@@ -340,6 +351,20 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
+        convert_from_float = [
+            "Position",
+            "Relative Position",
+            "Orientation",
+            "Relative Orientation",
+            "Frequency Domain",
+        ]
+        if prop in convert_from_float:
+            if isinstance(value, list):
+                value = " ".join(str(x) for x in value)
+            elif isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, list):
+                    value = " ".join(str(x) for x in parsed)
         try:
             self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:

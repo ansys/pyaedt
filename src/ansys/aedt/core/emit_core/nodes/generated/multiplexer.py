@@ -120,14 +120,14 @@ class Multiplexer(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
-    def ports(self) -> str | list:
+    def ports(self) -> list[str]:
         """Assigns the child port nodes to the multiplexers ports."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value) -> None:
+    def ports(self, value: list[str]) -> None:
         self._set_property("Ports", f"{value}")
 
     @property
