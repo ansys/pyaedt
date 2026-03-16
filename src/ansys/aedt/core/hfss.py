@@ -7761,7 +7761,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_fresnel_coefficients(
-        self, setup_sweep: str, theta_name: str, phi_name: str, output_file: str | Path = None
+        self,
+        setup_sweep: str,
+        theta_name: str,
+        phi_name: str,
+        output_file: str | Path = None,
+        is_isotropic: bool | None = None,
     ) -> Path:
         """
         Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
@@ -7781,6 +7786,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         output_file : str or :class:`pathlib.Path`, optional
             Path to save the output ``.rttbl`` file. If not provided, a file will be generated automatically
             in the toolkit directory.
+        is_isotropic : bool, optional
+            Whether to get isotropic or anisotropic coefficients.
+             If ``None``, the method will attempt to determine isotropy based on the parametric sweep.
 
         Returns
         -------
@@ -7789,17 +7797,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         """
         self.create_fresnel_variables(setup_sweep=setup_sweep)
-
-        # def _create_var(variable: str, expression: str) -> None:
-        #     self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
-        #
-        # # Always create variables defining the direction of incidence
-        # _create_var("inc_T", f"abs({theta_name})")
-        # _create_var(
-        #     "inc_P",
-        #     f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))"
-        #     f"+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)",
-        # )
 
         floquet_ports = self.get_fresnel_floquet_ports()
 
@@ -7825,11 +7822,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         frequencies = r_te.primary_sweep_values
         frequency_units = r_te.units_sweeps["Freq"]
 
-        # Isotropy check (same as original logic)
-        is_isotropic = True
+        # Isotropy check
         if theta_name not in r_te.active_variation and phi_name not in r_te.active_variation:
             raise AEDTRuntimeError("At least one scan should be performed on theta or phi.")
-        elif theta_name in r_te.active_variation and phi_name in r_te.active_variation and r_te.variations:
+        elif (
+            not is_isotropic
+            and theta_name in r_te.active_variation
+            and phi_name in r_te.active_variation
+            and r_te.variations
+        ):
+            is_isotropic = True
             for var in r_te.variations:
                 if var[phi_name] != 0.0:
                     is_isotropic = False
