@@ -28,6 +28,7 @@ from typing import Sequence
 
 import numpy as np
 
+from ansys.aedt.core import settings
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -35,6 +36,9 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.numbers_utils import Quantity
+
+# Do not release Desktop to avoid closing the extension and opening it again
+settings.release_on_exception = False
 
 PORT = get_port()
 VERSION = get_aedt_version()

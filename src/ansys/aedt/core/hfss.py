@@ -8276,7 +8276,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         top_pos = None
         for exc in excitations.values():
             assignment = exc.properties["Assignment"]
-            if "(Face_" in assignment:
+            if "(Face_" in assignment or "( Face_" in assignment:
                 face_id = int(re.search(r"Face_(\d+)", assignment).group(1))
                 bounding_box = self.modeler.get_face_center(face_id)
             else:
