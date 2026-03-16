@@ -2720,7 +2720,7 @@ class Desktop(PyAedtBase):
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
 
-    def _generate_lock_file(self) -> Path:
+    def _on_ci_generate_lock_file(self) -> Path:
         """Generate a lock file to prevent concurrent AEDT gRPC launches in CI environment.
 
         Returns
@@ -2772,7 +2772,7 @@ class Desktop(PyAedtBase):
 
         return lock_file
 
-    def _release_grpc_lock(self, lock_file: Path):
+    def _on_ci_release_grpc_lock(self, lock_file: Path):
         """Release the gRPC launch lock file in CI environment.
 
         Parameters
@@ -2860,8 +2860,9 @@ class Desktop(PyAedtBase):
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
 
             if ON_CI:
-                # Generate lock file before launching
-                lock_file = self._generate_lock_file()
+                # NOTE: Generate lock file to prevent concurrent AEDT launches in CI environment,
+                # which can cause conflicts and timeouts.
+                lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
             self.__port = self._validate_port(self.port)
@@ -2882,7 +2883,7 @@ class Desktop(PyAedtBase):
 
             if ON_CI:
                 # Release lock file after successful launch
-                self._release_grpc_lock(lock_file)
+                self._on_ci_release_grpc_lock(lock_file)
 
         if result:
             if self.new_desktop:
