@@ -284,6 +284,15 @@ jobs:
             pkgconf-pkg-config ca-certificates
           update-ca-trust
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
+      - name: Pre-install explicit Python version using uv
+        shell: bash
+        run: uv python install ${{ matrix.python-version }}
+
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
