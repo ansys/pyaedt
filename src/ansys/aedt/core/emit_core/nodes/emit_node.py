@@ -181,20 +181,19 @@ class EmitNode:
         Parameters
         ----------
         name : str, optional
-            Short name to convert.  
+            Short name to convert.
         """
         if name == "":
             return self.parent_name + "-*-" + self.name
-        
+
         if name.startswith("NODE-*-"):
             return name
-        
+
         comp = self._emit_obj.results.analyze().get_component_node(name)
         if comp is not None:
             return comp.parent_name + "-*-" + name
-        
-        return ""
 
+        return ""
 
     @property
     @min_aedt_version("2025.2")
