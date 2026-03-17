@@ -32,6 +32,7 @@ from ansys.aedt.core.common_rpc import create_session
 from ansys.aedt.core.common_rpc import pyaedt_service_manager
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.hfss import Hfss
+from tests.conftest import DESKTOP_VERSION
 from tests.system.general.test_desktop_grpc_transport import generate_certs
 
 GRPC_CONNECTION_TIMEOUT = 30
@@ -71,10 +72,10 @@ def rpc_server():
     yield
 
 
-# @pytest.mark.skipif(
-#     DESKTOP_VERSION < "2026.1",
-#     reason="Not working in versions without grpc patch",
-# )
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
     # Set up ports, generate certificates, settings and configure environment variables for mTLS
     port_client, port_aedt = find_client_and_aedt_ports()
