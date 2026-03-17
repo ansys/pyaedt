@@ -1220,7 +1220,6 @@ class Design(AedtObjects, PyAedtBase):
             activedes, warning_msg = self._find_design()
             if activedes:
                 self._odesign = self.desktop_class.active_design(self.oproject, activedes, self.design_type)
-                self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
             else:
