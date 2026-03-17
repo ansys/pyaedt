@@ -793,12 +793,8 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     # /nh - No header row in output (easier to parse)
     cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
 
-    # Execute tasklist command with security best practices:
-    # - capture_output=True: Capture stdout/stderr instead of printing to console
-    # - text=True: Return output as string instead of bytes
-    # - shell=False: CRITICAL - Don't use shell (prevents command injection)
-    # - check=False: Don't raise exception on non-zero return code
-    #                (tasklist returns error if no processes found, which is valid)
+    # Execute tasklist command with security best practices
+
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -830,7 +826,7 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
                 pids.append(int(pid_str))
         except IndexError:  # pragma: no cover
             # IndexError occurs if row doesn't have enough columns
-            # This can happen with malformed output - skip these rows
+            # This can happen with malformed output or when no sessions available
             continue
 
     return pids
@@ -902,16 +898,18 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]]:
+def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
     """Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
-    returning the IP address, port, and status of each connection.
+    returning the IP address, port, and status of each connection. It uses the
+    psutil library to query active network connections for each process.
 
     Parameters
     ----------
     pids : list of int
         List of process IDs to check for active TCP connections.
+        These are typically AEDT process IDs (ansysedt.exe or ansysedtsv.exe).
 
     Returns
     -------
@@ -925,22 +923,63 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]
         - "status" : str
             Connection status, for example "LISTEN", or "ESTABLISHED".
     """
+    # Step 1: Initialize result dictionary with empty lists for each PID
+    # This ensures every requested PID appears in the result, even if it has no connections
     connections = {i: [] for i in pids}
+
+    # Step 2: Iterate through each process ID to retrieve its network connections
     for i in pids:
         try:
+            # Create a psutil.Process object for the given PID
+            # This object provides access to process information and system resources
             prc = psutil.Process(i)
+
+            # Get the full command line of the process as a space-separated string
             cmdline = " ".join(prc.cmdline())
+
+            # Get all TCP network connections for this specific process
+            # prc.net_connections() returns a list of named tuples (sconn objects)
+            # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
             for conn in prc.net_connections():
-                connection = {"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status, "cmdline": cmdline}
+                # Build a connection dictionary with the information we need
+                # conn.laddr: Local address as a named tuple with .ip and .port attributes
+                # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
+                # conn.laddr.port: Local port number (integer, e.g., 50051)
+                # conn.status: Connection state (e.g., "LISTEN", "ESTABLISHED")
+                connection = {
+                    "ip": conn.laddr.ip,  # Local IP address
+                    "port": conn.laddr.port,  # Local port number
+                    "status": conn.status,  # Connection status
+                    "cmdline": cmdline,  # Full command line for filtering
+                }
+
+                # Append this connection to the list for this PID
                 connections[i].append(connection)
+
         except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess):
+            # Handle various exceptions that can occur during process inspection:
+            #
+            # AttributeError: Raised if conn.laddr is None (connection without local address)
+            #                 This can happen for some connection types
+            #
+            # KeyError: Raised if expected attributes are missing from the connection object
+            #           Rare, but possible with certain process states
+            #
+            # psutil.ZombieProcess: Process has terminated but hasn't been cleaned up by parent
+            #                       Common on Linux when processes exit but remain in process table
+            #
+            # psutil.NoSuchProcess: Process terminated between when we got the PID and now
+            #                       This is a race condition that can occur in fast process lifecycles
+            #
+            # Action: Pass silently - the PID will remain in the result with an empty list
             pass
+
     return connections
 
 
 @pyaedt_function_handler()
 def _check_connection_grpc_port(
-    connections: dict[int, list[dict[str, any]]],
+    connections: dict[int, list[dict]],
     pid: int,
     version: str | None = None,
     non_graphical: bool | None = None,
@@ -949,37 +988,81 @@ def _check_connection_grpc_port(
 
     This function searches through network connections to identify the gRPC port
     that a specific process is listening on. It checks for LISTEN status on
-    localhost addresses ("::" or "127.0.0.1").
+    localhost addresses ("::" or "127.0.0.1") and optionally filters by version
+    and graphical mode.
 
     Parameters
     ----------
     connections : dict of int to list of dict
         Dictionary mapping process IDs to their network connections.
-        Each connection dictionary should contain "ip", "port", and "status" keys.
+        Each connection dictionary should contain "ip", "port", "status", and "cmdline" keys.
     pid : int
         The process ID to check for an active gRPC listening port.
-    version: str | None
-        AEDT version.
-    non_graphical : bool | None
-        Non graphical flag.
+    version: str, optional
+        AEDT version to filter by. If provided, only connections whose command line
+        contains this version string are considered. The default is ``None`` (no version filtering).
+    non_graphical : bool, optional
+        Filter by graphical mode. The default is ``None``.
+        - ``True``: Only return port if process has ``-ng`` flag (non-graphical mode)
+        - ``False``: Only return port if process does NOT have ``-ng`` flag (graphical mode)
+        - ``None``: Ignore graphical mode (return port regardless)
 
     Returns
     -------
     int
-        The port number if a LISTEN connection is found on localhost for the specified PID,
-        ``-1`` otherwise.
+        The gRPC port number if a LISTEN connection is found matching all filters,
+        ``-1`` if no matching connection is found.
+
     """
+    # Step 1: Iterate through possible localhost IP addresses
+    # Check both IPv6 (::) and IPv4 (127.0.0.1) localhost addresses
     for ip in ["::", "127.0.0.1"]:
+        # Step 2: Iterate through all processes in the connections dictionary
+        # input_pid: Process ID from the connections dict
+        # conn: List of connection dictionaries for that process
         for input_pid, conn in connections.items():
+            # Step 3: Iterate through each individual connection for this process
+            # el: Connection dictionary with keys: "ip", "port", "status", "cmdline"
             for el in conn:
+                # Step 4: Apply the primary filters - PID, IP, and LISTEN status
                 if input_pid == pid and el["ip"] == ip and el["status"] == "LISTEN":
+                    # Step 5: Apply optional version filter
+                    # Two scenarios pass this check:
+                    # 1. not version: No version filter specified (version is None or empty)
+                    # 2. version in el["cmdline"]: Version string appears in command line
+                    # This allows filtering for specific AEDT versions when multiple
+                    # versions are running simultaneously
                     if not version or version in el["cmdline"]:
+                        # Step 6: Apply optional non-graphical mode filter
+                        # This is a three-way check with complex logic:
+                        #
+                        # Condition 1: non_graphical is None
+                        #   - No filtering by graphical mode
+                        #   - Accept any connection regardless of -ng flag
+                        #
+                        # Condition 2: (non_graphical and "-ng" in el["cmdline"])
+                        #   - User wants non-graphical sessions only (non_graphical=True)
+                        #   - Command line contains -ng flag
+                        #   - This matches non-graphical AEDT sessions
+                        #
+                        # Condition 3: ("-ng" not in el["cmdline"] and not non_graphical)
+                        #   - User wants graphical sessions only (non_graphical=False)
+                        #   - Command line does NOT contain -ng flag
+                        #   - This matches graphical AEDT sessions
+
                         if (
-                            non_graphical is None
-                            or (non_graphical and "-ng" in el["cmdline"])
-                            or ("-ng" not in el["cmdline"] and not non_graphical)
+                            non_graphical is None  # No filtering by graphical mode
+                            or (non_graphical and "-ng" in el["cmdline"])  # Want non-graphical, has -ng
+                            or ("-ng" not in el["cmdline"] and not non_graphical)  # Want graphical, no -ng
                         ):
+                            # Step 7: All filters passed - return the port number
                             return el["port"]
+
+    # Step 8: No matching connection found
+    # Return -1 to indicate:
+    # - Either the PID doesn't have a LISTEN connection on localhost, OR
+    # - The connection exists but doesn't match the version/graphical filters, OR
+    # - The process is using COM instead of gRPC
     return -1
 
 
