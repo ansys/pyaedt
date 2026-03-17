@@ -357,7 +357,7 @@ def test_duplicate_components(emit_app):
     ]
     assert dup_multiplexer4.ports == port_list1
     dup_multiplexer4.ports = ["Pass Band C", "Pass Band A", "Pass Band B"]
-    assert dup_multiplexer4.ports == ['Pass Band C', 'Pass Band A', 'Pass Band B']
+    assert dup_multiplexer4.ports == ["Pass Band C", "Pass Band A", "Pass Band B"]
     port_string = "|".join(port_list1)
     dup_multiplexer4.ports = port_string
     assert dup_multiplexer4.ports == port_list1
