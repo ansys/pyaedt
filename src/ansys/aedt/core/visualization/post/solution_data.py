@@ -38,15 +38,29 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
+# Lazy import for pandas - only imported when needed
+pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run some functionalities of PostProcess.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
 
 
 class SolutionData(PyAedtBase):
@@ -56,7 +70,7 @@ class SolutionData(PyAedtBase):
         self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
-        self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
+        self._enable_pandas_output = settings.enable_pandas_output
         self._expressions = None
         self._intrinsics = None
         self._nominal_variation = self._original_data[0]
@@ -100,13 +114,29 @@ class SolutionData(PyAedtBase):
         -------
         bool
         """
-        return True if self._enable_pandas_output and pd else False
+        if self._enable_pandas_output:
+            try:
+                _import_pandas()
+                return True
+            except ImportError:  # pragma: no cover
+                return False
+        return False
 
     @enable_pandas_output.setter
     def enable_pandas_output(self, val: bool) -> None:
-        if val != self._enable_pandas_output and pd:
-            self._enable_pandas_output = val
-            self.init_solutions_data()
+        if val:
+            # Try to import pandas when enabling
+            try:
+                _import_pandas()
+                if val != self._enable_pandas_output:
+                    self._enable_pandas_output = val
+                    self.init_solutions_data()
+            except ImportError:  # pragma: no cover
+                settings.logger.warning("Cannot enable pandas output: pandas is not installed.")
+        else:
+            if val != self._enable_pandas_output:
+                self._enable_pandas_output = val
+                self.init_solutions_data()
 
     @pyaedt_function_handler()
     def set_active_variation(self, var_id: int = 0) -> bool:
