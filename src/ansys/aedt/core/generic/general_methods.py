@@ -927,13 +927,13 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]
     """
     connections = {i: [] for i in pids}
     for i in pids:
-        prc = psutil.Process(i)
         try:
+            prc = psutil.Process(i)
             cmdline = " ".join(prc.cmdline())
             for conn in prc.net_connections():
                 connection = {"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status, "cmdline": cmdline}
                 connections[i].append(connection)
-        except (AttributeError, KeyError, psutil.ZombieProcess):
+        except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess):
             pass
     return connections
 
