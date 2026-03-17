@@ -23,6 +23,11 @@
 # SOFTWARE.
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
+
 from collections.abc import Mapping
 from datetime import datetime
 from datetime import timedelta
@@ -32,21 +37,32 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
-import warnings
-
-try:
-    import pandas as pd
-except ImportError:  # pragma: no cover
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+# Lazy import for pandas, only imported when needed
+pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run some functionalities of PostProcess.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
 
 
 def string_to_time(time_string: str) -> timedelta:
@@ -551,7 +567,7 @@ class ProfileStep(PyAedtBase):
         return max(mem_list)
 
     @pyaedt_function_handler()
-    def table(self, columns: list = None) -> pd.DataFrame:
+    def table(self, columns: list = None) -> "pd.DataFrame":
         """Return a summary of profile step metrics.
 
         Parameters
@@ -582,6 +598,8 @@ class ProfileStep(PyAedtBase):
             Table of profile process step information for
             the specified property values.
         """
+        pd_module = _import_pandas()
+
         if columns is None:
             columns = ("elapsed_time", "real_time", "cpu_time", "max_memory")
 
@@ -598,7 +616,7 @@ class ProfileStep(PyAedtBase):
                         value = "NA"
                     data.setdefault(prop, []).append(value)
 
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
             # Update formatting of timedelta props
             for p in self.__timedelta_props:
@@ -616,7 +634,7 @@ class ProfileStep(PyAedtBase):
                     else:
                         value = "NA"
                     data.setdefault(prop, []).append(value)
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
         return table_out
 
