@@ -1665,9 +1665,6 @@ class Desktop(PyAedtBase):
             self.logger.info("Desktop has been released.")
         if self.aedt_process_id in _desktop_sessions:
             del _desktop_sessions[self.aedt_process_id]
-        # props = [a for a in dir(self) if not a.startswith("__")]
-        # for a in props:
-        #    self.__dict__.pop(a, None)
 
         gc.collect()
         self.__closed = True
