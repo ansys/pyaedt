@@ -26,11 +26,11 @@ from __future__ import annotations
 
 import os
 from typing import TYPE_CHECKING
-import warnings
 
 import numpy as np
 
 if TYPE_CHECKING:
+    import pandas as pd
     from pandas import Series
 
 from ansys.aedt.core.base import PyAedtBase
@@ -39,13 +39,25 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
+# Lazy import for pandas - only imported when needed
+pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run some functionalities of PostProcess.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
 
 
 class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
@@ -445,14 +457,14 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def sample_waveform(
         self,
-        waveform_data: list | "Series",
-        waveform_sweep: list | "Series",
+        waveform_data: "list | Series",
+        waveform_sweep: "list | Series",
         waveform_unit: str = "V",
         waveform_sweep_unit: str = "s",
         unit_interval: float = 1e-9,
         clock_tics: list = None,
         pandas_enabled: bool = False,
-    ) -> list | "Series":
+    ) -> "list | Series":
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
@@ -492,11 +504,17 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
-        if isinstance(waveform_sweep, pd.Series):
-            waveform_sweep = list(waveform_sweep)
+        # Check if pandas is available and if inputs are pandas Series
+        try:
+            pd_module = _import_pandas()
+            if isinstance(waveform_sweep, pd_module.Series):
+                waveform_sweep = list(waveform_sweep)
 
-        if isinstance(waveform_data, pd.Series):
-            waveform_data = list(waveform_data)
+            if isinstance(waveform_data, pd_module.Series):
+                waveform_data = list(waveform_data)
+        except ImportError:  # pragma: no cover
+            # If pandas not available, inputs must be lists already
+            pass
 
         sweep_filtered = np.copy(waveform_sweep)
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
@@ -523,7 +541,12 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                 else:
                     break
         if pandas_enabled:
-            return pd.Series(new_voltage, index=tic_in_s)
+            try:
+                pd_module = _import_pandas()
+                return pd_module.Series(new_voltage, index=tic_in_s)
+            except ImportError:  # pragma: no cover
+                self.logger.warning("Pandas is not installed. Returning list instead of Series.")
+                return outputdata
         return outputdata
 
     @pyaedt_function_handler()
@@ -537,7 +560,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         ignore_bits: int = 0,
         plot_type: str = None,
         clock_tics: list = None,
-    ) -> list:
+    ) -> list | None:
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
