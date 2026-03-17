@@ -3251,7 +3251,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def assign_flux_tangential(self, assignment: list, flux_name: str | None = None) -> BoundaryObject | bool:
         # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
-        """Assign a flux tangential boundary for a transient A-Phi solver.
+        """Assign a flux tangential boundary for Transient and AC Magnetic A-Phi solvers.
 
         Parameters
         ----------
@@ -3275,9 +3275,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         Create a box and assign a flux tangential boundary to one of its faces.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic APhi")
         >>> box = m3d.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
+        >>> flux_tangential = m3d.assign_flux_tangential(box.top_face_z, "FluxExample")
         >>> m3d.desktop_class.close_desktop()
         """
         maxwell_solutions = SolutionsMaxwell3D
@@ -3287,6 +3287,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             maxwell_solutions.TransientAPhi,
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
+            maxwell_solutions.ACMagneticAPhi,
         ]:
             raise AEDTRuntimeError(
                 "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution types."
