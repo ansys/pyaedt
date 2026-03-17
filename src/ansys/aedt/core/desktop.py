@@ -1599,6 +1599,9 @@ class Desktop(PyAedtBase):
                         return False
         return True
 
+    def __del__(self):
+        self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
+
     @pyaedt_function_handler()
     def __release_and_close_desktop(self, close_projects, close_aedt_app):
         """Internal method performing common operations when releasing or closing AEDT.
@@ -1662,9 +1665,9 @@ class Desktop(PyAedtBase):
             self.logger.info("Desktop has been released.")
         if self.aedt_process_id in _desktop_sessions:
             del _desktop_sessions[self.aedt_process_id]
-        props = [a for a in dir(self) if not a.startswith("__")]
-        for a in props:
-            self.__dict__.pop(a, None)
+        # props = [a for a in dir(self) if not a.startswith("__")]
+        # for a in props:
+        #    self.__dict__.pop(a, None)
 
         gc.collect()
         self.__closed = True

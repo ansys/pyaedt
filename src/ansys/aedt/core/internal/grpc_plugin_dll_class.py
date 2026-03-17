@@ -157,10 +157,6 @@ class AedtObjWrapper:
         else:
             super().__setattr__(attrName, val)
 
-    def __del__(self) -> None:
-        if "ReleaseAedtObject" in dir(self.dllapi):
-            self.dllapi.ReleaseAedtObject(self.objectID)
-
     def match(
         self, patternStr: str
     ) -> list[str]:  # IronPython wrapper implemented this function return IEnumerable<string>.

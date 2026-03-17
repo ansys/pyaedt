@@ -779,7 +779,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     Notes
     -----
     - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
-    - On Windows: Uses WMIC to query process information or falls back to PowerShell if WMIC is unavailable.
+    - On Windows: Uses tasklist to query process information.
 
     Examples
     --------
@@ -807,69 +807,34 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
             pyaedt_logger.debug("No matching processes found.")
 
     elif platform_system == "Windows":
-        try:
-            import json
-            from pathlib import Path
-            import shutil
+        import csv
 
-            powershell = Path("powershell")
-            powershell_path = shutil.which(os.fspath(powershell))
-            if not powershell_path:
-                powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+        def get_pids_by_name(image_name: str) -> list[int]:
+            """
+            Returns a list of PIDs for the given process name (e.g., 'tgt.exe') on Windows.
+            Uses 'tasklist' to avoid PowerShell.
+            """
+            # Ensure exact match on the Image Name column
+            result = subprocess.run(
+                ["tasklist", "/fi", "imagename eq ansysedt.exe", "/fo", "csv", "/nh"], capture_output=True, text=True
+            )
 
-            for tgt in target_name:  # pragma: no cover
-                # PowerShell command equivalent to WMIC
-                ps_cmd = (
-                    f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
-                    "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
-                )
-
-                # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
-                # especially important for PyInstaller windowed applications.
-                output = subprocess.check_output(
-                    [powershell_path, "-Command", ps_cmd],
-                    text=True,
-                    creationflags=subprocess.CREATE_NO_WINDOW,
-                )  # nosec
-
-                # Parse JSON output - can be a single object or array
+            pids = []
+            reader = csv.reader(result.stdout.splitlines())
+            for row in reader:
+                if not row:
+                    continue
+                # CSV columns: "Image Name","PID","Session Name","Session#","Mem Usage"
+                # We want column 2 (index 1) for the PID
                 try:
-                    data = json.loads(output)
-                    # If single process, PowerShell returns an object; if multiple, returns an array
-                    if isinstance(data, dict):
-                        data = [data]
+                    pid_str = row[1].strip().strip('"')
+                    if pid_str.isdigit():
+                        pids.append(int(pid_str))
+                except IndexError:
+                    continue
+            return pids
 
-                    for process in data:
-                        pid = process.get("ProcessId")
-                        cmdline = process.get("CommandLine", "")
-                        if pid and cmdline:
-                            found_data.append((pid, cmdline.split()))
-                except (json.JSONDecodeError, ValueError) as e:
-                    # No processes found or invalid JSON
-                    pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
-                    pass
-        except FileNotFoundError:
-            for tgt in target_name:
-                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
-                print(cmd)
-                exit()
-                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
-
-                current_cmd = []
-
-                for line in output.splitlines():
-                    line = line.strip()
-                    if line.startswith("CommandLine="):
-                        # Extract and parse command line
-                        cmdline_raw = line[len("CommandLine=") :]
-                        current_cmd = cmdline_raw.split()
-                    elif line.startswith("ProcessId="):
-                        current_pid = int(line[len("ProcessId=") :])
-                        if current_pid and current_cmd:
-                            found_data.append((current_pid, current_cmd))
-                            current_pid, current_cmd = None, []
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to query Windows processes with Powershell and WMIC: {str(e)}")
+        found_data = [(int(pid), "ansysedt.exe") for pid in get_pids_by_name("ansysedt.exe")]
 
     return found_data
 
@@ -899,18 +864,26 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]
             Connection status, for example "LISTEN", or "ESTABLISHED".
     """
     connections = {i: [] for i in pids}
-    for conn in psutil.net_connections(kind="tcp"):
-        try:
-            if conn.pid in pids:
-                connections[conn.pid].append({"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status})
-        except (AttributeError, KeyError):
-            # Skip connections that don't have valid PID or address information
-            pass
+    for i in pids:
+        prc = psutil.Process(i)
+        cmdline = " ".join(prc.cmdline())
+        for conn in prc.net_connections():
+            try:
+                connection = {"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status, "cmdline": cmdline}
+                connections[i].append(connection)
+            except (AttributeError, KeyError):
+                # Skip connections that don't have valid PID or address information
+                pass
     return connections
 
 
 @pyaedt_function_handler()
-def _check_connection_grpc_port(connections: dict[int, list[dict[str, any]]], pid: int) -> int:
+def _check_connection_grpc_port(
+    connections: dict[int, list[dict[str, any]]],
+    pid: int,
+    version: str | None = None,
+    non_graphical: bool | None = None,
+) -> int:
     """Find the gRPC port for a specific process from its network connections.
 
     This function searches through network connections to identify the gRPC port
@@ -924,6 +897,10 @@ def _check_connection_grpc_port(connections: dict[int, list[dict[str, any]]], pi
         Each connection dictionary should contain "ip", "port", and "status" keys.
     pid : int
         The process ID to check for an active gRPC listening port.
+    version: str | None
+        AEDT version.
+    non_graphical : bool | None
+        Non graphical flag.
 
     Returns
     -------
@@ -935,7 +912,13 @@ def _check_connection_grpc_port(connections: dict[int, list[dict[str, any]]], pi
         for input_pid, conn in connections.items():
             for el in conn:
                 if input_pid == pid and el["ip"] == ip and el["status"] == "LISTEN":
-                    return el["port"]
+                    if not version or version in el["cmdline"]:
+                        if (
+                            non_graphical is None
+                            or (non_graphical and "-ng" in el["cmdline"])
+                            or ("-ng" not in el["cmdline"] and not non_graphical)
+                        ):
+                            return el["port"]
     return -1
 
 
@@ -999,7 +982,7 @@ def is_grpc_session_active(port: int) -> bool:
 
         connections = _check_psutil_connections(list(return_dict.keys()))
         for pid in return_dict.keys():
-            if _check_connection_grpc_port(connections, pid) == port:
+            if _check_connection_grpc_port(connections, pid, None, None) == port:
                 return True
     return False
 
@@ -1086,11 +1069,8 @@ def active_sessions(
                     available_ports.append(int(prt[1]))
             except IndexError:
                 pass
-        if (version and any([i for i in cmd if version in i])) or not version:
-            if non_graphical is None or non_graphical and "-ng" in cmd:
-                return_dict[pid] = -1
-            elif not non_graphical and "-ng" not in cmd:
-                return_dict[pid] = -1
+        else:
+            return_dict[pid] = -1
 
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if is_linux and any(port == -1 for port in return_dict.values()):
@@ -1106,7 +1086,7 @@ def active_sessions(
     if any(port == -1 for port in return_dict.values()):
         connections = _check_psutil_connections(list(return_dict.keys()))
         for pid in [i for i, v in return_dict.items() if v == -1]:
-            return_dict[pid] = _check_connection_grpc_port(connections, pid)
+            return_dict[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
 
     return return_dict
 
