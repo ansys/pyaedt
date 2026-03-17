@@ -87,7 +87,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.setup_names = list(self.setups.keys())
             for setup_name, setup in self.setups.items():
                 self.setup_sweep_names.append(f"{setup_name} : LastAdaptive")
-                if setup.children:
+                if setup.children:  # pragma: no cover
                     sweeps = list(setup.children.keys())
                     for sweep in sweeps:
                         self.setup_sweep_names.append(f"{setup_name} : {sweep}")
@@ -109,9 +109,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         state = "normal"
-        # if self.desktop.aedt_version_id < "2026.2":
-        #     # Anisotropic not available before 2026R2
-        #     state = "disabled"
+        if self.desktop.aedt_version_id < "2027.1":
+            # Anisotropic not available before 2027R1
+            state = "disabled"
 
         # Anisotropic and isotropic workflows
         isotropic_button = ttk.Radiobutton(
@@ -122,10 +122,9 @@ class FresnelExtension(ExtensionHFSSCommon):
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
             state=state,
-            name="isotropic_button",
         )
         isotropic_button.grid(row=0, column=0, sticky="w")
-        self._widgets["anisotropic_button"] = isotropic_button
+        self._widgets["isotropic_button"] = isotropic_button
 
         anisotropic_button = ttk.Radiobutton(
             fresnel_frame,
@@ -135,10 +134,9 @@ class FresnelExtension(ExtensionHFSSCommon):
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
             state=state,
-            name="anisotropic_button",
         )
         anisotropic_button.grid(row=1, column=0, sticky="w")
-        self._widgets["isotropic_button"] = anisotropic_button
+        self._widgets["anisotropic_button"] = anisotropic_button
 
         # Extraction, advanced and automated workflows
         tabs = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
@@ -152,10 +150,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
         self._widgets["tabs"].add(self._widgets["extraction_tab"], text="Extraction")
-
-        # self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated")
-        # Disable Automated workflow until it is not implemented
-        # self._widgets["tabs"].tab(self._widgets["auto_tab"], state="disabled")
 
         self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced")
         self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
@@ -191,7 +185,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
-        # self.build_automated_tab(auto_tab)
         self.build_advanced_tab()
         self.build_extraction_tab()
         self.build_settings_tab()
@@ -200,14 +193,13 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
-    def on_fresnel_type_changed(self):
+    def on_fresnel_type_changed(self):  # pragma: no cover
         selected = self.fresnel_type.get()
-        # selected_tab = self._widgets["tabs"].index(self._widgets["tabs"].select())
         if selected == "isotropic":
             self._widgets["azimuth_slider"].grid_remove()
             self._widgets["azimuth_spin"].grid_remove()
             self._widgets["azimuth_label"].grid_remove()
-        elif selected == "anisotropic":
+        elif selected == "anisotropic":  # pragma: no cover
             self._widgets["azimuth_slider"].grid()
             self._widgets["azimuth_spin"].grid()
             self._widgets["azimuth_label"].grid()
@@ -314,6 +306,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             state="readonly",
             font=self.theme.default_font,
             style="PyAEDT.TSpinbox",
+            name="elevation_spin",
         )
         self._widgets["elevation_spin"].grid(row=1, column=4, padx=15)
         self._widgets["elevation_slider"].set(1)
