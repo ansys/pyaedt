@@ -174,7 +174,7 @@ def test_preview_calls_nastran_to_stl(mock_hfss_app) -> None:
 
     with (
         patch("pathlib.Path.is_file", return_value=True),
-        patch("ansys.aedt.core.extensions.common.import_nastran.nastran_to_stl") as mock_nastran_to_stl,
+        patch("ansys.aedt.core.syslib.nastran_import.nastran_to_stl") as mock_nastran_to_stl,
     ):
         extension._ImportNastranExtension__preview()
         mock_nastran_to_stl.assert_called_once_with(fp, decimation=0.2, preview=True)
