@@ -2564,6 +2564,7 @@ def test_delete_all_points(aedt_app) -> None:
     assert [] == aedt_app.modeler.oeditor.GetPoints()
 
 
+@pytest.mark.skipif(is_linux, reason="Failing VTK in Linux runners")
 def test_import_from_open_street_map(add_app, test_tmp_dir):
     hfss = add_app(application=Hfss, solution_type="SBR+")
 
