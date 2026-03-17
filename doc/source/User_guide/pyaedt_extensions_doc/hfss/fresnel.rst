@@ -1,27 +1,28 @@
-Fresnel Coefficients
+Fresnel Coefficients (RTTBL extraction)
 ====================
 
-With this extension, you can extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.
+With this extension, you can export Fresnel Coefficients for periodic structures from an HFSS Unit-Cell design with
+Floquet port(s) in the RTTBL file format for further use in SBR+ for Fresnel (SBR+) Boundary Condition assignment.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
 Features
 --------
 
-The extension supports two analysis modes:
+The extension supports two regimes for processing Fresnel Coefficients:
 
-* **Isotropic**: Scans over elevation angle (theta) only
-* **Anisotropic**: Scans over both elevation (theta) and azimuth (phi) angles (not available yet)
+* **Isotropic**: Scans over the elevation angle (theta) only - coupling between the TE and TM polarizations is not considered
+* **Anisotropic**: Scans over both elevation (theta) and azimuth (phi) angles (not available yet) - considering the polarization coupling
 
 Workflows
 ---------
 
-The extension provides three workflow tabs:
+The extension provides two workflow tabs:
 
 Extraction Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-Extract Fresnel coefficients from an existing simulation setup with parametric sweeps already configured.
+Extract Fresnel coefficients from existing analysis results for a setup with parametric sweep.
 
 1. Select a simulation setup and sweep
 2. Click **Validate** to verify the design configuration
@@ -38,8 +39,8 @@ Configure and run a new parametric analysis:
 
 1. Select a simulation setup
 2. Define the frequency sweep range (start, stop, step, units)
-3. Set angular resolution for theta and phi (coarse, regular, or fine)
-4. Set maximum theta scan angle
+3. Set angular resolution (coarse, regular, or fine) for theta and phi (only for the Anisotropic regime)
+4. Set the maximum theta scan value
 5. Click **Apply and Validate** to create the parametric setup
 6. Click **Start** to run the analysis and extract coefficients
 
@@ -50,7 +51,7 @@ Configure and run a new parametric analysis:
 Simulation Settings
 ~~~~~~~~~~~~~~~~~~~
 
-Configure HPC and optimization options:
+This tab is to configure HPC and Parametric Sweep options:
 
 * **HPC Options**: Set number of cores and tasks
 * **Optimetrics Options**: Enable mesh reuse across variations
@@ -64,7 +65,7 @@ Validation Checks
 
 The extension performs several validation checks:
 
-* Verifies Floquet ports are correctly defined with required modes
+* Verifies Floquet Ports are correctly defined
 * Checks for lattice pair boundaries
 * Validates design integrity
 * Confirms angular sweep configuration
@@ -72,10 +73,15 @@ The extension performs several validation checks:
 
 Requirements
 ------------
+**General:**
 
-* HFSS design with Floquet ports
+* Unit-cell HFSS design with Floquet port(s)
 * Lattice pair boundaries configured
-* Design variables ``scan_T`` (theta) and ``scan_P`` (phi) assigned to lattice pairs
+
+**Specific for the Extraction Workflow:**
+
+* Design variables ``scan_T`` (theta) and ``scan_P`` (phi) assigned to Lattice Pairs
+* Both spatial and frequency sampling distributions should be uniform
 
 Command Line Usage
 ------------------
