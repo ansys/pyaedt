@@ -409,3 +409,4 @@ model.index\+
 # Custom instructions for GitHub Copilot
 .github/copilot-instructions.md
 
+tests/system/emit/test_interaction_domain.py
