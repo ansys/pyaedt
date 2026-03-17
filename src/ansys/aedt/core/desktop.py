@@ -703,7 +703,7 @@ class Desktop(PyAedtBase):
         )
 
     @property
-    def aedt_version_id(self) -> str:
+    def aedt_version_id(self) -> str | None:
         return self.__aedt_version_id
 
     @aedt_version_id.setter
@@ -2630,6 +2630,7 @@ class Desktop(PyAedtBase):
                 os.environ["PATH"] = str(pyaedt_path) + os.pathsep + os.environ["PATH"]
             os.environ["DesktopPluginPyAEDT"] = str(Path(self.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
             launch_msg = f"AEDT installation Path {base_path}"
+
             self.logger.info(launch_msg)
             from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
 
@@ -2655,6 +2656,16 @@ class Desktop(PyAedtBase):
             oapp = self.grpc_plugin.CreateAedtApplication(self.machine, self.port, self.non_graphical, self.new_desktop)
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
+            # NOTE: This is particularly necessary for rpyc connections where the version information is not available
+            # until after the connection is established and the desktop object is retrieved.
+            if self.aedt_version_id is None:
+                self.logger.debug("AEDT version is not set. Attempting to determine version from base path.")
+                aedt_version = next(
+                    (version for version, path in aedt_versions.installed_versions.items() if path == base_path), None
+                )
+                if aedt_version:
+                    self.aedt_version_id = aedt_version
+
             return oapp
 
     @pyaedt_function_handler()
@@ -2666,22 +2677,28 @@ class Desktop(PyAedtBase):
                 "Trying to use the machine name from the RPyC connection."
             )
             try:
-                self.machine = settings.remote_rpc_session.server_name
+                self.machine = settings.remote_rpc_session.host
             except Exception:
-                self.logger.debug("Failed to retrieve server name from RPyC connection")
+                self.logger.debug("Failed to retrieve host from RPyC connection")
 
         self.logger.debug("No machine name provided. Defining self.machine as '127.0.0.1'.")
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
     def _validate_port(self, port):
+        """Validate the specified gRPC port.
+
+        On top of checking the port, this method also determines if a new AEDT session
+        needs to be launched.
+        """
+        self.logger.debug(f"Validating specified gRPC port: {port}")
         if port == 0:
             return port
-        active_ports = is_grpc_session_active(port)
-        if self.new_desktop and active_ports:
+        port_used_in_grpc_session = is_grpc_session_active(port)
+        if self.new_desktop and port_used_in_grpc_session:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
-        elif not settings.remote_rpc_session and not self.new_desktop and not active_ports:
+        elif not settings.remote_rpc_session and not self.new_desktop and not port_used_in_grpc_session:
             self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
             self.new_desktop = True
         return port
@@ -2758,6 +2775,7 @@ class Desktop(PyAedtBase):
         launch_aedt_in_lsf : LSF-specific AEDT launcher for Linux HPC clusters
         _assign_port : Port selection and validation logic
         """
+        self.logger.debug("Initializing gRPC connection to AEDT.")
         result = False
 
         # Linux LSF cluster: Use job scheduler to launch AEDT
@@ -2805,7 +2823,16 @@ class Desktop(PyAedtBase):
                 self.logger.warning(f"Could not create lock file {lock_file}.")
 
             # Validate port availability/compatibility
-            self.__port = self._validate_port(self.port)
+            try:
+                self.__port = self._validate_port(self.port)
+            except Exception:
+                # NOTE: When we can't validate the port and are not in a
+                # remote RPC session, we try to launch a new instance by default.
+                self.logger.warning(f"Could not validate port {self.port}")
+                if not settings.remote_rpc_session:
+                    self.logger.info("Opening a new AEDT session.")
+                    self.new_desktop = True
+
             is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
@@ -2818,7 +2845,7 @@ class Desktop(PyAedtBase):
 
             self.new_desktop = not is_launched
 
-            # Establish gRPC connection (implementation details)
+            # Establish gRPC connection
             result = self.__initialize()
 
             # Remove lock file

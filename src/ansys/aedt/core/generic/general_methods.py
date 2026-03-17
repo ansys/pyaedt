@@ -832,7 +832,13 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     creationflags=subprocess.CREATE_NO_WINDOW,
                 )  # nosec
 
-                # Parse JSON output - can be a single object or array
+                # Parse JSON output - can be a single object or array.
+                # When no matching process exists, PowerShell returns an empty
+                # string, so we must guard against that before calling json.loads.
+                output = output.strip()
+                if not output:
+                    continue
+
                 try:
                     data = json.loads(output)
                     # If single process, PowerShell returns an object; if multiple, returns an array
@@ -845,7 +851,6 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                         if pid and cmdline:
                             found_data.append((pid, cmdline.split()))
                 except (json.JSONDecodeError, ValueError) as e:
-                    # No processes found or invalid JSON
                     pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
                     pass
         except FileNotFoundError:
@@ -977,6 +982,7 @@ def is_grpc_session_active(port: int) -> bool:
     ... else:
     ...     print("Port 50051 is available.")
     """
+    pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if is_linux:
         try:
@@ -1165,12 +1171,8 @@ def grpc_active_sessions(
         List of gRPC ports.
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
-
-    return_list = []
-    for _, p in all_sessions.items():
-        if p > -1:
-            return_list.append(p)
-    return return_list
+    res = [port for port in all_sessions.values() if port > -1]
+    return res
 
 
 @pyaedt_function_handler()

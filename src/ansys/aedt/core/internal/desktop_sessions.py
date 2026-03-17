@@ -25,6 +25,11 @@
 # This contains the Desktops database.
 # When AEDT will support multiple desktops, it will be filled with additional properties and methods
 
-_desktop_sessions = {}
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.desktop import Desktop
+
+_desktop_sessions: dict[int, "Desktop"] = {}
 
 _edb_sessions = []
