@@ -590,8 +590,16 @@ class PostProcessorCommon(PyAedtBase):
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-
-                plots.append(report(self, report_type, None))
+                names = obj.GetChildNames()
+                solution = None
+                for trc_name in names:
+                    trc_obj = obj.GetChildObject(trc_name)
+                    try:
+                        solution = trc_obj.GetPropValue("Solution")
+                        break
+                    except Exception:  # nosec
+                        pass
+                plots.append(report(self, report_type, solution))
                 plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
