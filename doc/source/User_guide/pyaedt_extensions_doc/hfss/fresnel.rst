@@ -60,7 +60,7 @@ This tab is to configure HPC and Parametric Sweep options:
   :width: 800
   :alt: Fresnel Simulation Settings
 
-Validation Checks
+Validation checks
 -----------------
 
 The extension performs several validation checks:
