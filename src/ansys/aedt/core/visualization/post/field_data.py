@@ -32,7 +32,7 @@ import pathlib
 import shutil
 import sys
 import tempfile
-import warnings
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AllowedMarkers
@@ -45,15 +45,29 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
-try:
+if TYPE_CHECKING:
     import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n"
-        """>> pip install pandas"""
-    )
-    pd = None
+
+# Lazy import for pandas - only imported when needed
+pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run functionalities of "
+                "ansys.aedt.core.visualization.post.field_data.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
 
 
 class BaseFolderPlot(PyAedtBase):
@@ -1370,11 +1384,12 @@ class FieldPlot(PyAedtBase):
             self.oField.ClearAllMarkers()
 
         # Convert to pandas
-        if pd is not None:
-            df = pd.DataFrame(out_dict, columns=out_dict.keys())
+        try:
+            pd_module = _import_pandas()
+            df = pd_module.DataFrame(out_dict, columns=out_dict.keys())
             df = df.set_index("Name")
             return df
-        else:
+        except ImportError:  # pragma: no cover
             return out_dict
 
     @property
