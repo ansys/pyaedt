@@ -814,9 +814,18 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
             Returns a list of PIDs for the given process name (e.g., 'tgt.exe') on Windows.
             Uses 'tasklist' to avoid PowerShell.
             """
-            # Ensure exact match on the Image Name column
+            if not re.fullmatch(r"[A-Za-z0-9._-]+", image_name):
+                raise ValueError(f"Invalid process name: {image_name}")
+
+            cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
+
+            # Explicitly disable shell for Bandit clarity
             result = subprocess.run(
-                ["tasklist", "/fi", "imagename eq ansysedt.exe", "/fo", "csv", "/nh"], capture_output=True, text=True
+                cmd,
+                capture_output=True,
+                text=True,
+                shell=False,
+                check=False,
             )
 
             pids = []
