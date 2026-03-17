@@ -188,7 +188,7 @@ class Simulation:
         return interaction
 
     @pyaedt_function_handler()
-    @min_aedt_version("2025.2")
+    @min_aedt_version("2027.1")
     def is_domain_valid(self, domain):
         """
         Return ``True`` if the given domain is valid for the current revision.
@@ -200,14 +200,22 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = aedtapp.results.interaction_domain
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
         True
         """
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.is_domain_valid(domain)
+        valid = self._emit_com_module.CheckDomainValidity(
+            self._revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
+        return valid == ""
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")

@@ -966,7 +966,7 @@ def test_static_type_generation(emit_app):
     domain = emit_app.interaction_domain
     # domain = emit_app.results.interaction_domain()
     py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-    assert str(type(domain)) == f"<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
+    assert str(type(domain)) == "<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
     assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
@@ -1096,7 +1096,7 @@ def test_optimal_n_to_1_feature(emit_app):
     radios_rx = rev.get_receiver_names()
     bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
     radios_tx = rev.get_interferer_names()
-    domain = emit_app.results.interaction_domain()
+    domain = emit_app.interaction_domain
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
@@ -1228,7 +1228,7 @@ def test_interference_scripts_no_filter(interference):
     expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
     expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
-    domain = interference.results.interaction_domain()
+    domain = interference.interaction_domain
     with pytest.raises(ValueError) as e:
         _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
@@ -1265,7 +1265,7 @@ def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
     sim = rev.get_simulation()
-    domain = interference.results.interaction_domain()
+    domain = interference.interaction_domain
 
     # Test protection level with radio-specific protection levels
     expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
@@ -1298,7 +1298,7 @@ def test_interference_filtering(interference):
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = interference.interaction_domain
     all_interference_colors = [
         [["white", "green", "orange"], ["orange", "green", "white"]],
         [["white", "green", "red"], ["red", "green", "white"]],
@@ -1341,7 +1341,7 @@ def test_protection_filtering(interference):
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = interference.interaction_domain
     all_protection_colors = [
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1531,7 +1531,7 @@ def test_license_session(interference):
     sim = revision.get_simulation()
 
     def do_run():
-        domain = results.interaction_domain()
+        domain = interference.interaction_domain
         rev = results.current_revision
         rev.get_simulation().run(domain)
 
@@ -1616,7 +1616,7 @@ def test_emit_nodes(interference):
     revision = results.analyze()
     sim = revision.get_simulation()
 
-    domain = results.interaction_domain()
+    domain = interference.interaction_domain
     _ = sim.run(domain)
 
     # set emit to ignore purge warnings
@@ -2044,10 +2044,9 @@ def test_all_generated_emit_node_properties(emit_app):
     emit_app.schematic.create_component("3 Port", "Test3port")
 
     # Generate and run a revision
-    results = emit_app.results
     revision = emit_app.results.analyze()
 
-    domain = results.interaction_domain()
+    domain = emit_app.interaction_domain
     revision.run(domain)
 
     # Test all nodes of the current revision
@@ -2740,16 +2739,15 @@ def test_units(emit_app):
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
     sim = rev.get_simulation()
-    domain = hfss_phased_array.results.interaction_domain()
+    domain = hfss_phased_array.interaction_domain
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
-    assert engine.is_domain_valid(domain)
     assert sim.is_domain_valid(domain)
 
     # run the interaction
-    domain = hfss_phased_array.results.interaction_domain()
-    interaction = engine.run(domain)
+    domain = hfss_phased_array.interaction_domain
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2765,7 +2763,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.azimuth_angle == 45
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2784,7 +2782,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.1
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2799,7 +2797,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.004
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2816,7 +2814,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.008
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)

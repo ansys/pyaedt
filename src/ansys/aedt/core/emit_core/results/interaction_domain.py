@@ -87,11 +87,6 @@ class InteractionDomain:
         """
         self.receiver_name = name
         self.receiver_band_name = band_name
-        comp_nodes = self.current_revision.get_all_component_nodes()
-        for node in comp_nodes:
-            if node.name == name:
-                self.receiver_radio = node
-                break
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
             err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
@@ -126,11 +121,6 @@ class InteractionDomain:
         self.interferer_band_names = []
         self.interferer_band_names.append(band_name)
         self.interferer_channel_frequencies = []
-        comp_nodes = self.current_revision.get_all_component_nodes()
-        for node in comp_nodes:
-            if node.name == name:
-                self.interferer_radios.append(node)
-                break
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
             err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
