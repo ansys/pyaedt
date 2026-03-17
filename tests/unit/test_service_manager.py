@@ -35,6 +35,7 @@ from ansys.aedt.core.rpc import rpyc_services
 LOCAL_SERVER_FILE = Path(rpyc_services.__file__).parent / "local_server.py"
 ERROR_MSG = "Error. No connection exists. Check if AEDT is running and if the port number is correct."
 PORT = 18000
+HOSTNAME = "DummyHostName"
 
 
 @pytest.fixture
@@ -69,10 +70,23 @@ def test_start_service_with_valid_path_in_env_var(
 
     service_manager = rpyc_services.ServiceManager()
     service_manager.on_connect(MagicMock())
-    result = service_manager.start_service(PORT)
+    result = service_manager.start_service(HOSTNAME, PORT)
 
     assert PORT == result
-    mock_popen.assert_called_once_with([sys.executable, str(LOCAL_SERVER_FILE), str(tmp_path), "1", str(PORT)])
+    mock_popen.assert_called_once_with(
+        [
+            sys.executable,
+            str(LOCAL_SERVER_FILE),
+            "--host",
+            HOSTNAME,
+            "--ansysem-path",
+            str(tmp_path),
+            "--port",
+            str(PORT),
+            "--non-graphical",
+            "--secure",
+        ]
+    )
 
 
 @patch("logging.Logger.error")
@@ -95,7 +109,7 @@ def test_start_service_with_invalid_path_in_env_var(
 
     service_manager = rpyc_services.ServiceManager()
     service_manager.on_connect(MagicMock())
-    result = service_manager.start_service(PORT)
+    result = service_manager.start_service(HOSTNAME, PORT)
 
     assert result is False
     mock_logger_error.assert_called_once_with(ERROR_MSG)
@@ -117,11 +131,22 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(
 
     service_manager = rpyc_services.ServiceManager()
     service_manager.on_connect(MagicMock())
-    result = service_manager.start_service(PORT)
+    result = service_manager.start_service(HOSTNAME, PORT)
 
     assert PORT == result
     mock_popen.assert_called_once_with(
-        [sys.executable, str(LOCAL_SERVER_FILE), str(fallback_path_latest), "1", str(PORT)]
+        [
+            sys.executable,
+            str(LOCAL_SERVER_FILE),
+            "--host",
+            HOSTNAME,
+            "--ansysem-path",
+            str(fallback_path_latest),
+            "--port",
+            str(PORT),
+            "--non-graphical",
+            "--secure",
+        ]
     )
 
 
@@ -137,7 +162,7 @@ def test_start_service_without_env_var_and_no_installed_path(
 
     service_manager = rpyc_services.ServiceManager()
     service_manager.on_connect(MagicMock())
-    result = service_manager.start_service(PORT)
+    result = service_manager.start_service(HOSTNAME, PORT)
 
     assert result is False
     mock_logger_error.assert_called_once_with(ERROR_MSG)
