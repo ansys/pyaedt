@@ -814,7 +814,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
             Returns a list of PIDs for the given process name (e.g., 'tgt.exe') on Windows.
             Uses 'tasklist' to avoid PowerShell.
             """
-            if not re.fullmatch(r"[A-Za-z0-9._-]+", image_name):
+            if image_name not in ["ansysedt.exe", "ansysedtsv.exe"]:
                 raise ValueError(f"Invalid process name: {image_name}")
 
             cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
@@ -826,8 +826,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                 text=True,
                 shell=False,
                 check=False,
-            )
-
+            )  # nosec
             pids = []
             reader = csv.reader(result.stdout.splitlines())
             for row in reader:
@@ -843,8 +842,8 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     continue
             return pids
 
-        found_data = [(int(pid), "ansysedt.exe") for pid in get_pids_by_name("ansysedt.exe")]
-
+        for process_name in target_name:
+            found_data.extend([(int(pid), process_name) for pid in get_pids_by_name(process_name)])
     return found_data
 
 
