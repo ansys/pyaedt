@@ -35,7 +35,6 @@ from ansys.aedt.core.extensions.misc import get_latest_version
 # Use a platform-safe temporary personal lib path instead of hard-coded '/tmp/personal'
 PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
 
-# Ensure tests don't try to pip-install uv during VersionManager __init__.
 os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
 
 
@@ -170,7 +169,7 @@ def _make_vm():
 
 def test_activate_venv_and_exes() -> None:
     manager = _make_vm()
-    # Ensure python and uv point inside sys.prefix
+
     assert manager.venv_path == sys.prefix
     pyexe = manager.python_exe
     assert str(manager.venv_path) in pyexe
