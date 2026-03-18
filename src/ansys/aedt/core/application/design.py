@@ -2876,9 +2876,7 @@ class Design(AedtObjects, PyAedtBase):
             )
         else:
             error_message = f"Input file '{in_file}' does not exist."
-            self.logger.error(error_message)
             raise FileNotFoundError(error_message)
-            return None
 
     @pyaedt_function_handler()
     def import_dataset3d(
