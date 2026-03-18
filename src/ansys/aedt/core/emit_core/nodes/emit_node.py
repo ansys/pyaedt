@@ -174,7 +174,7 @@ class EmitNode:
         return self._get_property("Parent", True)
 
     @min_aedt_version("2025.2")
-    def _full_node_name(self, name=""):
+    def _full_node_name(self, name="") -> str:
         """Converts a Component's short name to a full name with the format: NODE-*-{name}.
         If name="" then it converts this node's name to a full name.
 
