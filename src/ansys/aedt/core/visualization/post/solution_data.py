@@ -41,9 +41,8 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-
-# Lazy import for pandas - only imported when needed
-pd = None
+else:
+    pd = None
 
 
 def _import_pandas():

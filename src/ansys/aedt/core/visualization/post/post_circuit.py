@@ -32,15 +32,14 @@ import numpy as np
 if TYPE_CHECKING:
     import pandas as pd
     from pandas import Series
+else:
+    pd = None
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-
-# Lazy import for pandas - only imported when needed
-pd = None
 
 
 def _import_pandas():

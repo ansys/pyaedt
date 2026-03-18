@@ -27,6 +27,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import pandas as pd
+else:
+    pd = None
 
 from collections.abc import Mapping
 from datetime import datetime
@@ -43,9 +45,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-
-# Lazy import for pandas, only imported when needed
-pd = None
 
 
 def _import_pandas():

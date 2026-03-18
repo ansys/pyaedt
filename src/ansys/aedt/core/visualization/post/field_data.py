@@ -47,9 +47,8 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 if TYPE_CHECKING:
     import pandas as pd
-
-# Lazy import for pandas - only imported when needed
-pd = None
+else:
+    pd = None
 
 
 def _import_pandas():

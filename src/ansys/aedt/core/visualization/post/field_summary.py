@@ -41,9 +41,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 if TYPE_CHECKING:
     import pandas as pd
-
-# Lazy import for pandas - only imported when needed
-pd = None
+else:
+    pd = None
 
 
 def _import_pandas():
