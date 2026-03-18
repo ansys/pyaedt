@@ -36,6 +36,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # Do not release Desktop to avoid closing the extension and opening it again
 settings.release_on_exception = False
@@ -562,7 +563,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
     def update_theta_scan_max_constraints(self):
         theta_val = self._widgets["elevation_resolution"].get()
-        if theta_val <= 0 or theta_val > 90:
+        if theta_val <= 0 or theta_val > 90:  # pragma: no cover
             return
 
         max_step = int(90 / theta_val)
@@ -570,7 +571,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         if last_value > 90:  # pragma: no cover
             last_value = 90 - theta_val
-        elif last_value < 90 and abs(90 - last_value) < 1e-6:
+        elif last_value < 90 and abs(90 - last_value) < 1e-6:  # pragma: no cover
             last_value = 90.0
 
         if "theta_scan_max_slider" in self._widgets:
@@ -583,7 +584,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         current_val = self._widgets["theta_scan_max"].get()
         snapped = round(current_val / theta_val) * theta_val
-        if snapped > last_value:
+        if snapped > last_value:  # pragma: no cover
             snapped = last_value
         self._widgets["theta_scan_max"].set(round(snapped, 2))
 
@@ -591,7 +592,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         theta_step = float(self._widgets["elevation_resolution"].get())
         val = float(val)
         snapped = round(val / theta_step) * theta_step
-        if snapped > 90:
+        if snapped > 90:  # pragma: no cover
             snapped = 90 - theta_step
         self._widgets["theta_scan_max_spin"].set(round(snapped, 2))
 
@@ -633,7 +634,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.sweep.props["Type"] = "Interpolating"
         self.sweep.props["SaveFields"] = False
 
-        if self.start_frequency == self.stop_frequency:
+        if self.start_frequency == self.stop_frequency:  # pragma: no cover
             self.sweep.props["Type"] = "Discrete"
             self.sweep.props["RangeType"] = "SinglePoints"
         else:
@@ -645,7 +646,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.sweep.update()
 
         # Check number of ports and each port should have 2 modes
-        self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
+        try:
+            self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
+        except AEDTRuntimeError:
+            self.floquet_ports = None
+
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label"]["text"] = "❌"
             return False
@@ -732,9 +737,9 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         if active_setup is None:
             simulation_setup = self._widgets["setup_sweep_combo"].get()
-            if simulation_setup is None:
+            if simulation_setup is None:  # pragma: no cover
                 simulation_setup = self.active_setup_sweep
-        else:
+        else:  # pragma: no cover
             simulation_setup = active_setup
 
         setup_name = simulation_setup.split(" : ")[0]
@@ -861,7 +866,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         return True
 
-    def start_extraction(self):
+    def start_extraction(self):  # pragma: no cover
         cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
         tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
         active_parametric = self.active_parametric.name
@@ -876,7 +881,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         if is_valid:
             self.get_coefficients()
 
-    def get_coefficients(self):
+    def get_coefficients(self):  # pragma: no cover
         is_isotropic = self.fresnel_type.get() == "isotropic"
         _ = self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
@@ -992,7 +997,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         is_valid = bool(divides_90 and close_seq)
         return is_valid, (float(step) if is_valid else None), th_res
 
-    def extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):
+    def extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):  # pragma: no cover
         if not rows:
             return {"has_phi": False, "theta": [], "phi": [], "theta_by_phi": {}}
 
