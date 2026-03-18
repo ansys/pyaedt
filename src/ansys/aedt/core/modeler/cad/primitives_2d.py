@@ -365,7 +365,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_region(
         self,
-        pad_value: float | str | list[float | str] = 300,
+        pad_value: float | str | list[float | str | int] = 300,
         pad_type: str = "Percentage Offset",
         name: str = "Region", **kwarg
     ) -> "Object3d":
@@ -373,10 +373,10 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
         Parameters
         ----------
-        pad_value : float, str, list of floats or list of str, optional
+        pad_value : float, str, list of floats, list of str, or list of int, optional
             Padding values to apply. If a list is not provided, the same
-            value is applied to all padding directions. If a list of floats
-            or strings is provided, the values are
+            value is applied to all padding directions. If a list of floats,
+            strings, or integers is provided, the values are
             interpreted as padding for ``["+X", "-X", "+Y", "-Y"]`` for XY geometry mode,
             and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         pad_type : str, optional
