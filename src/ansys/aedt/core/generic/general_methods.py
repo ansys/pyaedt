@@ -1151,7 +1151,7 @@ def com_active_sessions(
 @pyaedt_function_handler()
 def grpc_active_sessions(
     version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
-):
+) -> list[int]:
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
