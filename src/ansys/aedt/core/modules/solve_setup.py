@@ -2838,9 +2838,9 @@ class SetupHFSS(Setup, PyAedtBase):
     def create_single_point_sweep(
         self,
         unit: str = "GHz",
-        freq: int = 1,
+        freq: float | list = 1,
         name: str = None,
-        save_single_field: bool = True,
+        save_single_field: bool | list = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
     ) -> "SweepHFSS" | bool:
@@ -4238,9 +4238,9 @@ class SetupQ3D(Setup, PyAedtBase):
     def create_single_point_sweep(
         self,
         unit: str = "GHz",
-        freq: float = 1.0,
+        freq: float | list = 1.0,
         name: str = None,
-        save_single_field: bool = True,
+        save_single_field: bool | list = True,
         save_fields: bool = False,
     ) -> "SweepMatrix" | bool:
         """Create a sweep with a single frequency point.
