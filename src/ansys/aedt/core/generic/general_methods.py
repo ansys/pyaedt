@@ -1252,7 +1252,7 @@ def active_sessions(
             return_dict[pid] = -1
 
     # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
-    # Linux AEDT uses Unix domain sockets with filenames containing port numbers
+    # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers
     # Example socket: AnsysEMUDS-50051.sock
     if is_linux and any(port == -1 for port in return_dict.values()):
         try:
