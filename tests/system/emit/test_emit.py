@@ -1499,7 +1499,6 @@ def test_couplings_2(tutorial) -> None:
     assert gps_ant._full_node_name() == gps_ant.parent_name + "-*-" + gps_ant.name
 
 
-
 @pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2025.2")
 def test_couplings_new_api(tutorial):
     rev: Revision = tutorial.results.analyze()
@@ -1523,7 +1522,6 @@ def test_couplings_new_api(tutorial):
     for antenna_name in antenna_names:
         assert antenna_name in valid_antenna_names
         valid_antenna_names.remove(antenna_name)
-
 
     # get the Touchstone coupling node
     couplings_node: CouplingsNode = rev.get_coupling_data_node()
