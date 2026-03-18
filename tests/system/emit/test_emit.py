@@ -1429,20 +1429,15 @@ def test_couplings_1(cell_phone) -> None:
     rev: Revision = cell_phone.results.analyze()
     gps_ant: AntennaNode = rev.get_component_node("GPS")
     wifi_ant: AntennaNode = rev.get_component_node("WiFi")
-    rev: Revision = cell_phone.results.analyze()
-    gps_ant: AntennaNode = rev.get_component_node("GPS")
-    wifi_ant: AntennaNode = rev.get_component_node("WiFi")
-
     coupling_data = rev.get_coupling_data_node()
     assert coupling_data is not None
 
     for child in coupling_data.children:
         if child.name == "ATA_Analysis":
             coupling_link: CouplingLinkNode = child
-            coupling_link: CouplingLinkNode = child
+            break
 
     assert coupling_link is not None
-    assert coupling_link.ports == ["(undefined)", "(undefined)"]
     assert coupling_link.ports == ["(undefined)", "(undefined)"]
     # test setting the port map with AntennaNodes
     coupling_link.ports = [gps_ant, wifi_ant]
@@ -1453,8 +1448,6 @@ def test_couplings_1(cell_phone) -> None:
     assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
 
     # set the antennas with full node names
-    coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
     coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
     assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
 
@@ -1488,8 +1481,6 @@ def test_couplings_2(tutorial) -> None:
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2025.2")
 def test_couplings_new_api(tutorial):
-    rev: Revision = tutorial.results.analyze()
-    scene_node: EmitSceneNode = rev.get_scene_node()
     rev: Revision = tutorial.results.analyze()
     scene_node: EmitSceneNode = rev.get_scene_node()
     assert scene_node is not None
