@@ -33,19 +33,34 @@ from collections import defaultdict
 import csv
 import os
 import tempfile
-import warnings
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
-try:
+if TYPE_CHECKING:
     import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to run functionalities of FieldSummary.\nInstall with \n\npip install pandas"
-    )
+else:
     pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run functionalities of FieldSummary.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
+
 
 TOTAL_QUANTITIES = [
     "HeatFlowRate",
@@ -228,12 +243,11 @@ class FieldSummary(PyAedtBase):
                         out_dict[key].append(row[key])
             os.remove(temp_file.name)
             if pandas_output:
-                if pd is None:
-                    raise ImportError("pandas package is needed.")
-                df = pd.DataFrame.from_dict(out_dict)
+                pd_module = _import_pandas()
+                df = pd_module.DataFrame.from_dict(out_dict)
                 for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
-                        df[col] = pd.to_numeric(df[col], errors="coerce")
+                        df[col] = pd_module.to_numeric(df[col], errors="coerce")
                 return df
         return out_dict
 
