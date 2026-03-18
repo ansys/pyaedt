@@ -38,7 +38,7 @@ except ImportError:  # pragma: no cover
 
 # Default configuration for local_config.json
 DEFAULT_TEST_CONFIG = {
-    "desktopVersion": "2025.2",
+    "desktopVersion": "2026.1",
     "NonGraphical": True,
     "NewThread": True,
     "skip_circuits": False,
@@ -138,7 +138,7 @@ def _prompt_config_value(key: str, current_value) -> any:
         if key == "desktopVersion":
             while True:
                 new_value = typer.prompt(
-                    "New value (format: YYYY.R, e.g., 2025.2)", default=current_value, show_default=False
+                    "New value (format: YYYY.R, e.g., 2026.1)", default=current_value, show_default=False
                 )
                 # Remove quotes if user entered them
                 new_value = new_value.strip().strip('"').strip("'")
@@ -149,7 +149,7 @@ def _prompt_config_value(key: str, current_value) -> any:
                 if re.match(r"^\d{4}\.\d$", new_value):
                     return new_value
                 else:
-                    typer.secho("      ✗ Invalid format. Please use YYYY.R (e.g., 2025.2)", fg="red")
+                    typer.secho("      ✗ Invalid format. Please use YYYY.R (e.g., 2026.1)", fg="red")
                     typer.echo("      ", nl=False)
         else:
             new_value = typer.prompt("New value", default=current_value, show_default=False)

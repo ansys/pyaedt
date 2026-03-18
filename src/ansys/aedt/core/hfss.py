@@ -34,10 +34,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
-from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
-from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
@@ -48,7 +45,10 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
     from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+    from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -117,7 +117,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -190,7 +190,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(version=252, project="myfile2.aedt")
+    >>> hfss = Hfss(version=261, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -199,7 +199,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(version="252", project="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="261", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -251,7 +251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle near field setups
-    def _create_boundary(self, name: str, props, boundary_type) -> NearFieldSetup:
+    def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
@@ -2571,8 +2571,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.2", new_desktop=False)
-        >>> source = Hfss(project=source_project, design="feeder", version="2025.2", new_desktop=False)
+        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2026.1", new_desktop=False)
+        >>> source = Hfss(project=source_project, design="feeder", version="2026.1", new_desktop=False)
         >>> target.create_sbr_linked_antenna(
         ...     source, target_cs="feederPosition", field_type="farfield"
         ... )  # doctest: +SKIP
@@ -5418,12 +5418,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def insert_near_field_box(
         self,
-        u_length: float | int | str = 20,
-        u_samples: float | int | str = 21,
-        v_length: float | int | str = 20,
-        v_samples: float | int | str = 21,
-        w_length: float | int | str = 20,
-        w_samples: float | int | str = 21,
+        u_length: float | int | str = 20.0,
+        u_samples: int | str = 21,
+        v_length: float | int | str = 20.0,
+        v_samples: int | str = 21,
+        w_length: float | int | str = 20.0,
+        w_samples: int | str = 21,
         units: str = "mm",
         custom_radiation_faces: str | None = None,
         custom_coordinate_system: str | None = None,
@@ -5436,17 +5436,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        u_length : float, str, optional
+        u_length : float, int, str, optional
             U axis length. The default is ``20``.
-        u_samples : float, str, optional
+        u_samples : int, str, optional
             U axis samples. The default is ``21``.
-        v_length : float, str, optional
+        v_length : float, int, str, optional
             V axis length. The default is ``20``.
-        v_samples : float, str, optional
+        v_samples : int, str, optional
             V axis samples. The default is ``21``.
-        w_length : float, str, optional
+        w_length : float, int, str, optional
             W axis length. The default is ``20``.
-        w_samples : float, str, optional
+        w_samples : int, str, optional
             W axis samples. The default is ``21``.
         units : str
             Length units. The default is ``"mm"``.
@@ -5472,13 +5472,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             props["CustomRadiationSurface"] = ""
 
-        defs = ["U Size", "V Size", "W Size", "U Samples", "V Samples", "W Samples"]
-        props[defs[0]] = self.value_with_units(u_length, units)
-        props[defs[1]] = self.value_with_units(v_length, units)
-        props[defs[2]] = self.value_with_units(w_length, units)
-        props[defs[3]] = self.value_with_units(u_samples, units)
-        props[defs[4]] = self.value_with_units(v_samples, units)
-        props[defs[5]] = self.value_with_units(w_samples, units)
+        props["Length"] = self.value_with_units(u_length, units)
+        props["Width"] = self.value_with_units(v_length, units)
+        props["Height"] = self.value_with_units(w_length, units)
+        props["LengthSamples"] = u_samples
+        props["WidthSamples"] = v_samples
+        props["HeightSamples"] = w_samples
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5840,7 +5839,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
-    ) -> FfdSolutionDataExporter | FfdSolutionData | bool:
+    ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
 
@@ -5889,6 +5888,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
         """
+        from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+
         if not variations:
             variations = variation_string_to_dict(self.design_variation())
 
@@ -5969,7 +5971,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         overwrite: bool | None = True,
         link_to_hfss: bool | None = True,
         variation_name: str | None = None,
-    ) -> MonostaticRCSExporter | Path | bool:
+    ) -> "MonostaticRCSExporter | Path | bool":
         """Export monostatic radar cross-section (RCS) data from HFSS.
 
         This method exports RCS simulation data into a standardized metadata format
@@ -6064,6 +6066,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> rcs_data = MonostaticRCSData(str(metadata_file))
         >>> rcs_data.plot_3d()
         """
+        from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+
         if not variations:
             variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:
@@ -6396,14 +6400,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: str | int | list,
         reference: Object3d | int | list | None = None,
-        create_port_sheet: bool | None = False,
-        port_on_plane: bool | None = True,
-        integration_line: int | Gravity | None = 0,
-        impedance: float | None = 50,
+        create_port_sheet: bool = False,
+        port_on_plane: bool = True,
+        integration_line: int | Gravity | list[float] = 0,
+        impedance: float | int = 50,
         name: str | None = None,
-        renormalize: bool | None = True,
-        deembed: bool | None = False,
-        terminals_rename: bool | None = True,
+        renormalize: bool = True,
+        deembed: bool = False,
+        terminals_rename: bool = True,
+        auto_identify: bool = False,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6430,10 +6435,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
+        deembed : bool, optional
+            Enabling deembeing. The default is ``False``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
+        auto_identify : bool, optional
+            Whether to auto-identify port terminal when ``assignment`` is a sheet object and only one conductor object
+            is touching ``assignment``, as in when creating a "conductor-to-boundary" terminal port. The default is
+            ``False``.
 
         Returns
         -------
@@ -6497,6 +6506,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 and self.desktop_class.aedt_version_id >= "2024.1"
             )
             and not reference
+            and not auto_identify
         ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:

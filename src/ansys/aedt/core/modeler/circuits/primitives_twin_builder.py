@@ -25,6 +25,7 @@
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
@@ -94,7 +95,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         self._components_catalog = None
 
     @property
-    def components_catalog(self):
+    def components_catalog(self) -> ComponentCatalog:
         """Return the syslib component catalog with all info.
 
         Returns
@@ -113,12 +114,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_resistor(
         self,
-        name: str | None = None,
-        value: int = 50,
-        location=None,
-        angle: int = 0,
+        name: str = None,
+        value: float = 50.0,
+        location: list[float] = None,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
-    ):
+    ) -> "CircuitComponent":
         """Create a resistor.
 
         Parameters
@@ -162,12 +163,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_inductor(
         self,
-        name: str | None = None,
-        value: int = 50,
-        location=None,
-        angle: int = 0,
+        name: str = None,
+        value: float = 50.0,
+        location: list[float] = None,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
-    ):
+    ) -> "CircuitComponent":
         """Create an inductor.
 
         Parameters
@@ -210,12 +211,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     @pyaedt_function_handler()
     def create_capacitor(
         self,
-        name: str | None = None,
-        value: int = 50,
-        location=None,
-        angle: int = 0,
+        name: str = None,
+        value: float = 50.0,
+        location: list[float] = None,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
-    ):
+    ) -> "CircuitComponent":
         """Create a capacitor.
 
         Parameters
@@ -261,12 +262,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         self,
         name: str | None = None,
         source_type: str = "E",
-        amplitude: int = 326,
-        freq: int = 50,
-        location=None,
-        angle: int = 0,
+        amplitude: float = 326.0,
+        freq: float = 50.0,
+        location: list[float] = None,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
-    ):
+    ) -> "CircuitComponent":
         """Create a voltage source (conservative electrical output).
 
         Parameters
@@ -321,8 +322,8 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_diode(
-        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
-    ):
+        self, name: str = None, location: list[float] = None, angle: float = 0.0, use_instance_id_netlist: bool = False
+    ) -> "CircuitComponent":
         """Create a diode.
 
         Parameters
@@ -359,7 +360,9 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_npn(self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
+    def create_npn(
+        self, name: str = None, location: list[float] = None, angle: float = 0.0, use_instance_id_netlist: bool = False
+    ) -> "CircuitComponent":
         """Create an NPN transistor.
 
         Parameters
@@ -396,7 +399,9 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
+    def create_pnp(
+        self, name: str = None, location: list[float] = None, angle: float = 0.0, use_instance_id_netlist: bool = False
+    ) -> "CircuitComponent":
         """Create a PNP transistor.
 
         Parameters
@@ -438,15 +443,15 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         self,
         name: str | None = None,
         waveform_type: str = "SINE",
-        amplitude: int = 100,
-        freq: int = 50,
-        phase: int = 0,
-        offset: int = 0,
-        delay: int = 0,
+        amplitude: float = 100.0,
+        freq: float = 50.0,
+        phase: float = 0.0,
+        offset: float = 0.0,
+        delay: float = 0.0,
         location=None,
-        angle: int = 0,
+        angle: float = 0.0,
         use_instance_id_netlist: bool = False,
-    ):
+    ) -> "CircuitComponent":
         """
         Create a periodic waveform source (non conservative real output).
 
@@ -509,8 +514,8 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     def create_component_from_sml(
         self,
         input_file: str,
-        model,
-        pins_names,
+        model: str,
+        pins_names: list[str],
     ) -> bool:
         """Create and place a new component based on a .sml file.
 
@@ -531,7 +536,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> input_file = os.path.join("Your path", "test.sml")
         >>> model = "Thermal_ROM_SML"
         >>> pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
@@ -554,7 +559,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_quantity_value(self, component_name, name: str, value, netlist_units: str = "") -> bool:
+    def update_quantity_value(self, component_name: str, name: str, value: str, netlist_units: str = "") -> bool:
         """Change the quantity value of a component.
 
         Parameters
@@ -576,7 +581,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.2")
+        >>> tb = TwinBuilder(version="2026.1")
         >>> G = 0.00254
         >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
         >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])

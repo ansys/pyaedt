@@ -22,9 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
 COIL_PARAMETERS = {
@@ -83,7 +88,7 @@ class Coil(PyAedtBase):
             return self._values[name]
         raise AttributeError(name)
 
-    def __setattr__(self, name: str, value) -> None:
+    def __setattr__(self, name: str, value):
         if name in {"_app", "_values", "is_vertical"}:
             object.__setattr__(self, name, value)
             return
@@ -100,7 +105,7 @@ class Coil(PyAedtBase):
         object.__setattr__(self, name, value)
 
     @pyaedt_function_handler()
-    def create_flat_path(self):
+    def create_flat_path(self) -> list:
         num_points = 13 * self.turns + 7
 
         start_x = self.centre_x + 0.25 * self.inner_width
@@ -265,7 +270,7 @@ class Coil(PyAedtBase):
         return polyline
 
     @pyaedt_function_handler()
-    def create_vertical_path(self):
+    def create_vertical_path(self) -> list:
         num_points = 12 * self.turns + 2
 
         start_x, start_y, start_z = (
@@ -369,7 +374,42 @@ class Coil(PyAedtBase):
         return polyline
 
     @pyaedt_function_handler()
-    def create_sweep_profile(self, start_point, polyline):
-        profile = self._app.modeler.create_circle("YZ", start_point, "wire_radius", num_sides="section_segmentation")
+    def create_sweep_profile(self, polyline: "Object3d") -> str:
+        """Create the profile to sweep along the coil path and perform the sweep operation.
+
+        Parameters
+        ----------
+        polyline : Object3d
+            The polyline object representing the coil path.
+
+        Returns
+        -------
+        str
+            The name of the profile created for sweeping.
+        """
+        profile = self._app.modeler.create_circle(
+            "YZ", polyline.end_point, "wire_radius", num_sides="section_segmentation"
+        )
+        # For the flat coil, an additional arc and line are added to make the end connection.
+        if not self.is_vertical:
+            arc_center = [
+                polyline.start_point[0],
+                polyline.start_point[1],
+                polyline.start_point[2] - 2 * self._app.variable_manager.design_variables["wire_radius"].numeric_value,
+            ]
+            new_line_end_point = [
+                polyline.end_point[0],
+                polyline.end_point[1],
+                polyline.end_point[2] - 4 * self._app.variable_manager.design_variables["wire_radius"].numeric_value,
+            ]
+            new_line = self._app.modeler.create_polyline(
+                points=[polyline.start_point, new_line_end_point],
+                segment_type=[
+                    PolylineSegment("AngularArc", arc_center=arc_center, arc_angle="180deg", arc_plane="ZX"),
+                    PolylineSegment("Line"),
+                ],
+                name="dummy_line",
+            )
+            polyline = polyline.unite(new_line)
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
         return profile.name

@@ -323,7 +323,7 @@ class DistributedTopology:
         return source_resistance_string
 
     @source_resistance.setter
-    def source_resistance(self, source_resistance_string) -> None:
+    def source_resistance(self, source_resistance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedSourceResistance, source_resistance_string)
 
     @property
@@ -338,7 +338,7 @@ class DistributedTopology:
         return load_resistance_string
 
     @load_resistance.setter
-    def load_resistance(self, load_resistance_string) -> None:
+    def load_resistance(self, load_resistance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedLoadResistance, load_resistance_string)
 
     @property
@@ -565,7 +565,7 @@ class DistributedTopology:
         return center_z0_impedance_string
 
     @center_z0_impedance.setter
-    def center_z0_impedance(self, center_z0_impedance_string) -> None:
+    def center_z0_impedance(self, center_z0_impedance_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedCenterImpedance, center_z0_impedance_string)
 
     @property
@@ -710,7 +710,7 @@ class DistributedTopology:
         return resonator_line_width_string
 
     @resonator_line_width.setter
-    def resonator_line_width(self, resonator_line_width_string) -> None:
+    def resonator_line_width(self, resonator_line_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedLineWidth, resonator_line_width_string)
 
     @property
@@ -745,7 +745,7 @@ class DistributedTopology:
         return resonator_rotation_angle_string
 
     @resonator_rotation_angle.setter
-    def resonator_rotation_angle(self, resonator_rotation_angle_string) -> None:
+    def resonator_rotation_angle(self, resonator_rotation_angle_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedResonatorRotationAngle, resonator_rotation_angle_string)
 
     @property
@@ -799,7 +799,7 @@ class DistributedTopology:
         return hairpin_gap_width_string
 
     @hairpin_gap_width.setter
-    def hairpin_gap_width(self, hairpin_gap_width_string) -> None:
+    def hairpin_gap_width(self, hairpin_gap_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedHGapWidth, hairpin_gap_width_string)
 
     @property
@@ -834,7 +834,7 @@ class DistributedTopology:
         return miniature_hairpin_gap_width_string
 
     @miniature_hairpin_gap_width.setter
-    def miniature_hairpin_gap_width(self, miniature_hairpin_gap_width_string) -> None:
+    def miniature_hairpin_gap_width(self, miniature_hairpin_gap_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedRHGapWidth, miniature_hairpin_gap_width_string)
 
     @property
@@ -849,7 +849,7 @@ class DistributedTopology:
         return ring_resonator_gap_width_string
 
     @ring_resonator_gap_width.setter
-    def ring_resonator_gap_width(self, ring_resonator_gap_width_string) -> None:
+    def ring_resonator_gap_width(self, ring_resonator_gap_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedRHGapWidth, ring_resonator_gap_width_string)
 
     @property
@@ -865,7 +865,7 @@ class DistributedTopology:
         return hairpin_extension_length_string
 
     @hairpin_extension_length.setter
-    def hairpin_extension_length(self, hairpin_extension_length_string) -> None:
+    def hairpin_extension_length(self, hairpin_extension_length_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedTuningExtensionValue, hairpin_extension_length_string)
 
     @property
@@ -883,7 +883,7 @@ class DistributedTopology:
         return miniature_hairpin_end_curl_extension_string
 
     @miniature_hairpin_end_curl_extension.setter
-    def miniature_hairpin_end_curl_extension(self, miniature_hairpin_end_curl_extension_string) -> None:
+    def miniature_hairpin_end_curl_extension(self, miniature_hairpin_end_curl_extension_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedTuningExtensionValue, miniature_hairpin_end_curl_extension_string
         )
@@ -903,7 +903,7 @@ class DistributedTopology:
         return ring_resonator_end_gap_extension_string
 
     @ring_resonator_end_gap_extension.setter
-    def ring_resonator_end_gap_extension(self, ring_resonator_end_gap_extension_string) -> None:
+    def ring_resonator_end_gap_extension(self, ring_resonator_end_gap_extension_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedTuningExtensionValue, ring_resonator_end_gap_extension_string
         )
@@ -1000,7 +1000,7 @@ class DistributedTopology:
         return combline_half_length_frequency_string
 
     @combline_half_length_frequency.setter
-    def combline_half_length_frequency(self, combline_half_length_frequency_string) -> None:
+    def combline_half_length_frequency(self, combline_half_length_frequency_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedHalfLengthFrequency, combline_half_length_frequency_string
         )
@@ -1043,7 +1043,7 @@ class DistributedTopology:
         return coupled_segments_quarter_length_frequency_string
 
     @coupled_segments_quarter_length_frequency.setter
-    def coupled_segments_quarter_length_frequency(self, coupled_segments_quarter_length_frequency_string) -> None:
+    def coupled_segments_quarter_length_frequency(self, coupled_segments_quarter_length_frequency_string: str) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedQuarterLengthFrequency, coupled_segments_quarter_length_frequency_string
         )

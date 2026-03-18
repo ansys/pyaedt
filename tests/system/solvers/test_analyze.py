@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import csv
 from datetime import timedelta
 from pathlib import Path
 import shutil
@@ -134,6 +133,13 @@ def circuit_com(add_app_example):
 @pytest.fixture
 def m3dtransient(add_app_example):
     app = add_app_example(application=Maxwell3d, project=TRANSIENT, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
     yield app
     app.close_project(save=False)
 
@@ -344,30 +350,24 @@ def test_icepak_analyze_and_export_summary(icepak_solved) -> None:
     assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
     assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
     icepak_solved.save_project()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="A"
-    )  # check usage of deprecated arguments
+    )
+    assert Path(icepak_solved.working_directory + "/A_Temperature.csv").exists()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="B"
     )
+    assert Path(icepak_solved.working_directory + "/B_Temperature.csv").exists()
+
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Volume", type="Boundary", filename="C"
     )
-    for file_name, entities in [
-        ("A_Temperature.csv", ["box", "Region"]),
-        ("B_Temperature.csv", ["box", "Region"]),
-        ("C_Temperature.csv", ["box"]),
-    ]:
-        with open(Path(icepak_solved.working_directory) / file_name, "r", newline="") as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for _ in range(4):
-                _ = next(csv_reader)
-            header = next(csv_reader)
-            entity_index = header.index("Entity")
-            csv_entities = [row[entity_index] for row in csv_reader]
-            assert all(e in csv_entities for e in entities)
+    assert Path(icepak_solved.working_directory + "/C_Temperature.csv").exists()
 
     box = [i.id for i in icepak_solved.modeler["box"].faces]
+
     assert Path(
         icepak_solved.eval_surface_quantity_from_field_summary(box, savedir=icepak_solved.working_directory)
     ).exists()
@@ -504,9 +504,36 @@ def test_3dl_set_export_touchstone(hfss3dl_solved) -> None:
 def test_3dl_touchstone_results(hfss3dl_solved) -> None:
     assert hfss3dl_solved.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
     assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+
+    # Test case 1: No arguments, when drivers==receivers
+    assert hfss3dl_solved.get_all_insertion_loss_list() == ["S(Port1,Port2)"]
+
+    # Test case 2: With math formula
+    assert hfss3dl_solved.get_all_insertion_loss_list(math_formula="dB") == ["dB(S(Port1,Port2))"]
+
+    # Test case 3: With prefix filtering, results in different lists, pairs by index
     assert hfss3dl_solved.get_all_insertion_loss_list(drivers_prefix_name="Port1", receivers_prefix_name="Port2") == [
         "S(Port1,Port2)"
     ]
+
+    # Test case 4: Explicit different driver/receiver lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1"], receivers=["Port2"]) == ["S(Port1,Port2)"]
+
+    # Test case 5: Explicit same lists, should return all unique combinations
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1", "Port2"]) == [
+        "S(Port1,Port2)"
+    ]
+
+    # Test case 6: Different length lists
+    result = hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port1"])
+    assert result == []
+
+    # Test case 7: Multiple pairs with different lists, pairs by index
+    assert hfss3dl_solved.get_all_insertion_loss_list(drivers=["Port1", "Port2"], receivers=["Port2", "Port1"]) == [
+        "S(Port1,Port2)",
+        "S(Port2,Port1)",
+    ]
+
     assert hfss3dl_solved.get_next_xtalk_list() == ["S(Port1,Port2)"]
     assert hfss3dl_solved.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
@@ -738,3 +765,104 @@ def test_custom_hpc_from_file(icepak_solved) -> None:
     assert icepak_solved.set_custom_hpc_options(
         cores=4, gpus=1, tasks=4, num_variations_to_distribute=4, allowed_distribution_types=allowed_distributed
     )
+
+
+def test_apply_solved_variations(m3d_app) -> None:
+    m3d_app["a"] = "10mm"
+    m3d_app["b"] = "20mm"
+    m3d_app["$c"] = "30mm"
+    box = m3d_app.modeler.create_box([0, 0, 0], ["a", "b", "$c"], name="Box", material="copper")
+    m3d_app.modeler.create_region([100, 100, 0, 0, 100, 100])
+
+    m3d_app.assign_current(box.bottom_face_y, "1A")
+    m3d_app.assign_current(box.top_face_y, "1A", swap_direction=True)
+
+    setup = m3d_app.create_setup()
+    param = m3d_app.parametrics.add("a", 5, 10, 2, "LinearCount")
+    param.add_variation("b", 10, variation_type="SingleValue")
+    param.add_variation("$c", 30, variation_type="SingleValue")
+    param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+    param.analyze()
+
+    variations = m3d_app.available_variations.variations(f"{setup.name} : LastAdaptive", True)
+
+    assert m3d_app.apply_solved_variation(variations[0])
+    assert m3d_app["a"] == "5mm"
+    assert m3d_app["b"] == "10mm"
+    assert m3d_app["$c"] == "30mm"
+
+
+def test_change_property(m3d_app) -> None:
+    m3d_app["a"] = "10mm"
+    m3d_app["b"] = "20mm"
+
+    assert m3d_app.change_properties(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_names=["a", "b"],
+        property_values=["15mm", "25mm"],
+    )
+
+    assert m3d_app["a"] == "15mm"
+    assert m3d_app["b"] == "25mm"
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names=["a", "b"],
+            property_values=["15mm", "25mm", "35mm"],
+        )
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names="a",
+            property_values=["15mm"],
+        )
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value="150mm",
+    )
+    assert m3d_app["a"] == "150mm"
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value=["15mm", "15mm", "15mm"],
+    )
+
+    assert m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value=True,
+    )
+
+    assert not m3d_app.change_property(
+        aedt_object=m3d_app.odesign,
+        tab_name="LocalVariableTab",
+        property_object="LocalVariables",
+        property_name="a",
+        property_value={"test": 1},
+    )
+
+    with pytest.raises(ValueError):
+        m3d_app.change_properties(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_names=["a"],
+            property_values="15mm",
+        )

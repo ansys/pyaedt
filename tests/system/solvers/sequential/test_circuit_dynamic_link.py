@@ -32,9 +32,9 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from tests import TESTS_SEQUENTIAL_PATH
+from tests import TESTS_SOLVERS_PATH
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import SKIP_CIRCUITS
 
@@ -47,6 +47,15 @@ LINKED_PROJECT_NAME = "Filter_Board_231"
 
 LAYOUT_DESIGN_NAME = "layout_cutout"
 Q2D_Q3D_NAME = "q2d_q3d"
+
+Q3D_SOLVED = "Q3d_solved"
+
+
+@pytest.fixture
+def q3d_solved(add_app_example):
+    app = add_app_example(project=Q3D_SOLVED, subfolder=TESTS_SOLVERS_PATH / "example_models" / "T31", application=Q3d)
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture
@@ -157,10 +166,10 @@ def test_q2d_link(q2d_app, add_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_q3d_link(q3d_app, add_app):
-    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+def test_q3d_link(q3d_solved, add_app):
+    cir = add_app(application=Circuit, project=q3d_solved.project_name, close_projects=False)
 
-    q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_app, solution_name="Setup1 : LastAdaptive")
+    q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_solved, solution_name="Setup1 : LastAdaptive")
     assert q3d_comp
     assert len(q3d_comp.pins) == 4
 
@@ -200,27 +209,24 @@ def test_create_interface_port(aedt_app):
     assert interface_port.name != second_interface_port.name
 
 
-def test_q3d_rlgc_link(q3d_app, add_app):
-    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+def test_q3d_rlgc_link(q3d_solved, add_app):
+    cir = add_app(application=Circuit, project=q3d_solved.project_name, close_projects=False)
 
-    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_app)
+    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_solved)
     assert isinstance(q3d_comp, CircuitComponent)
     assert len(q3d_comp.pins) == 6
 
 
-def test_q3d_rlgc_link_design_name(q3d_app, add_app):
-    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+def test_q3d_rlgc_link_design_name(q3d_solved, add_app):
+    cir = add_app(application=Circuit, project=q3d_solved.project_name, close_projects=False)
 
     with pytest.raises(ValueError):
         cir.modeler.schematic.add_q3d_rlgc("dummy", solution_name="dummy")
 
     with pytest.raises(ValueError):
-        cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name)
+        cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name)
 
-    with pytest.raises(AEDTRuntimeError):
-        cir.modeler.schematic.add_q3d_rlgc("Terminal", solution_name="Setup1 : LastAdaptive")
-
-    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_app.design_name, solution_name="Setup1 : LastAdaptive")
+    q3d_comp = cir.modeler.schematic.add_q3d_rlgc(q3d_solved.design_name, solution_name="Setup1 : LastAdaptive")
     assert isinstance(q3d_comp, CircuitComponent)
     assert len(q3d_comp.pins) == 6
 

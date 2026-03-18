@@ -117,7 +117,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Fallback: use the lower-cased category
         return category_lower
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -269,7 +269,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if self.current_category:
             self.load_extensions(self.current_category)
 
-    def load_extensions(self, category: str) -> None:
+    def load_extensions(self, category: str):
         """Load application extensions."""
         icon_category = self._resolve_category_folder(category)
         # Track the current category for UI refresh
@@ -759,7 +759,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.active_extension = option
         self.active_process = subprocess.Popen([
             self.python_interpreter, str(script_file)
-        ], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
+        ], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
 
         # Start streaming logs
         self._start_log_stream_threads()
@@ -789,7 +789,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Schedule periodic UI refresh
         self.root.after(500, self._periodic_log_refresh)
 
-    def _append_full_log(self, text, tag) -> None:
+    def _append_full_log(self, text, tag):
         self.full_log_buffer.append((text, tag))
         # Keep size bounded (optional)
         if len(self.full_log_buffer) > 10000:
@@ -961,7 +961,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 'Export Logs', f'Failed to save logs: {e}'
             )
 
-    def pin_extension(self, category: str, option: str) -> None:
+    def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
         if option.lower() == "custom":
             script_file, option = self.handle_custom_extension()
@@ -1139,12 +1139,12 @@ class ExtensionManager(ExtensionProjectCommon):
             return result["script_file"], result["display_name"]
         return None, None
 
-    def create_theme_background_image(self, img, target_size=None):
+    def create_theme_background_image(self, img: PIL.ImageTk.PhotoImage, target_size: tuple = None) -> PIL.ImageTk.PhotoImage:
         """Create a background image with theme color for transparency.
 
         Parameters
         ----------
-        img : PIL.Image
+        img : PIL.ImageTk.PhotoImage
             The image to process.
         target_size : tuple, optional
             Target size to resize the image to (width, height).
@@ -1185,8 +1185,8 @@ class ExtensionManager(ExtensionProjectCommon):
         return PIL.ImageTk.PhotoImage(img, master=self.root)
 
     def create_pin_icon(
-        self, parent, category: str, option: str, size=(20, 20)
-    ):
+        self, parent: tkinter.Widget, category: str, option: str, size=(20, 20)
+    ) -> ttk.Label:
         """Create a pin icon based on extension installation status.
 
         Parameters
@@ -1201,6 +1201,8 @@ class ExtensionManager(ExtensionProjectCommon):
             Size of the pin icon (width, height).
 
         Returns
+        -------
+        ttk.Label
         -------
         ttk.Label
             The pin icon label widget.
@@ -1252,7 +1254,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         return pin_label
 
-    def on_pin_click(self, category: str, option: str) -> None:
+    def on_pin_click(self, category: str, option: str):
         """Handle pin icon click events.
 
         Parameters
@@ -1269,7 +1271,7 @@ class ExtensionManager(ExtensionProjectCommon):
         else:
             self.pin_extension(category, option)
 
-    def apply_canvas_theme(self, canvas) -> None:
+    def apply_canvas_theme(self, canvas: tkinter.Canvas):
         """Apply theme to a specific canvas widget."""
         theme_colors = (
             self.theme.light
@@ -1299,7 +1301,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # images
         self.add_extension_content()
 
-    def confirm_unpin(self, category, option) -> None:
+    def confirm_unpin(self, category: str, option: str):
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
         if option.lower() == "custom": # pragma: no cover
@@ -1353,7 +1355,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     "Error", "Extension could not be removed."
                 )
 
-    def check_extension_pinned(self, category: str, option: str):
+    def check_extension_pinned(self, category: str, option: str) -> bool:
         """Check if an extension is pined in AEDT.
 
         Parameters
@@ -1434,7 +1436,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path) -> None: # pragma: no cover
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
         try:
             dlg = tkinter.Toplevel(self.root)

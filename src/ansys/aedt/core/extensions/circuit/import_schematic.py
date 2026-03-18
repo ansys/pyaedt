@@ -116,7 +116,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         )
         browse_button.grid(row=0, column=2, padx=10, pady=10)
 
-        def callback():
+        def callback() -> None:
             file_extension = self._text_widget.get(
                 "1.0",
                 tkinter.END,

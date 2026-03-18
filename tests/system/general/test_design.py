@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
+import zipfile
 
 import pytest
 
@@ -34,6 +36,7 @@ from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.load_aedt_file import get_designs
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -46,6 +49,31 @@ def coaxial(add_app_example):
     app = add_app_example(project=COAXIAL_PROJECT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
+
+
+@pytest.fixture
+def unzip_aedtz(test_tmp_dir):
+    """Fixture to unzip .aedtz files into test_tmp_dir."""
+
+    def _unzip_if_needed(example_name):
+        if str(example_name).endswith(".aedtz"):
+            # Extract to test_tmp_dir
+            base_name = os.path.splitext(os.path.basename(example_name))[0]
+            with zipfile.ZipFile(example_name, "r") as zip_ref:
+                zip_ref.extractall(test_tmp_dir)
+
+            # Find the extracted .aedt file (it might be in a subdirectory like $ProjectDir)
+            for root, dirs, files in os.walk(test_tmp_dir):
+                for file in files:
+                    if file.endswith(".aedt") and file.startswith(base_name):
+                        return os.path.join(root, file)
+
+            # Fallback to expected location if not found
+            unzipped_name = test_tmp_dir / (base_name + ".aedt")
+            return str(unzipped_name)
+        return example_name
+
+    return _unzip_if_needed
 
 
 @pytest.fixture
@@ -202,13 +230,15 @@ def test_copy_design_from(coaxial, test_tmp_dir) -> None:
     assert len(coaxial.design_list) == 1
 
 
-def test_copy_example(aedt_app) -> None:
+def test_copy_example(aedt_app, unzip_aedtz):
     example_name = aedt_app.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+    example_name_to_use = unzip_aedtz(example_name)
+    design = get_designs(example_name_to_use)[0]
     from ansys.aedt.core.generic.file_utils import remove_project_lock
 
-    remove_project_lock(example_name)
-    aedt_app.copy_design_from(example_name, "0_5G Aperture Element")
-    assert aedt_app.design_name == "0_5G Aperture Element"
+    remove_project_lock(example_name_to_use)
+    aedt_app.copy_design_from(example_name_to_use, design)
+    assert aedt_app.design_name == design
     assert not aedt_app.desktop_class.get_example("fake")
 
 

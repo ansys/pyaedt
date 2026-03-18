@@ -149,7 +149,7 @@ class DistributedGeometry:
 
     @fixed_width_to_height_ratio_capacitor_sections.setter
     def fixed_width_to_height_ratio_capacitor_sections(
-        self, fixed_width_to_height_ratio_capacitor_sections_string
+        self, fixed_width_to_height_ratio_capacitor_sections_string: str
     ) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedCapacitorSections, fixed_width_to_height_ratio_capacitor_sections_string
@@ -195,7 +195,7 @@ class DistributedGeometry:
 
     @fixed_width_to_height_ratio_inductor_sections.setter
     def fixed_width_to_height_ratio_inductor_sections(
-        self, fixed_width_to_height_ratio_inductor_sections_string
+        self, fixed_width_to_height_ratio_inductor_sections_string: str
     ) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedInductorSections, fixed_width_to_height_ratio_inductor_sections_string
@@ -235,7 +235,9 @@ class DistributedGeometry:
         return wide_stubs_width_to_substrate_height_ratio_string
 
     @wide_stubs_width_to_substrate_height_ratio.setter
-    def wide_stubs_width_to_substrate_height_ratio(self, wide_stubs_width_to_substrate_height_ratio_string) -> None:
+    def wide_stubs_width_to_substrate_height_ratio(
+        self, wide_stubs_width_to_substrate_height_ratio_string: str
+    ) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedSplitHeightRatio, wide_stubs_width_to_substrate_height_ratio_string
         )
@@ -271,7 +273,7 @@ class DistributedGeometry:
         return max_width_string
 
     @max_width.setter
-    def max_width(self, max_width_string) -> None:
+    def max_width(self, max_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMaxWidth, max_width_string)
 
     @property
@@ -286,7 +288,7 @@ class DistributedGeometry:
         return min_width_string
 
     @min_width.setter
-    def min_width(self, min_width_string) -> None:
+    def min_width(self, min_width_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMinWidth, min_width_string)
 
     @property
@@ -301,7 +303,7 @@ class DistributedGeometry:
         return max_gap_string
 
     @max_gap.setter
-    def max_gap(self, max_gap_string) -> None:
+    def max_gap(self, max_gap_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMaxGap, max_gap_string)
 
     @property
@@ -316,7 +318,7 @@ class DistributedGeometry:
         return min_gap_string
 
     @min_gap.setter
-    def min_gap(self, min_gap_string) -> None:
+    def min_gap(self, min_gap_string: str) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMinGap, min_gap_string)
 
     @property

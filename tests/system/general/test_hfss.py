@@ -138,7 +138,8 @@ def test_assign_material(aedt_app) -> None:
     assert cyl_1.material_name == "teflon_based"
 
 
-def test_create_wave_port_from_sheets(aedt_app) -> None:
+def test_create_wave_port_from_sheets_terminal(aedt_app):
+    aedt_app.solution_type = "Terminal"
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_length = 80
     # Create inner conductor cylinder (smaller radius)
@@ -154,7 +155,6 @@ def test_create_wave_port_from_sheets(aedt_app) -> None:
     coax1_origin = aedt_app.modeler.Position(0, 0, 0)
     outer_1 = aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r2, coax1_len, 0, "outer_1")
     o5 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
-    aedt_app.solution_type = "Terminal"
 
     port = aedt_app.wave_port(
         assignment=o5,
@@ -201,8 +201,11 @@ def test_create_wave_port_from_sheets(aedt_app) -> None:
     assert bottom_port.name == "bottom_probe_port"
     pec_objects = aedt_app.modeler.get_objects_by_material("pec")
     assert len(pec_objects) == 2  # PEC cap created.
+
+
+def test_create_wave_port_from_sheets_modal(aedt_app):
     aedt_app.solution_type = "Modal"
-    assert len(aedt_app.boundaries) == 4
+
     udp = aedt_app.modeler.Position(200, 0, 0)
     o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
     port = aedt_app.wave_port(
@@ -579,7 +582,9 @@ def test_edit_sources_modal(aedt_app) -> None:
     )
 
 
-def test_create_circuit_port_from_edges(aedt_app) -> None:
+def test_create_circuit_port_from_edges(aedt_app):
+    aedt_app.solution_type = "Modal"
+
     coax1_len = 200
     r1 = 3.0
     r2 = 10.0
@@ -609,7 +614,6 @@ def test_create_circuit_port_from_edges(aedt_app) -> None:
     edges2 = aedt_app.modeler.get_object_edges(rect_2.id)
     e2 = edges2[0]
 
-    aedt_app.solution_type = "Modal"
     assert aedt_app.composite is False
     aedt_app.composite = True
     assert aedt_app.composite is True
@@ -648,7 +652,6 @@ def test_create_circuit_port_from_edges(aedt_app) -> None:
     assert bound
     bound.name = "port21"
     assert bound.update()
-    aedt_app.solution_type = "Modal"
 
 
 def test_create_waveport_on_objects(aedt_app) -> None:
@@ -774,7 +777,6 @@ def test_create_lumped_on_objects(aedt_app) -> None:
 
 
 def test_create_circuit_on_objects(aedt_app) -> None:
-    aedt_app.insert_design("test")
     aedt_app.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
     box2 = aedt_app.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
     box2.material_name = "Copper"
@@ -786,11 +788,9 @@ def test_create_circuit_on_objects(aedt_app) -> None:
         aedt_app.circuit_port(
             "BoxCircuit44", "BoxCircuit2", aedt_app.axis_directions.XNeg, 50, "Circ1", True, 50, False
         )
-    aedt_app.delete_design("test", aedt_app.design_name)
 
 
 def test_create_perfects_on_objects(aedt_app) -> None:
-    aedt_app.insert_design("test")
     box1 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
     box2 = aedt_app.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
 
@@ -809,7 +809,6 @@ def test_create_perfects_on_objects(aedt_app) -> None:
     assert pe.update()
     assert ph.name in aedt_app.modeler.get_boundaries_name()
     assert ph.update()
-    aedt_app.delete_design("test", aedt_app.design_name)
 
 
 def test_create_impedance_on_objects(aedt_app) -> None:
@@ -1170,7 +1169,6 @@ def test_export_step(aedt_app, test_tmp_dir) -> None:
 
 
 def test_floquet_port(aedt_app) -> None:
-    aedt_app.insert_design("floquet")
     aedt_app.solution_type = "Modal"
 
     box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
@@ -1187,11 +1185,9 @@ def test_floquet_port(aedt_app) -> None:
     assert bound
     bound.name = "Floquet1"
     assert bound.update()
-    aedt_app.delete_design("floquet", aedt_app.design_name)
 
 
 def test_autoassign_pairs(aedt_app) -> None:
-    aedt_app.insert_design("lattice")
     box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
     assert len(aedt_app.auto_assign_lattice_pairs(box1)) == 2
     box1.delete()
@@ -1209,7 +1205,6 @@ def test_autoassign_pairs(aedt_app) -> None:
     sec = aedt_app.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100], reverse_v=True)
     sec.name = "Sec1"
     assert sec.update()
-    aedt_app.delete_design("lattice", aedt_app.design_name)
 
 
 def test_create_infinite_sphere(aedt_app) -> None:
@@ -1297,7 +1292,6 @@ def test_set_autoopen(aedt_app) -> None:
 
 
 def test_terminal_port_lumped(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal")
     aedt_app.solution_type = "Terminal"
     box1 = aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", material="copper")
     box2 = aedt_app.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", material="copper")
@@ -1334,11 +1328,22 @@ def test_terminal_port_lumped(aedt_app) -> None:
         deembed=True,
     )
     assert port3.name + "_T1" in aedt_app.excitation_names
-    aedt_app.delete_design("Design_Terminal", aedt_app.design_name)
+
+
+def test_terminal_port_lumped_auto_identify(aedt_app) -> None:
+    aedt_app.solution_type = "Terminal"
+    aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="airbox", material="vacuum")
+    aedt_app.modeler.create_box([-10, -10, 20], [20, 20, 10], name="sig", material="copper")
+    sheet = aedt_app.modeler.create_rectangle(Plane.YZ, [0, -10, 0], [20, 20], "port")
+
+    port = aedt_app.lumped_port(
+        assignment=sheet.name,
+        auto_identify=True,
+    )
+    assert port.name + "_T1" in aedt_app.excitation_names
 
 
 def test_terminal_port(aedt_app) -> None:
-    aedt_app.insert_design("Design_Terminal_2")
     aedt_app.solution_type = "Terminal"
     box1 = aedt_app.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", material="copper")
     box2 = aedt_app.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", material="copper")
@@ -1400,7 +1405,6 @@ def test_terminal_port(aedt_app) -> None:
             execinfo.args[0]
             == "The closest faces of the two objects must be aligned with the main planes of the reference system."
         )
-    aedt_app.delete_design("Design_Terminal_2", aedt_app.design_name)
 
 
 def test_mesh_settings(aedt_app) -> None:
@@ -1639,41 +1643,67 @@ def test_create_near_field_sphere(aedt_app) -> None:
     bound.name = "Test_Sphere"
     assert aedt_app.field_setup_names[0] == bound.name
 
+    assert bound.props["Radius"] == "20cm"
+    assert bound.properties["Radius"] == "20cm"
+
+    bound.properties["Radius"] = "2cm"
+    assert bound.properties["Radius"] == "2cm"
+
+    bound.props["Radius"] = "25cm"
+    assert bound.props["Radius"] == "25cm"
+    assert bound.properties["Radius"] == "25cm"
+
 
 def test_create_near_field_box(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_near_field_box(
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
-        w_length=20,
-        w_samples=21,
+        u_length=2,
+        u_samples=3,
+        v_length=4,
+        v_samples=5,
+        w_length=6,
+        w_samples=7,
         units="mm",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
         name=None,
     )
 
-    assert bound
+    assert bound.properties["U Size"] == "2mm"
+    assert bound.properties["V Size"] == "4mm"
+    assert bound.properties["W Size"] == "6mm"
+    assert int(bound.properties["U Samples"]) == 3
+    assert int(bound.properties["V Samples"]) == 5
+    assert int(bound.properties["W Samples"]) == 7
+    bound.props["Length"] = "50mm"
+    assert bound.properties["U Size"] == "50mm"
+    bound.properties["U Size"] = "20mm"
+    assert bound.properties["U Size"] == "20mm"
 
 
 def test_create_near_field_rectangle(aedt_app) -> None:
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_near_field_rectangle(
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
+        u_length=1,
+        u_samples=2,
+        v_length=3,
+        v_samples=4,
         units="mm",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
         name=None,
     )
-    bound.props["Length"] = "50mm"
-    assert bound
+    assert bound.properties["U Size"] == "1mm"
+    assert bound.properties["V Size"] == "3mm"
+    assert int(bound.properties["U Samples"]) == 2
+    assert int(bound.properties["V Samples"]) == 4
+
+    assert bound.props["Length"] == "1mm"
+
+    bound.props["Length"] = "10mm"
+    assert bound.properties["U Size"] == "10mm"
 
 
 def test_create_near_field_line(aedt_app) -> None:
@@ -1688,7 +1718,10 @@ def test_create_near_field_line(aedt_app) -> None:
     line = aedt_app.modeler.create_polyline(test_points)
     bound = aedt_app.insert_near_field_line(assignment=line.name, points=1000, custom_radiation_faces=None, name=None)
     bound.props["NumPts"] = "200"
-    assert bound
+    assert bound.properties["Num Points"] == 200
+
+    bound.properties["Num Points"] = 50
+    assert bound.properties["Num Points"] == 50
 
 
 def test_nastran(aedt_app, test_tmp_dir) -> None:

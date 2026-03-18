@@ -73,7 +73,7 @@ class GraphSetup:
         return min_freq_string
 
     @minimum_frequency.setter
-    def minimum_frequency(self, min_freq_string) -> None:
+    def minimum_frequency(self, min_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPlotMinimumFrequency, min_freq_string)
 
     @property
@@ -88,7 +88,7 @@ class GraphSetup:
         return max_freq_string
 
     @maximum_frequency.setter
-    def maximum_frequency(self, max_freq_string) -> None:
+    def maximum_frequency(self, max_freq_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPlotMaximumFrequency, max_freq_string)
 
     @property
@@ -103,7 +103,7 @@ class GraphSetup:
         return min_time_string
 
     @minimum_time.setter
-    def minimum_time(self, min_time_string) -> None:
+    def minimum_time(self, min_time_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPlotMinimumTime, min_time_string)
 
     @property
@@ -118,5 +118,5 @@ class GraphSetup:
         return max_time_string
 
     @maximum_time.setter
-    def maximum_time(self, max_time_string) -> None:
+    def maximum_time(self, max_time_string: str) -> None:
         self._dll_interface.set_string(self._dll.setPlotMaximumTime, max_time_string)

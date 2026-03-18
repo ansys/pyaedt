@@ -86,7 +86,8 @@ def hfss3dl_post_app(add_app_example):
     app.close_project(save=False)
 
 
-def test_create_material(aedt_app) -> None:
+def test_create_material(aedt_app):
+    materials_length = len(aedt_app.materials.material_keys)
     mymat = aedt_app.materials.add_material("myMaterial")
     mymat.permittivity = 4.1
     mymat.conductivity = 100
@@ -94,7 +95,8 @@ def test_create_material(aedt_app) -> None:
     assert mymat.permittivity.value == 4.1
     assert mymat.conductivity.value == 100
     assert mymat.youngs_modulus.value == 1e10
-    assert len(aedt_app.materials.material_keys) == 3
+    assert len(aedt_app.materials.material_keys) == materials_length + 1
+    assert "mymaterial" in aedt_app.materials.material_keys
 
 
 def test_stackup(aedt_app) -> None:
