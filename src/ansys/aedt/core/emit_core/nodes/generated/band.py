@@ -25,7 +25,6 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -57,12 +56,12 @@ class Band(EmitNode):
         self._delete()
 
     @min_aedt_version("2025.2")
-    def import_rx_measurement(self, file_name: str) -> None:
+    def import_rx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "RxMeasurement")
 
     @min_aedt_version("2025.2")
-    def import_tx_measurement(self, file_name: str) -> None:
+    def import_tx_measurement(self, file_name: str) -> EmitNode:
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 

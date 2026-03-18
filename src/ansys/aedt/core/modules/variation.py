@@ -24,7 +24,7 @@
 
 
 class Variation(dict):
-    def __init__(self, variation_string):
+    def __init__(self, variation_string) -> None:
         super().__init__()
         if variation_string:
             pairs = variation_string.split(" ")
@@ -36,7 +36,7 @@ class Variation(dict):
     def __getitem__(self, key):
         return super().__getitem__(key)
 
-    def string(self):
+    def string(self) -> str:
         s = ""
         for key, value in self.items():
             s += key + "=" + value + " "

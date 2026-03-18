@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import datetime
 import difflib
 import functools
@@ -36,9 +38,10 @@ import subprocess  # nosec
 import sys
 import time
 import traceback
-from typing import Dict
-from typing import List
-from typing import Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from numpy import array
 import warnings
 
 import psutil
@@ -70,7 +73,7 @@ inclusion_list = [
 ]
 
 
-def _write_mes(mes_text):
+def _write_mes(mes_text) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     mes_text = str(mes_text)
@@ -89,7 +92,7 @@ def _get_args_dicts(func, args, kwargs):
     return args_dict
 
 
-def _exception(ex_info, func, args, kwargs, message="Type Error"):
+def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
     """Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
@@ -188,7 +191,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes(header)
 
 
-def _check_types(arg):
+def _check_types(arg) -> str:
     if "netref.builtins.list" in str(type(arg)):
         return "list"
     elif "netref.builtins.dict" in str(type(arg)):
@@ -206,10 +209,8 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                if v.launched_by_pyaedt:
-                    v.close_desktop()
-                else:
-                    v.release_desktop(False, False)
+                v.release_desktop(close_projects=v.close_on_exit, close_on_exit=v.close_on_exit)
+
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return
@@ -265,7 +266,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False):
+def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False) -> callable:
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
@@ -334,7 +335,7 @@ def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
 
 
 @pyaedt_function_handler()
-def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
+def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
     Parameters
@@ -359,7 +360,7 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
-def _log_method(func, new_args, new_kwargs):
+def _log_method(func, new_args, new_kwargs) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
@@ -413,7 +414,7 @@ def _log_method(func, new_args, new_kwargs):
 
 
 @pyaedt_function_handler()
-def get_version_and_release(input_version):
+def get_version_and_release(input_version: str) -> tuple:
     """Convert the standard five-digit AEDT version format to a tuple of version and release.
     Used for environment variable management.
     """
@@ -478,7 +479,7 @@ def _is_version_format_valid(version):
 
 
 @pyaedt_function_handler()
-def env_path(input_version):
+def env_path(input_version: str) -> str:
     """Get the path of the version environment variable for an AEDT version.
 
     Parameters
@@ -493,8 +494,8 @@ def env_path(input_version):
 
     Examples
     --------
-    >>> env_path_student("2025.2")
-    "C:/Program Files/ANSYSEM/ANSYSEM2025.2/Win64"
+    >>> env_path_student("2026.1")
+    "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -502,7 +503,7 @@ def env_path(input_version):
 
 
 @pyaedt_function_handler()
-def env_value(input_version):
+def env_value(input_version: str) -> str:
     """Get the name of the version environment variable for an AEDT version.
 
     Parameters
@@ -517,14 +518,14 @@ def env_value(input_version):
 
     Examples
     --------
-    >>> env_value(2025.2)
-    "ANSYSEM_ROOT252"
+    >>> env_value(2026.1)
+    "ANSYSEM_ROOT261"
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
 
 @pyaedt_function_handler()
-def env_path_student(input_version):
+def env_path_student(input_version: str) -> str:
     """Get the path of the version environment variable for an AEDT student version.
 
     Parameters
@@ -539,8 +540,8 @@ def env_path_student(input_version):
 
     Examples
     --------
-    >>> env_path_student(2025.2)
-    "C:/Program Files/ANSYSEM/ANSYSEM2025.2/Win64"
+    >>> env_path_student(2026.1)
+    "C:/Program Files/ANSYSEM/ANSYSEM2026.1/Win64"
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -549,7 +550,7 @@ def env_path_student(input_version):
 
 
 @pyaedt_function_handler()
-def env_value_student(input_version):
+def env_value_student(input_version: str) -> str:
     """Get the name of the version environment variable for an AEDT student version.
 
     Parameters
@@ -564,8 +565,8 @@ def env_value_student(input_version):
 
     Examples
     --------
-    >>> env_value_student(2025.2)
-    "ANSYSEMSV_ROOT252"
+    >>> env_value_student(2026.1)
+    "ANSYSEMSV_ROOT261"
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -615,7 +616,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def time_fn(fn, *args, **kwargs):
+def time_fn(fn: callable, *args, **kwargs):
     start = datetime.datetime.now()
     results = fn(*args, **kwargs)
     end = datetime.datetime.now()
@@ -626,7 +627,7 @@ def time_fn(fn, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def filter_tuple(value, search_key_1, search_key_2):
+def filter_tuple(value: str, search_key_1: str, search_key_2: str) -> bool:
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
 
@@ -650,7 +651,7 @@ def filter_tuple(value, search_key_1, search_key_2):
 
 
 @pyaedt_function_handler()
-def filter_string(value, search_key_1):
+def filter_string(value: str, search_key_1: str) -> bool:
     """Filter a string"""
     ignore_case = True
 
@@ -672,7 +673,7 @@ def filter_string(value, search_key_1):
 
 
 @pyaedt_function_handler()
-def number_aware_string_key(s):
+def number_aware_string_key(s: str) -> tuple:
     """Get a key for sorting strings that treats embedded digit sequences as integers.
 
     Parameters
@@ -806,27 +807,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
             pyaedt_logger.debug("No matching processes found.")
 
     elif platform_system == "Windows":
-        # Use WMIC to get process information
         try:
-            for tgt in target_name:
-                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
-                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
-
-                current_cmd = []
-
-                for line in output.splitlines():
-                    line = line.strip()
-                    if line.startswith("CommandLine="):
-                        # Extract and parse command line
-                        cmdline_raw = line[len("CommandLine=") :]
-                        current_cmd = cmdline_raw.split()
-                    elif line.startswith("ProcessId="):
-                        current_pid = int(line[len("ProcessId=") :])
-                        if current_pid and current_cmd:
-                            found_data.append((current_pid, current_cmd))
-                            current_pid, current_cmd = None, []
-        # The system may not have WMIC available, fallback to PowerShell
-        except FileNotFoundError:
             import json
             from pathlib import Path
             import shutil
@@ -843,7 +824,13 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
                 )
 
-                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)  # nosec
+                # NOTE: CREATE_NO_WINDOW prevents a visible console window from appearing,
+                # especially important for PyInstaller windowed applications.
+                output = subprocess.check_output(
+                    [powershell_path, "-Command", ps_cmd],
+                    text=True,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                )  # nosec
 
                 # Parse JSON output - can be a single object or array
                 try:
@@ -861,14 +848,34 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                     # No processes found or invalid JSON
                     pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
                     pass
+        except FileNotFoundError:
+            for tgt in target_name:
+                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
+                print(cmd)
+                exit()
+                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
+
+                current_cmd = []
+
+                for line in output.splitlines():
+                    line = line.strip()
+                    if line.startswith("CommandLine="):
+                        # Extract and parse command line
+                        cmdline_raw = line[len("CommandLine=") :]
+                        current_cmd = cmdline_raw.split()
+                    elif line.startswith("ProcessId="):
+                        current_pid = int(line[len("ProcessId=") :])
+                        if current_pid and current_cmd:
+                            found_data.append((current_pid, current_cmd))
+                            current_pid, current_cmd = None, []
         except Exception as e:
-            pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
+            pyaedt_logger.debug(f"Failed to query Windows processes with Powershell and WMIC: {str(e)}")
 
     return found_data
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]]:
+def _check_psutil_connections(pids: list[int]) -> dict[int, list[dict[str, any]]]:
     """Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
@@ -903,7 +910,7 @@ def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]
 
 
 @pyaedt_function_handler()
-def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pid: int) -> int:
+def _check_connection_grpc_port(connections: dict[int, list[dict[str, any]]], pid: int) -> int:
     """Find the gRPC port for a specific process from its network connections.
 
     This function searches through network connections to identify the gRPC port
@@ -933,7 +940,7 @@ def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pi
 
 
 @pyaedt_function_handler()
-def is_grpc_session_active(port):
+def is_grpc_session_active(port: int) -> bool:
     """Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
@@ -999,7 +1006,7 @@ def is_grpc_session_active(port):
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None, student_version: bool = False, non_graphical: Optional[bool] = None
+    version: str = None, student_version: bool = False, non_graphical: bool | None = None
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
@@ -1059,6 +1066,8 @@ def active_sessions(
 
     # Normalize version format
     if version and "." in version:
+        if student_version and version.endswith("SV"):
+            version = version[:-2]
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]
@@ -1103,7 +1112,9 @@ def active_sessions(
 
 
 @pyaedt_function_handler()
-def com_active_sessions(version=None, student_version=False, non_graphical=False):
+def com_active_sessions(
+    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
+):
     """Get information for the active COM AEDT sessions.
 
     Parameters
@@ -1132,7 +1143,9 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+def grpc_active_sessions(
+    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
+):
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
@@ -1161,7 +1174,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def conversion_function(data, function=None):  # pragma: no cover
+def conversion_function(data: list | "array", function: str = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
@@ -1297,7 +1310,7 @@ class PropsManager(PyAedtBase):
             self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
 
     @pyaedt_function_handler()
-    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+    def _recursive_search(self, dict_in, key: str = "", matching_percentage: float = 0.8):
         f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
         if f:
             return True, dict_in, f[0]
@@ -1315,7 +1328,7 @@ class PropsManager(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _recursive_list(self, dict_in, prefix=""):
+    def _recursive_list(self, dict_in, prefix: str = ""):
         available_list = []
         for k, v in dict_in.items():
             if prefix:
@@ -1340,7 +1353,7 @@ class PropsManager(PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> None:
         """Update method."""
         pass
 
@@ -1399,7 +1412,9 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+def install_with_pip(
+    package_name: str, package_path: str = None, upgrade: bool = False, uninstall: bool = False
+):  # pragma: no cover
     """Install a new package using pip.
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.

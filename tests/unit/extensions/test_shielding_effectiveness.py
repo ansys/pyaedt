@@ -53,7 +53,7 @@ def mock_aedt_app():
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_default(mock_desktop, mock_aedt_app):
+def test_shielding_effectiveness_extension_default(mock_desktop, mock_aedt_app) -> None:
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -66,7 +66,7 @@ def test_shielding_effectiveness_extension_default(mock_desktop, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_generate_button(mock_desktop, mock_aedt_app):
+def test_shielding_effectiveness_extension_generate_button(mock_desktop, mock_aedt_app) -> None:
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -87,7 +87,7 @@ def test_shielding_effectiveness_extension_generate_button(mock_desktop, mock_ae
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_exceptions(mock_desktop, mock_aedt_app):
+def test_shielding_effectiveness_extension_exceptions(mock_desktop, mock_aedt_app) -> None:
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -172,7 +172,7 @@ def test_shielding_effectiveness_extension_exceptions(mock_desktop, mock_aedt_ap
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_magnetic_dipole(mock_desktop, mock_aedt_app):
+def test_shielding_effectiveness_extension_magnetic_dipole(mock_desktop, mock_aedt_app) -> None:
     """Test setting magnetic dipole type."""
     mock_desktop.return_value = MagicMock()
 
@@ -186,7 +186,7 @@ def test_shielding_effectiveness_extension_magnetic_dipole(mock_desktop, mock_ae
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_custom_values(mock_desktop, mock_aedt_app):
+def test_shielding_effectiveness_extension_custom_values(mock_desktop, mock_aedt_app) -> None:
     """Test setting custom values in the extension."""
     mock_desktop.return_value = MagicMock()
 

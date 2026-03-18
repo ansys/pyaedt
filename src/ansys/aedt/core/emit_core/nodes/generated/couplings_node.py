@@ -38,7 +38,7 @@ class CouplingsNode(EmitNode):
         return self._node_type
 
     @min_aedt_version("2025.2")
-    def import_touchstone(self, file_name: str) -> None:
+    def import_touchstone(self, file_name: str) -> EmitNode:
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name, "TouchstoneCoupling")
 

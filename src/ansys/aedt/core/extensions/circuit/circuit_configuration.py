@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from dataclasses import field
 import os
@@ -29,7 +31,6 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-from typing import List
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
@@ -61,14 +62,14 @@ DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 class CircuitConfigurationData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    file_path: List[str] = field(default_factory=list)
+    file_path: list[str] = field(default_factory=list)
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
 
 
 class CircuitConfigurationExtension(ExtensionCircuitCommon):
     """Circuit configuration extension."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -80,7 +81,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
         self.add_extension_content()
 
-    def browse_file(self):
+    def browse_file(self) -> None:
         file_path = filedialog.askopenfilenames(
             initialdir="/",
             title="Select file",
@@ -92,7 +93,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
             self.data.file_path.append(Path(file))
         self.root.destroy()
 
-    def output_dir(self):
+    def output_dir(self) -> None:
         output = filedialog.askdirectory(
             initialdir="/",
             title="Save new projects to",
@@ -104,7 +105,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
         self.root.destroy()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -129,7 +130,7 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
         self.add_toggle_theme_button(lower_frame, 0, 1)
 
 
-def main(data: CircuitConfigurationData):
+def main(data: CircuitConfigurationData) -> bool:
     """Main function to execute circuit configuration extension."""
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import ast
 import re
 from typing import Any
-from typing import Dict
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -53,7 +54,7 @@ class Quantity(float, PyAedtBase):
         self,
         expression,
         unit=None,
-    ):
+    ) -> None:
         self._unit = ""
         self._unit_system = None
         if unit:
@@ -69,7 +70,7 @@ class Quantity(float, PyAedtBase):
             if _unit:
                 self._parse_units(_unit)
 
-    def to(self, unit):
+    def to(self, unit: str) -> Quantity:
         """Convert the actual number to new unit."""
         if self.unit_system and unit in AEDT_UNITS[self.unit_system]:
             new_value = unit_converter(
@@ -95,11 +96,11 @@ class Quantity(float, PyAedtBase):
                 self._unit = unit
 
     @property
-    def expression(self):
+    def expression(self) -> str:
         return f"{self._value}{self._unit}"
 
     @expression.setter
-    def expression(self, value):
+    def expression(self, value: str) -> None:
         """Value number with unit.
 
         Returns
@@ -111,7 +112,7 @@ class Quantity(float, PyAedtBase):
             self._parse_units(_unit)
 
     @property
-    def unit_system(self):
+    def unit_system(self) -> str:
         """Value unit system.
 
         Returns
@@ -121,7 +122,7 @@ class Quantity(float, PyAedtBase):
         return self._unit_system
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         """Value unit.
 
         Returns
@@ -131,12 +132,12 @@ class Quantity(float, PyAedtBase):
         return self._unit
 
     @unit.setter
-    def unit(self, value):
+    def unit(self, value: str) -> None:
         if value in AEDT_UNITS[self.unit_system]:
             self._unit = value
 
     @property
-    def value(self):
+    def value(self) -> float:
         """Value number.
 
         Returns
@@ -146,15 +147,15 @@ class Quantity(float, PyAedtBase):
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: float) -> None:
         _value, _unit = decompose_variable_value(value)
         self._value = _value
         self._parse_units(_unit)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "%.16g" % self.value + self.unit
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.value == int(self.value):
             return "%.16g" % self.value + self.unit
         return self.expression
@@ -235,7 +236,7 @@ class Quantity(float, PyAedtBase):
         else:
             return False
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
     def __lt__(self, other):
@@ -255,16 +256,16 @@ class Quantity(float, PyAedtBase):
     def __le__(self, other):
         return self.__lt__(other) or self.__eq__(other)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return not self.__le__(other)
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return not self.__lt__(other)
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.value)
 
-    def __int__(self):
+    def __int__(self) -> int:
         return int(self.value)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
@@ -303,46 +304,48 @@ class Quantity(float, PyAedtBase):
 
         return np.array(self.value, dtype=dtype)
 
-    def sqrt(self):
+    def sqrt(self) -> Quantity:
         """Square root of the value."""
         return Quantity(self.value**0.5, self.unit)
 
-    def log10(self):
-        """Square root of the value."""
+    def log10(self) -> Quantity:
+        """Logarithm base 10 of the value."""
         import numpy as np
 
         return Quantity(np.log10(self.value), self.unit)
 
-    def sin(self):
-        """Square root of the value."""
+    def sin(self) -> Quantity:
+        """Sine of the value."""
         import numpy as np
 
         return Quantity(np.sin(self.value), self.unit)
 
-    def cos(self):
-        """Square root of the value."""
+    def cos(self) -> Quantity:
+        """Cosine of the value."""
         import numpy as np
 
         return Quantity(np.cos(self.value), self.unit)
 
-    def arcsin(self):
-        """Square root of the value."""
+    def arcsin(self) -> Quantity:
+        """Arcsine of the value."""
         import numpy as np
 
         return Quantity(np.arcsin(self.value), self.unit)
 
-    def arccos(self):
-        """Square root of the value."""
+    def arccos(self) -> Quantity:
+        """Arccosine of the value."""
         import numpy as np
 
         return Quantity(np.arccos(self.value), self.unit)
 
-    def tan(self):
+    def tan(self) -> Quantity:
+        """Tangent of the value."""
         import numpy as np
 
         return Quantity(np.tan(self.value), self.unit)
 
-    def arctan2(self, other):
+    def arctan2(self, other: Quantity) -> Quantity:
+        """Arctangent of the value and another quantity."""
         import numpy as np
 
         return Quantity(np.arctan2(self.value, other), self.unit)
@@ -351,7 +354,7 @@ class Quantity(float, PyAedtBase):
         return self.__class__, (self.expression, self.unit)
 
 
-def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
+def decompose_variable_value(variable_value: str, full_variables: dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
 
     Parameters
@@ -393,6 +396,7 @@ def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any]
                     units = extract_units
                 except ValueError:
                     float_value = variable_value
+                    units = ""
 
     return float_value, units
 

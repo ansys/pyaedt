@@ -62,7 +62,7 @@ def mock_service_dependencies() -> Generator:
 
 def test_start_service_with_valid_path_in_env_var(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, mock_service_dependencies: Generator
-):
+) -> None:
     """Test that start_service uses the path from PYAEDT_SERVER_AEDT_PATH when it exists."""
     mock_popen, _, _ = mock_service_dependencies
     monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(tmp_path))
@@ -83,7 +83,7 @@ def test_start_service_with_invalid_path_in_env_var(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     mock_service_dependencies: Generator,
-):
+) -> None:
     """Test that start_service returns False when PYAEDT_SERVER_AEDT_PATH points to a non-existent directory."""
     mock_popen, _, _ = mock_service_dependencies
     inexistent_dir = tmp_path / "non_existent_directory"
@@ -105,7 +105,7 @@ def test_start_service_with_invalid_path_in_env_var(
 @patch("ansys.aedt.core.rpc.rpyc_services.aedt_versions")
 def test_start_service_without_env_var_defaults_to_latest_installed_path(
     mock_aedt_versions, monkeypatch: pytest.MonkeyPatch, mock_service_dependencies
-):
+) -> None:
     """Test that start_service falls back to the latest ANSYSEM_ROOTXXX path when PYAEDT_SERVER_AEDT_PATH is not set."""
     mock_popen, _, _ = mock_service_dependencies
     fallback_path_latest = "/path/to/ansys/v252"
@@ -129,7 +129,7 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(
 @patch("ansys.aedt.core.rpc.rpyc_services.aedt_versions")
 def test_start_service_without_env_var_and_no_installed_path(
     mock_aedt_versions, mock_logger_error, monkeypatch: pytest.MonkeyPatch, mock_service_dependencies
-):
+) -> None:
     """Test that start_service returns False when neither PYAEDT_SERVER_AEDT_PATH nor ANSYSEM_ROOTXXX are available."""
     mock_popen, _, _ = mock_service_dependencies
     monkeypatch.delenv("PYAEDT_SERVER_AEDT_PATH", raising=False)

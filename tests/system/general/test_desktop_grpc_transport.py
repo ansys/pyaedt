@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -438,7 +440,7 @@ settings.enable_error_handler = False
 settings.enable_debug_logger = True
 
 
-def generate_certs(server_specs: list[str], output_dir: Path):
+def generate_certs(server_specs: list[str], output_dir: Path) -> None:
     output_dir.mkdir(exist_ok=True)
     os.chdir(output_dir)
 
@@ -472,7 +474,7 @@ def generate_certs(server_specs: list[str], output_dir: Path):
 
 
 @pytest.mark.skipif(not IS_WINDOWS, reason="WNUA is only available on Windows.")
-def test_desktop_default_to_wnua_on_windows(monkeypatch):
+def test_desktop_default_to_wnua_on_windows(monkeypatch) -> None:
     """Test that Desktop defaults to WNUA mode on Windows."""
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
@@ -484,7 +486,7 @@ def test_desktop_default_to_wnua_on_windows(monkeypatch):
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason="UDS is only available on Linux.")
-def test_desktop_default_to_uds_on_linux(monkeypatch):
+def test_desktop_default_to_uds_on_linux(monkeypatch) -> None:
     """Test that Desktop defaults to UDS mode on Linux."""
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
@@ -500,7 +502,7 @@ def test_desktop_default_to_uds_on_linux(monkeypatch):
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("missing_file", ("ca.crt", "client.crt", "client.key"))
-def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, monkeypatch):
+def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, monkeypatch) -> None:
     """Test that Desktop raises FileNotFoundError when a required certificate file is missing."""
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
@@ -523,7 +525,7 @@ def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, m
     DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
-def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_path):
+def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_path) -> None:
     """Test that Desktop raises an exception when certificate files are present but invalid."""
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
@@ -551,7 +553,7 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
-def test_desktop_local_insecure_success(machine, monkeypatch):
+def test_desktop_local_insecure_success(machine, monkeypatch) -> None:
     """Test that Desktop can connect in local insecure mode."""
     monkeypatch.setattr(settings, "grpc_local", True)
     monkeypatch.setattr(settings, "grpc_secure_mode", False)
@@ -568,7 +570,7 @@ def test_desktop_local_insecure_success(machine, monkeypatch):
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
-def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
+def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path) -> None:
     """Test that Desktop can connect in local mTLS mode."""
     monkeypatch.setattr(settings, "grpc_local", True)
     monkeypatch.setattr(settings, "grpc_secure_mode", True)
@@ -588,7 +590,7 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
-def test_desktop_remote_insecure_success(machine, monkeypatch):
+def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
     """Test that Desktop can connect in remote insecure mode."""
     monkeypatch.setattr(settings, "grpc_local", False)
     monkeypatch.setattr(settings, "grpc_secure_mode", False)
@@ -622,7 +624,7 @@ def test_desktop_remote_insecure_success(machine, monkeypatch):
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
-def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path):
+def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
     """Test that Desktop can connect in remote mTLS mode."""
     monkeypatch.setattr(settings, "grpc_local", False)
     monkeypatch.setattr(settings, "grpc_secure_mode", True)

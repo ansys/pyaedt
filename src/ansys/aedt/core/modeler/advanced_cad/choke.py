@@ -22,17 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 import shutil
 import tempfile
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.modules.mesh import MeshOperation
 
 CHOKE_DEFAULT_PARAMETERS = {
     "Number of Windings": {
@@ -190,21 +197,21 @@ class Choke(PyAedtBase):
     """
 
     name: str = "choke"
-    number_of_windings: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"])
-    layer: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"])
-    layer_type: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"])
-    similar_layer: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"])
-    mode: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"])
-    wire_section: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"])
-    core: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"])
-    outer_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"])
-    mid_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"])
-    inner_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"])
-    settings: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"])
-    create_component: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"])
+    number_of_windings: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"])
+    layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"])
+    layer_type: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"])
+    similar_layer: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"])
+    mode: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"])
+    wire_section: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"])
+    core: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"])
+    outer_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"])
+    mid_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"])
+    inner_winding: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"])
+    settings: dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"])
+    create_component: dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"])
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Choke":
+    def from_dict(cls, data: dict[str, Any]) -> "Choke":
         """Create a Choke instance from a dictionary.
 
         Parameters
@@ -281,7 +288,7 @@ class Choke(PyAedtBase):
             raise Exception(f"Failed to export configuration: {str(e)}")
 
     @pyaedt_function_handler()
-    def create_choke(self, app=None):
+    def create_choke(self, app: "Hfss" = None) -> list:
         """Create a choke.
 
         Returns
@@ -302,7 +309,7 @@ class Choke(PyAedtBase):
         return list_object
 
     @pyaedt_function_handler()
-    def create_ground(self, app):
+    def create_ground(self, app: "Hfss") -> object:
         """Create the ground plane.
 
         Returns
@@ -325,7 +332,7 @@ class Choke(PyAedtBase):
         return ground
 
     @pyaedt_function_handler()
-    def create_mesh(self, app):
+    def create_mesh(self, app: "Hfss") -> "MeshOperation":
         """Create the mesh.
 
         Returns
@@ -354,7 +361,7 @@ class Choke(PyAedtBase):
         return mesh
 
     @pyaedt_function_handler()
-    def create_ports(self, ground, app):
+    def create_ports(self, ground: "Object3d", app: "Hfss") -> list:
         """Create the ports.
 
         Parameters

@@ -22,19 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 
 
-def read_actors(fn, actor_lib):
+def read_actors(fn: str, actor_lib: str) -> dict:
     """Read and map actors in a JSON file to a list of actor objects.
 
     Parameters
     ----------
-    fn : str
+    fn : str | Path
         Name of the JSON file describing the actors.
     actor_lib : str
         Full path to the library containing the actor definitions.
@@ -73,7 +80,7 @@ class Generic(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed="0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -103,14 +110,14 @@ class Person(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None) -> None:
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
         self._stride = stride
 
     @property
-    def stride(self):
+    def stride(self) -> str:
         """Stride in meters.
 
         Returns
@@ -120,7 +127,7 @@ class Person(Actor, PyAedtBase):
         return self._stride
 
     @stride.setter
-    def stride(self, s):
+    def stride(self, s: str) -> None:
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
@@ -146,12 +153,12 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the person in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
             HFSS application instance.
         motion : bool, optional
             Whether the person is in motion. The default is ``True``.
@@ -194,7 +201,7 @@ class Bird(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
+    def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None) -> None:
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
@@ -210,12 +217,12 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the bird in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool
             Whether the bird is in motion. The default is ``True``.
 
@@ -254,7 +261,7 @@ class Vehicle(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
+    def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None) -> None:
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -275,12 +282,12 @@ class Vehicle(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app: "Hfss", motion: bool = True) -> bool:
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool, optional
             Whether the vehicle is in motion. The default is ``True``.
 
@@ -325,13 +332,13 @@ class Radar(MultiPartComponent, PyAedtBase):
     def __init__(
         self,
         radar_folder,
-        name=None,
-        motion=False,
-        use_relative_cs=False,
+        name: str | None = None,
+        motion: bool = False,
+        use_relative_cs: bool = False,
         offset=("0", "0", "0"),
-        speed=0,
+        speed: int = 0,
         relative_cs_name=None,
-    ):
+    ) -> None:
         self.aedt_antenna_names = []  # List of Antenna Names
         name = name.split(".")[0] if name else name  # remove suffix if any
         self._component_class = "radar"
@@ -347,7 +354,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         self.pair = []
 
     @property
-    def units(self):
+    def units(self) -> str:
         """Multi-part units.
 
         Returns
@@ -358,7 +365,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._local_units
 
     @property
-    def speed_name(self):
+    def speed_name(self) -> str:
         """Speed variable name.
 
         Returns
@@ -369,7 +376,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self.name + "_speed"
 
     @property
-    def speed_expression(self):
+    def speed_expression(self) -> str:
         """Speed variable expression.
 
         Returns
@@ -380,7 +387,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s):
+    def speed_expression(self, s: str) -> None:
         self._speed_expression = s
 
     @pyaedt_function_handler()
@@ -398,12 +405,12 @@ class Radar(MultiPartComponent, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=False):
+    def insert(self, app: "Hfss", motion: bool = False) -> list:
         """Insert radar in the HFSS application instance.
 
         Parameters
         ----------
-        app : ansys.aedt.core.Hfss
+        app : Hfss
         motion : bool, optional
             Whether the actor is in motion. The default is ``False``.
 

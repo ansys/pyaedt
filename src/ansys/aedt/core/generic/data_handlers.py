@@ -40,7 +40,7 @@ json_to_dict = read_json
 
 
 @pyaedt_function_handler()
-def _dict_items_to_list_items(d, k, idx="name"):
+def _dict_items_to_list_items(d, k, idx: str = "name") -> None:
     if d.get(k, []):
         if isinstance(d[k], dict) and idx in d[k].keys():
             d[k] = [d[k]]
@@ -60,7 +60,7 @@ def _dict_items_to_list_items(d, k, idx="name"):
 
 
 @pyaedt_function_handler()
-def _tuple2dict(t, d):
+def _tuple2dict(t, d) -> None:
     """
 
     Parameters
@@ -99,7 +99,7 @@ def _tuple2dict(t, d):
 
 
 @pyaedt_function_handler()
-def _dict2arg(d, arg_out):
+def _dict2arg(d, arg_out) -> None:
     """Create a valid string of name-value pairs for the native AEDT API.
 
     Prepend the argument string in `arg_out` using the dictionary ``d``
@@ -232,7 +232,7 @@ def _arg2dict(arg, dict_out):
 
 
 @pyaedt_function_handler()
-def format_decimals(el):
+def format_decimals(el: float | int | str) -> str:
     """Provide a formatted string for a decimal number.
 
     Parameters
@@ -254,7 +254,7 @@ def format_decimals(el):
 
 
 @pyaedt_function_handler()
-def random_string(length=6, only_digits=False, char_set=None):
+def random_string(length: int = 6, only_digits: bool = False, char_set: str = None) -> str:
     """Generate a random string.
 
     Parameters
@@ -283,7 +283,7 @@ def random_string(length=6, only_digits=False, char_set=None):
 
 
 @pyaedt_function_handler()
-def unique_string_list(element_list, only_string=True):
+def unique_string_list(element_list: list | str, only_string: bool = True) -> list:
     """Return a unique list of strings from an element list.
 
     Parameters
@@ -307,7 +307,7 @@ def unique_string_list(element_list, only_string=True):
 
 
 @pyaedt_function_handler()
-def string_list(element_list):
+def string_list(element_list: list | str) -> list:
     """Convert a string to a list if it is not already a list.
 
     Input must be a list or a string.
@@ -330,7 +330,7 @@ def string_list(element_list):
 
 
 @pyaedt_function_handler()
-def ensure_list(element_list):
+def ensure_list(element_list: object) -> list:
     """Ensure that an object is a list.
 
     If it is not, it will be converted to a list.
@@ -350,7 +350,7 @@ def ensure_list(element_list):
 
 
 @pyaedt_function_handler()
-def variation_string_to_dict(variation_string, separator="="):
+def variation_string_to_dict(variation_string: str, separator: str = "=") -> dict:
     """Helper function to convert a list of "="-separated strings into a dictionary
 
     Returns
@@ -411,7 +411,7 @@ AEDT_MAPS = {"μ": "u"}
 
 
 @pyaedt_function_handler()
-def from_rkm(code):
+def from_rkm(code: str) -> str:
     """Convert an RKM code string to a string with a decimal point.
 
     Parameters
@@ -477,7 +477,7 @@ def from_rkm(code):
 
 
 @pyaedt_function_handler()
-def to_aedt(code):
+def to_aedt(code: str) -> str:
     """
 
     Parameters
@@ -495,7 +495,7 @@ def to_aedt(code):
     return return_code
 
 
-def str_to_bool(s):
+def str_to_bool(s: str | int) -> bool | str:
     """Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
 
     If the passed arguments are not relevant in the context of conversion, the argument
@@ -529,7 +529,7 @@ def str_to_bool(s):
 
 
 @pyaedt_function_handler()
-def from_rkm_to_aedt(code):
+def from_rkm_to_aedt(code: str) -> str:
     """
 
     Parameters
@@ -589,7 +589,7 @@ with Desktop() as d:
 
 
 @pyaedt_function_handler()
-def float_units(val_str, units=""):
+def float_units(val_str: str, units: str = "") -> float:
     """Retrieve units for a value.
 
     Parameters
@@ -620,7 +620,7 @@ def float_units(val_str, units=""):
 
 
 @pyaedt_function_handler()
-def normalize_string_format(text):
+def normalize_string_format(text: str) -> str:
     equivalence_table = {
         "$": "S",
         "€": "E",

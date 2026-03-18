@@ -30,6 +30,8 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 
+from __future__ import annotations
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -56,7 +58,7 @@ class CsProps(dict):
             if not res:
                 self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, cs_object, props):
+    def __init__(self, cs_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -81,7 +83,7 @@ class ListsProps(dict):
             if not res:
                 self._pyaedt_lists._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, cs_object, props):
+    def __init__(self, cs_object, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -109,13 +111,13 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, name=None):
+    def __init__(self, modeler, name: str | None = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
 
-    def _get_coordinates_data(self):
+    def _get_coordinates_data(self) -> None:
         self._props = {}
         id2name = {1: "Global"}
         name2refid = {}
@@ -308,7 +310,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
                     self._modeler._app.logger.debug(f"Failed to get coordinate data using {ds}")
 
     @pyaedt_function_handler()
-    def set_as_working_cs(self):
+    def set_as_working_cs(self) -> bool:
         """Set the coordinate system as the working coordinate system.
 
         Returns
@@ -323,7 +325,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _change_property(self, name, arg):
+    def _change_property(self, name: str, arg):
         """Update properties of the coordinate system.
 
         Parameters
@@ -344,7 +346,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         self._modeler.oeditor.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
-    def rename(self, name):
+    def rename(self, name: str) -> bool:
         """Rename the coordinate system.
 
         Parameters
@@ -363,7 +365,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the coordinate system.
 
         Returns
@@ -409,7 +411,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name=None, face_id=None):
+    def __init__(self, modeler, props=None, name: str | None = None, face_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
         self._props = None
@@ -419,7 +421,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
                 del self.props["KernelVersion"]
 
     @property
-    def props(self):
+    def props(self) -> CsProps:
         """Properties of the coordinate system.
 
         Returns
@@ -458,8 +460,16 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(
-        self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
-    ):
+        self,
+        assignment: int | "FacePrimitive",
+        origin: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive",
+        axis_position: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive",
+        axis: str = "X",
+        name: str | None = None,
+        offset: list | None = None,
+        rotation: int = 0,
+        always_move_to_end: bool = True,
+    ) -> bool:
         """Create a face coordinate system.
 
         The face coordinate has always the Z axis parallel to face normal.
@@ -597,7 +607,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_type_from_id(self, obj_id):
+    def _get_type_from_id(self, obj_id) -> str:
         """Get the entity type from the id."""
         for obj in self._modeler.objects.values():
             if obj.id == obj_id:
@@ -614,7 +624,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         raise ValueError(f"Cannot find entity id {obj_id}")  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _get_type_from_object(self, obj):
+    def _get_type_from_object(self, obj) -> str:
         """Get the entity type from the object."""
         if isinstance(obj, FacePrimitive):
             return "Face"
@@ -628,7 +638,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             raise ValueError("Cannot detect the entity type.")
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the coordinate system.
 
         Returns
@@ -677,13 +687,13 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __init__(self, modeler, props=None, name=None):
+    def __init__(self, modeler, props=None, name: str | None = None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
         self._props = None
@@ -696,7 +706,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         self._mode = None
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         """Coordinate System mode."""
         if self._mode:
             return self._mode
@@ -710,11 +720,11 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._mode
 
     @mode.setter
-    def mode(self, value):
+    def mode(self, value: str) -> None:
         self._mode = value
 
     @property
-    def props(self):
+    def props(self) -> CsProps:
         """Coordinate System Properties.
 
         Returns
@@ -727,7 +737,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._props
 
     @property
-    def ref_cs(self):
+    def ref_cs(self) -> str:
         """Reference coordinate system getter and setter.
 
         Returns
@@ -741,7 +751,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._ref_cs
 
     @ref_cs.setter
-    def ref_cs(self, value):
+    def ref_cs(self, value: str) -> None:
         if settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()
@@ -753,7 +763,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the coordinate system.
 
         Returns
@@ -820,7 +830,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def change_cs_mode(self, mode_type=0):
+    def change_cs_mode(self, mode_type: int = 0) -> bool:
         """Change the mode of the coordinate system.
 
         Parameters
@@ -926,18 +936,18 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        origin=None,
-        reference_cs="Global",
-        name=None,
-        mode="axis",
-        view="iso",
-        x_pointing=None,
-        y_pointing=None,
-        phi=0,
-        theta=0,
-        psi=0,
-        u=None,
-    ):
+        origin: list | None = None,
+        reference_cs: str = "Global",
+        name: str | None = None,
+        mode: str = "axis",
+        view: str = "iso",
+        x_pointing: list | None = None,
+        y_pointing: list | None = None,
+        phi: int = 0,
+        theta: int = 0,
+        psi: int = 0,
+        u: list | None = None,
+    ) -> bool:
         """Create a coordinate system.
 
         Parameters
@@ -1097,7 +1107,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def pointing_to_axis(x_pointing, y_pointing):
+    def pointing_to_axis(x_pointing: list | tuple, y_pointing: list | tuple) -> tuple:
         """Retrieve the axes from the HFSS X axis and Y pointing axis as per
         the definition of the AEDT interface coordinate system.
 
@@ -1123,7 +1133,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         return xp, yp, zp
 
-    def _get_numeric_value(self, value=None, init=False, destroy=False):
+    def _get_numeric_value(self, value=None, init: bool = False, destroy: bool = False):
         """Get numeric value from a variable.
 
         Parameters
@@ -1158,7 +1168,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             raise ValueError("Either set value or init or destroy must be True.")  # pragma: no cover
 
     @property
-    def quaternion(self):
+    def quaternion(self) -> Quaternion:
         """Quaternion computed based on specific axis mode.
 
         Returns
@@ -1197,7 +1207,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._quaternion
 
     @property
-    def origin(self):
+    def origin(self) -> list:
         """Coordinate system origin in model units.
 
         Returns
@@ -1214,7 +1224,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return [x, y, z]
 
     @origin.setter
-    def origin(self, origin):
+    def origin(self, origin: list) -> None:
         """Set the coordinate system origin in model units."""
         previous_auto_update = self.auto_update
         self.auto_update = False
@@ -1258,7 +1268,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name=None, entity_id=None):
+    def __init__(self, modeler, props=None, name: str | None = None, entity_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.entity_id = entity_id
         self._props = None
@@ -1269,7 +1279,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         self._ref_cs = None
 
     @property
-    def ref_cs(self):
+    def ref_cs(self) -> str:
         """Reference coordinate system.
 
         Returns
@@ -1283,7 +1293,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return self._ref_cs
 
     @ref_cs.setter
-    def ref_cs(self, value):
+    def ref_cs(self, value: str) -> None:
         if settings.aedt_version <= "2022.2":
             self._ref_cs = value
             self.update()
@@ -1295,7 +1305,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @property
-    def props(self):
+    def props(self) -> "CsProps":
         """Properties of the coordinate system.
 
         Returns
@@ -1343,14 +1353,14 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        assignment,
-        origin,
-        x_axis,
-        y_axis,
-        move_to_end=True,
-        reverse_x_axis=False,
-        reverse_y_axis=False,
-    ):
+        assignment: str | Object3d,
+        origin: int | VertexPrimitive | EdgePrimitive | FacePrimitive | list,
+        x_axis: int | VertexPrimitive | EdgePrimitive | FacePrimitive | list,
+        y_axis: int | VertexPrimitive | EdgePrimitive | FacePrimitive | list,
+        move_to_end: bool = True,
+        reverse_x_axis: bool = False,
+        reverse_y_axis: bool = False,
+    ) -> bool:
         """Create an object coordinate system.
 
         Parameters
@@ -1572,7 +1582,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the coordinate system.
 
         Returns
@@ -1685,7 +1695,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_type_from_id(self, obj_id):
+    def _get_type_from_id(self, obj_id) -> str:
         """Get the entity type from the id."""
         for obj in self._modeler.objects.values():
             if obj.id == obj_id:
@@ -1722,14 +1732,14 @@ class Lists(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name=None):
+    def __init__(self, modeler, props=None, name: str | None = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.name = name
         self.props = ListsProps(self, props)
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the List.
 
         Returns
@@ -1760,10 +1770,10 @@ class Lists(PropsManager, PyAedtBase):
     @pyaedt_function_handler()
     def create(
         self,
-        assignment,
-        name=None,
-        entity_type="Object",
-    ):
+        assignment: list | str | None = None,
+        name: str | None = None,
+        entity_type: str = "Object",
+    ) -> bool:
         """Create a List.
 
         Parameters
@@ -1809,7 +1819,7 @@ class Lists(PropsManager, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the List.
 
         Returns
@@ -1823,7 +1833,7 @@ class Lists(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def rename(self, name):
+    def rename(self, name: str) -> bool:
         """Rename the List.
 
         Parameters
@@ -1899,14 +1909,14 @@ class Modeler(PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     # Properties derived from internal parent data
     @property
     def _desktop(self):
         """Desktop."""
-        return self._app._desktop
+        return self._app.odesktop
 
     @property
     def logger(self):

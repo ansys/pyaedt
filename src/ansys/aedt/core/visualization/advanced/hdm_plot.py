@@ -25,9 +25,13 @@
 from collections import defaultdict
 import math
 import os
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from pyvista import Plotter
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -45,7 +49,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
     to improvement and changes.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         CommonPlotter.__init__(self)
         self._bundle = None
         self.show_as_standalone = True
@@ -61,7 +65,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return self._bundle
 
     @pyaedt_function_handler()
-    def add_cad_model(self, filename, cad_color="dodgerblue", opacity=1, units="mm"):
+    def add_cad_model(self, filename: str, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
         """Add a ``stl`` file to the scenario.
 
         Parameters
@@ -81,7 +85,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename, units=None):
+    def add_hdm_bundle_from_file(self, filename: str, units: str = None):
         """Add hdm bundle from file."""
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
@@ -99,8 +103,8 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         lines = []  # data structure for PyVista
         depths = []  # track depth at each point in the track segments
 
-        def add_ray_segment(depth, bounce):
-            def add_ray_helper(depth, next_bounce):
+        def add_ray_segment(depth, bounce) -> None:
+            def add_ray_helper(depth, next_bounce) -> None:
                 lines.append([len(points) + i for i in range(2)])
                 depths.extend([depth, depth])
                 points.extend([bounce.hit_pt, next_bounce.hit_pt])
@@ -128,7 +132,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_rays(self, snapshot_path=None):
+    def plot_rays(self, snapshot_path: str = None) -> "Plotter":
         """Plot Rays read from an ``hdm`` file.
 
         Parameters
@@ -195,7 +199,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def plot_first_bounce_currents(self, snapshot_path=None):
+    def plot_first_bounce_currents(self, snapshot_path: str = None) -> "Plotter":
         """Plot First bounce of currents read from an ``hdm`` file.
 
         Parameters
@@ -242,7 +246,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def _add_objects(self):
+    def _add_objects(self) -> None:
         import pyvista as pv
 
         if self._objects:

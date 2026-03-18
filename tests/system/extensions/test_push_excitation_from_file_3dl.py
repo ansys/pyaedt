@@ -36,7 +36,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_LAYOUT_PATH
 
 
-def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir) -> None:
     """Test the Generate button in the Push Excitation 3D Layout extension."""
     h3d = add_app_example(
         application=Hfss3dLayout,
@@ -87,7 +87,7 @@ def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
         h3d.close_project(h3d.project_name, save=False)
 
 
-def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir):
+def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir) -> None:
     """Test exceptions thrown by the Push Excitation 3D Layout extension."""
     # Test with no choice
     data = PushExcitation3DLayoutExtensionData(choice="")
@@ -135,7 +135,7 @@ def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir):
         q3d_app.close_project(q3d_app.project_name)
 
 
-def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir) -> None:
     """Test HFSS 3D Layout push excitation with sinusoidal data from file."""
     h3d = add_app_example(
         application=Hfss3dLayout,
@@ -181,7 +181,7 @@ def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir
         h3d.close_project(h3d.project_name, save=False)
 
 
-def test_push_excitation_3dl_main_function(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_main_function(add_app_example, test_tmp_dir) -> None:
     """Test the main function directly based on the provided test example."""
     h3d = add_app_example(
         application=Hfss3dLayout,

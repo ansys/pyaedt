@@ -41,7 +41,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -54,8 +54,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra unit-tests
+          uv sync --frozen --group unit-tests
 
       - name: Run unit tests
         env:
@@ -72,7 +71,7 @@ jobs:
           flags: linux_unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -93,7 +92,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -106,8 +105,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra integration-tests
+          uv sync --frozen --group integration-tests
 
       - name: Run integration tests
         env:
@@ -124,7 +122,7 @@ jobs:
           flags: linux_integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -149,7 +147,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -162,8 +160,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -191,7 +188,7 @@ jobs:
           flags: windows_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -219,7 +216,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -232,8 +229,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -258,7 +254,7 @@ jobs:
           flags: linux_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -283,7 +279,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -299,8 +295,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -328,7 +323,7 @@ jobs:
           flags: windows_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -356,7 +351,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -372,8 +367,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -397,7 +391,7 @@ jobs:
           flags: linux_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
@@ -424,7 +418,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -440,8 +434,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -469,7 +462,7 @@ jobs:
           flags: windows_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -498,7 +491,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -514,8 +507,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -539,7 +531,7 @@ jobs:
           flags: linux_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -564,7 +556,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -577,8 +569,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -606,7 +597,7 @@ jobs:
           flags: windows_system_icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-windows
           path: junit/test-results.xml
@@ -634,7 +625,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -647,8 +638,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -673,7 +663,7 @@ jobs:
           flags: linux_system_icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-icepak-linux
           path: junit/test-results.xml
@@ -698,7 +688,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -711,8 +701,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -740,7 +729,7 @@ jobs:
           flags: windows_system_layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-windows
           path: junit/test-results.xml
@@ -768,7 +757,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -781,8 +770,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -807,7 +795,7 @@ jobs:
           flags: linux_system_layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-layout-linux
           path: junit/test-results.xml
@@ -833,7 +821,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -849,8 +837,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -878,7 +865,7 @@ jobs:
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
@@ -906,7 +893,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -922,8 +909,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -947,7 +933,7 @@ jobs:
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
@@ -973,7 +959,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -986,8 +972,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1015,7 +1000,7 @@ jobs:
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
@@ -1041,7 +1026,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1054,8 +1039,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          cp .ci/uv.lock uv.lock
-          uv sync --frozen --extra tests
+          uv sync --frozen --group tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1083,7 +1067,7 @@ jobs:
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml

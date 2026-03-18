@@ -22,9 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 
 
 class Polyline(Object3d, PyAedtBase):
@@ -90,23 +97,23 @@ class Polyline(Object3d, PyAedtBase):
 
     def __init__(
         self,
-        primitives,
-        src_object=None,
-        position_list=None,
-        segment_type=None,
-        cover_surface=False,
-        close_surface=False,
-        name=None,
-        matname=None,
-        xsection_type=None,
-        xsection_orient=None,
-        xsection_width=1,
-        xsection_topwidth=1,
-        xsection_height=1,
-        xsection_num_seg=0,
-        xsection_bend_type=None,
-        non_model=False,
-    ):
+        primitives: "Primitives3D",
+        src_object: "Polyline" = None,
+        position_list: list | None = None,
+        segment_type: str | "PolylineSegment" | list = None,
+        cover_surface: bool = False,
+        close_surface: bool = False,
+        name: str | None = None,
+        matname: str | None = None,
+        xsection_type: str | None = None,
+        xsection_orient: str | None = None,
+        xsection_width: int = 1,
+        xsection_topwidth: int = 1,
+        xsection_height: int = 1,
+        xsection_num_seg: int = 0,
+        xsection_bend_type: str | None = None,
+        non_model: bool = False,
+    ) -> None:
         self._is_polyline = True
         self._primitives = primitives
         self._positions = []
