@@ -2875,7 +2875,9 @@ class Design(AedtObjects, PyAedtBase):
                 name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
             )
         else:
-            self.logger.error("Input file does not exist.")
+            error_message = f"Input file '{in_file}' does not exist."
+            self.logger.error(error_message)
+            raise FileNotFoundError(error_message)
             return None
 
     @pyaedt_function_handler()
