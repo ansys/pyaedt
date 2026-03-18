@@ -47,26 +47,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 if TYPE_CHECKING:
     import pandas as pd
-else:
-    pd = None
-
-
-def _import_pandas():
-    """Lazy import of pandas. Only imports when needed."""
-    global pd
-    if pd is None:
-        try:
-            import pandas as pd_module
-
-            pd = pd_module
-        except ImportError:  # pragma: no cover
-            raise ImportError(
-                "The Pandas module is required to run functionalities of "
-                "ansys.aedt.core.visualization.post.field_data.\n"
-                "Install with:\n\n"
-                "pip install pandas"
-            )
-    return pd
 
 
 class BaseFolderPlot(PyAedtBase):
@@ -1384,8 +1364,9 @@ class FieldPlot(PyAedtBase):
 
         # Convert to pandas
         try:
-            pd_module = _import_pandas()
-            df = pd_module.DataFrame(out_dict, columns=out_dict.keys())
+            import pandas as pd_module
+
+            df = pd_module.DataFrame(out_dict, columns=list(out_dict.keys()))
             df = df.set_index("Name")
             return df
         except ImportError:  # pragma: no cover
