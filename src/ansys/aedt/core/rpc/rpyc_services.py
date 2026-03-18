@@ -14,21 +14,9 @@ import time
 
 import rpyc
 
-from ansys.aedt.core import Circuit
-from ansys.aedt.core import Edb
-from ansys.aedt.core import Hfss
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Icepak
-from ansys.aedt.core import Maxwell2d
-from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core import Mechanical
-from ansys.aedt.core import Q2d
-from ansys.aedt.core import Q3d
 from ansys.aedt.core import is_windows
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import _ServerArgs, _get_grpcsrv_args
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import active_sessions, env_path
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.filesystem import is_safe_path
@@ -295,7 +283,6 @@ class GlobalService(rpyc.Service, PyAedtBase):
         info : _AEDTGrpcInfo
             Information about the AEDT gRPC session.
         """
-        from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions
         from ansys.aedt.core.generic.settings import settings
 
@@ -306,7 +293,6 @@ class GlobalService(rpyc.Service, PyAedtBase):
             port = check_port(secure_random.randint(18500, 20000))
 
         sessions = grpc_active_sessions()
-
         if port == 0:
             raise RuntimeError(f"Provided port {port} cannot be used.")
         elif port in sessions:
@@ -360,10 +346,10 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
         timeout = settings.desktop_launch_timeout
         while timeout > 0:
-            active_s = active_sessions()
-            if port in active_s.values():
+            active_sessions = grpc_active_sessions()
+            if port in active_sessions:
                 # Find AEDT version key for the current AEDT path
-                aedt_version = next((version for version, path in aedt_versions.installed_versions.items() if path == ansysem_path), None)
+                aedt_version = next((version for version, path in aedt_versions.installed_versions.items() if path == ansysem_path))
                 # Settings PYAEDT_DESKTOP_VERSION environment variable to allow using it
                 # in the client side. This allows one to not pass the version when calling
                 # an AEDT application like `Hfss(host=..., port=...)`.
