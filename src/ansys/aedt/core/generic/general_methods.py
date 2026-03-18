@@ -792,7 +792,9 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     # /fo csv - Format output as CSV for easy parsing
     # /nh - No header row in output (easier to parse)
     cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
-    result = subprocess.run(cmd, capture_output=True, text=True, shell=False, check=False)  # nosec
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, shell=False, check=False, creationflags=subprocess.CREATE_NO_WINDOW
+    )  # nosec
 
     # Parse the CSV output from tasklist
     pids = []
