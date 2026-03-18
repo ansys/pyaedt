@@ -118,7 +118,7 @@ class TouchstoneCouplingNode(EmitNode):
         if isinstance(value, (list, tuple)):
             if all(isinstance(v, EmitNode) for v in value):
                 value = "|".join(self._full_node_name(v.name) for v in value)
-            elif all(isinstance(v, str) for v in value):
+            else:
                 value = "|".join(self._full_node_name(v) for v in value)
         else:
             parts = value.split("|")
