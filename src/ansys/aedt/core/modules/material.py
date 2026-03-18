@@ -2797,27 +2797,29 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         else:
             self.physics_type = ["Thermal"]
             self._props["PhysicsTypes"] = dict({"set": ["Thermal"]})
-        for property in SurfMatProperties.aedtname:
-            if property in self._props:
+        for surface_property in SurfMatProperties.aedtname:
+            if surface_property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
                     modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
                     for mod in modifiers:
                         if isinstance(modifiers[mod], list):
                             for one_tm in modifiers[mod]:
-                                if one_tm["Property:"] == property:
+                                if one_tm["Property:"] == surface_property:
                                     if mods:
                                         mods = [mods]
                                         mods.append(one_tm)
                                     else:
                                         mods = one_tm
                         else:
-                            if modifiers[mod]["Property:"] == property:
+                            if modifiers[mod]["Property:"] == surface_property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
+                self.__dict__["_" + surface_property] = MatProperty(
+                    self, surface_property, self._props[surface_property], mods
+                )
             else:
-                self.__dict__["_" + property] = MatProperty(
-                    self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
+                self.__dict__["_" + surface_property] = MatProperty(
+                    self, surface_property, SurfMatProperties.get_defaultvalue(aedtname=surface_property)
                 )
 
     @property
