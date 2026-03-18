@@ -1447,11 +1447,9 @@ def test_couplings_1(cell_phone) -> None:
     # test setting the port map with AntennaNodes
     coupling_link.ports = [gps_ant, wifi_ant]
     assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
-    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
 
     # set the antennas with short names
     coupling_link.ports = "Cellular|GPS"
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
     assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
 
     # set the antennas with full node names
@@ -1462,7 +1460,6 @@ def test_couplings_1(cell_phone) -> None:
 
     # set the antennas with a list of short names
     coupling_link.ports = ["Cellular", "GPS"]
-    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
     assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
 
 
@@ -1515,30 +1512,23 @@ def test_couplings_new_api(tutorial):
 
     # get the Touchstone coupling node
     couplings_node: CouplingsNode = rev.get_coupling_data_node()
-    couplings_node: CouplingsNode = rev.get_coupling_data_node()
     assert couplings_node is not None
     for child in couplings_node.children:
         if child.node_type == "TouchstoneCouplingNode":
             coupling_node: TouchstoneCouplingNode = child
-            coupling_node: TouchstoneCouplingNode = child
             break
 
-    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
     assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
     # test setting the port map with antenna (short names)
     coupling_node.port_antenna_assignment = "GPS|UHF-2"
     assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
-    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
     # test setting the port map with antenna (full node names)
     coupling_node.port_antenna_assignment = "NODE-*-Scene-*-UHF-1|NODE-*-Scene-*-VHF-UHF"
-    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
     assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
     # test setting the port map with antenna node
     ant1 = rev.get_component_node("GPS")
     ant2 = rev.get_component_node("UHF-2")
     coupling_node.port_antenna_assignment = [ant1, ant2]
-    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
-
     assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
 
 
@@ -2245,13 +2235,6 @@ def test_imports(emit_app, file_tmp_root) -> None:
     couplings_node: CouplingsNode = rev.get_coupling_data_node()
     touchstone_node = couplings_node.children[-1]
     touchstone_node.port_antenna_assignment = antenna_list
-    assert touchstone_node.port_antenna_assignment == [
-        "NODE-*-Scene-*-Antenna",
-        "NODE-*-Scene-*-Antenna 2",
-        "NODE-*-Scene-*-Antenna 3",
-        "NODE-*-Scene-*-Antenna 4",
-        "NODE-*-Scene-*-Antenna 5",
-    ]
     assert touchstone_node.port_antenna_assignment == [
         "NODE-*-Scene-*-Antenna",
         "NODE-*-Scene-*-Antenna 2",
