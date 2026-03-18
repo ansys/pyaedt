@@ -1247,8 +1247,7 @@ def active_sessions(
                 # If parsing fails, try other methods below
                 pass
         else:
-            # No "-grpcsrv" argument found: this is a COM session
-            # Mark with -1 to indicate legacy COM mode
+            # No "-grpcsrv" argument found
             return_dict[pid] = -1
 
     # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
