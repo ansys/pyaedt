@@ -902,7 +902,7 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
 
     Returns
     -------
-    dict of int to list of dict
+    dict[int, list[dict[str, str | int]]]
         Dictionary mapping each process ID to a list of connection dictionaries.
         Each connection dictionary contains:
         - "ip" : str
