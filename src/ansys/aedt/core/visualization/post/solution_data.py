@@ -40,14 +40,6 @@ from ansys.aedt.core.generic.settings import settings
 if TYPE_CHECKING:
     from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
-
 
 class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
@@ -56,7 +48,7 @@ class SolutionData(PyAedtBase):
         self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
-        self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
+        self._enable_pandas_output = settings.enable_pandas_output
         self._expressions = None
         self._intrinsics = None
         self._nominal_variation = self._original_data[0]
@@ -100,13 +92,29 @@ class SolutionData(PyAedtBase):
         -------
         bool
         """
-        return True if self._enable_pandas_output and pd else False
+        if self._enable_pandas_output:
+            try:
+                import pandas  # noqa: F401
+
+                return True
+            except ImportError:  # pragma: no cover
+                return False
+        return False
 
     @enable_pandas_output.setter
     def enable_pandas_output(self, val: bool) -> None:
-        if val != self._enable_pandas_output and pd:
-            self._enable_pandas_output = val
-            self.init_solutions_data()
+        if val == self._enable_pandas_output:
+            return  # No change needed
+
+        self._enable_pandas_output = val
+
+        # If enabling pandas, verify it's available
+        if val and not self.enable_pandas_output:  # pragma: no cover
+            # If pandas is not installed, self.enable_pandas_output returns False
+            settings.logger.warning("Cannot enable pandas output: pandas is not installed.")
+            self._enable_pandas_output = False
+
+        self.init_solutions_data()
 
     @pyaedt_function_handler()
     def set_active_variation(self, var_id: int = 0) -> bool:

@@ -23,6 +23,11 @@
 # SOFTWARE.
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
+
 from collections.abc import Mapping
 from datetime import datetime
 from datetime import timedelta
@@ -32,15 +37,6 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
-import warnings
-
-try:
-    import pandas as pd
-except ImportError:  # pragma: no cover
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.base import PyAedtBase
@@ -318,7 +314,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
 )
 
 
-def step_name_map(input_name: str) -> str:
+def step_name_map(input_name: str) -> str | None:
     """Map verbose AEDT step labels to compact names.
 
     Currently, recognizes labels like ``"Frequency - <value>Hz"`` and
@@ -328,7 +324,7 @@ def step_name_map(input_name: str) -> str:
     Parameters
     ----------
     input_name : str
-    Original AEDT step label.
+        Original AEDT step label.
 
     Returns
     -------
@@ -342,6 +338,7 @@ def step_name_map(input_name: str) -> str:
             return match.group(1)
         else:
             return input_name
+    return None
 
 
 # Specify operation for keys having common values.
@@ -551,7 +548,7 @@ class ProfileStep(PyAedtBase):
         return max(mem_list)
 
     @pyaedt_function_handler()
-    def table(self, columns: list = None) -> pd.DataFrame:
+    def table(self, columns: list = None) -> "pd.DataFrame":
         """Return a summary of profile step metrics.
 
         Parameters
@@ -582,6 +579,8 @@ class ProfileStep(PyAedtBase):
             Table of profile process step information for
             the specified property values.
         """
+        import pandas as pd_module
+
         if columns is None:
             columns = ("elapsed_time", "real_time", "cpu_time", "max_memory")
 
@@ -598,11 +597,11 @@ class ProfileStep(PyAedtBase):
                         value = "NA"
                     data.setdefault(prop, []).append(value)
 
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
             # Update formatting of timedelta props
             for p in self.__timedelta_props:
-                if p in table_out:
+                if p in table_out.columns:
                     table_out[p] = table_out[p].apply(format_timedelta)
         # This is meant to handle Icepak steady-state mesh profile steps which are completely
         # different from all other profile steps. TODO: Improve handling of Icepak mesh profile.
@@ -616,7 +615,7 @@ class ProfileStep(PyAedtBase):
                     else:
                         value = "NA"
                     data.setdefault(prop, []).append(value)
-            table_out = pd.DataFrame(data)
+            table_out = pd_module.DataFrame(data)
 
         return table_out
 
