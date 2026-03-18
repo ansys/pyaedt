@@ -175,8 +175,9 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _full_node_name(self, name="") -> str:
-        """Converts a Component's short name to a full name with the format: NODE-*-{name}.
-        If name="" then it converts this node's name to a full name.
+        """Convert a Component's short name to a full name with the format: NODE-*-{name}.
+
+        If name is ``""`` then the method converts the node's name to a full name.
 
         Parameters
         ----------
