@@ -279,9 +279,11 @@ class AMIConturEyeDiagram(CommonReport):
                     break
         return arg
 
-    @property
-    def _trace_info(self):
-        new_exprs = self.expressions if isinstance(self.expressions, list) else [self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        new_exprs = expressions if isinstance(expressions, list) else [expressions]
         if self.secondary_sweep:
             return ["X Component:=", self.primary_sweep, "Y Component:=", "__Amplitude", "Z Component:=", new_exprs]
         else:
@@ -313,7 +315,7 @@ class AMIConturEyeDiagram(CommonReport):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            self._trace_info,
+            self._trace_info(),
         )
         self._post.plots.append(self)
         self._is_created = True
@@ -820,9 +822,11 @@ class AMIEyeDiagram(CommonReport):
                     break
         return arg
 
-    @property
-    def _trace_info(self):
-        new_exprs = self.expressions if isinstance(self.expressions, list) else [self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        new_exprs = expressions if isinstance(expressions, list) else [expressions]
         if self.report_category == "Statistical Eye":
             return [
                 "X Component:=",
@@ -879,7 +883,7 @@ class AMIEyeDiagram(CommonReport):
                 self.setup,
                 self._context,
                 self._convert_dict_to_report_sel(self.variations),
-                self._trace_info,
+                self._trace_info(),
             )
         else:
             self._post.oreportsetup.CreateReport(
@@ -889,7 +893,7 @@ class AMIEyeDiagram(CommonReport):
                 self.setup,
                 self._context,
                 self._convert_dict_to_report_sel(self.variations),
-                self._trace_info,
+                self._trace_info(),
                 options,
             )
         self._post.plots.append(self)
@@ -1218,9 +1222,11 @@ class EyeDiagram(AMIEyeDiagram):
         ]
         return arg
 
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return ["Component:=", self.expressions]
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        if isinstance(expressions, list):
+            return ["Component:=", expressions]
         else:
-            return ["Component:=", [self.expressions]]
+            return ["Component:=", [expressions]]
