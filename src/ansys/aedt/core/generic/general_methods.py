@@ -896,13 +896,13 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
 
     Parameters
     ----------
-    pids : list[int]
+    pids : list of int
         List of process IDs to check for active TCP connections.
         These are typically AEDT process IDs (ansysedt.exe or ansysedtsv.exe).
 
     Returns
     -------
-    dict[int, list[dict[str, str | int]]]
+    dict of int to list of dict
         Dictionary mapping each process ID to a list of connection dictionaries.
         Each connection dictionary contains:
         - "ip" : str
@@ -924,56 +924,26 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
             prc = psutil.Process(i)
 
             # Get the full command line of the process as a space-separated string
-            cmd_list = prc.cmdline()
             cmdline = " ".join(prc.cmdline())
 
-            port = None
-            # Avoid calling psutil.net_connections if grpcsrv is available in the cmd
-            if "-grpcsrv" in cmdline:
-                try:
-                    # Get the argument after "-grpcsrv" (format: "127.0.0.1:50051" or just "50051")
-                    grpc_arg = cmd_list[cmd_list.index("-grpcsrv") + 1]
-                    prt = grpc_arg.split(":")
+            # Get all TCP network connections for this specific process
+            # prc.net_connections() returns a list of named tuples (sconn objects)
+            # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
+            for conn in prc.net_connections():
+                # Build a connection dictionary with the information we need
+                # conn.laddr: Local address as a named tuple with .ip and .port attributes
+                # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
+                # conn.laddr.port: Local port number (integer, e.g., 50051)
+                # conn.status: Connection state (e.g., "LISTEN", "ESTABLISHED")
+                connection = {
+                    "ip": conn.laddr.ip,  # Local IP address
+                    "port": conn.laddr.port,  # Local port number
+                    "status": conn.status,  # Connection status
+                    "cmdline": cmdline,  # Full command line for filtering
+                }
 
-                    # Parse port number based on format
-                    if len(prt) == 1:
-                        # Format: just port number (e.g., "50051")
-                        port = int(prt[0])
-                    else:
-                        # Format: address:port (e.g., "127.0.0.1:50051")
-                        port = int(prt[1])
-
-                    connection = {
-                        "ip": "127.0.0.1",  # Local IP address
-                        "port": port,  # Local port number
-                        "status": "LISTEN",  # Connection status
-                        "cmdline": cmdline,  # Full command line for filtering
-                    }
-                    # Append this connection to the list for this PID
-                    connections[i] = [connection]
-                except (IndexError, ValueError):
-                    # If parsing fails, try other methods below
-                    pass
-
-            if port is None:
-                # Get all TCP network connections for this specific process
-                # prc.net_connections() returns a list of named tuples (sconn objects)
-                # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
-                for conn in prc.net_connections():
-                    # Build a connection dictionary with the information we need
-                    # conn.laddr: Local address as a named tuple with .ip and .port attributes
-                    # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
-                    # conn.laddr.port: Local port number (integer, e.g., 50051)
-                    # conn.status: Connection state (e.g., "LISTEN", "ESTABLISHED")
-                    connection = {
-                        "ip": conn.laddr.ip,  # Local IP address
-                        "port": conn.laddr.port,  # Local port number
-                        "status": conn.status,  # Connection status
-                        "cmdline": cmdline,  # Full command line for filtering
-                    }
-
-                    # Append this connection to the list for this PID
-                    connections[i].append(connection)
+                # Append this connection to the list for this PID
+                connections[i].append(connection)
 
         except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess, psutil.AccessDenied):
             # Handle various exceptions that can occur during process inspection:
@@ -989,6 +959,8 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
             #
             # psutil.NoSuchProcess: Process terminated between when we got the PID and now
             #                       This is a race condition that can occur in fast process lifecycles
+            #
+            # psutil.AccessDenied: Current user does not have permission to access process information
             #
             # Action: Pass silently - the PID will remain in the result with an empty list
             pass
