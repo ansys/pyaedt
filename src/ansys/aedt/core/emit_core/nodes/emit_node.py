@@ -183,6 +183,11 @@ class EmitNode:
         ----------
         name : str, optional
             Short name to convert.
+
+        Returns
+        -------
+        Str
+            Full node name with the format: NODE-*-{name}.
         """
         if name == "":
             return self.parent_name + "-*-" + self.name
