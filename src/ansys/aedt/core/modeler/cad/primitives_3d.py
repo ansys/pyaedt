@@ -58,6 +58,7 @@ from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.generic.constants import Plane
     from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
     from ansys.aedt.core.modeler.cad.polylines import Polyline
@@ -129,9 +130,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def create_box(
-        self, origin: list, sizes: list, name: str | None = None, material: str | None = None, **kwargs
-    ) -> "Object3d":
+    def create_box(self, origin: list, sizes: list, name: str = None, material: str = None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters
@@ -204,20 +203,20 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_cylinder(
         self,
-        orientation: str | int,
+        orientation: str | int | Plane,
         origin: list,
         radius: float | str,
         height: float | str,
         num_sides: int = 0,
-        name: str | None = None,
-        material: str | None = None,
+        name: str = None,
+        material: str = None,
         **kwargs,
     ) -> "Object3d":
         """Create a cylinder.
 
         Parameters
         ----------
-        orientation : int or str
+        orientation : int, str, or Plane
             Axis of rotation of the starting point around the center point.
             :class:`ansys.aedt.core.constants.Axis` Enumerator can be used as input.
         origin : list
@@ -307,8 +306,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         origin: list = (0.0, 1.0, 0.0),
         height: float = 1.0,
         num_sides: int = 12,
-        name: str | None = None,
-        material: str | None=None,
+        name: str = None,
+        material: str = None,
         **kwargs
     ) -> "Object3d":  # fmt: on
         """Create a regular polyhedron.
@@ -397,8 +396,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         bottom_radius: float | int | str = None,
         top_radius: float | int | str = None,
         height: float | int | str = None,
-        name: str | None = None,
-        material: str | None=None,
+        name: str = None,
+        material: str = None,
         **kwargs
     ) -> "Object3d":
         """Create a cone.
@@ -487,8 +486,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self,
         origin: list,
         radius: float | int | str,
-        name: str | None=None,
-        material: str | None=None,
+        name: str = None,
+        material: str = None,
         **kwargs
     ) -> "Object3d":
         """Create a sphere.
@@ -556,9 +555,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         origin: list,
         major_radius: float | int | str,
         minor_radius: float | int | str,
-        axis: str | None = None,
-        name: str | None = None,
-        material: str | None = None,
+        axis: str = None,
+        name: str = None,
+        material: str = None,
         **kwargs
     ) -> "Object3d":
         """Create a torus.
@@ -646,8 +645,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         bond_type: int=0,
         diameter: float=0.025,
         facets: int=6,
-        name: str | None=None,
-        material: str | None=None,
+        name: str = None,
+        material: str = None,
         orientation: str="Z",
         **kwargs
     ) -> "Object3d":
@@ -796,11 +795,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_rectangle(
         self,
-        orientation: str | int,
+        orientation: "str | int | Plane",
         origin: list | object,
         sizes: list,
-        name: str | None=None,
-        material: str | None=None,
+        name: str = None,
+        material: str = None,
         is_covered: bool=True,
         **kwargs
     ) -> "Object3d":
@@ -808,9 +807,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         Parameters
         ----------
-        orientation : str or int
+        orientation : str or int or Plane
             Coordinate system plane for orienting the rectangle.
-            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
+            :class:`ansys.aedt.core.generic.constants.Plane` Enumerator can be used as input.
         origin : list or Position
             List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
             the position ApplicationName.modeler.Position(x,y,z) object.
@@ -863,13 +862,13 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_circle(
         self,
-        orientation: str | int,
+        orientation: "str | int | Plane",
         origin: list,
         radius: float | int | str,
         num_sides: int = 0,
         is_covered: bool = True,
-        name: str | None = None,
-        material: str | None = None,
+        name: str = None,
+        material: str = None,
         non_model: bool = False,
         **kwargs
     ) -> "Object3d":  # fmt: on
@@ -877,9 +876,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         Parameters
         ----------
-        orientation : str or int
+        orientation : str or int or Plane
             Coordinate system plane for orienting the circle.
-            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
+            :class:`ansys.aedt.core.generic.constants.Plane` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float or str
@@ -955,13 +954,13 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_ellipse(
             self,
-            orientation: str | int,
+            orientation: "str | int | Plane",
             origin: list,
             major_radius: float,
             ratio: float,
             is_covered: bool = True,
-            name: str | None = None,
-            material: str | None = None,
+            name: str = None,
+            material: str = None,
             segments: int = 0,
             **kwargs
     ) -> "Object3d":
@@ -969,9 +968,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         Parameters
         ----------
-        orientation : str or int
+        orientation : str or int or Plane
             Coordinate system plane for orienting the ellipse.
-            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
+            :class:`ansys.aedt.core.generic.constants.Plane` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_radius : float
@@ -1189,7 +1188,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         u_end: int=1,
         v_start: int=0,
         v_end: int=1,
-        name: str | None=None,
+        name: str = None,
         **kwargs
     ) -> "Object3d":
         """Create an equation-based surface.
@@ -1366,7 +1365,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             udm_full_name: str,
             parameters: list,
             library: str = "syslib",
-            name: str | None = None,
+            name: str = None,
     ) -> "UserDefinedComponent | bool":
         """Create a user-defined model.
 
@@ -1454,7 +1453,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         thickness: int = 1,
         elevation: int = 0,
         material: str = "copper",
-        name: str | None = None,
+        name: str = None,
         **kwargs
     ) -> "Polyline | bool":
         """Create a spiral inductor from a polyline.
@@ -1676,7 +1675,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             material_parameters: str = "",
             design_parameters: str = "",
             coordinate_system: str = "Global",
-            name: str | None = None,
+            name: str = None,
             password = None,
             auxiliary_parameters: bool = False,
     ) -> "UserDefinedComponent | bool":
@@ -1924,7 +1923,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def _insert_layout_component_instance(
             self,
-            name: str | None=None,
+            name: str = None,
             definition_name=None,
             target_coordinate_system: str="Global",
             parameter_mapping=None,
@@ -2045,7 +2044,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             self,
             input_file: str,
             coordinate_system: str = "Global",
-            name: str | None = None,
+            name: str = None,
             parameter_mapping: bool = False,
             layout_coordinate_systems: list = None,
             reference_coordinate_system: str = "Global"
@@ -2302,7 +2301,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             pitch: int = 0,
             roll: int = 0,
             coordinate_system = None,
-            name: str | None = None,
+            name: str = None,
     ) -> "Person" | bool:
         """Add a Walking Person Multipart from 3D Components.
 
@@ -2409,7 +2408,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             pitch: int=0,
             roll: int=0,
             coordinate_system: str = None,
-            name: str | None=None,
+            name: str = None,
     ) -> "Vehicle" | bool:
         """Add a Moving Vehicle Multipart from 3D Components.
 
@@ -2499,7 +2498,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             roll: int=0,
             flapping_rate: int=50,
             coordinate_system: str = None,
-            name: str | None=None,
+            name: str = None,
     ) -> "Bird" | bool:
         """Add a Bird Multipart from 3D Components.
 
@@ -2612,7 +2611,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             pitch: float=0.0,
             roll: float=0.0,
             coordinate_system: str=None,
-            name: str | None=None
+            name: str = None
     ) -> "Environment" | bool:
         """Add an Environment Multipart Component from JSON file.
 
