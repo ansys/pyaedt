@@ -30,33 +30,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    import pandas as pd
     from pandas import Series
-else:
-    pd = None
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-
-
-def _import_pandas():
-    """Lazy import of pandas. Only imports when needed."""
-    global pd
-    if pd is None:
-        try:
-            import pandas as pd_module
-
-            pd = pd_module
-        except ImportError:  # pragma: no cover
-            raise ImportError(
-                "The Pandas module is required to run some functionalities of PostProcess.\n"
-                "Install with:\n\n"
-                "pip install pandas"
-            )
-    return pd
 
 
 class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
@@ -505,7 +485,8 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         # Check if pandas is available and if inputs are pandas Series
         try:
-            pd_module = _import_pandas()
+            import pandas as pd_module
+
             if isinstance(waveform_sweep, pd_module.Series):
                 waveform_sweep = list(waveform_sweep)
 
@@ -541,7 +522,8 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                     break
         if pandas_enabled:
             try:
-                pd_module = _import_pandas()
+                import pandas as pd_module
+
                 return pd_module.Series(new_voltage, index=tic_in_s)
             except ImportError:  # pragma: no cover
                 self.logger.warning("Pandas is not installed. Returning list instead of Series.")
