@@ -786,28 +786,17 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     if image_name not in ["ansysedt.exe", "ansysedtsv.exe"]:
         raise ValueError(f"Invalid process name: {image_name}")
 
-    # Build the tasklist command with filters
+    # NOTE: Build the tasklist command with filters
     # tasklist - Windows command to display running processes
     # /fi "imagename eq {name}" - Filter to show only processes matching the exact name
     # /fo csv - Format output as CSV for easy parsing
     # /nh - No header row in output (easier to parse)
     cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
-
-    # Execute tasklist command with security best practices
-
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        shell=False,  # Security: Explicitly disable shell to prevent injection
-        check=False,  # Don't fail if no processes found (valid scenario)
-    )  # nosec
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=False, check=False)  # nosec
 
     # Parse the CSV output from tasklist
     pids = []
-
     reader = csv.reader(result.stdout.splitlines())
-
     for row in reader:
         # Skip empty rows (can occur at end of output)
         if not row:  # pragma: no cover
