@@ -896,7 +896,7 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
 
     Parameters
     ----------
-    pids : list of int
+    pids : list[int]
         List of process IDs to check for active TCP connections.
         These are typically AEDT process IDs (ansysedt.exe or ansysedtsv.exe).
 
