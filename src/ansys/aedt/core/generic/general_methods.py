@@ -889,7 +889,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids: list[int]) -> dict[int, list]:
+def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
     """Retrieve network connections for specified process IDs.
 
     This function collects TCP connection information for a list of process IDs,
