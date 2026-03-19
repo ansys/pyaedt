@@ -42,6 +42,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from numpy import array
+from typing import Any
 import warnings
 
 import psutil
