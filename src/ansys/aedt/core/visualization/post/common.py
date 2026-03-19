@@ -38,11 +38,13 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -103,7 +105,7 @@ class PostProcessorCommon(PyAedtBase):
     def __init__(self, app) -> None:
         self._app = app
         self._scratch = self._app.working_directory
-        self.__plots = self._get_plot_inputs()
+        self.__plots = None
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
@@ -1907,10 +1909,7 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
-                    self.logger.warning("Eye Diagrams are not supported by Matplotlib.")
-                else:
-                    return self._report_plotter(report, show=show)
+                return self._report_plotter(report, show=show)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -1934,7 +1933,12 @@ class PostProcessorCommon(PyAedtBase):
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
-        report_plotter = ReportPlotter()
+        report_plotter = ReportPlotter(solution_data=sols)
+        if report._legacy_props["general"].get("axisx", {}).get("font_size"):
+            report_plotter.text_size = report._legacy_props["general"].get("axisx", {}).get("font_size")
+        if report._legacy_props["general"].get("header", {}).get("title_size"):
+            report_plotter.title_size = report._legacy_props["general"].get("header", {}).get("title_size")
+
         report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
         try:
             report_plotter.general_back_color = [
@@ -1968,12 +1972,22 @@ class PostProcessorCommon(PyAedtBase):
             report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
-        sw = sols.primary_sweep_values
+        sw = [sols.primary_sweep_values]
         for curve in sols.expressions:
-            props = {
-                "x_label": sols.primary_sweep,
-                "y_label": curve,
-            }
+            if "__Amplitude" in sols.intrinsics and "__UnitInterval" in sols.intrinsics:
+                x, y = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
+                sw = [x[:, 0], x[:, 1], y]
+                props = {
+                    "x_label": "UnitInterval",
+                    "y_label": "Amplitude",
+                    "z_label": curve,
+                }
+            else:
+                props = {
+                    "x_label": sols.primary_sweep,
+                    "y_label": curve,
+                }
+                sw.append(sols.get_expression_data(curve)[1])
             pp = [i for i in report._legacy_props["expressions"] if i["name"] == curve]
             if pp:
                 pp = pp[0]
@@ -2010,7 +2024,7 @@ class PostProcessorCommon(PyAedtBase):
                     props["symbol_style"] = markers[pp["symbol_style"]]
                 except KeyError:
                     pass
-            report_plotter.add_trace([sw, sols.get_expression_data(curve)[1]], 0, properties=props, name=curve)
+            report_plotter.add_trace(sw, 0, properties=props, name=curve)
         for name, line in report._legacy_props.get("limitLines", {}).items():
             props = {}
             try:
@@ -2025,7 +2039,81 @@ class PostProcessorCommon(PyAedtBase):
                 report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
             except KeyError:
                 self.logger.warning("Equation lines not supported yet.")
-        if report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
+        if (
+            "eye_mask" in report._legacy_props
+            and report._legacy_props["eye_mask"]
+            and report.report_category in ["Eye Diagram", "Statistical Eye"]
+            or ("quantity_type" in report._legacy_props and report.report_type == "Rectangular Contour Plot")
+        ):
+            if "__Amplitude" in sols.units_sweeps or "Time" in sols.units_sweeps:
+                if report._legacy_props["eye_mask"].get("yunits", ""):
+                    unit_time = sols.units_sweeps["Time"] if "Time" in sols.units_sweeps else ""
+                    report._legacy_props["eye_mask"]["points"] = [
+                        [
+                            unit_converter(
+                                i[0],
+                                unit_system="Time",
+                                input_units=report._legacy_props["eye_mask"]["xunits"]
+                                if report._legacy_props["eye_mask"]["xunits"]
+                                else "s",
+                                output_units=unit_time if unit_time else "s",
+                            ),
+                            unit_converter(
+                                i[1],
+                                unit_system="Voltage",
+                                input_units=report._legacy_props["eye_mask"]["yunits"],
+                                output_units=sols.units_sweeps["__Amplitude"]
+                                if "__Amplitude" in sols.units_sweeps
+                                else sols.units_data[sols.expressions[0]],
+                            ),
+                        ]
+                        for i in report._legacy_props["eye_mask"]["points"]
+                    ]
+                if report._legacy_props["eye_mask"].get("upper_limit"):
+                    report._legacy_props["eye_mask"]["upper_limit"] = unit_converter(
+                        report._legacy_props["eye_mask"]["upper_limit"],
+                        unit_system="Voltage",
+                        input_units=report._legacy_props["eye_mask"]["yunits"],
+                        output_units=sols.units_sweeps["__Amplitude"]
+                        if "__Amplitude" in sols.units_sweeps
+                        else sols.units_data[sols.expressions[0]],
+                    )
+                if report._legacy_props["eye_mask"].get("lower_limit"):
+                    report._legacy_props["eye_mask"]["lower_limit"] = unit_converter(
+                        report._legacy_props["eye_mask"]["lower_limit"],
+                        unit_system="Voltage",
+                        input_units=report._legacy_props["eye_mask"]["yunits"],
+                        output_units=sols.units_sweeps["__Amplitude"]
+                        if "__Amplitude" in sols.units_sweeps
+                        else sols.units_data[sols.expressions[0]],
+                    )
+            report_plotter.add_eye_mask(report._legacy_props["eye_mask"])
+        if report.report_category in ["Eye Diagram", "Statistical Eye"]:
+            if "Time" in sols.units_sweeps and report._legacy_props["context"].get("unit_interval"):
+                value_with_unit = report._legacy_props["context"].get("unit_interval")
+                value, unit = decompose_variable_value(value_with_unit)
+                report_plotter.unit_interval = float(
+                    unit_converter(
+                        value,
+                        unit_system="Time",
+                        input_units=unit if unit else "s",
+                        output_units=sols.units_sweeps["Time"],
+                    )
+                )
+            if "Time" in sols.units_sweeps and report._legacy_props["context"].get("offset"):
+                value_with_unit = report._legacy_props["context"].get("offset")
+                value, unit = decompose_variable_value(value_with_unit)
+                report_plotter.offset = float(
+                    unit_converter(
+                        value,
+                        unit_system="Time",
+                        input_units=unit if unit else "s",
+                        output_units=sols.units_sweeps["Time"],
+                    )
+                )
+
+            _ = report_plotter.plot_eye_diagram(show=show)
+        elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
             _ = report_plotter.plot_2d(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
             _ = report_plotter.plot_polar(show=show)
@@ -2033,6 +2121,8 @@ class PostProcessorCommon(PyAedtBase):
             _ = report_plotter.plot_contour(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
             _ = report_plotter.plot_3d(show=show)
+        elif report.report_category in ["Eye Diagram", "Statistical Eye"]:
+            _ = report_plotter.plot_eye_diagram(show=show)
         else:
             self.logger.warning("Plot type not supported.")
         return report_plotter
