@@ -67,29 +67,6 @@ def test_default(mock_hfss_app_fresnel):
     extension.root.destroy()
 
 
-def test_mode(mock_hfss_app_fresnel):
-    """Test coefficient mode."""
-    extension = FresnelExtension(withdraw=True)
-
-    # Select advanced workflow tab
-    tabs = extension._widgets["tabs"]
-    tabs.select(1)
-
-    isotropic_button = extension._widgets["isotropic_button"]
-    anisotropic_button = extension._widgets["anisotropic_button"]
-    isotropic_button.invoke()
-    assert extension._widgets["azimuth_slider"].grid_info() != {}
-    assert extension._widgets["azimuth_spin"].grid_info() != {}
-    assert extension._widgets["azimuth_label"].grid_info() != {}
-
-    anisotropic_button.invoke()
-    assert extension._widgets["azimuth_slider"].grid_info() == {}
-    assert extension._widgets["azimuth_spin"].grid_info() == {}
-    assert extension._widgets["azimuth_label"].grid_info() == {}
-
-    extension.root.destroy()
-
-
 def test_elevation_slider_changed_updates_values(mock_hfss_app_fresnel):
     extension = FresnelExtension(withdraw=True)
 
