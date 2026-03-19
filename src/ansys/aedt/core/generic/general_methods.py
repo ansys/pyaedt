@@ -988,7 +988,7 @@ def _check_connection_grpc_port(
     ----------
     connections : dict of int to list of dict
         Dictionary mapping process IDs to their network connections.
-        Each connection dictionary should contain "ip", "port", "status", and "cmdline" keys.
+        Each connection dictionary should contain "ip", "port", "status" and "cmdline" keys.
     pid : int
         The process ID to check for an active gRPC listening port.
     version: str, optional
