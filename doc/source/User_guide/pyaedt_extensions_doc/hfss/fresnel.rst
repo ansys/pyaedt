@@ -1,8 +1,8 @@
-Fresnel Coefficients (RTTBL extraction)
-====================
+Fresnelcoefficients (RTTBL extraction)
+======================================
 
 With this extension, you can export Fresnel Coefficients for periodic structures from an HFSS Unit-Cell design with
-Floquet port(s) in the RTTBL file format for further use in SBR+ for Fresnel (SBR+) Boundary Condition assignment.
+Floquet ports in the RTTBL file format for further use in SBR+ for Fresnel (SBR+) Boundary Condition assignment.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
@@ -19,7 +19,7 @@ Workflows
 
 The extension provides two workflow tabs:
 
-Extraction Workflow
+Extraction workflow
 ~~~~~~~~~~~~~~~~~~~
 
 Extract Fresnel coefficients from existing analysis results for a setup with parametric sweep.
@@ -30,9 +30,9 @@ Extract Fresnel coefficients from existing analysis results for a setup with par
 
 .. image:: ../../../_static/extensions/fresnel_extraction.png
   :width: 800
-  :alt: Fresnel Extraction Workflow
+  :alt: Fresnel Extraction workflow
 
-Advanced Workflow
+Advanced workflow
 ~~~~~~~~~~~~~~~~~
 
 Configure and run a new parametric analysis:
@@ -48,7 +48,7 @@ Configure and run a new parametric analysis:
   :width: 800
   :alt: Fresnel Advanced Workflow
 
-Simulation Settings
+Simulation settings
 ~~~~~~~~~~~~~~~~~~~
 
 This tab is to configure HPC and Parametric Sweep options:
@@ -75,7 +75,7 @@ Requirements
 ------------
 **General:**
 
-* Unit-cell HFSS design with Floquet port(s)
+* Unit-cell HFSS design with Floquet ports defined
 * Lattice pair boundaries configured
 
 **Specific for the Extraction Workflow:**
@@ -83,7 +83,7 @@ Requirements
 * Design variables ``scan_T`` (theta) and ``scan_P`` (phi) assigned to Lattice Pairs
 * Both spatial and frequency sampling distributions should be uniform
 
-Command Line Usage
+Command line usage
 ------------------
 
 You can also launch the extension from the terminal:
