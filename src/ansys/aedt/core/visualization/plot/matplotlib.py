@@ -1482,7 +1482,7 @@ class ReportPlotter(PyAedtBase):
             minz = min(Z[np.where(Z > 0)])
 
             Z_plot = np.ma.masked_less(Z_plot, minz)
-            mesh = self.ax.pcolormesh(
+            self.ax.pcolormesh(
                 Xc,
                 Yc,
                 Z_plot,

@@ -45,6 +45,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -1778,7 +1779,7 @@ class PostProcessorCommon(PyAedtBase):
         name: str = None,
         matplotlib: bool = False,
         show: bool = True,
-    ) -> Standard:
+    ) -> Standard | "ReportPlotter":
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -2771,7 +2772,9 @@ class Reports(PyAedtBase):
                 rep.quantity_type = quantity_type
                 expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 if isinstance(expressions, list):
-                    rep.expressions = expressions[0]
+                    rep._legacy_props["expressions"] = expressions
+                else:
+                    rep._legacy_props["expressions"] = [expressions]
                 return rep
 
             else:
