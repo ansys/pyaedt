@@ -171,7 +171,7 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
         log.debug("PyAEDT update check: could not import version.")
         return None, None
 
-    log.debug("Checking for PyAEDT updates. Current version: %s", current_version)
+    log.debug(f"Checking for PyAEDT updates. Current version: {current_version}")
     latest = get_latest_version("pyaedt")
     if not latest or latest == "Unknown":
         log.debug("PyAEDT update check: latest version unavailable.")
