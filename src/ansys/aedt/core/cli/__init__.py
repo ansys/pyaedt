@@ -31,29 +31,80 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
-
+from ansys.aedt.core.cli import common
+from ansys.aedt.core.cli.aedt import session_app
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.doc import doc_app
+from ansys.aedt.core.cli.export import export_app
+from ansys.aedt.core.cli.files import file_app
 from ansys.aedt.core.cli.panels import panels_app
-from ansys.aedt.core.cli.process import attach
-from ansys.aedt.core.cli.process import processes
-from ansys.aedt.core.cli.process import start
-from ansys.aedt.core.cli.process import stop
-from ansys.aedt.core.cli.process import version
+from ansys.aedt.core.cli.process import process_app
+from ansys.aedt.core.cli.project import project_app
+from ansys.aedt.core.cli.script import script_app
+from ansys.aedt.core.cli.utility import utility_app
 
-app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True)
+
+
+@app.callback()
+def main_callback(
+    json_output: bool = typer.Option(False, "--json", help="Output results as JSON (agent-friendly mode)"),
+) -> None:
+    """CLI for PyAEDT."""
+    if json_output:
+        common._json_mode = True
+
+
+# Top-level commands
+@app.command()
+def version() -> None:
+    """Display PyAEDT version."""
+    import ansys.aedt.core
+
+    ver = ansys.aedt.core.__version__
+    if common._json_mode:
+        common._output(data={"version": ver})
+    else:
+        typer.echo("PyAEDT version: ", nl=False)
+        typer.secho(ver, fg="cyan")
+
+
+@app.command(name="aedt-versions")
+def aedt_versions() -> None:
+    """List installed AEDT versions on this machine."""
+    try:
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions as _aedt_versions
+
+        versions = _aedt_versions.installed_versions
+        data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
+        if common._json_mode:
+            common._output(data=data)
+        else:
+            if not versions:
+                typer.secho("No AEDT versions found.", fg="yellow")
+                return
+            typer.secho(f"Found {len(versions)} installed version(s):", fg="green")
+            for ver, path in versions.items():
+                typer.echo(f"  {ver}: {path}")
+    except Exception as e:
+        if common._json_mode:
+            common._output(error=str(e))
+        else:
+            typer.secho(f"Error: {e}", fg="red")
+        raise typer.Exit(code=1)
+
 
 # Register sub-apps
+app.add_typer(session_app, name="session")
+app.add_typer(process_app, name="process")
+app.add_typer(project_app, name="project")
+app.add_typer(script_app, name="script")
+app.add_typer(file_app, name="file")
+app.add_typer(export_app, name="export")
+app.add_typer(utility_app, name="utility")
 app.add_typer(config_app, name="config")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
-
-# Register top-level commands
-app.command()(version)
-app.command()(processes)
-app.command()(start)
-app.command()(stop)
-app.command()(attach)
 
 if __name__ == "__main__":
     app()

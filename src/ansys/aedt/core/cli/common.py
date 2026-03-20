@@ -36,6 +36,71 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
+# ---------------------------------------------------------------------------
+# Session management and JSON output mode
+# ---------------------------------------------------------------------------
+
+SESSION_DIR = Path.home() / ".pyaedt"
+SESSION_FILE = SESSION_DIR / "session.json"
+
+_json_mode = False
+
+
+def _output(data=None, error=None):
+    """Print structured output. In JSON mode prints JSON; in human mode does nothing."""
+    if not _json_mode:
+        return
+    if error:
+        typer.echo(json.dumps({"status": "error", "error": str(error)}))
+    else:
+        typer.echo(json.dumps({"status": "ok", "data": data}))
+
+
+def _save_session(port: int, machine: str, version: str) -> None:
+    """Save AEDT connection info to the session file."""
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with open(SESSION_FILE, "w") as f:
+        json.dump({"port": port, "machine": machine, "version": version}, f)
+
+
+def _load_session() -> dict | None:
+    """Load AEDT connection info from the session file."""
+    if not SESSION_FILE.exists():
+        return None
+    with open(SESSION_FILE, "r") as f:
+        return json.load(f)
+
+
+def _clear_session() -> None:
+    """Delete the session file."""
+    if SESSION_FILE.exists():
+        SESSION_FILE.unlink()
+
+
+def _get_desktop():
+    """Reconnect to AEDT from session file. Returns Desktop instance."""
+    session = _load_session()
+    if session is None:
+        if _json_mode:
+            _output(error="No active session. Run 'pyaedt connect' first.")
+        else:
+            typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
+        raise typer.Exit(code=1)
+
+    from ansys.aedt.core import settings
+    from ansys.aedt.core.desktop import Desktop
+
+    settings.enable_logger = False
+    d = Desktop(
+        version=session["version"],
+        port=session["port"],
+        machine=session.get("machine", "localhost"),
+        new_desktop=False,
+        close_on_exit=False,
+    )
+    return d
+
+
 # Default configuration for local_config.json
 DEFAULT_TEST_CONFIG = {
     "desktopVersion": "2026.1",

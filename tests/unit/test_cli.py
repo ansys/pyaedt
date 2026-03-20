@@ -29,6 +29,7 @@ import json
 from pathlib import Path
 import re
 from unittest.mock import Mock
+from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import psutil
@@ -37,13 +38,18 @@ import typer
 from typer.testing import CliRunner
 
 from ansys.aedt.core.cli import app
+import ansys.aedt.core.cli.common as common_mod
 from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
+from ansys.aedt.core.cli.common import _clear_session
 from ansys.aedt.core.cli.common import _display_config
 from ansys.aedt.core.cli.common import _get_config_path
 from ansys.aedt.core.cli.common import _get_tests_folder
 from ansys.aedt.core.cli.common import _load_config
+from ansys.aedt.core.cli.common import _load_session
+from ansys.aedt.core.cli.common import _output
 from ansys.aedt.core.cli.common import _prompt_config_value
 from ansys.aedt.core.cli.common import _save_config
+from ansys.aedt.core.cli.common import _save_session
 from ansys.aedt.core.cli.config import _update_bool_config
 from ansys.aedt.core.cli.config import _update_string_config
 from ansys.aedt.core.cli.config import test_app
@@ -79,8 +85,6 @@ def mock_add_pyaedt_to_aedt():
 @pytest.fixture
 def mock_installed_versions():
     """Mock aedt_versions.installed_versions with typical installed versions."""
-    from unittest.mock import PropertyMock
-
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
         "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
@@ -127,7 +131,7 @@ def test_version_command(cli_runner) -> None:
 @patch("psutil.process_iter")
 def test_processes_command_no_aedt(mock_process_iter, cli_runner) -> None:
     """Test processes command when no AEDT is running."""
-    result = cli_runner.invoke(app, ["processes"])
+    result = cli_runner.invoke(app, ["process", "list"])
 
     assert result.exit_code == 0
     assert "No AEDT processes currently running" in result.stdout
@@ -138,7 +142,7 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
     """Test processes command when AEDT processes exist."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["processes"])
+    result = cli_runner.invoke(app, ["process", "list"])
 
     assert result.exit_code == 0
     assert "Found 1 AEDT process(es)" in result.stdout
@@ -151,7 +155,7 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
 
 def test_stop_command_no_args(cli_runner) -> None:
     """Test stop command without arguments raises BadParameter."""
-    result = cli_runner.invoke(app, ["stop"])
+    result = cli_runner.invoke(app, ["process", "stop"])
 
     assert result.exit_code != 0
     assert isinstance(result.exception, (SystemExit, typer.BadParameter)) or result.exception is None
@@ -162,7 +166,7 @@ def test_stop_all_command_no_processes(mock_process_iter, cli_runner) -> None:
     """Test stop all when no AEDT processes exist."""
     mock_process_iter.return_value = []
 
-    result = cli_runner.invoke(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["process", "stop", "--all"])
 
     assert result.exit_code == 0
     assert "All AEDT processes have been stopped" in result.stdout
@@ -174,7 +178,7 @@ def test_stop_all_command_with_access_denied(mock_process_iter, cli_runner, mock
     mock_aedt_process.kill.side_effect = psutil.AccessDenied()
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["process", "stop", "--all"])
 
     assert result.exit_code == 0
     assert f"✗ Access denied for process with PID {mock_aedt_process.pid}" in result.stdout
@@ -190,7 +194,7 @@ def test_stop_all_command_with_process_no_longer_exists(
     mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["process", "stop", "--all"])
 
     assert result.exit_code == 0
     assert f"! Process {mock_aedt_process.pid} no longer exists" in result.stdout
@@ -206,7 +210,7 @@ def test_stop_all_command_with_generic_exception(
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["process", "stop", "--all"])
 
     assert result.exit_code == 0
     assert f"✗ Error stopping process {mock_aedt_process.pid}" in result.stdout
@@ -219,7 +223,7 @@ def test_stop_command_by_pid_success(mock_process_access, mock_process_class, cl
     """Test successfully stopping process by PID."""
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "Process with PID 12345 has been stopped" in result.stdout
@@ -231,7 +235,7 @@ def test_stop_command_by_pid_access_denied(mock_process_class, cli_runner, mock_
     """Test stopping process by PID when access is denied."""
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "✗ Access denied for process with PID 12345" in result.stdout
@@ -245,7 +249,7 @@ def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_proce
     mock_proc.status.return_value = psutil.STATUS_ZOMBIE
     mock_process_class.return_value = mock_proc
 
-    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "stop", "--pid", "12345"])
     assert result.exit_code == 0
     assert "✗ Process with PID 12345 is not in a stoppable state" in result.stdout
 
@@ -259,7 +263,7 @@ def test_stop_command_by_pid_generic_exception(
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "✗ Error stopping process 12345" in result.stdout
@@ -268,7 +272,7 @@ def test_stop_command_by_pid_generic_exception(
 @patch("psutil.Process", side_effect=psutil.NoSuchProcess(999))
 def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner) -> None:
     """Test stop command with invalid PID."""
-    result = cli_runner.invoke(app, ["stop", "--pid", "999"])
+    result = cli_runner.invoke(app, ["process", "stop", "--pid", "999"])
 
     assert result.exit_code == 0
     assert "! Process 999 no longer exists" in result.stdout
@@ -283,7 +287,7 @@ def test_stop_command_by_port_success(
     """Test successfully stopping process by port."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "Process with PID 12345 listening on port 50051 has been stopped" in result.stdout
@@ -296,7 +300,7 @@ def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_ru
     """Test stopping process by port when no process found on that port."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "No AEDT process found listening on port 50051" in result.stdout
@@ -311,7 +315,7 @@ def test_stop_command_by_port_access_denied(
     """Test stopping process by port when access is denied."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ Access denied for process with PID 12345" in result.stdout
@@ -327,7 +331,7 @@ def test_stop_command_by_port_no_such_process(
     mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "! Process 12345 no longer exists" in result.stdout
@@ -343,7 +347,7 @@ def test_stop_command_by_port_generic_exception(
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ Error stopping process 12345" in result.stdout
@@ -355,7 +359,7 @@ def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli
     """Test stopping process by port when process has no port information."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["process", "stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ No AEDT process found listening on port 50051" in result.stdout
@@ -391,7 +395,7 @@ def mock_start_command():
 
 def test_start_command_default_parameters(cli_runner, mock_start_command) -> None:
     """Test start command with default parameters."""
-    result = cli_runner.invoke(app, ["start"])
+    result = cli_runner.invoke(app, ["process", "start"])
 
     assert result.exit_code == 0
     assert "Starting AEDT 2026.1..." in result.stdout
@@ -400,7 +404,7 @@ def test_start_command_default_parameters(cli_runner, mock_start_command) -> Non
 
 def test_start_command_with_version(cli_runner, mock_start_command) -> None:
     """Test start command with specific version."""
-    result = cli_runner.invoke(app, ["start", "--version", "2024.2"])
+    result = cli_runner.invoke(app, ["process", "start", "--version", "2024.2"])
 
     assert result.exit_code == 0
     assert "Starting AEDT 2024.2..." in result.stdout
@@ -409,7 +413,7 @@ def test_start_command_with_version(cli_runner, mock_start_command) -> None:
 
 def test_start_command_non_graphical(cli_runner, mock_start_command) -> None:
     """Test start command in non-graphical mode."""
-    result = cli_runner.invoke(app, ["start", "--non-graphical"])
+    result = cli_runner.invoke(app, ["process", "start", "--non-graphical"])
 
     assert result.exit_code == 0
     assert "Starting in non-graphical mode..." in result.stdout
@@ -418,7 +422,7 @@ def test_start_command_non_graphical(cli_runner, mock_start_command) -> None:
 
 def test_start_command_with_port(cli_runner, mock_start_command) -> None:
     """Test start command with specific port."""
-    result = cli_runner.invoke(app, ["start", "--port", "50055"])
+    result = cli_runner.invoke(app, ["process", "start", "--port", "50055"])
 
     assert result.exit_code == 0
     assert "Using port: 50055" in result.stdout
@@ -427,7 +431,7 @@ def test_start_command_with_port(cli_runner, mock_start_command) -> None:
 
 def test_start_command_student_version(cli_runner, mock_start_command) -> None:
     """Test start command for student version."""
-    result = cli_runner.invoke(app, ["start", "--student"])
+    result = cli_runner.invoke(app, ["process", "start", "--student"])
 
     assert result.exit_code == 0
     assert "Starting student version..." in result.stdout
@@ -440,7 +444,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     """Test start command when Desktop initialization fails."""
     mock_desktop.side_effect = Exception("Dummy exception")
 
-    result = cli_runner.invoke(app, ["start"])
+    result = cli_runner.invoke(app, ["process", "start"])
 
     assert result.exit_code == 0
     assert "✗ Error starting AEDT: Dummy exception" in result.stdout
@@ -1433,7 +1437,7 @@ def test_attach_command_no_aedt_processes(mock_find_procs, cli_runner) -> None:
     """Test attach command when no AEDT processes are running."""
     mock_find_procs.return_value = []
 
-    result = cli_runner.invoke(app, ["attach"])
+    result = cli_runner.invoke(app, ["process", "attach"])
 
     assert result.exit_code == 0
     assert "No AEDT processes currently running" in result.stdout
@@ -1447,7 +1451,7 @@ def test_attach_command_single_process_quit(mock_get_port, mock_find_procs, cli_
     """Test attach command with single process and user quits."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="q\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="q\n")
 
     assert result.exit_code == 0
     assert "Found 1 AEDT process(es)" in result.stdout
@@ -1462,7 +1466,7 @@ def test_attach_command_process_com_mode(mock_get_port, mock_find_procs, cli_run
     """Test attach command displays COM mode for processes without gRPC port."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="q\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="q\n")
 
     assert result.exit_code == 0
     assert "Found 1 AEDT process(es)" in result.stdout
@@ -1475,7 +1479,7 @@ def test_attach_command_invalid_input_then_quit(mock_get_port, mock_find_procs, 
     """Test attach command with invalid input followed by quit."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="abc\nq\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="abc\nq\n")
 
     assert result.exit_code == 0
     assert "✗ Invalid input. Please enter a number." in result.stdout
@@ -1488,7 +1492,7 @@ def test_attach_command_out_of_range_then_quit(mock_get_port, mock_find_procs, c
     """Test attach command with out of range selection then quit."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="5\nq\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="5\nq\n")
 
     assert result.exit_code == 0
     assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
@@ -1510,7 +1514,7 @@ def test_attach_command_valid_selection(
     ]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="1\n")
 
     assert result.exit_code == 0
     assert "Found 1 AEDT process(es)" in result.stdout
@@ -1535,7 +1539,7 @@ def test_attach_command_multiple_processes(mock_get_port, mock_find_procs, cli_r
 
     mock_find_procs.return_value = [mock_aedt_process, mock_proc2]
 
-    result = cli_runner.invoke(app, ["attach"], input="q\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="q\n")
 
     assert result.exit_code == 0
     assert "Found 2 AEDT process(es)" in result.stdout
@@ -1562,7 +1566,7 @@ def test_attach_command_select_second_process(
 
     mock_find_procs.return_value = [mock_aedt_process, mock_proc2]
 
-    result = cli_runner.invoke(app, ["attach"], input="2\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="2\n")
 
     assert result.exit_code == 0
     assert "Attaching to process 67890..." in result.stdout
@@ -1580,7 +1584,7 @@ def test_attach_command_version_extraction_unknown(mock_get_port, mock_find_proc
 
     mock_find_procs.return_value = [mock_proc]
 
-    result = cli_runner.invoke(app, ["attach"], input="q\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="q\n")
 
     assert result.exit_code == 0
     assert "Version: unknown" in result.stdout
@@ -1601,7 +1605,7 @@ def test_attach_command_with_student_version(mock_launch_console, mock_get_port,
     ]
     mock_find_procs.return_value = [mock_proc]
 
-    result = cli_runner.invoke(app, ["attach"], input="1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="1\n")
 
     assert result.exit_code == 0
     assert "Attaching to process 99999..." in result.stdout
@@ -1614,7 +1618,7 @@ def test_attach_command_case_insensitive_quit(mock_get_port, mock_find_procs, cl
     """Test attach command accepts 'Q' (uppercase) to quit."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="Q\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="Q\n")
 
     assert result.exit_code == 0
     assert "Cancelled." in result.stdout
@@ -1626,7 +1630,7 @@ def test_attach_command_zero_selection(mock_get_port, mock_find_procs, cli_runne
     """Test attach command with zero as selection."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="0\nq\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="0\nq\n")
 
     assert result.exit_code == 0
     assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
@@ -1638,7 +1642,7 @@ def test_attach_command_negative_selection(mock_get_port, mock_find_procs, cli_r
     """Test attach command with negative number as selection."""
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="-1\nq\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="-1\nq\n")
 
     assert result.exit_code == 0
     assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
@@ -1654,7 +1658,7 @@ def test_attach_command_retries_on_invalid_then_succeeds(
     mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="abc\n99\n-5\n1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="abc\n99\n-5\n1\n")
 
     assert result.exit_code == 0
     assert result.stdout.count("✗ Invalid") >= 2  # Multiple invalid attempts
@@ -1675,7 +1679,7 @@ def test_launch_console_setup_called_with_correct_args(
     mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="1\n")
 
     assert result.exit_code == 0
     mock_launch.assert_called_once_with(12345, "2025.2")
@@ -1703,7 +1707,7 @@ def test_launch_console_setup_keyboard_interrupt(
     mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="1\n")
 
     # Should handle KeyboardInterrupt gracefully
     assert "Interrupted" in result.stdout or result.exit_code == 0
@@ -1731,7 +1735,7 @@ def test_launch_console_setup_generic_exception(
     mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach"], input="1\n")
+    result = cli_runner.invoke(app, ["process", "attach"], input="1\n")
 
     # Should display error message
     assert "✗ Error launching console" in result.stdout or result.exit_code == 0
@@ -1753,7 +1757,7 @@ def test_attach_with_pid_success(mock_launch, mock_get_port, mock_find_procs, cl
     ]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "Attaching to process 12345" in result.stdout
@@ -1775,7 +1779,7 @@ def test_attach_with_pid_short_option(
     ]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach", "-p", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "-p", "12345"])
 
     assert result.exit_code == 0
     assert "Attaching to process 12345" in result.stdout
@@ -1788,7 +1792,7 @@ def test_attach_with_pid_not_found(mock_find_procs, cli_runner, mock_aedt_proces
     mock_aedt_process.pid = 99999
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "✗ No AEDT process found with PID 12345" in result.stdout
@@ -1801,7 +1805,7 @@ def test_attach_with_pid_no_processes_running(mock_find_procs, cli_runner) -> No
     """Test attach command with --pid when no AEDT processes are running."""
     mock_find_procs.return_value = []
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "No AEDT processes currently running" in result.stdout
@@ -1821,7 +1825,7 @@ def test_attach_with_pid_version_extraction(
     ]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "12345"])
 
     assert result.exit_code == 0
     mock_launch.assert_called_once_with(12345, "2024.1")
@@ -1837,7 +1841,7 @@ def test_attach_with_pid_unknown_version(
     mock_aedt_process.cmdline.return_value = ["ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "12345"])
 
     assert result.exit_code == 0
     mock_launch.assert_called_once_with(12345, "unknown")
@@ -1860,8 +1864,784 @@ def test_attach_with_pid_multiple_processes(mock_launch, mock_get_port, mock_fin
 
     mock_find_procs.return_value = [proc1, proc2]
 
-    result = cli_runner.invoke(app, ["attach", "--pid", "67890"])
+    result = cli_runner.invoke(app, ["process", "attach", "--pid", "67890"])
 
     assert result.exit_code == 0
     assert "Attaching to process 67890" in result.stdout
     mock_launch.assert_called_once_with(67890, "2024.1")
+
+
+# ---------------------------------------------------------------------------
+# SESSION MANAGEMENT TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_save_and_load_session(tmp_path):
+    """Test saving and loading a session."""
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_DIR", tmp_path),
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "session.json"),
+    ):
+        _save_session(50051, "localhost", "2026.1")
+        session = _load_session()
+        assert session == {"port": 50051, "machine": "localhost", "version": "2026.1"}
+
+
+def test_load_session_no_file(tmp_path):
+    """Test loading session when no file exists."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        assert _load_session() is None
+
+
+def test_clear_session(tmp_path):
+    """Test clearing session file."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text("{}")
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file):
+        _clear_session()
+        assert not session_file.exists()
+
+
+def test_clear_session_no_file(tmp_path):
+    """Test clearing session when no file exists (no error)."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        _clear_session()  # Should not raise
+
+
+def test_json_output_ok(capsys):
+    """Test JSON output in OK mode."""
+    common_mod._json_mode = True
+    try:
+        _output(data={"version": "2026.1"})
+        out = capsys.readouterr().out
+        result = json.loads(out)
+        assert result["status"] == "ok"
+        assert result["data"]["version"] == "2026.1"
+    finally:
+        common_mod._json_mode = False
+
+
+def test_json_output_error(capsys):
+    """Test JSON output in error mode."""
+    common_mod._json_mode = True
+    try:
+        _output(error="something failed")
+        out = capsys.readouterr().out
+        result = json.loads(out)
+        assert result["status"] == "error"
+        assert result["error"] == "something failed"
+    finally:
+        common_mod._json_mode = False
+
+
+def test_json_output_noop_in_human_mode(capsys):
+    """Test that _output does nothing in human mode."""
+    common_mod._json_mode = False
+    _output(data={"test": True})
+    out = capsys.readouterr().out
+    assert out == ""
+
+
+# ---------------------------------------------------------------------------
+# JSON MODE CALLBACK TEST
+# ---------------------------------------------------------------------------
+
+
+def test_json_flag_sets_json_mode(cli_runner):
+    """Test that --json flag sets _json_mode."""
+    # Use version command which always works
+    result = cli_runner.invoke(app, ["--json", "version"])
+    assert result.exit_code == 0
+    # Reset after test
+    common_mod._json_mode = False
+
+
+# ---------------------------------------------------------------------------
+# CONNECTION & STATUS COMMAND TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_connect_success(cli_runner, tmp_path):
+    """Test successful connection."""
+    session_file = tmp_path / "session.json"
+    mock_desktop = Mock()
+    mock_desktop.port = 50051
+    mock_desktop.aedt_version_id = "2026.1"
+    with (
+        patch("ansys.aedt.core.desktop.Desktop", return_value=mock_desktop),
+        patch("ansys.aedt.core.settings"),
+        patch("ansys.aedt.core.cli.common.SESSION_DIR", tmp_path),
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+    ):
+        result = cli_runner.invoke(app, ["session", "connect", "--port", "50051"])
+        assert result.exit_code == 0
+        assert "Connected" in result.output
+        assert session_file.exists()
+
+
+def test_connect_json(cli_runner, tmp_path):
+    """Test connect with JSON output."""
+    session_file = tmp_path / "session.json"
+    mock_desktop = Mock()
+    mock_desktop.port = 50051
+    mock_desktop.aedt_version_id = "2026.1"
+    with (
+        patch("ansys.aedt.core.desktop.Desktop", return_value=mock_desktop),
+        patch("ansys.aedt.core.settings"),
+        patch("ansys.aedt.core.cli.common.SESSION_DIR", tmp_path),
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+    ):
+        result = cli_runner.invoke(app, ["--json", "session", "connect", "--port", "50051"])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert data["data"]["port"] == 50051
+    common_mod._json_mode = False
+
+
+def test_connect_failure(cli_runner):
+    """Test connection failure."""
+    with (
+        patch("ansys.aedt.core.desktop.Desktop", side_effect=Exception("Connection failed")),
+        patch("ansys.aedt.core.settings"),
+    ):
+        result = cli_runner.invoke(app, ["session", "connect", "--port", "50051"])
+        assert result.exit_code == 1
+        assert "Error" in result.output
+
+
+def test_disconnect_with_session(cli_runner, tmp_path):
+    """Test disconnect when session exists."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common.SESSION_DIR", tmp_path),
+        patch("ansys.aedt.core.desktop.Desktop"),
+        patch("ansys.aedt.core.settings"),
+    ):
+        result = cli_runner.invoke(app, ["session", "disconnect"])
+        assert result.exit_code == 0
+        assert "Disconnected" in result.output
+
+
+def test_disconnect_no_session(cli_runner, tmp_path):
+    """Test disconnect when no session exists."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["session", "disconnect"])
+        assert result.exit_code == 0
+        assert "Disconnected" in result.output
+
+
+def test_status_no_session(cli_runner, tmp_path):
+    """Test status when no session exists."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["session", "status"])
+        assert result.exit_code == 1
+
+
+def test_status_success(cli_runner, tmp_path):
+    """Test status with active connection."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    mock_desktop.aedt_version_id = "2026.1"
+    mock_desktop.port = 50051
+    mock_odesktop = Mock()
+    mock_odesktop.GetProjectList.return_value = ["Project1"]
+    mock_odesktop.GetActiveProject.return_value = Mock(GetName=Mock(return_value="Project1"))
+    mock_odesktop.GetProcessID.return_value = 12345
+    mock_desktop.odesktop = mock_odesktop
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["session", "status"])
+        assert result.exit_code == 0
+        assert "AEDT Status" in result.output
+
+
+def test_aedt_versions(cli_runner, mock_installed_versions):
+    """Test aedt-versions lists versions."""
+    result = cli_runner.invoke(app, ["aedt-versions"])
+    assert result.exit_code == 0
+    assert "2025.2" in result.output
+
+
+def test_aedt_versions_json(cli_runner, mock_installed_versions):
+    """Test aedt-versions with JSON output."""
+    result = cli_runner.invoke(app, ["--json", "aedt-versions"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert "2025.2" in data["data"]["versions"]
+    common_mod._json_mode = False
+
+
+# ---------------------------------------------------------------------------
+# PROJECT & DESIGN COMMAND TESTS
+# ---------------------------------------------------------------------------
+
+
+def _mock_desktop_with_session(tmp_path):
+    """Create a mock desktop and session file."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    mock_odesktop = Mock()
+    mock_desktop.odesktop = mock_odesktop
+    return session_file, mock_desktop, mock_odesktop
+
+
+def test_list_projects(cli_runner, tmp_path):
+    """Test list-projects command."""
+    session_file, mock_desktop, mock_odesktop = _mock_desktop_with_session(tmp_path)
+    mock_odesktop.GetProjectList.return_value = ["Project1", "Project2"]
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["project", "list"])
+        assert result.exit_code == 0
+        assert "Project1" in result.output
+
+
+def test_list_projects_json(cli_runner, tmp_path):
+    """Test list-projects with JSON output."""
+    session_file, mock_desktop, mock_odesktop = _mock_desktop_with_session(tmp_path)
+    mock_odesktop.GetProjectList.return_value = ["Project1"]
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["--json", "project", "list"])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert "Project1" in data["data"]["projects"]
+    common_mod._json_mode = False
+
+
+def test_list_designs(cli_runner, tmp_path):
+    """Test list-designs command."""
+    session_file, mock_desktop, mock_odesktop = _mock_desktop_with_session(tmp_path)
+    mock_proj = Mock()
+    mock_proj.GetName.return_value = "TestProject"
+    mock_proj.GetTopDesignList.return_value = ["Design1"]
+    mock_design = Mock()
+    mock_design.GetDesignType.return_value = "HFSS"
+    mock_proj.SetActiveDesign.return_value = mock_design
+    mock_odesktop.GetActiveProject.return_value = mock_proj
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["project", "list-designs"])
+        assert result.exit_code == 0
+        assert "Design1" in result.output
+
+
+def test_open_project(cli_runner, tmp_path):
+    """Test open-project command."""
+    session_file, mock_desktop, mock_odesktop = _mock_desktop_with_session(tmp_path)
+    mock_proj = Mock()
+    mock_proj.GetName.return_value = "MyProject"
+    mock_odesktop.GetActiveProject.return_value = mock_proj
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["project", "open", "C:/test/project.aedt"])
+        assert result.exit_code == 0
+        assert "Opened" in result.output
+
+
+def test_save_project(cli_runner, tmp_path):
+    """Test save-project command."""
+    session_file, mock_desktop, mock_odesktop = _mock_desktop_with_session(tmp_path)
+    mock_proj = Mock()
+    mock_proj.GetName.return_value = "MyProject"
+    mock_odesktop.GetActiveProject.return_value = mock_proj
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["project", "save"])
+        assert result.exit_code == 0
+        assert "saved" in result.output
+
+
+def test_list_projects_no_session(cli_runner, tmp_path):
+    """Test list-projects without active session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["project", "list"])
+        assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# SCRIPT EXECUTION TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_run_script_file_not_found(cli_runner, tmp_path):
+    """Test run-script with missing file."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["script", "run", "nonexistent.py"])
+        assert result.exit_code == 1
+        assert "not found" in result.output
+
+
+def test_run_script_success(cli_runner, tmp_path):
+    """Test successful script execution."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    script_file = tmp_path / "test_script.py"
+    script_file.write_text("print('hello')")
+    mock_desktop = Mock()
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["script", "run", str(script_file)])
+        assert result.exit_code == 0
+        assert "executed" in result.output
+
+
+def test_run_code_no_session(cli_runner, tmp_path):
+    """Test run-code without session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["script", "code", "result = 42"])
+        assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# FILE MANAGEMENT TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_list_files_in_dir(cli_runner, tmp_path):
+    """Test list-files command."""
+    (tmp_path / "test.txt").write_text("hello")
+    (tmp_path / "data.csv").write_text("a,b")
+    result = cli_runner.invoke(app, ["file", "list", "--dir", str(tmp_path)])
+    assert result.exit_code == 0
+    assert "test.txt" in result.output
+
+
+def test_list_files_json(cli_runner, tmp_path):
+    """Test list-files with JSON output."""
+    (tmp_path / "test.txt").write_text("hello")
+    result = cli_runner.invoke(app, ["--json", "file", "list", "--dir", str(tmp_path)])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["count"] >= 1
+    common_mod._json_mode = False
+
+
+def test_list_files_nonexistent_dir(cli_runner, tmp_path):
+    """Test list-files with nonexistent directory."""
+    result = cli_runner.invoke(app, ["file", "list", "--dir", str(tmp_path / "nope")])
+    assert result.exit_code == 1
+
+
+def test_upload_file(cli_runner, tmp_path):
+    """Test upload command."""
+    src = tmp_path / "source.txt"
+    src.write_text("test content")
+    dest_dir = tmp_path / "dest"
+    result = cli_runner.invoke(app, ["file", "upload", str(src), "--to", str(dest_dir)])
+    assert result.exit_code == 0
+    assert (dest_dir / "source.txt").exists()
+
+
+def test_upload_file_not_found(cli_runner, tmp_path):
+    """Test upload with missing file."""
+    result = cli_runner.invoke(app, ["file", "upload", str(tmp_path / "nope.txt")])
+    assert result.exit_code == 1
+
+
+def test_download_file(cli_runner, tmp_path):
+    """Test download command."""
+    src = tmp_path / "remote.txt"
+    src.write_text("result data")
+    dest_dir = tmp_path / "local"
+    result = cli_runner.invoke(app, ["file", "download", str(src), "--to", str(dest_dir)])
+    assert result.exit_code == 0
+    assert (dest_dir / "remote.txt").exists()
+
+
+def test_download_file_not_found(cli_runner, tmp_path):
+    """Test download with missing file."""
+    result = cli_runner.invoke(app, ["file", "download", str(tmp_path / "nope.txt")])
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# UTILITY COMMAND TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_clear_command(cli_runner, tmp_path):
+    """Test clear command."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    mock_odesktop = Mock()
+    mock_odesktop.GetProjectList.return_value = ["P1"]
+    mock_desktop.odesktop = mock_odesktop
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["utility", "clear"])
+        assert result.exit_code == 0
+        assert "cleared" in result.output
+
+
+def test_clear_no_session(cli_runner, tmp_path):
+    """Test clear without session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["utility", "clear"])
+        assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# EXPORT COMMAND TESTS
+# ---------------------------------------------------------------------------
+
+
+def test_screenshot_no_session(cli_runner, tmp_path):
+    """Test screenshot without session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["export", "screenshot"])
+        assert result.exit_code == 1
+
+
+def test_export_touchstone_no_session(cli_runner, tmp_path):
+    """Test export-touchstone without session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["export", "touchstone", "out.s2p"])
+        assert result.exit_code == 1
+
+
+def test_export_3d_no_session(cli_runner, tmp_path):
+    """Test export-3d without session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["export", "3d", "model.step"])
+        assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# JSON MODE TESTS FOR ALL COMMAND GROUPS
+# ---------------------------------------------------------------------------
+
+
+@patch("ansys.aedt.core.__version__", "0.22.0")
+def test_version_json(cli_runner):
+    """Test process version with --json returns structured output."""
+    result = cli_runner.invoke(app, ["--json", "version"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["version"] == "0.22.0"
+    common_mod._json_mode = False
+
+
+@patch("psutil.process_iter")
+def test_processes_json_no_aedt(mock_process_iter, cli_runner):
+    """Test process list with --json returns structured output when no AEDT running."""
+    mock_process_iter.return_value = []
+    result = cli_runner.invoke(app, ["--json", "process", "list"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["processes"] == []
+    assert data["data"]["count"] == 0
+    common_mod._json_mode = False
+
+
+@patch("psutil.process_iter")
+def test_processes_json_with_aedt(mock_process_iter, cli_runner, mock_aedt_process):
+    """Test process list with --json returns process data."""
+    mock_process_iter.return_value = [mock_aedt_process]
+    result = cli_runner.invoke(app, ["--json", "process", "list"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["count"] == 1
+    assert data["data"]["processes"][0]["pid"] == 12345
+    assert data["data"]["processes"][0]["port"] == 50051
+    common_mod._json_mode = False
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
+def test_stop_all_json(mock_access, mock_process_iter, cli_runner, mock_aedt_process):
+    """Test process stop --all with --json returns structured output."""
+    mock_process_iter.return_value = [mock_aedt_process]
+    result = cli_runner.invoke(app, ["--json", "process", "stop", "--all"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert 12345 in data["data"]["stopped"]
+    assert data["data"]["errors"] == []
+    common_mod._json_mode = False
+
+
+@patch("psutil.Process")
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
+def test_stop_by_pid_json(mock_access, mock_process_class, cli_runner, mock_aedt_process):
+    """Test process stop --pid with --json returns structured output."""
+    mock_process_class.return_value = mock_aedt_process
+    result = cli_runner.invoke(app, ["--json", "process", "stop", "--pid", "12345"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert 12345 in data["data"]["stopped"]
+    common_mod._json_mode = False
+
+
+@patch("ansys.aedt.core.desktop.Desktop")
+@patch("ansys.aedt.core.settings")
+def test_start_json(mock_settings, mock_desktop, cli_runner):
+    """Test process start with --json returns structured output."""
+    mock_instance = Mock()
+    mock_instance.port = 50051
+    mock_desktop.return_value = mock_instance
+    result = cli_runner.invoke(app, ["--json", "process", "start"])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["port"] == 50051
+    common_mod._json_mode = False
+
+
+@patch("ansys.aedt.core.desktop.Desktop", side_effect=Exception("fail"))
+@patch("ansys.aedt.core.settings")
+def test_start_json_error(mock_settings, mock_desktop, cli_runner):
+    """Test process start with --json returns error on failure."""
+    result = cli_runner.invoke(app, ["--json", "process", "start"])
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert "fail" in data["error"]
+    common_mod._json_mode = False
+
+
+def test_disconnect_json(cli_runner, tmp_path):
+    """Test disconnect with --json returns structured output."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "session", "disconnect"])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert data["data"]["disconnected"] is True
+    common_mod._json_mode = False
+
+
+def test_status_json_no_session(cli_runner, tmp_path):
+    """Test status with --json when no session exists."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "session", "status"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_connect_json_error(cli_runner):
+    """Test connect with --json on failure."""
+    with (
+        patch("ansys.aedt.core.desktop.Desktop", side_effect=Exception("conn fail")),
+        patch("ansys.aedt.core.settings"),
+    ):
+        result = cli_runner.invoke(app, ["--json", "session", "connect", "--port", "50051"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+        assert "conn fail" in data["error"]
+    common_mod._json_mode = False
+
+
+def test_list_projects_no_session_json(cli_runner, tmp_path):
+    """Test project list with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "project", "list"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_list_designs_json(cli_runner, tmp_path):
+    """Test project list-designs with --json."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    mock_proj = Mock()
+    mock_proj.GetName.return_value = "TestProject"
+    mock_proj.GetTopDesignList.return_value = ["Design1"]
+    mock_design = Mock()
+    mock_design.GetDesignType.return_value = "HFSS"
+    mock_proj.SetActiveDesign.return_value = mock_design
+    mock_desktop.odesktop = Mock()
+    mock_desktop.odesktop.GetActiveProject.return_value = mock_proj
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["--json", "project", "list-designs"])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert data["data"]["count"] == 1
+        assert data["data"]["designs"][0]["name"] == "Design1"
+    common_mod._json_mode = False
+
+
+def test_upload_json(cli_runner, tmp_path):
+    """Test file upload with --json."""
+    src = tmp_path / "test.txt"
+    src.write_text("content")
+    dest = tmp_path / "dest"
+    result = cli_runner.invoke(app, ["--json", "file", "upload", str(src), "--to", str(dest)])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["uploaded"] is True
+    common_mod._json_mode = False
+
+
+def test_download_json(cli_runner, tmp_path):
+    """Test file download with --json."""
+    src = tmp_path / "remote.txt"
+    src.write_text("data")
+    dest = tmp_path / "local"
+    result = cli_runner.invoke(app, ["--json", "file", "download", str(src), "--to", str(dest)])
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert data["status"] == "ok"
+    assert data["data"]["downloaded"] is True
+    common_mod._json_mode = False
+
+
+def test_list_files_json_nonexistent_dir(cli_runner, tmp_path):
+    """Test file list with --json on missing dir returns error."""
+    result = cli_runner.invoke(app, ["--json", "file", "list", "--dir", str(tmp_path / "nope")])
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_clear_json(cli_runner, tmp_path):
+    """Test utility clear with --json."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    mock_odesktop = Mock()
+    mock_odesktop.GetProjectList.return_value = []
+    mock_desktop.odesktop = mock_odesktop
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["--json", "utility", "clear"])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert data["data"]["cleared"] is True
+    common_mod._json_mode = False
+
+
+def test_clear_json_no_session(cli_runner, tmp_path):
+    """Test utility clear with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "utility", "clear"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_screenshot_json_no_session(cli_runner, tmp_path):
+    """Test export screenshot with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "export", "screenshot"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_touchstone_json_no_session(cli_runner, tmp_path):
+    """Test export touchstone with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "export", "touchstone", "out.s2p"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_3d_json_no_session(cli_runner, tmp_path):
+    """Test export 3d with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "export", "3d", "model.step"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False
+
+
+def test_run_script_json_not_found(cli_runner, tmp_path):
+    """Test script run with --json when file not found."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    mock_desktop = Mock()
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["--json", "script", "run", "nonexistent.py"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+        assert "not found" in data["error"]
+    common_mod._json_mode = False
+
+
+def test_run_script_json_success(cli_runner, tmp_path):
+    """Test script run with --json on success."""
+    session_file = tmp_path / "session.json"
+    session_file.write_text('{"port":50051,"machine":"localhost","version":"2026.1"}')
+    script_file = tmp_path / "test.py"
+    script_file.write_text("print('hello')")
+    mock_desktop = Mock()
+    with (
+        patch("ansys.aedt.core.cli.common.SESSION_FILE", session_file),
+        patch("ansys.aedt.core.cli.common._get_desktop", return_value=mock_desktop),
+    ):
+        result = cli_runner.invoke(app, ["--json", "script", "run", str(script_file)])
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert data["status"] == "ok"
+        assert data["data"]["executed"] is True
+    common_mod._json_mode = False
+
+
+def test_run_code_json_no_session(cli_runner, tmp_path):
+    """Test script code with --json when no session."""
+    with patch("ansys.aedt.core.cli.common.SESSION_FILE", tmp_path / "nope.json"):
+        result = cli_runner.invoke(app, ["--json", "script", "code", "result = 42"])
+        assert result.exit_code == 1
+        data = json.loads(result.output)
+        assert data["status"] == "error"
+    common_mod._json_mode = False

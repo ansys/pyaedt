@@ -38,27 +38,26 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
+from ansys.aedt.core.cli import common
 from ansys.aedt.core.cli.common import _can_access_process
 from ansys.aedt.core.cli.common import _find_aedt_processes
 from ansys.aedt.core.cli.common import _get_port
 
-app = typer.Typer(help="Process management commands")
+process_app = typer.Typer(help="Process management commands")
 
 
-@app.command()
-def version() -> None:
-    """Display PyAEDT version."""
-    import ansys.aedt.core
-
-    version = ansys.aedt.core.__version__
-    typer.echo("PyAEDT version: ", nl=False)
-    typer.secho(version, fg="cyan")
-
-
-@app.command()
+@process_app.command(name="list")
 def processes() -> None:
     """Display all running AEDT-related processes."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
+
+    if common._json_mode:
+        procs_data = []
+        for proc in aedt_procs:
+            port = _get_port(proc)
+            procs_data.append({"pid": proc.pid, "name": proc.name(), "port": port})
+        common._output(data={"processes": procs_data, "count": len(procs_data)})
+        return
 
     if not aedt_procs:
         typer.secho("No AEDT processes currently running.", fg="yellow")
@@ -87,7 +86,7 @@ def processes() -> None:
         typer.echo("-" * 40)
 
 
-@app.command()
+@process_app.command()
 def start(
     version: str = typer.Option("2026.1", "--version", "-v", help="AEDT version to start (latest 2026.1)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start AEDT in non-graphical mode"),
@@ -96,9 +95,10 @@ def start(
 ) -> None:
     """Start a new AEDT process."""
     try:
-        typer.echo("Starting AEDT ", nl=False)
-        typer.secho(version, fg="cyan", nl=False)
-        typer.echo("...")
+        if not common._json_mode:
+            typer.echo("Starting AEDT ", nl=False)
+            typer.secho(version, fg="cyan", nl=False)
+            typer.echo("...")
 
         from ansys.aedt.core import settings
         from ansys.aedt.core.desktop import Desktop
@@ -116,39 +116,59 @@ def start(
         # Add port if specified
         if port > 0:
             args["port"] = port
-            typer.echo("Using port: ", nl=False)
-            typer.secho(f"{port}", fg="cyan")
+            if not common._json_mode:
+                typer.echo("Using port: ", nl=False)
+                typer.secho(f"{port}", fg="cyan")
 
-        if non_graphical:
-            typer.echo("Starting in non-graphical mode...")
+        if not common._json_mode:
+            if non_graphical:
+                typer.echo("Starting in non-graphical mode...")
+            if student_version:
+                typer.echo("Starting student version...")
 
-        if student_version:
-            typer.echo("Starting student version...")
-
-        progress_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         progress_running = True
 
-        def show_progress() -> None:
-            """Display animated progress indicator"""
-            i = 0
-            while progress_running:
-                sys.stdout.write(f"\r{progress_chars[i % len(progress_chars)]} Initializing AEDT...\n")
-                sys.stdout.flush()
-                time.sleep(0.1)
-                i += 1
-            sys.stdout.write("\r" + " " * 50 + "\r")  # Clear the line
-            sys.stdout.flush()
+        if not common._json_mode:
+            progress_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
-        progress_thread = threading.Thread(target=show_progress, daemon=True)
-        progress_thread.start()
+            def show_progress() -> None:
+                """Display animated progress indicator"""
+                i = 0
+                while progress_running:
+                    sys.stdout.write(f"\r{progress_chars[i % len(progress_chars)]} Initializing AEDT...\n")
+                    sys.stdout.flush()
+                    time.sleep(0.1)
+                    i += 1
+                sys.stdout.write("\r" + " " * 50 + "\r")  # Clear the line
+                sys.stdout.flush()
+
+            progress_thread = threading.Thread(target=show_progress, daemon=True)
+            progress_thread.start()
 
         d = Desktop(**args)
 
         progress_running = False
 
-        typer.secho(f"✓ AEDT started successfully in port {d.port}", fg="green")
+        # Save session for subsequent commands
+        try:
+            common._save_session(port=int(d.port), machine="localhost", version=version)
+        except (TypeError, ValueError):
+            pass  # Non-critical: session save may fail if port is not available
+
+        data = {
+            "port": int(d.port) if isinstance(d.port, (int, float)) else 0,
+            "version": version,
+            "non_graphical": non_graphical,
+        }
+        if common._json_mode:
+            common._output(data=data)
+        else:
+            typer.secho(f"✓ AEDT started successfully in port {d.port}", fg="green")
         return
     except Exception as e:
+        if common._json_mode:
+            common._output(error=str(e))
+            raise typer.Exit(code=1)
         typer.secho(f"✗ Error starting AEDT: {str(e)}", fg="red")
         typer.echo("Common issues:")
         typer.echo("  - AEDT not installed or not in PATH")
@@ -158,7 +178,7 @@ def start(
         return
 
 
-@app.command()
+@process_app.command()
 def stop(
     pids: list[int] = typer.Option([], "--pid", help="Stop process by PID (can be used multiple times)"),
     ports: list[int] = typer.Option([], "--port", help="Stop process by port (can be used multiple times)"),
@@ -180,6 +200,9 @@ def stop(
     if not pids and not ports and not stop_all:
         raise typer.BadParameter("Please provide at least one option: --pid, --port, or --all")
 
+    stopped = []
+    errors = []
+
     if stop_all:
         aedt_procs = _find_aedt_processes()
         failed = False
@@ -187,14 +210,23 @@ def stop(
             try:
                 if not _can_access_process(proc):
                     failed = True
-                    typer.secho(f"✗ Access denied for process with PID {proc.pid}.", fg="red")
+                    errors.append({"pid": proc.pid, "error": "access denied"})
+                    if not common._json_mode:
+                        typer.secho(f"✗ Access denied for process with PID {proc.pid}.", fg="red")
                     continue
                 proc.kill()
+                stopped.append(proc.pid)
             except psutil.NoSuchProcess:
-                typer.secho(f"! Process {proc.pid} no longer exists", fg="yellow")
+                if not common._json_mode:
+                    typer.secho(f"! Process {proc.pid} no longer exists", fg="yellow")
             except Exception:
                 failed = True
-                typer.secho(f"✗ Error stopping process {proc.pid}", fg="red")
+                errors.append({"pid": proc.pid, "error": "failed to stop"})
+                if not common._json_mode:
+                    typer.secho(f"✗ Error stopping process {proc.pid}", fg="red")
+        if common._json_mode:
+            common._output(data={"stopped": stopped, "errors": errors})
+            return
         if failed:
             typer.secho("Some AEDT processes could not be stopped.", fg="yellow")
         else:
@@ -206,17 +238,26 @@ def stop(
             try:
                 proc = psutil.Process(pid)
                 if not _can_access_process(proc):
-                    typer.secho(f"✗ Access denied for process with PID {pid}.", fg="red")
+                    errors.append({"pid": pid, "error": "access denied"})
+                    if not common._json_mode:
+                        typer.secho(f"✗ Access denied for process with PID {pid}.", fg="red")
                     continue
                 if proc.status() not in PROCESS_OK_STATUS:
-                    typer.secho(f"✗ Process with PID {pid} is not in a stoppable state.", fg="red")
+                    errors.append({"pid": pid, "error": "not in stoppable state"})
+                    if not common._json_mode:
+                        typer.secho(f"✗ Process with PID {pid} is not in a stoppable state.", fg="red")
                     continue
                 proc.kill()
-                typer.secho(f"✓ Process with PID {pid} has been stopped.", fg="green")
+                stopped.append(pid)
+                if not common._json_mode:
+                    typer.secho(f"✓ Process with PID {pid} has been stopped.", fg="green")
             except psutil.NoSuchProcess:
-                typer.secho(f"! Process {pid} no longer exists.", fg="yellow")
+                if not common._json_mode:
+                    typer.secho(f"! Process {pid} no longer exists.", fg="yellow")
             except Exception:
-                typer.secho(f"✗ Error stopping process {pid}.", fg="red")
+                errors.append({"pid": pid, "error": "failed to stop"})
+                if not common._json_mode:
+                    typer.secho(f"✗ Error stopping process {pid}.", fg="red")
 
     if ports:
         aedt_procs = _find_aedt_processes()
@@ -229,25 +270,42 @@ def stop(
                     break
 
         if target_proc is None:
-            typer.secho(f"✗ No AEDT process found listening on port {port}.", fg="red")
+            errors.append({"port": port, "error": "no process found"})
+            if not common._json_mode:
+                typer.secho(f"✗ No AEDT process found listening on port {port}.", fg="red")
+            if common._json_mode:
+                common._output(data={"stopped": stopped, "errors": errors})
             return
 
         if not _can_access_process(target_proc):
-            typer.secho(f"✗ Access denied for process with PID {target_proc.pid}.", fg="red")
+            errors.append({"pid": target_proc.pid, "port": port, "error": "access denied"})
+            if not common._json_mode:
+                typer.secho(f"✗ Access denied for process with PID {target_proc.pid}.", fg="red")
+            if common._json_mode:
+                common._output(data={"stopped": stopped, "errors": errors})
             return
 
         try:
             target_proc.kill()
-            typer.secho(f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green")
+            stopped.append(target_proc.pid)
+            if not common._json_mode:
+                typer.secho(
+                    f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green"
+                )
         except psutil.NoSuchProcess:
-            typer.secho(f"! Process {target_proc.pid} no longer exists.", fg="yellow")
+            if not common._json_mode:
+                typer.secho(f"! Process {target_proc.pid} no longer exists.", fg="yellow")
         except Exception:
-            typer.secho(f"✗ Error stopping process {target_proc.pid}.", fg="red")
+            errors.append({"pid": target_proc.pid, "port": port, "error": "failed to stop"})
+            if not common._json_mode:
+                typer.secho(f"✗ Error stopping process {target_proc.pid}.", fg="red")
 
+    if common._json_mode:
+        common._output(data={"stopped": stopped, "errors": errors})
     return
 
 
-@app.command()
+@process_app.command()
 def attach(
     pid: int = typer.Option(None, "--pid", "-p", help="Process ID to attach to directly"),
 ) -> None:
