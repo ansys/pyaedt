@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,27 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from enum import Enum
-import inspect
-import os
-from pathlib import Path
-import random
-import shutil
 import sys
-import tempfile
-import types
 
 # Import required modules
-from typing import cast
-from typing import get_args
-from unittest.mock import MagicMock
-import warnings
-
 import pytest
 
-from ansys.aedt.core.generic import constants as consts
-from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -52,43 +36,150 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import ResultType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-    from ansys.aedt.core.emit_core.nodes import generated
-    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-    from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
-    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
-    from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
-    from ansys.aedt.core.emit_core.nodes.generated import Band
-    from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
-    from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
-    from ansys.aedt.core.emit_core.nodes.generated import Filter
-    from ansys.aedt.core.emit_core.nodes.generated import RadioNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
-    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
-    from ansys.aedt.core.emit_core.nodes.generated import Terminator
-    from ansys.aedt.core.emit_core.nodes.generated import TouchstoneCouplingNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
-    from ansys.aedt.core.emit_core.nodes.generated import Waveform
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+    from ansys.aedt.core.desktop import Desktop
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
-@pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-def test_interaction_domain(emit_app):
-    engine = emit_app._emit_api.get_engine()
-    
-    domain = emit_app.interaction_domain()
+RXNAME = "GSM Mobile Station"
+RXBANDNAME = "Rx GSM-850 - Other Modulations"
+TX1NAME = "WiFi - 802.11-2012"
+TX1BANDNAME = "Tx OFDM - 54 Mbps"
+
+
+@pytest.fixture
+def emit_app(add_app):
+    app = add_app(application=Emit)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def cell_phone(add_app_example):
+    app = add_app_example(
+        project="Cell Phone",
+        application=Emit,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_interaction_domain(cell_phone):
+    # Test domain get/set, isSingleInstance, errors
+    domain = cell_phone.interaction_domain
+    assert domain is not None
+    assert domain.receiver_name == ""
+    assert domain.receiver_band_name == ""
+    assert domain.receiver_channel_frequency == 0
+    assert domain.interferer_names == []
+    assert domain.interferer_band_names == []
+    assert domain.interferer_channel_frequencies == []
+
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    domain.set_receiver(name="", band_name=RXBANDNAME)
+    assert sim.is_domain_valid(domain) == f"No receiver defined for band '{RXBANDNAME}'."
+
+    domain.set_receiver(name=RXNAME, band_name="", freq=20, units="Hz")
+    assert sim.is_domain_valid(domain) == "Receiver frequency defined without a band."
+
+    domain.set_receiver(name="Bad Rx")
+    assert sim.is_domain_valid(domain) == "Receiver 'Bad Rx' not found."
+
+    domain.set_receiver(name=RXNAME, band_name="Bad Rx Band")
+    assert sim.is_domain_valid(domain) == f"Receiver band 'Bad Rx Band' not found in '{RXNAME}'."
+
+    domain.set_receiver(name="")
+    assert sim.is_domain_valid(domain) == ""
+
+    # set_interferers validation warnings
+    with pytest.warns(UserWarning, match="When assigning bands you must assign one band per interferer."):
+        domain.set_interferers(names=[], band_names=["band"])
+
+    with pytest.warns(UserWarning, match="When assigning channels you must assign one channel per band."):
+        domain.set_interferers(names=[TX1NAME], band_names=[], freqs=[50])
+
+    domain.set_interferers(names=["bad tx"])
+    assert sim.is_domain_valid(domain) == "Interferer 'bad tx' not found."
+
+    domain.set_interferers(names=[""], band_names=[TX1BANDNAME])
+    assert sim.is_domain_valid(domain) == f"No interferer defined for band '{TX1BANDNAME}'."
+
+    domain.set_interferers(names=[TX1NAME], band_names=["bad band"])
+    assert sim.is_domain_valid(domain) == f"Interferer band 'bad band' not found in '{TX1NAME}'."
+
+    domain.set_interferers(names=[TX1NAME], band_names=[""], freqs=[50])
+    assert sim.is_domain_valid(domain) == "Interferer frequency defined without a band."
+
+    domain.set_interferers(names=[], band_names=[], freqs=[])
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=2, units="Hz")
+    assert (
+        sim.is_domain_valid(domain) == f"Receiver channel 2.000000 Hz not found in band '{RXBANDNAME}' of '{RXNAME}'."
+    )
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869000000, units="Hz")
+    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME], freqs=[50], units="Hz")
+    assert (
+        sim.is_domain_valid(domain)
+        == f"Interferer channel 50.000000 Hz not found in band '{TX1BANDNAME}' of '{TX1NAME}'."
+    )
+
+    domain.set_interferers(names=["GPS Receiver"], band_names=["L1"])
+    assert sim.is_domain_valid(domain) == "Interferer band 'L1' disabled."
+
+    domain.set_interferers(names=[], band_names=[], freqs=[])
+    domain.set_receiver(name="GPS Receiver", band_name="L1", freq=-1)
+    assert sim.is_domain_valid(domain) == "Receiver band 'L1' disabled."
+
+    # check is_single_instance
+    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME])
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869000000, units="Hz")
+    assert domain.is_single_instance() is False
+
+    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME], freqs=[2422000000], units="Hz")
+    assert domain.is_single_instance() is True
+
+    # check property getters
+    assert domain.receiver_name == RXNAME
+    assert domain.receiver_band_name == RXBANDNAME
+    assert domain.get_receiver_channel_frequency("Hz") == 869000000
+    assert domain.interferer_names == [TX1NAME]
+    assert len(domain.interferer_names) == 1
+    assert domain.interferer_band_names == [TX1BANDNAME]
+    assert len(domain.interferer_band_names) == 1
+    freqs = domain.get_interferer_channel_frequencies("Hz")
+    assert len(freqs) == 1
+    assert freqs[0] == 2422000000
+
+    # check unit conversions for receiver frequency
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869.2, units="MHz")
+    assert domain.get_receiver_channel_frequency() == 869200000
+    assert domain.get_receiver_channel_frequency("Hz") == 869200000
+    assert domain.get_receiver_channel_frequency("kHz") == 869200
+    assert domain.get_receiver_channel_frequency("MHz") == 869.2
+    assert domain.get_receiver_channel_frequency("GHz") == 0.8692
+    assert domain.get_receiver_channel_frequency("THz") == 0.0008692
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869400000, units="Hz")
+    assert domain.get_receiver_channel_frequency("MHz") == 869.4
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869600, units="kHz")
+    assert domain.get_receiver_channel_frequency("MHz") == 869.6
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869.8, units="MHz")
+    assert domain.get_receiver_channel_frequency("MHz") == 869.8
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=0.87, units="GHz")
+    assert domain.get_receiver_channel_frequency("MHz") == 870.0
+
+    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=0.0008702, units="THz")
+    assert domain.get_receiver_channel_frequency("MHz") == 870.2
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_get_existing():
+    d = Desktop(version="2027.1", new_desktop=False)
+    print(d)
+    print(d.aedt_process_id)

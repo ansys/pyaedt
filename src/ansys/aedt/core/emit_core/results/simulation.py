@@ -53,7 +53,7 @@ class Simulation:
     >>> aedtapp = Emit()
     >>> rev = aedtapp.results.current_revision
     >>> sim = rev.get_simulation()
-    >>> domain = aedtapp.results.interaction_domain()
+    >>> domain = aedtapp.interaction_domain
     >>> sim.run(domain)
     """
 
@@ -112,7 +112,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = aedtapp.interaction_domain
         >>> sim = rev.get_simulation()
         >>> sim.get_interaction(domain)
 
@@ -143,7 +143,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = aedtapp.interaction_domain
         >>> sim = rev.get_simulation()
         >>> sim.run(domain)
 
@@ -189,7 +189,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def is_domain_valid(self, domain):
+    def is_domain_valid(self, domain) -> str:
         """
         Return ``True`` if the given domain is valid for the current revision.
 
@@ -200,7 +200,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain
+        >>> domain = aedtapp.interaction_domain
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
         True
@@ -215,7 +215,7 @@ class Simulation:
             domain.interferer_band_names,
             domain.interferer_channel_frequencies,
         )
-        return valid == ""
+        return valid
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -235,7 +235,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = aedtapp.interaction_domain
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> num_instances = sim.get_instance_count(domain)
         """
@@ -333,7 +333,7 @@ class Simulation:
         --------
         sim = revision.get_simulation()
         with sim.get_license_session():
-            domain = aedtapp.interaction_domain()
+            domain = aedtapp.interaction_domain
             sim.run(domain)
         """
         engine = self._revision.emit_project._emit_api.get_engine()
