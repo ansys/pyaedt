@@ -77,11 +77,14 @@ def connect(
 @session_app.command("disconnect")
 def disconnect(
     close_projects: bool = typer.Option(False, "--close-projects", help="Close all projects before disconnecting"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Disconnect from AEDT and clear session."""
     try:
         session = common._load_session()
         if session:
+            if port is not None:
+                session["port"] = port
             try:
                 from ansys.aedt.core import settings
                 from ansys.aedt.core.desktop import Desktop
@@ -111,10 +114,12 @@ def disconnect(
 
 
 @session_app.command("status")
-def status() -> None:
+def status(
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+) -> None:
     """Show AEDT connection status and info."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         odesktop = d.odesktop
         projects = odesktop.GetProjectList()
         active_project = odesktop.GetActiveProject()

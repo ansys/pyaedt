@@ -7,6 +7,21 @@ description: Use when interacting with ANSYS AEDT through the PyAEDT CLI. Trigge
 
 You have access to the `pyaedt` CLI to interact with ANSYS Electronics Desktop (AEDT). This skill teaches you how to use it effectively.
 
+## Invoking the CLI
+
+The `pyaedt` executable may not be on the system PATH. It is always available inside the virtual environment of the current working directory. Prefer the venv-local binary:
+
+**Windows:**
+```bash
+# From the project root
+.venv\Scripts\pyaedt --json <group> <command> [options]
+```
+
+**Linux / macOS:**
+```bash
+.venv/bin/pyaedt --json <group> <command> [options]
+```
+
 ## Golden Rule: Always Use --json
 
 **Every command MUST use `--json` for structured, parseable output:**
@@ -28,6 +43,20 @@ session connect -> [commands...] -> session disconnect
 ```
 
 Session info (port, machine, version) is saved automatically on `session connect` or `process start`. All subsequent commands reuse this session.
+
+### Targeting a Specific Instance with `--port`
+
+When multiple AEDT instances are running simultaneously, every session-scoped command accepts `--port PORT` to target a specific instance **without changing the saved session**. This lets you operate on several desktops in the same script:
+
+```bash
+# Two instances running on ports 50051 and 50052
+pyaedt --json session status --port 50051
+pyaedt --json project list --port 50052
+pyaedt --json project analyze --port 50051 --design "Filter"
+pyaedt --json export touchstone "filter.s2p" --port 50051
+```
+
+If `--port` is omitted, the port from `~/.pyaedt/session.json` is used.
 
 ## Command Structure
 
@@ -55,8 +84,8 @@ Top-level commands (no group): `version`, `aedt-versions`
 | Command | Description | Requires Session |
 |---|---|---|
 | `pyaedt --json session connect --port 50051 [--machine localhost] [--version 2026.1]` | Connect to running AEDT | No (creates session) |
-| `pyaedt --json session disconnect [--close-projects]` | Disconnect and clear session | No |
-| `pyaedt --json session status` | Show AEDT status, projects, version | Yes |
+| `pyaedt --json session disconnect [--port PORT] [--close-projects]` | Disconnect and clear session | No |
+| `pyaedt --json session status [--port PORT]` | Show AEDT status, projects, version | Yes |
 
 ### Process Management (`pyaedt process`)
 
@@ -73,12 +102,12 @@ Top-level commands (no group): `version`, `aedt-versions`
 
 | Command | Description |
 |---|---|
-| `pyaedt --json project list` | List all open projects |
-| `pyaedt --json project list-designs [--project NAME]` | List designs in a project |
-| `pyaedt --json project open "C:/path/to/file.aedt" [--design NAME]` | Open a project file |
-| `pyaedt --json project save [--project NAME] [--save-as PATH]` | Save project |
-| `pyaedt --json project create-design <AppType> [--name NAME] [--solution-type TYPE]` | Create a new design |
-| `pyaedt --json project analyze [--setup NAME] [--design NAME] [--cores N]` | Run simulation |
+| `pyaedt --json project list [--port PORT]` | List all open projects |
+| `pyaedt --json project list-designs [--project NAME] [--port PORT]` | List designs in a project |
+| `pyaedt --json project open "C:/path/to/file.aedt" [--design NAME] [--port PORT]` | Open a project file |
+| `pyaedt --json project save [--project NAME] [--save-as PATH] [--port PORT]` | Save project |
+| `pyaedt --json project create-design <AppType> [--name NAME] [--solution-type TYPE] [--port PORT]` | Create a new design |
+| `pyaedt --json project analyze [--setup NAME] [--design NAME] [--cores N] [--port PORT]` | Run simulation |
 
 **AppType values:** `Hfss`, `Maxwell2d`, `Maxwell3d`, `Q3d`, `Q2d`, `Icepak`, `Circuit`, `TwinBuilder`, `Mechanical`, `Emit`, `Rmxprt`, `Hfss3dLayout`, `MaxwellCircuit`
 
@@ -86,8 +115,8 @@ Top-level commands (no group): `version`, `aedt-versions`
 
 | Command | Description |
 |---|---|
-| `pyaedt --json script run "path/to/script.py"` | Execute a Python script inside AEDT |
-| `pyaedt --json script code "python_code_here"` | Execute inline Python code |
+| `pyaedt --json script run "path/to/script.py" [--port PORT]` | Execute a Python script inside AEDT |
+| `pyaedt --json script code "python_code_here" [--port PORT]` | Execute inline Python code |
 
 `script code` provides `desktop` (PyAEDT Desktop), `odesktop` (native COM), and `result` variable. Set `result` to return a value:
 
@@ -107,16 +136,16 @@ pyaedt --json script code "hfss = desktop.active_app(); result = hfss.design_nam
 
 | Command | Description |
 |---|---|
-| `pyaedt --json export screenshot [--output "preview.jpg"] [--design NAME]` | Capture design view screenshot |
-| `pyaedt --json export touchstone "out.s2p" [--setup NAME] [--sweep NAME]` | Export S-parameters |
-| `pyaedt --json export 3d "model.step" [--format step/iges/sat/stl]` | Export 3D geometry |
+| `pyaedt --json export screenshot [--output "preview.jpg"] [--design NAME] [--port PORT]` | Capture design view screenshot |
+| `pyaedt --json export touchstone "out.s2p" [--setup NAME] [--sweep NAME] [--port PORT]` | Export S-parameters |
+| `pyaedt --json export 3d "model.step" [--format step/iges/sat/stl] [--port PORT]` | Export 3D geometry |
 
 ### Utility (`pyaedt utility`)
 
 | Command | Description |
 |---|---|
-| `pyaedt --json utility clear [--close-projects/--no-close-projects]` | Close all projects, clear messages |
-| `pyaedt --json utility model-info [--design NAME]` | Get design name, type, project path |
+| `pyaedt --json utility clear [--close-projects/--no-close-projects] [--port PORT]` | Close all projects, clear messages |
+| `pyaedt --json utility model-info [--design NAME] [--port PORT]` | Get design name, type, project path |
 
 ### Configuration (`pyaedt config`)
 
@@ -145,9 +174,9 @@ pyaedt --json script code "hfss = desktop.active_app(); result = hfss.design_nam
 ### Workflow 1: Connect and Explore
 
 ```bash
-# Check what's available
-pyaedt --json session check-installed
-pyaedt --json process list
+# Use the venv-local binary if pyaedt is not on PATH
+.venv\Scripts\pyaedt --json process list      # Windows
+# .venv/bin/pyaedt --json process list        # Linux/macOS
 
 # Connect to existing instance
 pyaedt --json session connect --port 50051
@@ -200,15 +229,39 @@ pyaedt --json export touchstone "./filter.s2p"
 pyaedt --json session disconnect --close-projects
 ```
 
+### Workflow 4: Work with Multiple AEDT Instances
+
+```bash
+# Two instances already running on different ports
+pyaedt --json session status --port 50051   # check instance A
+pyaedt --json session status --port 50052   # check instance B
+
+# Operate on each independently without changing the saved session
+pyaedt --json project list --port 50051
+pyaedt --json project analyze --port 50051 --design "FilterA" --setup "Setup1"
+pyaedt --json project analyze --port 50052 --design "FilterB" --setup "Setup1"
+
+# Export from each
+pyaedt --json export touchstone "filter_a.s2p" --port 50051
+pyaedt --json export touchstone "filter_b.s2p" --port 50052
+```
+
 ## Error Handling
 
 Always check the `status` field:
 
 ```python
-import json, subprocess
+import json, subprocess, sys
+from pathlib import Path
+
+# Resolve pyaedt binary: prefer venv, fall back to PATH
+venv = Path.cwd() / ".venv"
+pyaedt_bin = str(venv / ("Scripts/pyaedt" if sys.platform == "win32" else "bin/pyaedt"))
+if not Path(pyaedt_bin).exists():
+    pyaedt_bin = "pyaedt"
 
 result = subprocess.run(
-    ["pyaedt", "--json", "session", "status"], capture_output=True, text=True
+    [pyaedt_bin, "--json", "session", "status"], capture_output=True, text=True
 )
 response = json.loads(result.stdout)
 
@@ -216,7 +269,7 @@ if response["status"] == "error":
     # Handle error - response["error"] has the message
     if "No active session" in response["error"]:
         # Need to connect first
-        subprocess.run(["pyaedt", "--json", "session", "connect", "--port", "50051"])
+        subprocess.run([pyaedt_bin, "--json", "session", "connect", "--port", "50051"])
 ```
 
 ## Performance Tips

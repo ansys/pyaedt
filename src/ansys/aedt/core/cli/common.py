@@ -77,8 +77,15 @@ def _clear_session() -> None:
         SESSION_FILE.unlink()
 
 
-def _get_desktop():
-    """Reconnect to AEDT from session file. Returns Desktop instance."""
+def _get_desktop(port: int | None = None):
+    """Reconnect to AEDT from session file. Returns Desktop instance.
+
+    Parameters
+    ----------
+    port : int, optional
+        Override the port stored in the session file. Useful when targeting
+        a specific AEDT instance when several are running simultaneously.
+    """
     session = _load_session()
     if session is None:
         if _json_mode:
@@ -93,7 +100,7 @@ def _get_desktop():
     settings.enable_logger = False
     d = Desktop(
         version=session["version"],
-        port=session["port"],
+        port=port if port is not None else session["port"],
         machine=session.get("machine", "localhost"),
         new_desktop=False,
         close_on_exit=False,

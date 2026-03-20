@@ -51,6 +51,7 @@ class ExportFormat(str, Enum):
 def screenshot(
     output: str = typer.Option("screenshot.jpg", "--output", "-o", help="Output file path"),
     design_name: str = typer.Option(None, "--design", "-d", help="Design to capture"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Capture a screenshot of the AEDT design view."""
     try:
@@ -64,6 +65,8 @@ def screenshot(
                 typer.secho("No active session.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app = aedt.get_pyaedt_app(
             version=session["version"],
@@ -95,6 +98,7 @@ def export_touchstone(
     setup_name: str = typer.Option(None, "--setup", "-s", help="Setup to export"),
     sweep_name: str = typer.Option(None, "--sweep", help="Sweep name"),
     design_name: str = typer.Option(None, "--design", "-d", help="Design to export from"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Export S-parameters to Touchstone format."""
     try:
@@ -108,6 +112,8 @@ def export_touchstone(
                 typer.secho("No active session.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app = aedt.get_pyaedt_app(
             version=session["version"],
@@ -143,6 +149,7 @@ def export_3d(
     output_path: str = typer.Argument(..., help="Output file path"),
     export_format: ExportFormat = typer.Option("step", "--format", "-f", help="Export format"),
     design_name: str = typer.Option(None, "--design", "-d", help="Design to export"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Export 3D geometry in CAD formats."""
     try:
@@ -156,6 +163,8 @@ def export_3d(
                 typer.secho("No active session.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app = aedt.get_pyaedt_app(
             version=session["version"],

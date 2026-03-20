@@ -57,10 +57,12 @@ class AEDTAppType(str, Enum):
 
 
 @project_app.command(name="list")
-def list_projects() -> None:
+def list_projects(
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+) -> None:
     """List all open projects."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         projects = list(d.odesktop.GetProjectList())
         data = {"projects": projects, "count": len(projects)}
         if common._json_mode:
@@ -85,10 +87,11 @@ def list_projects() -> None:
 @project_app.command(name="list-designs")
 def list_designs(
     project_name: str = typer.Option(None, "--project", "-p", help="Project name (uses active if omitted)"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """List all designs in a project."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         odesktop = d.odesktop
         if project_name:
             proj = odesktop.SetActiveProject(project_name)
@@ -122,10 +125,11 @@ def list_designs(
 def open_project(
     project_path: str = typer.Argument(..., help="Path to .aedt project file"),
     design_name: str = typer.Option(None, "--design", "-d", help="Design to activate after opening"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Open an AEDT project file."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         d.odesktop.OpenProject(project_path)
         proj = d.odesktop.GetActiveProject()
         proj_name = proj.GetName() if proj else "Unknown"
@@ -152,10 +156,11 @@ def open_project(
 def save_project(
     project_name: str = typer.Option(None, "--project", "-p", help="Project to save (uses active if omitted)"),
     save_as: str = typer.Option(None, "--save-as", help="New file path for Save As"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Save an AEDT project."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         odesktop = d.odesktop
         if project_name:
             proj = odesktop.SetActiveProject(project_name)
@@ -191,6 +196,7 @@ def create_design(
     name: str = typer.Option(None, "--name", "-n", help="Design name"),
     project_name: str = typer.Option(None, "--project", "-p", help="Target project"),
     solution_type: str = typer.Option(None, "--solution-type", "-s", help="Solution type"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Create a new design in AEDT."""
     try:
@@ -204,6 +210,8 @@ def create_design(
                 typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app_map = {
             "Hfss": aedt.Hfss,
@@ -261,6 +269,7 @@ def analyze(
     setup_name: str = typer.Option(None, "--setup", "-s", help="Setup to analyze (all if omitted)"),
     design_name: str = typer.Option(None, "--design", "-d", help="Target design"),
     num_cores: int = typer.Option(None, "--cores", "-c", help="CPU cores to use"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Run simulation analysis on a design."""
     try:
@@ -274,6 +283,8 @@ def analyze(
                 typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app = aedt.get_pyaedt_app(
             version=session["version"],

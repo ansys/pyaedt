@@ -43,13 +43,14 @@ script_app = typer.Typer(help="Script execution commands")
 @script_app.command("run")
 def run_script(
     script_path: str = typer.Argument(..., help="Path to .py script file"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Execute a Python script file inside AEDT."""
     try:
         path = Path(script_path)
         if not path.exists():
             raise FileNotFoundError(f"Script not found: {script_path}")
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         d.odesktop.RunScript(str(path.resolve()))
         data = {"executed": True, "script": str(path.resolve())}
         if common._json_mode:
@@ -69,10 +70,11 @@ def run_script(
 @script_app.command("code")
 def run_code(
     code: str = typer.Argument(..., help="Python code to execute"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Execute inline Python code with access to the AEDT desktop object."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         namespace = {"desktop": d, "odesktop": d.odesktop, "result": None}
         exec(code, namespace)  # nosec B102 - user-provided code execution is the intended feature
         result_val = namespace.get("result")

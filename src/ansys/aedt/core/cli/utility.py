@@ -41,10 +41,11 @@ utility_app = typer.Typer(help="Utility commands")
 @utility_app.command("clear")
 def clear(
     close_projects: bool = typer.Option(True, "--close-projects/--no-close-projects", help="Close all projects"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Close all projects and clear AEDT messages."""
     try:
-        d = common._get_desktop()
+        d = common._get_desktop(port=port)
         if close_projects:
             projects = list(d.odesktop.GetProjectList())
             for proj_name in projects:
@@ -68,6 +69,7 @@ def clear(
 @utility_app.command("model-info")
 def model_info(
     design_name: str = typer.Option(None, "--design", "-d", help="Design to query (uses active if omitted)"),
+    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
 ) -> None:
     """Get design name, type, and project path."""
     try:
@@ -81,6 +83,8 @@ def model_info(
                 typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
             raise typer.Exit(code=1)
 
+        if port is not None:
+            session["port"] = port
         aedt.settings.enable_logger = False
         app = aedt.get_pyaedt_app(
             version=session["version"],
