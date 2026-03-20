@@ -360,7 +360,7 @@ jobs:
   system-tests-solvers-windows:
     name: Test solvers (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -502,7 +502,7 @@ jobs:
   system-tests-general-windows:
     name: Test general (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -649,7 +649,7 @@ jobs:
   system-tests-visualization-windows:
     name: Test visualization (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     env:
       MPLBACKEND: 'Agg'
@@ -799,7 +799,7 @@ jobs:
   system-tests-icepak-windows:
     name: Test icepak (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -941,7 +941,7 @@ jobs:
   system-tests-layout-windows:
     name: Test layout (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -1081,7 +1081,7 @@ jobs:
   system-tests-extensions-windows:
     name: Test extensions (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -1210,7 +1210,7 @@ jobs:
   system-tests-filter-windows:
     name: Test filter solutions (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
@@ -1281,7 +1281,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     # needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
