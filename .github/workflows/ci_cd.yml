@@ -428,72 +428,72 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-#   system-tests-solvers-linux:
-#     name: Test solvers (linux)
-#     needs: [integration-tests, analyze-changes]
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-solvers-linux:
+    name: Test solvers (linux)
+    # needs: [integration-tests, analyze-changes]
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         env:
-#           TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Wait for master cache update
-#         uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-#       - name: Restore testmondata cache
-#         uses: ./.github/actions/testmon-cache
-#         with:
-#           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-#           cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'solvers'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
+      - name: Run tests marked with 'solvers'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-solvers-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-solvers-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -573,74 +573,74 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-#   system-tests-general-linux:
-#     name: Test general (linux)
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-#     needs: [integration-tests, analyze-changes]
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-general-linux:
+    name: Test general (linux)
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # needs: [integration-tests, analyze-changes]
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Set up headless display
-#         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         env:
-#           TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Wait for master cache update
-#         uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-#       - name: Restore testmondata cache
-#         uses: ./.github/actions/testmon-cache
-#         with:
-#           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-#           cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'general'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
+      - name: Run tests marked with 'general'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-general-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-general-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -718,79 +718,79 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
-#   system-tests-visualization-linux:
-#     name: Test visualization (linux)
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-#     needs: [integration-tests, analyze-changes]
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#       MPLBACKEND: 'Agg'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-visualization-linux:
+    name: Test visualization (linux)
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    # needs: [integration-tests, analyze-changes]
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Set up headless display
-#         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         env:
-#           TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Wait for master cache update
-#         uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-#       - name: Restore testmondata cache
-#         uses: ./.github/actions/testmon-cache
-#         with:
-#           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-#           cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'visualization'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
+      - name: Run tests marked with 'visualization'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-visualization-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-visualization-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -867,72 +867,72 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-#   system-tests-icepak-linux:
-#     name: Test icepak (linux)
-#     needs: [integration-tests, analyze-changes]
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-icepak-linux:
+    name: Test icepak (linux)
+    # needs: [integration-tests, analyze-changes]
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         env:
-#           TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Wait for master cache update
-#         uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-#       - name: Restore testmondata cache
-#         uses: ./.github/actions/testmon-cache
-#         with:
-#           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-#           cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'icepak'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
+      - name: Run tests marked with 'icepak'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-icepak-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-icepak-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -1005,74 +1005,74 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
-#   system-tests-layout-linux:
-#     name: Test layout (linux)
-#     needs: [integration-tests, analyze-changes]
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-layout-linux:
+    name: Test layout (linux)
+    # needs: [integration-tests, analyze-changes]
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Wait for master cache update
-#         uses: ./.github/actions/check-cache
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-#       - name: Restore testmondata cache
-#         uses: ./.github/actions/testmon-cache
-#         with:
-#           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-#           cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'layout'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
+      - name: Run tests marked with 'layout'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-layout-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-layout-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
  #=================================================================================================
  #vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -1143,65 +1143,65 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-#   system-tests-extensions-linux:
-#     name: Test extensions (linux)
-#     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
-#     needs: [integration-tests, analyze-changes]
-#     runs-on: [ self-hosted, Linux, pyaedt ]
-#     env:
-#       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-#       ANS_NODEPCHECK: '1'
-#     steps:
-#       - name: Install Git and checkout project
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           persist-credentials: false
+  system-tests-extensions-linux:
+    name: Test extensions (linux)
+    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    # needs: [integration-tests, analyze-changes]
+    runs-on: [ self-hosted, Linux, pyaedt-ci-1 ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-#       - name: Setup Python
-#         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-#         with:
-#           python-version: ${{ env.TESTS_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
-#       - name: Set up uv
-#         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-#         with:
-#           enable-cache: false
-#           prune-cache: true
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
-#       - name: Set up headless display
-#         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-#       - name: Create virtual environment
-#         run: uv venv .venv
+      - name: Create virtual environment
+        run: uv venv .venv
 
-#       - name: Install pyaedt and tests dependencies
-#         env:
-#           TESTS_VERSION: ${{ env.TESTS_VERSION }}
-#         run: |
-#           source .venv/bin/activate
-#           uv sync --frozen --group tests
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests
 
-#       - name: Remove Ansys processes (if any)
-#         shell: bash
-#         run: |
-#           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-#             echo "Killing PID $pid"
-#             kill -9 "$pid"
-#           done
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-#       - name: Run tests marked with 'extensions'
-#         env:
-#           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-#         run: |
-#           source .venv/bin/activate
-#           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
+      - name: Run tests marked with 'extensions'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
-#       - name: Upload pytest test results
-#         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-#         with:
-#           name: pytest-extensions-linux
-#           path: junit/test-results.xml
-#         if: ${{ always() }}
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-extensions-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
