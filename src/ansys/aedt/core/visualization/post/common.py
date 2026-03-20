@@ -106,7 +106,7 @@ class PostProcessorCommon(PyAedtBase):
     def __init__(self, app) -> None:
         self._app = app
         self._scratch = self._app.working_directory
-        self.__plots = None
+        self.__plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
@@ -593,9 +593,9 @@ class PostProcessorCommon(PyAedtBase):
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-                names = obj.GetChildNames()
+                traces = obj.GetChildNames()
                 solution = None
-                for trc_name in names:
+                for trc_name in traces:
                     trc_obj = obj.GetChildObject(trc_name)
                     try:
                         solution = trc_obj.GetPropValue("Solution")
