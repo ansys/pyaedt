@@ -1,0 +1,313 @@
+name: Manual Build Wheelhouse
+
+on:
+  workflow_dispatch:
+    inputs:
+      pyaedt-branch:
+        description: "PyAEDT branch used to run the test"
+        default: 'main'
+        type: string
+      build-ubuntu-wheels:
+         description: "Build Ubuntu wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      build-windows-wheels:
+         description: "Build Windows wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      build-rocky-wheels:
+         description: "Build Rocky Linux wheelhouse artifacts"
+         default: 'no'
+         type: choice
+         options:
+           - 'yes'
+           - 'no'
+      python-version:
+         description: "Python version to build for (choose 'all' for all supported versions)"
+         default: '3.10'
+         type: choice
+         options:
+           - 'all'
+           - '3.10'
+           - '3.11'
+           - '3.12'
+           - '3.13'
+
+env:
+  PACKAGE_NAME: 'PyAEDT'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
+
+jobs:
+
+  build-wheelhouse-ubuntu-all:
+    if: github.event.inputs.build-ubuntu-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Ubuntu, all)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10','3.11','3.12','3.13']
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-ubuntu
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ubuntu-latest
+          python-version: ${{ matrix.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-ubuntu.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-ubuntu-single:
+    if: github.event.inputs.build-ubuntu-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Ubuntu, single)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-ubuntu
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ubuntu-latest
+          python-version: ${{ github.event.inputs.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-ubuntu.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-windows-all:
+    if: github.event.inputs.build-windows-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Windows, all)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10','3.11','3.12','3.13']
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-windows
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: windows-latest
+          python-version: ${{ matrix.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-windows.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-windows-single:
+    if: github.event.inputs.build-windows-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Windows, single)
+    runs-on: windows-latest
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-windows
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: windows-latest
+          python-version: ${{ github.event.inputs.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-windows.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-rocky-all:
+    if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version == 'all'
+    name: Build wheelhouse (Rocky Linux)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10','3.11','3.12','3.13']
+    container:
+      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Install build deps
+        shell: bash
+        run: |
+          set -eux
+          dnf -y update
+          dnf groupinstall -y "Development Tools"
+          dnf -y install \
+            gcc wget make bzip2-devel zlib-devel xz-devel \
+            openssl-devel libffi-devel sqlite-devel \
+            readline-devel libuuid-devel expat-devel \
+            pkgconf-pkg-config ca-certificates
+          update-ca-trust
+
+      # NOTE: The Python provided by setup-python may be build against newer GLIBC (>=2.34)
+      # than available on Rocky Linux causing Python to fail. Using uv to install Python
+      # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
+      # venv creation and wheelhouse builds work.
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Pre-install specific Python version using uv
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        shell: bash
+        run: uv python install "$PYTHON_VERSION"
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-rocky
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: rocky-linux-8
+          python-version: ${{ matrix.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  build-wheelhouse-rocky-single:
+    if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
+    name: Build wheelhouse (Rocky Linux)
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
+    steps:
+      - name: Clone PyAEDT using specified input branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.pyaedt-branch }}
+          persist-credentials: false
+
+      - name: Install build deps
+        shell: bash
+        run: |
+          set -eux
+          dnf -y update
+          dnf groupinstall -y "Development Tools"
+          dnf -y install \
+            gcc wget make bzip2-devel zlib-devel xz-devel \
+            openssl-devel libffi-devel sqlite-devel \
+            readline-devel libuuid-devel expat-devel \
+            pkgconf-pkg-config ca-certificates
+          update-ca-trust
+
+      # NOTE: The Python provided by setup-python may be build against newer GLIBC (>=2.34)
+      # than available on Rocky Linux causing Python to fail. Using uv to install Python
+      # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
+      # venv creation and wheelhouse builds work.
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Pre-install specific Python version using uv
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        shell: bash
+        run: uv python install "$PYTHON_VERSION"
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-rocky
+        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        with:
+          checkout: false
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: rocky-linux-8
+          python-version: ${{ github.event.inputs.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
