@@ -108,6 +108,11 @@ def test_fresnel_validation_method(add_app) -> None:
     # Create HFSS application for testing environment
     app = add_app(application=Hfss)
 
+    box1 = app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+    app.create_floquet_port(
+        box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
+    )
+
     app.create_setup()
 
     # Create extension
