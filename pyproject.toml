@@ -144,6 +144,7 @@ doc = [
     "ansys-tools-visualization-interface",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
+    "scikit-rf>=0.30.0,<1.12",
 ]
 
 
