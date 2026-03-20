@@ -211,11 +211,19 @@ def test_circuit_reports_by_category_standard_1(diff_test) -> None:
     assert new_report1.expressions
 
 
-def test_circuit_reports_by_category_standard_3(diff_test) -> None:
+def test_circuit_reports_by_category_standard_3(diff_test, test_tmp_dir) -> None:
     new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
     new_report.differential_pairs = True
     assert new_report.create()
     assert new_report.get_solution_data()
+    out = os.path.join(test_tmp_dir, "test1.jpg")
+    diff_test.post.create_report("dB(S(1,1))", matplotlib=True, show=False, snapshot_path=out, width=700, height=700)
+    assert os.path.exists(out)
+    out = os.path.join(test_tmp_dir, "test2.jpg")
+    diff_test.post.create_report(
+        "dB(S(1,1))", matplotlib=False, hide_legend=True, snapshot_path=out, width=700, height=700
+    )
+    assert os.path.exists(out)
 
 
 def test_circuit_reports_by_category_standard_4(diff_test) -> None:
