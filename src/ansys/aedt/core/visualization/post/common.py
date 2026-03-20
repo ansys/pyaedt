@@ -2179,6 +2179,14 @@ class PostProcessorCommon(PyAedtBase):
                         if "__Amplitude" in sols.units_sweeps
                         else sols.units_data[sols.expressions[0]],
                     )
+            report._legacy_props["eye_mask"]["xunits"] = (
+                sols.units_sweeps["Time"] if "Time" in sols.units_sweeps else ""
+            )
+            report._legacy_props["eye_mask"]["yunits"] = (
+                sols.units_sweeps["__Amplitude"]
+                if "__Amplitude" in sols.units_sweeps
+                else sols.units_data[sols.expressions[0]]
+            )
             report_plotter.add_eye_mask(report._legacy_props["eye_mask"])
         if report.report_category in ["Eye Diagram", "Statistical Eye"]:
             if "Time" in sols.units_sweeps and report._legacy_props["context"].get("unit_interval"):
