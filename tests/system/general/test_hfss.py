@@ -2458,18 +2458,22 @@ def test_get_fresnel_coefficients(fresnel):
     assert output1_anisotropic.is_file()
 
     # Multi frequency
-    output1 = fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
+    output1 = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", is_isotropic=True
+    )
     assert output1.is_file()
 
     # Duplicated file
     output2 = fresnel.get_fresnel_coefficients(
-        setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", output_file=file_name
+        setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", output_file=file_name, is_isotropic=True
     )
     assert output2 != output1
 
     # Reflection and Single Freq
     fresnel.design_name = "one_port"
-    output3 = fresnel.get_fresnel_coefficients(setup_sweep="Setup : Sweep", theta_name="scan_T", phi_name="scan_P")
+    output3 = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : Sweep", theta_name="scan_T", phi_name="scan_P", is_isotropic=True
+    )
     assert output3.is_file()
 
     output3_anisotropic = fresnel.get_fresnel_coefficients(
