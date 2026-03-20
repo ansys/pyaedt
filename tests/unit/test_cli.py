@@ -1504,7 +1504,7 @@ def test_attach_command_valid_selection(
     """Test attach command with valid process selection."""
     # Mock process with version info in cmdline
     mock_aedt_process.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe",
         "-grpcsrv",
         "50051",
     ]
@@ -1528,7 +1528,7 @@ def test_attach_command_multiple_processes(mock_get_port, mock_find_procs, cli_r
     mock_proc2.pid = 67890
     mock_proc2.name.return_value = "ansysedt.exe"
     mock_proc2.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe",
         "-grpcsrv",
         "50052",
     ]
@@ -1555,7 +1555,7 @@ def test_attach_command_select_second_process(
     mock_proc2.pid = 67890
     mock_proc2.name.return_value = "ansysedt.exe"
     mock_proc2.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe",
         "-grpcsrv",
         "50052",
     ]
@@ -1595,7 +1595,7 @@ def test_attach_command_with_student_version(mock_launch_console, mock_get_port,
     mock_proc.pid = 99999
     mock_proc.name.return_value = "ansysedtsv.exe"  # Student version
     mock_proc.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedtsv.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedtsv.exe",
         "-grpcsrv",
         "50051",
     ]
@@ -1651,7 +1651,7 @@ def test_attach_command_retries_on_invalid_then_succeeds(
     mock_launch_console, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
 ) -> None:
     """Test attach command retries after multiple invalid inputs."""
-    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
     result = cli_runner.invoke(app, ["attach"], input="abc\n99\n-5\n1\n")
@@ -1672,7 +1672,7 @@ def test_launch_console_setup_called_with_correct_args(
     mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
 ) -> None:
     """Test that _launch_console_setup is called with correct arguments."""
-    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
     result = cli_runner.invoke(app, ["attach"], input="1\n")
@@ -1700,7 +1700,7 @@ def test_launch_console_setup_keyboard_interrupt(
     )
     mock_path_class.return_value = mock_path_instance
 
-    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
     result = cli_runner.invoke(app, ["attach"], input="1\n")
@@ -1728,7 +1728,7 @@ def test_launch_console_setup_generic_exception(
     )
     mock_path_class.return_value = mock_path_instance
 
-    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]
 
     result = cli_runner.invoke(app, ["attach"], input="1\n")
@@ -1746,7 +1746,7 @@ def test_launch_console_setup_generic_exception(
 def test_attach_with_pid_success(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process) -> None:
     """Test attach command with --pid option for successful attachment."""
     mock_aedt_process.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe",
         "-ng",
         "-grpcsrv",
         "50051",
@@ -1768,7 +1768,7 @@ def test_attach_with_pid_short_option(
 ) -> None:
     """Test attach command with -p short option."""
     mock_aedt_process.cmdline.return_value = [
-        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe",
         "-ng",
         "-grpcsrv",
         "50051",
@@ -1851,7 +1851,7 @@ def test_attach_with_pid_multiple_processes(mock_launch, mock_get_port, mock_fin
     proc1 = Mock(spec=psutil.Process)
     proc1.pid = 12345
     proc1.name.return_value = "ansysedt.exe"
-    proc1.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    proc1.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM\\ansysedt.exe"]
 
     proc2 = Mock(spec=psutil.Process)
     proc2.pid = 67890
