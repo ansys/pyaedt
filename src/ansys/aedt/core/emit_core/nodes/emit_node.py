@@ -149,7 +149,7 @@ class EmitNode:
     @property
     @min_aedt_version("2025.2")
     def _parent(self) -> EmitNode:
-        """Parent node name of this node.
+        """Parent node of this node.
 
         Returns
         -------
@@ -173,18 +173,33 @@ class EmitNode:
         """
         return self._get_property("Parent", True)
 
-    @property
     @min_aedt_version("2025.2")
-    def _full_node_name(self):
-        """Full node name of this node including the entire tree structure
+    def _full_node_name(self, name="") -> str:
+        """Convert a Component's short name to a full name with the format: NODE-*-{name}.
+
+        If name is ``""`` then the method converts the node's name to a full name.
+
+        Parameters
+        ----------
+        name : str, optional
+            Short name to convert.
 
         Returns
         -------
         Str
-            Full node name.
+            Full node name with the format: NODE-*-{name}.
         """
-        parent_name = self.parent_name
-        return parent_name + "-*-" + self.name
+        if name == "":
+            return self.parent_name + "-*-" + self.name
+
+        if name.startswith("NODE-*-"):
+            return name
+
+        comp = self._emit_obj.results.analyze().get_component_node(name)
+        if comp is not None:
+            return comp.parent_name + "-*-" + name
+
+        return ""
 
     @property
     @min_aedt_version("2025.2")
