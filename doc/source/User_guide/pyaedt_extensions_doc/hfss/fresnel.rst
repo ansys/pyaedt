@@ -1,5 +1,5 @@
-Fresnelcoefficients (RTTBL extraction)
-======================================
+Fresnel coefficients (RTTBL extraction)
+=======================================
 
 With this extension, you can export Fresnel Coefficients for periodic structures from an HFSS Unit-Cell design with
 Floquet ports in the RTTBL file format for further use in SBR+ for Fresnel (SBR+) Boundary Condition assignment.
