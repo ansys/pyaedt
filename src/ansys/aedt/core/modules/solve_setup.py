@@ -500,6 +500,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points: int = 1001,
         name: str = None,
         sweep: str = None,
+        matplotlib: bool = False,
+        show: bool = True,
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
@@ -538,6 +544,20 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             The default value is ``None``.
         sweep : str, optional
             Name of the sweep adaptive setup to get solutions from. The default is ``LastAdaptive``.
+        matplotlib : bool, optional
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Snapshot image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Snapshot image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -569,6 +589,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         if setup_sweep_name:
             return self._app.post.create_report(
                 expressions=expressions,
+                setup_sweep_name=setup_sweep_name[0],
                 domain=domain,
                 variations=variations,
                 primary_sweep_variable=primary_sweep_variable,
@@ -577,6 +598,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
                 plot_type=plot_type,
                 context=context,
                 polyline_points=polyline_points,
+                matplotlib=matplotlib,
+                show=show,
+                hide_legend=hide_legend,
+                snapshot_path=snapshot_path,
+                width=width,
+                height=width,
             )
         return None
 
@@ -1777,6 +1804,12 @@ class SetupCircuit(CommonSetup):
         subdesign_id: int = None,
         polyline_points: int = 1001,
         name: str = None,
+        matplotlib: bool = False,
+        show: bool = True,
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
@@ -1813,6 +1846,20 @@ class SetupCircuit(CommonSetup):
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
         context : str, optional
+        matplotlib : bool, optional
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Snapshot image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Snapshot image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -1828,6 +1875,7 @@ class SetupCircuit(CommonSetup):
             expressions=expressions,
             domain=domain,
             variations=variations,
+            setup_sweep_name=self.name,
             primary_sweep_variable=primary_sweep_variable,
             secondary_sweep_variable=secondary_sweep_variable,
             report_category=report_category,
@@ -1835,6 +1883,12 @@ class SetupCircuit(CommonSetup):
             context=context,
             subdesign_id=subdesign_id,
             polyline_points=polyline_points,
+            matplotlib=matplotlib,
+            show=show,
+            hide_legend=hide_legend,
+            snapshot_path=snapshot_path,
+            width=width,
+            height=width,
         )
 
 
