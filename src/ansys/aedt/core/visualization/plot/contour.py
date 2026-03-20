@@ -25,9 +25,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- 2) Connected components (SciPy if available; else a small fallback) ---
-from scipy.ndimage import label as _scipy_label
-
 from ansys.aedt.core.generic.settings import settings
 
 
@@ -68,6 +65,8 @@ def bin_to_grid(xc, yc, zc, nx=2000, ny=2000, xlim=None, ylim=None):
 
 
 def _label_connected_components(mask, connectivity=4):
+    from scipy.ndimage import label as _scipy_label
+
     if connectivity == 8:
         structure = np.ones((3, 3), dtype=int)
     else:
