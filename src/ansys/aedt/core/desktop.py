@@ -77,6 +77,7 @@ from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 """Tuple of loopback host names."""
 
@@ -1599,6 +1600,9 @@ class Desktop(PyAedtBase):
                         return False
         return True
 
+    def __del__(self):
+        self.__release_and_close_desktop(self.close_on_exit, self.close_on_exit)
+
     @pyaedt_function_handler()
     def __release_and_close_desktop(self, close_projects, close_aedt_app):
         """Internal method performing common operations when releasing or closing AEDT.
@@ -1662,9 +1666,6 @@ class Desktop(PyAedtBase):
             self.logger.info("Desktop has been released.")
         if self.aedt_process_id in _desktop_sessions:
             del _desktop_sessions[self.aedt_process_id]
-        props = [a for a in dir(self) if not a.startswith("__")]
-        for a in props:
-            self.__dict__.pop(a, None)
 
         gc.collect()
         self.__closed = True
@@ -2736,6 +2737,76 @@ class Desktop(PyAedtBase):
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
 
+    def _on_ci_generate_lock_file(self) -> Path:
+        """Generate a lock file to prevent concurrent AEDT gRPC launches in CI environment.
+
+        Returns
+        -------
+        Path
+            The lock file path.
+
+        """
+        lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
+
+        # Check if lock file exists and is stale (from a previous crashed session)
+        if lock_file.exists():  # pragma: no cover
+            try:
+                # Get the lock file's modification time
+                lock_file_age = time.time() - lock_file.stat().st_mtime
+                # If the lock file is older than the launch timeout, it's likely stale
+                if lock_file_age > settings.desktop_launch_timeout:
+                    self.logger.warning(
+                        f"Found stale lock file from {lock_file_age:.1f} seconds ago. "
+                        "Removing it as it appears to be from a previous crashed session."
+                    )
+                    lock_file.unlink()
+                else:
+                    self.logger.debug(
+                        f"Lock file exists and was created {lock_file_age:.1f} seconds ago. "
+                        "Waiting for it to be released..."
+                    )
+            except Exception as e:
+                self.logger.warning(f"Could not check lock file age: {e}")
+
+        start_time = time.time()
+        while lock_file.exists():  # pragma: no cover
+            if time.time() - start_time > settings.desktop_launch_timeout:
+                self.logger.warning(
+                    f"Lock file still exists after {settings.desktop_launch_timeout} seconds. "
+                    "This may indicate a problem with a concurrent AEDT launch. Proceeding anyway."
+                )
+                break
+            if not active_sessions():
+                self.logger.debug("No active AEDT sessions detected. Proceeding with launch.")
+                break
+            time.sleep(1)
+
+        try:
+            lock_file.touch(exist_ok=True)
+            self.logger.debug(f"Lock file {lock_file}.")
+        except Exception:  # pragma: no cover
+            self.logger.warning(f"Could not create lock file {lock_file}.")
+
+        return lock_file
+
+    def _on_ci_release_grpc_lock(self, lock_file: Path):
+        """Release the gRPC launch lock file in CI environment.
+
+        Parameters
+        ----------
+        lock_file : Path
+            The lock file path to remove.
+
+        Notes
+        -----
+        This method is only used when running in CI environments (ON_CI=True).
+        """
+        try:
+            lock_file.unlink()
+            self.logger.debug(f"Removed lock file {lock_file}.")
+        except Exception:  # pragma: no cover
+            self.logger.warning(f"Could not remove lock file {lock_file}.")
+
     def __init_grpc(self):
         """Initialize AEDT connection using gRPC API.
 
@@ -2806,21 +2877,10 @@ class Desktop(PyAedtBase):
                 else:
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
 
-            lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
-            start_time = time.time()
-            while lock_file.exists():
-                if time.time() - start_time > settings.desktop_launch_timeout:
-                    self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
-                    break
-                if not active_sessions():
-                    break
-                time.sleep(1)
-
-            try:
-                lock_file.touch(exist_ok=True)
-                self.logger.debug(f"Lock file {lock_file}.")
-            except Exception:
-                self.logger.warning(f"Could not create lock file {lock_file}.")
+            if ON_CI:
+                # NOTE: Generate lock file to prevent concurrent AEDT launches in CI environment,
+                # which can cause conflicts and timeouts.
+                lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
             try:
@@ -2848,11 +2908,9 @@ class Desktop(PyAedtBase):
             # Establish gRPC connection
             result = self.__initialize()
 
-            # Remove lock file
-            try:
-                lock_file.unlink()
-            except Exception:
-                self.logger.warning(f"Could not remove lock file {lock_file}.")
+            if ON_CI:
+                # Release lock file after successful launch
+                self._on_ci_release_grpc_lock(lock_file)
 
         if result:
             if self.new_desktop:

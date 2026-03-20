@@ -157,10 +157,6 @@ class AedtObjWrapper:
         else:
             super().__setattr__(attrName, val)
 
-    def __del__(self) -> None:
-        if "ReleaseAedtObject" in dir(self.dllapi):
-            self.dllapi.ReleaseAedtObject(self.objectID)
-
     def match(
         self, patternStr: str
     ) -> list[str]:  # IronPython wrapper implemented this function return IEnumerable<string>.
@@ -337,7 +333,11 @@ class AEDT:
 
     def CreateAedtApplication(self, machine, port: int | None = 0, NGmode: bool = False, alwaysNew: bool = True):
         try:
-            pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine == "":
+                pyaedt_logger.debug(f"Starting client with port {port}")
+            else:
+                pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+
             if machine.endswith("InsecureMode"):
                 target = machine.split(":")[0]
                 pyaedt_logger.warning(

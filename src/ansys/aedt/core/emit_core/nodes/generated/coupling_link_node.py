@@ -67,5 +67,13 @@ class CouplingLinkNode(EmitNode):
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value: list[str]) -> None:
+    def ports(self, value: list[str] | list[EmitNode] | str) -> None:
+        if isinstance(value, (list, tuple)):
+            if all(isinstance(v, EmitNode) for v in value):
+                value = "|".join(self._full_node_name(v.name) for v in value)
+            else:
+                value = "|".join(self._full_node_name(v) for v in value)
+        else:
+            parts = value.split("|")
+            value = "|".join(self._full_node_name(p) for p in parts)
         self._set_property("Ports", f"{value}")

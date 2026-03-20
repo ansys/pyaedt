@@ -268,12 +268,14 @@ class EMIReceiver(CommonReport):
         ]
         return arg
 
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return self.expressions
+    @pyaedt_function_handler()
+    def _trace_info(self, expressions=None):
+        if not expressions:
+            expressions = self.expressions[::]
+        if isinstance(expressions, list):
+            return expressions
         else:
-            return [self.expressions]
+            return [expressions]
 
     @pyaedt_function_handler()
     def create(self, name: str = None) -> "EMIReceiver":
@@ -305,7 +307,7 @@ class EMIReceiver(CommonReport):
                 "X Component:=",
                 self.primary_sweep,
                 "Y Component:=",
-                self._trace_info,
+                self._trace_info(),
             ],
         )
         self._post.plots.append(self)

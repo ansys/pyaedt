@@ -322,12 +322,10 @@ def install_pyaedt():
         venv_dir = Path(VENV_DIR, python_version)
         pip_exe = venv_dir / "Scripts" / "pip.exe"
         uv_exe = venv_dir / "Scripts" / "uv.exe"
-        activate_script = venv_dir / "Scripts" / "activate.bat"
     else:
         venv_dir = Path(VENV_DIR, python_version)
         pip_exe = venv_dir / "bin" / "pip"
         uv_exe = venv_dir / "bin" / "uv"
-        activate_script = venv_dir / "bin" / "activate"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
         ld_library_path_dirs_to_add = [
             r"{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
@@ -360,20 +358,9 @@ def install_pyaedt():
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
-            print("Installing uv using provided wheels argument")
+            print("Installing PyAEDT using provided wheels argument with pip")
             command = [
                 str(pip_exe),
-                "install",
-                "--no-cache-dir",
-                "--no-index",
-                r"--find-links={}".format(str(unzipped_path)),
-                "uv",
-            ]
-            subprocess.run(command, check=True, env=env)  # nosec
-            print("Installing PyAEDT using provided wheels argument")
-            command = [
-                str(uv_exe),
-                "pip",
                 "install",
                 "--no-cache-dir",
                 "--no-index",
@@ -440,22 +427,9 @@ def install_pyaedt():
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
-            print("Installing uv using provided wheels argument")
+            print("Installing PyAEDT using provided wheels argument with pip")
             command = [
                 str(pip_exe),
-                "install",
-                "--no-cache-dir",
-                "--no-index",
-                r"--find-links={}".format(str(unzipped_path)),
-                "uv",
-            ]
-            subprocess.run(command, check=True, env=env)  # nosec
-            print("Activating uv in the virtual environment...")
-            subprocess.run([str(activate_script)], check=True, env=env)  # nosec
-            print("Installing PyAEDT using provided wheels argument")
-            command = [
-                str(uv_exe),
-                "pip",
                 "install",
                 "--no-cache-dir",
                 "--no-index",
