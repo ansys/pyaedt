@@ -1228,8 +1228,7 @@ def active_sessions(
     target_processes = _get_target_processes(target)
 
     # Step 4: AEDT processes launched
-    for pid, cmd in target_processes:
-        return_dict[pid] = -1
+    return_dict = {pid: -1 for pid, _ in target_processes}
 
     # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
     # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers
