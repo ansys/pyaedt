@@ -589,7 +589,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         if setup_sweep_name:
             return self._app.post.create_report(
                 expressions=expressions,
-                setup_sweep_name=setup_sweep_name,
+                setup_sweep_name=setup_sweep_name[0],
                 domain=domain,
                 variations=variations,
                 primary_sweep_variable=primary_sweep_variable,

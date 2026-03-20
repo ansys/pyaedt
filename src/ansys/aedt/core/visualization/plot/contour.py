@@ -28,7 +28,7 @@ import numpy as np
 # --- 2) Connected components (SciPy if available; else a small fallback) ---
 from scipy.ndimage import label as _scipy_label
 
-from ansys.aedt.core.generic import settings
+from ansys.aedt.core.generic.settings import settings
 
 
 # --- 1) Bin your 1D samples (xc, yc, zc) to a regular grid (Xc, Yc, Z) ---
@@ -47,7 +47,9 @@ def bin_to_grid(xc, yc, zc, nx=2000, ny=2000, xlim=None, ylim=None):
     xc = np.asarray(xc).ravel()
     yc = np.asarray(yc).ravel()
     zc = np.asarray(zc).ravel()
-    assert xc.size == yc.size == zc.size, "xc, yc, zc must have the same length"
+    if not xc.size == yc.size == zc.size:
+        settings.logger.error("xc, yc, zc must have the same length")
+        return
 
     if xlim is None:
         xlim = (float(np.nanmin(xc)), float(np.nanmax(xc)))
@@ -125,7 +127,9 @@ def extract_eye_opening_contour_by_center(
     Xc = np.asarray(Xc).ravel()
     Yc = np.asarray(Yc).ravel()
     Z = np.asarray(Z)
-    assert Z.ndim == 2 and Z.shape == (len(Yc), len(Xc)), f"Z must be 2D with shape (len(Yc), len(Xc)); got {Z.shape}"
+    if not (Z.ndim == 2 and Z.shape == (len(Yc), len(Xc))):
+        settings.logger.error(f"Z must be 2D with shape (len(Yc), len(Xc)); got {Z.shape}")
+        return
 
     zero_mask = Z == 0
     labels, num = _label_connected_components(zero_mask, connectivity=connectivity)
