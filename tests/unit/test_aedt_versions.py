@@ -101,17 +101,21 @@ def test_installed_versions(mock_os_environ, mock_path_exist, aedt_versions) -> 
     """Test the installed_versions function."""
     result = aedt_versions.installed_versions
     expected = {
+        "2026.1": r"C:\Program Files\AnsysEM\v261\ANSYS",
         "2025.2": r"C:\Program Files\AnsysEM\v252\ANSYS",
         "2025.1": r"C:\Program Files\AnsysEM\v251\ANSYS",
         "2024.2": r"C:\Program Files\AnsysEM\v242\ANSYS",
         "2024.1": r"C:\Program Files\AnsysEM\v241\ANSYS",
+        "2026.1CL": r"C:\Program Files\AnsysEM\v261CLIENT\ANSYS",
         "2025.2CL": r"C:\Program Files\AnsysEM\v252CLIENT\ANSYS",
         "2025.1CL": r"C:\Program Files\AnsysEM\v251CLIENT\ANSYS",
         "2024.2CL": r"C:\Program Files\AnsysEM\v242CLIENT\ANSYS",
+        "2026.1SV": r"C:\Program Files\AnsysEM\v261SV\ANSYS",
         "2025.2SV": r"C:\Program Files\AnsysEM\v252SV\ANSYS",
         "2025.1SV": r"C:\Program Files\AnsysEM\v251SV\ANSYS",
         "2024.2SV": r"C:\Program Files\AnsysEM\v242SV\ANSYS",
         "2024.1SV": r"C:\Program Files\AnsysEM\v241SV\ANSYS",
+        "2026.1AWP": r"C:\Program Files\AnsysInc\v261",
         "2025.2AWP": r"C:\Program Files\AnsysInc\v252",
         "2025.1AWP": r"C:\Program Files\AnsysInc\v251",
         "2024.2AWP": r"C:\Program Files\AnsysInc\v242",
