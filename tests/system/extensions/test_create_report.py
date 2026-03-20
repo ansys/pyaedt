@@ -23,7 +23,7 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import os
 from pathlib import Path
 
 import pytest
@@ -128,7 +128,7 @@ def test_create_report_different_design_types(add_app) -> None:
     aedt_app.close_project(save=False)
 
 
-def test_create_report_with_plots(add_app) -> None:
+def test_create_report_with_plots(add_app, test_tmp_dir) -> None:
     """Test report creation when plots exist."""
     data = CreateReportExtensionData(report_name="ReportWithPlots", open_report=False, save_path="")
 
@@ -141,7 +141,7 @@ def test_create_report_with_plots(add_app) -> None:
     # Create a simple setup
     aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     setup = aedt_app.create_setup("TestSetup")
-
+    out = os.path.join(test_tmp_dir, "test.jpg")
     # Create a simple plot report
     aedt_app.post.create_report(
         "dB(S(1,1))",
@@ -149,8 +149,12 @@ def test_create_report_with_plots(add_app) -> None:
         variations=None,
         primary_sweep_variable="Freq",
         plot_name="S11_Plot",
+        hide_legend=True,
+        snapshot_path=out,
+        width=700,
+        height=700,
     )
-
+    assert os.path.exists(out)
     assert main(data)
 
     # Check if report was generated

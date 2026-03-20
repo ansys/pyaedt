@@ -1171,10 +1171,14 @@ def test_export_mesh(aedt_app) -> None:
     assert Path(aedt_app.export_mesh_stats("Setup1")).is_file()
 
 
-def test_sweep_from_json(aedt_app) -> None:
+def test_sweep_from_json(aedt_app, test_tmp_dir) -> None:
     input_file = TESTS_VISUALIZATION_PATH / "example_models" / "report_json" / "Modal_Report_Simple.json"
     dict_vals = read_json(str(input_file))
-    assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals)
+    out = os.path.join(test_tmp_dir, "Modal_Report_Simple.png")
+    assert aedt_app.post.create_report_from_configuration(
+        report_settings=dict_vals, snapshot_path=out, hide_legend=True
+    )
+    assert os.path.exists(out)
     assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True, show=False)
 
 
@@ -1267,17 +1271,17 @@ def test_eye_ami_from_json(aedt_report_app, test_tmp_dir) -> None:
 
     input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_contoureye.json"
     dict_vals = read_json(str(input_file))
-    rep = aedt_report_app.post.create_report_from_configuration(
-        report_settings=dict_vals, matplotlib=True, show=False, solution_name="AMIAnalysis"
-    )
     out = os.path.join(test_tmp_dir, "contour_diagram.png")
-    rep.plot_eye_diagram(
-        snapshot_path=out,
+    aedt_report_app.post.create_report_from_configuration(
+        report_settings=dict_vals,
+        matplotlib=True,
         show=False,
-        is_contour=True,
-        filter_colormap=1e-6,
-        plot_max_height=False,
+        solution_name="AMIAnalysis",
+        snapshot_path=out,
+        width=1200,
+        height=600,
     )
+
     assert os.path.exists(out)
 
 

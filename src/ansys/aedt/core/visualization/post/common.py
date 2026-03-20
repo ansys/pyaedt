@@ -32,6 +32,7 @@ This module provides all functionalities for common AEDT post processing.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import re
 from typing import TYPE_CHECKING
 
@@ -54,7 +55,17 @@ from ansys.aedt.core.visualization.report import netlist as report_netlist
 from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.report.emi import EMIReceiver
+    from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+    from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+    from ansys.aedt.core.visualization.report.eye import EyeDiagram
+    from ansys.aedt.core.visualization.report.field import FarField
+    from ansys.aedt.core.visualization.report.field import Fields
+    from ansys.aedt.core.visualization.report.field import NearField
+    from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+    from ansys.aedt.core.visualization.report.standard import Spectral
     from ansys.aedt.core.visualization.report.standard import Standard
+
 
 TEMPLATES_BY_NAME = {
     "Standard": report_standard.Standard,
@@ -110,7 +121,14 @@ class PostProcessorCommon(PyAedtBase):
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
-    def plots(self) -> list[Standard]:
+    def plots(
+        self,
+    ) -> list[
+        (
+            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
+            "Fields | FarField | NearField | Spectral"
+        )
+    ]:
         """Plot list.
 
         Returns
@@ -123,7 +141,13 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value: list[Standard]) -> None:
+    def plots(
+        self,
+        value: list[
+            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
+            "Fields | FarField | NearField | Spectral"
+        ],
+    ) -> None:
         self.__plots = value
 
     @property
@@ -1024,7 +1048,7 @@ class PostProcessorCommon(PyAedtBase):
         Parameters
         ----------
         project_path : str
-            Path to the project directory.
+            Path to the project directory or full path to the file.
         plot_name : str
             Name of the plot to export.
         width : int, optional
@@ -1043,7 +1067,10 @@ class PostProcessorCommon(PyAedtBase):
         ----------
         >>> oModule.ExportImageToFile
         """
-        file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
+        if Path(project_path).is_dir():
+            file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
+        else:
+            file_name = project_path
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
@@ -1454,8 +1481,17 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id: int = None,
         polyline_points: int = 1001,
         plot_name: str = None,
-    ) -> Standard:
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
+        matplotlib: bool = False,
+        show: bool = True,
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
+    ) -> (
+        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
+        "FarField | NearField | Spectral | ReportPlotter"
+    ):
+        """Create a report in AEDT or in Matplotlib. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
         ----------
@@ -1503,6 +1539,20 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
+        matplotlib : bool, optional
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Snapshot image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Snapshot image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -1603,8 +1653,17 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
-        result = report.create(plot_name)
+        if matplotlib:
+            return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
 
+        result = report.create(plot_name)
+        if hide_legend:
+            report.hide_legend()
+
+        if snapshot_path:
+            out = self.export_report_to_jpg(snapshot_path, report.plot_name, width=width, height=height)
+            if not out:
+                self.logger.error("Failed to export report to image.")
         if result:
             if report.traces:
                 return report
@@ -1779,7 +1838,14 @@ class PostProcessorCommon(PyAedtBase):
         name: str = None,
         matplotlib: bool = False,
         show: bool = True,
-    ) -> Standard | "ReportPlotter":
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
+    ) -> (
+        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
+        "FarField | NearField | Spectral | ReportPlotter"
+    ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -1795,6 +1861,15 @@ class PostProcessorCommon(PyAedtBase):
         show : bool, optional
             Whether to show the plot when using ReportPlotter. The default is ``True``.
             If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -1910,18 +1985,24 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                return self._report_plotter(report, show=show)
+                return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
                 self.oreportsetup.UpdateReports(report.plot_name)
             self.logger.info(f"Report {report.plot_name} created successfully.")
+            if hide_legend:
+                report.hide_legend()
+            if snapshot_path:
+                out = self.export_report_to_jpg(snapshot_path, report.plot_name, width=width, height=height)
+                if not out:
+                    self.logger.error("Failed to export report to image.")
             return report
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True):
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
         """Create a Matplotlib plot from a report.
 
         Parameters
@@ -1930,14 +2011,24 @@ class PostProcessorCommon(PyAedtBase):
             Report object.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
+                snapshot_path : str, optional
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Image height. Default is ``450`` which takes Desktop size or 450 pixel.
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
         report_plotter = ReportPlotter(solution_data=sols)
-        if report._legacy_props["general"].get("axisx", {}).get("font_size"):
+        report_plotter.width = width
+        report_plotter.height = height
+        if report._legacy_props.get("general", {}).get("axisx", {}).get("font_size"):
             report_plotter.text_size = report._legacy_props["general"].get("axisx", {}).get("font_size")
-        if report._legacy_props["general"].get("header", {}).get("title_size"):
+        if report._legacy_props.get("general", {}).get("header", {}).get("title_size"):
             report_plotter.title_size = report._legacy_props["general"].get("header", {}).get("title_size")
 
         report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
@@ -2113,17 +2204,17 @@ class PostProcessorCommon(PyAedtBase):
                     )
                 )
 
-            _ = report_plotter.plot_eye_diagram(show=show)
+            _ = report_plotter.plot_eye_diagram(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
-            _ = report_plotter.plot_2d(show=show)
+            _ = report_plotter.plot_2d(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
-            _ = report_plotter.plot_polar(show=show)
+            _ = report_plotter.plot_polar(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
-            _ = report_plotter.plot_contour(show=show)
+            _ = report_plotter.plot_contour(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
-            _ = report_plotter.plot_3d(show=show)
+            _ = report_plotter.plot_3d(show=show, snapshot_path=snapshot_path)
         elif report.report_category in ["Eye Diagram", "Statistical Eye"]:
-            _ = report_plotter.plot_eye_diagram(show=show)
+            _ = report_plotter.plot_eye_diagram(show=show, snapshot_path=snapshot_path)
         else:
             self.logger.warning("Plot type not supported.")
         return report_plotter

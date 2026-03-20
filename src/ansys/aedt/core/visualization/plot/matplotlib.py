@@ -512,8 +512,38 @@ class ReportPlotter(PyAedtBase):
         self.__text_size = 12
         self.__title_size = 16
         self.__solution_data = solution_data
+        self.__dpi = 100
+        self.__width = 1200
+        self.__height = 800
         self.unit_interval = 0
         self.offset = 0
+
+    @property
+    def dpi(self) -> int:
+        """Figure dpi."""
+        return self.__dpi
+
+    @dpi.setter
+    def dpi(self, value: int) -> None:
+        self.__dpi = value
+
+    @property
+    def width(self) -> int:
+        """Figure width."""
+        return self.__width
+
+    @width.setter
+    def width(self, value: int) -> None:
+        self.__width = value
+
+    @property
+    def height(self) -> int:
+        """Figure height."""
+        return self.__height
+
+    @height.setter
+    def height(self, value: int) -> None:
+        self.__height = value
 
     @property
     def text_size(self) -> int:
@@ -1038,7 +1068,7 @@ class ReportPlotter(PyAedtBase):
             if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
                 self.animation.save(snapshot_path, writer="pillow", fps=2)
             else:
-                self.fig.savefig(snapshot_path)
+                self.fig.savefig(snapshot_path, dpi=self.dpi)
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1130,6 +1160,8 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, projection="polar")
@@ -1194,6 +1226,7 @@ class ReportPlotter(PyAedtBase):
         if not trace_number:
             return False
         self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"})
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         tr = trace_number[0]
         if not is_polar:
             self.ax.set_xlabel(tr.x_label, labelpad=20)
@@ -1306,6 +1339,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1393,6 +1427,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1448,6 +1483,7 @@ class ReportPlotter(PyAedtBase):
 
         """
         self.fig, self.ax = plt.subplots()
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         self.__grid_enable_minor_y = False
         self.__grid_enable_minor_x = False
 
@@ -1758,6 +1794,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
@@ -1837,6 +1874,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
@@ -1927,6 +1965,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
@@ -2090,7 +2129,7 @@ def plot_matplotlib(
             plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
 
     if snapshot_path:
-        plt.savefig(snapshot_path)
+        plt.savefig(snapshot_path, dpi=dpi)
     if show:  # pragma: no cover
         plt.show()
     return fig

@@ -324,7 +324,7 @@ def test_circuit_available_report_solutions(diff_test) -> None:
     assert len(diff_test.post.available_report_solutions()) > 0
 
 
-def test_circuit_create_report_2(diff_test) -> None:
+def test_circuit_create_report_2(diff_test, test_tmp_dir) -> None:
     variations = diff_test.available_variations.nominal_variation(dependent_params=False)
     variations["Freq"] = ["All"]
     variations["l1"] = ["All"]
@@ -335,6 +335,20 @@ def test_circuit_create_report_2(diff_test) -> None:
         primary_sweep_variable="l1",
         context="Differential Pairs",
     )
+    out = os.path.join(test_tmp_dir, "test2.jpg")
+    diff_test.post.create_report(
+        "dB(S(Diff1, Diff1))",
+        variations=variations,
+        primary_sweep_variable="l1",
+        context="Differential Pairs",
+        matplotlib=True,
+        show=False,
+        hide_legend=True,
+        snapshot_path=out,
+        width=700,
+        height=700,
+    )
+    assert os.path.exists(out)
 
 
 def test_sbr_get_solution_data(sbr_test) -> None:
