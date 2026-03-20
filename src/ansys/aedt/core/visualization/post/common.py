@@ -32,17 +32,21 @@ This module provides all functionalities for common AEDT post processing.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -51,7 +55,17 @@ from ansys.aedt.core.visualization.report import netlist as report_netlist
 from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.report.emi import EMIReceiver
+    from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+    from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
+    from ansys.aedt.core.visualization.report.eye import EyeDiagram
+    from ansys.aedt.core.visualization.report.field import FarField
+    from ansys.aedt.core.visualization.report.field import Fields
+    from ansys.aedt.core.visualization.report.field import NearField
+    from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+    from ansys.aedt.core.visualization.report.standard import Spectral
     from ansys.aedt.core.visualization.report.standard import Standard
+
 
 TEMPLATES_BY_NAME = {
     "Standard": report_standard.Standard,
@@ -107,7 +121,14 @@ class PostProcessorCommon(PyAedtBase):
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
-    def plots(self) -> list[Standard]:
+    def plots(
+        self,
+    ) -> list[
+        (
+            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
+            "Fields | FarField | NearField | Spectral"
+        )
+    ]:
         """Plot list.
 
         Returns
@@ -120,7 +141,13 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value: list[Standard]) -> None:
+    def plots(
+        self,
+        value: list[
+            "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | "
+            "Fields | FarField | NearField | Spectral"
+        ],
+    ) -> None:
         self.__plots = value
 
     @property
@@ -590,9 +617,9 @@ class PostProcessorCommon(PyAedtBase):
                 if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-                names = obj.GetChildNames()
+                traces = obj.GetChildNames()
                 solution = None
-                for trc_name in names:
+                for trc_name in traces:
                     trc_obj = obj.GetChildObject(trc_name)
                     try:
                         solution = trc_obj.GetPropValue("Solution")
@@ -1021,7 +1048,7 @@ class PostProcessorCommon(PyAedtBase):
         Parameters
         ----------
         project_path : str
-            Path to the project directory.
+            Path to the project directory or full path to the file.
         plot_name : str
             Name of the plot to export.
         width : int, optional
@@ -1040,7 +1067,10 @@ class PostProcessorCommon(PyAedtBase):
         ----------
         >>> oModule.ExportImageToFile
         """
-        file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
+        if Path(project_path).is_dir():
+            file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
+        else:
+            file_name = project_path
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
@@ -1451,8 +1481,17 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id: int = None,
         polyline_points: int = 1001,
         plot_name: str = None,
-    ) -> Standard:
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
+        matplotlib: bool = False,
+        show: bool = True,
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
+    ) -> (
+        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
+        "FarField | NearField | Spectral | ReportPlotter"
+    ):
+        """Create a report in AEDT or in Matplotlib. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
         ----------
@@ -1500,6 +1539,20 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
+        matplotlib : bool, optional
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Snapshot image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Snapshot image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -1600,8 +1653,17 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
-        result = report.create(plot_name)
+        if matplotlib:
+            return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
 
+        result = report.create(plot_name)
+        if hide_legend:
+            report.hide_legend()
+
+        if snapshot_path:
+            out = self.export_report_to_jpg(snapshot_path, report.plot_name, width=width, height=height)
+            if not out:
+                self.logger.error("Failed to export report to image.")
         if result:
             if report.traces:
                 return report
@@ -1776,7 +1838,14 @@ class PostProcessorCommon(PyAedtBase):
         name: str = None,
         matplotlib: bool = False,
         show: bool = True,
-    ) -> Standard:
+        hide_legend: bool = False,
+        snapshot_path: str = None,
+        width: int = 800,
+        height: int = 450,
+    ) -> (
+        "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
+        "FarField | NearField | Spectral | ReportPlotter"
+    ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -1792,6 +1861,15 @@ class PostProcessorCommon(PyAedtBase):
         show : bool, optional
             Whether to show the plot when using ReportPlotter. The default is ``True``.
             If matplotlib is ``False``, this parameter is ignored.
+        hide_legend : bool, optional
+            Whether to hide the legend when using AEDT reporter. The default is ``False``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Image height. Default is ``450`` which takes Desktop size or 450 pixel.
 
         Returns
         -------
@@ -1907,21 +1985,24 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
-                    self.logger.warning("Eye Diagrams are not supported by Matplotlib.")
-                else:
-                    return self._report_plotter(report, show=show)
+                return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
                 self.oreportsetup.UpdateReports(report.plot_name)
             self.logger.info(f"Report {report.plot_name} created successfully.")
+            if hide_legend:
+                report.hide_legend()
+            if snapshot_path:
+                out = self.export_report_to_jpg(snapshot_path, report.plot_name, width=width, height=height)
+                if not out:
+                    self.logger.error("Failed to export report to image.")
             return report
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True):
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
         """Create a Matplotlib plot from a report.
 
         Parameters
@@ -1930,11 +2011,26 @@ class PostProcessorCommon(PyAedtBase):
             Report object.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
+                snapshot_path : str, optional
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        width : int, optional
+            Image width. Default is ``800`` which takes Desktop size or 800 pixel.
+        height : int, optional
+            Image height. Default is ``450`` which takes Desktop size or 450 pixel.
         """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
-        report_plotter = ReportPlotter()
+        report_plotter = ReportPlotter(solution_data=sols)
+        report_plotter.width = width
+        report_plotter.height = height
+        if report._legacy_props.get("general", {}).get("axisx", {}).get("font_size"):
+            report_plotter.text_size = report._legacy_props["general"].get("axisx", {}).get("font_size")
+        if report._legacy_props.get("general", {}).get("header", {}).get("title_size"):
+            report_plotter.title_size = report._legacy_props["general"].get("header", {}).get("title_size")
+
         report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
         try:
             report_plotter.general_back_color = [
@@ -1968,12 +2064,22 @@ class PostProcessorCommon(PyAedtBase):
             report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
-        sw = sols.primary_sweep_values
+        sw = [sols.primary_sweep_values]
         for curve in sols.expressions:
-            props = {
-                "x_label": sols.primary_sweep,
-                "y_label": curve,
-            }
+            if "__Amplitude" in sols.intrinsics and "__UnitInterval" in sols.intrinsics:
+                x, y = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
+                sw = [x[:, 0], x[:, 1], y]
+                props = {
+                    "x_label": "UnitInterval",
+                    "y_label": "Amplitude",
+                    "z_label": curve,
+                }
+            else:
+                props = {
+                    "x_label": sols.primary_sweep,
+                    "y_label": curve,
+                }
+                sw.append(sols.get_expression_data(curve)[1])
             pp = [i for i in report._legacy_props["expressions"] if i["name"] == curve]
             if pp:
                 pp = pp[0]
@@ -2010,7 +2116,7 @@ class PostProcessorCommon(PyAedtBase):
                     props["symbol_style"] = markers[pp["symbol_style"]]
                 except KeyError:
                     pass
-            report_plotter.add_trace([sw, sols.get_expression_data(curve)[1]], 0, properties=props, name=curve)
+            report_plotter.add_trace(sw, 0, properties=props, name=curve)
         for name, line in report._legacy_props.get("limitLines", {}).items():
             props = {}
             try:
@@ -2025,14 +2131,98 @@ class PostProcessorCommon(PyAedtBase):
                 report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
             except KeyError:
                 self.logger.warning("Equation lines not supported yet.")
-        if report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
-            _ = report_plotter.plot_2d(show=show)
+        if (
+            "eye_mask" in report._legacy_props
+            and report._legacy_props["eye_mask"]
+            and report.report_category in ["Eye Diagram", "Statistical Eye"]
+            or ("quantity_type" in report._legacy_props and report.report_type == "Rectangular Contour Plot")
+        ):
+            if "__Amplitude" in sols.units_sweeps or "Time" in sols.units_sweeps:
+                if report._legacy_props["eye_mask"].get("yunits", ""):
+                    unit_time = sols.units_sweeps["Time"] if "Time" in sols.units_sweeps else ""
+                    report._legacy_props["eye_mask"]["points"] = [
+                        [
+                            unit_converter(
+                                i[0],
+                                unit_system="Time",
+                                input_units=report._legacy_props["eye_mask"]["xunits"]
+                                if report._legacy_props["eye_mask"]["xunits"]
+                                else "s",
+                                output_units=unit_time if unit_time else "s",
+                            ),
+                            unit_converter(
+                                i[1],
+                                unit_system="Voltage",
+                                input_units=report._legacy_props["eye_mask"]["yunits"],
+                                output_units=sols.units_sweeps["__Amplitude"]
+                                if "__Amplitude" in sols.units_sweeps
+                                else sols.units_data[sols.expressions[0]],
+                            ),
+                        ]
+                        for i in report._legacy_props["eye_mask"]["points"]
+                    ]
+                if report._legacy_props["eye_mask"].get("upper_limit"):
+                    report._legacy_props["eye_mask"]["upper_limit"] = unit_converter(
+                        report._legacy_props["eye_mask"]["upper_limit"],
+                        unit_system="Voltage",
+                        input_units=report._legacy_props["eye_mask"]["yunits"],
+                        output_units=sols.units_sweeps["__Amplitude"]
+                        if "__Amplitude" in sols.units_sweeps
+                        else sols.units_data[sols.expressions[0]],
+                    )
+                if report._legacy_props["eye_mask"].get("lower_limit"):
+                    report._legacy_props["eye_mask"]["lower_limit"] = unit_converter(
+                        report._legacy_props["eye_mask"]["lower_limit"],
+                        unit_system="Voltage",
+                        input_units=report._legacy_props["eye_mask"]["yunits"],
+                        output_units=sols.units_sweeps["__Amplitude"]
+                        if "__Amplitude" in sols.units_sweeps
+                        else sols.units_data[sols.expressions[0]],
+                    )
+            report._legacy_props["eye_mask"]["xunits"] = (
+                sols.units_sweeps["Time"] if "Time" in sols.units_sweeps else ""
+            )
+            report._legacy_props["eye_mask"]["yunits"] = (
+                sols.units_sweeps["__Amplitude"]
+                if "__Amplitude" in sols.units_sweeps
+                else sols.units_data[sols.expressions[0]]
+            )
+            report_plotter.add_eye_mask(report._legacy_props["eye_mask"])
+        if report.report_category in ["Eye Diagram", "Statistical Eye"]:
+            if "Time" in sols.units_sweeps and report._legacy_props["context"].get("unit_interval"):
+                value_with_unit = report._legacy_props["context"].get("unit_interval")
+                value, unit = decompose_variable_value(value_with_unit)
+                report_plotter.unit_interval = float(
+                    unit_converter(
+                        value,
+                        unit_system="Time",
+                        input_units=unit if unit else "s",
+                        output_units=sols.units_sweeps["Time"],
+                    )
+                )
+            if "Time" in sols.units_sweeps and report._legacy_props["context"].get("offset"):
+                value_with_unit = report._legacy_props["context"].get("offset")
+                value, unit = decompose_variable_value(value_with_unit)
+                report_plotter.offset = float(
+                    unit_converter(
+                        value,
+                        unit_system="Time",
+                        input_units=unit if unit else "s",
+                        output_units=sols.units_sweeps["Time"],
+                    )
+                )
+
+            _ = report_plotter.plot_eye_diagram(show=show, snapshot_path=snapshot_path)
+        elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
+            _ = report_plotter.plot_2d(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
-            _ = report_plotter.plot_polar(show=show)
+            _ = report_plotter.plot_polar(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
-            _ = report_plotter.plot_contour(show=show)
+            _ = report_plotter.plot_contour(show=show, snapshot_path=snapshot_path)
         elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
-            _ = report_plotter.plot_3d(show=show)
+            _ = report_plotter.plot_3d(show=show, snapshot_path=snapshot_path)
+        elif report.report_category in ["Eye Diagram", "Statistical Eye"]:
+            _ = report_plotter.plot_eye_diagram(show=show, snapshot_path=snapshot_path)
         else:
             self.logger.warning("Plot type not supported.")
         return report_plotter
@@ -2681,7 +2871,9 @@ class Reports(PyAedtBase):
                 rep.quantity_type = quantity_type
                 expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 if isinstance(expressions, list):
-                    rep.expressions = expressions[0]
+                    rep._legacy_props["expressions"] = expressions
+                else:
+                    rep._legacy_props["expressions"] = [expressions]
                 return rep
 
             else:
