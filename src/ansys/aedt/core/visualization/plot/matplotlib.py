@@ -36,12 +36,15 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.visualization.plot.contour import bin_to_grid
+from ansys.aedt.core.visualization.plot.contour import extract_eye_opening_contour_by_center
 
 # Check that graphics are available
 try:
     check_graphics_available()
 
     from matplotlib.animation import FuncAnimation
+    from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
@@ -401,16 +404,19 @@ class Trace(PyAedtBase):
     @pyaedt_function_handler()
     def car2spherical(self) -> None:
         """Convert cartesian data to spherical and assigns to property spherical data."""
-        x = np.array(self.cartesian_data[0], dtype=float)
-        y = np.array(self.cartesian_data[1], dtype=float)
-        z = np.array(self.cartesian_data[2], dtype=float)
-        r = np.sqrt(x * x + y * y + z * z)
-        with np.errstate(invalid="ignore", divide="ignore"):
-            ratio = np.where(r != 0, z / r, 0)  # or np.nan if you prefer
-            ratio = np.clip(ratio, -1.0, 1.0)  # ensure valid domain for arccos
-            theta = np.arccos(ratio) * 180 / math.pi
-        phi = np.arctan2(y, x) * 180 / math.pi
-        self._spherical_data = [r, theta, phi]
+        try:
+            x = np.array(self.cartesian_data[0], dtype=float)
+            y = np.array(self.cartesian_data[1], dtype=float)
+            z = np.array(self.cartesian_data[2], dtype=float)
+            r = np.sqrt(x * x + y * y + z * z)
+            with np.errstate(invalid="ignore", divide="ignore"):
+                ratio = np.where(r != 0, z / r, 0)  # or np.nan if you prefer
+                ratio = np.clip(ratio, -1.0, 1.0)  # ensure valid domain for arccos
+                theta = np.arccos(ratio) * 180 / math.pi
+            phi = np.arctan2(y, x) * 180 / math.pi
+            self._spherical_data = [r, theta, phi]
+        except ValueError:
+            self._spherical_data = []
 
     @pyaedt_function_handler()
     def spherical2car(self) -> None:
@@ -452,10 +458,24 @@ class LimitLine(Trace):
         self.hatch_above = True
 
 
+class EyeMask:
+    def __init__(self):
+        self.eye_xunits = "ns"
+        self.eye_yunits = "mV"
+        self.eye_points = []
+        self.eye_enable = False
+        self.eye_upper = 500
+        self.eye_lower = 0.3
+        self.eye_transparency = 0.3
+        self.eye_color = (0, 128, 0)
+        self.eye_xoffset = "0ns"
+        self.eye_yoffset = "0V"
+
+
 class ReportPlotter(PyAedtBase):
     """Matplotlib Report manager."""
 
-    def __init__(self) -> None:
+    def __init__(self, solution_data=None) -> None:
         rc_params = {
             "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
             "axes.labelsize": 20,  # Apply the settings only in this module.
@@ -465,6 +485,7 @@ class ReportPlotter(PyAedtBase):
         self.block = settings.block_figure_plot
         self._traces = {}
         self._limit_lines = {}
+        self._eye_mask = None
         self._notes = []
         self.plt_params = plt.rcParams
         self.plt_params.update(rc_params)
@@ -488,6 +509,63 @@ class ReportPlotter(PyAedtBase):
         self.animation = None
         self.y_margin_factor = 0.2
         self.x_margin_factor = 0.2
+        self.__text_size = 12
+        self.__title_size = 16
+        self.__solution_data = solution_data
+        self.__dpi = 100
+        self.__width = 1200
+        self.__height = 800
+        self.unit_interval = 0
+        self.offset = 0
+
+    @property
+    def dpi(self) -> int:
+        """Figure dpi."""
+        return self.__dpi
+
+    @dpi.setter
+    def dpi(self, value: int) -> None:
+        self.__dpi = value
+
+    @property
+    def width(self) -> int:
+        """Figure width."""
+        return self.__width
+
+    @width.setter
+    def width(self, value: int) -> None:
+        self.__width = value
+
+    @property
+    def height(self) -> int:
+        """Figure height."""
+        return self.__height
+
+    @height.setter
+    def height(self, value: int) -> None:
+        self.__height = value
+
+    @property
+    def text_size(self) -> int:
+        """Text font size"""
+        return self.__text_size
+
+    @text_size.setter
+    def text_size(self, size: int) -> None:
+        self.__text_size = size
+
+    @property
+    def title_size(self) -> int:
+        """Title font size"""
+        return self.__title_size
+
+    @title_size.setter
+    def title_size(self, size: int) -> None:
+        self.__title_size = size
+
+    def get_solution_data(self):
+        """Mimic the report method to retrieve solution data if available."""
+        return self.__solution_data
 
     @property
     def traces(self) -> dict[str, Trace]:
@@ -728,8 +806,13 @@ class ReportPlotter(PyAedtBase):
             props["figure.facecolor"] = self.__general_back_color
             props["axes.facecolor"] = self.__general_plot_color
             props["grid.color"] = self.__grid_color
+            if self.ax:
+                self.ax.set_facecolor(self.__general_plot_color)
+                self.ax.grid(color=self.__grid_color)
+                self.fig.set_facecolor(self.__general_back_color)
+            else:
+                self.plt_params.update(props)
 
-        self.plt_params.update(props)
         if self.ax:
             self.ax.grid(which=which)
             if self._has_major_axis:
@@ -742,6 +825,8 @@ class ReportPlotter(PyAedtBase):
                 if self.__grid_enable_minor_y:
                     self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
             self.ax.tick_params(which="minor", grid_linestyle="--")
+            self.ax.tick_params(axis="x", colors=self.__grid_color, labelsize=self.text_size)
+            self.ax.tick_params(axis="y", colors=self.__grid_color, labelsize=self.text_size)
 
     @property
     def y_scale(self) -> str:
@@ -876,6 +961,26 @@ class ReportPlotter(PyAedtBase):
         self._limit_lines[nt.name] = nt
         return True
 
+    def add_eye_mask(self, properties):
+        """Add a new eye mask to the chart.
+
+        Parameters
+        ----------
+        properties : dict, optional
+            Properties of the trace.
+        """
+        self._eye_mask = EyeMask()
+        self._eye_mask.eye_points = properties.get("points", [])
+        self._eye_mask.eye_xunits = properties.get("xunits", "")
+        self._eye_mask.eye_yunits = properties.get("yunits", "")
+        self._eye_mask.eye_enable = properties.get("enable_limits", False)
+        self._eye_mask.eye_upper = properties.get("upper_limit", 500)
+        self._eye_mask.eye_lower = properties.get("lower_limit", -500)
+        self._eye_mask.eye_color = properties.get("color", (0, 128, 0))
+        self._eye_mask.eye_xoffset = properties.get("X Offset", 0)
+        self._eye_mask.eye_yoffset = properties.get("Y Offset", 0)
+        self._eye_mask.eye_transparency = properties.get("transparency", 0.3)
+
     @pyaedt_function_handler()
     def add_trace(self, plot_data: list, data_type: int = 0, properties: dict = None, name: str = "") -> bool:
         """Add a new trace to the chart.
@@ -963,7 +1068,7 @@ class ReportPlotter(PyAedtBase):
             if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
                 self.animation.save(snapshot_path, writer="pillow", fps=2)
             else:
-                self.fig.savefig(snapshot_path)
+                self.fig.savefig(snapshot_path, dpi=self.dpi)
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1055,6 +1160,8 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, projection="polar")
@@ -1119,11 +1226,12 @@ class ReportPlotter(PyAedtBase):
         if not trace_number:
             return False
         self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"})
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         tr = trace_number[0]
         if not is_polar:
             self.ax.set_xlabel(tr.x_label, labelpad=20)
             self.ax.set_ylabel(tr.y_label, labelpad=20)
-        self.ax.set_title(self.title)
+        self.ax.set_title(self.title, color=self.__grid_color, fontsize=self.title_size)
         cmap = plt.get_cmap("jet")
         self.ax.plot_surface(
             tr._cartesian_data[0],
@@ -1231,6 +1339,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1276,6 +1385,13 @@ class ReportPlotter(PyAedtBase):
         if self.show_legend:
             self.ax.legend(legend_names, loc="upper right")
 
+        self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_title(
+            self.title,
+            color=self.__grid_color,
+            fontsize=self.title_size,
+        )
         self._plot(snapshot_path, show)
         return self.fig
 
@@ -1311,6 +1427,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots()
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111)
@@ -1336,6 +1453,223 @@ class ReportPlotter(PyAedtBase):
 
         self._plot(snapshot_path, show)
         return self.animation
+
+    @pyaedt_function_handler()
+    def plot_eye_diagram(
+        self,
+        snapshot_path: str = None,
+        show: bool = True,
+        is_contour=False,
+        filter_colormap=1e-6,
+        plot_max_height=True,
+        plot_eye_mask=True,
+    ):
+        """Plot Eye diagram and contour plot.
+
+        Parameters
+        ----------
+        snapshot_path : str, optional
+            Path to output image file. If not provided, the plot will not be saved.
+        show : bool, optional
+            Whether to display the plot. Default is `True`.
+        is_contour : bool, optional
+            Whether to plot is a BET contour plot.
+        filter_colormap : float, optional
+            Whether to filter the contour data and start from a specific BER.
+        plot_max_height : bool, optional
+            Whether to plot the maximum height lines on the eye diagram. Doesn't apply to contour plot.
+        plot_eye_mask : bool, optional
+            Whether to plot the eye mask on the eye diagram.
+
+        """
+        self.fig, self.ax = plt.subplots()
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+        self.__grid_enable_minor_y = False
+        self.__grid_enable_minor_x = False
+
+        traces_to_plot = self._retrieve_traces(None)[0]
+        if not traces_to_plot:
+            return False
+        if traces_to_plot.x_label == "Time" and self.unit_interval:
+            period = 2 * self.unit_interval
+
+            time = traces_to_plot.cartesian_data[0]
+            value = traces_to_plot.cartesian_data[1]
+
+            # Ensure time is sorted for interpolation
+            t_fold = np.mod(time - self.offset, period)
+
+            # Number of bins
+            nx = 300  # time resolution
+            ny = 300  # value resolution
+
+            Xc = np.linspace(0, period, nx + 1)  # shape (301,)
+            Yc = np.linspace(value.min(), value.max(), ny + 1)  # shape (301,)
+
+            # Create 2D histogram
+            Z, _, _ = np.histogram2d(t_fold, value, bins=[Xc, Yc])
+            # Z has shape (nx, ny) from np.histogram2d
+            # pcolormesh expects Z with shape (ny, nx) when given Xc and Yc
+            cmap = plt.cm.nipy_spectral
+
+            # Transpose for pcolormesh
+            Z_plot = Z.T
+            cmap.set_under(self.__general_plot_color)
+            minz = min(Z[np.where(Z > 0)])
+
+            Z_plot = np.ma.masked_less(Z_plot, minz)
+            self.ax.pcolormesh(
+                Xc,
+                Yc,
+                Z_plot,
+                cmap=cmap,
+                vmax=Z_plot.max() if Z_plot.max() / Z_plot.min() < 256 else Z_plot.max() / 50,
+                shading="auto",
+            )
+
+            # For contour extraction, create grid centers and prepare Z accordingly
+            # Bin edges are Xc, Yc; compute bin centers for the function
+            Xc = 0.5 * (Xc[:-1] + Xc[1:])
+            Yc = 0.5 * (Yc[:-1] + Yc[1:])
+            Z = Z_plot  # Use transposed Z with shape (ny, nx)
+
+        elif traces_to_plot.x_label == "UnitInterval":
+            xc, yc, zc = (
+                traces_to_plot.cartesian_data[0],
+                traces_to_plot.cartesian_data[1],
+                traces_to_plot.cartesian_data[2],
+            )
+            minz = min(zc[np.where(zc > 0)])
+            minx = min(xc)
+            maxx = max(xc)
+            miny = min(yc)
+            maxy = max(yc)
+            grid_size = 300
+            if is_contour and filter_colormap:
+                mask = zc < filter_colormap
+                zc = zc[mask]
+                yc = yc[mask]
+                xc = xc[mask]
+                grid_size = 100
+            Xc, Yc, Z = bin_to_grid(xc, yc, zc, nx=grid_size, ny=grid_size)
+            if is_contour:
+                mesh = self.ax.pcolormesh(Xc, Yc, Z, norm=LogNorm(), shading="auto", cmap="nipy_spectral")
+                cbar = self.fig.colorbar(mesh, ax=self.ax)
+                cbar.ax.tick_params(labelsize=self.text_size, colors=self.__grid_color)
+            else:
+                cmap = plt.cm.nipy_spectral
+                cmap.set_under(self.__general_plot_color)
+
+                Z = np.ma.masked_less(Z, minz)
+                self.ax.pcolormesh(Xc, Yc, Z, cmap=cmap)
+            self.ax.set_xlim(minx, maxx)  # set X axis min and max
+            self.ax.set_ylim(miny, maxy)  # set Y axis min and max
+        else:
+            return False
+
+        if self._eye_mask and plot_eye_mask:
+            px = [i[0] for i in self._eye_mask.eye_points]
+            py = [i[1] for i in self._eye_mask.eye_points]
+            eye_center = [np.mean(px), np.mean(py)]
+            if not is_contour:
+                contour = extract_eye_opening_contour_by_center(
+                    Xc,
+                    Yc,
+                    Z,
+                    center=eye_center,
+                )
+                # contour = prepare_and_extract(xc, yc, zc, center=eye_center, nx=500, ny=500)
+                if contour.any():
+                    eye_center = [float(np.mean(contour[:, 0])), float(np.mean(contour[:, 1]))]
+                    ymaxidx = np.argmax(contour[:, 1])
+                    yminidx = np.argmin(contour[:, 1])
+                    xmaxidx = np.argmax(contour[:, 0])
+                    xminidx = np.argmin(contour[:, 0])
+                    eye_height = contour[:, 1][ymaxidx] - contour[:, 1][yminidx]
+                    eye_width = contour[:, 0][xmaxidx] - contour[:, 0][xminidx]
+                    settings.logger.info(f"Computed Eye Center {eye_center}")
+                    settings.logger.info(f"Computed Eye Height {eye_height}")
+                    settings.logger.info(f"Computed Eye Width {eye_width}")
+                    self.ax.plot(
+                        contour[:, 0],
+                        contour[:, 1],
+                        "r-",
+                        lw=2,
+                    )
+                    if plot_max_height:
+                        idx_max = np.argmax(contour[:, 1])
+                        max_height = contour[:, 1][idx_max]
+                        x_at_max = contour[:, 0][idx_max]
+
+                        self.ax.axvline(x=x_at_max, color="yellow", linestyle="dashdot", label=f"{x_at_max}")
+                        self.ax.axhline(y=max_height, color="yellow", linestyle="dashdot", label=f"{max_height}")
+
+            if px and py:
+                vertices = list(zip(px, py))
+
+                # Close polygon by repeating the first point at the end
+                vertices.append(vertices[0])
+
+                # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                # Create the Path and PathPatch
+                path = Path(vertices, codes)
+                patch = PathPatch(
+                    path, color=[i / 255 for i in self._eye_mask.eye_color], alpha=self._eye_mask.eye_transparency
+                )
+                self.ax.add_patch(patch)
+            if self._eye_mask.eye_enable:
+                if self._eye_mask.eye_upper < max(Yc):
+                    px = [min(Xc), max(Xc), max(Xc), min(Xc)]
+                    py = [self._eye_mask.eye_upper, self._eye_mask.eye_upper, max(Yc), max(Yc)]
+                    vertices = list(zip(px, py))
+
+                    # Close polygon by repeating the first point at the end
+                    vertices.append(vertices[0])
+
+                    # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                    codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                    # Create the Path and PathPatch
+                    path = Path(vertices, codes)
+                    patch = PathPatch(
+                        path,
+                        color=[i / 255 for i in self._eye_mask.eye_color],
+                        alpha=self._eye_mask.eye_transparency,
+                    )
+                    self.ax.add_patch(patch)
+                if self._eye_mask.eye_lower > min(Yc):
+                    px = [min(Xc), max(Xc), max(Xc), min(Xc)]
+                    py = [self._eye_mask.eye_lower, self._eye_mask.eye_lower, min(Yc), min(Yc)]
+                    vertices = list(zip(px, py))
+
+                    # Close polygon by repeating the first point at the end
+                    vertices.append(vertices[0])
+
+                    # Define path codes: MOVETO, LINETO ... CLOSEPOLY
+                    codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 2) + [Path.CLOSEPOLY]
+
+                    # Create the Path and PathPatch
+                    path = Path(vertices, codes)
+                    patch = PathPatch(
+                        path,
+                        color=[i / 255 for i in self._eye_mask.eye_color],
+                        alpha=self._eye_mask.eye_transparency,
+                    )
+                    self.ax.add_patch(patch)
+
+        self.ax.set_xlabel(
+            f"Unit Interval ({self._eye_mask.eye_xunits})'", color=self.__grid_color, fontsize=self.text_size
+        )
+        self.ax.set_ylabel(f"Amplitude ({self._eye_mask.eye_yunits})", color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_title(
+            "Statistical Eye Diagram" if not is_contour else "Contour Eye Diagram",
+            color=self.__grid_color,
+            fontsize=self.title_size,
+        )
+
+        self._plot(snapshot_path, show)
 
     @pyaedt_function_handler()
     def _plot_notes(self) -> None:
@@ -1454,17 +1788,19 @@ class ReportPlotter(PyAedtBase):
             return False
         else:
             tr = tr[0]
-
+        if "Bit Error Rate" in tr.name:
+            return self.plot_eye_diagram(snapshot_path=snapshot_path, show=show, is_contour=True)
         projection = "polar" if polar else "rectilinear"
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, polar=polar)
 
-        self.ax.set_xlabel(tr.x_label)
+        self.ax.set_xlabel(tr.x_label, color=self.__grid_color, fontsize=self.text_size)
         if polar:
             self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
             self.ax.set_theta_zero_location("N")
@@ -1472,7 +1808,7 @@ class ReportPlotter(PyAedtBase):
             self.ax.set_thetamin(min_theta)
             self.ax.set_thetamax(max_theta)
         else:
-            self.ax.set_ylabel(tr.y_label)
+            self.ax.set_ylabel(tr.y_label, color=self.__grid_color, fontsize=self.text_size)
 
         self.ax.set(title=self.title)
 
@@ -1538,13 +1874,14 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
             self.ax = figure.add_subplot(111, polar=False)
 
-        self.ax.set_xlabel(tr.x_label)
-        self.ax.set_ylabel(tr.y_label)
+        self.ax.set_xlabel(tr.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel(tr.y_label, color=self.__grid_color, fontsize=self.text_size)
 
         self.ax.set(title=self.title)
         X = np.array(list(zip(*tr._cartesian_data[2]))[0])
@@ -1628,6 +1965,7 @@ class ReportPlotter(PyAedtBase):
 
         if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
             self.ax = plt.gca()
         else:
             self.fig = figure
@@ -1636,7 +1974,7 @@ class ReportPlotter(PyAedtBase):
         def update(i):
             self.ax.clear()
             trace = traces_to_plot[i]
-            self.ax.set_xlabel(trace.x_label)
+            self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
             if polar:
                 self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
                 self.ax.set_theta_zero_location("N")
@@ -1644,7 +1982,7 @@ class ReportPlotter(PyAedtBase):
                 self.ax.set_thetamin(min_theta)
                 self.ax.set_thetamax(max_theta)
             else:
-                self.ax.set_ylabel(trace.y_label)
+                self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
 
             self.ax.set(title=self.title)
 
@@ -1791,7 +2129,7 @@ def plot_matplotlib(
             plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
 
     if snapshot_path:
-        plt.savefig(snapshot_path)
+        plt.savefig(snapshot_path, dpi=dpi)
     if show:  # pragma: no cover
         plt.show()
     return fig

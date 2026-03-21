@@ -1227,33 +1227,8 @@ def active_sessions(
     # Returns list of tuples: [(pid, command_line_args), ...]
     target_processes = _get_target_processes(target)
 
-    # Define standard gRPC port range (50051-50099 are typically used by AEDT)
-    # This list is currently created but not actively used in the logic below
-    available_ports = [i for i in range(50051, 50100)]
-
-    # Step 4: Extract port information from process command lines
-    # AEDT processes launched with gRPC have "-grpcsrv" flag followed by address:port
-    for pid, cmd in target_processes:
-        # Check if this is a gRPC session (has -grpcsrv argument)
-        if "-grpcsrv" in cmd:
-            try:
-                # Get the argument after "-grpcsrv" (format: "127.0.0.1:50051" or just "50051")
-                grpc_arg = cmd[cmd.index("-grpcsrv") + 1]
-                prt = grpc_arg.split(":")
-
-                # Parse port number based on format
-                if len(prt) == 1:
-                    # Format: just port number (e.g., "50051")
-                    available_ports.append(int(prt[0]))
-                else:
-                    # Format: address:port (e.g., "127.0.0.1:50051")
-                    available_ports.append(int(prt[1]))
-            except (IndexError, ValueError):
-                # If parsing fails, try other methods below
-                pass
-        else:
-            # No "-grpcsrv" argument found
-            return_dict[pid] = -1
+    # Step 4: AEDT processes launched
+    return_dict = {pid: -1 for pid, _ in target_processes}
 
     # Step 5: On Linux, try to resolve unknown ports using Unix socket analysis
     # In Linux, running AEDT locally uses Unix domain sockets with filenames containing port numbers

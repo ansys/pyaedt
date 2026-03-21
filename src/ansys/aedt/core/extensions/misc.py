@@ -86,7 +86,7 @@ def is_student() -> bool:
     return res
 
 
-def get_latest_version(package_name: str, timeout: int = 3) -> str:
+def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
@@ -171,6 +171,7 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
         log.debug("PyAEDT update check: could not import version.")
         return None, None
 
+    log.debug(f"Checking for PyAEDT updates. Current version: {current_version}")
     latest = get_latest_version("pyaedt")
     if not latest or latest == "Unknown":
         log.debug("PyAEDT update check: latest version unavailable.")
