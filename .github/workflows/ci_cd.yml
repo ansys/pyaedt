@@ -102,7 +102,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+      - uses: ansys/actions/check-vulnerabilities@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -117,7 +117,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+      - uses: ansys/actions/check-actions-security@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/check-pr-title@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -194,7 +194,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-style@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -211,7 +211,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-build@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -238,7 +238,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -1373,7 +1373,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/build-library@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
