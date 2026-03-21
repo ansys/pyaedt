@@ -31,7 +31,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-build@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -50,7 +50,7 @@ jobs:
       contents: write   # Required to commit and push development documentation to gh-pages branch
     steps:
       - name: Upload development documentation
-        uses: ansys/actions/doc-deploy-dev@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-deploy-dev@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
