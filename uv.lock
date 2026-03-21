@@ -3515,6 +3515,8 @@ examples = [
     { name = "pyvista" },
     { name = "rpyc" },
     { name = "scikit-rf" },
+    { name = "tables", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "tables", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 graphics = [
     { name = "ansys-tools-visualization-interface" },
@@ -3572,6 +3574,7 @@ doc = [
     { name = "pyvista", extra = ["io"] },
     { name = "recommonmark" },
     { name = "rpyc" },
+    { name = "scikit-rf" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-autobuild" },
@@ -3672,6 +3675,7 @@ requires-dist = [
     { name = "scikit-rf", marker = "extra == 'all'", specifier = ">=0.30.0,<1.12" },
     { name = "scikit-rf", marker = "extra == 'examples'", specifier = ">=0.30.0,<1.12" },
     { name = "tables", marker = "python_full_version >= '3.10' and extra == 'all'" },
+    { name = "tables", marker = "python_full_version >= '3.10' and extra == 'examples'" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
     { name = "tomli-w" },
     { name = "typer", marker = "extra == 'all'", specifier = ">=0.20.0" },
@@ -3720,6 +3724,7 @@ doc = [
     { name = "pyvista", extras = ["io"], specifier = ">=0.38.0,<0.48" },
     { name = "recommonmark" },
     { name = "rpyc", specifier = ">=6.0.0,<6.1" },
+    { name = "scikit-rf", specifier = ">=0.30.0,<1.12" },
     { name = "sphinx", specifier = ">=7.1.0,<8.3" },
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
@@ -3935,7 +3940,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.70.0"
+version = "0.71.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3950,9 +3955,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/80/fd5025b4177c6ee34b6cc05d1330fd7324af8f490f9c49ca6e3271f39918/pyedb-0.70.0.tar.gz", hash = "sha256:cf6f81956529b18ad642507597777b62800bb830156ceb6053d72775a4b9f209", size = 768291, upload-time = "2026-03-12T08:22:18.559Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cc/4d/cc99e4d8e4468fbd7a0c36fbabf93f2212a3a2cbd29262852ebf22125d30/pyedb-0.71.0.tar.gz", hash = "sha256:87de3b13feb6f71a75eec14d2c937036537406f68093ee9f76ae85dc600d863c", size = 771435, upload-time = "2026-03-20T11:38:30.713Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/6e/3967142421ff1b35d4789fb5a873d0f5dab1c7a57bdf342c1cccda06b0f5/pyedb-0.70.0-py3-none-any.whl", hash = "sha256:133fd28dde03c79ad37182580650ded1bb680d0b9aada601698dd667e92789f4", size = 1061735, upload-time = "2026-03-12T08:22:16.28Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/61/fd8e5db922f46465bb5cc517c6569e162a3f6263e2f476cd72a171e1e268/pyedb-0.71.0-py3-none-any.whl", hash = "sha256:db5cf31524c0f650f93200159bacd1a50f8d15e4f12be9d6f365b9f18b37db62", size = 1066273, upload-time = "2026-03-20T11:38:28.773Z" },
 ]
 
 [[package]]
