@@ -7601,7 +7601,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_objects_by_name(self, assignment, case_sensitive: bool = True):
+    def get_objects_by_name(self, assignment, case_sensitive: bool = True) -> list[Object3d]:
         """Return the objects given a search string.
 
         Parameters
@@ -7624,7 +7624,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             return [o for name, o in self.objects_by_name.items() if assignment.lower() in name.lower()]
 
     @pyaedt_function_handler()
-    def get_object_from_name(self, assignment: str) -> Object3d:
+    def get_object_from_name(self, assignment: str) -> Object3d | None:
         """Return the object from an object name.
 
         Parameters
@@ -7639,8 +7639,8 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         if assignment in self.object_names:
-            # object_id = self.get_obj_id(objname)
             return self.objects[assignment]
+        return None
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, string_name: str, case_sensitive: bool = True) -> list:
