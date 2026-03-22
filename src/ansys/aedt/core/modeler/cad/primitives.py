@@ -27,6 +27,7 @@
 from __future__ import annotations
 
 import copy
+import fnmatch
 import math
 import os
 from pathlib import Path
@@ -7601,27 +7602,54 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_objects_by_name(self, assignment, case_sensitive: bool = True) -> list[Object3d]:
-        """Return the objects given a search string.
+    def get_objects_by_name(
+        self,
+        assignment: str,
+        case_sensitive: bool = True,
+    ) -> list[Object3d]:
+        """Return the objects whose names match a wildcard pattern.
+
+        The ``*`` character acts as a wildcard that matches any sequence of
+        characters (including none).  The matching mode is inferred
+        automatically from the position of ``*`` in ``assignment``:
 
         Parameters
         ----------
         assignment : str
-            String used to filter by object names.
+            Wildcard pattern to match against object names.
+            Use ``*`` as a wildcard for any sequence of characters.
         case_sensitive : bool, optional
-            Whether the string is case-sensitive. The default is ``True``.
+            Whether the match is case-sensitive. The default is ``True``.
 
         Returns
         -------
-        list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Returns a list of objects whose names contain the
-            search string.
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Objects whose names satisfy the pattern.
 
+        Examples
+        --------
+        # Exact match
+        >>> objs = modeler.get_objects_by_name("Patch_1")
+
+        # All objects whose name starts with "Substrate"
+        >>> objs = modeler.get_objects_by_name("Substrate*")
+
+        # All objects whose name ends with "_gnd"
+        >>> objs = modeler.get_objects_by_name("*_gnd")
+
+        # All objects whose name contains "patch"
+        >>> objs = modeler.get_objects_by_name("*patch*", case_sensitive=False)
+
+        # Mid-string wildcard: names like "Sub_1", "Sub_gnd_1".
+        >>> objs = modeler.get_objects_by_name("Sub*_1")
         """
+        names = list(self.objects_by_name.keys())
         if case_sensitive:
-            return [o for name, o in self.objects_by_name.items() if assignment in name]
+            matched = [n for n in names if fnmatch.fnmatchcase(n, assignment)]
         else:
-            return [o for name, o in self.objects_by_name.items() if assignment.lower() in name.lower()]
+            pat = assignment.lower()
+            matched = [n for n in names if fnmatch.fnmatchcase(n.lower(), pat)]
+        return [self.objects_by_name[n] for n in matched]
 
     @pyaedt_function_handler()
     def get_object_from_name(self, assignment: str) -> Object3d | None:
