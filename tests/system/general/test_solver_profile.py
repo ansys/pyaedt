@@ -175,40 +175,29 @@ def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder) -> Non
 
     # Iterate archives until we find at least one profile to validate.
     found_any_profile = False
-    last_error: Exception | None = None
 
     for archive in archives:
         app = None
-        try:
-            # Prefer the extracted .aedt if present next to .aedtz. Used
-            # for local test and debugging.
-            aedt_candidate = archive.with_suffix(".aedt")
-            project_file = aedt_candidate if aedt_candidate.exists() else archive
+        # Prefer the extracted .aedt if present next to .aedtz. Used
+        # for local test and debugging.
+        aedt_candidate = archive.with_suffix(".aedt")
+        project_file = aedt_candidate if aedt_candidate.exists() else archive
 
-            app = add_app(project=project_file, application=app_cls)
+        app = add_app(project=project_file, application=app_cls)
 
-            # Request all profiles available on the design.
-            profiles = app.get_profile()
-            assert profiles
+        # Request all profiles available on the design.
+        profiles = app.get_profile()
+        assert profiles
 
-            # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
-            for _, prof in profiles.items():
-                _exercise_profile_object(prof)
-                found_any_profile = True
-                # It is enough to validate at least one profile per application archive.
-                break
+        # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
+        for _, prof in profiles.items():
+            _exercise_profile_object(prof)
+            found_any_profile = True
+            # It is enough to validate at least one profile per application archive.
+            break
 
-            if found_any_profile:
-                break
-        except Exception as ex:  # pragma: no cover - robustness for CI/licensing variability
-            last_error = ex
-            continue
-        finally:
-            if app:
-                app.close_project(save=False)
+        if found_any_profile:
+            break
 
-    if not found_any_profile:
-        if last_error:
-            pytest.skip(f"Could not retrieve profiles for {app_cls.__name__} due to: {last_error}")
-        else:
-            pytest.skip(f"No profiles were available in any setup for {app_cls.__name__}.")
+    if app:
+        app.close_project(save=False)

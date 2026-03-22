@@ -163,10 +163,6 @@ def test_layout_design_toolkit_microvia(add_app_example) -> None:
     available_padstacks = ["pad1"]
     pedb.close()
 
-    # Skip test if no padstacks available
-    if not available_padstacks:
-        pytest.skip("No padstack definitions available in test model")
-
     # Create data object with microvia parameters
     data = PostLayoutDesignExtensionData(
         action="microvia",
