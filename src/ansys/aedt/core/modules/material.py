@@ -458,20 +458,18 @@ class MatProperty(PyAedtBase):
             val = Path(val)
             if not val.is_file():
                 raise FileNotFoundError(f"Argument {val} is not a file.")
-            try:
-                datalist = []
-                with open(val) as f:
-                    reader = csv.reader(f, delimiter="\t")
-                    next(reader)
-                    for row in reader:
-                        if len(row) != 2:
-                            raise ValueError(f"Expected 2 columns, got {len(row)}")
-                        if not (row[0].isnumeric() and row[1].isnumeric()):
-                            raise ValueError(f"Expected numeric values, got {row[0]} and {row[1]}")
-                        datalist.append([float(row[0]), float(row[1])])
-                    self.value = datalist
-            except AttributeError:
-                raise FileNotFoundError(f"Argument {val} is not a file.")
+            datalist = []
+            with open(val) as f:
+                reader = csv.reader(f, delimiter="\t")
+                next(reader)
+                for row in reader:
+                    if len(row) != 2:
+                        raise ValueError(f"Expected 2 columns, got {len(row)}")
+                    if not (is_number(row[0]) and is_number(row[1])):
+                        raise ValueError(f"Expected numeric values, got {row[0]} and {row[1]}")
+                    datalist.append([float(row[0]), float(row[1])])
+                self.value = datalist
+
         else:
             self.type = "simple"
             self._property_value[0].value = val
