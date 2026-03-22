@@ -127,7 +127,9 @@ class Multiplexer(EmitNode):
 
     @ports.setter
     @min_aedt_version("2025.2")
-    def ports(self, value: list[str]) -> None:
+    def ports(self, value: list[str] | str) -> None:
+        if isinstance(value, (list, tuple)):
+            value = "|".join(value)
         self._set_property("Ports", f"{value}")
 
     @property

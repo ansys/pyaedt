@@ -92,11 +92,12 @@ examples = [
     "scikit-rf>=0.30.0,<1.12",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
+    "tables; python_version >= '3.10'",
 ]
 
 [dependency-groups]
 dev = [
-  "prek==0.3.4",
+  "prek==0.3.5",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
@@ -143,6 +144,7 @@ doc = [
     "ansys-tools-visualization-interface",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
+    "scikit-rf>=0.30.0,<1.12",
 ]
 
 
