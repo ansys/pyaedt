@@ -58,14 +58,14 @@ class Emit(Design, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -98,7 +98,7 @@ class Emit(Design, PyAedtBase):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, version=252)
+    >>> aedtapp = Emit(projectname, designame, version=261)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -130,19 +130,19 @@ class Emit(Design, PyAedtBase):
 
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=True,
-        close_on_exit=True,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
@@ -185,11 +185,11 @@ class Emit(Design, PyAedtBase):
 
             self.__emit_api_enabled = True
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerEmit:
         """Modeler.
 
         Returns
@@ -200,7 +200,7 @@ class Emit(Design, PyAedtBase):
         return self._modeler
 
     @property
-    def couplings(self):
+    def couplings(self) -> CouplingsEmit:
         """EMIT Couplings.
 
         Returns
@@ -211,7 +211,7 @@ class Emit(Design, PyAedtBase):
         return self._couplings
 
     @property
-    def schematic(self):
+    def schematic(self) -> EmitSchematic:
         """EMIT Schematic.
 
         Returns
@@ -222,7 +222,7 @@ class Emit(Design, PyAedtBase):
         return self._schematic
 
     @pyaedt_function_handler()
-    def version(self, detailed=False):
+    def version(self, detailed: bool = False) -> str:
         """
         Get version information.
 
@@ -246,7 +246,7 @@ class Emit(Design, PyAedtBase):
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value):
+    def set_units(self, unit_type: str, unit_value: str) -> bool:
         """Set units for the EMIT design.
 
         Parameters
@@ -301,7 +301,7 @@ class Emit(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type=""):
+    def get_units(self, unit_type: str | None = "") -> str | dict | None:
         """Get units for the EMIT design.
 
         Parameters
@@ -328,7 +328,9 @@ class Emit(Design, PyAedtBase):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(
+        self, file_name: str | None = None, overwrite: bool | None = True, refresh_ids: bool | None = False
+    ) -> bool:
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

@@ -35,14 +35,14 @@ from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicE
 from ansys.aedt.core.extensions.circuit.import_schematic import main
 
 
-def create_temp_file(suffix, content="*"):
+def create_temp_file(suffix, content: str = "*"):
     fd, path = tempfile.mkstemp(suffix=suffix)
     with os.fdopen(fd, "w") as f:
         f.write(content)
     return path
 
 
-def test_import_schematic_nonexistent_file(add_app):
+def test_import_schematic_nonexistent_file(add_app) -> None:
     """Test import_schematic main with a non-existent file."""
     app = add_app(application=Circuit)
     data = ImportSchematicData(file_extension="/nonexistent/file.asc")
@@ -51,7 +51,7 @@ def test_import_schematic_nonexistent_file(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_import_schematic_generate_button_with_circuit(add_app, test_tmp_dir):
+def test_import_schematic_generate_button_with_circuit(add_app, test_tmp_dir) -> None:
     """Test pressing the Import button and running main with a real Circuit instance."""
     app = add_app(application=Circuit)
     # Create a temp file to simulate user input

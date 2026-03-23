@@ -40,10 +40,10 @@ the boundary fails to apply.
     from ansys.aedt.core import Hfss
 
     app = Hfss(
-        project_name="original_project",
-        specified_version="2025.2",
+        project="original_project",
+        version="2025.2",
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     )

@@ -1,0 +1,24 @@
+flowchart TD
+    subgraph Main Branch
+        M[main branch cache]
+    end
+    subgraph PR-A
+        A1[PR-A Opens] --> A2[Restore Cache from Main]
+        A2 --> A3[Run Affected Tests]
+    end
+    subgraph PR-B
+        B1[PR-B Opens] --> B2[Restore Cache from Main]
+        B2 --> B3[Run Affected Tests]
+    end
+    subgraph PR-C
+        C1[PR-C Opens] --> C2[Restore Cache from Main]
+        C2 --> C3[Run Affected Tests]
+    end
+    M --> A2
+    M --> B2
+    M --> C2
+    A3 --> A4[PR-A Merges]
+    A4 --> A5[Cache Update Triggered]
+    A5 --> A6[New Cache Saved]
+    A6 -.-> B4[PR-B May Need Rebase]
+    A6 -.-> C4[PR-C May Need Rebase]

@@ -49,7 +49,7 @@ settings.lazy_load = False
 settings.wait_for_license = True
 
 
-def test_run_desktop_mechanical(desktop):
+def test_run_desktop_mechanical(desktop) -> None:
     aedtapp = Mechanical(solution_type=SolutionsMechanical.SteadyStateThermal)
     assert aedtapp.design_type == DesignType.ICEPAKFEA
     assert aedtapp.solution_type == SolutionsMechanical.SteadyStateThermal
@@ -68,14 +68,14 @@ def test_run_desktop_mechanical(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_circuit(desktop):
+def test_run_desktop_circuit(desktop) -> None:
     aedtapp = Circuit()
     assert aedtapp.design_type == "Circuit Design"
     assert aedtapp.solution_type == "NexximLNA"
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_icepak(desktop):
+def test_run_desktop_icepak(desktop) -> None:
     aedtapp = Icepak(solution_type=SolutionsIcepak.SteadyState)
     assert aedtapp.design_type == "Icepak"
     assert aedtapp.solution_type == SolutionsIcepak.SteadyState
@@ -85,7 +85,7 @@ def test_run_desktop_icepak(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_hfss3dlayout(desktop):
+def test_run_desktop_hfss3dlayout(desktop) -> None:
     aedtapp = Hfss3dLayout(ic_mode=True)
     assert aedtapp.design_type == "HFSS 3D Layout Design"
     assert aedtapp.solution_type == "HFSS3DLayout"
@@ -96,27 +96,27 @@ def test_run_desktop_hfss3dlayout(desktop):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_run_desktop_twinbuilder(desktop):
+def test_run_desktop_twinbuilder(desktop) -> None:
     aedtapp = TwinBuilder()
     assert aedtapp.design_type == "Twin Builder"
     assert aedtapp.solution_type == "TR"
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_q2d(desktop):
+def test_run_desktop_q2d(desktop) -> None:
     aedtapp = Q2d()
     assert aedtapp.design_type == "2D Extractor"
     assert aedtapp.solution_type == "Open"
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_q3d(desktop):
+def test_run_desktop_q3d(desktop) -> None:
     aedtapp = Q3d()
     assert aedtapp.design_type == "Q3D Extractor"
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_maxwell2d(desktop):
+def test_run_desktop_maxwell2d(desktop) -> None:
     solutions_maxwell_2d = SolutionsMaxwell2D
 
     aedtapp = Maxwell2d(solution_type=solutions_maxwell_2d.MagnetostaticZ)
@@ -186,7 +186,7 @@ def test_run_desktop_maxwell2d(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_hfss(desktop):
+def test_run_desktop_hfss(desktop) -> None:
     aedtapp = Hfss(solution_type=SolutionsHfss.DrivenTerminal)
     assert aedtapp.design_type == "HFSS"
     assert aedtapp.solution_type == SolutionsHfss.DrivenTerminal
@@ -208,7 +208,7 @@ def test_run_desktop_hfss(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_maxwell3d(desktop):
+def test_run_desktop_maxwell3d(desktop) -> None:
     solutions_maxwell_3d = SolutionsMaxwell3D
 
     aedtapp = Maxwell3d(solution_type=solutions_maxwell_3d.Magnetostatic)
@@ -257,21 +257,21 @@ def test_run_desktop_maxwell3d(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_circuit_netlist(desktop):
+def test_run_desktop_circuit_netlist(desktop) -> None:
     aedtapp = CircuitNetlist()
     assert aedtapp.design_type == "Circuit Netlist"
     assert aedtapp.solution_type == ""
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_rmxprt(desktop):
+def test_run_desktop_rmxprt(desktop) -> None:
     aedtapp = Rmxprt()
     assert aedtapp.design_type == DesignType.RMXPRT.NAME
     assert aedtapp.solution_type == DesignType.RMXPRT.solution_default
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_settings(desktop):
+def test_run_desktop_settings(desktop) -> None:
     aedtapp = Hfss()
     assert aedtapp.desktop_class.disable_optimetrics()
     assert aedtapp.get_registry_key_int("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0

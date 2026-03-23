@@ -38,7 +38,7 @@ def aedtapp(add_app):
     app.close_project(app.project_name)
 
 
-def test_add_expressions(aedtapp):
+def test_add_expressions(aedtapp) -> None:
     """Test adding custom field calculator expressions."""
     poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     my_expression = {
@@ -67,7 +67,7 @@ def test_add_expressions(aedtapp):
     assert expr_name == "test"
 
 
-def test_expression_plot(aedtapp):
+def test_expression_plot(aedtapp) -> None:
     """Test creating plots from field calculator expressions."""
     aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     aedtapp.create_setup()
@@ -79,7 +79,7 @@ def test_expression_plot(aedtapp):
     assert reports[0].expressions == ["Voltage_Line"]
 
 
-def test_delete_expression(aedtapp):
+def test_delete_expression(aedtapp) -> None:
     """Test deleting named expressions from the fields calculator."""
     poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     expr_name = aedtapp.post.fields_calculator.add_expression("voltage_line", poly.name)
@@ -87,7 +87,7 @@ def test_delete_expression(aedtapp):
     aedtapp.post.fields_calculator.delete_expression()
 
 
-def test_is_expression_defined(aedtapp):
+def test_is_expression_defined(aedtapp) -> None:
     """Test checking if a named expression exists in the fields calculator."""
     aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     aedtapp.create_setup()
@@ -96,7 +96,7 @@ def test_is_expression_defined(aedtapp):
     assert aedtapp.post.fields_calculator.is_expression_defined(expr_name)
 
 
-def test_is_general_expression(aedtapp):
+def test_is_general_expression(aedtapp) -> None:
     """Test identifying general vs. assignment-specific expressions."""
     aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     aedtapp.create_setup()
@@ -105,13 +105,13 @@ def test_is_general_expression(aedtapp):
     assert aedtapp.post.fields_calculator.is_general_expression("voltage_drop")
 
 
-def test_validate_expression(aedtapp):
+def test_validate_expression(aedtapp) -> None:
     """Test expression validation against the schema."""
     assert not aedtapp.post.fields_calculator.validate_expression("invalid")
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Native API method only available from AEDT 2026.1 onwards.")
-def test_get_expressions(aedtapp):
+def test_get_expressions(aedtapp) -> None:
     """Test deleting named expressions from the fields calculator."""
     poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     expressions = aedtapp.post.fields_calculator.get_expressions()

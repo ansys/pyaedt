@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -29,10 +28,9 @@ import tkinter
 from tkinter import filedialog
 from tkinter import font
 from tkinter import ttk
-from typing import Union
 
-import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
@@ -62,7 +60,7 @@ EXTENSION_NB_COLUMN = 3
 class PointsCloudExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    choice: Union[str, list[str]] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
 
@@ -70,7 +68,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
 class PointsCloudExtension(ExtensionProjectCommon):
     """Extension for point cloud generator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -86,7 +84,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Trigger manually since add_extension_content requires loading info from current project first
         self.add_extension_content()
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical"""
         if self.aedt_application.design_type not in [
             "HFSS",
@@ -114,7 +112,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_solids = solids
         self.__aedt_sheets = sheets
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
@@ -198,7 +196,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         self._widgets["output_file_entry"] = output_file_entry
 
-        def browse_output_location():
+        def browse_output_location() -> None:
             """Define output file."""
             self._widgets["output_file_entry"].config(state="normal")
             # Clear content if an output file is already provided
@@ -225,7 +223,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
 
         @graphics_required
-        def preview():
+        def preview() -> None:
             """Generate and visualize the point cloud."""
             import pyvista as pv
 
@@ -255,7 +253,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         preview_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
-        def callback(extension: PointsCloudExtension):
+        def callback(extension: PointsCloudExtension) -> None:
             """Collect extension data."""
             selected_objects, num_points, output_file = self.check_and_format_extension_data()
 
@@ -279,7 +277,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Toggle theme button
         self.add_toggle_theme_button(buttons_frame, 0, 2)
 
-    def check_and_format_extension_data(self):
+    def check_and_format_extension_data(self) -> tuple[list[str], int, str]:
         """Perform checks and formatting on extension input data."""
         selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
@@ -317,7 +315,7 @@ def main(data: PointsCloudExtensionData):
         raise AEDTRuntimeError("Path to the specified output file does not exist.")
 
     # Get pyaedt application
-    app = ansys.aedt.core.Desktop(
+    app = Desktop(
         new_desktop=False, version=VERSION, port=PORT, aedt_process_id=AEDT_PROCESS_ID, student_version=IS_STUDENT
     )
 
@@ -364,7 +362,7 @@ def main(data: PointsCloudExtensionData):
     return str(point_cloud[list(point_cloud.keys())[0]][0])
 
 
-def generate_point_cloud(aedtapp, selected_objects, num_points, output_file=None):
+def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_points: int, output_file: str = None):
     """Generate point cloud from selected objects"""
     # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
     if not output_file or Path(output_file).is_dir():

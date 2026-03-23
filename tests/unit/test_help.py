@@ -33,14 +33,14 @@ import pytest
 from ansys.aedt.core.help import Help
 
 
-def test_base_paths():
+def test_base_paths() -> None:
     helper = Help(version="stable", silent=True)
 
     assert helper.base_path.endswith("/version/stable")
     assert helper.examples_base == "https://examples.aedt.docs.pyansys.com"
 
 
-def test_version_setter_validation():
+def test_version_setter_validation() -> None:
     helper = Help(version="stable", silent=True)
 
     with pytest.raises(ValueError):
@@ -51,7 +51,7 @@ def test_version_setter_validation():
     assert helper.base_path.endswith("/version/dev")
 
 
-def test_search_builds_url_and_respects_silent(monkeypatch):
+def test_search_builds_url_and_respects_silent(monkeypatch) -> None:
     """Search should return URL and not open browser in silent mode."""
 
     def _fail_open(*args, **kwargs):
@@ -72,7 +72,7 @@ def test_search_builds_url_and_respects_silent(monkeypatch):
     assert qs["q"][0] == "mesh"
 
 
-def test_search_raises_on_empty_keywords():
+def test_search_raises_on_empty_keywords() -> None:
     helper = Help(version="stable", silent=True)
 
     with pytest.raises(ValueError):
@@ -82,7 +82,7 @@ def test_search_raises_on_empty_keywords():
         helper.search([])
 
 
-def test_search_multiple_keywords_encoding():
+def test_search_multiple_keywords_encoding() -> None:
     helper = Help(version="stable", silent=True)
 
     url = helper.search(["mesh", "heat"])
@@ -103,7 +103,7 @@ def test_search_multiple_keywords_encoding():
         ("release_notes", "/changelog.html"),
     ],
 )
-def test_helper_urls_under_base_path(method_name, expected_suffix, monkeypatch):
+def test_helper_urls_under_base_path(method_name, expected_suffix, monkeypatch) -> None:
     """Helper methods should construct URLs under the base path and honor silent mode."""
 
     def _fail_open(*args, **kwargs):
@@ -120,7 +120,7 @@ def test_helper_urls_under_base_path(method_name, expected_suffix, monkeypatch):
     assert url.endswith(expected_suffix)
 
 
-def test_examples_github_issues_forums_dev_urls(monkeypatch):
+def test_examples_github_issues_forums_dev_urls(monkeypatch) -> None:
     """URLs that are not version-dependent should be fixed."""
 
     def _fail_open(*args, **kwargs):
@@ -138,7 +138,7 @@ def test_examples_github_issues_forums_dev_urls(monkeypatch):
     assert helper.developer_forum() == "https://developer.ansys.com/"
 
 
-def test_changelog_with_explicit_release(monkeypatch):
+def test_changelog_with_explicit_release(monkeypatch) -> None:
     """changelog(release=...) should build the correct GitHub URL."""
 
     def _fail_open(*args, **kwargs):
@@ -153,7 +153,7 @@ def test_changelog_with_explicit_release(monkeypatch):
     assert url == "https://github.com/ansys/pyaedt/releases/tag/v0.7.0"
 
 
-def test_changelog_default_release_uses_installed_version(monkeypatch):
+def test_changelog_default_release_uses_installed_version(monkeypatch) -> None:
     """When release is None, changelog should use ansys.aedt.core.__version__."""
 
     def _fail_open(*args, **kwargs):
@@ -169,14 +169,14 @@ def test_changelog_default_release_uses_installed_version(monkeypatch):
     assert url == "https://github.com/ansys/pyaedt/releases/tag/v1.2.3"
 
 
-def test_browser_validation(monkeypatch):
+def test_browser_validation(monkeypatch) -> None:
     """Browser setter should validate custom browsers via webbrowser.get."""
 
     class DummyController:
-        def open_new_tab(self, *args, **kwargs):
+        def open_new_tab(self, *args, **kwargs) -> bool:
             return True
 
-        def open(self, *args, **kwargs):
+        def open(self, *args, **kwargs) -> bool:
             return True
 
     def fake_get(name):
@@ -193,20 +193,20 @@ def test_browser_validation(monkeypatch):
         helper.browser = "this-browser-does-not-exist"
 
 
-def test_non_silent_methods_open_browser(monkeypatch):
+def test_non_silent_methods_open_browser(monkeypatch) -> None:
     """When silent is False, helper methods should call webbrowser.open_new_tab."""
     opened_urls = []
 
     class DummyController:
-        def open_new_tab(self, url, *args, **kwargs):
+        def open_new_tab(self, url, *args, **kwargs) -> bool:
             opened_urls.append(url)
             return True
 
-        def open(self, url, *args, **kwargs):
+        def open(self, url, *args, **kwargs) -> bool:
             opened_urls.append(url)
             return True
 
-    def fake_get(name="default"):
+    def fake_get(name: str = "default"):
         return DummyController()
 
     monkeypatch.setattr(webbrowser, "get", fake_get)

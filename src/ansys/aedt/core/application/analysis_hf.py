@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+from itertools import combinations
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -31,11 +34,11 @@ class ScatteringMethods(PyAedtBase):
     Hfss3dLayout classes.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
     @property
-    def get_all_sparameter_list(self, excitation_names=None):
+    def get_all_sparameter_list(self, excitation_names: list | None = None) -> list:
         """List of all S parameters for a list of excitations.
 
         Parameters
@@ -64,7 +67,13 @@ class ScatteringMethods(PyAedtBase):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitations=None, excitation_name_prefix="", math_formula="", nets=None):
+    def get_all_return_loss_list(
+        self,
+        excitations: list | None = None,
+        excitation_name_prefix: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list:
         """Get a list of all return losses for a list of excitations.
 
         Parameters
@@ -108,8 +117,14 @@ class ScatteringMethods(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, drivers=None, receivers=None, drivers_prefix_name="", receivers_prefix_name="", math_formula="", nets=None
-    ):
+        self,
+        drivers: list | None = None,
+        receivers: list | None = None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -135,6 +150,20 @@ class ScatteringMethods(PyAedtBase):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
+        Examples
+        --------
+        >>> # Example 1: Get insertion loss between specific driver and receiver pairs
+        >>> hfss.get_all_insertion_loss_list(
+        ...     drivers=["Port1_TX", "Port2_TX", "Port3_TX"],
+        ...     receivers=["Port1_RX", "Port2_RX", "Port3_RX"],
+        ...     math_formula="dB",
+        ... )
+        ['dB(S(Port1_TX,Port1_RX))', 'dB(S(Port2_TX,Port2_RX))', 'dB(S(Port3_TX,Port3_RX))']
+
+        >>> # Example 2: Get insertion loss using prefix filtering
+        >>> hfss.get_all_insertion_loss_list(drivers_prefix_name="DIE", receivers_prefix_name="BGA")
+        ['S(DIE_Port1,BGA_Port1)', 'S(DIE_Port2,BGA_Port2)']
+
         References
         ----------
         >>> oEditor.GetAllPorts
@@ -150,7 +179,7 @@ class ScatteringMethods(PyAedtBase):
         spar = []
         if not nets and len(drivers) != len(receivers):
             self.logger.error("The TX and RX lists should be the same length.")
-            return False
+            return []
         if nets:
             for el in nets:
                 x = [i for i in drivers if el in i]
@@ -168,22 +197,31 @@ class ScatteringMethods(PyAedtBase):
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for i in drivers:
-                for j in receivers:
-                    if i == j:
-                        continue
-                    if (
-                        math_formula
-                        and f"{math_formula}(S({j},{i}))" not in spar
-                        and f"{math_formula}(S({i},{j}))" not in spar
-                    ):
-                        spar.append(f"{math_formula}(S({i},{j}))")
-                    elif not math_formula and f"S({i},{j})" not in spar and f"S({j},{i})" not in spar:
-                        spar.append(f"S({i},{j})")
+            # When drivers and receivers are different lists, pair by index
+            if drivers != receivers:
+                for driver, receiver in zip(drivers, receivers):
+                    if driver != receiver:
+                        if math_formula:
+                            spar.append(f"{math_formula}(S({driver},{receiver}))")
+                        else:
+                            spar.append(f"S({driver},{receiver})")
+            # When drivers and receivers are the same list, generate all insertion loss combinations
+            else:
+                for driver, receiver in combinations(drivers, 2):
+                    if math_formula:
+                        spar.append(f"{math_formula}(S({driver},{receiver}))")
+                    else:
+                        spar.append(f"S({driver},{receiver})")
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name="", math_formula="", nets=None):
+    def get_next_xtalk_list(
+        self,
+        drivers: list | None = None,
+        drivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
@@ -226,14 +264,14 @@ class ScatteringMethods(PyAedtBase):
     @pyaedt_function_handler()
     def get_fext_xtalk_list(
         self,
-        drivers=None,
-        receivers=None,
-        drivers_prefix_name="",
-        receivers_prefix_name="",
-        skip_same_index_couples=True,
-        math_formula="",
-        nets=None,
-    ):
+        drivers: list | None = None,
+        receivers: list | None = None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        skip_same_index_couples: bool = True,
+        math_formula: str = "",
+        nets: list | None = None,
+    ) -> list[str]:
         """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
@@ -285,13 +323,15 @@ class ScatteringMethods(PyAedtBase):
         return fext
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, setup=None, sweep=None, variations=None):
+    def get_touchstone_data(
+        self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None
+    ) -> list:
         """
         Return a Touchstone data plot.
 
         Parameters
         ----------
-        setup : list
+        setup : str, optional
             Name of the setup.
         sweep : str, optional
             Name of the sweep. The default value is ``None``.
@@ -330,15 +370,15 @@ class ScatteringMethods(PyAedtBase):
     @pyaedt_function_handler()
     def export_touchstone(
         self,
-        setup=None,
-        sweep=None,
-        output_file=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
-    ):
+        setup: str | None = None,
+        sweep: str | None = None,
+        output_file: str | None = None,
+        variations: list | None = None,
+        variations_value: list | None = None,
+        renormalization: bool = False,
+        impedance: float | None = None,
+        gamma_impedance_comments: bool = False,
+    ) -> str | bool:
         """Export a Touchstone file.
 
         Parameters

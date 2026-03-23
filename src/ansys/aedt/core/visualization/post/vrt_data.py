@@ -53,13 +53,13 @@ class VRTFieldPlot(PyAedtBase):
     def __init__(
         self,
         postprocessor,
-        is_creeping_wave=False,
-        quantity="QuantityName_SBR",
-        max_frequency="1GHz",
-        ray_density=2,
-        bounces=5,
+        is_creeping_wave: bool = False,
+        quantity: str = "QuantityName_SBR",
+        max_frequency: str = "1GHz",
+        ray_density: int = 2,
+        bounces: int = 5,
         intrinsics=None,
-    ):
+    ) -> None:
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
@@ -91,7 +91,7 @@ class VRTFieldPlot(PyAedtBase):
         self.irregular_surface_tolerance = 50
 
     @property
-    def intrinsicVar(self):
+    def intrinsicVar(self) -> str:
         """Intrinsic variable.
 
         Returns
@@ -219,7 +219,7 @@ class VRTFieldPlot(PyAedtBase):
         return args
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a field plot.
 
         Returns
@@ -237,7 +237,7 @@ class VRTFieldPlot(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the field plot.
 
         Returns
@@ -256,13 +256,13 @@ class VRTFieldPlot(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the field plot."""
         self._ofield.DeleteFieldPlot([self.name])
         return True
 
     @pyaedt_function_handler()
-    def export(self, path=None):
+    def export(self, path: str = None) -> str:
         """Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters
