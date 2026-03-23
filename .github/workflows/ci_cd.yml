@@ -317,7 +317,6 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
 
       - name: Wait for master cache update
