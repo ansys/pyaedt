@@ -7757,7 +7757,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             # Port impedances (for scaling transmission)
             _create_var(f"Zo_{floquet_ports[0]}_1", f"Zo({floquet_ports[0]}:1)")
             _create_var(f"Zo_{floquet_ports[1]}_1", f"Zo({floquet_ports[1]}:1)")
-        return True
 
     @pyaedt_function_handler()
     def get_fresnel_coefficients(
@@ -8258,9 +8257,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         list of str
-            A list containing the names of the top and bottom Floquet ports,
-            identified by their vertical position (Z-axis). If validation fails,
-            returns ``None``.
+            A list containing the names of the top and bottom Floquet ports, ordered by their Z-coordinate
+            (top port first). If only one port is defined, it returns a list with that single port name.
         """
         port_mode_list = self.excitation_names
 
