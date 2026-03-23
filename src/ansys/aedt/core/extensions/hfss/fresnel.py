@@ -385,7 +385,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.apply_validate(),
             style="PyAEDT.TButton",
-        )  # nosec
+        )
         self._widgets["apply_validate_button"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
 
         # Validation menu
@@ -429,7 +429,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.start_extraction(),
             style="PyAEDT.TButton",
-        )  # nosec
+        )
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button"].grid_remove()
 
@@ -459,7 +459,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.validate(),
             style="PyAEDT.TButton",
-        )  # nosec
+        )
         self._widgets["validate_button"].grid(row=1, column=0, padx=15, pady=10, columnspan=2)
 
         # Validation menu
@@ -502,7 +502,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.get_coefficients(),
             style="PyAEDT.TButton",
-        )  # nosec
+        )
         self._widgets["start_button_extraction"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button_extraction"].grid_remove()
 
