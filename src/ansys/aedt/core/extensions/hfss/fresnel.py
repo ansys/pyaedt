@@ -103,6 +103,34 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.step_frequency = None
         self.frequency_units = None
 
+        self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
+        self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
+
+        self.elevation_resolution_values = [
+            1.0,
+            1.25,
+            1.5,
+            2.0,
+            2.5,
+            3.75,
+            5.0,
+            6.0,
+            7.5,
+            9.0,
+            10.0,
+            11.25,
+            15.0,
+            18.0,
+            22.5,
+            30.0,
+        ]
+        self.azimuth_resolution_values = self.elevation_resolution_values
+
+        # Trigger manually since add_extension_content requires loading expression files first
+        self.add_extension_content()
+
+    def add_extension_content(self) -> None:
+        """Add custom content to the extension UI."""
         # Layout
         self.root.columnconfigure(0, weight=1)
 
@@ -162,29 +190,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
         self._widgets["azimuth_resolution"] = tkinter.DoubleVar(value=10.0)
         self._widgets["theta_scan_max"] = tkinter.DoubleVar(value=15.0)
-
-        self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
-        self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
-
-        self.elevation_resolution_values = [
-            1.0,
-            1.25,
-            1.5,
-            2.0,
-            2.5,
-            3.75,
-            5.0,
-            6.0,
-            7.5,
-            9.0,
-            10.0,
-            11.25,
-            15.0,
-            18.0,
-            22.5,
-            30.0,
-        ]
-        self.azimuth_resolution_values = self.elevation_resolution_values
 
         self.build_advanced_tab()
         self.build_extraction_tab()
