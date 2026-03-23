@@ -2159,11 +2159,17 @@ class Setup3DLayout(CommonSetup):
             for obj in aedtapp.modeler.solid_objects
             if obj.material_name not in aedtapp.modeler.materials.dielectrics
         ]
+
+        # Rename objects by net name and unite them if they belong to the same net
         for net, positions in primitives_3d_pts_per_nets.items():
+            if not net:
+                continue
+
             object_names = []
             for position in positions:
                 aedtapp_objs = [p for p in aedtapp.modeler.get_bodynames_from_position(position) if p in metal_object]
                 object_names.extend(aedtapp_objs)
+
             if net in via_per_nets:
                 for via_pos in via_per_nets[net]:
                     object_names.extend(
