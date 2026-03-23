@@ -881,7 +881,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         if is_valid:
             self.get_coefficients()
 
-    def get_coefficients(self):  # pragma: no cover
+    def get_coefficients(self):
         is_isotropic = self.fresnel_type.get() == "isotropic"
         _ = self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
