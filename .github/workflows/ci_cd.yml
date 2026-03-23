@@ -1346,8 +1346,7 @@ jobs:
 
   package:
     name: Package library
-    needs: [
-            analyze-changes,
+    needs: [analyze-changes,
             system-tests-solvers-windows,
             system-tests-solvers-linux,
             system-tests-general-windows,
@@ -1362,8 +1361,7 @@ jobs:
             system-tests-extensions-linux,
             system-tests-filter-windows,
             system-tests-emit-windows,
-            doc-build
-            ]
+            doc-build]
     runs-on: ubuntu-latest
     if: |
       always() &&
