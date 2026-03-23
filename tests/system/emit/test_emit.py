@@ -2743,7 +2743,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
-    assert sim.is_domain_valid(domain)
+    assert sim.is_domain_valid(domain) == ""
 
     # run the interaction
     domain = hfss_phased_array.interaction_domain
