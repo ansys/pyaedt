@@ -48,18 +48,6 @@ IS_STUDENT = is_student()
 
 EXTENSION_TITLE = "Fresnel Coefficients"
 
-# Default width and height for the extension window
-WIDTH = 650
-HEIGHT = 850
-
-# Maximum dimensions for the extension window
-MAX_WIDTH = 800
-MAX_HEIGHT = 950
-
-# Minimum dimensions for the extension window
-MIN_WIDTH = 600
-MIN_HEIGHT = 750
-
 
 class FresnelExtension(ExtensionHFSSCommon):
     """Extension to generate Fresnel coefficients in AEDT."""
@@ -76,7 +64,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
 
         # Attributes
-        self.fresnel_type = tkinter.StringVar(value="isotropic")
         self.setups = self.aedt_application.design_setups
         self.setup_sweep_names = []
 
@@ -102,6 +89,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.stop_frequency = None
         self.step_frequency = None
         self.frequency_units = None
+        self.fresnel_type = None
 
         self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
         self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
@@ -131,6 +119,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
+        self.fresnel_type = tkinter.StringVar(value="isotropic")
         # Layout
         self.root.columnconfigure(0, weight=1)
 
@@ -174,7 +163,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["tabs"].grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         self._widgets["extraction_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
-        # self._widgets["auto_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
@@ -194,10 +182,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.build_advanced_tab()
         self.build_extraction_tab()
         self.build_settings_tab()
-
-        self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
-        self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
-        self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
     def on_fresnel_type_changed(self):
         selected = self.fresnel_type.get()
