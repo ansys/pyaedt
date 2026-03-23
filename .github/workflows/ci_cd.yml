@@ -229,6 +229,12 @@ jobs:
           sudo apt-get --fix-broken install -y
           sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
+      - name: Install Sphinx and doc dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install sphinx sphinx_rtd_theme
+
       - name: Documentation build
         uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
         with:
