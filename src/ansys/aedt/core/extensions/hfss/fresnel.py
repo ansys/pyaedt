@@ -623,7 +623,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         if self.start_frequency > self.stop_frequency:
             self.aedt_application.logger.add_error_message("Start frequency must be less than stop frequency.")
-            self._widgets["frequency_points_label"].config(text="❌")
+            self._widgets["frequency_points_label"].config(text="FAIL")
             return False
 
         for _, available_sweep in self.active_setup.children.items():
@@ -652,14 +652,14 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.floquet_ports = None
 
         if self.floquet_ports is None:
-            self._widgets["floquet_ports_label"]["text"] = "❌"
+            self._widgets["floquet_ports_label"]["text"] = "FAIL"
             return False
-        self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined" + " ✅"
+        self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined" + " PASS"
 
         # Show frequency points
 
         frequency_points = int((self.stop_frequency - self.start_frequency) / self.step_frequency) + 1
-        self._widgets["frequency_points_label"]["text"] = str(frequency_points) + " ✅"
+        self._widgets["frequency_points_label"]["text"] = str(frequency_points) + " PASS"
 
         # Show spatial directions
 
@@ -676,7 +676,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
-        self._widgets["spatial_points_label"]["text"] = str(total_combinations) + " ✅"
+        self._widgets["spatial_points_label"]["text"] = str(total_combinations) + " PASS"
 
         # Check validations
 
@@ -785,10 +785,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Check number of ports and each port should have 2 modes
         self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
         if self.floquet_ports is None:
-            self._widgets["floquet_ports_label_extraction"]["text"] = "❌"
+            self._widgets["floquet_ports_label_extraction"]["text"] = "FAIL"
             return False
         self._widgets["floquet_ports_label_extraction"]["text"] = (
-            f"{len(self.floquet_ports)} Floquet port defined" + " ✅"
+            f"{len(self.floquet_ports)} Floquet port defined" + " PASS"
         )
 
         # Parametric setup is driven by the variables defining the scan direction
