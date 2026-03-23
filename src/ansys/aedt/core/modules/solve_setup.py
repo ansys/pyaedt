@@ -2229,7 +2229,7 @@ class Setup3DLayout(CommonSetup):
         edb = self._app.modeler.edb
         if not edb:
             return
-        net_primitives = edb.modeler.primitives_by_net
+        net_primitives = edb.layout.primitives_by_net
         primitive_dict = {}
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
