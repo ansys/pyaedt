@@ -359,8 +359,8 @@ jobs:
 
   system-tests-solvers-windows:
     name: Test solvers (windows)
-    # needs: [integration-tests, analyze-changes]
-    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -430,8 +430,8 @@ jobs:
 
   system-tests-solvers-linux:
     name: Test solvers (linux)
-    # needs: [integration-tests, analyze-changes]
-    # if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
