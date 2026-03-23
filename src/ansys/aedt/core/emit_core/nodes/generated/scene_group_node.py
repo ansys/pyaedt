@@ -211,6 +211,20 @@ class SceneGroupNode(EmitNode):
 
     @property
     @min_aedt_version("2025.2")
+    def attach_points(self) -> str:
+        """Attach Points."""
+        val = self._get_property("Attach Points")
+        return val
+
+    @property
+    @min_aedt_version("2025.2")
+    def articulation_points(self) -> str:
+        """Articulation Points."""
+        val = self._get_property("Articulation Points")
+        return val
+
+    @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
