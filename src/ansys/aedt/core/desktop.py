@@ -691,8 +691,7 @@ class Desktop(PyAedtBase):
 
         # Setup logging.
         self.__set_logger_file()
-        if self.non_graphical:
-            settings.enable_desktop_logs = False
+        settings.enable_desktop_logs = not self.non_graphical and self.aedt_version_id < "2024.2"
         self.__init_desktop()
 
         self._check_new_desktop(aedt_process_id, student_version)
