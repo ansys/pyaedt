@@ -2887,8 +2887,7 @@ class Design(AedtObjects, PyAedtBase):
                 name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
             )
         else:
-            error_message = f"Input file '{in_file}' does not exist."
-            raise FileNotFoundError(error_message)
+            raise FileNotFoundError(f"Input file '{in_file}' does not exist.")
 
     @pyaedt_function_handler()
     def import_dataset3d(
