@@ -36,7 +36,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.desktop import Desktop
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
@@ -176,10 +175,3 @@ def test_interaction_domain(cell_phone):
 
     domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=0.0008702, units="THz")
     assert domain.get_receiver_channel_frequency("MHz") == 870.2
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_get_existing():
-    d = Desktop(version="2027.1", new_desktop=False)
-    print(d)
-    print(d.aedt_process_id)
