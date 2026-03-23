@@ -1344,7 +1344,7 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_output_variable(
-        self, variable: str, expression: str, solution: str = None, context: list = None, is_differential: bool = False
+        self, variable: str | None = None, expression: str | None = None, solution: str | None = None, context: list str | None = None, is_differential: bool = False
     ) -> bool:
         """Create or modify an output variable.
 
