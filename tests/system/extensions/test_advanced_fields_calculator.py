@@ -38,7 +38,7 @@ HFSS_ASSIGNMENTS = ["Polyline1", "Polyline2"]
 
 
 @patch.object(AdvancedFieldsCalculatorExtension, "check_design_type", return_value=None)
-def test_advanced_fields_calculator_q3d_ok_button(mock_check, add_app_example):
+def test_advanced_fields_calculator_q3d_ok_button(mock_check, add_app_example) -> None:
     """Test the OK button in the Advanced Fields Calculator extension."""
     aedt_app = add_app_example(application=Q3d, project=FIELDS_CALCULATOR, subfolder=TEST_SUBFOLDER)
 
@@ -59,7 +59,7 @@ def test_advanced_fields_calculator_q3d_ok_button(mock_check, add_app_example):
 
 
 @patch.object(Modeler3D, "selections", new_callable=PropertyMock)
-def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app_example):
+def test_advanced_fields_calculator_hfss_ok_button(mock_selections, add_app_example) -> None:
     """Test the OK button in the Advanced Fields Calculator extension for HFSS."""
     mock_selections.return_value = HFSS_ASSIGNMENTS
 

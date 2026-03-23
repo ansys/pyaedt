@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import os
 import sys
 import threading
@@ -44,7 +46,7 @@ app = typer.Typer(help="Process management commands")
 
 
 @app.command()
-def version():
+def version() -> None:
     """Display PyAEDT version."""
     import ansys.aedt.core
 
@@ -54,7 +56,7 @@ def version():
 
 
 @app.command()
-def processes():
+def processes() -> None:
     """Display all running AEDT-related processes."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
@@ -87,11 +89,11 @@ def processes():
 
 @app.command()
 def start(
-    version: str = typer.Option("2025.2", "--version", "-v", help="AEDT version to start (latest 2025.2)"),
+    version: str = typer.Option("2026.1", "--version", "-v", help="AEDT version to start (latest 2026.1)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start AEDT in non-graphical mode"),
     port: int = typer.Option(0, "--port", "-p", help="Port for AEDT connection (0 for auto)"),
     student_version: bool = typer.Option(False, "--student", help="Start AEDT Student version"),
-):
+) -> None:
     """Start a new AEDT process."""
     try:
         typer.echo("Starting AEDT ", nl=False)
@@ -126,7 +128,7 @@ def start(
         progress_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         progress_running = True
 
-        def show_progress():
+        def show_progress() -> None:
             """Display animated progress indicator"""
             i = 0
             while progress_running:
@@ -161,7 +163,7 @@ def stop(
     pids: list[int] = typer.Option([], "--pid", help="Stop process by PID (can be used multiple times)"),
     ports: list[int] = typer.Option([], "--port", help="Stop process by port (can be used multiple times)"),
     stop_all: bool = typer.Option(False, "--all", "-a", help="Stop all running AEDT processes"),
-):
+) -> None:
     """Stop running AEDT process(es)."""
     import psutil
 
@@ -248,7 +250,7 @@ def stop(
 @app.command()
 def attach(
     pid: int = typer.Option(None, "--pid", "-p", help="Process ID to attach to directly"),
-):
+) -> None:
     """Attach to a running AEDT process and launch an interactive PyAEDT console."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
@@ -276,7 +278,7 @@ def _extract_version_from_cmdline(cmd_line: list) -> str:
     Returns
     -------
     str
-        Version string (e.g., "2025.2") or "unknown"
+        Version string (e.g., "2026.1") or "unknown"
     """
     if not cmd_line:
         return "unknown"
@@ -291,7 +293,7 @@ def _extract_version_from_cmdline(cmd_line: list) -> str:
     return "unknown"
 
 
-def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
+def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]) -> None:
     """Attach to a specific AEDT process by PID.
 
     Parameters
@@ -318,7 +320,7 @@ def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
     _launch_console_setup(pid, version)
 
 
-def _attach_interactive(aedt_procs: list[psutil.Process]):
+def _attach_interactive(aedt_procs: list[psutil.Process]) -> None:
     """Interactive mode to select and attach to an AEDT process.
 
     Parameters
@@ -378,7 +380,7 @@ def _attach_interactive(aedt_procs: list[psutil.Process]):
     _launch_console_setup(selected["pid"], selected["version"])
 
 
-def _launch_console_setup(pid: int, version: str):
+def _launch_console_setup(pid: int, version: str) -> None:
     """Launch console_setup.py script to attach to an AEDT process.
 
     Parameters

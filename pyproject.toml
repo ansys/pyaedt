@@ -32,7 +32,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.77",
+    "ansys-tools-common",
+    "grpcio>=1.50.0,<1.79",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -45,6 +46,61 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dotnet = [
+    "ansys-pythonnet>=3.1.0rc3",
+    "cffi>=1.16.0,<2.1; platform_system=='Linux'",
+    "dotnetcore2==3.1.23; platform_system=='Linux'",
+    "pywin32>=303; platform_system=='Windows'",
+]
+graphics = [
+    "ansys-tools-visualization-interface",
+    "pyvista[io]>=0.38.0,<0.48",
+    "matplotlib>=3.5.0,<3.11",
+    "vtk>=9.0,<9.7",
+    "fpdf2",
+]
+jupyter = [
+    "jupyterlab>=3.6.0,<4.6",
+    "ipython>=7.30.0,<9.1",
+]
+all = [
+    "matplotlib>=3.5.0,<3.11",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=2.0.0,<2.2",
+    "pandas>=1.1.0,<2.4",
+    "pyvista[io]>=0.38.0,<0.48",
+    "fast-simplification>=0.1.7",
+    "ansys-tools-visualization-interface",
+    "tables; python_version >= '3.10'",
+    "scikit-rf>=0.30.0,<1.12",
+    "pyaedt[jupyter]",
+    "requests",
+    "typer>=0.20.0",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+]
+examples = [
+    "imageio>=2.34.0,<2.38",
+    "matplotlib>=3.5.0,<3.11",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=2.0.0,<2.2",
+    "pandas>=1.1.0,<2.4",
+    "pyvista>=0.38.0,<0.48",
+    "fast-simplification>=0.1.7",
+    "joblib>=1.4.0,<1.6",
+    "plotly>=6.0,<6.7",
+    "scikit-rf>=0.30.0,<1.12",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+    "tables; python_version >= '3.10'",
+]
+
+[dependency-groups]
+dev = [
+  "prek==0.3.4",
+  { include-group = "doc" },
+  { include-group = "tests" },
+]
 unit-tests = [
     "pytest>=7.4.0,<9.1",
     "pytest-cov>=4.0.0,<7.1",
@@ -60,26 +116,19 @@ integration-tests = [
     "matplotlib>=3.5.0,<3.11",
     "pytest-testmon>=2.0.0,<3.0",
     "pandas>=1.1.0,<2.4",
-    "pyaedt[unit-tests]",
+    { include-group = "unit-tests" },
 ]
 tests = [
     "ansys-tools-visualization-interface",
-    "osmnx>=1.1.0,<2.1",
-    "pyaedt[integration-tests]",
+    "osmnx>=2.0.0,<2.2",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
     "pytest-testmon>=2.0.0,<3.0",
-    "pyvista[io]>=0.38.0,<0.47",
-    "scikit-rf>=0.30.0,<1.10",
+    "pyvista[io]>=0.38.0,<0.48",
+    "scikit-rf>=0.30.0,<1.12",
     "tables",
     "cryptography",
-]
-
-dotnet = [
-    "ansys-pythonnet>=3.1.0rc3",
-    "cffi>=1.16.0,<2.1; platform_system=='Linux'",
-    "dotnetcore2==3.1.23; platform_system=='Linux'",
-    "pywin32>=303; platform_system=='Windows'",
+    { include-group = "integration-tests" },
 ]
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.8",
@@ -91,53 +140,12 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.21",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.47",
+    "pyvista[io]>=0.38.0,<0.48",
     "ansys-tools-visualization-interface",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
-graphics = [
-    "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.47",
-    "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.6",
-    "fpdf2",
-]
-jupyter = [
-    "jupyterlab>=3.6.0,<4.6",
-    "ipython>=7.30.0,<9.1",
-]
-all = [
-    "matplotlib>=3.5.0,<3.11",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.4",
-    "pyvista[io]>=0.38.0,<0.47",
-    "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface",
-    "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.10",
-    "pyaedt[jupyter]",
-    "requests",
-    "typer>=0.20.0",
-    "fpdf2",
-    "rpyc>=6.0.0,<6.1",
-    "uv>=0.8.17",
-]
-examples = [
-    "imageio>=2.34.0,<2.38",
-    "matplotlib>=3.5.0,<3.11",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.4",
-    "pyvista>=0.38.0,<0.47",
-    "fast-simplification>=0.1.7",
-    "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.6",
-    "scikit-rf>=0.30.0,<1.10",
-    "fpdf2",
-    "rpyc>=6.0.0,<6.1",
-]
+
 
 [tool.setuptools]
 include-package-data = true
@@ -179,6 +187,9 @@ select = [
     "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
     "W",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "UP006", # non-pep585-annotation, https://docs.astral.sh/ruff/rules/non-pep585-annotation
+    "UP007", # non-pep604-annotation-union, https://docs.astral.sh/ruff/rules/non-pep604-annotation-union
+    "UP045", # non-pep604-annotation-optional, https://docs.astral.sh/ruff/rules/non-pep604-annotation-optional
 ]
 ignore = [
     # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
@@ -266,7 +277,10 @@ source = ["src/ansys/aedt/core"]
 
 [tool.coverage.report]
 show_missing = true
-omit = ["src/ansys/aedt/core/rpc/*.py"]
+omit = [
+    "src/ansys/aedt/core/rpc/*.py",
+    "src/ansys/aedt/core/extensions/installer/*_setup.py",
+]
 
 [tool.pytest.ini_options]
 markers = [

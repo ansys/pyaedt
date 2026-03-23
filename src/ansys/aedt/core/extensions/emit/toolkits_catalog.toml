@@ -3,4 +3,11 @@ icon = "images/large/interference_classification.png"
 name = "Interference Classification"
 script = "interference_classification.py"
 template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/interference_classification.html"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/interference_classification.html"
+
+[EMIHeatmap]
+icon = "images/large/emi_heat_map.png"
+name = "EMI Heat Map"
+script = "emi_heat_map.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/emi_heat_map.html"

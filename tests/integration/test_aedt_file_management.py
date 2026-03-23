@@ -26,7 +26,7 @@ from ansys.aedt.core.application.aedt_file_management import change_model_orient
 from ansys.aedt.core.application.aedt_file_management import change_objects_visibility
 
 
-def test_change_objects_visibility(tmp_path):
+def test_change_objects_visibility(tmp_path) -> None:
     content = (
         "$begin 'EditorWindow'\n"
         "Header info\n"
@@ -43,7 +43,7 @@ def test_change_objects_visibility(tmp_path):
     assert result is True
 
 
-def test_change_model_orientation(tmp_path):
+def test_change_model_orientation(tmp_path) -> None:
     content = (
         "$begin 'EditorWindow'\n"
         "Some header text\n"

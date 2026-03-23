@@ -22,25 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
 
 import os
-import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from pandas import Series
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
-    )
 
 
 class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
@@ -57,17 +53,17 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessorCommon.__init__(self, app)
 
     @pyaedt_function_handler()
     def export_model_picture(
         self,
-        output_file=None,
-        page=1,
-        width=1920,
-        height=1080,
-    ):
+        output_file: str = None,
+        page: int = 1,
+        width: int = 1920,
+        height: int = 1080,
+    ) -> str:
         """Export a snapshot of the schematic to a ``JPG`` file.
 
         Parameters
@@ -109,15 +105,15 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def create_ami_initial_response_plot(
         self,
-        setup,
-        ami_name,
-        variation_list_w_value,
-        plot_type="Rectangular Plot",
-        plot_initial_response=True,
-        plot_intermediate_response=False,
-        plot_final_response=False,
-        plot_name=None,
-    ):
+        setup: str,
+        ami_name: str,
+        variation_list_w_value: list | dict,
+        plot_type: str = "Rectangular Plot",
+        plot_initial_response: bool = True,
+        plot_intermediate_response: bool = False,
+        plot_final_response: bool = False,
+        plot_name: str = None,
+    ) -> str:
         """Create an AMI initial response plot.
 
         Parameters
@@ -222,8 +218,13 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_ami_statistical_eye_plot(
-        self, setup, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
-    ):
+        self,
+        setup: str,
+        ami_name: str,
+        variation_list_w_value: list | dict,
+        ami_plot_type: str = "InitialEye",
+        plot_name: str = None,
+    ) -> str:
         """Create an AMI statistical eye plot.
 
         Parameters
@@ -334,7 +335,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         return plot_name
 
     @pyaedt_function_handler()
-    def create_statistical_eye_plot(self, setup, probe_names, variation_list_w_value, plot_name=None):
+    def create_statistical_eye_plot(
+        self, setup: str, probe_names: str | list, variation_list_w_value: list | dict, plot_name: str = None
+    ) -> str:
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
@@ -433,14 +436,14 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     @pyaedt_function_handler()
     def sample_waveform(
         self,
-        waveform_data,
-        waveform_sweep,
-        waveform_unit="V",
-        waveform_sweep_unit="s",
-        unit_interval=1e-9,
-        clock_tics=None,
-        pandas_enabled=False,
-    ):
+        waveform_data: "list | Series",
+        waveform_sweep: "list | Series",
+        waveform_unit: str = "V",
+        waveform_sweep_unit: str = "s",
+        unit_interval: float = 1e-9,
+        clock_tics: list = None,
+        pandas_enabled: bool = False,
+    ) -> "list | Series":
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters
@@ -480,11 +483,18 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
-        if isinstance(waveform_sweep, pd.Series):
-            waveform_sweep = list(waveform_sweep)
+        # Check if pandas is available and if inputs are pandas Series
+        try:
+            import pandas as pd_module
 
-        if isinstance(waveform_data, pd.Series):
-            waveform_data = list(waveform_data)
+            if isinstance(waveform_sweep, pd_module.Series):
+                waveform_sweep = list(waveform_sweep)
+
+            if isinstance(waveform_data, pd_module.Series):
+                waveform_data = list(waveform_data)
+        except ImportError:  # pragma: no cover
+            # If pandas not available, inputs must be lists already
+            pass
 
         sweep_filtered = np.copy(waveform_sweep)
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
@@ -511,21 +521,27 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                 else:
                     break
         if pandas_enabled:
-            return pd.Series(new_voltage, index=tic_in_s)
+            try:
+                import pandas as pd_module
+
+                return pd_module.Series(new_voltage, index=tic_in_s)
+            except ImportError:  # pragma: no cover
+                self.logger.warning("Pandas is not installed. Returning list instead of Series.")
+                return outputdata
         return outputdata
 
     @pyaedt_function_handler()
     def sample_ami_waveform(
         self,
-        setup,
-        probe,
-        source,
-        variation_list_w_value,
-        unit_interval=1e-9,
-        ignore_bits=0,
-        plot_type=None,
-        clock_tics=None,
-    ):
+        setup: str,
+        probe: str,
+        source: str,
+        variation_list_w_value: list | dict,
+        unit_interval: float = 1e-9,
+        ignore_bits: int = 0,
+        plot_type: str = None,
+        clock_tics: list = None,
+    ) -> list | None:
         """Sampling a waveform at clock times plus half unit interval.
 
         Parameters

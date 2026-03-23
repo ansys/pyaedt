@@ -35,7 +35,7 @@ def h3d_potter_horn(add_app_example):
     app.close_project(save=False)
 
 
-def test_create_report(h3d_potter_horn):
+def test_create_report(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -60,7 +60,7 @@ def test_create_report(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(nominal_report.plot_name)
 
 
-def test_create_report_sweep(h3d_potter_horn):
+def test_create_report_sweep(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -81,7 +81,7 @@ def test_create_report_sweep(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(sweep_report.plot_name)
 
 
-def test_create_report_from_configuration_sweep_report(h3d_potter_horn, test_tmp_dir):
+def test_create_report_from_configuration_sweep_report(h3d_potter_horn, test_tmp_dir) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -105,7 +105,7 @@ def test_create_report_from_configuration_sweep_report(h3d_potter_horn, test_tmp
     h3d_potter_horn.post.delete_report(sweep_report.plot_name)
 
 
-def test_create_report_time(h3d_potter_horn):
+def test_create_report_time(h3d_potter_horn) -> None:
     report = h3d_potter_horn.post.create_report(
         "Time",
         h3d_potter_horn.existing_analysis_sweeps[1],
@@ -118,7 +118,7 @@ def test_create_report_time(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(report.plot_name)
 
 
-def test_reports_by_category_far_field(h3d_potter_horn):
+def test_reports_by_category_far_field(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -133,7 +133,7 @@ def test_reports_by_category_far_field(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report.plot_name)
 
 
-def test_reports_by_category_far_field_1(h3d_potter_horn):
+def test_reports_by_category_far_field_1(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -148,7 +148,7 @@ def test_reports_by_category_far_field_1(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report2.plot_name)
 
 
-def test_reports_by_category_far_antenna_parameters(h3d_potter_horn):
+def test_reports_by_category_far_antenna_parameters(h3d_potter_horn) -> None:
     new_report3 = h3d_potter_horn.post.reports_by_category.antenna_parameters(
         "db(PeakRealizedGain)", h3d_potter_horn.nominal_adaptive, "3D"
     )
@@ -157,7 +157,7 @@ def test_reports_by_category_far_antenna_parameters(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report3.plot_name)
 
 
-def test_reports_by_category_far_antenna_parameters_1(h3d_potter_horn):
+def test_reports_by_category_far_antenna_parameters_1(h3d_potter_horn) -> None:
     new_report4 = h3d_potter_horn.post.reports_by_category.antenna_parameters(
         "db(PeakRealizedGain)", infinite_sphere="3D"
     )
@@ -166,7 +166,7 @@ def test_reports_by_category_far_antenna_parameters_1(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report4.plot_name)
 
 
-def test_reports_by_category_far_antenna_parameters_2(h3d_potter_horn):
+def test_reports_by_category_far_antenna_parameters_2(h3d_potter_horn) -> None:
     new_report4 = h3d_potter_horn.post.reports_by_category.antenna_parameters(
         "db(PeakRealizedGain)", infinite_sphere="3D"
     )
@@ -175,7 +175,7 @@ def test_reports_by_category_far_antenna_parameters_2(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report4.plot_name)
 
 
-def test_create_report_from_configuration_template(h3d_potter_horn):
+def test_create_report_from_configuration_template(h3d_potter_horn) -> None:
     from tests import TESTS_VISUALIZATION_PATH
     from tests.conftest import config
 
@@ -198,7 +198,7 @@ def test_create_report_from_configuration_template(h3d_potter_horn):
     h3d_potter_horn.post.delete_report(new_report4.plot_name)
 
 
-def test_data_plot(h3d_potter_horn, test_tmp_dir):
+def test_data_plot(h3d_potter_horn, test_tmp_dir) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -214,7 +214,7 @@ def test_data_plot(h3d_potter_horn, test_tmp_dir):
     assert data.plot(snapshot_path=str(test_tmp_dir / "reportC.jpg"), show=False)
 
 
-def test_data_plot_3d(h3d_potter_horn):
+def test_data_plot_3d(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -230,7 +230,7 @@ def test_data_plot_3d(h3d_potter_horn):
     assert data.plot_3d(show=False)
 
 
-def test_create_3d_plot(h3d_potter_horn, test_tmp_dir):
+def test_create_3d_plot(h3d_potter_horn, test_tmp_dir) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -250,7 +250,7 @@ def test_create_3d_plot(h3d_potter_horn, test_tmp_dir):
     )
 
 
-def test_get_solution_data(h3d_potter_horn):
+def test_get_solution_data(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -270,7 +270,7 @@ def test_get_solution_data(h3d_potter_horn):
     assert not np.any(data.get_expression_data("GainTotal2")[0])
 
 
-def test_create_report_nominal_sweep(h3d_potter_horn):
+def test_create_report_nominal_sweep(h3d_potter_horn) -> None:
     variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     variations["Theta"] = ["All"]
     variations["Phi"] = ["All"]
@@ -282,7 +282,7 @@ def test_create_report_nominal_sweep(h3d_potter_horn):
 
 
 # Improve it for Maxwell
-def test_reports_by_category_fields(h3d_potter_horn):
+def test_reports_by_category_fields(h3d_potter_horn) -> None:
     h3d_potter_horn.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
     variations2 = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     assert h3d_potter_horn.setups[0].create_report(
@@ -298,7 +298,7 @@ def test_reports_by_category_fields(h3d_potter_horn):
     assert new_report.create()
 
 
-def test_reports_by_category_modal_solution(h3d_potter_horn):
+def test_reports_by_category_modal_solution(h3d_potter_horn) -> None:
     variations2 = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
     new_report = h3d_potter_horn.post.reports_by_category.modal_solution("S(1,1)")
     new_report.report_type = "Smith Chart"
@@ -309,7 +309,7 @@ def test_reports_by_category_modal_solution(h3d_potter_horn):
     assert data.units_sweeps["Phase"] == "deg"
 
 
-def test_get_far_field_data(h3d_potter_horn):
+def test_get_far_field_data(h3d_potter_horn) -> None:
     assert h3d_potter_horn.post.get_far_field_data(expressions="RealizedGainTotal", domain="3D")
     assert h3d_potter_horn.post.get_far_field_data(
         expressions="RealizedGainTotal", setup_sweep_name=h3d_potter_horn.nominal_adaptive, domain="3D"
@@ -322,12 +322,12 @@ def test_get_far_field_data(h3d_potter_horn):
     assert data_far_field2.plot(formula="db20", is_polar=True, show=False)
 
 
-def test_reports_by_category_terminal_solution(h3d_potter_horn):
+def test_reports_by_category_terminal_solution(h3d_potter_horn) -> None:
     test = h3d_potter_horn.post.reports_by_category.terminal_solution()
     assert test
 
 
-def test_get_solution_data_per_variation(h3d_potter_horn):
+def test_get_solution_data_per_variation(h3d_potter_horn) -> None:
     assert (
         h3d_potter_horn.post.get_solution_data_per_variation(
             solution_type="Far Fields", expressions="RealizedGainTotal"
@@ -336,11 +336,11 @@ def test_get_solution_data_per_variation(h3d_potter_horn):
     )
 
 
-def test_get_efields(h3d_potter_horn):
+def test_get_efields(h3d_potter_horn) -> None:
     assert h3d_potter_horn.post.get_efields_data(ff_setup="3D")
 
 
-def test_get_variations(h3d_potter_horn):
+def test_get_variations(h3d_potter_horn) -> None:
     setup = h3d_potter_horn.existing_analysis_sweeps[0]
     variations = h3d_potter_horn.available_variations.variations(setup)
     assert isinstance(variations, list)
@@ -350,7 +350,7 @@ def test_get_variations(h3d_potter_horn):
     assert isinstance(vars_dict[0], dict)
 
 
-def test_cleanup_solution_1(h3d_potter_horn):
+def test_cleanup_solution_1(h3d_potter_horn) -> None:
     setup = h3d_potter_horn.existing_analysis_sweeps
     variations = h3d_potter_horn.available_variations._get_variation_strings(setup[0])
     assert h3d_potter_horn.cleanup_solution(variations, entire_solution=False)

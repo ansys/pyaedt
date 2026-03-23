@@ -1,8 +1,12 @@
 Extensions
 ==========
 
-Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
-In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
+Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT,
+they are generally tool-specific and are therefore only accessible given the appropriate context.
+
+In AEDT, you can use the Extension manager panel to add or remove extensions. The Extension manager is one of the
+:doc:`../Getting_started/panels` available in the AEDT Automation tab.
+
 The Extension manager allows the user to install three different types of extensions:
 
 - **Pre-installed extensions** available at project level.
@@ -265,6 +269,12 @@ They are small automated workflows with a simple GUI.
 
             Classify results according to radio protection level or interference type.
 
+   .. grid-item-card:: EMI Heat Map
+            :link: pyaedt_extensions_doc/emit/emi_heat_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a 2D heat map of EMI results between two radio bands.
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
@@ -289,6 +299,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
    pyaedt_extensions_doc/maxwell/index
+   pyaedt_extensions_doc/emit/index
    pyaedt_extensions_doc/templates/index
 
 
@@ -300,8 +311,9 @@ They are advanced workflows where backend and frontend are split.
 They are also fully documented and tested.
 
 Here are some links to existing toolkits:
-- Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
-- Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
+- `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+- `Radar Explorer <https://github.com/ansys/ansys-aedt-toolkits-radar-explorer>`_.
 
 Now, you need to download the installer from the Releases section of each toolkit.
 You can access it by clicking the "Install" button in the corresponding repository.
@@ -348,9 +360,7 @@ The Python script requires a common initial part to define the port and the vers
         version = "2025.2"
 
     # your pyaedt script
-    app = ansys.aedt.core.Desktop(
-        new_desktop_session=False, specified_version=version, port=port
-    )
+    app = ansys.aedt.core.Desktop(new_desktop=False, version=version, port=port)
 
     active_project = app.active_project()
     active_design = app.active_design(active_project)

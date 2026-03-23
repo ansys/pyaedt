@@ -73,18 +73,18 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_bounding_box(aedt_app):
+def test_bounding_box(aedt_app) -> None:
     bounding = aedt_app.modeler.obounding_box
     assert len(bounding) == 6
     assert len(aedt_app.modeler.get_model_bounding_box()) == 6
 
 
-def test_convert_to_selection(coaxial):
+def test_convert_to_selection(coaxial) -> None:
     assert isinstance(coaxial.modeler.convert_to_selections("inner", True), list)
     assert isinstance(coaxial.modeler.convert_to_selections("inner", False), str)
 
 
-def test_split(aedt_app):
+def test_split(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split", color=(255, 0, 0))
     assert box1.color == (255, 0, 0)
     box2 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split2", transparency=1)
@@ -142,7 +142,7 @@ def test_split(aedt_app):
     assert isinstance(split[0], str)
 
 
-def test_duplicate_and_mirror(coaxial):
+def test_duplicate_and_mirror(coaxial) -> None:
     udp = coaxial.modeler.Position(20, 20, 20)
     udp2 = coaxial.modeler.Position(30, 40, 40)
     out = coaxial.modeler.duplicate_and_mirror("outer", udp, udp2)
@@ -154,7 +154,7 @@ def test_duplicate_and_mirror(coaxial):
     assert status
 
 
-def test_duplicate_around_axis(coaxial):
+def test_duplicate_around_axis(coaxial) -> None:
     udp = coaxial.modeler.Position(0, 0, 0)
     num_clones = 3
     status, mirror = coaxial.modeler.duplicate_around_axis("outer", udp, 45, num_clones)
@@ -171,7 +171,7 @@ def test_duplicate_around_axis(coaxial):
     assert not obj_list
 
 
-def test_duplicate_along_line(coaxial):
+def test_duplicate_along_line(coaxial) -> None:
     udp = coaxial.modeler.Position(5, 5, 5)
     num_clones = 5
     status, mirror = coaxial.modeler.duplicate_along_line("outer", udp, num_clones)
@@ -180,7 +180,7 @@ def test_duplicate_along_line(coaxial):
     assert len(mirror) == num_clones - 1
 
 
-def test_thicken_sheet(aedt_app):
+def test_thicken_sheet(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     id5 = aedt_app.modeler.create_circle(Plane.XY, udp, 10, name="sheet1")
     udp = aedt_app.modeler.Position(100, 100, 100)
@@ -195,7 +195,7 @@ def test_thicken_sheet(aedt_app):
     assert status
 
 
-def test_separate_bodies(aedt_app):
+def test_separate_bodies(aedt_app) -> None:
     aedt_app.modeler.create_cylinder(
         orientation="Z", origin=[0, -20, 15], radius=40, height=20, name="SearchCoil", material="copper"
     )
@@ -209,7 +209,7 @@ def test_separate_bodies(aedt_app):
     assert len(object_list) == 2
 
 
-def test_rotate(aedt_app):
+def test_rotate(aedt_app) -> None:
     udp1 = [0, 0, 0]
     udp2 = [5, 0, 0]
     udp3 = [5, 5, 0]
@@ -217,19 +217,19 @@ def test_rotate(aedt_app):
     assert aedt_app.modeler.rotate(poly.name, Axis.X, 30)
 
 
-def test_subtract(coaxial):
+def test_subtract(coaxial) -> None:
     o1 = coaxial.modeler["outer"].clone()
     o2 = coaxial.modeler["inner"].clone()
     assert coaxial.modeler.subtract(o1, o2)
 
 
-def test_purge_history(coaxial):
+def test_purge_history(coaxial) -> None:
     o1 = coaxial.modeler["outer"].clone()
     o2 = coaxial.modeler["inner"].clone()
     assert coaxial.modeler.purge_history([o1, o2])
 
 
-def test_unite(coaxial):
+def test_unite(coaxial) -> None:
     o1 = coaxial.modeler["outer"].clone()
     o2 = coaxial.modeler["inner"].clone()
     assert (
@@ -240,7 +240,7 @@ def test_unite(coaxial):
     )
 
 
-def test_chamfer(aedt_app):
+def test_chamfer(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split", color=(255, 0, 0))
     assert abs(box1.volume - 8000.0) / 8000.0 < small_number
     assert box1.top_edge_x.chamfer(1)
@@ -250,7 +250,7 @@ def test_chamfer(aedt_app):
         assert abs(box1.volume - 7990.0) / 7990.0 < small_number  # Volume decreased
 
 
-def test_clone(aedt_app):
+def test_clone(aedt_app) -> None:
     udp1 = [0, 0, 0]
     udp2 = [5, 0, 0]
     udp3 = [5, 5, 0]
@@ -259,7 +259,7 @@ def test_clone(aedt_app):
     assert status
 
 
-def test_intersect(aedt_app):
+def test_intersect(aedt_app) -> None:
     udp = [0, 0, 0]
     o1 = aedt_app.modeler.create_rectangle(Plane.XY, udp, [5, 10], name="Rect1")
     o2 = aedt_app.modeler.create_rectangle(Plane.XY, udp, [3, 12], name="Rect2")
@@ -271,7 +271,7 @@ def test_intersect(aedt_app):
     )
 
 
-def test_connect(aedt_app):
+def test_connect(aedt_app) -> None:
     udp = [0, 0, 0]
     id1 = aedt_app.modeler.create_rectangle(Plane.XY, udp, [5, 10])
     udp = aedt_app.modeler.Position(0, 0, 10)
@@ -282,7 +282,7 @@ def test_connect(aedt_app):
     assert len(objects_after_connection) == 1
 
 
-def test_translate(aedt_app):
+def test_translate(aedt_app) -> None:
     udp = [0, 0, 0]
     id1 = aedt_app.modeler.create_rectangle(Plane.XY, udp, [5, 10])
     id2 = aedt_app.modeler.create_rectangle(Plane.XY, udp, [3, 12])
@@ -290,7 +290,7 @@ def test_translate(aedt_app):
     assert aedt_app.modeler.move([id1, id2], udp2)
 
 
-def test_check_plane(aedt_app):
+def test_check_plane(aedt_app) -> None:
     udp = [0, 0, 0]
     o1 = aedt_app.modeler.create_box(udp, [4, 5, 5])
     plane = aedt_app.modeler.check_plane(o1.id, udp)
@@ -298,19 +298,19 @@ def test_check_plane(aedt_app):
     assert plane in planes
 
 
-def test_clean_object_name(aedt_app):
+def test_clean_object_name(aedt_app) -> None:
     # TODO: Write test
     assert True
 
 
-def test_create_airbox(aedt_app):
+def test_create_airbox(aedt_app) -> None:
     o1 = aedt_app.modeler.create_airbox(10)
     o2 = aedt_app.modeler.create_airbox(50, "Relative", "Second_airbox")
     assert o1.id > 0
     assert o2.id > 0
 
 
-def test_create_region(aedt_app):
+def test_create_region(aedt_app) -> None:
     x_pos = 20
     y_pos = 21
     z_pos = 32
@@ -334,7 +334,7 @@ def test_create_region(aedt_app):
     assert aedt_app.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
 
-def test_create_face_list(coaxial):
+def test_create_face_list(coaxial) -> None:
     o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
     fl = coaxial.modeler.get_object_faces(o2.name)
     fl2 = coaxial.modeler.create_face_list(fl, "my_face_list")
@@ -346,7 +346,7 @@ def test_create_face_list(coaxial):
     assert not coaxial.modeler.create_face_list(["outer2"])
 
 
-def test_create_object_list(coaxial):
+def test_create_object_list(coaxial) -> None:
     o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
     fl1 = coaxial.modeler.create_object_list([o2.name], "my_object_list")
     assert fl1
@@ -365,12 +365,12 @@ def test_create_object_list(coaxial):
     assert not coaxial.modeler.create_object_list(["Core2", "Core3"])
 
 
-def test_create_outer_face_list(aedt_app):
+def test_create_outer_face_list(aedt_app) -> None:
     o2 = aedt_app.modeler.create_airbox(50, "Relative", "Second_airbox")
     assert aedt_app.modeler.create_outer_facelist([o2.name])
 
 
-def test_create_waveguide(aedt_app):
+def test_create_waveguide(aedt_app) -> None:
     position = aedt_app.modeler.Position(0, 0, 0)
     wg1 = aedt_app.modeler.create_waveguide(position, Axis.X, wg_length=2000)
     assert isinstance(wg1, tuple)
@@ -390,14 +390,14 @@ def test_create_waveguide(aedt_app):
     assert not wgfail
 
 
-def test_set_objects_unmodel(aedt_app):
+def test_set_objects_unmodel(aedt_app) -> None:
     o2 = aedt_app.modeler.create_airbox(50, "Relative", "Second_airbox")
     box = aedt_app.modeler.create_box([0, 0, 0], [2, 2, 2])
     assert aedt_app.modeler.set_object_model_state(o2.name, False)
     assert aedt_app.modeler.set_object_model_state([o2.name, box.name], False)
 
 
-def test_find_port_faces(coaxial):
+def test_find_port_faces(coaxial) -> None:
     coaxial.modeler.create_waveguide([0, 5000, 0], Axis.Y, wg_length=1000, wg_thickness=40)
     port1 = coaxial.modeler.create_rectangle(Plane.ZX, [-40, 5000, -40], [346.7, 613.4])
     port2 = coaxial.modeler.create_rectangle(Plane.ZX, [-40, 6000, -40], [346.7, 613.4])
@@ -407,7 +407,7 @@ def test_find_port_faces(coaxial):
     assert "_Face1Vacuum" in faces_created[3]
 
 
-def test_activate_variable_for_tuning(aedt_app):
+def test_activate_variable_for_tuning(aedt_app) -> None:
     aedt_app["test_opti"] = "10mm"
     aedt_app["$test_opti1"] = "10mm"
     assert aedt_app.activate_variable_tuning("test_opti")
@@ -420,32 +420,32 @@ def test_activate_variable_for_tuning(aedt_app):
         assert True
 
 
-def test_activate_variable_for_optimization(aedt_app):
+def test_activate_variable_for_optimization(aedt_app) -> None:
     assert aedt_app.activate_variable_optimization("test_opti")
     assert aedt_app.activate_variable_optimization("$test_opti1", "2mm", "5mm")
     assert aedt_app.deactivate_variable_optimization("test_opti")
 
 
-def test_activate_variable_for_sensitivity(aedt_app):
+def test_activate_variable_for_sensitivity(aedt_app) -> None:
     assert aedt_app.activate_variable_sensitivity("test_opti")
     assert aedt_app.activate_variable_sensitivity("$test_opti1", "1mm", "10mm")
     assert aedt_app.deactivate_variable_sensitivity("$test_opti1")
 
 
-def test_activate_variable_for_statistical(aedt_app):
+def test_activate_variable_for_statistical(aedt_app) -> None:
     assert aedt_app.activate_variable_statistical("test_opti")
     assert aedt_app.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
     assert aedt_app.deactivate_variable_statistical("test_opti")
 
 
-def test_create_coaxial(aedt_app):
+def test_create_coaxial(aedt_app) -> None:
     coax = aedt_app.modeler.create_coaxial([0, 0, 0], Axis.X)
     assert isinstance(coax[0].id, int)
     assert isinstance(coax[1].id, int)
     assert isinstance(coax[2].id, int)
 
 
-def test_create_coordinate_system(aedt_app):
+def test_create_coordinate_system(aedt_app) -> None:
     cs = aedt_app.modeler.create_coordinate_system()
     _ = aedt_app.modeler.coordinate_systems
     cs1 = aedt_app.modeler.create_coordinate_system()
@@ -472,7 +472,7 @@ def test_create_coordinate_system(aedt_app):
     assert cs5.delete()
 
 
-def test_create_face_coordinate_system(aedt_app):
+def test_create_face_coordinate_system(aedt_app) -> None:
     box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     face = box.faces[0]
     fcs = aedt_app.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
@@ -528,7 +528,7 @@ def test_create_face_coordinate_system(aedt_app):
     assert fcs._get_type_from_object(face.edges[0].vertices[0]) == "Vertex"
 
 
-def test_create_object_coordinate_system(aedt_app):
+def test_create_object_coordinate_system(aedt_app) -> None:
     box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     cs = aedt_app.modeler.create_object_coordinate_system(
         assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
@@ -593,7 +593,7 @@ def test_create_object_coordinate_system(aedt_app):
     cs.delete()
 
 
-def test_rename_coordinate(aedt_app):
+def test_rename_coordinate(aedt_app) -> None:
     cs = aedt_app.modeler.create_coordinate_system(name="oldname")
     assert cs.name == "oldname"
     assert cs.rename("newname")
@@ -601,7 +601,7 @@ def test_rename_coordinate(aedt_app):
     assert cs.delete()
 
 
-def test_rename_face_coordinate(aedt_app):
+def test_rename_face_coordinate(aedt_app) -> None:
     box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     face = box.faces[0]
     fcs = aedt_app.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="oldname")
@@ -611,7 +611,7 @@ def test_rename_face_coordinate(aedt_app):
     assert fcs.delete()
 
 
-def test_rename_object_coordinate(aedt_app):
+def test_rename_object_coordinate(aedt_app) -> None:
     box = aedt_app.modeler.create_box([0, 0, 0], [2, 2, 2])
     cs = aedt_app.modeler.create_object_coordinate_system(
         assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
@@ -622,7 +622,7 @@ def test_rename_object_coordinate(aedt_app):
     assert cs.delete()
 
 
-def test_update_coordinate_system(aedt_app):
+def test_update_coordinate_system(aedt_app) -> None:
     for sys in aedt_app.modeler.coordinate_systems:
         sys.delete()
     cs1 = aedt_app.modeler.create_coordinate_system(name="CS1", view="rotate")
@@ -645,7 +645,7 @@ def test_update_coordinate_system(aedt_app):
     assert cs2.delete()
 
 
-def test_update_face_coordinate_system(aedt_app):
+def test_update_face_coordinate_system(aedt_app) -> None:
     for sys in aedt_app.modeler.coordinate_systems:
         sys.delete()
     box = aedt_app.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -671,7 +671,7 @@ def test_update_face_coordinate_system(aedt_app):
     assert fcs.delete()
 
 
-def test_set_as_working_cs(aedt_app):
+def test_set_as_working_cs(aedt_app) -> None:
     for sys in aedt_app.modeler.coordinate_systems:
         sys.delete()
     cs1 = aedt_app.modeler.create_coordinate_system(name="first")
@@ -680,7 +680,7 @@ def test_set_as_working_cs(aedt_app):
     assert cs2.set_as_working_cs()
 
 
-def test_set_as_working_face_cs(aedt_app):
+def test_set_as_working_face_cs(aedt_app) -> None:
     box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     face = box.faces[0]
     fcs1 = aedt_app.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
@@ -689,7 +689,7 @@ def test_set_as_working_face_cs(aedt_app):
     assert fcs2.set_as_working_cs()
 
 
-def test_set_as_working_object_cs(aedt_app):
+def test_set_as_working_object_cs(aedt_app) -> None:
     box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     obj_cs = aedt_app.modeler.create_object_coordinate_system(
         assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
@@ -703,7 +703,7 @@ def test_set_as_working_object_cs(aedt_app):
     assert obj_cs_1.delete()
 
 
-def test_set_working_coordinate_system(aedt_app):
+def test_set_working_coordinate_system(aedt_app) -> None:
     cs1 = aedt_app.modeler.create_coordinate_system(name="new1")
     assert aedt_app.modeler.set_working_coordinate_system("Global")
     assert aedt_app.modeler.get_working_coordinate_system() == "Global"
@@ -718,7 +718,7 @@ def test_set_working_coordinate_system(aedt_app):
     assert aedt_app.modeler.get_working_coordinate_system() == cs1.name
 
 
-def test_set_working_face_coordinate_system(aedt_app):
+def test_set_working_face_coordinate_system(aedt_app) -> None:
     box = aedt_app.modeler.create_box([0, 0, 0], [2, 2, 2])
     face = box.faces[0]
     fcs = aedt_app.modeler.create_face_coordinate_system(face, face, face.edges[1], name="new2")
@@ -736,12 +736,12 @@ def test_set_working_face_coordinate_system(aedt_app):
     assert aedt_app.modeler.get_working_coordinate_system() == fcs.name
 
 
-def test_sweep_around_axis(aedt_app):
+def test_sweep_around_axis(aedt_app) -> None:
     rect1 = aedt_app.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [20, 20], "rectangle_to_split")
     assert rect1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
 
-def test_sweep_along_path(aedt_app):
+def test_sweep_along_path(aedt_app) -> None:
     udp1 = [0, 0, 0]
     udp2 = [5, 0, 0]
     path = aedt_app.modeler.create_polyline([udp1, udp2], name="Poly1")
@@ -833,12 +833,12 @@ def test_sweep_along_path(aedt_app):
     )
 
 
-def test_section_object(aedt_app):
+def test_section_object(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
     assert aedt_app.modeler.section(box1, 0, create_new=True, section_cross_object=False)
 
 
-def test_sweep_along_vector(aedt_app):
+def test_sweep_along_vector(aedt_app) -> None:
     sweep_vector = [5, 0, 0]
     rect1 = aedt_app.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
     assert rect1.sweep_along_vector(sweep_vector)
@@ -848,7 +848,7 @@ def test_sweep_along_vector(aedt_app):
     assert aedt_app.modeler.sweep_along_vector(assignment=rect_list, sweep_vector=sweep_vector)
 
 
-def test_coordinate_systems_parametric(aedt_app):
+def test_coordinate_systems_parametric(aedt_app) -> None:
     aedt_app["var1"] = "5mm"
     aedt_app["var2"] = "(3mm+var1)*2"
     cs1 = aedt_app.modeler.create_coordinate_system(name="CSP1", mode="axis", x_pointing=["var1", "var2", 0])
@@ -862,7 +862,7 @@ def test_coordinate_systems_parametric(aedt_app):
     assert cs3.quaternion == cs4.quaternion
 
 
-def test_move_edge(aedt_app):
+def test_move_edge(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
     assert not box1.faces[0].edges[0].move_along_normal(1)
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 10, 10], [20, 20], "edge_movements2")
@@ -870,13 +870,13 @@ def test_move_edge(aedt_app):
     assert rect.faces[0].bottom_edge_x.move_along_normal()
 
 
-def test_imprint(aedt_app):
+def test_imprint(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 10, 10], [20, 20], "imprint1")
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprint2")
     assert aedt_app.modeler.imprint(rect, box1)
 
 
-def test_imprint_projection(aedt_app):
+def test_imprint_projection(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 10], [5, 20], "imprintn1")
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
     assert aedt_app.modeler.imprint_normal_projection([rect, box1])
@@ -885,7 +885,7 @@ def test_imprint_projection(aedt_app):
     assert aedt_app.modeler.imprint_vector_projection([rect, box1], [0.2, -0.8, -5], 1)
 
 
-def test_objects_in_bounding_box(aedt_app):
+def test_objects_in_bounding_box(aedt_app) -> None:
     bounding_box = [-100, -300, -200, 100, 200, 100]
     objects_in_bounding_box = aedt_app.modeler.objects_in_bounding_box(bounding_box)
     assert isinstance(objects_in_bounding_box, list)
@@ -899,7 +899,7 @@ def test_objects_in_bounding_box(aedt_app):
         aedt_app.modeler.objects_in_bounding_box(bounding_box)
 
 
-def test_wrap_sheet(aedt_app):
+def test_wrap_sheet(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [2.5, 0, 10], [5, 15], "wrap")
     box1 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
     box2 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
@@ -912,20 +912,20 @@ def test_wrap_sheet(aedt_app):
     assert not box1.wrap_sheet(box2)
 
 
-def test_set_variable(aedt_app):
+def test_set_variable(aedt_app) -> None:
     aedt_app.variable_manager.set_variable("var_test", expression="123")
     aedt_app["var_test"] = "234"
     assert "var_test" in aedt_app.variable_manager.design_variable_names
     assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_scale(aedt_app):
+def test_scale(aedt_app) -> None:
     o2 = aedt_app.modeler.create_airbox(50, "Relative", "Second_airbox")
     aedt_app.modeler.create_box([0, 0, 0], [1, 1, 1])
     assert aedt_app.modeler.scale([aedt_app.modeler.object_list[0], o2.name])
 
 
-def test_global_to_cs(aedt_app):
+def test_global_to_cs(aedt_app) -> None:
     aedt_app.modeler.create_coordinate_system(
         origin=[-1, -2.6, 1],
         name="CS_Test1",
@@ -950,7 +950,7 @@ def test_global_to_cs(aedt_app):
     assert go.is_vector_equal(p4, origin, tolerance=1e-12)
 
 
-def test_duplicate_coordinate_system_to_global(aedt_app):
+def test_duplicate_coordinate_system_to_global(aedt_app) -> None:
     aedt_app.modeler.create_coordinate_system(
         origin=[-1, -2.6, 1],
         name="CS_Test3",
@@ -1073,7 +1073,7 @@ def test_duplicate_coordinate_system_to_global(aedt_app):
     assert new_obj_cs.entity_id == obj_cs.entity_id
 
 
-def test_invert_cs(aedt_app):
+def test_invert_cs(aedt_app) -> None:
     aedt_app.modeler.create_coordinate_system(
         origin=[-1, -2.6, 1],
         name="CS_Test5",
@@ -1096,7 +1096,7 @@ def test_invert_cs(aedt_app):
     assert aedt_app.modeler.invert_cs(cs6, to_global=True)
 
 
-def test_region_property(aedt_app):
+def test_region_property(aedt_app) -> None:
     aedt_app.modeler.create_air_region()
     cs_name = "TestCS"
     aedt_app.modeler.create_coordinate_system(origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50)
@@ -1115,7 +1115,7 @@ def test_region_property(aedt_app):
     )
 
 
-def test_region_property_failing(aedt_app):
+def test_region_property_failing(aedt_app) -> None:
     aedt_app.modeler.create_air_region()
     assert not aedt_app.modeler.change_region_coordinate_system(assignment="NoCS")
     assert not aedt_app.modeler.change_region_padding(
@@ -1138,7 +1138,7 @@ def test_region_property_failing(aedt_app):
     )
 
 
-def test_sweep_along_normal(coaxial):
+def test_sweep_along_normal(coaxial) -> None:
     selected_faces = [face for face in coaxial.modeler["Core"].faces if face.is_planar]
     selected_faces = [selected_faces[0].id, selected_faces[1].id]
     a = coaxial.modeler.sweep_along_normal("Core", selected_faces, sweep_value=100)
@@ -1147,7 +1147,7 @@ def test_sweep_along_normal(coaxial):
     assert isinstance(b, Object3d)
 
 
-def test_get_face_by_id(aedt_app):
+def test_get_face_by_id(aedt_app) -> None:
     box1 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     face = aedt_app.modeler.get_face_by_id(box1.faces[0].id)
     assert isinstance(face, FacePrimitive)
@@ -1155,7 +1155,7 @@ def test_get_face_by_id(aedt_app):
     assert not face
 
 
-def test_copy_solid_bodies_udm(hfss_app, add_app):
+def test_copy_solid_bodies_udm(hfss_app, add_app) -> None:
     hfss_app.solution_type = "Modal"
     my_udmPairs = []
     mypair = ["ILD Thickness (ILD)", "0.006mm"]
@@ -1203,7 +1203,7 @@ def test_copy_solid_bodies_udm(hfss_app, add_app):
     dest.copy_solid_bodies_from(hfss_app)
 
 
-def test_create_conical_rings(aedt_app):
+def test_create_conical_rings(aedt_app) -> None:
     position = aedt_app.modeler.Position(0, 0, 0)
     rings1 = aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 20, 1)
     assert isinstance(rings1, list)
@@ -1219,28 +1219,28 @@ def test_create_conical_rings(aedt_app):
     assert not aedt_app.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)
 
 
-def test_get_group_bounding_box_with_non_existing_group_name(aedt_app):
+def test_get_group_bounding_box_with_non_existing_group_name(aedt_app) -> None:
     assert aedt_app.modeler.get_group_bounding_box("SomeUnknownGroupName") is None
 
 
-def test_get_group_bounding_box_with_wrong_input_type(aedt_app):
+def test_get_group_bounding_box_with_wrong_input_type(aedt_app) -> None:
     with pytest.raises(ValueError):
         aedt_app.modeler.get_group_bounding_box(5)
 
 
-def test_get_group_bounding_box_with_existing_group_name(aedt_app):
+def test_get_group_bounding_box_with_existing_group_name(aedt_app) -> None:
     _ = aedt_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2])
     assert aedt_app.modeler.get_group_bounding_box("Sheets") is not None
 
 
-def test_chassis_subtraction(coaxial):
+def test_chassis_subtraction(coaxial) -> None:
     chassis = coaxial.modeler.create_box([0, 0, 0], [10, 10, 5], "chassis", "Copper")
     # Add vacuum to extend code coverage
     coaxial.modeler.create_box([20, 20, 20], [1, 1, 1], "box", "Vacuum")
     assert coaxial.modeler.chassis_subtraction(chassis.name)
 
 
-def test_explicitly_subtract(aedt_app):
+def test_explicitly_subtract(aedt_app) -> None:
     box_0 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 5], "box_0", "Copper")
     box_1 = aedt_app.modeler.create_box([0, 0, 0], [5, 5, 5], "box_1", "Copper")
     box_2 = aedt_app.modeler.create_box([0, 0, 0], [6, 6, 6], "box_2", "Copper")
@@ -1248,7 +1248,7 @@ def test_explicitly_subtract(aedt_app):
     assert aedt_app.modeler.explicitly_subtract([box_0.name, box_1.name], [box_2.name, box_3.name])
 
 
-def test_clean_objects_name(aedt_app):
+def test_clean_objects_name(aedt_app) -> None:
     box_0 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part0")
     box_1 = aedt_app.modeler.create_box([5, 5, 0], [1, 1, 1], name="Object_Part1")
     aedt_app.modeler.unite([box_0, box_1], keep_originals=True)
@@ -1258,19 +1258,19 @@ def test_clean_objects_name(aedt_app):
     assert aedt_app.modeler.get_matched_object_name("Part1")
 
 
-def test_id(aedt_app):
+def test_id(aedt_app) -> None:
     box_0 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part_ids")
     assert aedt_app.modeler[box_0.faces[0].id].name == box_0.name
 
 
-def test_pointing_to_axis(aedt_app):
+def test_pointing_to_axis(aedt_app) -> None:
     x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
     assert go.is_vector_equal(x, [0.7053456158585983, 0.07053456158585983, 0.7053456158585983])
     assert go.is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
     assert go.is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
 
 
-def test_project_sheet_success_with_single_object(aedt_app):
+def test_project_sheet_success_with_single_object(aedt_app) -> None:
     """Test project sheet method with a single object."""
     EXPECTED_POSITIONS = [
         [5.0, -5.0, 11.0],
@@ -1299,7 +1299,7 @@ def test_project_sheet_success_with_single_object(aedt_app):
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
 
-def test_project_sheet_success_with_multiple_objects(aedt_app):
+def test_project_sheet_success_with_multiple_objects(aedt_app) -> None:
     """Test project sheet method with multiple objects."""
     EXPECTED_POSITIONS = [
         [5.0, -5.0, 11.0],
@@ -1345,7 +1345,7 @@ def test_project_sheet_success_with_multiple_objects(aedt_app):
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
 
-def test_project_sheet_failure(aedt_app):
+def test_project_sheet_failure(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
     box_0 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation_0")
 
@@ -1353,7 +1353,7 @@ def test_project_sheet_failure(aedt_app):
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
 
-def test_edge_primitives_getitem(aedt_app):
+def test_edge_primitives_getitem(aedt_app) -> None:
     """Test EdgePrimitive __getitem__ method."""
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_getitem")
     edge = box.edges[0]
@@ -1364,7 +1364,7 @@ def test_edge_primitives_getitem(aedt_app):
     assert isinstance(vertex_1, VertexPrimitive)
 
 
-def test_edge_primitives_iter(aedt_app):
+def test_edge_primitives_iter(aedt_app) -> None:
     """Test EdgePrimitive __iter__ method."""
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_iter")
     edge = box.edges[0]
@@ -1373,7 +1373,7 @@ def test_edge_primitives_iter(aedt_app):
         assert isinstance(vertex, VertexPrimitive)
 
 
-def test_edge_primitives_contains(aedt_app):
+def test_edge_primitives_contains(aedt_app) -> None:
     """Test EdgePrimitive __contains__ method."""
     box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_contains")
     edge = box.edges[0]

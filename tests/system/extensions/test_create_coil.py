@@ -46,7 +46,7 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_create_button(m3d_app):
+def test_create_button(m3d_app) -> None:
     """Test the Create button in the extension."""
     extension = CoilExtension(withdraw=True)
     notebook = extension.root.nametowidget("notebook")
@@ -63,7 +63,7 @@ def test_create_button(m3d_app):
     )
 
 
-def test_flat_coil_success(m3d_app):
+def test_flat_coil_success(m3d_app) -> None:
     """Test the Flat coil extension success."""
     data = CoilExtensionData(
         is_vertical=False,
@@ -89,7 +89,7 @@ def test_flat_coil_success(m3d_app):
     )
 
 
-def test_vertical_coil_success(m3d_app):
+def test_vertical_coil_success(m3d_app) -> None:
     """Test the Vertical coil extension success."""
     data = CoilExtensionData(
         is_vertical=True,
@@ -116,15 +116,59 @@ def test_vertical_coil_success(m3d_app):
     )
 
 
-def test_exception_invalid_data(m3d_app):
+def test_exception_invalid_data(m3d_app) -> None:
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
     with pytest.raises(ValueError):
         main(data)
 
 
-def test_invalid_solution_type(aedt_app):
+def test_invalid_solution_type(aedt_app) -> None:
     """Test that an exception is raised when the solution type is not Maxwell 3D."""
     data = CoilExtensionData(is_vertical=True, name="my_coil")
     with pytest.raises(AEDTRuntimeError):
         main(data)
+
+
+def test_create_3d_component_true(m3d_app) -> None:
+    """Test that the coil is created as a 3D component."""
+    data = CoilExtensionData(
+        is_vertical=False,
+        create_3d_comp=True,
+        name="my_coil",
+        centre_x=0.0,
+        centre_y=0.0,
+        turns=5,
+        inner_width=12.0,
+        inner_length=6.0,
+        wire_radius=1.0,
+        inner_distance=2.0,
+        arc_segmentation=3,
+        section_segmentation=4,
+        distance_turns=5.0,
+        looping_position=0.5,
+    )
+    assert main(data)
+    assert "my_coil1" in m3d_app.modeler.user_defined_component_names
+
+
+def test_create_3d_component_false(m3d_app) -> None:
+    """Test that the coil is created as a 3D component."""
+    data = CoilExtensionData(
+        is_vertical=False,
+        create_3d_comp=False,
+        name="my_coil",
+        centre_x=0.0,
+        centre_y=0.0,
+        turns=5,
+        inner_width=12.0,
+        inner_length=6.0,
+        wire_radius=1.0,
+        inner_distance=2.0,
+        arc_segmentation=3,
+        section_segmentation=4,
+        distance_turns=5.0,
+        looping_position=0.5,
+    )
+    assert main(data)
+    assert not m3d_app.modeler.user_defined_component_names

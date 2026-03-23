@@ -29,7 +29,7 @@ from ansys.aedt.core.extensions.hfss.choke_designer import main
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 
-def test_choke_designer_main_function(add_app):
+def test_choke_designer_main_function(add_app) -> None:
     """Test the main function of the Choke Designer extension."""
     # Create HFSS application for testing environment
     add_app(
@@ -53,7 +53,7 @@ def test_choke_designer_main_function(add_app):
     # This test verifies that main() completes successfully
 
 
-def test_choke_designer_custom_config(add_app):
+def test_choke_designer_custom_config(add_app) -> None:
     """Test Choke Designer with custom configuration."""
     # Create HFSS application for testing environment
     add_app(

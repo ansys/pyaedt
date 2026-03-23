@@ -49,7 +49,7 @@ def mock_aedt_app():
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_import_schematic_extension_default(mock_desktop, mock_aedt_app):
+def test_import_schematic_extension_default(mock_desktop, mock_aedt_app) -> None:
     """Test instantiation of the Import Schematic extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -64,7 +64,7 @@ def test_import_schematic_extension_default(mock_desktop, mock_aedt_app):
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("tkinter.filedialog.askopenfilename")
-def test_import_schematic_browse_button(mock_filedialog, mock_desktop, mock_aedt_app):
+def test_import_schematic_browse_button(mock_filedialog, mock_desktop, mock_aedt_app) -> None:
     """Test the browse button functionality."""
     mock_desktop.return_value = MagicMock()
     mock_filedialog.return_value = "/path/to/test_file.asc"
@@ -84,7 +84,7 @@ def test_import_schematic_browse_button(mock_filedialog, mock_desktop, mock_aedt
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("pathlib.Path.exists")
-def test_import_schematic_import_button_valid_file(mock_exists, mock_desktop, mock_aedt_app):
+def test_import_schematic_import_button_valid_file(mock_exists, mock_desktop, mock_aedt_app) -> None:
     """Test the import button with a valid file."""
     mock_desktop.return_value = MagicMock()
     mock_exists.return_value = True
@@ -98,7 +98,7 @@ def test_import_schematic_import_button_valid_file(mock_exists, mock_desktop, mo
     original_destroy = extension.root.destroy
     captured_data = None
 
-    def mock_destroy():
+    def mock_destroy() -> None:
         nonlocal captured_data
         captured_data = extension.data
         # Don't actually destroy to avoid issues in test
@@ -120,7 +120,7 @@ def test_import_schematic_import_button_valid_file(mock_exists, mock_desktop, mo
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("pathlib.Path.exists")
-def test_import_schematic_import_button_invalid_file(mock_exists, mock_desktop, mock_aedt_app):
+def test_import_schematic_import_button_invalid_file(mock_exists, mock_desktop, mock_aedt_app) -> None:
     """Test the import button with an invalid file."""
     mock_desktop.return_value = MagicMock()
     mock_exists.return_value = False
@@ -140,7 +140,7 @@ def test_import_schematic_import_button_invalid_file(mock_exists, mock_desktop, 
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_import_schematic_data_defaults(mock_desktop, mock_aedt_app):
+def test_import_schematic_data_defaults(mock_desktop, mock_aedt_app) -> None:
     """Test ImportSchematicData default values."""
     data = ImportSchematicData()
 
@@ -148,7 +148,7 @@ def test_import_schematic_data_defaults(mock_desktop, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_import_schematic_extension_ui_elements(mock_desktop, mock_aedt_app):
+def test_import_schematic_extension_ui_elements(mock_desktop, mock_aedt_app) -> None:
     """Test that all UI elements are properly created."""
     mock_desktop.return_value = MagicMock()
 
