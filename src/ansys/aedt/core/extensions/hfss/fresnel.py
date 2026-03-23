@@ -659,12 +659,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label"]["text"] = "FAIL"
             return False
-        self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined" + " PASS"
+        self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined"
 
         # Show frequency points
 
         frequency_points = int((self.stop_frequency - self.start_frequency) / self.step_frequency) + 1
-        self._widgets["frequency_points_label"]["text"] = str(frequency_points) + " PASS"
+        self._widgets["frequency_points_label"]["text"] = str(frequency_points)
 
         # Show spatial directions
 
@@ -681,22 +681,22 @@ class FresnelExtension(ExtensionHFSSCommon):
         phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
-        self._widgets["spatial_points_label"]["text"] = str(total_combinations) + " PASS"
+        self._widgets["spatial_points_label"]["text"] = str(total_combinations)
 
         # Check validations
 
         validation = self.aedt_application.validate_simple()
         if validation == 1:
-            self._widgets["design_validation_label"]["text"] = "Passed ✅"
+            self._widgets["design_validation_label"]["text"] = "Passed"
         else:
-            self._widgets["design_validation_label"].config(text="Failed ❌")
+            self._widgets["design_validation_label"].config(text="Failed")
             return
 
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
         if "Lattice Pair" not in bounds:
             self.aedt_application.logger.add_error_message("No lattice pair found.")
-            self._widgets["design_validation_label"].config(text="Failed ❌")
+            self._widgets["design_validation_label"].config(text="Failed")
             return
 
         # Assign variable to lattice pair
@@ -752,7 +752,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         if setup_name.lower() == "no setup":
             self.aedt_application.logger.add_error_message("No setup selected.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
 
         self.active_setup = self.setups[setup_name]
@@ -770,7 +770,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
             if active_sweep is None:
                 self.aedt_application.logger.add_error_message(f"{sweep_name} not found.")
-                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                self._widgets["design_validation_label_extraction"].config(text="Failed")
                 return False
 
             # Frequency sweep has linearly frequency samples
@@ -780,7 +780,7 @@ class FresnelExtension(ExtensionHFSSCommon):
                 self.aedt_application.logger.add_error_message(
                     f"{active_sweep.name} does not have linearly frequency samples."
                 )
-                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                self._widgets["design_validation_label_extraction"].config(text="Failed")
                 return False
 
         # We can not get the frequency points with the AEDT API
@@ -792,16 +792,14 @@ class FresnelExtension(ExtensionHFSSCommon):
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label_extraction"]["text"] = "FAIL"
             return False
-        self._widgets["floquet_ports_label_extraction"]["text"] = (
-            f"{len(self.floquet_ports)} Floquet port defined" + " PASS"
-        )
+        self._widgets["floquet_ports_label_extraction"]["text"] = f"{len(self.floquet_ports)} Floquet port defined"
 
         # Parametric setup is driven by the variables defining the scan direction
 
         bounds = self.aedt_application.boundaries_by_type
         if "Lattice Pair" not in bounds:
             self.aedt_application.logger.add_error_message("No lattice pair found.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
 
         lattice_pair = bounds["Lattice Pair"]
@@ -827,7 +825,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             if parametric_data["has_phi"]:
                 if parametric_data["phi"][0] != 0.0:
                     self.aedt_application.logger.add_error_message("Phi sweep must contain 0.0deg.")
-                    self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                    self._widgets["design_validation_label_extraction"].config(text="Failed")
                     return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
@@ -842,7 +840,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         else:
             if not parametric_data["has_phi"]:
                 self.aedt_application.logger.add_error_message("Scan phi is not defined.")
-                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                self._widgets["design_validation_label_extraction"].config(text="Failed")
                 return False
             phi_0 = parametric_data["phi"][0]
             theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
@@ -856,15 +854,15 @@ class FresnelExtension(ExtensionHFSSCommon):
         phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
-        self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations) + " ✅"
+        self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations)
 
         # Check validations
 
         validation = self.aedt_application.validate_simple()
         if validation == 1:
-            self._widgets["design_validation_label_extraction"]["text"] = "Passed ✅"
+            self._widgets["design_validation_label_extraction"]["text"] = "Passed"
         else:
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
 
         self._widgets["start_button_extraction"].grid()
