@@ -536,7 +536,7 @@ class Analysis(Design, PyAedtBase):
         exc_names = self.excitation_names[::]
 
         # Filter modes
-        exc_names = list(set([item.split(":")[0] for item in exc_names]))
+        exc_names = list(set(item.split(":")[0] for item in exc_names))
 
         for el in self.boundaries:
             if el.name in exc_names:
