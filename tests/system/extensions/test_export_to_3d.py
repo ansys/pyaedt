@@ -43,11 +43,32 @@ def test_export_to_3d_extension_button(add_app, test_tmp_dir) -> None:
 
     # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     # Test that the extension can be instantiated
     extension = ExportTo3DExtension(withdraw=True)
@@ -67,13 +88,34 @@ def test_export_to_3d_q3d_choice(add_app) -> None:
         project="export_to_3d_q3d",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
@@ -103,13 +145,35 @@ def test_export_to_3d_maxwell_choice(add_app) -> None:
         project="export_to_3d_maxwell",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
+
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
     aedt_app.close_project(save=False)
@@ -125,13 +189,34 @@ def test_export_to_3d_icepak_choice(add_app) -> None:
         project="export_to_3d_icepak",
     )
 
-    # Create a simple stackup for the export to work
+    # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-    aedt_app.modeler.create_rectangle(
+    rect = aedt_app.modeler.create_rectangle(
         "signal",
         [0, 0],
         [5, 5],
     )
+    rect.net_name = "net1"
+
+    rect1 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [10, 10],
+        [50, 50],
+    )
+    rect1.net_name = "net1"
+
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [-10, -10],
+        [-50, -50],
+    )
+
+    rect2 = aedt_app.modeler.create_rectangle(
+        "signal",
+        [-20, 20],
+        [10, 10],
+    )
+    rect2.net_name = "net2"
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
