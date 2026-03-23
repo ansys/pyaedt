@@ -194,7 +194,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
-    def on_fresnel_type_changed(self):  # pragma: no cover
+    def on_fresnel_type_changed(self):
         selected = self.fresnel_type.get()
         if selected == "isotropic":
             self._widgets["azimuth_slider"].grid_remove()
