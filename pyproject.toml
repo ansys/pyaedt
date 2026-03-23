@@ -97,7 +97,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.3.4",
+  "prek==0.3.5",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
