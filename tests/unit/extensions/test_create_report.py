@@ -51,8 +51,6 @@ def test_create_report_extension_generate_button() -> None:
     assert data.open_report
     assert "" == data.save_path  # Default empty save path
 
-    extension.root.destroy()
-
 
 def test_create_report_extension_custom_values() -> None:
     """Test custom report name, checkbox values, and save path."""
@@ -76,8 +74,6 @@ def test_create_report_extension_custom_values() -> None:
     assert "CustomReport" == data.report_name
     assert not data.open_report
     assert "/custom/path" == data.save_path
-
-    extension.root.destroy()
 
 
 def test_create_report_extension_empty_name() -> None:
