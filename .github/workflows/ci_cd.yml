@@ -337,7 +337,7 @@ jobs:
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
+          source .venv/bin/activate
           uv sync --frozen --group tests
 
       - name: Wait for master cache update
