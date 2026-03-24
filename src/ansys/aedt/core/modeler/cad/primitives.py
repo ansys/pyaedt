@@ -4497,9 +4497,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         str
             Name of the bondwire created.
         """
-        old_bondwire = self.get_objects_by_name(assignment)[0]
-        if not old_bondwire:
-            return False
+        bojects = self.get_objects_by_name(assignment)
+        if objects:
+            old_bondwire = objects[0]
+        else:
+            raise ValueError(f"Assignment {assignment} does not match an object.")
         edges = old_bondwire.edges
         faces = old_bondwire.faces
         centers = []
