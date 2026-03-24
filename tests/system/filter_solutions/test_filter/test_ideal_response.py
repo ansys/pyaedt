@@ -394,6 +394,7 @@ class TestClass:
         assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
+    @pytest.mark.skipif(ON_CI, reason="Lead to Windows fatal exception on CI runners")
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
