@@ -434,7 +434,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -482,7 +482,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -579,7 +578,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -629,8 +628,6 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
@@ -728,7 +725,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -779,8 +776,6 @@ jobs:
           done
 
       - name: Run tests marked with 'visualization'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
@@ -873,7 +868,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -921,7 +916,6 @@ jobs:
 
       - name: Run tests marked with 'icepak'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -1015,7 +1009,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -1061,7 +1055,6 @@ jobs:
 
       - name: Run tests marked with 'layout'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -1074,9 +1067,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
- #=================================================================================================
- #vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- #=================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
@@ -1149,7 +1142,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -1190,8 +1183,6 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions

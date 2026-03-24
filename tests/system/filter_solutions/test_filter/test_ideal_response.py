@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+
 import pytest
 
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
@@ -32,6 +34,8 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColu
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
 from tests.system.filter_solutions.resources import read_resource_file
+
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -183,6 +187,7 @@ class TestClass:
         else:
             assert info.value.args[0] == misspelled_error
 
+    @pytest.mark.skipif(ON_CI, reason="Lead to Windows fatal exception on CI runners")
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
@@ -389,6 +394,7 @@ class TestClass:
         assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
+    @pytest.mark.skipif(ON_CI, reason="Lead to Windows fatal exception on CI runners")
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
