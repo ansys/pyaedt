@@ -43,7 +43,7 @@ def mock_hfss_app_fresnel(mock_hfss_app):
             "Design1",
             "Design2",
         ]
-        mock_desktop_instance.aedt_version_id = "2027.1"
+        mock_desktop_instance.aedt_version_id = "2026.1"
         mock_desktop_property.return_value = mock_desktop_instance
 
         mock_hfss_app.design_setups = {}
