@@ -30,6 +30,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -74,6 +75,7 @@ class Simulation:
         """Revision results index."""
 
     @property
+    @min_aedt_version("2025.2")
     def _emit_com_module(self):
         """Retrieve the EmitCom module from the Emit instance.
 
@@ -96,7 +98,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
-    def get_interaction(self, domain):
+    def get_interaction(self, domain: InteractionDomain):
         """
         Create a new interaction for a domain.
 
@@ -127,7 +129,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def run(self, domain):
+    def run(self, domain: InteractionDomain):
         """
         Load the revision and then analyze along the given domain.
 
@@ -189,7 +191,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
-    def is_domain_valid(self, domain) -> str:
+    def is_domain_valid(self, domain: InteractionDomain) -> str:
         """
         Return ``True`` if the given domain is valid for the current revision.
 
@@ -219,7 +221,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
-    def get_instance_count(self, domain):
+    def get_instance_count(self, domain: InteractionDomain):
         """
         Return the number of instances in the domain for the current revision.
 
@@ -245,10 +247,17 @@ class Simulation:
 
     @property
     @min_aedt_version("2027.1")
-    def n_to_1_limit(self):
+    def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
 
+        Parameters
+        ----------
+
+        Returns
+        -------
+        max_instances : int
+            Maximum number of interference combinations to run per receiver for N to 1.
         - A value of ``0`` disables N to 1 entirely.
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
@@ -268,7 +277,7 @@ class Simulation:
 
     @n_to_1_limit.setter
     @min_aedt_version("2025.2")
-    def n_to_1_limit(self, max_instances):
+    def n_to_1_limit(self, max_instances: int):
         if self._revision.revision_loaded:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
@@ -343,7 +352,7 @@ class Simulation:
     @min_aedt_version("2023.2")
     def interference_type_classification(
         self,
-        domain,
+        domain: InteractionDomain,
         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
         use_filter: bool = False,
         filter_list: list[str] = None,

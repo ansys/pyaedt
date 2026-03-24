@@ -108,7 +108,7 @@ def interference(add_app_example):
 @pytest.fixture
 def cell_phone(add_app_example):
     app = add_app_example(
-        project="Cell Phone RFI Desense",
+        project="Cell Phone",
         application=Emit,
         subfolder=TEST_SUBFOLDER,
     )

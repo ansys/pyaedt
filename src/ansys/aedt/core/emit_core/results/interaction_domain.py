@@ -28,6 +28,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class InteractionDomain:
@@ -63,10 +64,11 @@ class InteractionDomain:
 
     @property
     def current_revision(self):
-        """Current active Revision. Always reflects the latest revision from the project."""
+        """Current active Revision. Always reflects the active revision from the project."""
         return self.emit_project.results.current_revision
 
     @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
     def set_receiver(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
         """
         Set the receiver radio name, band name, and channel frequency.
@@ -94,10 +96,12 @@ class InteractionDomain:
             warnings.warn(err_msg)
             return None
 
+        # Convert freqs to internal units (Hz) before setting
         converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
         self.receiver_channel_frequency = converted_freq
 
     @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
     def set_interferer(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
         """
         Set a single interferer radio name, band name, and channel frequency.
@@ -129,13 +133,17 @@ class InteractionDomain:
             warnings.warn(err_msg)
             return None
 
+        # Convert freqs to internal units (Hz) before setting
         converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
         self.interferer_channel_frequencies.append(converted_freq)
 
     @pyaedt_function_handler()
-    def set_interferers(self, names: list, band_names: list = None, freqs: list = None, units: str = "Hz"):
+    @min_aedt_version("2027.1")
+    def set_interferers(
+        self, names: list[str], band_names: list[str] = None, freqs: list[float] = None, units: str = "Hz"
+    ):
         """
-        Set multiple interferer radio names, band names, and channel frequencies.
+        Set multiple interferer radio names, band names, and channel frequencies. Overwrites existing list(s).
 
         Parameters
         ----------
@@ -174,11 +182,13 @@ class InteractionDomain:
             err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
             warnings.warn(err_msg)
 
+        # Convert freqs to internal units (Hz) before setting
         converted_freqs = [consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"]) for freq in freqs]
 
         self.interferer_channel_frequencies = converted_freqs
 
     @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
     def get_receiver_channel_frequency(self, units: str = "Hz") -> float:
         """
         Get the receiver channel frequency in the specified units.
@@ -198,13 +208,15 @@ class InteractionDomain:
             warnings.warn(err_msg)
             return None
 
+        # Convert freqs from internal units (Hz) to the user specified units
         converted_freq = consts.unit_converter(
             self.receiver_channel_frequency, "Freq", EMIT_INTERNAL_UNITS["Freq"], units
         )
         return converted_freq
 
     @pyaedt_function_handler()
-    def get_interferer_channel_frequencies(self, units: str = "Hz") -> list:
+    @min_aedt_version("2027.1")
+    def get_interferer_channel_frequencies(self, units: str = "Hz") -> list[float]:
         """
         Get the interferer channel frequencies in the specified units.
 
@@ -223,12 +235,15 @@ class InteractionDomain:
             warnings.warn(err_msg)
             return []
 
+        # Convert freqs from internal units (Hz) to the user specified units
         converted_freqs = [
             consts.unit_converter(freq, "Freq", EMIT_INTERNAL_UNITS["Freq"], units)
             for freq in self.interferer_channel_frequencies
         ]
         return converted_freqs
 
+    @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
     def is_single_instance(self) -> bool:
         """
         Check if the Interaction Domain instance is fully defined for a single
