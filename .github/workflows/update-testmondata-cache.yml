@@ -184,7 +184,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Checkout repository
@@ -229,7 +229,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -354,7 +353,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -401,8 +400,6 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
@@ -527,7 +524,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -575,8 +572,6 @@ jobs:
           done
 
       - name: Run tests marked with 'visualization'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
@@ -697,7 +692,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -742,7 +737,6 @@ jobs:
 
       - name: Run tests marked with 'icepak'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -864,7 +858,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -909,7 +903,6 @@ jobs:
 
       - name: Run tests marked with 'layout'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate

@@ -154,7 +154,7 @@ jobs:
     if: github.event.inputs.test-solvers-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -168,8 +168,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -178,8 +176,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -195,7 +191,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -283,7 +278,7 @@ jobs:
     if: github.event.inputs.test-general-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -297,8 +292,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -307,8 +300,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -336,7 +327,6 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
@@ -427,7 +417,7 @@ jobs:
 
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -445,8 +435,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -455,8 +443,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -472,15 +458,12 @@ jobs:
       # NOTE: Run visualization tests in two separate steps to avoid conflicts when
       # loading Ansys EM libraries and vtk osmesa backend.
       - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 30
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
 
@@ -578,7 +561,7 @@ jobs:
     if: github.event.inputs.test-extensions-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -595,8 +578,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -605,8 +586,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -620,15 +599,12 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
