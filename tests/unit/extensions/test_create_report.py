@@ -90,8 +90,6 @@ def test_create_report_extension_empty_name() -> None:
     assert data.open_report
     assert "" == data.save_path  # Should still be empty
 
-    extension.root.destroy()
-
 
 def test_create_report_extension_data_class() -> None:
     """Test the CreateReportExtensionData class."""
