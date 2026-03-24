@@ -34,7 +34,7 @@ from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistr
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
 
 
-@pytest.mark.parametrize("mock_maxwell_3d_app", ["2025.2"], indirect=True)
+@pytest.mark.parametrize("mock_maxwell_3d_app", ["2026.1"], indirect=True)
 def test_extension_default_with_point(mock_maxwell_3d_app) -> None:
     """Test instantiation of the Fields Distribution extension for AEDT version < 2026.1."""
     # Mock the vector fields JSON file
@@ -300,7 +300,7 @@ def test_extension_error_handling(mock_maxwell_3d_app) -> None:
             FieldsDistributionExtension(withdraw=True)
 
 
-@pytest.mark.parametrize("mock_maxwell_2d_app", ["2025.2"], indirect=True)
+@pytest.mark.parametrize("mock_maxwell_2d_app", ["2026.1"], indirect=True)
 def test_extension_with_maxwell_2d(mock_maxwell_2d_app) -> None:
     """Test extension with Maxwell 2D application."""
     mock_vector_fields = {"Maxwell 2D": ["A_Vector", "H_Vector"], "Maxwell 3D": ["Vector_H"]}

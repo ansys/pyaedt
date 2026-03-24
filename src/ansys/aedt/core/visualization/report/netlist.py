@@ -241,7 +241,7 @@ class CircuitNetlistReport(CommonReport):
         --------
         Initialize Circuit Netlist.
         >>> from ansys.aedt.core import CircuitNetlist
-        >>> cir = CircuitNetlist(version="2025.2")
+        >>> cir = CircuitNetlist(version="2026.1")
         Create a report object (not in AEDT) for a transient analysis.
         >>> new_report = cir.post.reports_by_category.circuit_netlist(
         ...     expressions="V(net_20,0)", setup="NexximTransient", domain="Time", primary_sweep_variable="Time"

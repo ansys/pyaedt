@@ -316,6 +316,8 @@ def test_import_dataset1d(aedt_app) -> None:
     assert ds4.delete()
     assert aedt_app.import_dataset1d(filename)
     assert ds5.delete()
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_dataset1d(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "dummy.tab")
 
 
 def test_import_dataset3d(aedt_app) -> None:
