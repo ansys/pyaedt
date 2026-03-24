@@ -84,3 +84,19 @@ hfss.configurations.options.export_object_properties = True
 ```
 
 Use `export_config` whenever you need to snapshot a design state. Do **not** hand-craft YAML or JSON to represent design configuration.
+
+---
+
+## 5. Script Auto-Launch (Mandatory After Every Script Generation)
+
+Once a script has been written or modified, **always** hand off to `pyaedt-cli-agent` to run it — never ask the user to execute it manually.
+
+The CLI agent will execute **Workflow 5** (auto-detect → connect → launch):
+
+1. `process list` — find running AEDT instances.
+2. If **none** → launch a fresh instance with `process start`.
+3. If **one** → connect to it immediately.
+4. If **multiple** → show the list (port, version, PID) and ask the user which port to use.
+5. Run the script: `pyaedt --json script run "path/to/script.py"`.
+
+The generated script must always use `new_desktop=False` (Step 2 / Mode B) so it attaches to the instance resolved above.

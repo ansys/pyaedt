@@ -44,8 +44,10 @@ Always parse the `status` field before using `data`. Never rely on human-readabl
 The CLI uses a persistent session file (`~/.pyaedt/session.json`). You connect once, run many commands, then disconnect.
 
 ```
-session connect -> [commands...] -> session disconnect
+[write script] -> session connect -> script run -> session disconnect
 ```
+
+> **Important:** Always write or generate the script **before** calling `session connect`. Connect only once per workflow — never call `session connect` a second time.
 
 Session info (port, machine, version) is saved automatically on `session connect` or `process start`. All subsequent commands reuse this session.
 
@@ -126,6 +128,16 @@ Top-level commands (no group): `version`, `aedt-versions`
 ```bash
 pyaedt --json script code "hfss = desktop.active_app(); result = hfss.design_name"
 ```
+
+**When to use `script code` vs `script run`:**
+
+| Use `script code` (inline) | Use `script run` (file) |
+|---|---|
+| Simple, single-step operations (create a box, get a value, assign a material) | Multi-step workflows with many operations |
+| Quick queries or one-off tasks | Scripts meant to be saved, reused, or shared |
+| No need to persist the code | Complex logic, loops, or error handling |
+
+> **Rule:** Do **not** create a script file for simple tasks. Prefer `script code` unless the task genuinely requires a multi-step script.
 
 ### File Management (`pyaedt file`)
 
@@ -248,6 +260,54 @@ pyaedt --json project analyze --port 50052 --design "FilterB" --setup "Setup1"
 pyaedt --json export touchstone "filter_a.s2p" --port 50051
 pyaedt --json export touchstone "filter_b.s2p" --port 50052
 ```
+
+### Workflow 5: Auto-detect Running AEDT, Connect, and Launch a Script
+
+Use this workflow whenever a script is generated and must be executed immediately against a running (or freshly started) AEDT instance.
+
+```bash
+# Step 1 — discover running AEDT processes
+pyaedt --json process list
+```
+
+**Decision logic (agent must apply this):**
+
+| `process list` result | Action |
+|---|---|
+| Empty list | Launch a new instance: `pyaedt --json process start --version 2026.1` |
+| Exactly one process | Connect directly to its port |
+| Two or more processes | **Ask the user** which port to use, then connect to the chosen one |
+
+```bash
+# Step 2a — one instance found on port 50051, connect to it
+pyaedt --json session connect --port 50051
+
+# Step 2b — multiple instances: show the full list to the user and ask
+# "Multiple AEDT instances are running:
+#   • port 50051 — version 2026.1 (PID 1234)
+#   • port 50052 — version 2025.2 (PID 5678)
+# Which port should the script use?"
+# Then connect to the chosen port:
+pyaedt --json session connect --port <chosen_port>
+
+# Step 3 — immediately run the generated script in the SAME command chain (no pause, no user confirmation)
+pyaedt --json script run "path/to/generated_script.py"
+```
+
+> **Mandatory execution pattern** — always chain connect + run in a single terminal call:
+> ```bash
+> pyaedt --json session connect --port 50051 && pyaedt --json script run "path/to/script.py"
+> ```
+> Never stop after `session connect` and wait. The script **must** be executed immediately after connecting.
+
+**Rules:**
+- Always run `process list` first — never assume an instance is or is not running.
+- When multiple instances are found, present the full list (port, version, PID) before asking.
+- **Write (or generate) the script BEFORE connecting.** Do not call `session connect` until the script is ready to run.
+- **Connect only once.** Never call `session connect` more than once per workflow.
+- **Always chain `session connect` and `script run` in the same command** (`&&`). Never connect without immediately running the script.
+- After connecting, always use `script run` to launch the generated script automatically — do **not** ask the user to run it manually.
+- The script must use `new_desktop=False` so it attaches to the already-connected session (see Step 2 of the workflow agent).
 
 ## Error Handling
 

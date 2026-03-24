@@ -2,7 +2,7 @@
 
 ## Agent Selection Guide
 
-Two agents are available. Always load the correct one **before** responding.
+Two agents are available. Always **read the skill file** (using the file-reading tool) **before** responding — do NOT use `run_subagent`, these are Markdown instruction files, not registered sub-agents.
 
 | Agent | Skill file                                | Purpose |
 |---|-------------------------------------------|---|
@@ -13,26 +13,26 @@ Two agents are available. Always load the correct one **before** responding.
 
 ## Agent 1 — pyaedt-cli-agent (MANDATORY)
 
-**Load when the user wants to interact with AEDT:**
+**Read this skill file when the user wants to interact with AEDT:**
 
 - Launch, connect to, or stop AEDT
 - Open / save / list projects or designs
 - Execute a script or inline code inside AEDT
 
 ```
-Skill file: .agents\pyaedt-cli-agent\README.md
+Read skill file: .agents\pyaedt-cli-agent\README.md
 ```
 
 ---
 
 ## Agent 2 — pyaedt-workflow-agent (MANDATORY)
 
-**Load when the user wants to write or modify a PyAEDT Python script:**
+**Read this skill file when the user wants to write or modify a PyAEDT Python script:**
 
 - Create a full automation script from scratch
 - Add or modify a specific step in an existing script
 - Ask how to use the PyAEDT API
 
 ```
-Skill file: .agents\pyaedt-script-agent\README.md
+Read skill file: .agents\pyaedt-workflow-agent\README.md
 ```

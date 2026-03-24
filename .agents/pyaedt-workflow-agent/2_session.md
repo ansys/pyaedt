@@ -8,8 +8,17 @@ description: >
 
 # Step 2 — Session Initialization
 
-> **CLI first**: use `pyaedt-cli-agent` to launch or connect to AEDT before running a script.
-> In that case, attach with `new_desktop=False` (Mode B below).
+> **CLI first — always**: before instantiating any PyAEDT application class, use `pyaedt-cli-agent`
+> to resolve the target AEDT instance (see **Workflow 5** in the CLI agent README for the full
+> detect → connect → launch sequence). The CLI agent will:
+> 1. Run `process list` to discover running instances.
+> 2. Connect automatically when one instance exists, or **ask the user which port** when multiple
+>    instances are found (presenting port, version, and PID for each).
+> 3. Launch a new instance (`process start`) when none are running.
+> 4. **Automatically run the generated script** via `script run` — the user never runs it manually.
+>
+> When the script is launched this way, always use `new_desktop=False` (Mode B below) so it
+> attaches to the session the CLI agent already connected to.
 
 ## 2.1 Application Classes
 
@@ -40,8 +49,10 @@ app = aedt.Hfss(
     new_desktop=True,
 )
 
-# Mode B — attach to running AEDT (after pyaedt-cli-agent launched it)
-app = aedt.Hfss(project=project_name, design=design_name, new_desktop=False)
+# Mode B — attach to running AEDT, gRPC port needed
+app = aedt.Hfss(
+    project=project_name, design=design_name, new_desktop=False, port=port_number
+)
 
 # Mode C — open existing .aedt file
 app = aedt.Hfss(
