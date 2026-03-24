@@ -4497,7 +4497,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         str
             Name of the bondwire created.
         """
-        bojects = self.get_objects_by_name(assignment)
+        objects = self.get_objects_by_name(assignment)
         if objects:
             old_bondwire = objects[0]
         else:
@@ -7670,7 +7670,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         if assignment in self.object_names:
             return self.objects[assignment]
-        return None
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, string_name: str, case_sensitive: bool = True) -> list:

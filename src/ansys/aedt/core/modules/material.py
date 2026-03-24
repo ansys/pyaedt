@@ -454,7 +454,7 @@ class MatProperty(PyAedtBase):
             if len(val) == 4:
                 self._property_value[0].value = val
                 self._material._update_props(self.name, val, update_aedt=self._material._material_update)
-        elif isinstance(val, Path):
+        elif isinstance(val, Path) and val.suffix in [".csv", ".tab"]:
             val = Path(val)
             if not val.is_file():
                 raise FileNotFoundError(f"Argument {val} is not a file.")
