@@ -7612,7 +7612,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """Return the objects whose names match a wildcard pattern.
 
         The ``*`` character acts as a wildcard that matches any sequence of
-        characters (including none).  The matching mode is inferred
+        characters (including none). The matching mode is inferred
         automatically from the position of ``*`` in ``assignment``:
 
         Parameters
