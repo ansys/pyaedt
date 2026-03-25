@@ -263,6 +263,16 @@ class ExtensionCommon(PyAedtBase):
 
         self.use_edb = use_edb
 
+        aedt_install_dir = os.getenv("PYAEDT_DESKTOP_PATH", None)
+
+        if is_linux and self.use_edb and aedt_install_dir:
+            import ctypes
+
+            ctypes.cdll.LoadLibrary(
+                os.path.join(aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1")
+            )
+            ctypes.cdll.LoadLibrary(os.path.join(aedt_install_dir, "libEDBCWrapper.so"))
+
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
@@ -555,15 +565,6 @@ class ExtensionCommon(PyAedtBase):
                 close_on_exit=False,
             )
 
-            if is_linux and self.use_edb:
-                import ctypes
-
-                ctypes.cdll.LoadLibrary(
-                    os.path.join(
-                        self.desktop.aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1"
-                    )
-                )
-                ctypes.cdll.LoadLibrary(os.path.join(self.desktop.aedt_install_dir, "libEDBCWrapper.so"))
         return self.__desktop
 
     @property
