@@ -38,7 +38,7 @@ Cable bundle creation example:
 
     hfss = Hfss(
         project=project_path,
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -77,7 +77,7 @@ Clock source creation example:
 
     hfss = Hfss(
         project=project_path,
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -128,7 +128,7 @@ Cable harness creation example:
 
     hfss = Hfss(
         project=project_path,
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,

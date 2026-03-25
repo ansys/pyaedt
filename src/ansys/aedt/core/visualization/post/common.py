@@ -1588,7 +1588,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Maxwell 2D Example - Field report on a polyline
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2")
+        >>> m2d = Maxwell2d(version="2026.1")
         Setup model
         >>> circ = m2d.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
         >>> poly = m2d.modeler.create_polyline(points=[[8, 8, 0], [8, -10, 0]], name="Poly1")
@@ -1611,7 +1611,7 @@ class PostProcessorCommon(PyAedtBase):
         Circuit Netlist Example
         >>> from ansys.aedt.core import CircuitNetlist
         >>> from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
-        >>> cir = CircuitNetlist(version="2025.2")
+        >>> cir = CircuitNetlist(version="2026.1")
         To get the available report solution there are two options:
         >>> solutions = cir.post.available_report_solutions()[0]
         or
@@ -2992,7 +2992,7 @@ class Reports(PyAedtBase):
         --------
         Initialize Circuit Netlist.
         >>> from ansys.aedt.core import CircuitNetlist
-        >>> cir = CircuitNetlist(version="2025.2")
+        >>> cir = CircuitNetlist(version="2026.1")
         Create a report object (not in AEDT) for a transient analysis.
         >>> new_report = cir.post.reports_by_category.circuit_netlist(
         ...     expressions="V(net_20,0)", setup="NexximTransient", domain="Time", primary_sweep_variable="Time"
