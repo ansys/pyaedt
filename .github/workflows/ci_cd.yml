@@ -89,9 +89,9 @@ jobs:
 
       - name: Run tests marked with 'extensions'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          ANSYSEM: ${{ env.ANSYSEM_ROOT261 }}
         run: |
-          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64:${ANSYSEM}/Delcross${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
 
