@@ -35,8 +35,8 @@ class Results:
 
     Parameters
     ----------
-    emit_obj : emit_obj object
-        EMIT object used to create the result.
+    emit_project : emit_obj object
+        EMIT project object to create the results object for.
 
     Examples
     --------
@@ -47,8 +47,8 @@ class Results:
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj) -> None:
-        self.emit_project = emit_obj
+    def __init__(self, emit_project) -> None:
+        self.emit_project = emit_project
         """EMIT project."""
 
         self.current_revision = None
@@ -57,7 +57,7 @@ class Results:
         self.revisions = []
         """List of all result revisions. Only one loaded at a time"""
 
-        self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
+        self.design = emit_project.desktop_class.active_design(emit_project.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])

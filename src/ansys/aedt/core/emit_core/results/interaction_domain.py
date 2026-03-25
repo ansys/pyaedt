@@ -32,9 +32,39 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class InteractionDomain:
+    """
+    Represents an interaction domain for EMIT analysis.
+
+    Notes
+    -----
+    **Interaction Domain N-1 Configuration Guidelines:**
+
+    The following table shows how different Rx/Tx configurations control N-1 analysis:
+
+    =================================================   =========================================================
+    Configuration                                                      Behavior
+    =================================================   =========================================================
+    Rx Radio = "" Tx Radio = []                         Run 1-1 and N-1 (like run button), obeying N-1 limits
+    Rx Radio = "" Tx Radio = [""]                       Run all 1-1 combinations
+    Rx Radio = "RxRadio" Tx Radio = []                  Run 1-1 and N-1 for specified receiver "RxRadio"
+    Rx Radio = "RxRadio" Tx Radio = [""]                Run all 1-1 for specified receiver "RxRadio", no N-1
+    Rx Radio = "" Tx Radio = ["TxRadio"]                Run all receivers vs specified interferer "TxRadio" 1-1
+    Rx Radio = "" Tx Radio = ["TxRadio1", "TxRadio2"]   Run all receivers 2-1 vs specified Tx radios, even if not
+                                                        allowed by current N-1 combination limits
+    Rx Radio = "" Tx Radio = ["",""]                    Run all 2-1 combinations, even if not allowed/displayable
+                                                        by results dialog
+    =================================================   =========================================================
+
+    **Additional Notes:**
+    * N-1 results may exceed what's displayable in the GUI result dialog
+    """
+
     def __init__(self, emit_obj):
         self.emit_project = emit_obj
         """EMIT project."""
+
+        self.odesktop = emit_obj.odesktop
+        """Desktop object."""
 
         self.revisions = []
         """List of all result revisions. Only one loaded at a time."""
@@ -105,6 +135,7 @@ class InteractionDomain:
     def set_interferer(self, name: str, band_name: str = "", freq: float = -1, units: str = "Hz"):
         """
         Set a single interferer radio name, band name, and channel frequency.
+        This overwrites any existing interferer configuration.
 
         Parameters
         ----------
@@ -143,7 +174,8 @@ class InteractionDomain:
         self, names: list[str], band_names: list[str] = None, freqs: list[float] = None, units: str = "Hz"
     ):
         """
-        Set multiple interferer radio names, band names, and channel frequencies. Overwrites existing list(s).
+        Set multiple interferer radio names, band names, and channel frequencies.
+        This overwrites existing interferer list(s).
 
         Parameters
         ----------
@@ -247,7 +279,7 @@ class InteractionDomain:
     def is_single_instance(self) -> bool:
         """
         Check if the Interaction Domain instance is fully defined for a single
-        receiver and one or more interferers.
+        receiver channel versus one or more interferer channels.
 
         Parameters
         ----------

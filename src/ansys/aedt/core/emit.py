@@ -31,9 +31,10 @@ from ansys.aedt.core.emit_core.couplings import CouplingsEmit
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum
 from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
-from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modeler.schematic import ModelerEmit
 
 
@@ -220,6 +221,28 @@ class Emit(Design, PyAedtBase):
             EMIT schematic.
         """
         return self._schematic
+
+    @property
+    @min_aedt_version("2025.1")
+    def _emit_com_module(self):
+        """Retrieve the EmitCom module from the Emit instance.
+
+        Returns
+        -------
+        object
+            The EmitCom module.
+
+        Raises
+        ------
+        RuntimeError
+            If the EmitCom module cannot be retrieved.
+        """
+        if not hasattr(self, "_odesign"):
+            raise RuntimeError("Emit instance does not have a valid '_odesign' attribute.")
+        try:
+            return self._odesign.GetModule("EmitCom")
+        except Exception as e:
+            raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler()
     def version(self, detailed: bool = False) -> str:

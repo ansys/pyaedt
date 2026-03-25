@@ -68,33 +68,11 @@ class Simulation:
         self.odesktop = revision.odesktop
         """Desktop object."""
 
-        self.emit_instance = revision.emit_project
+        self.emit_project = revision.emit_project
         """Emit project instance."""
 
         self.results_index = revision.results_index
         """Revision results index."""
-
-    @property
-    @min_aedt_version("2025.2")
-    def _emit_com_module(self):
-        """Retrieve the EmitCom module from the Emit instance.
-
-        Returns
-        -------
-        object
-            The EmitCom module.
-
-        Raises
-        ------
-        RuntimeError
-            If the EmitCom module cannot be retrieved.
-        """
-        if not hasattr(self.emit_instance, "_odesign"):
-            raise RuntimeError("Emit instance does not have a valid '_odesign' attribute.")
-        try:
-            return self.emit_instance._odesign.GetModule("EmitCom")
-        except Exception as e:
-            raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -176,7 +154,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             interaction = engine.run(domain)
         else:
-            interaction = self._emit_com_module.RunEmitDomain(
+            interaction = self.emit_project._emit_com_module.RunEmitDomain(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -208,7 +186,7 @@ class Simulation:
         True
         """
         self._revision._load_revision()
-        valid = self._emit_com_module.CheckDomainValidity(
+        valid = self.emit_project._emit_com_module.CheckDomainValidity(
             self._revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
@@ -250,9 +228,6 @@ class Simulation:
     def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
-
-        Parameters
-        ----------
 
         Returns
         -------
