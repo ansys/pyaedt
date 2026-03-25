@@ -33,15 +33,12 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli import common
 from ansys.aedt.core.cli.aedt import session_app
-from ansys.aedt.core.cli.config import config_app
+from ansys.aedt.core.cli.config import test_config_app
 from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.export import export_app
-from ansys.aedt.core.cli.files import file_app
 from ansys.aedt.core.cli.panels import panels_app
-from ansys.aedt.core.cli.process import process_app
 from ansys.aedt.core.cli.project import project_app
 from ansys.aedt.core.cli.script import script_app
-from ansys.aedt.core.cli.utility import utility_app
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -55,7 +52,6 @@ def main_callback(
         common._json_mode = True
 
 
-# Top-level commands
 @app.command()
 def version() -> None:
     """Display PyAEDT version."""
@@ -94,15 +90,12 @@ def aedt_versions() -> None:
         raise typer.Exit(code=1)
 
 
-# Register sub-apps
+# Sub-apps
 app.add_typer(session_app, name="session")
-app.add_typer(process_app, name="process")
 app.add_typer(project_app, name="project")
 app.add_typer(script_app, name="script")
-app.add_typer(file_app, name="file")
 app.add_typer(export_app, name="export")
-app.add_typer(utility_app, name="utility")
-app.add_typer(config_app, name="config")
+app.add_typer(test_config_app, name="test-config")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
 

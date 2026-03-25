@@ -43,13 +43,21 @@ script_app = typer.Typer(help="Script execution commands")
 @script_app.command("run")
 def run_script(
     script_path: str = typer.Argument(..., help="Path to .py script file"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Execute a Python script file inside AEDT."""
+    """Execute a Python script file inside AEDT.
+
+    The desktop is kept alive after execution and verbose logging is enabled.
+    """
     try:
         path = Path(script_path)
         if not path.exists():
             raise FileNotFoundError(f"Script not found: {script_path}")
+
+        from ansys.aedt.core import settings
+
+        settings.enable_logger = True
+
         d = common._get_desktop(port=port)
         d.odesktop.RunScript(str(path.resolve()))
         data = {"executed": True, "script": str(path.resolve())}
@@ -70,9 +78,13 @@ def run_script(
 @script_app.command("code")
 def run_code(
     code: str = typer.Argument(..., help="Python code to execute"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Execute inline Python code with access to the AEDT desktop object."""
+    """Execute inline Python code with access to the AEDT desktop object.
+
+    The code runs in a namespace with ``desktop`` and ``odesktop`` available.
+    Set ``result`` to return a value.
+    """
     try:
         d = common._get_desktop(port=port)
         namespace = {"desktop": d, "odesktop": d.odesktop, "result": None}

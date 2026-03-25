@@ -1,6 +1,6 @@
 ---
 name: pyaedt-cli-agent
-description: Use when interacting with ANSYS AEDT through the PyAEDT CLI. Triggers on requests to launch, connect, create designs, run simulations, export results, or manage AEDT projects via command line.
+description: Use when interacting with ANSYS AEDT through the current PyAEDT CLI. Triggers on requests to start or inspect AEDT sessions, manage projects, create designs, run scripts, export screenshots or configs or use the PyAEDT command line from the workspace virtual environment.
 ---
 
 # PyAEDT CLI agent
@@ -28,332 +28,341 @@ pip install pyaedt[all]
 The `pyaedt` executable may not be on the system PATH. It is always available inside the virtual environment of the current working directory. Prefer the venv-local binary:
 
 ```bash
-pyaedt --json <group> <command> [options]
+.venv\Scripts\pyaedt --json <group> <command> [options]   # Windows
+# .venv/bin/pyaedt --json <group> <command> [options]       # Linux/macOS
 ```
 
-## Golden Rule: Always Use --json
+If the wrapper is already on PATH, `pyaedt --json ...` is also fine.
 
-**Every command MUST use `--json` for structured, parseable output:**
+## Golden Rule: Prefer --json
+
+Use `--json` for every non-interactive command so output stays structured and machine-parseable.
 
 JSON output returns: `{"status": "ok", "data": {...}}` or `{"status": "error", "error": "message"}`
 
 Always parse the `status` field before using `data`. Never rely on human-readable output.
 
-## Session Model
+Exceptions:
 
-The CLI uses a persistent session file (`~/.pyaedt/session.json`). You connect once, run many commands, then disconnect.
+- `session attach` launches an interactive console, so human mode is acceptable.
+- `doc` commands open browser pages and are not usually consumed as structured automation output.
 
-```
-[write script] -> session connect -> script run -> session disconnect
-```
+## Current CLI Shape
 
-> **Important:** Always write or generate the script **before** calling `session connect`. Connect only once per workflow — never call `session connect` a second time.
-
-Session info (port, machine, version) is saved automatically on `session connect` or `process start`. All subsequent commands reuse this session.
-
-### Targeting a Specific Instance with `--port`
-
-When multiple AEDT instances are running simultaneously, every session-scoped command accepts `--port PORT` to target a specific instance **without changing the saved session**. This lets you operate on several desktops in the same script:
+Commands are organized as:
 
 ```bash
-# Two instances running on ports 50051 and 50052
-pyaedt --json session status --port 50051
-pyaedt --json project list --port 50052
-```
-
-If `--port` is omitted, the port from `~/.pyaedt/session.json` is used.
-
-## Command Structure
-
-Commands are organized into groups:
-
-```
 pyaedt [--json] <group> <command> [options]
 ```
 
-Available groups: `session`, `process`, `project`, `script`, `file`, `export`, `utility`, `config`, `panels`, `doc`
+Available groups in the current CLI:
 
-Top-level commands (no group): `version`, `aedt-versions`
+- `session`
+- `project`
+- `script`
+- `export`
+- `test-config`
+- `panels`
+- `doc`
+
+Top-level commands:
+
+- `version`
+- `aedt-versions`
+
+Do not invent or call removed groups or commands such as:
+
+- `session connect`
+- `session disconnect`
+- `session status`
+- `process ...`
+- `file ...`
+- `utility ...`
+- `config test ...`
+- `project list-designs`
+- `project create-design`
+- `project analyze`
+- `export touchstone`
+- `export 3d`
+
+## Port-Based Model
+
+The current CLI is port-based, not session-file based.
+
+- `session start` launches a new AEDT instance and returns its gRPC port.
+- `session list` discovers running AEDT instances.
+- Most operational commands require `--port` explicitly.
+- There is no persisted `session connect` state to reuse later.
+
+Practical implication:
+
+```bash
+# Discover or start AEDT
+pyaedt --json session list
+pyaedt --json session start --version 2026.1 --non-graphical
+
+# Then pass --port to the command you want
+pyaedt --json project list --port 50051
+pyaedt --json script run my_script.py --port 50051
+```
+
+## Project And Design Resolution Rules
+
+Design-scoped commands use one shared resolution rule set. This is important and should be applied consistently in guidance and examples.
+
+Commands affected:
+
+- `export screenshot`
+- `export config`
+- `session attach` when used with `--project` or `--design`
+
+Resolution rules:
+
+- If both `--project` and `--design` are provided, use them directly.
+- If only `--project` is provided, that project must contain exactly one design.
+- If only `--design` is provided, exactly one project must be open.
+- If neither is provided, there must be exactly one open project and exactly one design in it.
+- If the selection is ambiguous, the command fails and the missing selector must be provided.
+
+When helping a user, do not describe this behavior as “active project” or “active design” fallback unless the command actually uses that behavior. The intended behavior is uniqueness-based resolution.
 
 ## Command Reference
 
 ### Top-Level Commands
 
-| Command | Description | Requires Session |
-|---|---|---|
-| `pyaedt --json version` | Display PyAEDT version | No |
-| `pyaedt --json aedt-versions` | List installed AEDT versions on this machine | No |
+| Command | Description |
+|---|---|
+| `pyaedt --json version` | Display the PyAEDT version |
+| `pyaedt --json aedt-versions` | List installed AEDT versions on the machine |
 
-### Session Management (`pyaedt session`)
-
-| Command | Description | Requires Session |
-|---|---|---|
-| `pyaedt --json session connect --port 50051 [--machine localhost] [--version 2026.1]` | Connect to running AEDT | No (creates session) |
-| `pyaedt --json session disconnect [--port PORT] [--close-projects]` | Disconnect and clear session | No |
-| `pyaedt --json session status [--port PORT]` | Show AEDT status, projects, version | Yes |
-
-### Process Management (`pyaedt process`)
-
-| Command | Description | Requires Session |
-|---|---|---|
-| `pyaedt --json process list` | List running AEDT processes | No |
-| `pyaedt --json process start --version 2026.1 [--non-graphical] [--port 50051]` | Launch new AEDT instance | No (creates session) |
-| `pyaedt --json process stop --all` | Stop all AEDT processes | No |
-| `pyaedt --json process stop --pid 12345` | Stop process by PID | No |
-| `pyaedt --json process stop --port 50051` | Stop process by port | No |
-| `pyaedt process attach [--pid PID]` | Attach interactive console to AEDT | No |
-
-### Project & Design Management (`pyaedt project`)
+### Session Management
 
 | Command | Description |
 |---|---|
-| `pyaedt --json project list [--port PORT]` | List all open projects |
-| `pyaedt --json project list-designs [--project NAME] [--port PORT]` | List designs in a project |
-| `pyaedt --json project open "C:/path/to/file.aedt" [--design NAME] [--port PORT]` | Open a project file |
-| `pyaedt --json project save [--project NAME] [--save-as PATH] [--port PORT]` | Save project |
-| `pyaedt --json project create-design <AppType> [--name NAME] [--solution-type TYPE] [--port PORT]` | Create a new design |
-| `pyaedt --json project analyze [--setup NAME] [--design NAME] [--cores N] [--port PORT]` | Run simulation |
+| `pyaedt --json session start --version 2026.1 [--port 50051] [--non-graphical]` | Start a new AEDT instance |
+| `pyaedt --json session list` | List running AEDT instances with PID, version, and port |
+| `pyaedt --json session stop --port 50051` | Stop a specific AEDT instance by port |
+| `pyaedt --json session stop --all --port 50051` | Stop all AEDT instances. `--port` is currently required by the CLI signature even though `--all` drives behavior. |
+| `pyaedt session attach [--port 50051] [--project NAME] [--design NAME]` | Launch an interactive PyAEDT console attached to a running instance |
 
-**AppType values:** `Hfss`, `Maxwell2d`, `Maxwell3d`, `Q3d`, `Q2d`, `Icepak`, `Circuit`, `TwinBuilder`, `Mechanical`, `Emit`, `Rmxprt`, `Hfss3dLayout`, `MaxwellCircuit`
+Notes:
 
-### Script Execution (`pyaedt script`)
+- `session attach` can work interactively if `--port` is omitted and the user selects an instance.
+- `--project` or `--design` with `session attach` only works for gRPC instances with a usable port.
+
+### Project Commands
 
 | Command | Description |
 |---|---|
-| `pyaedt --json script run "path/to/script.py" [--port PORT]` | Execute a Python script inside AEDT |
-| `pyaedt --json script code "python_code_here" [--port PORT]` | Execute inline Python code |
+| `pyaedt --json project list --port 50051` | List all open projects and their designs |
+| `pyaedt --json project open "C:/path/to/file.aedt" --port 50051 [--non-graphical]` | Open an AEDT project file |
+| `pyaedt --json project save --port 50051 [--path "C:/new/file.aedt"]` | Save the active project, optionally as a new file |
+| `pyaedt --json project create --name ProjectA --port 50051` | Create a project |
+| `pyaedt --json project create --project ProjectA --design Design1 --type Hfss --port 50051` | Create a design inside an existing project |
+| `pyaedt --json project close --port 50051 [--project ProjectA]` | Close a project, or the active project if omitted |
 
-`script code` provides `desktop` (PyAEDT Desktop), `odesktop` (native COM), and `result` variable. Set `result` to return a value:
+`project create` behavior:
+
+- `--name` is for project creation.
+- `--project` + `--design` + `--type` is for design creation.
+- Do not mix `--name` with `--design` / `--type`.
+
+Supported `--type` values:
+
+- `Hfss`
+- `Maxwell2d`
+- `Maxwell3d`
+- `Q3d`
+- `Q2d`
+- `Icepak`
+- `Circuit`
+- `TwinBuilder`
+- `Mechanical`
+- `Emit`
+- `Rmxprt`
+- `Hfss3dLayout`
+- `MaxwellCircuit`
+
+### Script Commands
+
+| Command | Description |
+|---|---|
+| `pyaedt --json script run "path/to/script.py" --port 50051` | Execute a Python script inside AEDT |
+| `pyaedt --json script code "result = 42" --port 50051` | Execute inline Python code inside AEDT |
+
+`script code` runs with:
+
+- `desktop`: the PyAEDT Desktop object
+- `odesktop`: the native AEDT desktop object
+- `result`: set this to return a value
+
+Example:
 
 ```bash
-pyaedt --json script code "hfss = desktop.active_app(); result = hfss.design_name"
+pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
 ```
 
-**When to use `script code` vs `script run`:**
+Use `script code` for short, one-off operations. Use `script run` for reusable or multi-step workflows.
 
-| Use `script code` (inline) | Use `script run` (file) |
-|---|---|
-| Simple, single-step operations (create a box, get a value, assign a material) | Multi-step workflows with many operations |
-| Quick queries or one-off tasks | Scripts meant to be saved, reused, or shared |
-| No need to persist the code | Complex logic, loops, or error handling |
-
-> **Rule:** Do **not** create a script file for simple tasks. Prefer `script code` unless the task genuinely requires a multi-step script.
-
-### File Management (`pyaedt file`)
+### Export Commands
 
 | Command | Description |
 |---|---|
-| `pyaedt --json file list [--dir PATH] [--pattern "*.aedt"]` | List files in directory |
-| `pyaedt --json file upload "local_file.step" [--to "C:/aedt_work/"]` | Copy file to AEDT working dir |
-| `pyaedt --json file download "C:/aedt_work/results.csv" [--to "./local/"]` | Copy file from AEDT working dir |
+| `pyaedt --json export screenshot --port 50051 [--path preview.jpg] [--project NAME] [--design NAME]` | Capture a screenshot for a resolved design |
+| `pyaedt --json export config --port 50051 [--output config.json] [--project NAME] [--design NAME] [--overwrite]` | Export a design configuration JSON |
 
-### Export (`pyaedt export`)
+Both commands are design-scoped and therefore follow the shared project/design resolution rules above.
 
-| Command | Description |
-|---|---|
-| `pyaedt --json export screenshot [--output "preview.jpg"] [--design NAME] [--port PORT]` | Capture design view screenshot |
-| `pyaedt --json export touchstone "out.s2p" [--setup NAME] [--sweep NAME] [--port PORT]` | Export S-parameters |
-| `pyaedt --json export 3d "model.step" [--format step/iges/sat/stl] [--port PORT]` | Export 3D geometry |
-
-### Utility (`pyaedt utility`)
+### Documentation
 
 | Command | Description |
 |---|---|
-| `pyaedt --json utility clear [--close-projects/--no-close-projects] [--port PORT]` | Close all projects, clear messages |
-| `pyaedt --json utility model-info [--design NAME] [--port PORT]` | Get design name, type, project path |
-
-### Configuration (`pyaedt config`)
-
-| Command | Description |
-|---|---|
-| `pyaedt config test --show` | Show current test configuration |
-| `pyaedt config test desktop-version 2026.1` | Set AEDT version for tests |
-| `pyaedt config test non-graphical true` | Set non-graphical mode |
-
-### Documentation (`pyaedt doc`)
-
-| Command | Description |
-|---|---|
-| `pyaedt doc` | Open PyAEDT documentation home |
-| `pyaedt doc examples` | Open examples page |
-| `pyaedt doc search <keywords>` | Search documentation |
-
-### Panels (`pyaedt panels`)
-
-| Command | Description |
-|---|---|
-| `pyaedt panels add --personal-lib PATH` | Install PyAEDT panels in AEDT |
+| `pyaedt doc` | Open the docs home page and print help |
+| `pyaedt doc examples` | Open the examples section |
+| `pyaedt doc github` | Open the GitHub repository |
+| `pyaedt doc user-guide` | Open the user guide |
+| `pyaedt doc getting-started` | Open getting started docs |
+| `pyaedt doc installation` | Open installation docs |
+| `pyaedt doc api` | Open API reference |
+| `pyaedt doc changelog [VERSION]` | Open the changelog |
+| `pyaedt doc issues` | Open the issues page |
+| `pyaedt doc search <keywords>` | Search the online documentation |
 
 ## Common Workflows
 
-### Workflow 1: Connect and Explore
+### Workflow 1: Discover Or Start AEDT
 
 ```bash
-# Use the venv-local binary if pyaedt is not on PATH
-.venv\Scripts\pyaedt --json process list      # Windows
-# .venv/bin/pyaedt --json process list        # Linux/macOS
+# Check for running instances
+pyaedt --json session list
 
-# Connect to existing instance
-pyaedt --json session connect --port 50051
-
-# See what's open
-pyaedt --json session status
-pyaedt --json project list
-pyaedt --json project list-designs
-pyaedt --json utility model-info
+# If none are running, start one
+pyaedt --json session start --version 2026.1 --non-graphical
 ```
 
-### Workflow 2: Create and Simulate
+Decision rule:
+
+- If `session list` returns no processes, start AEDT.
+- If it returns one process, reuse that port.
+- If it returns multiple processes, ask the user which port to use.
+
+### Workflow 2: Inspect Projects On A Port
 
 ```bash
-# Connect
-pyaedt --json session connect --port 50051
-
-# Create design
-pyaedt --json project create-design Hfss --name "PatchAntenna" --solution-type "DrivenModal"
-
-# Run a setup script
-pyaedt --json script run "./setup_antenna.py"
-
-# Analyze
-pyaedt --json project analyze --setup "Setup1" --cores 8
-
-# Export results
-pyaedt --json export touchstone "./antenna.s2p" --setup "Setup1"
-pyaedt --json export screenshot --output "antenna_model.jpg"
-
-# Save and disconnect
-pyaedt --json project save
-pyaedt --json session disconnect
-```
-
-### Workflow 3: Launch Fresh AEDT
-
-```bash
-# Launch non-graphical AEDT
-pyaedt --json process start --version 2026.1 --non-graphical
-
-# Open existing project
-pyaedt --json project open "C:/projects/filter.aedt" --design "HFSSDesign1"
-
-# Work with it...
-pyaedt --json project analyze
-pyaedt --json export touchstone "./filter.s2p"
-
-# Close everything
-pyaedt --json session disconnect --close-projects
-```
-
-### Workflow 4: Work with Multiple AEDT Instances
-
-```bash
-# Two instances already running on different ports
-pyaedt --json session status --port 50051   # check instance A
-pyaedt --json session status --port 50052   # check instance B
-
-# Operate on each independently without changing the saved session
 pyaedt --json project list --port 50051
-pyaedt --json project analyze --port 50051 --design "FilterA" --setup "Setup1"
-pyaedt --json project analyze --port 50052 --design "FilterB" --setup "Setup1"
-
-# Export from each
-pyaedt --json export touchstone "filter_a.s2p" --port 50051
-pyaedt --json export touchstone "filter_b.s2p" --port 50052
 ```
 
-### Workflow 5: Auto-detect Running AEDT, Connect, and Launch a Script
+Use this first when you need to understand which project and design selectors will be required.
 
-Use this workflow whenever a script is generated and must be executed immediately against a running (or freshly started) AEDT instance.
+### Workflow 3: Create A Project Or A Design
 
 ```bash
-# Step 1 — discover running AEDT processes
-pyaedt --json process list
+# Create a project
+pyaedt --json project create --name "PatchAntenna" --port 50051
+
+# Create a design in an existing project
+pyaedt --json project create --project "PatchAntenna" --design "HFSSDesign1" --type Hfss --port 50051
 ```
 
-**Decision logic (agent must apply this):**
-
-| `process list` result | Action |
-|---|---|
-| Empty list | Launch a new instance: `pyaedt --json process start --version 2026.1` |
-| Exactly one process | Connect directly to its port |
-| Two or more processes | **Ask the user** which port to use, then connect to the chosen one |
+### Workflow 4: Run Automation
 
 ```bash
-# Step 2a — one instance found on port 50051, connect to it
-pyaedt --json session connect --port 50051
+pyaedt --json script run "./setup_antenna.py" --port 50051
 
-# Step 2b — multiple instances: show the full list to the user and ask
-# "Multiple AEDT instances are running:
-#   • port 50051 — version 2026.1 (PID 1234)
-#   • port 50052 — version 2025.2 (PID 5678)
-# Which port should the script use?"
-# Then connect to the chosen port:
-pyaedt --json session connect --port <chosen_port>
-
-# Step 3 — immediately run the generated script in the SAME command chain (no pause, no user confirmation)
-pyaedt --json script run "path/to/generated_script.py"
+# Or a small one-off command
+pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
 ```
 
-> **Mandatory execution pattern** — always chain connect + run in a single terminal call:
-> ```bash
-> pyaedt --json session connect --port 50051 && pyaedt --json script run "path/to/script.py"
-> ```
-> Never stop after `session connect` and wait. The script **must** be executed immediately after connecting.
+### Workflow 5: Export Design Data
 
-**Rules:**
-- Always run `process list` first — never assume an instance is or is not running.
-- When multiple instances are found, present the full list (port, version, PID) before asking.
-- **Write (or generate) the script BEFORE connecting.** Do not call `session connect` until the script is ready to run.
-- **Connect only once.** Never call `session connect` more than once per workflow.
-- **Always chain `session connect` and `script run` in the same command** (`&&`). Never connect without immediately running the script.
-- After connecting, always use `script run` to launch the generated script automatically — do **not** ask the user to run it manually.
-- The script must use `new_desktop=False` so it attaches to the already-connected session (see Step 2 of the workflow agent).
+```bash
+# If the instance has exactly one project and one design, selectors can be omitted
+pyaedt --json export screenshot --port 50051 --path "preview.jpg"
+pyaedt --json export config --port 50051 --output "config.json" --overwrite
+
+# If ambiguous, specify the missing selector(s)
+pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "preview.jpg"
+```
+
+### Workflow 6: Generated Script Execution
+
+Use this workflow whenever a script has been generated and must be run automatically.
+
+```bash
+# Step 1: discover instances
+pyaedt --json session list
+
+# Step 2: if needed, start one
+pyaedt --json session start --version 2026.1 --non-graphical
+
+# Step 3: run the script on the chosen port
+pyaedt --json script run "path/to/generated_script.py" --port 50051
+```
+
+Rules:
+
+- Always determine the target port first.
+- If multiple instances are running, present the full list and ask which port to use.
+- Do not tell the user to run the generated script manually if the workflow requires automatic execution.
+- Generated scripts intended for an existing AEDT instance should use `new_desktop=False`.
 
 ## Error Handling
 
-Always check the `status` field:
+Always parse the `status` field in JSON output.
 
 ```python
-import json, subprocess, sys
+import json
+import subprocess
+import sys
 from pathlib import Path
 
-# Resolve pyaedt binary: prefer venv, fall back to PATH
 venv = Path.cwd() / ".venv"
 pyaedt_bin = str(venv / ("Scripts/pyaedt" if sys.platform == "win32" else "bin/pyaedt"))
 if not Path(pyaedt_bin).exists():
     pyaedt_bin = "pyaedt"
 
 result = subprocess.run(
-    [pyaedt_bin, "--json", "session", "status"], capture_output=True, text=True
+    [pyaedt_bin, "--json", "session", "list"], capture_output=True, text=True
 )
 response = json.loads(result.stdout)
 
 if response["status"] == "error":
-    # Handle error - response["error"] has the message
-    if "No active session" in response["error"]:
-        # Need to connect first
-        subprocess.run([pyaedt_bin, "--json", "session", "connect", "--port", "50051"])
+    raise RuntimeError(response["error"])
+
+processes = response["data"]["processes"]
 ```
+
+## Guidance Rules For This Agent
+
+- Prefer the venv-local `pyaedt` executable when giving commands.
+- Prefer `--json` for non-interactive operations.
+- Do not reference removed commands or groups.
+- When a command is design-scoped, apply the shared project/design resolution rules explicitly.
+- When the available project/design selection is ambiguous, ask for the missing selector instead of guessing.
+- Use `project list --port ...` to inspect the AEDT state before choosing selectors.
+- Use `script code` for small one-off actions and `script run` for real scripts.
+- Use `session attach` only when the user explicitly wants an interactive console.
+- When multiple instances are found, present the full list with port, version, and PID before asking.
+- When a generated script must be executed automatically, determine the target port first and then run `script run --port ...`.
+- Generated scripts intended to reuse an existing AEDT instance should use `new_desktop=False`.
 
 ## Performance Tips
 
-- **Connect once**, run many commands. Don't reconnect per command.
-- Use `--json` to avoid parsing decorative output.
+- Use `session list` before starting AEDT so you do not launch unnecessary instances.
+- Use `project list --port ...` to inspect available projects and designs before attempting a design-scoped export.
 - Use `script code` for quick queries instead of creating full scripts.
-- Use `utility model-info` to quickly check the active design state.
-- Prefer `project list` + `project list-designs` over `session status` for targeted queries.
-- Use `--non-graphical` when launching AEDT for headless/agent workflows.
+- Use `--non-graphical` when launching AEDT for headless or agent workflows.
 
 ## Cleanup
 
-Always disconnect when done:
+When the workflow requires shutting down AEDT, use:
 
 ```bash
-pyaedt --json session disconnect --close-projects
+pyaedt --json session stop --port 50051
 ```
 
-If AEDT processes are stuck:
+If all AEDT instances must be terminated:
 
 ```bash
-pyaedt --json process stop --all
+pyaedt --json session stop --all --port 50051
 ```
