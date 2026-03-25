@@ -89,7 +89,6 @@ from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.edb import Siwave
 from ansys.aedt.core.emit import Emit
-from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
 from ansys.aedt.core.generic.design_types import Simplorer
@@ -121,7 +120,6 @@ from ansys.aedt.core.twinbuilder import TwinBuilder
 __all__ = [
     "settings",
     "inner_project_settings",
-    "downloads",
     "Edb",
     "Siwave",
     "constants",
