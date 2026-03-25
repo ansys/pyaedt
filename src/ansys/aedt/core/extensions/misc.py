@@ -87,6 +87,12 @@ def is_student() -> bool:
     return res
 
 
+def get_aedt_path() -> str | None:
+    """Get AEDT path from environment variable."""
+    res = os.getenv("PYAEDT_DESKTOP_PATH", None)
+    return res
+
+
 def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
@@ -263,7 +269,7 @@ class ExtensionCommon(PyAedtBase):
 
         self.use_edb = use_edb
 
-        aedt_install_dir = os.getenv("PYAEDT_DESKTOP_PATH", None)
+        aedt_install_dir = get_aedt_path()
 
         if is_linux and self.use_edb and aedt_install_dir:
             import ctypes
