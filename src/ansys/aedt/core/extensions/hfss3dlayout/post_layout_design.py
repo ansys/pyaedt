@@ -87,6 +87,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=False,
             toggle_row=6,
             toggle_column=1,
+            use_edb=True,
         )
 
         # Initialize all widgets as None

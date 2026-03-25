@@ -23,16 +23,11 @@
 # SOFTWARE.
 
 import json
-import os
-
-import pytest
 
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
-
-is_linux = os.name == "posix"
 
 AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
 TEST_SUBFOLDER = "post_layout_design"
@@ -46,7 +41,6 @@ def cleanup_files(*files) -> None:
             export_file.unlink()
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_all_options(add_app_example, test_tmp_dir) -> None:
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
@@ -89,7 +83,6 @@ def test_export_layout_all_options(add_app_example, test_tmp_dir) -> None:
         assert isinstance(config_data, dict)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_ipc_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only IPC2581 option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -123,7 +116,6 @@ def test_export_layout_ipc_only(add_app_example, test_tmp_dir) -> None:
     assert ipc_file.stat().st_size > 0
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_bom_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only BOM option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -157,7 +149,6 @@ def test_export_layout_bom_only(add_app_example, test_tmp_dir) -> None:
     assert bom_file.stat().st_size > 0
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_config_only(add_app_example, test_tmp_dir) -> None:
     """Test export layout with only configuration option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -195,7 +186,6 @@ def test_export_layout_config_only(add_app_example, test_tmp_dir) -> None:
         assert isinstance(config_data, dict)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_no_options(add_app_example, test_tmp_dir) -> None:
     """Test export layout with all options disabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -227,7 +217,6 @@ def test_export_layout_no_options(add_app_example, test_tmp_dir) -> None:
     assert not config_file.exists()
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_export_layout_default_arguments() -> None:
     """Test that default arguments are properly set."""
     data = ExportLayoutExtensionData()

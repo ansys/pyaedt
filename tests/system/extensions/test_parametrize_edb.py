@@ -30,7 +30,6 @@ import pytest
 
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
-from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
@@ -41,7 +40,6 @@ EDB_PROJECT = "ANSYS-HSD_V1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_parametrize_layout(desktop, test_tmp_dir) -> None:
     """Test parametrizing EDB layout with comprehensive settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
@@ -65,7 +63,6 @@ def test_parametrize_layout(desktop, test_tmp_dir) -> None:
     assert result is True
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_parametrize_edb_exceptions(desktop) -> None:
     """Test exceptions thrown by the Parametrize EDB extension."""
     # Test with negative polygon expansion
@@ -92,7 +89,6 @@ def test_parametrize_edb_exceptions(desktop) -> None:
         main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_parametrize_edb_custom_settings(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with custom settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
@@ -117,7 +113,6 @@ def test_parametrize_edb_custom_settings(desktop, test_tmp_dir) -> None:
     assert result is True
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with zero expansions."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_zero.aedb"

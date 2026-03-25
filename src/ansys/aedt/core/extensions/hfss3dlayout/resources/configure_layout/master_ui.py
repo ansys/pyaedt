@@ -98,6 +98,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=True,
             toggle_row=2,
             toggle_column=0,
+            use_edb=True,
         )
 
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
