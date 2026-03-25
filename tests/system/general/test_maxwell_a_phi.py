@@ -193,7 +193,7 @@ def test_assign_setup(m3d_app_ac) -> None:
     )
 
     setup.update()
-    assert m3d_app_ac.setups[0].properties["Max. Number of Passes"] == 12
+    assert m3d_app_ac.setups[0].properties["Max. Number of Passes"] == '12'
     assert m3d_app_ac.setups[0].properties["Percent Error"] == 1
     assert m3d_app_ac.setups[0].properties["Percent Refine"] == 30
     assert m3d_app_ac.setups[0].properties["Min. Number of Passes"] == 2
