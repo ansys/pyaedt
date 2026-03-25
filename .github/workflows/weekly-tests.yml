@@ -917,6 +917,7 @@ jobs:
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
+      PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
