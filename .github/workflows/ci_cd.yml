@@ -47,6 +47,7 @@ jobs:
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -88,7 +89,7 @@ jobs:
 
       - name: Run tests marked with 'extensions'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT261 }}
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
