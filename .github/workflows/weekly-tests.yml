@@ -916,8 +916,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
-      PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -949,7 +947,6 @@ jobs:
           source .venv/bin/activate
           uv sync --frozen --group tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -959,6 +956,8 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
+        env:
+          PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
