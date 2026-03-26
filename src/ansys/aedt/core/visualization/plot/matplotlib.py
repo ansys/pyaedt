@@ -793,7 +793,7 @@ class ReportPlotter(PyAedtBase):
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/pyansys-logo-black-cropped.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output
@@ -1072,7 +1072,7 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
         self.fig.set_size_inches(
-            self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
+            self.width / self.dpi, self.height / self.dpi
         )
 
         self._update_grid()
@@ -1088,9 +1088,9 @@ class ReportPlotter(PyAedtBase):
 
         if snapshot_path:
             if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2)
+                self.animation.save(snapshot_path, writer="pillow", fps=2,bbox_inches="tight")
             else:
-                self.fig.savefig(snapshot_path, dpi=self.dpi)
+                self.fig.savefig(snapshot_path, dpi=self.dpi ,bbox_inches="tight")
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1209,7 +1209,16 @@ class ReportPlotter(PyAedtBase):
             i += 1
 
         if self.show_legend:
-            self.ax.legend(legend, loc="upper right")
+            self.ax.legend(
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=10,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
         self._plot(snapshot_path, show)
         return self.fig
 
@@ -1405,7 +1414,6 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            #self.ax.legend(legend_names, loc="upper right")
             self.ax.legend(legend_names,
                     loc="upper center",
                     bbox_to_anchor=(0.5, -0.12),
@@ -1413,6 +1421,8 @@ class ReportPlotter(PyAedtBase):
                     frameon=True,
                     edgecolor="black",
                     ncol=2,
+                    facecolor=self.__general_back_color,
+                    labelcolor=self.__grid_color,
                 )
         self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
@@ -1475,7 +1485,16 @@ class ReportPlotter(PyAedtBase):
             )
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
             if self.show_legend:
-                self.ax.legend(loc="upper right")
+                self.ax.legend(
+                               loc="upper center",
+                               bbox_to_anchor=(0.5, -0.12),
+                               fontsize=10,
+                               frameon=True,
+                               edgecolor="black",
+                               ncol=2,
+                               facecolor=self.__general_back_color,
+                               labelcolor=self.__grid_color,
+                               )
             return line
 
         self.animation = FuncAnimation(self.fig, update, frames=len(traces_to_plot), blit=True, repeat=True)
