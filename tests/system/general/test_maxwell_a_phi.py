@@ -188,7 +188,6 @@ def test_assign_torque(m3d_app_ac) -> None:
     assert not torque.props["Is Positive"]
 
 
-
 def test_assign_setup(m3d_app_ac) -> None:
     setup = m3d_app_ac.create_setup()
     setup.props["MaximumPasses"] = 12
@@ -223,6 +222,7 @@ def test_assign_setup(m3d_app_ac) -> None:
     }
     setup.delete()
 
+
 def test_matrix_post_processing_ac(test_tmp_dir, mm3d_app_ac_export_matrix) -> None:
     mm3d_app_ac_export_matrix.set_active_design("export_rl_gc_ac_magnetic_aphi_3d")
     export_path = test_tmp_dir / "export_matrix.txt"
@@ -241,6 +241,7 @@ def test_matrix_post_processing_ac(test_tmp_dir, mm3d_app_ac_export_matrix) -> N
 
 
 # TestMaxwellTransientAPhi
+
 
 def test_assign_voltage(m3d_app_tran) -> None:
     box1 = m3d_app_tran.modeler.create_box(origin=[0, 0, 0], sizes=[1, 1, 1], name="my_box", material="copper")
