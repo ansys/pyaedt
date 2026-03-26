@@ -1601,6 +1601,8 @@ class ReportPlotter(PyAedtBase):
                 traces_to_plot.cartesian_data[1],
                 traces_to_plot.cartesian_data[2],
             )
+            if not xc.any():
+                return False
             minz = min(zc[np.where(zc > 0)])
             minx = min(xc)
             maxx = max(xc)
