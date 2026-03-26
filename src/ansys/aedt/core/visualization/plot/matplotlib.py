@@ -1070,9 +1070,7 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
-        self.fig.set_size_inches(
-            self.width / self.dpi, self.height / self.dpi
-        )
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
 
         self._update_grid()
         if self.show_logo:
@@ -1087,9 +1085,9 @@ class ReportPlotter(PyAedtBase):
 
         if snapshot_path:
             if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2,bbox_inches="tight")
+                self.animation.save(snapshot_path, writer="pillow", fps=2, bbox_inches="tight")
             else:
-                self.fig.savefig(snapshot_path, dpi=self.dpi ,bbox_inches="tight")
+                self.fig.savefig(snapshot_path, dpi=self.dpi, bbox_inches="tight")
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1413,16 +1411,17 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            self.ax.legend(legend_names,
-                    loc="upper center",
-                    bbox_to_anchor=(0.5, -0.12),
-                    fontsize=7 if len(legend_names) > 80 else 10,
-                    frameon=True,
-                    edgecolor="black",
-                    ncol=2,
-                    facecolor=self.__general_back_color,
-                    labelcolor=self.__grid_color,
-                )
+            self.ax.legend(
+                legend_names,
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=7 if len(legend_names) > 80 else 10,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
         self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
@@ -1485,15 +1484,15 @@ class ReportPlotter(PyAedtBase):
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
             if self.show_legend:
                 self.ax.legend(
-                               loc="upper center",
-                               bbox_to_anchor=(0.5, -0.12),
-                               fontsize=10,
-                               frameon=True,
-                               edgecolor="black",
-                               ncol=2,
-                               facecolor=self.__general_back_color,
-                               labelcolor=self.__grid_color,
-                               )
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, -0.12),
+                    fontsize=10,
+                    frameon=True,
+                    edgecolor="black",
+                    ncol=2,
+                    facecolor=self.__general_back_color,
+                    labelcolor=self.__grid_color,
+                )
             return line
 
         self.animation = FuncAnimation(self.fig, update, frames=len(traces_to_plot), blit=True, repeat=True)
