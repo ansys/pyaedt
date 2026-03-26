@@ -53,7 +53,6 @@ jobs:
       - name: Documentation build
         uses: ansys/actions/doc-build@fix/miktex-installation-with-recent-choco
         with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
@@ -61,6 +60,7 @@ jobs:
           check-links: false
           needs-quarto: false
           group-dependencies-name: 'doc'
+          add-pdf-html-docs-as-assets: true
 
   doc-build-sh:
     name: Doc build SH runner
@@ -75,7 +75,6 @@ jobs:
       - name: Documentation build
         uses: ansys/actions/doc-build@fix/miktex-installation-with-recent-choco
         with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
@@ -83,6 +82,7 @@ jobs:
           check-links: false
           needs-quarto: false
           group-dependencies-name: 'doc'
+          add-pdf-html-docs-as-assets: true
 
   doc-build-sh-bis:
     name: Doc build SH runner (bis)
@@ -97,7 +97,6 @@ jobs:
       - name: Documentation build
         uses: ansys/actions/doc-build@fix/miktex-installation-with-recent-choco
         with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
@@ -105,3 +104,4 @@ jobs:
           check-links: false
           needs-quarto: false
           group-dependencies-name: 'doc'
+          add-pdf-html-docs-as-assets: true
