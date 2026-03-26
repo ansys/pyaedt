@@ -2869,11 +2869,7 @@ class Reports(PyAedtBase):
                     report_cat = "Statistical Eye"
                 rep = report_eye.AMIEyeDiagram(self._post_app, report_cat, setup)
                 rep.quantity_type = quantity_type
-                expressions = self._retrieve_default_expressions(expressions, rep, setup)
-                if isinstance(expressions, list):
-                    rep._legacy_props["expressions"] = expressions
-                else:
-                    rep._legacy_props["expressions"] = [expressions]
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 return rep
 
             else:
