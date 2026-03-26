@@ -1087,7 +1087,7 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
-        self.fig.set_size_inches(self.width / self.dpi, self.height * 1.2 / self.dpi)
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
         self.fig.set_constrained_layout(True)
 
         self._update_grid()
@@ -1561,7 +1561,6 @@ class ReportPlotter(PyAedtBase):
 
             # Ensure time is sorted for interpolation
             t_fold = np.mod(time - self.offset, period)
-
             # Number of bins
             nx = 300  # time resolution
             ny = 300  # value resolution
