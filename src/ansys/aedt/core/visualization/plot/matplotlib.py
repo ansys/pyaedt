@@ -279,7 +279,6 @@ class Trace(PyAedtBase):
     def symbol_color(self, value: list | tuple) -> None:
         self.__symbol_color = value
 
-
     @property
     def trace_style(self) -> str:
         """Matplotlib trace style.
@@ -1405,15 +1404,16 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            #self.ax.legend(legend_names, loc="upper right")
-            self.ax.legend(legend_names,
-                    loc="upper center",
-                    bbox_to_anchor=(0.5, -0.12),
-                    fontsize=7 if len(legend_names) > 80 else 10,
-                    frameon=True,
-                    edgecolor="black",
-                    ncol=2,
-                )
+            # self.ax.legend(legend_names, loc="upper right")
+            self.ax.legend(
+                legend_names,
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=7 if len(legend_names) > 80 else 10,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+            )
         self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
@@ -1468,7 +1468,7 @@ class ReportPlotter(PyAedtBase):
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
                 f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol and trace.show_symbol else  "none",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
                 markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
