@@ -25,16 +25,17 @@ import json
 from pathlib import Path
 import shutil
 from unittest.mock import patch
-
+import pytest
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from tests import TESTS_EXTENSIONS_PATH
-
+from ansys.aedt.core.generic.settings import is_linux
 TEST_SUBFOLDER = "T45"
 SI_VERSE_PROJECT = "ANSYS-HSD_V1"
 EDB_PROJECT = "ANSYS_SVP_V1_1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 def test_get_active_db(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
