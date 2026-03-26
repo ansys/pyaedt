@@ -536,6 +536,7 @@ class ReportPlotter(PyAedtBase):
         self.__height = 800
         self.unit_interval = 0
         self.offset = 0
+        self.legend = None
 
     @property
     def dpi(self) -> int:
@@ -827,25 +828,41 @@ class ReportPlotter(PyAedtBase):
             props["grid.color"] = self.__grid_color
             if self.ax:
                 self.ax.set_facecolor(self.__general_plot_color)
-                self.ax.grid(color=self.__grid_color)
                 self.fig.set_facecolor(self.__general_back_color)
             else:
                 self.plt_params.update(props)
 
         if self.ax:
-            self.ax.grid(which=which)
-            if self._has_major_axis:
-                self.ax.grid(which="major", color=self.__grid_color)
-            if self._has_major_axis:
-                self.ax.grid(which="minor", color=self.__grid_color)
-            if self._has_minor_axis:
-                if self.__grid_enable_minor_x:
-                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-                if self.__grid_enable_minor_y:
-                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
-            self.ax.tick_params(which="minor", grid_linestyle="--")
+            self.ax.minorticks_on()
+            if self.__grid_enable_minor_x:
+                self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+            if self.__grid_enable_minor_y:
+                self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+
+            self.ax.grid(
+                which="minor",
+                visible=self._has_minor_axis,
+                color=self.__grid_color,
+                linestyle=":",
+                linewidth=0.25,
+                alpha=0.7,
+            )
+            self.ax.grid(
+                which="major",
+                visible=self._has_major_axis,
+                color=self.__grid_color,
+                linestyle="--",
+                linewidth=1,
+                alpha=0.7,
+            )
+
+            self.ax.tick_params(which="minor", colors=self.__grid_color)
             self.ax.tick_params(axis="x", colors=self.__grid_color, labelsize=self.text_size)
             self.ax.tick_params(axis="y", colors=self.__grid_color, labelsize=self.text_size)
+            if not self._has_major_axis:
+                self.ax.grid(False, which="major")
+            if not self._has_minor_axis:
+                self.ax.grid(False, which="minor")
 
     @property
     def y_scale(self) -> str:
@@ -1070,7 +1087,8 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
-        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+        self.fig.set_size_inches(self.width / self.dpi, self.height * 1.2 / self.dpi)
+        self.fig.set_constrained_layout(True)
 
         self._update_grid()
         if self.show_logo:
@@ -1084,9 +1102,9 @@ class ReportPlotter(PyAedtBase):
 
         if snapshot_path:
             if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2, bbox_inches="tight")
+                self.animation.save(snapshot_path, writer="pillow", fps=2)
             else:
-                self.fig.savefig(snapshot_path, dpi=self.dpi, bbox_inches="tight")
+                self.fig.savefig(snapshot_path, dpi=self.dpi)
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1205,7 +1223,7 @@ class ReportPlotter(PyAedtBase):
             i += 1
 
         if self.show_legend:
-            self.ax.legend(
+            self.legend = self.ax.legend(
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.12),
                 fontsize=10,
@@ -1410,7 +1428,7 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            self.ax.legend(
+            self.legend = self.ax.legend(
                 legend_names,
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.12),
@@ -1482,7 +1500,7 @@ class ReportPlotter(PyAedtBase):
             )
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
             if self.show_legend:
-                self.ax.legend(
+                self.legend = self.ax.legend(
                     loc="upper center",
                     bbox_to_anchor=(0.5, -0.12),
                     fontsize=10,
