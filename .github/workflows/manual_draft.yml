@@ -562,7 +562,6 @@ jobs:
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
-      PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -600,6 +599,8 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
+        env:
+          PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
