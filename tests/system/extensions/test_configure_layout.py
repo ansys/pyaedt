@@ -35,6 +35,7 @@ SI_VERSE_PROJECT = "ANSYS-HSD_V1"
 EDB_PROJECT = "ANSYS_SVP_V1_1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
+
 def test_get_active_db(add_app_example) -> None:
     app = add_app_example(application=Hfss3dLayout, project=SI_VERSE_PROJECT, subfolder=TEST_SUBFOLDER)
     extension = ConfigureLayoutExtension(withdraw=True)
