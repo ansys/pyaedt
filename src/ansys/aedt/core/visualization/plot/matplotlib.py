@@ -279,7 +279,6 @@ class Trace(PyAedtBase):
     def symbol_color(self, value: list | tuple) -> None:
         self.__symbol_color = value
 
-
     @property
     def trace_style(self) -> str:
         """Matplotlib trace style.
@@ -1478,7 +1477,7 @@ class ReportPlotter(PyAedtBase):
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
                 f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol and trace.show_symbol else  "none",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
                 markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
