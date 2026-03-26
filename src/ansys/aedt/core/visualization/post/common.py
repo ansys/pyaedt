@@ -2068,8 +2068,8 @@ class PostProcessorCommon(PyAedtBase):
             report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
-        sw = [sols.primary_sweep_values]
         for curve in sols.expressions:
+            sw = [sols.primary_sweep_values]
             if "__Amplitude" in sols.intrinsics and "__UnitInterval" in sols.intrinsics:
                 x, y = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
                 sw = [x[:, 0], x[:, 1], y]
