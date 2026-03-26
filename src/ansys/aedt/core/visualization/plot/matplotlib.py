@@ -1079,7 +1079,6 @@ class ReportPlotter(PyAedtBase):
             image_width = 0.1
             image_height = 0.05
             ax_image = self.fig.add_axes([image_xaxis, image_yaxis, image_width, image_height])
-            # Display the image
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
