@@ -2057,6 +2057,10 @@ class PostProcessorCommon(PyAedtBase):
         except KeyError:
             pass
         try:
+            report_plotter.grid_enable_minor_y = report._legacy_props["general"]["grid"]["minor_y"]
+        except KeyError:
+            pass
+        try:
             report_plotter.grid_color = [i / 255 for i in report._legacy_props["general"]["grid"]["major_color"]]
         except KeyError:
             pass
@@ -2087,6 +2091,10 @@ class PostProcessorCommon(PyAedtBase):
                     props["trace_width"] = pp["width"]
                 except KeyError:
                     pass
+                try:
+                    props["show_symbol"] = pp["show_symbol"]
+                except KeyError:
+                    props["show_symbol"] = False
                 try:
                     props["trace_color"] = [i / 255 for i in pp["color"]]
                 except KeyError:

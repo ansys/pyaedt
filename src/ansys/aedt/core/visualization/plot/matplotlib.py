@@ -259,6 +259,26 @@ class Trace(PyAedtBase):
         self.__symbol_style = ""
         self.__fill_symbol = False
         self.__symbol_color = None
+        self.__show_symbol = False
+
+    @property
+    def show_symbol(self) -> bool:
+        """Whether to show symbol."""
+        return self.__show_symbol
+
+    @show_symbol.setter
+    def show_symbol(self, value: bool) -> None:
+        self.__show_symbol = value
+
+    @property
+    def symbol_color(self) -> list | tuple:
+        """Symbol color."""
+        return self.__symbol_color
+
+    @symbol_color.setter
+    def symbol_color(self, value: list | tuple) -> None:
+        self.__symbol_color = value
+
 
     @property
     def trace_style(self) -> str:
@@ -999,6 +1019,7 @@ class ReportPlotter(PyAedtBase):
             trace_style : "-",
             trace_width : 1.5,
             trace_color : None,
+            show_symbol : False,
             symbol_style : 'v',
             fill_symbol : None,
             symbol_color : "C0"
@@ -1021,6 +1042,7 @@ class ReportPlotter(PyAedtBase):
         nt.symbol_style = properties.get("symbol_style", "")
         nt.fill_symbol = properties.get("fill_symbol", False)
         nt.symbol_color = properties.get("symbol_color", None)
+        nt.show_symbol = properties.get("show_symbol", False)
         if data_type == 0:
             nt.cartesian_data = plot_data
         else:
@@ -1355,9 +1377,9 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
@@ -1383,8 +1405,15 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            self.ax.legend(legend_names, loc="upper right")
-
+            #self.ax.legend(legend_names, loc="upper right")
+            self.ax.legend(legend_names,
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, -0.12),
+                    fontsize=7 if len(legend_names) > 80 else 10,
+                    frameon=True,
+                    edgecolor="black",
+                    ncol=2,
+                )
         self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
@@ -1438,9 +1467,9 @@ class ReportPlotter(PyAedtBase):
             line = self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else  "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
@@ -1704,9 +1733,9 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0] * rate,
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.symbol_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
