@@ -86,7 +86,7 @@ jobs:
 
   doc-build-sh-bis:
     name: Doc build SH runner (bis)
-    runs-on: [ self-hosted, Windows, pyaedt-examples-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt-example-0 ]
     steps:
       - name: Install quarto
         uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2.2.0
