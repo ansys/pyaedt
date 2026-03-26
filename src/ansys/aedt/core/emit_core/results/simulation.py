@@ -54,7 +54,7 @@ class Simulation:
     >>> aedtapp = Emit()
     >>> rev = aedtapp.results.current_revision
     >>> sim = rev.get_simulation()
-    >>> domain = aedtapp.interaction_domain
+    >>> domain = InteractionDomain(aedtapp)
     >>> sim.run(domain)
     """
 
@@ -92,7 +92,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = rev.get_simulation()
         >>> sim.get_interaction(domain)
 
@@ -123,7 +123,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = rev.get_simulation()
         >>> sim.run(domain)
 
@@ -180,7 +180,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
         True
@@ -215,7 +215,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.interaction_domain
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> num_instances = sim.get_instance_count(domain)
         """
@@ -317,7 +317,7 @@ class Simulation:
         --------
         sim = revision.get_simulation()
         with sim.get_license_session():
-            domain = aedtapp.interaction_domain
+            domain = InteractionDomain(aedtapp)
             sim.run(domain)
         """
         engine = self._revision.emit_project._emit_api.get_engine()

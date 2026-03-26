@@ -27,6 +27,7 @@ import sys
 # Import required modules
 import pytest
 
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -66,7 +67,7 @@ def cell_phone(add_app_example):
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_interaction_domain(cell_phone):
     # Test domain get/set, isSingleInstance, errors
-    domain = cell_phone.interaction_domain
+    domain = InteractionDomain(cell_phone)
     assert domain is not None
     assert domain.receiver_name == ""
     assert domain.receiver_band_name == ""
