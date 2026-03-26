@@ -31,7 +31,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_u
 from tests import TESTS_EXTENSIONS_PATH
 
 TEST_SUBFOLDER = "T45"
-SI_VERSE_PROJECT = "ANSYS-HSD_V1"
+SI_VERSE_PROJECT = "ANSYS_SVP_V1_1_SFP"
 EDB_PROJECT = "ANSYS_SVP_V1_1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
 
