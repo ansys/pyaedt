@@ -27,6 +27,7 @@ import tkinter
 from tkinter import ttk
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
+from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
@@ -228,7 +229,7 @@ def test_get_latest_version_success(mock_get) -> None:
     result = get_latest_version("pyaedt")
 
     assert result == "0.12.34"
-    mock_get.assert_called_once_with("https://pypi.org/pypi/pyaedt/json", timeout=3)
+    mock_get.assert_called_once_with("https://pypi.org/pypi/pyaedt/json", timeout=(2, 2))
 
 
 @patch("requests.get")
@@ -258,14 +259,22 @@ def test_get_latest_version_network_error(mock_get) -> None:
 @patch("logging.getLogger")
 def test_check_for_pyaedt_update_no_latest_version(mock_logger, mock_get_latest_version) -> None:
     """Test when latest version is unavailable."""
+    from ansys.aedt.core import __version__ as current_version
+
     mock_get_latest_version.return_value = "Unknown"
     mock_log = MagicMock()
     mock_logger.return_value = mock_log
+    expected_calls = [
+        call(f"Checking for PyAEDT updates. Current version: {current_version}"),
+        call("PyAEDT update check: latest version unavailable."),
+    ]
 
     result = check_for_pyaedt_update("/fake/personallib")
 
     assert result == (None, None)
-    mock_log.debug.assert_called_once_with("PyAEDT update check: latest version unavailable.")
+
+    mock_log.debug.assert_has_calls(expected_calls)
+    assert mock_log.debug.call_count == 2
 
 
 @patch("ansys.aedt.core.extensions.misc.get_latest_version")

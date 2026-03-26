@@ -90,6 +90,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -108,7 +109,7 @@ def interference(add_app_example):
 @pytest.fixture
 def cell_phone(add_app_example):
     app = add_app_example(
-        project="Cell Phone RFI Desense",
+        project="Cell Phone",
         application=Emit,
         subfolder=TEST_SUBFOLDER,
     )
@@ -1105,10 +1106,10 @@ def test_radio_getters(emit_app) -> None:
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_static_type_generation(emit_app) -> None:
-    domain = emit_app.results.interaction_domain()
+def test_static_type_generation(emit_app):
+    domain = InteractionDomain(emit_app)
     py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-    assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
+    assert str(type(domain)) == "<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
     assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
@@ -1132,7 +1133,7 @@ def test_version(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
+    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.2",
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
 def test_basic_run(emit_app) -> None:
@@ -1238,7 +1239,7 @@ def test_optimal_n_to_1_feature(emit_app) -> None:
     radios_rx = rev.get_receiver_names()
     bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
     radios_tx = rev.get_interferer_names()
-    domain = emit_app.results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
@@ -1370,7 +1371,7 @@ def test_interference_scripts_no_filter(interference) -> None:
     expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
     expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     with pytest.raises(ValueError) as e:
         _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
@@ -1407,7 +1408,7 @@ def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
     sim = rev.get_simulation()
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
 
     # Test protection level with radio-specific protection levels
     expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
@@ -1440,7 +1441,7 @@ def test_interference_filtering(interference) -> None:
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     all_interference_colors = [
         [["white", "green", "orange"], ["orange", "green", "white"]],
         [["white", "green", "red"], ["red", "green", "white"]],
@@ -1483,7 +1484,7 @@ def test_protection_filtering(interference):
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     all_protection_colors = [
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1517,7 +1518,6 @@ def test_protection_filtering(interference):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1701,7 +1701,7 @@ def test_result_categories_with_simulation(emit_app):
     for band in r1_bands:
         band.enabled = True
     sim = rev.get_simulation()
-    domain = emit_app.results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     interaction = sim.run(domain)
 
     # initially all categories are enabled
@@ -1742,8 +1742,8 @@ def test_license_session(interference):
     revision = interference.results.analyze()
     sim = revision.get_simulation()
 
-    def do_run() -> None:
-        domain = results.interaction_domain()
+    def do_run():
+        domain = InteractionDomain(interference)
         rev = results.current_revision
         rev.get_simulation().run(domain)
 
@@ -1828,7 +1828,7 @@ def test_emit_nodes(interference) -> None:
     revision = results.analyze()
     sim = revision.get_simulation()
 
-    domain = results.interaction_domain()
+    domain = InteractionDomain(interference)
     _ = sim.run(domain)
 
     # set emit to ignore purge warnings
@@ -2258,10 +2258,9 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     emit_app.schematic.create_component("3 Port", "Test3port")
 
     # Generate and run a revision
-    results = emit_app.results
     revision = emit_app.results.analyze()
 
-    domain = results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     revision.run(domain)
 
     # Test all nodes of the current revision
@@ -2976,16 +2975,15 @@ def test_units(emit_app) -> None:
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
     sim = rev.get_simulation()
-    domain = hfss_phased_array.results.interaction_domain()
+    domain = InteractionDomain(hfss_phased_array)
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
-    assert engine.is_domain_valid(domain)
-    assert sim.is_domain_valid(domain)
+    assert sim.is_domain_valid(domain) == ""
 
     # run the interaction
-    domain = hfss_phased_array.results.interaction_domain()
-    interaction = engine.run(domain)
+    domain = InteractionDomain(hfss_phased_array)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -3001,7 +2999,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.azimuth_angle == 45
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -3020,7 +3018,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.1
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -3035,7 +3033,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.004
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -3052,7 +3050,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.008
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
