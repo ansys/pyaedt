@@ -27,11 +27,6 @@ import os
 import sys
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
-from ansys.aedt.core.emit_core.emit_constants import InterfererType
-from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-from ansys.aedt.core.emit_core.emit_constants import UnitType
 
 # TODO: Remove once IronPython compatibility is removed
 if sys.version_info < (3, 12):
@@ -53,71 +48,6 @@ def emit_api_python():
     if not EMIT_API_PYTHON:
         raise Exception("A ansys.aedt.core.Emit() object must be initialized before using the EMIT API.")
     return EMIT_API_PYTHON
-
-
-def _init_enums(aedt_version) -> None:
-    numeric_version = int(aedt_version[-3:])
-
-    if numeric_version > 251:
-        ResultType.EMI = emit_api_python().result_type().emi
-        ResultType.DESENSE = emit_api_python().result_type().desense
-        ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
-        ResultType.POWER_AT_RX = emit_api_python().result_type().powerAtRx
-
-        TxRxMode.TX = emit_api_python().tx_rx_mode().tx
-        TxRxMode.RX = emit_api_python().tx_rx_mode().rx
-        TxRxMode.BOTH = emit_api_python().tx_rx_mode().both
-
-        InterfererType.TRANSMITTERS = emit_api_python().interferer_type().transmitters
-        InterfererType.EMITTERS = emit_api_python().interferer_type().emitters
-        InterfererType.TRANSMITTERS_AND_EMITTERS = emit_api_python().interferer_type().transmitters_and_emitters
-
-        UnitType.POWER = emit_api_python().unit_type().power
-        UnitType.FREQUENCY = emit_api_python().unit_type().frequency
-        UnitType.LENGTH = emit_api_python().unit_type().length
-        UnitType.TIME = emit_api_python().unit_type().time
-        UnitType.VOLTAGE = emit_api_python().unit_type().voltage
-        UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
-        UnitType.RESISTANCE = emit_api_python().unit_type().resistance
-
-        EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = 0
-        EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
-        EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = 2
-        EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = 3
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
-    else:
-        ResultType.EMI = emit_api_python().result_type().emi
-        ResultType.DESENSE = emit_api_python().result_type().desense
-        ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
-        ResultType.POWER_AT_RX = emit_api_python().result_type().powerAtRx
-
-        TxRxMode.TX = emit_api_python().tx_rx_mode().tx
-        TxRxMode.RX = emit_api_python().tx_rx_mode().rx
-        TxRxMode.BOTH = emit_api_python().tx_rx_mode().both
-
-        InterfererType.TRANSMITTERS = emit_api_python().interferer_type().transmitters
-        InterfererType.EMITTERS = emit_api_python().interferer_type().emitters
-        InterfererType.TRANSMITTERS_AND_EMITTERS = emit_api_python().interferer_type().transmitters_and_emitters
-
-        UnitType.POWER = emit_api_python().unit_type().power
-        UnitType.FREQUENCY = emit_api_python().unit_type().frequency
-        UnitType.LENGTH = emit_api_python().unit_type().length
-        UnitType.TIME = emit_api_python().unit_type().time
-        UnitType.VOLTAGE = emit_api_python().unit_type().voltage
-        UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
-        UnitType.RESISTANCE = emit_api_python().unit_type().resistance
-
-        if numeric_version >= 241:
-            emi_cat_filter = emit_api_python().emi_category_filter()
-            EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
-            EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
-            EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
-            EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
-            EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
-            EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
-            EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
 
 
 # need this as a function so that it can be set
@@ -145,4 +75,3 @@ def _set_api(aedt_version) -> None:
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")
-        _init_enums(aedt_version)

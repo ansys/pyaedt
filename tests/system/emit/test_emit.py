@@ -1108,18 +1108,17 @@ def test_radio_getters(emit_app) -> None:
 )
 def test_static_type_generation(emit_app):
     domain = InteractionDomain(emit_app)
-    py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
     assert str(type(domain)) == "<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
-    assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
-    assert str(type(TxRxMode.TX)) == f"<class '{py_version}.tx_rx_mode'>"
-    assert str(type(TxRxMode.BOTH)) == f"<class '{py_version}.tx_rx_mode'>"
+    assert str(type(TxRxMode.RX)) == "<class 'int'>"
+    assert str(type(TxRxMode.TX)) == "<class 'int'>"
+    assert str(type(TxRxMode.BOTH)) == "<class 'int'>"
     # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
-    assert str(type(ResultType.SENSITIVITY)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.EMI)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.DESENSE)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.POWER_AT_RX)) == f"<class '{py_version}.result_type'>"
+    assert str(type(ResultType.SENSITIVITY)) == "<class 'int'>"
+    assert str(type(ResultType.EMI)) == "<class 'int'>"
+    assert str(type(ResultType.DESENSE)) == "<class 'int'>"
+    assert str(type(ResultType.POWER_AT_RX)) == "<class 'int'>"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023.2")
