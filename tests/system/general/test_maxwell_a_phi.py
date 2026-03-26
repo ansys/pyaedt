@@ -23,6 +23,7 @@
 # SOFTWARE.
 import pytest
 
+import ansys.aedt.core
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -31,6 +32,16 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagnetic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
 from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
 from tests.conftest import DESKTOP_VERSION
+
+TEST_SUBFOLDER = "TMaxwell"
+EXPORT_MATRIX = "export_matrix_3d"
+
+
+@pytest.fixture
+def mm3d_app_ac_export_matrix(add_app_example):
+    app = add_app_example(application=ansys.aedt.core.Maxwell3d, project=EXPORT_MATRIX, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -177,6 +188,7 @@ def test_assign_torque(m3d_app_ac) -> None:
     assert not torque.props["Is Positive"]
 
 
+<<<<<<< test/setup_aphi
 def test_assign_setup(m3d_app_ac) -> None:
     setup = m3d_app_ac.create_setup()
     setup.props["MaximumPasses"] = 12
@@ -210,6 +222,26 @@ def test_assign_setup(m3d_app_ac) -> None:
         "RangeStep": "1Hz",
     }
     setup.delete()
+=======
+def test_matrix_post_processing_ac(test_tmp_dir, mm3d_app_ac_export_matrix) -> None:
+    mm3d_app_ac_export_matrix.set_active_design("export_rl_gc_ac_magnetic_aphi_3d")
+    export_path = test_tmp_dir / "export_matrix.txt"
+    # invalid matrix name
+    with pytest.raises(AEDTRuntimeError):
+        mm3d_app_ac_export_matrix.export_matrix("invalid", export_path)
+    assert mm3d_app_ac_export_matrix.export_matrix(
+        matrix_name="Matrix1",
+        output_file=export_path,
+        use_independent_nominal_values=False,
+        is_format_default=False,
+        width=8,
+        precision=2,
+        is_exponential=False,
+    )
+
+
+# TestMaxwellTransientAPhi
+>>>>>>> main
 
 
 # TestMaxwellTransientAPhi
@@ -406,3 +438,20 @@ def test_setup(m3d_app_tran) -> None:
     assert setup.props["IsGeneralTransient"]
     assert not setup.props["IsHalfPeriodicTransient"]
     setup.delete()
+
+
+def test_matrix_post_processing_transient(test_tmp_dir, mm3d_app_ac_export_matrix) -> None:
+    mm3d_app_ac_export_matrix.set_active_design("export_rl_c_transient_aphi_3d")
+    export_path = test_tmp_dir / "export_matrix.txt"
+    # invalid matrix name
+    with pytest.raises(AEDTRuntimeError):
+        mm3d_app_ac_export_matrix.export_matrix("invalid", export_path)
+    assert mm3d_app_ac_export_matrix.export_matrix(
+        matrix_name="Matrix1",
+        output_file=export_path,
+        use_independent_nominal_values=False,
+        is_format_default=False,
+        width=8,
+        precision=2,
+        is_exponential=False,
+    )
