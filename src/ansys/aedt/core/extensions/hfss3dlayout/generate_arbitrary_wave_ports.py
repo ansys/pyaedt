@@ -81,6 +81,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=False,
             toggle_row=4,
             toggle_column=2,
+            use_edb=True,
         )
 
         # Initialize data

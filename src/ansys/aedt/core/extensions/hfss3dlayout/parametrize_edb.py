@@ -90,10 +90,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
-            EXTENSION_TITLE,
-            theme_color="light",
-            withdraw=withdraw,
-            add_custom_content=False,
+            EXTENSION_TITLE, theme_color="light", withdraw=withdraw, add_custom_content=False, use_edb=True
         )
         # Initialize data object
         self.data = ParametrizeEdbExtensionData()

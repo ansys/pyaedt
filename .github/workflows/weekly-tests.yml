@@ -948,7 +948,6 @@ jobs:
           source .venv/bin/activate
           uv sync --frozen --group tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |

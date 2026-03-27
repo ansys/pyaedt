@@ -28,9 +28,11 @@ import pytest
 import ansys.aedt.core
 from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
+
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
 def test_post_layout_design_data_class() -> None:
@@ -147,7 +149,6 @@ def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
     h3d.close_project(save=False)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_layout_design_toolkit_microvia(add_app_example) -> None:
     """Test microvia creation with conical shape."""
     h3d = add_app_example(

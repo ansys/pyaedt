@@ -21,10 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
 import pytest
 
+import ansys.aedt.core
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -33,6 +32,16 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import GCSourceACMagnetic
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixACMagneticAPhi
 from ansys.aedt.core.modules.boundary.maxwell_boundary import RLSourceACMagneticAPhi
 from tests.conftest import DESKTOP_VERSION
+
+TEST_SUBFOLDER = "TMaxwell"
+EXPORT_MATRIX = "export_matrix_3d"
+
+
+@pytest.fixture
+def mm3d_app_ac_export_matrix(add_app_example):
+    app = add_app_example(application=ansys.aedt.core.Maxwell3d, project=EXPORT_MATRIX, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -177,6 +186,58 @@ def test_assign_torque(m3d_app_ac) -> None:
     assert torque.props["Coordinate System"] == "Global"
     assert torque.props["Is Virtual"]
     assert not torque.props["Is Positive"]
+
+
+def test_assign_setup(m3d_app_ac) -> None:
+    setup = m3d_app_ac.create_setup()
+    setup.props["MaximumPasses"] = 12
+    setup.props["MinimumPasses"] = 2
+    setup.props["MinimumConvergedPasses"] = 1
+    setup.props["PercentRefinement"] = 30
+    setup.props["Frequency"] = "200Hz"
+
+    dc_freq = 0.1
+    stop_freq = 10
+    count = 1
+    setup.add_eddy_current_sweep(
+        sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
+    )
+
+    setup.update()
+    assert m3d_app_ac.setups[0].properties["Max. Number of Passes"] == "12"
+    assert m3d_app_ac.setups[0].properties["Percent Error"] == "1"
+    assert m3d_app_ac.setups[0].properties["Percent Refine"] == "30"
+    assert m3d_app_ac.setups[0].properties["Min. Number of Passes"] == "2"
+    assert m3d_app_ac.setups[0].properties["Min. Converged Passes"] == "1"
+    assert not m3d_app_ac.setups[0].properties["Smooth BH Curve"]
+    assert m3d_app_ac.setups[0].properties["Frequency Setup"] == "200Hz"
+    assert not m3d_app_ac.setups[0].properties["Use Nonlinear Iteration"]
+    assert not m3d_app_ac.setups[0].properties["Use higher order shape functions"]
+    assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+    assert m3d_app_ac.setups[0].props["SweepRanges"]["Subrange"][0] == {
+        "RangeType": "LinearStep",
+        "RangeStart": "0.1Hz",
+        "RangeEnd": "10Hz",
+        "RangeStep": "1Hz",
+    }
+    setup.delete()
+
+
+def test_matrix_post_processing_ac(test_tmp_dir, mm3d_app_ac_export_matrix) -> None:
+    mm3d_app_ac_export_matrix.set_active_design("export_rl_gc_ac_magnetic_aphi_3d")
+    export_path = test_tmp_dir / "export_matrix.txt"
+    # invalid matrix name
+    with pytest.raises(AEDTRuntimeError):
+        mm3d_app_ac_export_matrix.export_matrix("invalid", export_path)
+    assert mm3d_app_ac_export_matrix.export_matrix(
+        matrix_name="Matrix1",
+        output_file=export_path,
+        use_independent_nominal_values=False,
+        is_format_default=False,
+        width=8,
+        precision=2,
+        is_exponential=False,
+    )
 
 
 # TestMaxwellTransientAPhi
@@ -347,16 +408,48 @@ def test_assign_symmetry(m3d_app_tran) -> None:
 
 def test_setup(m3d_app_tran) -> None:
     setup = m3d_app_tran.create_setup()
-    setup.props["TimeStep"] = "1ms"
-    setup.props["TotalTime"] = "100ms"
-    setup.props["MaximumPasses"] = 10
-    setup.props["MinimumPasses"] = 1
-    setup.props["PercentError"] = 0.5
+    setup.props["TimeStep"] = "2ms"
+    setup.props["StopTime"] = "150ms"
+    setup.props["NonlinearSolverResidual"] = "0.005"
+    setup.props["ScalarPotential"] = "First Order"
+    setup.update()
+    setup.set_save_fields(
+        enable=True,
+        range_type="Custom",
+        subrange_type="LinearStep",
+        start=1,
+        stop=150,
+        count=10,
+        units="ms",
+    )
 
-    assert setup in m3d_app_tran.setups
-    assert setup.props["TimeStep"] == "1ms"
-    assert setup.props["TotalTime"] == "100ms"
-    assert setup.props["MaximumPasses"] == 10
-    assert setup.props["MinimumPasses"] == 1
-    assert setup.props["PercentError"] == 0.5
+    assert setup.enable_expression_cache(["CoreLoss"], "Transient")
+    setup = m3d_app_tran.setups[0]
+    assert setup
+    assert setup.props["TimeStep"] == "2ms"
+    assert setup.props["StopTime"] == "150ms"
+    assert setup.props["NonlinearSolverResidual"] == "0.005"
+    assert setup.props["ScalarPotential"] == "First Order"
+    assert not setup.props["SmoothBHCurve"]
+    assert not setup.props["FastReachSteadyState"]
+    assert not setup.props["AutoDetectSteadyState"]
+    assert setup.props["IsGeneralTransient"]
+    assert not setup.props["IsHalfPeriodicTransient"]
     setup.delete()
+
+
+def test_matrix_post_processing_transient(test_tmp_dir, mm3d_app_ac_export_matrix) -> None:
+    mm3d_app_ac_export_matrix.set_active_design("export_rl_c_transient_aphi_3d")
+    export_path = test_tmp_dir / "export_matrix.txt"
+    # invalid matrix name
+    with pytest.raises(AEDTRuntimeError):
+        mm3d_app_ac_export_matrix.export_matrix("invalid", export_path)
+    assert mm3d_app_ac_export_matrix.export_matrix(
+        matrix_name="Matrix1",
+        output_file=export_path,
+        use_independent_nominal_values=False,
+        is_format_default=False,
+        width=8,
+        precision=2,
+        is_exponential=False,
+    )
