@@ -845,14 +845,14 @@ class ReportPlotter(PyAedtBase):
                 color=self.__grid_color,
                 linestyle=":",
                 linewidth=0.25,
-                alpha=0.7,
+                alpha=0.45,
             )
             self.ax.grid(
                 which="major",
                 visible=self._has_major_axis,
                 color=self.__grid_color,
-                linestyle="--",
-                linewidth=1,
+                linestyle=":",
+                linewidth=0.5,
                 alpha=0.7,
             )
 
