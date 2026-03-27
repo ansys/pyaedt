@@ -1985,7 +1985,13 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
+                try:
+                    return self._report_plotter(
+                        report, show=show, snapshot_path=snapshot_path, width=width, height=height
+                    )
+                except Exception:
+                    self.logger.error("Failed to create report.")
+                    return False
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -2023,6 +2029,8 @@ class PostProcessorCommon(PyAedtBase):
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
+        if "__EyeOpening" in report.variations:
+            report.variations["__EyeOpening"] = ["All"]
         report_plotter = ReportPlotter(solution_data=sols)
         report_plotter.width = width
         report_plotter.height = height
