@@ -66,6 +66,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Cable
     from ansys.aedt.core.emit_core.nodes.generated import Circulator
+    from ansys.aedt.core.emit_core.nodes.generated import CouplingLinkNode
     from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
     from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
@@ -89,6 +90,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -107,7 +109,7 @@ def interference(add_app_example):
 @pytest.fixture
 def cell_phone(add_app_example):
     app = add_app_example(
-        project="Cell Phone RFI Desense",
+        project="Cell Phone",
         application=Emit,
         subfolder=TEST_SUBFOLDER,
     )
@@ -354,6 +356,19 @@ def test_duplicate_components(emit_app):
     band: Band = [b for b in radio.children if isinstance(b, Band)][0]
     with pytest.raises(NotImplementedError):
         band.duplicate("DuplicatedBand")
+
+    # test multiplexer band setting
+    port_list1 = [
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band A",
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band B",
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band C",
+    ]
+    assert dup_multiplexer4.ports == port_list1
+    dup_multiplexer4.ports = ["Pass Band C", "Pass Band A", "Pass Band B"]
+    assert dup_multiplexer4.ports == ["Pass Band C", "Pass Band A", "Pass Band B"]
+    port_string = "|".join(port_list1)
+    dup_multiplexer4.ports = port_string
+    assert dup_multiplexer4.ports == port_list1
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1091,10 +1106,10 @@ def test_radio_getters(emit_app) -> None:
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-def test_static_type_generation(emit_app) -> None:
-    domain = emit_app.results.interaction_domain()
+def test_static_type_generation(emit_app):
+    domain = InteractionDomain(emit_app)
     py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-    assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
+    assert str(type(domain)) == "<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
     assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
@@ -1118,7 +1133,7 @@ def test_version(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
+    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.2",
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
 def test_basic_run(emit_app) -> None:
@@ -1224,7 +1239,7 @@ def test_optimal_n_to_1_feature(emit_app) -> None:
     radios_rx = rev.get_receiver_names()
     bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
     radios_tx = rev.get_interferer_names()
-    domain = emit_app.results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     domain.set_receiver(radios_rx[0], bands_rx[0])
 
     # check n_to_1_limit can be set to different values
@@ -1356,7 +1371,7 @@ def test_interference_scripts_no_filter(interference) -> None:
     expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
     expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     with pytest.raises(ValueError) as e:
         _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
     assert str(e.value) == "No interferers defined in the analysis."
@@ -1393,7 +1408,7 @@ def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
     sim = rev.get_simulation()
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
 
     # Test protection level with radio-specific protection levels
     expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
@@ -1426,7 +1441,7 @@ def test_interference_filtering(interference) -> None:
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     all_interference_colors = [
         [["white", "green", "orange"], ["orange", "green", "white"]],
         [["white", "green", "red"], ["red", "green", "white"]],
@@ -1469,7 +1484,7 @@ def test_protection_filtering(interference):
     sim = rev.get_simulation()
 
     # Test with active filtering
-    domain = interference.results.interaction_domain()
+    domain = InteractionDomain(interference)
     all_protection_colors = [
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
         [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1502,16 +1517,7 @@ def test_protection_filtering(interference):
         assert protection_power_matrix == expected_protection_power
 
 
-"""
-.. note::
-The following test should be maintained as the last test within this file to ensure
-that the AEDT app functions as intended.
-
-"""
-
-
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-@pytest.mark.skipif(condition=True, reason="Skipping test for now due to B1420555")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1530,6 +1536,35 @@ def test_couplings_1(cell_phone):
     assert len(links) == 0
     for link in cell_phone.couplings.coupling_names:
         assert link == "ATA_Analysis"
+
+    rev: Revision = cell_phone.results.analyze()
+    gps_ant: AntennaNode = rev.get_component_node("GPS")
+    wifi_ant: AntennaNode = rev.get_component_node("WiFi")
+    coupling_data = rev.get_coupling_data_node()
+    assert coupling_data is not None
+
+    for child in coupling_data.children:
+        if child.name == "ATA_Analysis":
+            coupling_link: CouplingLinkNode = child
+            break
+
+    assert coupling_link is not None
+    assert coupling_link.ports == ["(undefined)", "(undefined)"]
+    # test setting the port map with AntennaNodes
+    coupling_link.ports = [gps_ant, wifi_ant]
+    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+
+    # set the antennas with short names
+    coupling_link.ports = "Cellular|GPS"
+    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
+
+    # set the antennas with full node names
+    coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
+    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+
+    # set the antennas with a list of short names
+    coupling_link.ports = ["Cellular", "GPS"]
+    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1552,7 +1587,51 @@ def test_couplings_2(tutorial) -> None:
     rev: Revision = tutorial.results.analyze()
     gps_ant: AntennaNode = rev.get_component_node("GPS")
     assert gps_ant.parent_name == "NODE-*-Scene"
-    assert gps_ant._full_node_name == gps_ant.parent_name + "-*-" + gps_ant.name
+    assert gps_ant._full_node_name() == gps_ant.parent_name + "-*-" + gps_ant.name
+
+
+@pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2025.2")
+def test_couplings_new_api(tutorial):
+    rev: Revision = tutorial.results.analyze()
+    scene_node: EmitSceneNode = rev.get_scene_node()
+    assert scene_node is not None
+
+    # test CAD nodes
+    scene_children = scene_node.children
+    antenna_names = []
+    for child in scene_children:
+        if child.node_type == "CADNode":
+            assert child.name == "Fighter_Jet"
+        else:
+            antenna_names.append(child.name)
+
+    # test antenna nodes
+    assert len(antenna_names) == 4
+    valid_antenna_names = ["GPS", "UHF-1", "UHF-2", "VHF-UHF"]
+    for antenna_name in antenna_names:
+        assert antenna_name in valid_antenna_names
+        valid_antenna_names.remove(antenna_name)
+
+    # get the Touchstone coupling node
+    couplings_node: CouplingsNode = rev.get_coupling_data_node()
+    assert couplings_node is not None
+    for child in couplings_node.children:
+        if child.node_type == "TouchstoneCouplingNode":
+            coupling_node: TouchstoneCouplingNode = child
+            break
+
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
+    # test setting the port map with antenna (short names)
+    coupling_node.port_antenna_assignment = "GPS|UHF-2"
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
+    # test setting the port map with antenna (full node names)
+    coupling_node.port_antenna_assignment = "NODE-*-Scene-*-UHF-1|NODE-*-Scene-*-VHF-UHF"
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
+    # test setting the port map with antenna node
+    ant1 = rev.get_component_node("GPS")
+    ant2 = rev.get_component_node("UHF-2")
+    coupling_node.port_antenna_assignment = [ant1, ant2]
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
 
 
 @pytest.mark.skipif(
@@ -1622,7 +1701,7 @@ def test_result_categories_with_simulation(emit_app):
     for band in r1_bands:
         band.enabled = True
     sim = rev.get_simulation()
-    domain = emit_app.results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     interaction = sim.run(domain)
 
     # initially all categories are enabled
@@ -1663,8 +1742,8 @@ def test_license_session(interference):
     revision = interference.results.analyze()
     sim = revision.get_simulation()
 
-    def do_run() -> None:
-        domain = results.interaction_domain()
+    def do_run():
+        domain = InteractionDomain(interference)
         rev = results.current_revision
         rev.get_simulation().run(domain)
 
@@ -1749,7 +1828,7 @@ def test_emit_nodes(interference) -> None:
     revision = results.analyze()
     sim = revision.get_simulation()
 
-    domain = results.interaction_domain()
+    domain = InteractionDomain(interference)
     _ = sim.run(domain)
 
     # set emit to ignore purge warnings
@@ -2179,10 +2258,9 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
     emit_app.schematic.create_component("3 Port", "Test3port")
 
     # Generate and run a revision
-    results = emit_app.results
     revision = emit_app.results.analyze()
 
-    domain = results.interaction_domain()
+    domain = InteractionDomain(emit_app)
     revision.run(domain)
 
     # Test all nodes of the current revision
@@ -2313,8 +2391,14 @@ def test_imports(emit_app, file_tmp_root) -> None:
     # some instability in maintaining the node_ids
     couplings_node: CouplingsNode = rev.get_coupling_data_node()
     touchstone_node = couplings_node.children[-1]
-    touchstone_node.port_antenna_assignment = "|".join(antenna_list)
-    assert touchstone_node.port_antenna_assignment == antenna_list
+    touchstone_node.port_antenna_assignment = antenna_list
+    assert touchstone_node.port_antenna_assignment == [
+        "NODE-*-Scene-*-Antenna",
+        "NODE-*-Scene-*-Antenna 2",
+        "NODE-*-Scene-*-Antenna 3",
+        "NODE-*-Scene-*-Antenna 4",
+        "NODE-*-Scene-*-Antenna 5",
+    ]
 
     # TODO: the next line is only needed for 25.2, which had
     # some instability in maintaining the node_ids
@@ -2891,16 +2975,15 @@ def test_units(emit_app) -> None:
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
     sim = rev.get_simulation()
-    domain = hfss_phased_array.results.interaction_domain()
+    domain = InteractionDomain(hfss_phased_array)
     assert domain is not None
     engine = hfss_phased_array._emit_api.get_engine()
     assert engine is not None
-    assert engine.is_domain_valid(domain)
-    assert sim.is_domain_valid(domain)
+    assert sim.is_domain_valid(domain) == ""
 
     # run the interaction
-    domain = hfss_phased_array.results.interaction_domain()
-    interaction = engine.run(domain)
+    domain = InteractionDomain(hfss_phased_array)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2916,7 +2999,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.azimuth_angle == 45
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2935,7 +3018,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.1
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2950,7 +3033,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.004
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -2967,7 +3050,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     assert bowtie_ant.max_taper_distance_y == 0.008
 
     rev: Revision = hfss_phased_array.results.analyze()
-    interaction = engine.run(domain)
+    interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)

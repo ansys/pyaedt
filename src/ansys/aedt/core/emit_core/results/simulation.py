@@ -30,6 +30,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -53,7 +54,7 @@ class Simulation:
     >>> aedtapp = Emit()
     >>> rev = aedtapp.results.current_revision
     >>> sim = rev.get_simulation()
-    >>> domain = aedtapp.results.interaction_domain()
+    >>> domain = InteractionDomain(aedtapp)
     >>> sim.run(domain)
     """
 
@@ -67,9 +68,15 @@ class Simulation:
         self.odesktop = revision.odesktop
         """Desktop object."""
 
+        self.emit_project = revision.emit_project
+        """Emit project instance."""
+
+        self.results_index = revision.results_index
+        """Revision results index."""
+
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
-    def get_interaction(self, domain):
+    def get_interaction(self, domain: InteractionDomain):
         """
         Create a new interaction for a domain.
 
@@ -85,7 +92,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = rev.get_simulation()
         >>> sim.get_interaction(domain)
 
@@ -100,7 +107,7 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def run(self, domain):
+    def run(self, domain: InteractionDomain):
         """
         Load the revision and then analyze along the given domain.
 
@@ -116,7 +123,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = rev.get_simulation()
         >>> sim.run(domain)
 
@@ -128,9 +135,9 @@ class Simulation:
                 if freq > 0:
                     raise ValueError("The domain must not have channels specified.")
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
         if self._revision.emit_project._aedt_version < "2024.1":
             if len(domain.interferer_names) == 1:
+                engine = self._revision.emit_project._emit_api.get_engine()
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
@@ -143,14 +150,26 @@ class Simulation:
                     "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
                 )
                 warnings.warn(err_msg)
-        interaction = engine.run(domain)
+        if self._revision.emit_project._aedt_version < "2027.1":
+            engine = self._revision.emit_project._emit_api.get_engine()
+            interaction = engine.run(domain)
+        else:
+            interaction = self.emit_project._emit_com_module.RunEmitDomain(
+                self._revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
 
     @pyaedt_function_handler()
-    @min_aedt_version("2025.2")
-    def is_domain_valid(self, domain):
+    @min_aedt_version("2027.1")
+    def is_domain_valid(self, domain: InteractionDomain) -> str:
         """
         Return ``True`` if the given domain is valid for the current revision.
 
@@ -161,18 +180,26 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.is_domain_valid(domain)
         True
         """
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.is_domain_valid(domain)
+        valid = self.emit_project._emit_com_module.CheckDomainValidity(
+            self._revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
+        return valid
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
-    def get_instance_count(self, domain):
+    def get_instance_count(self, domain: InteractionDomain):
         """
         Return the number of instances in the domain for the current revision.
 
@@ -188,7 +215,7 @@ class Simulation:
 
         Examples
         --------
-        >>> domain = aedtapp.results.interaction_domain()
+        >>> domain = InteractionDomain(aedtapp)
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> num_instances = sim.get_instance_count(domain)
         """
@@ -198,10 +225,14 @@ class Simulation:
 
     @property
     @min_aedt_version("2027.1")
-    def n_to_1_limit(self):
+    def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
 
+        Returns
+        -------
+        max_instances : int
+            Maximum number of interference combinations to run per receiver for N to 1.
         - A value of ``0`` disables N to 1 entirely.
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
@@ -221,7 +252,7 @@ class Simulation:
 
     @n_to_1_limit.setter
     @min_aedt_version("2025.2")
-    def n_to_1_limit(self, max_instances):
+    def n_to_1_limit(self, max_instances: int):
         if self._revision.revision_loaded:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
@@ -286,7 +317,7 @@ class Simulation:
         --------
         sim = revision.get_simulation()
         with sim.get_license_session():
-            domain = aedtapp.interaction_domain()
+            domain = InteractionDomain(aedtapp)
             sim.run(domain)
         """
         engine = self._revision.emit_project._emit_api.get_engine()
@@ -296,7 +327,7 @@ class Simulation:
     @min_aedt_version("2023.2")
     def interference_type_classification(
         self,
-        domain,
+        domain: InteractionDomain,
         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
         use_filter: bool = False,
         filter_list: list[str] = None,

@@ -53,7 +53,7 @@ class Revision:
     ----------
     parent_results :
         ``Results`` object that this revision is associated with.
-    emit_obj :
+    emit_project : Emit
          ``Emit`` object that this revision is associated with.
     name : str, optional
         Name of the revision to load . The default is ``None``, in which
@@ -73,11 +73,11 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
-        self.emit_project = emit_obj
+    def __init__(self, parent_results, emit_project, name: str | None = None) -> None:
+        self.emit_project = emit_project
         """EMIT project."""
 
-        self.odesktop = emit_obj.odesktop
+        self.odesktop = emit_project.odesktop
         """Desktop object."""
 
         self.parent_results = parent_results
@@ -87,7 +87,7 @@ class Revision:
         """AEDT version."""
 
         if self.aedt_version > 251:
-            self._emit_com = emit_obj.odesign.GetModule("EmitCom")
+            self._emit_com = self.emit_project._emit_com_module
 
             if not name:
                 # User didn't specify a specific revision name to load- use the Current revision
@@ -96,19 +96,19 @@ class Revision:
                 self.name = "Current"
                 """Name of the revision."""
 
-                emit_obj.odesign.SaveEmitProject()
+                self.emit_project.odesign.SaveEmitProject()
 
-                self.path = emit_obj.odesign.GetManagedFilesPath()
+                self.path = self.emit_project.odesign.GetManagedFilesPath()
                 """Path to the EMIT result folder for the revision."""
             else:
-                kept_result_names = emit_obj.odesign.GetKeptResultNames()
+                kept_result_names = self.emit_project.odesign.GetKeptResultNames()
                 if name not in kept_result_names:
                     raise ValueError(f'Revision "{name}" does not exist in the project.')
 
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
                 """Index of the result for this revision."""
 
-                self.path = emit_obj.odesign.GetResultDirectory(name)
+                self.path = self.emit_project.odesign.GetResultDirectory(name)
                 """Path to the EMIT result folder for the revision."""
 
                 self.name = name
@@ -116,13 +116,13 @@ class Revision:
 
         else:
             if not name:
-                name = emit_obj.odesign.GetCurrentResult()
+                name = self.emit_project.odesign.GetCurrentResult()
                 if not name:
-                    name = emit_obj.odesign.AddResult("")
+                    name = self.emit_project.odesign.AddResult("")
             else:
-                if name not in emit_obj.odesign.GetResultList():
-                    name = emit_obj.odesign.AddResult(name)
-            full = emit_obj.odesign.GetResultDirectory(name)
+                if name not in self.emit_project.odesign.GetResultList():
+                    name = self.emit_project.odesign.AddResult(name)
+            full = self.emit_project.odesign.GetResultDirectory(name)
 
             self.name = name
             """Name of the revision."""
@@ -130,7 +130,7 @@ class Revision:
             self.path = full
             """Full path of the revision."""
 
-            raw_props = emit_obj.odesign.GetResultProperties(name)
+            raw_props = self.emit_project.odesign.GetResultProperties(name)
 
             props = dict(s.split("=", 1) for s in raw_props)
 

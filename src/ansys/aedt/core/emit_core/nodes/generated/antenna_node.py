@@ -839,3 +839,17 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+
+    @property
+    @min_aedt_version("2025.2")
+    def attach_point(self) -> str:
+        """Attach Point."""
+        val = self._get_property("Attach Point")
+        return val
+
+    @property
+    @min_aedt_version("2025.2")
+    def articulation_point(self) -> str:
+        """Articulation Point."""
+        val = self._get_property("Articulation Point")
+        return val

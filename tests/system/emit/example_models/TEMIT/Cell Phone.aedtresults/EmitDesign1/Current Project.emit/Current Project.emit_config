@@ -1,0 +1,3164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document Version='5.6' >
+  <!--Create a Unknown NODE named NODE-->
+  <NODE_CREATE>
+    <InitialRevision>0 - 54-12-51 96::</InitialRevision>
+    <InitialVersion>EMIT 2027 R1</InitialVersion>
+    <LatestRevision>0 - 54-12-51 96::</LatestRevision>
+    <LatestVersion>EMIT 2027 R1</LatestVersion>
+    <MeasInitIndex>1</MeasInitIndex>
+    <NBEmissionsFileIndex>4</NBEmissionsFileIndex>
+    <Name>NODE</Name>
+    <Parent/>
+    <SelectivityFileIndex>6</SelectivityFileIndex>
+    <Type>Unknown</Type>
+  </NODE_CREATE>
+  <!--Create a EmitSceneNode NODE named Scene-->
+  <NODE_CREATE>
+    <DefaultFFVisualization>NODE-*-Analysis::CurrentFFObvDomainNode</DefaultFFVisualization>
+    <DefaultNFVisualization>NODE-*-Analysis::CurrentNFObvDomainNode</DefaultNFVisualization>
+    <DisplayName>Scene (Antennas/Emitters/Geometry)</DisplayName>
+    <GroundPlaneNormal>ZAxis</GroundPlaneNormal>
+    <GroundPlanePosition>0.0</GroundPlanePosition>
+    <Name>Scene</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <Parent>NODE</Parent>
+    <Type>EmitSceneNode</Type>
+  </NODE_CREATE>
+  <!--Create a AntennaNode NODE named GPS-->
+  <NODE_CREATE>
+    <AdjustSourceHeight>false</AdjustSourceHeight>
+    <AntennaTemperature>290.0</AntennaTemperature>
+    <AntennaType>FFPatTable</AntennaType>
+    <AutoAdjustSrcOrientation>true</AutoAdjustSrcOrientation>
+    <AutoAdjustmentType>None</AutoAdjustmentType>
+    <AutoScaled>true</AutoScaled>
+    <ClearDisplayList1>true</ClearDisplayList1>
+    <ClearDisplayList2>true</ClearDisplayList2>
+    <ClearDisplayList3>true</ClearDisplayList3>
+    <Color>#8064A2</Color>
+    <CosineTaperPower>1.0</CosineTaperPower>
+    <EdgeTaperLevel>-200</EdgeTaperLevel>
+    <Elevation>0.0</Elevation>
+    <LinkChildParameters>true</LinkChildParameters>
+    <MaxTaperDistanceX>0.0</MaxTaperDistanceX>
+    <MaxTaperDistanceY>0.0</MaxTaperDistanceY>
+    <Name>GPS</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Orientation>0.0 0.0 0.0</Orientation>
+    <OrientationMode>rpyDeg</OrientationMode>
+    <Parent>NODE-*-Scene</Parent>
+    <PeakGainDBi>0</PeakGainDBi>
+    <PhaseCenterOrientation>0.0 0.0 0.0</PhaseCenterOrientation>
+    <PhaseCenterPosition>0.0 0.0 0.0</PhaseCenterPosition>
+    <Position>0.0 0.0 0.0</Position>
+    <PositionDefined>false</PositionDefined>
+    <RFSystem>NODE-*-RF Systems-*-GPS Receiver</RFSystem>
+    <RadioSidePorts>in</RadioSidePorts>
+    <ReferencePlane>XY Plane</ReferencePlane>
+    <RelativeOrientation>0.0 0.0 0.0</RelativeOrientation>
+    <RelativePosition>0.0 0.0 0.0</RelativePosition>
+    <ShowAxes>true</ShowAxes>
+    <ShowCompositePassbands>false</ShowCompositePassbands>
+    <ShowIcon>true</ShowIcon>
+    <ShowRelativeCoords>false</ShowRelativeCoords>
+    <SizeScaler>0.1</SizeScaler>
+    <SrcPosOffset>0.0 0.0 0.0</SrcPosOffset>
+    <SteeringAzimuth>0.0</SteeringAzimuth>
+    <SubType>Isotropic</SubType>
+    <SweCustonNMode>50</SweCustonNMode>
+    <SweNModeTruncation>Dynamic</SweNModeTruncation>
+    <TaperingFunction>Flat</TaperingFunction>
+    <Type>AntennaNode</Type>
+    <UseAntennaPattern>false</UseAntennaPattern>
+    <UsePhaseCenter>false</UsePhaseCenter>
+    <VSWR>1.0</VSWR>
+    <Visible>false</Visible>
+  </NODE_CREATE>
+  <!--Create a AntennaNode NODE named WiFi-->
+  <NODE_CREATE>
+    <AdjustSourceHeight>false</AdjustSourceHeight>
+    <AntennaTemperature>290.0</AntennaTemperature>
+    <AntennaType>FFPatTable</AntennaType>
+    <AutoAdjustSrcOrientation>true</AutoAdjustSrcOrientation>
+    <AutoAdjustmentType>None</AutoAdjustmentType>
+    <AutoScaled>true</AutoScaled>
+    <ClearDisplayList1>true</ClearDisplayList1>
+    <ClearDisplayList2>true</ClearDisplayList2>
+    <ClearDisplayList3>true</ClearDisplayList3>
+    <Color>#8064A2</Color>
+    <CosineTaperPower>1.0</CosineTaperPower>
+    <EdgeTaperLevel>-200</EdgeTaperLevel>
+    <Elevation>0.0</Elevation>
+    <LinkChildParameters>true</LinkChildParameters>
+    <MaxTaperDistanceX>0.0</MaxTaperDistanceX>
+    <MaxTaperDistanceY>0.0</MaxTaperDistanceY>
+    <Name>WiFi</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Orientation>0.0 0.0 0.0</Orientation>
+    <OrientationMode>rpyDeg</OrientationMode>
+    <Parent>NODE-*-Scene</Parent>
+    <PeakGainDBi>0</PeakGainDBi>
+    <PhaseCenterOrientation>0.0 0.0 0.0</PhaseCenterOrientation>
+    <PhaseCenterPosition>0.0 0.0 0.0</PhaseCenterPosition>
+    <Position>0.0 0.0 0.0</Position>
+    <PositionDefined>false</PositionDefined>
+    <RFSystem>NODE-*-RF Systems-*-WiFi - 802.11-2012</RFSystem>
+    <RadioSidePorts>in</RadioSidePorts>
+    <ReferencePlane>XY Plane</ReferencePlane>
+    <RelativeOrientation>0.0 0.0 0.0</RelativeOrientation>
+    <RelativePosition>0.0 0.0 0.0</RelativePosition>
+    <ShowAxes>true</ShowAxes>
+    <ShowCompositePassbands>false</ShowCompositePassbands>
+    <ShowIcon>true</ShowIcon>
+    <ShowRelativeCoords>false</ShowRelativeCoords>
+    <SizeScaler>0.1</SizeScaler>
+    <SrcPosOffset>0.0 0.0 0.0</SrcPosOffset>
+    <SteeringAzimuth>0.0</SteeringAzimuth>
+    <SubType>Isotropic</SubType>
+    <SweCustonNMode>50</SweCustonNMode>
+    <SweNModeTruncation>Dynamic</SweNModeTruncation>
+    <TaperingFunction>Flat</TaperingFunction>
+    <Type>AntennaNode</Type>
+    <UseAntennaPattern>false</UseAntennaPattern>
+    <UsePhaseCenter>false</UsePhaseCenter>
+    <VSWR>1.0</VSWR>
+    <Visible>false</Visible>
+  </NODE_CREATE>
+  <!--Create a AntennaNode NODE named Cellular-->
+  <NODE_CREATE>
+    <AdjustSourceHeight>false</AdjustSourceHeight>
+    <AntennaTemperature>290.0</AntennaTemperature>
+    <AntennaType>FFPatTable</AntennaType>
+    <AutoAdjustSrcOrientation>true</AutoAdjustSrcOrientation>
+    <AutoAdjustmentType>None</AutoAdjustmentType>
+    <AutoScaled>true</AutoScaled>
+    <ClearDisplayList1>true</ClearDisplayList1>
+    <ClearDisplayList2>true</ClearDisplayList2>
+    <ClearDisplayList3>true</ClearDisplayList3>
+    <Color>#8064A2</Color>
+    <CosineTaperPower>1.0</CosineTaperPower>
+    <EdgeTaperLevel>-200</EdgeTaperLevel>
+    <Elevation>0.0</Elevation>
+    <LinkChildParameters>true</LinkChildParameters>
+    <MaxTaperDistanceX>0.0</MaxTaperDistanceX>
+    <MaxTaperDistanceY>0.0</MaxTaperDistanceY>
+    <Name>Cellular</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Orientation>0.0 0.0 0.0</Orientation>
+    <OrientationMode>rpyDeg</OrientationMode>
+    <Parent>NODE-*-Scene</Parent>
+    <PeakGainDBi>0</PeakGainDBi>
+    <PhaseCenterOrientation>0.0 0.0 0.0</PhaseCenterOrientation>
+    <PhaseCenterPosition>0.0 0.0 0.0</PhaseCenterPosition>
+    <Position>0.0 0.0 0.0</Position>
+    <PositionDefined>false</PositionDefined>
+    <RFSystem>NODE-*-RF Systems-*-GSM Mobile Station</RFSystem>
+    <RadioSidePorts>in</RadioSidePorts>
+    <ReferencePlane>XY Plane</ReferencePlane>
+    <RelativeOrientation>0.0 0.0 0.0</RelativeOrientation>
+    <RelativePosition>0.0 0.0 0.0</RelativePosition>
+    <ShowAxes>true</ShowAxes>
+    <ShowCompositePassbands>false</ShowCompositePassbands>
+    <ShowIcon>true</ShowIcon>
+    <ShowRelativeCoords>false</ShowRelativeCoords>
+    <SizeScaler>0.1</SizeScaler>
+    <SrcPosOffset>0.0 0.0 0.0</SrcPosOffset>
+    <SteeringAzimuth>0.0</SteeringAzimuth>
+    <SubType>Isotropic</SubType>
+    <SweCustonNMode>50</SweCustonNMode>
+    <SweNModeTruncation>Dynamic</SweNModeTruncation>
+    <TaperingFunction>Flat</TaperingFunction>
+    <Type>AntennaNode</Type>
+    <UseAntennaPattern>false</UseAntennaPattern>
+    <UsePhaseCenter>false</UsePhaseCenter>
+    <VSWR>1.0</VSWR>
+    <Visible>false</Visible>
+  </NODE_CREATE>
+  <!--Create a AntennaNode NODE named USB_Memory_3a-->
+  <NODE_CREATE>
+    <AdjustSourceHeight>false</AdjustSourceHeight>
+    <AntennaTemperature>290.0</AntennaTemperature>
+    <AntennaType>FFPatTable</AntennaType>
+    <AutoAdjustSrcOrientation>true</AutoAdjustSrcOrientation>
+    <AutoAdjustmentType>None</AutoAdjustmentType>
+    <AutoScaled>true</AutoScaled>
+    <Color>#8064A2</Color>
+    <CosineTaperPower>1.0</CosineTaperPower>
+    <EdgeTaperLevel>-200</EdgeTaperLevel>
+    <Elevation>0.0</Elevation>
+    <LinkChildParameters>true</LinkChildParameters>
+    <MaxTaperDistanceX>0.0</MaxTaperDistanceX>
+    <MaxTaperDistanceY>0.0</MaxTaperDistanceY>
+    <Name>USB_Memory_3a</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Orientation>0.0 0.0 0.0</Orientation>
+    <OrientationMode>rpyDeg</OrientationMode>
+    <Parent>NODE-*-Scene</Parent>
+    <PeakGainDBi>0</PeakGainDBi>
+    <PhaseCenterOrientation>0.0 0.0 0.0</PhaseCenterOrientation>
+    <PhaseCenterPosition>0.0 0.0 0.0</PhaseCenterPosition>
+    <Position>0.0 0.0 0.0</Position>
+    <PositionDefined>false</PositionDefined>
+    <RFSystem>NODE-*-RF Systems-*-USB_Memory_3a</RFSystem>
+    <RadioSidePorts>in</RadioSidePorts>
+    <ReferencePlane>XY Plane</ReferencePlane>
+    <RelativeOrientation>0.0 0.0 0.0</RelativeOrientation>
+    <RelativePosition>0.0 0.0 0.0</RelativePosition>
+    <ShowAxes>true</ShowAxes>
+    <ShowCompositePassbands>false</ShowCompositePassbands>
+    <ShowIcon>true</ShowIcon>
+    <ShowRelativeCoords>false</ShowRelativeCoords>
+    <SizeScaler>0.1</SizeScaler>
+    <SrcPosOffset>0.0 0.0 0.0</SrcPosOffset>
+    <SteeringAzimuth>0.0</SteeringAzimuth>
+    <SubType>Emitter</SubType>
+    <SweCustonNMode>50</SweCustonNMode>
+    <SweNModeTruncation>Dynamic</SweNModeTruncation>
+    <TaperingFunction>Flat</TaperingFunction>
+    <Type>AntennaNode</Type>
+    <UsePhaseCenter>false</UsePhaseCenter>
+    <VSWR>1.0</VSWR>
+    <Visible>false</Visible>
+  </NODE_CREATE>
+  <!--Create a CouplingsNode NODE named Couplings-->
+  <NODE_CREATE>
+    <DisplayName>Coupling Data</DisplayName>
+    <GlobalDefaultCoupling>0</GlobalDefaultCoupling>
+    <MinCouplingValue>-200</MinCouplingValue>
+    <Name>Couplings</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE</Parent>
+    <Type>CouplingsNode</Type>
+  </NODE_CREATE>
+  <!--Create a CouplingLinkNode NODE named ATA_Analysis-->
+  <NODE_CREATE>
+    <Enabled>true</Enabled>
+    <LinkResultsDirectory>
+C:\Users\mcoleman\AppData\Local\Temp\pytest-of-mcoleman\pytest-639\test_interaction_domain-0\test_interaction_domain\Cell Phone RFI Desense.aedtresults\EmitDesign1\link_results
+    </LinkResultsDirectory>
+    <Name>ATA_Analysis</Name>
+    <NodeID>2</NodeID>
+    <NodeTransient>false</NodeTransient>
+    <NumPorts>9</NumPorts>
+    <Parent>NODE-*-Couplings</Parent>
+    <PortMap>
+NODE-*-Scene-*-WiFi|NODE-*-Scene-*-Cellular|NODE-*-Scene-*-GPS|(undefined)|(undefined)|NODE-*-Scene-*-USB_Memory_3a|(undefined)|(undefined)|(undefined)
+    </PortMap>
+    <PortNames>
+Bluetooth_Port|Cell_Port|GPS_Port|Mem_To_CPUa|Mem_To_CPUb|USB_Memory_3a|USB_Memory_3b|USB_VCC_5a|USB_VCC_5b
+    </PortNames>
+    <ProductName>HFSS</ProductName>
+    <Type>CouplingLinkNode</Type>
+  </NODE_CREATE>
+  <!--Create a SolutionsNode NODE named Setup-->
+  <NODE_CREATE>
+    <Enabled>true</Enabled>
+    <EnabledIsReadOnly>false</EnabledIsReadOnly>
+    <Name>Setup</Name>
+    <NodeID>3</NodeID>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Couplings-*-ATA_Analysis</Parent>
+    <Type>SolutionsNode</Type>
+  </NODE_CREATE>
+  <!--Create a SolutionCouplingNode NODE named Sweep-->
+  <NODE_CREATE>
+    <Enabled>true</Enabled>
+    <EnabledIsReadOnly>false</EnabledIsReadOnly>
+    <Name>Sweep</Name>
+    <NodeID>4</NodeID>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Couplings-*-ATA_Analysis-*-Setup</Parent>
+    <Port1>(undefined)</Port1>
+    <Port2>(undefined)</Port2>
+    <RefineAdaptiveEnable>false</RefineAdaptiveEnable>
+    <RefineSamplingEnable>false</RefineSamplingEnable>
+    <RefineStartStopStep>1 10e9 1000</RefineStartStopStep>
+    <RefinementFeatureVisible>false</RefinementFeatureVisible>
+    <Type>SolutionCouplingNode</Type>
+    <Warning>
+No solution data. The sweep has not been solved in the linked design.
+    </Warning>
+  </NODE_CREATE>
+  <!--Create a RfSystemGroup NODE named RF Systems-->
+  <NODE_CREATE>
+    <EnablePassiveNoise>true</EnablePassiveNoise>
+    <EnforceThermalNoiseFloor>false</EnforceThermalNoiseFloor>
+    <Name>RF Systems</Name>
+    <Parent>NODE</Parent>
+    <Type>RfSystemGroup</Type>
+  </NODE_CREATE>
+  <!--Create a RFSystemNode NODE named GPS Receiver-->
+  <NODE_CREATE>
+    <ColumnHidden>false</ColumnHidden>
+    <Name>GPS Receiver</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems</Parent>
+    <RowHidden>false</RowHidden>
+    <Type>RFSystemNode</Type>
+  </NODE_CREATE>
+  <!--Create a RadioGroup NODE named Radios-->
+  <NODE_CREATE>
+    <Name>Radios</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver</Parent>
+    <Type>RadioGroup</Type>
+  </NODE_CREATE>
+  <!--Create a RadioNode NODE named GPS Receiver-->
+  <NODE_CREATE>
+    <AntennaSidePorts>Port 1</AntennaSidePorts>
+    <IsEmitter>false</IsEmitter>
+    <Name>GPS Receiver</Name>
+    <NodeTransient>false</NodeTransient>
+    <Notes>
+A typical GPS signal has a received signal power of approximately -127.5 dBm.
+    </Notes>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver-*-Radios</Parent>
+    <PortTable>Port 1|Rx Only</PortTable>
+    <RxEnabled>true</RxEnabled>
+    <TableMaximumRows>1</TableMaximumRows>
+    <TableRowsVisible>true</TableRowsVisible>
+    <TxEnabled>false</TxEnabled>
+    <Type>RadioNode</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named L1-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>20460000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>1e6</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <HoppingRange>1.0e6</HoppingRange>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>PSK</ModulationType>
+    <Name>L1</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver</Parent>
+    <Port>Port 1</Port>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>1575420000.000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>1575420000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L1
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-125</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L1
+    </Parent>
+    <PrGainSensitivity>50.000000000000000000</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>18.000000000000000000</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>2</CurrentlySelectedRows>
+    <Enabled>true</Enabled>
+    <Filename>Selectivity1.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L1-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a Band NODE named L2-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>20460000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>1e6</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <HoppingRange>1.0e6</HoppingRange>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>PSK</ModulationType>
+    <Name>L2</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver</Parent>
+    <Port>Port 1</Port>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>1227600000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>1227600000.000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L2
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-125</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L2
+    </Parent>
+    <PrGainSensitivity>50.000000000000000000</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>18.000000000000000000</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>2</CurrentlySelectedRows>
+    <Enabled>true</Enabled>
+    <Filename>Selectivity2.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-*-L2-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a SamplingNode NODE named Sampling-->
+  <NODE_CREATE>
+    <Name>Sampling</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberChannels>1000</NumberChannels>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver</Parent>
+    <PercentageChannels>50</PercentageChannels>
+    <RandomSeed>0</RandomSeed>
+    <SamplingType>UniformSampling</SamplingType>
+    <SpecifyPercentage>false</SpecifyPercentage>
+    <TotalRxChannels>2</TotalRxChannels>
+    <TotalTxChannels>0</TotalTxChannels>
+    <Type>SamplingNode</Type>
+  </NODE_CREATE>
+  <!--Create a ComponentGroup NODE named Components-->
+  <NODE_CREATE>
+    <Name>Components</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver</Parent>
+    <Type>ComponentGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationGroup NODE named Configurations-->
+  <NODE_CREATE>
+    <Name>Configurations</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver</Parent>
+    <Type>ConfigurationGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationNode NODE named Configuration-->
+  <NODE_CREATE>
+    <ComponentPositions>
+NODE-*-Scene-*-GPS-&gt;0:0|NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver-&gt;0:-1
+    </ComponentPositions>
+    <ConnectivityList>
+NODE-*-RF Systems-*-GPS Receiver-*-Radios-*-GPS Receiver:Port 1-&gt;NODE-*-Scene-*-GPS:in
+    </ConnectivityList>
+    <DefaultWindowNode>NODE-*-Windows-*-Configuration Diagram</DefaultWindowNode>
+    <Name>Configuration</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GPS Receiver-*-Configurations</Parent>
+    <Type>ConfigurationNode</Type>
+  </NODE_CREATE>
+  <!--Create a RFSystemNode NODE named WiFi &#45; 802.11&#45;2012-->
+  <NODE_CREATE>
+    <ColumnHidden>false</ColumnHidden>
+    <Name>WiFi - 802.11-2012</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems</Parent>
+    <RowHidden>false</RowHidden>
+    <Type>RFSystemNode</Type>
+  </NODE_CREATE>
+  <!--Create a RadioGroup NODE named Radios-->
+  <NODE_CREATE>
+    <Name>Radios</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-WiFi - 802.11-2012</Parent>
+    <Type>RadioGroup</Type>
+  </NODE_CREATE>
+  <!--Create a RadioNode NODE named WiFi &#45; 802.11&#45;2012-->
+  <NODE_CREATE>
+    <AntennaSidePorts>Port 1</AntennaSidePorts>
+    <IsEmitter>false</IsEmitter>
+    <Name>WiFi - 802.11-2012</Name>
+    <NodeTransient>false</NodeTransient>
+    <Notes>
+802.11 WiFi radio operating in the 2.4/5 GHz bands
+
+This is an approximate model of the 802.11-2012 standard which incorporated the following amendments into the 2007 revision: 
+802.11k
+802.11r
+802.11y
+802.11w
+802.11n
+802.11p
+802.11z
+802.11v
+802.11u
+802.11s
+    </Notes>
+    <Parent>NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios</Parent>
+    <PortTable>Port 1|Tx/Rx</PortTable>
+    <RxEnabled>true</RxEnabled>
+    <TableMaximumRows>1</TableMaximumRows>
+    <TableRowsVisible>true</TableRowsVisible>
+    <TxEnabled>true</TxEnabled>
+    <Type>RadioNode</Type>
+  </NODE_CREATE>
+  <!--Create a BandFolder NODE named OFDM-->
+  <NODE_CREATE>
+    <AntennaSidePorts>::Parent::AntennaSidePorts</AntennaSidePorts>
+    <Enabled>true</Enabled>
+    <Name>OFDM</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012
+    </Parent>
+    <Type>BandFolder</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Tx OFDM &#45; 54 Mbps-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>54000000.000000000</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>9000000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>5000000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>Emissions Mask Defined</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MaxTxFreq>2472000000</MaxTxFreq>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MinTxFreq>2412000000</MinTxFreq>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>PSK</ModulationType>
+    <Name>Tx OFDM - 54 Mbps</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>64-PSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>false</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>2412000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>2472000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>true</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <FundamentalAmplitude>16.899999999999998579</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseSource>false</NoiseSource>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Tx OFDM - 54 Mbps
+    </Parent>
+    <RadarSource>false</RadarSource>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-165.000000000000000000</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a TxNbEmissionNode NODE named Narrowband Emissions Mask-->
+  <NODE_CREATE>
+    <CurrentlySelectedRows>4</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>NBEmissions1.dlxcd</Filename>
+    <FilenameBase>NBEmissions</FilenameBase>
+    <MeasurementFrequency>100e6</MeasurementFrequency>
+    <Name>Narrowband Emissions Mask</Name>
+    <NarrowbandBehavior>Relative</NarrowbandBehavior>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Tx OFDM - 54 Mbps-*-Tx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <Type>TxNbEmissionNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <InBandSensitivity>-120</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Tx OFDM - 54 Mbps
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>0</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Rx OFDM &#45; 54 Mbps-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>22000000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>5000000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>PSK</ModulationType>
+    <Name>Rx OFDM - 54 Mbps</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>2412000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>2472000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Rx OFDM - 54 Mbps
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-75</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Rx OFDM - 54 Mbps
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>-10</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>-10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>24.559999999999998721</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>1</CurrentlySelectedRows>
+    <Enabled>true</Enabled>
+    <Filename>Selectivity3.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-*-OFDM-*-Rx OFDM - 54 Mbps-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a SamplingNode NODE named Sampling-->
+  <NODE_CREATE>
+    <Name>Sampling</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberChannels>1000</NumberChannels>
+    <Parent>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012
+    </Parent>
+    <PercentageChannels>50</PercentageChannels>
+    <RandomSeed>0</RandomSeed>
+    <SamplingType>UniformSampling</SamplingType>
+    <SpecifyPercentage>false</SpecifyPercentage>
+    <TotalRxChannels>13</TotalRxChannels>
+    <TotalTxChannels>13</TotalTxChannels>
+    <Type>SamplingNode</Type>
+  </NODE_CREATE>
+  <!--Create a ComponentGroup NODE named Components-->
+  <NODE_CREATE>
+    <Name>Components</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-WiFi - 802.11-2012</Parent>
+    <Type>ComponentGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationGroup NODE named Configurations-->
+  <NODE_CREATE>
+    <Name>Configurations</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-WiFi - 802.11-2012</Parent>
+    <Type>ConfigurationGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationNode NODE named Configuration-->
+  <NODE_CREATE>
+    <ComponentPositions>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012-&gt;0:0|NODE-*-Scene-*-WiFi-&gt;0:1
+    </ComponentPositions>
+    <ConnectivityList>
+NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Radios-*-WiFi - 802.11-2012:Port 1-&gt;NODE-*-Scene-*-WiFi:in
+    </ConnectivityList>
+    <DefaultWindowNode>NODE-*-Windows-*-Configuration Diagram</DefaultWindowNode>
+    <Name>Configuration</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-WiFi - 802.11-2012-*-Configurations</Parent>
+    <Type>ConfigurationNode</Type>
+  </NODE_CREATE>
+  <!--Create a RFSystemNode NODE named GSM Mobile Station-->
+  <NODE_CREATE>
+    <ColumnHidden>false</ColumnHidden>
+    <Name>GSM Mobile Station</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems</Parent>
+    <RowHidden>false</RowHidden>
+    <Type>RFSystemNode</Type>
+  </NODE_CREATE>
+  <!--Create a RadioGroup NODE named Radios-->
+  <NODE_CREATE>
+    <Name>Radios</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station</Parent>
+    <Type>RadioGroup</Type>
+  </NODE_CREATE>
+  <!--Create a RadioNode NODE named GSM Mobile Station-->
+  <NODE_CREATE>
+    <AntennaSidePorts>Port 1</AntennaSidePorts>
+    <IsEmitter>false</IsEmitter>
+    <Name>GSM Mobile Station</Name>
+    <NodeTransient>false</NodeTransient>
+    <Notes>
+Modeled from the 3rd Generation Partnership Project; Technical Specification Group GSM/EDGE Radio Access Network; Radio transmission and reception (Release 12)
+
+GMSK modulations are modeled as Generic with a 200 kHz BW which is equal to approximately the -30 dB BW for all of the modulations based on the tables in Section 4.2.1.3 of the GSM Technical Specification.
+
+Other modulations are modeled as Generic with a 250 kHz BW which is equal to approximately the -25 dB BW for all of the modulations based on the tables in Section 4.2.1.3 of the GSM Technical Specification.
+    </Notes>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station-*-Radios</Parent>
+    <PortTable>Port 1|Tx/Rx</PortTable>
+    <RxEnabled>true</RxEnabled>
+    <TableMaximumRows>1</TableMaximumRows>
+    <TableRowsVisible>true</TableRowsVisible>
+    <TxEnabled>true</TxEnabled>
+    <Type>RadioNode</Type>
+  </NODE_CREATE>
+  <!--Create a BandFolder NODE named Power Class 2 &#45; GMSK-->
+  <NODE_CREATE>
+    <AntennaSidePorts>::Parent::AntennaSidePorts</AntennaSidePorts>
+    <Enabled>true</Enabled>
+    <Name>Power Class 2 - GMSK</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station
+    </Parent>
+    <Type>BandFolder</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Tx GSM&#45;850-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>20000.000000000000000000</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>5000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>Emissions Mask Defined</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MaxTxFreq>849000000</MaxTxFreq>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MinTxFreq>824000000</MinTxFreq>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Tx GSM-850</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>4</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>false</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>824000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>849000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>true</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <FundamentalAmplitude>19.000000000000000000</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-75.000000000</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseSource>false</NoiseSource>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx GSM-850
+    </Parent>
+    <RadarSource>false</RadarSource>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Duff Model</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174.000000000000000000</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a TxNbEmissionNode NODE named Narrowband Emissions Mask-->
+  <NODE_CREATE>
+    <CurrentlySelectedRows>0</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>NBEmissions2.dlxcd</Filename>
+    <FilenameBase>NBEmissions</FilenameBase>
+    <MeasurementFrequency>100e6</MeasurementFrequency>
+    <Name>Narrowband Emissions Mask</Name>
+    <NarrowbandBehavior>Relative</NarrowbandBehavior>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx GSM-850-*-Tx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <Type>TxNbEmissionNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <InBandSensitivity>-120</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx GSM-850
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>0</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Tx E&#45;GSM&#45;900-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>21400.000000000000000000</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>5000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>Emissions Mask Defined</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MaxTxFreq>915000000</MaxTxFreq>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MinTxFreq>880000000</MinTxFreq>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Tx E-GSM-900</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>4</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>false</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>880000000.000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>915000000.000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>true</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <FundamentalAmplitude>19.000000000000000000</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-75.000000000</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseSource>false</NoiseSource>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx E-GSM-900
+    </Parent>
+    <RadarSource>false</RadarSource>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174.000000000000000000</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a TxNbEmissionNode NODE named Narrowband Emissions Mask-->
+  <NODE_CREATE>
+    <CurrentlySelectedRows>11</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>NBEmissions3.dlxcd</Filename>
+    <FilenameBase>NBEmissions</FilenameBase>
+    <MeasurementFrequency>100e6</MeasurementFrequency>
+    <Name>Narrowband Emissions Mask</Name>
+    <NarrowbandBehavior>Relative</NarrowbandBehavior>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx E-GSM-900-*-Tx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <Type>TxNbEmissionNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <InBandSensitivity>-120</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx E-GSM-900
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>0</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Tx PCS&#45;1900-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <AmRxModIndex>0.3</AmRxModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>1440000.000000000000000000</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>5000.000000000000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>Emissions Mask Defined</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MaxTxFreq>1910000000</MaxTxFreq>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MinTxFreq>1850000000</MinTxFreq>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Tx PCS-1900</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>4</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>false</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>1850000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>1910000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>true</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <FundamentalAmplitude>0.000000000000000000</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60.000000000</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseSource>false</NoiseSource>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx PCS-1900
+    </Parent>
+    <RadarSource>false</RadarSource>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174.000000000000000000</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a TxNbEmissionNode NODE named Narrowband Emissions Mask-->
+  <NODE_CREATE>
+    <CurrentlySelectedRows>8</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>NBEmissions4.dlxcd</Filename>
+    <FilenameBase>NBEmissions</FilenameBase>
+    <MeasurementFrequency>100e6</MeasurementFrequency>
+    <Name>Narrowband Emissions Mask</Name>
+    <NarrowbandBehavior>Relative</NarrowbandBehavior>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx PCS-1900-*-Tx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <Type>TxNbEmissionNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <InBandSensitivity>-120</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Power Class 2 - GMSK-*-Tx PCS-1900
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>0</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a BandFolder NODE named Rx Other Modulations-->
+  <NODE_CREATE>
+    <AntennaSidePorts>::Parent::AntennaSidePorts</AntennaSidePorts>
+    <Enabled>true</Enabled>
+    <Name>Rx Other Modulations</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station
+    </Parent>
+    <Type>BandFolder</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Rx GSM&#45;850 &#45; Other Modulations-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>200000.000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Rx GSM-850 - Other Modulations</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>869000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>894000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx GSM-850 - Other Modulations
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-102</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx GSM-850 - Other Modulations
+    </Parent>
+    <PrGainSensitivity>0.000000000000000000</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10.000000000000000000</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>5</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>Selectivity4.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx GSM-850 - Other Modulations-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Rx E&#45;GSM&#45;900 &#45; Other Modulations-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>200000.000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Rx E-GSM-900 - Other Modulations</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>925000000.000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>960000000.000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx E-GSM-900 - Other Modulations
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-102</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx E-GSM-900 - Other Modulations
+    </Parent>
+    <PrGainSensitivity>0.000000000000000000</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10.000000000000000000</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>5</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>Selectivity5.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx E-GSM-900 - Other Modulations-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Rx PCS&#45;1900 &#45; Other Modulations-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <BitPeriod>0.8</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>200000.000000000</ChannelBandwidth>
+    <ChannelFreqParent>Channel Frequencies</ChannelFreqParent>
+    <ChannelSpacing>200000.000000000</ChannelSpacing>
+    <ClockChannelSpacing>1e6</ClockChannelSpacing>
+    <ClockStartFrequency>1e7</ClockStartFrequency>
+    <ClockStopFrequency>1e7</ClockStopFrequency>
+    <ClockType>Single Frequency</ClockType>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0</DelaySkew>
+    <DesenseMode>false</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IFFrequency>0.0</IFFrequency>
+    <IncludeEnhSusc>false</IncludeEnhSusc>
+    <IsEmitterBand>false</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTuningFrequency>110e6</MaxTuningFrequency>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTuningFrequency>90e6</MinTuningFrequency>
+    <MixMode>Below Tuned Frequency</MixMode>
+    <ModulationType>MSK</ModulationType>
+    <Name>Rx PCS-1900 - Other Modulations</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NodeTransient>false</NodeTransient>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OutBandSensitivity>60</OutBandSensitivity>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations
+    </Parent>
+    <Port>Port 1</Port>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1</RiseTime>
+    <Rx80dBBandwidth>1.0e6</Rx80dBBandwidth>
+    <RxEnabled>true</RxEnabled>
+    <RxIncludeNF>false</RxIncludeNF>
+    <RxMaxM>5</RxMaxM>
+    <RxMaxN>5</RxMaxN>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxProductIntercept>75</RxProductIntercept>
+    <RxProductSlope>35</RxProductSlope>
+    <RxProductTaper>MIL-STD-461G</RxProductTaper>
+    <ShowTable>true</ShowTable>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>1930000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Start Frequency</StartFrequencyDisplayName>
+    <StopFrequency>1990000000.000000000000000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>false</TxEnabled>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>MIL-STD-461G</TxHarmonicTaper>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx PCS-1900 - Other Modulations
+    </Parent>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>10</TxMaxN>
+    <TxMaxOrder>20</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <InBandSensitivity>-102</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx PCS-1900 - Other Modulations
+    </Parent>
+    <PrGainSensitivity>0.000000000000000000</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpGain>30</RxAmpGain>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>20</RxIntermodMaxOrder>
+    <RxMaxAttenuation>10.000000000000000000</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <RxReverseIsolation>20</RxReverseIsolation>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10.000000000000000000</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSelectivityNode NODE named Rx Selectivity-->
+  <NODE_CREATE>
+    <AutoFolderName>Rx Selectivities</AutoFolderName>
+    <AutoFolderType>AutoFolder</AutoFolderType>
+    <CurrentlySelectedRows>5</CurrentlySelectedRows>
+    <Enabled>false</Enabled>
+    <Filename>Selectivity6.dlxcd</Filename>
+    <FilenameBase>Selectivity</FilenameBase>
+    <Name>Rx Selectivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-*-Rx Other Modulations-*-Rx PCS-1900 - Other Modulations-*-Rx Spectral Profile
+    </Parent>
+    <ShowTable>true</ShowTable>
+    <SubType>ByFile</SubType>
+    <Type>RxSelectivityNode</Type>
+    <UseArithMeanForSelectBws>false</UseArithMeanForSelectBws>
+  </NODE_CREATE>
+  <!--Create a SamplingNode NODE named Sampling-->
+  <NODE_CREATE>
+    <Name>Sampling</Name>
+    <NodeTransient>false</NodeTransient>
+    <NumberChannels>1000</NumberChannels>
+    <Parent>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station
+    </Parent>
+    <PercentageChannels>50</PercentageChannels>
+    <RandomSeed>0</RandomSeed>
+    <SamplingType>UniformSampling</SamplingType>
+    <SpecifyPercentage>false</SpecifyPercentage>
+    <TotalRxChannels>603</TotalRxChannels>
+    <TotalTxChannels>603</TotalTxChannels>
+    <Type>SamplingNode</Type>
+  </NODE_CREATE>
+  <!--Create a ComponentGroup NODE named Components-->
+  <NODE_CREATE>
+    <Name>Components</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station</Parent>
+    <Type>ComponentGroup</Type>
+  </NODE_CREATE>
+  <!--Create a Amplifier NODE named Amplifier-->
+  <NODE_CREATE>
+    <AmplifierBandwidth>1200000000.000000000000000000</AmplifierBandwidth>
+    <AmplifierCenterFreq>1400000000.000000000000000000</AmplifierCenterFreq>
+    <AmplifierCompressionPoint>20.000000000000000000</AmplifierCompressionPoint>
+    <AmplifierGain>10.000000000000000000</AmplifierGain>
+    <AmplifierIIP3>40.000000000000000000</AmplifierIIP3>
+    <AmplifierMaxOrder>20</AmplifierMaxOrder>
+    <AmplifierNoiseFigure>5.0</AmplifierNoiseFigure>
+    <AmplifierReverseIso>20</AmplifierReverseIso>
+    <AmplifierSaturation>40.000000000000000000</AmplifierSaturation>
+    <AmplifierShapeFactor>2</AmplifierShapeFactor>
+    <AmplifierType>Transmit Amplifier</AmplifierType>
+    <AntennaSidePorts>2</AntennaSidePorts>
+    <FilenameBase>HarmonicIntercepts</FilenameBase>
+    <Name>Amplifier</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseTemp>290.0</NoiseTemp>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station-*-Components</Parent>
+    <PortMap>
+NODE-*-RF Systems-*-RF System-*-Components-*-Amplifier-*-Pass Band|NODE-*-RF Systems-*-Tx System-*-Components-*-Amplifier-*-Pass Band 2
+    </PortMap>
+    <RadioSidePorts>1</RadioSidePorts>
+    <ShowTable>true</ShowTable>
+    <Type>Amplifier</Type>
+  </NODE_CREATE>
+  <!--Create a TR Switch NODE named TR Switch-->
+  <NODE_CREATE>
+    <AntennaSidePorts>3</AntennaSidePorts>
+    <EnableBandwidth>false</EnableBandwidth>
+    <EnableReverseIsolation>true</EnableReverseIsolation>
+    <HigherCutoffFrequency>110e6</HigherCutoffFrequency>
+    <HigherStopBandFrequency>120e6</HigherStopBandFrequency>
+    <InsertionLoss>0</InsertionLoss>
+    <LowerCutoffFrequency>90e6</LowerCutoffFrequency>
+    <LowerStopBandFrequency>80e6</LowerStopBandFrequency>
+    <Name>TR Switch</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseTemp>290.0</NoiseTemp>
+    <NumberOfPorts>3</NumberOfPorts>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station-*-Components</Parent>
+    <Port3Side>AntennaSide</Port3Side>
+    <PortMap>
+NODE-*-RF Systems-*-RF System-*-Components-*-TR Switch-*-Pass Band|NODE-*-RF Systems-*-Tx System-*-Components-*-TR Switch-*-Pass Band 2
+    </PortMap>
+    <RadioSidePorts>2|1</RadioSidePorts>
+    <ReverseIsolation>60</ReverseIsolation>
+    <StopBandAttenuation>40</StopBandAttenuation>
+    <TxPortNum>1</TxPortNum>
+    <Type>TR Switch</Type>
+  </NODE_CREATE>
+  <!--Create a TR Switch NODE named TR Switch 2-->
+  <NODE_CREATE>
+    <AntennaSidePorts>1|2</AntennaSidePorts>
+    <EnableBandwidth>false</EnableBandwidth>
+    <EnableReverseIsolation>true</EnableReverseIsolation>
+    <HigherCutoffFrequency>110e6</HigherCutoffFrequency>
+    <HigherStopBandFrequency>120e6</HigherStopBandFrequency>
+    <InsertionLoss>0</InsertionLoss>
+    <LowerCutoffFrequency>90e6</LowerCutoffFrequency>
+    <LowerStopBandFrequency>80e6</LowerStopBandFrequency>
+    <Name>TR Switch 2</Name>
+    <NodeTransient>false</NodeTransient>
+    <NoiseTemp>290.0</NoiseTemp>
+    <NumberOfPorts>3</NumberOfPorts>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station-*-Components</Parent>
+    <Port3Side>RadioSide</Port3Side>
+    <PortMap>
+NODE-*-RF Systems-*-RF System-*-Components-*-TR Switch-*-Pass Band|NODE-*-RF Systems-*-Tx System-*-Components-*-TR Switch-*-Pass Band 2
+    </PortMap>
+    <RadioSidePorts>3</RadioSidePorts>
+    <ReverseIsolation>60</ReverseIsolation>
+    <StopBandAttenuation>40</StopBandAttenuation>
+    <TxPortNum>0</TxPortNum>
+    <Type>TR Switch</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationGroup NODE named Configurations-->
+  <NODE_CREATE>
+    <Name>Configurations</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station</Parent>
+    <Type>ConfigurationGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationNode NODE named Configuration-->
+  <NODE_CREATE>
+    <ComponentPositions>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch 2-&gt;0:0|NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-Amplifier-&gt;0:1|NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch-&gt;0:2|NODE-*-Scene-*-Cellular-&gt;1:3|NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station-&gt;1:-1
+    </ComponentPositions>
+    <ConnectivityList>
+NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-Amplifier:2-&gt;NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch:2|NODE-*-RF Systems-*-GSM Mobile Station-*-Radios-*-GSM Mobile Station:Port 1-&gt;NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch 2:3|NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch:3-&gt;NODE-*-Scene-*-Cellular:in|NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch 2:2-&gt;NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch:1|NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-TR Switch 2:1-&gt;NODE-*-RF Systems-*-GSM Mobile Station-*-Components-*-Amplifier:1
+    </ConnectivityList>
+    <DefaultWindowNode>NODE-*-Windows-*-Configuration Diagram</DefaultWindowNode>
+    <Name>Configuration</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-GSM Mobile Station-*-Configurations</Parent>
+    <Type>ConfigurationNode</Type>
+  </NODE_CREATE>
+  <!--Create a RFSystemNode NODE named USB_Memory_3a-->
+  <NODE_CREATE>
+    <ColumnHidden>false</ColumnHidden>
+    <Name>USB_Memory_3a</Name>
+    <Parent>NODE-*-RF Systems</Parent>
+    <RowHidden>false</RowHidden>
+    <Type>RFSystemNode</Type>
+  </NODE_CREATE>
+  <!--Create a RadioGroup NODE named Radios-->
+  <NODE_CREATE>
+    <Name>Radios</Name>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a</Parent>
+    <Type>RadioGroup</Type>
+  </NODE_CREATE>
+  <!--Create a RadioNode NODE named USB_Memory_3a-->
+  <NODE_CREATE>
+    <AntennaSidePorts>Port 1</AntennaSidePorts>
+    <EmitterPosition>0.0 0.0 0.0</EmitterPosition>
+    <EmitterPositionDefined>false</EmitterPositionDefined>
+    <EmitterSceneParent>NODE-*-Scene</EmitterSceneParent>
+    <IsEmitter>true</IsEmitter>
+    <Name>USB_Memory_3a</Name>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a-*-Radios</Parent>
+    <PortTable>Port 1|Tx Only</PortTable>
+    <TableMaximumRows>1</TableMaximumRows>
+    <TableRowsVisible>true</TableRowsVisible>
+    <Type>RadioNode</Type>
+  </NODE_CREATE>
+  <!--Create a Band NODE named Waveform-->
+  <NODE_CREATE>
+    <APSKType>4-APSK</APSKType>
+    <AdvancedExtractionParams>false</AdvancedExtractionParams>
+    <AmModIndex>0.9</AmModIndex>
+    <BitPeriod>0.8e-09</BitPeriod>
+    <BitRate>5.0e3</BitRate>
+    <BroadbandDownsampleFactor>3.0</BroadbandDownsampleFactor>
+    <ChannelBandwidth>25e3</ChannelBandwidth>
+    <ChannelSpacing>1e6</ChannelSpacing>
+    <DD1494>false</DD1494>
+    <DelaySkew>2.0e-12</DelaySkew>
+    <DesenseMode>true</DesenseMode>
+    <DesenseModulationType>Periodic Clock</DesenseModulationType>
+    <DutyCycle>0.5</DutyCycle>
+    <EmDesigEnabled>false</EmDesigEnabled>
+    <EmissionDesignator>25K0F1D</EmissionDesignator>
+    <EmissionDesignatorChBw>25e3</EmissionDesignatorChBw>
+    <EmissionDesignatorMod>FSK</EmissionDesignatorMod>
+    <EmissionProfile>false</EmissionProfile>
+    <EmitterDataRate>800e6</EmitterDataRate>
+    <EmitterModulationType>Periodic Clock</EmitterModulationType>
+    <Enabled>true</Enabled>
+    <FMChirp>3.5e-6</FMChirp>
+    <FMFreqDev>5.0e3</FMFreqDev>
+    <FMFreqDeviationBandwidth>3.5e3</FMFreqDeviationBandwidth>
+    <FMFrequencyDeviation>3.5e3</FMFrequencyDeviation>
+    <FSKFreqDev>5.0e3</FSKFreqDev>
+    <FSKType>2-FSK</FSKType>
+    <FreqDev>5.0e3</FreqDev>
+    <HoppingMaxFreq>2.0e9</HoppingMaxFreq>
+    <HoppingMinFreq>1.0e9</HoppingMinFreq>
+    <HoppingRadar>false</HoppingRadar>
+    <IsEmitterBand>true</IsEmitterBand>
+    <IsSingleChannelWaveform>false</IsSingleChannelWaveform>
+    <IsTimeDomainImport>true</IsTimeDomainImport>
+    <MaxModFreq>5.0e3</MaxModFreq>
+    <MaxTxFreq>800000000</MaxTxFreq>
+    <MinPtsPerNull>10</MinPtsPerNull>
+    <MinTxFreq>800000000</MinTxFreq>
+    <ModulationType>Periodic Clock</ModulationType>
+    <Name>Waveform</Name>
+    <NbDetectorThresholdStdDev>3.0</NbDetectorThresholdStdDev>
+    <NumSidelobes>3</NumSidelobes>
+    <NumberOfBits>8</NumberOfBits>
+    <NumberOfChips>1</NumberOfChips>
+    <OverrideEmDesigBandwidth>false</OverrideEmDesigBandwidth>
+    <PSKType>BPSK</PSKType>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a</Parent>
+    <Port>Port 1</Port>
+    <ProcurementDate>false</ProcurementDate>
+    <PulseCompressionRatio>1</PulseCompressionRatio>
+    <PulseDuration>3.5e-6</PulseDuration>
+    <PulseFallTime>1.0e-6</PulseFallTime>
+    <PulseRepetitionRate>395</PulseRepetitionRate>
+    <PulseRiseTime>1.0e-6</PulseRiseTime>
+    <QAMType>4-QAM</QAMType>
+    <RadarType>CW</RadarType>
+    <RiseTime>0.1e-09</RiseTime>
+    <RxEnabled>false</RxEnabled>
+    <SpreadPercentage>2</SpreadPercentage>
+    <SpreadingType>Center Spread</SpreadingType>
+    <StartFrequency>800000000.000000000000000000</StartFrequency>
+    <StartFrequencyDisplayName>Frequency</StartFrequencyDisplayName>
+    <StopFrequency>800000000</StopFrequency>
+    <TDStartMax>9.9e-9</TDStartMax>
+    <TDStopMin>1.0e-12</TDStopMin>
+    <TimeDomainAlgorithm>FFT</TimeDomainAlgorithm>
+    <TimeDomainCorrectCoherentGain>true</TimeDomainCorrectCoherentGain>
+    <TimeDomainFrequencyCutoff>10.0e9</TimeDomainFrequencyCutoff>
+    <TimeDomainKaiserParam>0.5</TimeDomainKaiserParam>
+    <TimeDomainStartTime>0.0</TimeDomainStartTime>
+    <TimeDomainStopTime>10.0e-9</TimeDomainStopTime>
+    <TimeDomainSystemImpedance>50.0</TimeDomainSystemImpedance>
+    <TimeDomainWindowType>Rectangular</TimeDomainWindowType>
+    <TxEnabled>true</TxEnabled>
+    <TxOffset>0</TxOffset>
+    <Type>Band</Type>
+    <UseEnvelope>false</UseEnvelope>
+    <WindowSize>20.0</WindowSize>
+  </NODE_CREATE>
+  <!--Create a TxSpectralProfNode NODE named Tx Spectral Profile-->
+  <NODE_CREATE>
+    <AnalysisType>Both</AnalysisType>
+    <AverageAmplitude>40</AverageAmplitude>
+    <BbPhaseNoise>false</BbPhaseNoise>
+    <DigitalOutputVoltage>3.3</DigitalOutputVoltage>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>true</Enabled>
+    <FundamentalAmplitude>40</FundamentalAmplitude>
+    <Harmonic2Level>-60</Harmonic2Level>
+    <Harmonic3Level>-60</Harmonic3Level>
+    <HarmonicAmplitude>-60</HarmonicAmplitude>
+    <HarmonicOtherLevel>-60</HarmonicOtherLevel>
+    <HideHarmonic2>false</HideHarmonic2>
+    <HideHarmonic3>false</HideHarmonic3>
+    <HideHarmonicOther>false</HideHarmonicOther>
+    <Name>Tx Spectral Profile</Name>
+    <NoiseSource>true</NoiseSource>
+    <NumberOfPorts>2</NumberOfPorts>
+    <Parent>
+NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a-*-Waveform
+    </Parent>
+    <RadarSource>false</RadarSource>
+    <Tx1dBCompressionPt>0</Tx1dBCompressionPt>
+    <TxAmpGain>30</TxAmpGain>
+    <TxAmpSatLevel>0</TxAmpSatLevel>
+    <TxHarmonicExpansion>false</TxHarmonicExpansion>
+    <TxHarmonicIntercept>-30</TxHarmonicIntercept>
+    <TxHarmonicSlope>-70</TxHarmonicSlope>
+    <TxHarmonicTaper>Constant</TxHarmonicTaper>
+    <TxIIP3>10</TxIIP3>
+    <TxMaxN>50</TxMaxN>
+    <TxMaxOrder>5</TxMaxOrder>
+    <TxNoiseFigure>5.0</TxNoiseFigure>
+    <TxNoiseLevel>-174</TxNoiseLevel>
+    <TxPowerMethod>Peak Power</TxPowerMethod>
+    <TxReverseIsolation>20</TxReverseIsolation>
+    <Type>TxSpectralProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a RxSusceptibilityProfNode NODE named Rx Spectral Profile-->
+  <NODE_CREATE>
+    <Dd1494SNR>10</Dd1494SNR>
+    <DoNonlinearAnalysis>false</DoNonlinearAnalysis>
+    <Enabled>false</Enabled>
+    <InBandSensitivity>-120</InBandSensitivity>
+    <Name>Rx Spectral Profile</Name>
+    <NumberOfPorts>2</NumberOfPorts>
+    <PGforNbOnly>false</PGforNbOnly>
+    <Parent>
+NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a-*-Waveform
+    </Parent>
+    <PrGainSensitivity>10</PrGainSensitivity>
+    <Rx1dBCompressionPt>0</Rx1dBCompressionPt>
+    <RxAmpSatLevel>0</RxAmpSatLevel>
+    <RxIIP3>10</RxIIP3>
+    <RxIntermodMaxOrder>5</RxIntermodMaxOrder>
+    <RxMaxAttenuation>0</RxMaxAttenuation>
+    <RxMinSensitivity>-120</RxMinSensitivity>
+    <RxNoiseFigure>8</RxNoiseFigure>
+    <SensitivityUnits>dBm</SensitivityUnits>
+    <SnrAtSensitivity>10</SnrAtSensitivity>
+    <Type>RxSusceptibilityProfNode</Type>
+  </NODE_CREATE>
+  <!--Create a SamplingNode NODE named Sampling-->
+  <NODE_CREATE>
+    <Name>Sampling</Name>
+    <NodeVisible>false</NodeVisible>
+    <NumberChannels>1000</NumberChannels>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a</Parent>
+    <PercentageChannels>50.0</PercentageChannels>
+    <RandomSeed>0</RandomSeed>
+    <SamplingType>UniformSampling</SamplingType>
+    <SpecifyPercentage>false</SpecifyPercentage>
+    <TotalRxChannels>0</TotalRxChannels>
+    <TotalTxChannels>1</TotalTxChannels>
+    <Type>SamplingNode</Type>
+  </NODE_CREATE>
+  <!--Create a ComponentGroup NODE named Components-->
+  <NODE_CREATE>
+    <Name>Components</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a</Parent>
+    <Type>ComponentGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationGroup NODE named Configurations-->
+  <NODE_CREATE>
+    <Name>Configurations</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a</Parent>
+    <Type>ConfigurationGroup</Type>
+  </NODE_CREATE>
+  <!--Create a ConfigurationNode NODE named Configuration-->
+  <NODE_CREATE>
+    <ComponentPositions>
+NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a-&gt;0:0|NODE-*-Scene-*-USB_Memory_3a-&gt;0:1
+    </ComponentPositions>
+    <ConnectivityList>
+NODE-*-RF Systems-*-USB_Memory_3a-*-Radios-*-USB_Memory_3a:Port 1-&gt;NODE-*-Scene-*-USB_Memory_3a:in
+    </ConnectivityList>
+    <DefaultWindowNode>NODE-*-Windows-*-Configuration Diagram</DefaultWindowNode>
+    <Name>Configuration</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-RF Systems-*-USB_Memory_3a-*-Configurations</Parent>
+    <Type>ConfigurationNode</Type>
+  </NODE_CREATE>
+  <!--Create a TopLevelSimulation NODE named Simulation-->
+  <NODE_CREATE>
+    <Name>Simulation</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>false</NodeVisible>
+    <Nto1Limit>0</Nto1Limit>
+    <Parent>NODE</Parent>
+    <Type>TopLevelSimulation</Type>
+    <UseNto1Limit>true</UseNto1Limit>
+  </NODE_CREATE>
+  <!--Create a Unknown NODE named Windows-->
+  <NODE_CREATE>
+    <Name>Windows</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE</Parent>
+    <Type>Unknown</Type>
+  </NODE_CREATE>
+  <!--Create a ProjectTreeViewNode NODE named Project Tree-->
+  <NODE_CREATE>
+    <Name>Project Tree</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <Type>ProjectTreeViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+  </NODE_CREATE>
+  <!--Create a SelectPropertyPanelViewNode NODE named Properties-->
+  <NODE_CREATE>
+    <Name>Properties</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <Type>SelectPropertyPanelViewNode</Type>
+    <WindowDynamic>true</WindowDynamic>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+  </NODE_CREATE>
+  <!--Create a CouplingViewNode NODE named Antenna Coupling Matrix-->
+  <NODE_CREATE>
+    <Name>Antenna Coupling Matrix</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <Type>CouplingViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+    <Zoom>1</Zoom>
+  </NODE_CREATE>
+  <!--Create a ScenarioViewNode NODE named Scenario Matrix-->
+  <NODE_CREATE>
+    <Name>Scenario Matrix</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <ShowHidden>false</ShowHidden>
+    <Type>ScenarioViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+    <Zoom>1</Zoom>
+  </NODE_CREATE>
+  <!--Create a DetResViewNode NODE named Scenario Details-->
+  <NODE_CREATE>
+    <Enabled>true</Enabled>
+    <Name>Scenario Details</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <SelectedChannelIndexRx>-1</SelectedChannelIndexRx>
+    <SelectedChannelIndexTx>-1</SelectedChannelIndexTx>
+    <SelectedFirstNodeRx>NODE-*-RF Systems</SelectedFirstNodeRx>
+    <SelectedFirstNodeTx>NODE-*-RF Systems</SelectedFirstNodeTx>
+    <Type>DetResViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+  </NODE_CREATE>
+  <!--Create a CategoriesViewNode NODE named Result Categorization-->
+  <NODE_CREATE>
+    <AvailColorList>#d99694;#ffff5a;#c3d69b</AvailColorList>
+    <AvailEnabledList>true;true</AvailEnabledList>
+    <AvailThresholdList>50;75</AvailThresholdList>
+    <AvailabilityEmi>0</AvailabilityEmi>
+    <CatInChannelFund>true</CatInChannelFund>
+    <CatInChannelHarmSpur>true</CatInChannelHarmSpur>
+    <CatInChannelIntermod>true</CatInChannelIntermod>
+    <CatInChannelNoise>true</CatInChannelNoise>
+    <CatOutOfChannelFund>true</CatOutOfChannelFund>
+    <CatOutOfChannelHarmSpur>true</CatOutOfChannelHarmSpur>
+    <CatOutOfChannelIntermod>true</CatOutOfChannelIntermod>
+    <DesenseColorList>#d99694;#ffff5a;#c3d69b</DesenseColorList>
+    <DesenseEnabledList>true;true</DesenseEnabledList>
+    <DesenseThresholdList>0;-10</DesenseThresholdList>
+    <EmiColorList>#d99694;#ffff5a;#c3d69b</EmiColorList>
+    <EmiEnabledList>true;true</EmiEnabledList>
+    <EmiThresholdList>0;-10</EmiThresholdList>
+    <Name>Result Categorization</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <ShowAvail>false</ShowAvail>
+    <ShowDesense>false</ShowDesense>
+    <ShowEmi>true</ShowEmi>
+    <ShowSensitivity>false</ShowSensitivity>
+    <Type>CategoriesViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+  </NODE_CREATE>
+  <!--Create a SelectInteractionDiagramNode NODE named Interaction Diagram-->
+  <NODE_CREATE>
+    <Name>Interaction Diagram</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <RxSource>NODE-*-RF Systems</RxSource>
+    <TxSource>NODE-*-RF Systems</TxSource>
+    <Type>SelectInteractionDiagramNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+    <Zoom>1</Zoom>
+  </NODE_CREATE>
+  <!--Create a ResultPlotNode NODE named Result Plot-->
+  <NODE_CREATE>
+    <AxesLocked>false</AxesLocked>
+    <AxisLabelFont>Sans Serif,12,-1,5,75,0,0,0,0,0</AxisLabelFont>
+    <AxisTickLabelFont>Sans Serif,10,-1,5,50,0,0,0,0,0</AxisTickLabelFont>
+    <BackgroundColor>#FFFFFF</BackgroundColor>
+    <CadOverlayOpacity>50</CadOverlayOpacity>
+    <CadOverlayRotation>0</CadOverlayRotation>
+    <CadZOffset>0</CadZOffset>
+    <DisplayCadOverlay>false</DisplayCadOverlay>
+    <Enabled>true</Enabled>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <HorizontalLineColors>NODE-*-Windows-*-Result Categorization::EmiColorList</HorizontalLineColors>
+    <HorizontalLinesAt>NODE-*-Windows-*-Result Categorization::EmiThresholdList</HorizontalLinesAt>
+    <LegendFont>Sans Serif,10,-1,5,50,0,0,0,0,0</LegendFont>
+    <LinkChildParameters>true</LinkChildParameters>
+    <MajorGridColor>#808080</MajorGridColor>
+    <MajorGridStyle>None</MajorGridStyle>
+    <MaximumMajorTicksX>8</MaximumMajorTicksX>
+    <MaximumMajorTicksY>8</MaximumMajorTicksY>
+    <MaximumMinorTicksX>8</MaximumMinorTicksX>
+    <MaximumMinorTicksY>8</MaximumMinorTicksY>
+    <MinorGridColor>#808080</MinorGridColor>
+    <MinorGridStyle>None</MinorGridStyle>
+    <Name>Result Plot</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows</Parent>
+    <PowerUnits>true</PowerUnits>
+    <ShowContributors>false</ShowContributors>
+    <ShowRange>false</ShowRange>
+    <TitleFont>Sans Serif,14,-1,5,75,0,0,0,0,0</TitleFont>
+    <ToggleShowLegend>true</ToggleShowLegend>
+    <Type>ResultPlotNode</Type>
+    <WindowHasSettings>true</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+    <XAxisLogScale>false</XAxisLogScale>
+    <YThresholdVisible>true</YThresholdVisible>
+    <ZoomXMax>0</ZoomXMax>
+    <ZoomXMin>0</ZoomXMin>
+    <ZoomYMax>0</ZoomYMax>
+    <ZoomYMin>0</ZoomYMin>
+    <Zoomed>false</Zoomed>
+    <dBYRange>60</dBYRange>
+  </NODE_CREATE>
+  <!--Create a ProfileTraceNode NODE named Desense-->
+  <NODE_CREATE>
+    <CustomLegend>true</CustomLegend>
+    <DataSource>NODE-*-Simulation</DataSource>
+    <Domain>Frequency</Domain>
+    <EmiType>Desense</EmiType>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <LegendName>Desense</LegendName>
+    <LineColor>#8F8F8F</LineColor>
+    <LineWidth>2</LineWidth>
+    <Name>Desense</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>false</NodeVisible>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <Style>Lines</Style>
+    <Symbol>DTriangle</Symbol>
+    <SymbolColor>#808080</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>10</SymbolSize>
+    <Type>ProfileTraceNode</Type>
+    <Visible>true</Visible>
+  </NODE_CREATE>
+  <!--Create a ProfileTraceNode NODE named Sensitivity-->
+  <NODE_CREATE>
+    <CustomLegend>true</CustomLegend>
+    <DataSource>NODE-*-Simulation</DataSource>
+    <Domain>Frequency</Domain>
+    <EmiType>Sensitivity</EmiType>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <LegendName>Sensitivity</LegendName>
+    <LineColor>#8F8F8F</LineColor>
+    <LineWidth>2</LineWidth>
+    <Name>Sensitivity</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>false</NodeVisible>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <Style>Lines</Style>
+    <Symbol>Hexagon</Symbol>
+    <SymbolColor>#808080</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>10</SymbolSize>
+    <Type>ProfileTraceNode</Type>
+    <Visible>true</Visible>
+  </NODE_CREATE>
+  <!--Create a ProfileTraceNode NODE named Point EMI Margin-->
+  <NODE_CREATE>
+    <CustomLegend>true</CustomLegend>
+    <DataSource>NODE-*-Simulation</DataSource>
+    <Domain>Frequency</Domain>
+    <EmiType>Point</EmiType>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <LegendName>Point EMI Margin</LegendName>
+    <LineColor>#000000</LineColor>
+    <LineWidth>2</LineWidth>
+    <Name>Point EMI Margin</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <Style>Lines</Style>
+    <Symbol>NoSymbol</Symbol>
+    <SymbolColor>#808080</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>10</SymbolSize>
+    <Type>ProfileTraceNode</Type>
+    <Visible>true</Visible>
+  </NODE_CREATE>
+  <!--Create a ProfileTraceNode NODE named NB EMI Margin-->
+  <NODE_CREATE>
+    <CustomLegend>true</CustomLegend>
+    <DataSource>NODE-*-Simulation</DataSource>
+    <DisplayName>Peak In-Channel EMI Margin</DisplayName>
+    <Domain>Frequency</Domain>
+    <EmiType>Peak</EmiType>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <LegendName>Peak In-Channel EMI Margin</LegendName>
+    <LineColor>#8F8F8F</LineColor>
+    <LineWidth>2</LineWidth>
+    <Name>NB EMI Margin</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <Style>Lines</Style>
+    <Symbol>Triangle</Symbol>
+    <SymbolColor>#808080</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>10</SymbolSize>
+    <Type>ProfileTraceNode</Type>
+    <Visible>true</Visible>
+  </NODE_CREATE>
+  <!--Create a ProfileTraceNode NODE named Noise EMI Margin-->
+  <NODE_CREATE>
+    <CustomLegend>true</CustomLegend>
+    <DataSource>NODE-*-Simulation</DataSource>
+    <DisplayName>Broadband In-Channel EMI Margin</DisplayName>
+    <Domain>Frequency</Domain>
+    <EmiType>Noise</EmiType>
+    <FileExportExtension>csv</FileExportExtension>
+    <FileExportLabel>CSV</FileExportLabel>
+    <LegendName>Broadband In-Channel EMI Margin</LegendName>
+    <LineColor>#8F8F8F</LineColor>
+    <LineWidth>2</LineWidth>
+    <Name>Noise EMI Margin</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>true</NodeVisible>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <Style>Lines</Style>
+    <Symbol>Star2</Symbol>
+    <SymbolColor>#808080</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>10</SymbolSize>
+    <Type>ProfileTraceNode</Type>
+    <Visible>true</Visible>
+  </NODE_CREATE>
+  <!--Create a EmiPlotMarkerNode NODE named Result Marker-->
+  <NODE_CREATE>
+    <ArrowBarbHeight>6</ArrowBarbHeight>
+    <ArrowHeight>24</ArrowHeight>
+    <ArrowRotation>-150</ArrowRotation>
+    <ArrowWidth>6</ArrowWidth>
+    <AssociatedTraces>
+NODE-*-Windows-*-Result Plot-*-Point EMI Margin|NODE-*-Windows-*-Result Plot-*-Noise EMI Margin|NODE-*-Windows-*-Result Plot-*-Desense|NODE-*-Windows-*-Result Plot-*-Sensitivity
+    </AssociatedTraces>
+    <Attached>true</Attached>
+    <FloatingLabel>true</FloatingLabel>
+    <Label>$(ResultLabel)&lt;br&gt;Origin: $(ResultInfo)</Label>
+    <LabelBackgroundColor>#FFFFFF</LabelBackgroundColor>
+    <LabelBorder>true</LabelBorder>
+    <LabelBorderColor>#000000</LabelBorderColor>
+    <LabelBorderWidth>2</LabelBorderWidth>
+    <LabelColor>#000000</LabelColor>
+    <LabelFont>Sans Serif,10,-1,5,75,0,0,0,0,0</LabelFont>
+    <LabelHAlign>Left</LabelHAlign>
+    <LabelPadding>2</LabelPadding>
+    <LabelTextHAlign>Left</LabelTextHAlign>
+    <LabelVAlign>Center</LabelVAlign>
+    <Name>Result Marker</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE-*-Windows-*-Result Plot</Parent>
+    <PlotPositionX>0.</PlotPositionX>
+    <PlotPositionY>0.</PlotPositionY>
+    <PositionX>100</PositionX>
+    <PositionY>0</PositionY>
+    <Symbol>Arrow</Symbol>
+    <SymbolColor>#000000</SymbolColor>
+    <SymbolFilled>false</SymbolFilled>
+    <SymbolLineWidth>2</SymbolLineWidth>
+    <SymbolSize>16</SymbolSize>
+    <Type>EmiPlotMarkerNode</Type>
+    <Visible>false</Visible>
+  </NODE_CREATE>
+  <!--Create a PreferencesNode NODE named Preferences-->
+  <NODE_CREATE>
+    <AnswerCreateAntennasForPorts>Ask</AnswerCreateAntennasForPorts>
+    <ArchiveInclExtFiles>true</ArchiveInclExtFiles>
+    <ArchiveInclNonProjFiles>true</ArchiveInclNonProjFiles>
+    <ConsolidateProjects>false</ConsolidateProjects>
+    <DeleteDereferencedFiles>true</DeleteDereferencedFiles>
+    <Name>Preferences</Name>
+    <NodeTransient>false</NodeTransient>
+    <NodeVisible>false</NodeVisible>
+    <NoiseBwPlotUnit>hertz</NoiseBwPlotUnit>
+    <Parent>NODE</Parent>
+    <Type>PreferencesNode</Type>
+  </NODE_CREATE>
+  <!--Create a CategoriesViewNode NODE named Result Categorization-->
+  <NODE_CREATE>
+    <AvailColorList>#d99694;#ffff5a;#c3d69b</AvailColorList>
+    <AvailEnabledList>true;true</AvailEnabledList>
+    <AvailThresholdList>50;75</AvailThresholdList>
+    <AvailabilityEmi>0</AvailabilityEmi>
+    <CatInChannelFund>true</CatInChannelFund>
+    <CatInChannelHarmSpur>true</CatInChannelHarmSpur>
+    <CatInChannelIntermod>true</CatInChannelIntermod>
+    <CatInChannelNoise>true</CatInChannelNoise>
+    <CatOutOfChannelFund>true</CatOutOfChannelFund>
+    <CatOutOfChannelHarmSpur>true</CatOutOfChannelHarmSpur>
+    <CatOutOfChannelIntermod>true</CatOutOfChannelIntermod>
+    <DesenseColorList>#d99694;#ffff5a;#c3d69b</DesenseColorList>
+    <DesenseEnabledList>true;true</DesenseEnabledList>
+    <DesenseThresholdList>0;-10</DesenseThresholdList>
+    <EmiColorList>#d99694;#ffff5a;#c3d69b</EmiColorList>
+    <EmiEnabledList>true;true</EmiEnabledList>
+    <EmiThresholdList>0;-10</EmiThresholdList>
+    <Name>Result Categorization</Name>
+    <NodeTransient>false</NodeTransient>
+    <Parent>NODE</Parent>
+    <ShowAvail>false</ShowAvail>
+    <ShowDesense>false</ShowDesense>
+    <ShowEmi>true</ShowEmi>
+    <ShowSensitivity>false</ShowSensitivity>
+    <Type>CategoriesViewNode</Type>
+    <WindowHasSettings>false</WindowHasSettings>
+    <WindowPersistent>true</WindowPersistent>
+  </NODE_CREATE>
+</document>

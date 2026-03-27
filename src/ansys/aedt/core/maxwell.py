@@ -298,7 +298,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
+            maxwell_solutions.ACMagneticAPhi,
             maxwell_solutions.Transient,
+            maxwell_solutions.TransientAPhi,
         ):
             raise AEDTRuntimeError(
                 "Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions."
@@ -627,7 +629,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             Whether to activate eddy effects. The default is ``True``.
         enable_displacement_current : bool, optional
             Whether to activate the displacement current. The default is ``True``.
-            Valid only for Eddy Current solvers.
+            Valid only for Eddy Current / AC Magnetic solvers.
 
         Returns
         -------
@@ -655,78 +657,58 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         maxwell_solutions = SolutionsMaxwell3D
 
         EddyVector = ["NAME:EddyEffectVector"]
-        if self.modeler._is3d:
+        # ACMagneticAPhi (3D only)
+        if self.solution_type == maxwell_solutions.ACMagneticAPhi:
+            # Only set the global displacement current flag
+            EddyVector += ["Displacement Current:=", enable_displacement_current]
+
+        # Other 3D solvers
+        elif self.modeler._is3d:
+            # Global rule: disable displacement if eddy effects are disabled
             if not enable_eddy_effects:
                 enable_displacement_current = False
-            for obj in solid_objects_names:
-                if self.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-                    if obj in assignment:
-                        EddyVector.append(
-                            [
-                                "NAME:Data",
-                                "Object Name:=",
-                                obj,
-                                "Eddy Effect:=",
-                                enable_eddy_effects,
-                                "Displacement Current:=",
-                                enable_displacement_current,
-                            ]
-                        )
-                    else:
-                        EddyVector.append(
-                            [
-                                "NAME:Data",
-                                "Object Name:=",
-                                obj,
-                                "Eddy Effect:=",
-                                bool(self.oboundary.GetEddyEffect(obj)),
-                                "Displacement Current:=",
-                                bool(self.oboundary.GetDisplacementCurrent(obj)),
-                            ]
-                        )
-                if self.solution_type == maxwell_solutions.Transient:
-                    if obj in assignment:
-                        EddyVector.append(
-                            [
-                                "NAME:Data",
-                                "Object Name:=",
-                                obj,
-                                "Eddy Effect:=",
-                                enable_eddy_effects,
-                            ]
-                        )
-                    else:
-                        EddyVector.append(
-                            [
-                                "NAME:Data",
-                                "Object Name:=",
-                                obj,
-                                "Eddy Effect:=",
-                                bool(self.oboundary.GetEddyEffect(obj)),
-                            ]
-                        )
-        else:
+
+            supports_disp = self.solution_type in [
+                maxwell_solutions.EddyCurrent,
+                maxwell_solutions.ACMagnetic,
+                maxwell_solutions.TransientAPhi,
+            ]
+
             for obj in solid_objects_names:
                 if obj in assignment:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            enable_eddy_effects,
-                        ]
-                    )
+                    eddy = enable_eddy_effects
+                    disp = enable_displacement_current
                 else:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            bool(self.oboundary.GetEddyEffect(obj)),
-                        ]
-                    )
+                    eddy = bool(self.oboundary.GetEddyEffect(obj))
+                    if supports_disp:
+                        disp = bool(self.oboundary.GetDisplacementCurrent(obj))
+
+                args = [
+                    "NAME:Data",
+                    "Object Name:=",
+                    obj,
+                    "Eddy Effect:=",
+                    eddy,
+                ]
+
+                # Include displacement if not Transient T-Omega
+                if supports_disp and self.solution_type != maxwell_solutions.Transient:
+                    args += ["Displacement Current:=", disp]
+
+                EddyVector.append(args)
+        # 2D solvers
+        else:
+            for obj in solid_objects_names:
+                eddy = enable_eddy_effects if obj in assignment else bool(self.oboundary.GetEddyEffect(obj))
+                EddyVector.append(
+                    [
+                        "NAME:Data",
+                        "Object Name:=",
+                        obj,
+                        "Eddy Effect:=",
+                        eddy,
+                    ]
+                )
         self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
@@ -3251,7 +3233,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def assign_flux_tangential(self, assignment: list, flux_name: str | None = None) -> BoundaryObject | bool:
         # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
-        """Assign a flux tangential boundary for a transient A-Phi solver.
+        """Assign a flux tangential boundary for Transient and AC Magnetic A-Phi solvers.
 
         Parameters
         ----------
@@ -3275,9 +3257,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         Create a box and assign a flux tangential boundary to one of its faces.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic APhi")
         >>> box = m3d.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
+        >>> flux_tangential = m3d.assign_flux_tangential(box.top_face_z, "FluxExample")
         >>> m3d.desktop_class.close_desktop()
         """
         maxwell_solutions = SolutionsMaxwell3D
@@ -3287,6 +3269,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             maxwell_solutions.TransientAPhi,
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
+            maxwell_solutions.ACMagneticAPhi,
         ]:
             raise AEDTRuntimeError(
                 "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution types."
@@ -3636,6 +3619,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
             maxwell_solutions.Transient,
+            maxwell_solutions.TransientAPhi,
             maxwell_solutions.Magnetostatic,
         ):
             raise AEDTRuntimeError(
@@ -3661,6 +3645,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
             maxwell_solutions.Transient,
+            maxwell_solutions.TransientAPhi,
         ):
             props["Resistance"] = resistance
         elif self.solution_type == maxwell_solutions.Magnetostatic:

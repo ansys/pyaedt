@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import os.path
 from pathlib import Path
 import uuid
 
@@ -41,13 +41,20 @@ from tests.conftest import NON_GRAPHICAL
 
 TEST_PROJECT_NAME = "coax_setup_solved_231"
 M2D_TRACE_EXPORT_TABLE = "m2d"
-
+TEST_REPORT_NAME = "test_report_eye"
 TEST_SUBFOLDER = "T12"
 
 
 @pytest.fixture
 def aedt_app(add_app_example):
     app = add_app_example(project=TEST_PROJECT_NAME, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def aedt_report_app(add_app_example):
+    app = add_app_example(project=TEST_REPORT_NAME, subfolder=TEST_SUBFOLDER, application=ansys.aedt.core.Circuit)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -1164,10 +1171,14 @@ def test_export_mesh(aedt_app) -> None:
     assert Path(aedt_app.export_mesh_stats("Setup1")).is_file()
 
 
-def test_sweep_from_json(aedt_app) -> None:
+def test_sweep_from_json(aedt_app, test_tmp_dir) -> None:
     input_file = TESTS_VISUALIZATION_PATH / "example_models" / "report_json" / "Modal_Report_Simple.json"
     dict_vals = read_json(str(input_file))
-    assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals)
+    out = os.path.join(test_tmp_dir, "Modal_Report_Simple.png")
+    assert aedt_app.post.create_report_from_configuration(
+        report_settings=dict_vals, snapshot_path=out, hide_legend=True
+    )
+    assert os.path.exists(out)
     assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True, show=False)
 
 
@@ -1231,3 +1242,70 @@ def test_create_fieldplot_surface_5(m2d_blank) -> None:
     m2d_blank.assign_balloon(assignment=region.edges)
     m2d_blank.create_setup()
     assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")
+
+
+def test_eye_ami_from_json(aedt_report_app, test_tmp_dir) -> None:
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_stateye.json"
+    dict_vals = read_json(str(input_file))
+    rep = aedt_report_app.post.create_report_from_configuration(
+        report_settings=dict_vals, matplotlib=True, show=False, solution_name="AMIAnalysis"
+    )
+    out = os.path.join(test_tmp_dir, "eye_diagram.png")
+    rep.plot_eye_diagram(
+        snapshot_path=out,
+        show=False,
+        is_contour=False,
+        filter_colormap=1e-6,
+        plot_max_height=True,
+    )
+    assert os.path.exists(out)
+    out = os.path.join(test_tmp_dir, "eye_diagram2.png")
+    rep.plot_eye_diagram(
+        snapshot_path=out,
+        show=False,
+        is_contour=True,
+        filter_colormap=1e-6,
+        plot_max_height=False,
+    )
+    assert os.path.exists(out)
+
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_contoureye.json"
+    dict_vals = read_json(str(input_file))
+    out = os.path.join(test_tmp_dir, "contour_diagram.png")
+    aedt_report_app.post.create_report_from_configuration(
+        report_settings=dict_vals,
+        matplotlib=True,
+        show=False,
+        solution_name="AMIAnalysis",
+        snapshot_path=out,
+        width=1200,
+        height=600,
+    )
+
+    assert os.path.exists(out)
+
+
+def test_eye_transient_from_json(aedt_report_app, test_tmp_dir) -> None:
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_transient_eye.json"
+    dict_vals = read_json(str(input_file))
+    rep = aedt_report_app.post.create_report_from_configuration(
+        report_settings=dict_vals, matplotlib=True, show=False, solution_name="NexximTransient"
+    )
+    out = os.path.join(test_tmp_dir, "eye_diagram.png")
+    rep.plot_eye_diagram(
+        snapshot_path=out,
+        show=False,
+        is_contour=False,
+        filter_colormap=1e-6,
+        plot_max_height=True,
+    )
+    assert os.path.exists(out)
+    out = os.path.join(test_tmp_dir, "eye_diagram2.png")
+    rep.plot_eye_diagram(
+        snapshot_path=out,
+        show=False,
+        is_contour=True,
+        filter_colormap=1e-6,
+        plot_max_height=False,
+    )
+    assert os.path.exists(out)
