@@ -1216,6 +1216,7 @@ def test_basic_run(emit_app) -> None:
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Get Instance Count not moved yet")
 def test_optimal_n_to_1_feature(emit_app) -> None:
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("Bluetooth")
@@ -1358,6 +1359,7 @@ def test_enable_n_to_1(interference):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_interference_scripts_no_filter(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
@@ -1402,6 +1404,7 @@ def test_interference_scripts_no_filter(interference) -> None:
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1433,6 +1436,7 @@ def test_radio_protection_levels(interference):
     DESKTOP_VERSION <= "2025.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_interference_filtering(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
@@ -1476,6 +1480,7 @@ def test_interference_filtering(interference) -> None:
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_protection_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1734,6 +1739,7 @@ def test_result_categories_with_simulation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
@@ -2970,6 +2976,7 @@ def test_units(emit_app) -> None:
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
+@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
     sim = rev.get_simulation()
