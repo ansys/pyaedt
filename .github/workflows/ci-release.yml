@@ -1095,8 +1095,6 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          PYAEDT_DESKTOP_PATH: ${{ env.ANSYSEM_ROOT261 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
