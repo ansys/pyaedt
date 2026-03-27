@@ -793,7 +793,7 @@ class ReportPlotter(PyAedtBase):
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/pyansys-logo-black-cropped.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/pyansys-logo-purple-cropped.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output
