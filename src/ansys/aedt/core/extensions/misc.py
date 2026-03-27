@@ -90,9 +90,7 @@ def is_student() -> bool:
 def get_aedt_path() -> str | None:
     """Get AEDT path from environment variable."""
     version = get_aedt_version()
-    fallback_path = None
-    if version and version in aedt_versions.installed_versions:
-        fallback_path = aedt_versions.installed_versions[version]
+    fallback_path = aedt_versions.installed_versions.get(version, None)
 
     res = os.getenv("PYAEDT_DESKTOP_PATH", fallback_path)
     return res
