@@ -267,8 +267,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install -e .
-          uv pip install pytest pytest-cov mock
+          uv sync --frozen --group unit-tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
