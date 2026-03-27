@@ -1432,14 +1432,16 @@ class ReportPlotter(PyAedtBase):
                 legend_names,
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.12),
-                fontsize=7 if len(legend_names) > 80 else 10,
+                fontsize=7 if len(legend_names) > 80 else 9,
                 frameon=True,
                 edgecolor="black",
                 ncol=2,
                 facecolor=self.__general_back_color,
                 labelcolor=self.__grid_color,
             )
-        self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_xlabel(
+            trace.x_label if len(legend_names) == 1 else "Y1", color=self.__grid_color, fontsize=self.text_size
+        )
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
             self.title,
