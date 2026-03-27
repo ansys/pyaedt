@@ -1341,7 +1341,7 @@ class ModelPlotter(CommonPlotter):
             if isinstance(self.camera_position, (tuple, list)):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
-                pv.set_new_attribute(self.pv.camera, "viewup", self.view_up)
+                self.pv.camera.up = self.view_up
             elif self.camera_position == "xy":
                 self.pv.view_xy()
             elif self.camera_position == "xz":
