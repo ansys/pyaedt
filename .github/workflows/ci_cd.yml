@@ -277,4 +277,11 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} tests/system/emit
+          python -m pytest ${PYTEST_ARGUMENTS} tests/system/emit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
