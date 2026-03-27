@@ -28,39 +28,47 @@ import numpy as np
 from ansys.aedt.core.generic.settings import settings
 
 
-# --- 1) Bin your 1D samples (xc, yc, zc) to a regular grid (Xc, Yc, Z) ---
-def bin_to_grid(xc, yc, zc, nx=2000, ny=2000, xlim=None, ylim=None):
-    """
-    Convert scattered or per-sample arrays to a regular grid for contouring.
-
-    xc, yc, zc: 1D arrays (length N)
-
-    Returns
-    -------
-      Xc: (nx,) grid centers along X (monotonic)
-      Yc: (ny,) grid centers along Y (monotonic)
-      Z : (ny, nx) aggregated values per cell
-    """
+def bin_to_grid(xc, yc, zc, xlim=None, ylim=None):
+    """Convert numpy binary array data to grid data."""
     xc = np.asarray(xc).ravel()
     yc = np.asarray(yc).ravel()
     zc = np.asarray(zc).ravel()
-    if not xc.size == yc.size == zc.size:
-        settings.logger.error("xc, yc, zc must have the same length")
-        return
 
+    if not (xc.size == yc.size == zc.size):
+        raise ValueError("xc, yc, zc must have same length")
+
+    # Optional clipping to limits
     if xlim is None:
-        xlim = (float(np.nanmin(xc)), float(np.nanmax(xc)))
+        xlim = (np.min(xc), np.max(xc))
     if ylim is None:
-        ylim = (float(np.nanmin(yc)), float(np.nanmax(yc)))
+        ylim = (np.min(yc), np.max(yc))
 
-    xedges = np.linspace(xlim[0], xlim[1], nx + 1)
-    yedges = np.linspace(ylim[0], ylim[1], ny + 1)
+    mask = (xc >= xlim[0]) & (xc <= xlim[1]) & (yc >= ylim[0]) & (yc <= ylim[1])
+    xc, yc, zc = xc[mask], yc[mask], zc[mask]
 
-    H, _, _ = np.histogram2d(yc, xc, bins=[yedges, xedges], weights=zc)  # (ny, nx)
+    # Unique grid coordinates = full data resolution
+    Xc = np.unique(xc)
+    Yc = np.unique(yc)
 
-    Xc = 0.5 * (xedges[:-1] + xedges[1:])
-    Yc = 0.5 * (yedges[:-1] + yedges[1:])
-    Z = H.astype(float)
+    nx = Xc.size
+    ny = Yc.size
+
+    # Map each sample to its grid index
+    ix = np.searchsorted(Xc, xc)
+    iy = np.searchsorted(Yc, yc)
+
+    # Prepare output arrays
+    Z = np.zeros((ny, nx))
+    counts = np.zeros((ny, nx))
+
+    # Accumulate using numpy-only operations
+    np.add.at(Z, (iy, ix), zc)
+    np.add.at(counts, (iy, ix), 1)
+
+    # Avoid division by zero
+    counts[counts == 0] = 1
+    Z = Z / counts
+
     return Xc, Yc, Z
 
 
@@ -171,7 +179,7 @@ def extract_eye_opening_contour_by_center(
     return contour
 
 
-def prepare_and_extract(xc, yc, zc, center, nx=400, ny=300, prefer_contains=True, connectivity=4):
+def prepare_and_extract(xc, yc, zc, center, prefer_contains=True, connectivity=4):
     """
     Convert 1D sample arrays to a grid and extract the eye opening contour.
     Returns (contour, info) if return_meta=True else contour.
@@ -180,8 +188,6 @@ def prepare_and_extract(xc, yc, zc, center, nx=400, ny=300, prefer_contains=True
         xc,
         yc,
         zc,
-        nx=nx,
-        ny=ny,
     )
     # Optional: sanity print to avoid shape confusion
     # print("Xc", Xc.shape, "Yc", Yc.shape, "Z", Z.shape, "Z.ndim", Z.ndim)
