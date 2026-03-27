@@ -73,6 +73,7 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=False,
             toggle_row=3,
             toggle_column=1,
+            use_edb=True,
         )
 
         # Tkinter widgets
