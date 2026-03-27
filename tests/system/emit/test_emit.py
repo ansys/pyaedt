@@ -747,8 +747,8 @@ def test_revision_generation(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1",
-    reason="Skipped on versions earlier than 2023.2",
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
 )
 def test_manual_revision_access_test_getters(emit_app) -> None:
     rad1 = emit_app.modeler.components.create_component("UE - Handheld")
@@ -780,40 +780,39 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     sampling.percentage_of_channels = 25
     rev = emit_app.results.analyze()
     radios_rx = rev.get_receiver_names()
-    assert radios_rx[0] == "Bluetooth"
-    assert radios_rx[1] == "Bluetooth 2"
-    bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=mode_rx)
-    assert bands_rx[0] == "Rx - Base Data Rate"
-    assert bands_rx[1] == "Rx - Enhanced Data Rate"
-    rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
+    radios_rx = rev.get_all_radio_nodes(tx_rx_mode=mode_rx)
+    assert radios_rx[0].name == "Bluetooth"
+    assert radios_rx[1].name == "Bluetooth 2"
+    bands_rx = rev.get_all_band_nodes(radio=radios_rx[0], tx_rx_mode=mode_rx, enabled_only=True)
+    assert bands_rx[0].name == "Rx - Base Data Rate"
+    assert bands_rx[1].name == "Rx - Enhanced Data Rate"
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True, units="MHz")
     assert rx_frequencies[0] == 2402.0
     assert rx_frequencies[1] == 2403.0
 
     # Change the units globally
-    rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "GHz")
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True, units="GHz")
     assert rx_frequencies[0] == 2.402
     assert rx_frequencies[1] == 2.403
     # Change the return units only
-    rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "Hz")
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True)
     assert rx_frequencies[0] == 2402000000.0
     assert rx_frequencies[1] == 2403000000.0
 
     # Test set_sampling
-    bands_rx = rev.get_band_names(radio_name=radios_rx[1], tx_rx_mode=mode_rx)
-    rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
+    bands_rx = rev.get_all_band_nodes(radio=radios_rx[1], tx_rx_mode=mode_rx)
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True)
     assert len(rx_frequencies) == 20
 
     sampling.specify_percentage = False
     sampling.max_channels_range_band = 10
-    rev2 = emit_app.results.analyze()
-    rx_frequencies = rev2.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True)
     assert len(rx_frequencies) == 10
 
     sampling = get_sampling_node(rad3.name)
     sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
     sampling.max_channels_range_band = 75
-    rev3 = emit_app.results.analyze()
-    rx_frequencies = rev3.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True, units="GHz")
     assert len(rx_frequencies) == 75
     assert rx_frequencies[0] == 2.402
     assert rx_frequencies[1] == 2.403
@@ -821,8 +820,7 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     sampling.specify_percentage = True
     sampling.percentage_of_channels = 25
     sampling.seed = 100
-    rev4 = emit_app.results.analyze()
-    rx_frequencies = rev4.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True, units="GHz")
     assert len(rx_frequencies) == 19
     assert rx_frequencies[0] == 2.402
     assert rx_frequencies[1] == 2.411
@@ -830,8 +828,7 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     sampling = get_sampling_node(rad3.name)
     sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
     # sampling.set_channel_sampling("all")
-    rev5 = emit_app.results.analyze()
-    rx_frequencies = rev5.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
+    rx_frequencies = bands_rx[0].get_active_frequencies(is_rx=True)
     assert len(rx_frequencies) == 79
 
 
@@ -839,7 +836,7 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Not stable test")
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Not stable test")
 def test_radio_band_getters(emit_app) -> None:
     rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
     rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
@@ -900,7 +897,9 @@ def test_radio_band_getters(emit_app) -> None:
     assert bands == ["Band"]
 
     # Get the Freqs
-    freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.RX, "MHz")
+    radio_nodes = rev.get_all_radio_nodes()
+    band = rev.get_all_band_nodes(radio_nodes[0], tx_rx_mode=TxRxMode.RX)[0]
+    freqs = band.get_active_frequencies(is_rx=True, units="MHz")
     assert freqs == [100.0]
 
     # Test error for trying to get BOTH tx and rx freqs
