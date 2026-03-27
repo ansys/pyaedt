@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
@@ -38,6 +39,7 @@ pytest.importorskip("pyedb", "0.21.0")
 TEST_SUBFOLDER = "T45"
 EDB_PROJECT = "ANSYS-HSD_V1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
 def test_parametrize_layout(desktop, test_tmp_dir) -> None:

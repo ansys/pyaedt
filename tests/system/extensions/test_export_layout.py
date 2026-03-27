@@ -24,14 +24,19 @@
 
 import json
 
+import pytest
+
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 
 AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
 TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
 def cleanup_files(*files) -> None:
