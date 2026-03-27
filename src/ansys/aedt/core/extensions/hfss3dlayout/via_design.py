@@ -90,10 +90,7 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
 
         # Initialize the common extension class with the title and theme color
         super().__init__(
-            EXTENSION_TITLE,
-            theme_color="light",
-            withdraw=withdraw,
-            add_custom_content=False,
+            EXTENSION_TITLE, theme_color="light", withdraw=withdraw, add_custom_content=False, use_edb=True
         )
         self.__create_design_path: Path | None = None
         self.__export_examples: list[ExportExampleData] = EXPORT_EXAMPLES

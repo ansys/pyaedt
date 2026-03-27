@@ -47,6 +47,7 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -83,6 +84,15 @@ def get_aedt_version() -> str:
 def is_student() -> bool:
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
+    return res
+
+
+def get_aedt_path() -> str | None:
+    """Get AEDT path from environment variable."""
+    version = get_aedt_version()
+    fallback_path = aedt_versions.installed_versions.get(version, None)
+
+    res = os.getenv("PYAEDT_DESKTOP_PATH", fallback_path)
     return res
 
 
@@ -230,6 +240,7 @@ class ExtensionCommon(PyAedtBase):
         add_custom_content: bool = True,
         toggle_row: int | None = None,
         toggle_column: int | None = None,
+        use_edb: bool = False,
     ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
@@ -251,9 +262,25 @@ class ExtensionCommon(PyAedtBase):
             The row index where the toggle button will be placed.
         toggle_column : int, optional
             The column index where the toggle button will be placed.
+        use_edb : bool, optional
+            Whether to use PyEDB. When set to ``True`` on Linux, the required native libraries are loaded automatically
+            from the AEDT installation directory. This is necessary for extensions that interact
+            directly with layout databases via the EDB API. The default is ``False``.
         """
         if theme_color not in ["light", "dark"]:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
+        self.use_edb = use_edb
+
+        aedt_install_dir = get_aedt_path()
+
+        if is_linux and self.use_edb and aedt_install_dir:
+            import ctypes
+
+            ctypes.cdll.LoadLibrary(
+                os.path.join(aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1")
+            )
+            ctypes.cdll.LoadLibrary(os.path.join(aedt_install_dir, "libEDBCWrapper.so"))
 
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
@@ -546,6 +573,7 @@ class ExtensionCommon(PyAedtBase):
                 student_version=is_student(),
                 close_on_exit=False,
             )
+
         return self.__desktop
 
     @property

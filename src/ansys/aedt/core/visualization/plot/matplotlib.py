@@ -259,6 +259,25 @@ class Trace(PyAedtBase):
         self.__symbol_style = ""
         self.__fill_symbol = False
         self.__symbol_color = None
+        self.__show_symbol = False
+
+    @property
+    def show_symbol(self) -> bool:
+        """Whether to show symbol."""
+        return self.__show_symbol
+
+    @show_symbol.setter
+    def show_symbol(self, value: bool) -> None:
+        self.__show_symbol = value
+
+    @property
+    def symbol_color(self) -> list | tuple:
+        """Symbol color."""
+        return self.__symbol_color
+
+    @symbol_color.setter
+    def symbol_color(self, value: list | tuple) -> None:
+        self.__symbol_color = value
 
     @property
     def trace_style(self) -> str:
@@ -517,6 +536,7 @@ class ReportPlotter(PyAedtBase):
         self.__height = 800
         self.unit_interval = 0
         self.offset = 0
+        self.legend = None
 
     @property
     def dpi(self) -> int:
@@ -773,7 +793,7 @@ class ReportPlotter(PyAedtBase):
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/pyansys-logo-purple-cropped.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output
@@ -808,25 +828,41 @@ class ReportPlotter(PyAedtBase):
             props["grid.color"] = self.__grid_color
             if self.ax:
                 self.ax.set_facecolor(self.__general_plot_color)
-                self.ax.grid(color=self.__grid_color)
                 self.fig.set_facecolor(self.__general_back_color)
             else:
                 self.plt_params.update(props)
 
         if self.ax:
-            self.ax.grid(which=which)
-            if self._has_major_axis:
-                self.ax.grid(which="major", color=self.__grid_color)
-            if self._has_major_axis:
-                self.ax.grid(which="minor", color=self.__grid_color)
-            if self._has_minor_axis:
-                if self.__grid_enable_minor_x:
-                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-                if self.__grid_enable_minor_y:
-                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
-            self.ax.tick_params(which="minor", grid_linestyle="--")
+            self.ax.minorticks_on()
+            if self.__grid_enable_minor_x:
+                self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+            if self.__grid_enable_minor_y:
+                self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+
+            self.ax.grid(
+                which="minor",
+                visible=self._has_minor_axis,
+                color=self.__grid_color,
+                linestyle=":",
+                linewidth=0.25,
+                alpha=0.45,
+            )
+            self.ax.grid(
+                which="major",
+                visible=self._has_major_axis,
+                color=self.__grid_color,
+                linestyle=":",
+                linewidth=0.5,
+                alpha=0.7,
+            )
+
+            self.ax.tick_params(which="minor", colors=self.__grid_color)
             self.ax.tick_params(axis="x", colors=self.__grid_color, labelsize=self.text_size)
             self.ax.tick_params(axis="y", colors=self.__grid_color, labelsize=self.text_size)
+            if not self._has_major_axis:
+                self.ax.grid(False, which="major")
+            if not self._has_minor_axis:
+                self.ax.grid(False, which="minor")
 
     @property
     def y_scale(self) -> str:
@@ -999,6 +1035,7 @@ class ReportPlotter(PyAedtBase):
             trace_style : "-",
             trace_width : 1.5,
             trace_color : None,
+            show_symbol : False,
             symbol_style : 'v',
             fill_symbol : None,
             symbol_color : "C0"
@@ -1021,6 +1058,7 @@ class ReportPlotter(PyAedtBase):
         nt.symbol_style = properties.get("symbol_style", "")
         nt.fill_symbol = properties.get("fill_symbol", False)
         nt.symbol_color = properties.get("symbol_color", None)
+        nt.show_symbol = properties.get("show_symbol", False)
         if data_type == 0:
             nt.cartesian_data = plot_data
         else:
@@ -1049,9 +1087,8 @@ class ReportPlotter(PyAedtBase):
 
     @pyaedt_function_handler()
     def _plot(self, snapshot_path, show):
-        self.fig.set_size_inches(
-            self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
-        )
+        self.fig.set_size_inches(self.width / self.dpi, self.height / self.dpi)
+        self.fig.set_constrained_layout(True)
 
         self._update_grid()
         if self.show_logo:
@@ -1060,22 +1097,28 @@ class ReportPlotter(PyAedtBase):
             image_width = 0.1
             image_height = 0.05
             ax_image = self.fig.add_axes([image_xaxis, image_yaxis, image_width, image_height])
-            # Display the image
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
-        if snapshot_path:
-            if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2)
-            else:
-                self.fig.savefig(snapshot_path, dpi=self.dpi)
-        if show:  # pragma: no cover
-            if is_notebook():
-                pass
-            elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
-                self.fig.show()
-            else:
-                plt.show(block=self.block)
+        def _plot_contraints(constraints=True):
+            self.fig.set_constrained_layout(constraints)
+            if snapshot_path:
+                if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
+                    self.animation.save(snapshot_path, writer="pillow", fps=2)
+                else:
+                    self.fig.savefig(snapshot_path, dpi=self.dpi)
+            if show:  # pragma: no cover
+                if is_notebook():
+                    pass
+                elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
+                    self.fig.show()
+                else:
+                    plt.show(block=self.block)
+
+        try:
+            _plot_contraints(True)
+        except ZeroDivisionError:
+            _plot_contraints(False)
         return self.fig
 
     def _set_scale(self, x, y):
@@ -1187,7 +1230,16 @@ class ReportPlotter(PyAedtBase):
             i += 1
 
         if self.show_legend:
-            self.ax.legend(legend, loc="upper right")
+            self.legend = self.ax.legend(
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=10,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
         self._plot(snapshot_path, show)
         return self.fig
 
@@ -1355,9 +1407,9 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
@@ -1383,9 +1435,20 @@ class ReportPlotter(PyAedtBase):
         self._plot_limit_lines()
         self._plot_notes()
         if self.show_legend:
-            self.ax.legend(legend_names, loc="upper right")
-
-        self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
+            self.legend = self.ax.legend(
+                legend_names,
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.12),
+                fontsize=7 if len(legend_names) > 80 else 9,
+                frameon=True,
+                edgecolor="black",
+                ncol=2,
+                facecolor=self.__general_back_color,
+                labelcolor=self.__grid_color,
+            )
+        self.ax.set_xlabel(
+            trace.x_label if len(legend_names) == 1 else "Y1", color=self.__grid_color, fontsize=self.text_size
+        )
         self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
             self.title,
@@ -1438,15 +1501,24 @@ class ReportPlotter(PyAedtBase):
             line = self.ax.plot(
                 trace._cartesian_data[0],
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
             if self.show_legend:
-                self.ax.legend(loc="upper right")
+                self.legend = self.ax.legend(
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, -0.12),
+                    fontsize=10,
+                    frameon=True,
+                    edgecolor="black",
+                    ncol=2,
+                    facecolor=self.__general_back_color,
+                    labelcolor=self.__grid_color,
+                )
             return line
 
         self.animation = FuncAnimation(self.fig, update, frames=len(traces_to_plot), blit=True, repeat=True)
@@ -1498,7 +1570,6 @@ class ReportPlotter(PyAedtBase):
 
             # Ensure time is sorted for interpolation
             t_fold = np.mod(time - self.offset, period)
-
             # Number of bins
             nx = 300  # time resolution
             ny = 300  # value resolution
@@ -1539,6 +1610,8 @@ class ReportPlotter(PyAedtBase):
                 traces_to_plot.cartesian_data[1],
                 traces_to_plot.cartesian_data[2],
             )
+            if not xc.any():
+                return False
             minz = min(zc[np.where(zc > 0)])
             minx = min(xc)
             maxx = max(xc)
@@ -1704,9 +1777,9 @@ class ReportPlotter(PyAedtBase):
             self.ax.plot(
                 trace._cartesian_data[0] * rate,
                 trace._cartesian_data[1],
-                f"{trace.symbol_style}{trace.trace_style}",
-                fillstyle="full" if trace.fill_symbol else "none",
-                markeredgecolor=trace.symbol_color,
+                f"{trace.symbol_style}{trace.trace_style}" if trace.show_symbol else f"{trace.symbol_style}",
+                fillstyle="full" if trace.fill_symbol and trace.show_symbol else "none",
+                markeredgecolor=trace.symbol_color if trace.show_symbol else "none",
                 label=trace.name,
                 color=trace.trace_color,
             )

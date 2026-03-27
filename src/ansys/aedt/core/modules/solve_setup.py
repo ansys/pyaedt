@@ -3954,7 +3954,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         ... )
         >>> m2d.desktop_class.close_desktop()
         """
-        if self.setuptype != 5:
+        if self.setuptype != 5 and self.setuptype != 56:
             if enable:
                 self.props["SolveFieldOnly"] = True
             else:

@@ -1008,7 +1008,7 @@ class ModelPlotter(CommonPlotter):
     def _read_case(self, field):
         file_path = Path(field.path).resolve()
         reader = pv.get_reader(str(file_path)).read()
-        field._cached_polydata = reader[reader.keys()[0]].extract_surface()
+        field._cached_polydata = reader[reader.keys()[0]].extract_surface(algorithm=None)
 
         if (
             hasattr(field._cached_polydata.point_data, "active_vectors")
@@ -1341,7 +1341,7 @@ class ModelPlotter(CommonPlotter):
             if isinstance(self.camera_position, (tuple, list)):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
-                self.pv.camera.viewup = self.view_up
+                self.pv.camera.up = self.view_up
             elif self.camera_position == "xy":
                 self.pv.view_xy()
             elif self.camera_position == "xz":
