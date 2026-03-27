@@ -92,6 +92,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             add_custom_content=False,
             toggle_row=5,
             toggle_column=3,
+            use_edb=True,
         )
         # Add private attributes and initialize them through __load_aedt_info
         self.__layers = None
