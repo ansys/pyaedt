@@ -916,6 +916,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
