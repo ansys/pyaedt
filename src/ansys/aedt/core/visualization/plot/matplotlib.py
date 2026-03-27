@@ -1100,18 +1100,25 @@ class ReportPlotter(PyAedtBase):
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
-        if snapshot_path:
-            if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
-                self.animation.save(snapshot_path, writer="pillow", fps=2)
-            else:
-                self.fig.savefig(snapshot_path, dpi=self.dpi)
-        if show:  # pragma: no cover
-            if is_notebook():
-                pass
-            elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
-                self.fig.show()
-            else:
-                plt.show(block=self.block)
+        def _plot_contraints(constraints=True):
+            self.fig.set_constrained_layout(constraints)
+            if snapshot_path:
+                if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
+                    self.animation.save(snapshot_path, writer="pillow", fps=2)
+                else:
+                    self.fig.savefig(snapshot_path, dpi=self.dpi)
+            if show:  # pragma: no cover
+                if is_notebook():
+                    pass
+                elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
+                    self.fig.show()
+                else:
+                    plt.show(block=self.block)
+
+        try:
+            _plot_contraints(True)
+        except ZeroDivisionError:
+            _plot_contraints(False)
         return self.fig
 
     def _set_scale(self, x, y):
