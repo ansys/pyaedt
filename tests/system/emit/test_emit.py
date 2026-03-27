@@ -92,6 +92,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
+    from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -131,6 +132,13 @@ def tutorial(add_app_example):
 @pytest.fixture
 def hfss_phased_array(add_app_example):
     app = add_app_example(project="HfssPhasedArray", application=Emit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def test_noise(add_app_example):
+    app = add_app_example(project="TestNoise", application=Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -3056,6 +3064,37 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 21.08
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_noise_params(test_noise):
+    rev: Revision = test_noise.results.analyze()
+    sim = rev.get_simulation()
+    domain = InteractionDomain(test_noise)
+    assert domain is not None
+    domain.set_receiver = ""
+    domain.set_interferer = []
+
+    # verify initial noise parameters
+    assert sim.noise_behavior == Simulation.NoiseBehaviorOption.COHERENT
+    assert sim.passive_noise
+
+    # run the simulation and verify the results
+    # TODO: update when engine class is moved to PyAedt
+    # sim.run(domain)
+    # interaction = sim.get_interaction(old_domain)
+    # instance = interaction.get_worst_instance(ResultType.EMI)
+    # assert instance.get_value(ResultType.EMI) == 6.01
+
+    sim.noise_behavior = Simulation.NoiseBehaviorOption.INCOHERENT
+    assert sim.noise_behavior == Simulation.NoiseBehaviorOption.INCOHERENT
+    sim.passive_noise = False
+    assert sim.passive_noise == False
+
+    # interaction2 = sim.run(domain)
+    # instance2 = interaction2.get_worst_instance(ResultType.EMI)
+    # assert instance2.get_value(ResultType.EMI) == 3.0
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app) -> None:
