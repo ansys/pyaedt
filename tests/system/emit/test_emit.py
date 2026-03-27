@@ -3073,8 +3073,6 @@ def test_noise_params(test_noise):
     sim = rev.get_simulation()
     domain = InteractionDomain(test_noise)
     assert domain is not None
-    domain.set_receiver = ""
-    domain.set_interferer = []
 
     # verify initial noise parameters
     assert sim.noise_behavior == Simulation.NoiseBehaviorOption.COHERENT
