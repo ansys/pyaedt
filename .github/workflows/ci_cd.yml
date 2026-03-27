@@ -241,7 +241,6 @@ jobs:
   emit-tests:
     name: Emit tests
     needs: [smoke-tests, analyze-changes]
-    if: needs.analyze-changes.outputs.emit_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
