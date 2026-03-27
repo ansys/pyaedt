@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
@@ -257,6 +259,83 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
 
+    class NoiseBehaviorOption(Enum):
+        COHERENT = "Coherent"
+        INCOHERENT = "Incoherent"
+
+    @property
+    @min_aedt_version("2027.1")
+    def noise_behavior(self) -> NoiseBehaviorOption:
+        """Get the noise behavior setting for the simulation.
+
+        Returns
+        -------
+        NoiseBehaviorOption
+            Noise behavior setting for the simulation. Options are "Coherent" and "Incoherent".
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.noise_behavior
+        COHERENT
+        """
+        sim_node : EmitNode = self._revision.get_simulation_node()
+        val = sim_node._get_property("NoiseBehavior", True)
+        return self.NoiseBehaviorOption(val)
+    
+    @noise_behavior.setter
+    def noise_behavior(self, value: NoiseBehaviorOption):
+        """Set the noise behavior setting for the simulation.
+
+        Parameters
+        ----------
+        value : NoiseBehaviorOption
+            Noise behavior setting for the simulation. Options are "Coherent" and "Incoherent".
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.noise_behavior = sim.NoiseBehaviorOption.INCOHERENT
+        """
+        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node._set_property("NoiseBehavior", value.value, True)
+
+    @property
+    @min_aedt_version("2027.1")
+    def passive_noise(self) -> bool:
+        """Get whether passive noise is included in the simulation.
+
+        Returns
+        -------
+        bool
+            ``True`` when passive noise is included in the simulation, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.passive_noise
+        True
+        """
+        sim_node : EmitNode = self._revision.get_simulation_node()
+        return sim_node._get_property("PassiveNoise", True) == "true"
+    
+    @passive_noise.setter
+    def passive_noise(self, enabled: bool):
+        """Set whether to include passive noise in the simulation.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether to include passive noise in the simulation.
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.passive_noise = False
+        """
+        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node._set_property("PassiveNoise", f"{str(enabled).lower()}", True)
+        
     @min_aedt_version("2025.2")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
