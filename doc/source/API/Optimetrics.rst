@@ -8,7 +8,7 @@ optimetrics setups.
     from ansys.aedt.core import Hfss
 
     app = Hfss(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,

@@ -2451,7 +2451,7 @@ class Analysis(Design, PyAedtBase):
         --------
         # Create a simple box where all its dimensions are parametrized
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.2")
+        >>> m3d = Maxwell3d(version="2026.1")
         >>> m3d["a"] = "10mm"
         >>> m3d["b"] = "20mm"
         >>> m3d["c"] = "30mm"
