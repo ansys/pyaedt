@@ -28,8 +28,44 @@ import numpy as np
 from ansys.aedt.core.generic.settings import settings
 
 
-def bin_to_grid(xc, yc, zc, xlim=None, ylim=None):
-    """Convert numpy binary array data to grid data."""
+def bin_to_grid(
+    xc: np.ndarray,
+    yc: np.ndarray,
+    zc: np.ndarray,
+    xlim: "tuple[float, float] | None" = None,
+    ylim: "tuple[float, float] | None" = None,
+) -> "tuple[np.ndarray, np.ndarray, np.ndarray]":
+    """Convert scattered (x, y, z) sample data to a regular 2-D grid.
+
+    Parameters
+    ----------
+    xc : numpy.ndarray
+        Array of x-coordinates for each sample.
+    yc : numpy.ndarray
+        Array of y-coordinates for each sample.
+        Must have the same length as ``xc``.
+    zc : numpy.ndarray
+        Array of scalar values at each ``(xc, yc)``
+        sample point.  Must have the same length as ``xc``.
+    xlim : tuple[float, float] or None, optional
+        ``(x_min, x_max)`` clipping range.  Samples outside this range
+        are discarded before gridding. The default is ``None``, in which case the
+        full extent of ``xc`` is used.
+    ylim : tuple[float, float] or None, optional
+        ``(y_min, y_max)`` clipping range.  Samples outside this range
+        are discarded before gridding. The default is ``None``, in which case the
+        full extent of ``yc`` is used.
+
+    Returns
+    -------
+    Xc : numpy.ndarray
+        Sorted unique x-coordinates of the output grid.
+    Yc : numpy.ndarray
+        Sorted unique y-coordinates of the output grid.
+    Z : numpy.ndarray
+        Averaged *zc* values on the ``(Yc, Xc)`` grid.  Grid cells
+        that contain no sample are left as ``0``.
+    """
     xc = np.asarray(xc).ravel()
     yc = np.asarray(yc).ravel()
     zc = np.asarray(zc).ravel()
@@ -120,23 +156,55 @@ def _polygon_area(poly_xy):
 
 # --- 4) Main: select eye opening by center and return its contour ---
 def extract_eye_opening_contour_by_center(
-    Xc,
-    Yc,
-    Z,
-    center,
-    prefer_contains=True,
-    connectivity=4,
-):
-    """
-    Xc: (nx,), Yc: (ny,), Z: (ny, nx) with 0 in opening/background, >0 on traces.
-    center: (cx, cy) to disambiguate (e.g., upper/middle/lower PAM4 eye).
+    Xc: np.ndarray,
+    Yc: np.ndarray,
+    Z: np.ndarray,
+    center: "tuple[float, float]",
+    prefer_contains: bool = True,
+    connectivity: int = 4,
+) -> np.ndarray:
+    """Extract the eye-opening contour closest to a reference center point.
+
+    Identifies connected zero-valued regions in the density grid ``Z``
+    (which correspond to eye openings), selects the region that best
+    matches ``center``, and returns its boundary as an (x, y) polygon.
+
+    Parameters
+    ----------
+    Xc : numpy.ndarray
+        1-D array of shape ``(nx,)`` containing the sorted unique
+        x-coordinates of the grid.
+    Yc : numpy.ndarray
+        1-D array of shape ``(ny,)`` containing the sorted unique
+        y-coordinates of the grid.
+    Z : numpy.ndarray
+        2-D density array of shape ``(ny, nx)``.  Cells equal to ``0``
+        represent the eye-opening; cells greater than ``0`` represent
+        signal traces.
+    center : tuple[float, float]
+        ``(cx, cy)`` reference point used to disambiguate between
+        multiple zero regions (upper, middle, or lower PAM4 eyes).
+    prefer_contains : bool, optional
+        When ``True`` (default), the zero region that directly contains
+        ``center`` is preferred over the nearest-centroid region.
+    connectivity : int, optional
+        Pixel connectivity used when labelling zero regions.
+        Use ``4`` (default) for edge-connected or ``8`` for
+        corner-connected regions.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of shape ``(N, 2)`` with the ``(x, y)`` vertices of the
+        eye-opening contour polygon.  Returns an empty array when no
+        zero region or contour is found.
     """
     Xc = np.asarray(Xc).ravel()
     Yc = np.asarray(Yc).ravel()
     Z = np.asarray(Z)
     if not (Z.ndim == 2 and Z.shape == (len(Yc), len(Xc))):
         settings.logger.error(f"Z must be 2D with shape (len(Yc), len(Xc)); got {Z.shape}")
-        return
+        return np.array([])
 
     zero_mask = Z == 0
     labels, num = _label_connected_components(zero_mask, connectivity=connectivity)
@@ -179,10 +247,46 @@ def extract_eye_opening_contour_by_center(
     return contour
 
 
-def prepare_and_extract(xc, yc, zc, center, prefer_contains=True, connectivity=4):
-    """
-    Convert 1D sample arrays to a grid and extract the eye opening contour.
-    Returns (contour, info) if return_meta=True else contour.
+def prepare_and_extract(
+    xc: np.ndarray,
+    yc: np.ndarray,
+    zc: np.ndarray,
+    center: "tuple[float, float]",
+    prefer_contains: bool = True,
+    connectivity: int = 4,
+) -> np.ndarray:
+    """Convert scattered sample arrays to a grid and extract the eye-opening contour.
+
+    This is a convenience wrapper that calls :func:`bin_to_grid` followed by
+    :func:`extract_eye_opening_contour_by_center`.
+
+    Parameters
+    ----------
+    xc : numpy.ndarray
+        1-D array of x-coordinates for each sample.
+    yc : numpy.ndarray
+        1-D array of y-coordinates for each sample.
+        Must have the same length as ``xc``.
+    zc : numpy.ndarray
+        1-D array of scalar (hit-count or density) values at each
+        ``(xc, yc)`` sample point.  Must have the same length as ``xc``.
+    center : tuple[float, float]
+        ``(cx, cy)`` reference point used to select the eye opening of
+        interest when multiple zero regions are present (e.g. PAM4 eyes).
+    prefer_contains : bool, optional
+        When ``True`` (default), prefer the zero region that directly
+        contains ``center`` over the nearest-centroid region.
+    connectivity : int, optional
+        Pixel connectivity used for labelling zero regions.
+        Use ``4`` (default) for edge-connected or ``8`` for
+        corner-connected regions.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of shape ``(N, 2)`` containing the ``(x, y)`` vertices of
+        the eye-opening contour polygon.  Returns an empty array when no
+        opening is found.
     """
     Xc, Yc, Z = bin_to_grid(
         xc,
