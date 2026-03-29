@@ -279,7 +279,7 @@ def unzip_if_zip(path):
                 # Remove the nested zip file so it won't be processed again
                 try:
                     zpath.unlink()
-                except Exception:
+                except Exception:  # nosec B110
                     pass
 
     # Find all wheel files under the extracted tree
