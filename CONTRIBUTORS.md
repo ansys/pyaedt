@@ -119,6 +119,7 @@
 * [Tushar Bana](https://github.com/tusharbana-ansys)
 * [Valérie Gelbgras](https://github.com/vgelbgras)
 * [Vinod_GPS_Ansys](https://github.com/pvinod13)
+* [VladimirIL](https://github.com/VladimirIL)
 * [voss70](https://github.com/voss70)
 * [vossleon](https://github.com/vossleon)
 * [vpipidis](https://github.com/vpipidis)
