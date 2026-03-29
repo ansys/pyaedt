@@ -109,6 +109,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          hide-log: false
 
   actions-security:
     name: "Check actions security"
