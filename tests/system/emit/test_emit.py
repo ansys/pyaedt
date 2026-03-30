@@ -3138,3 +3138,59 @@ def test_27_components_catalog(emit_app) -> None:
     for comp in comps_in_schematic:
         print(comp.name)
     assert len(comps_in_schematic) == 2  # default antenna/radio should remain
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+def test_terminator_table_persistence(add_app) -> None:
+    """Test that terminator and amplifier table data persists across save/close/reopen.
+    Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table"""
+    # Step 1: Create a new EMIT design
+    app = add_app(application=Emit)
+
+    # Step 2: Add a terminator and configure its parametric VSWR table
+    terminator: Terminator = app.schematic.create_component("Terminator", name="TestTerminator")
+    assert terminator is not None
+    assert isinstance(terminator, Terminator)
+
+    terminator.terminator_type = Terminator.TerminatorTypeOption.PARAMETRIC
+
+    # Step 3a: Add rows to the terminator's table
+    expected_terminator_table = [(100e6, 1e9, 2.0), (1e9, 5e9, 3.5)]
+    terminator.table_data = expected_terminator_table
+    assert terminator.table_data == expected_terminator_table
+
+    # Add an amplifier and configure its harmonic intercept points table
+    amplifier: Amplifier = app.schematic.create_component("Amplifier", name="TestAmplifier")
+    assert amplifier is not None
+    assert isinstance(amplifier, Amplifier)
+
+    # Step 3b: Add rows to the amplifier's table
+    expected_amplifier_table = [(2, 10.0), (3, -5.0), (5, 15.0)]
+    amplifier.table_data = expected_amplifier_table
+    assert amplifier.table_data == expected_amplifier_table
+
+    # Step 4: Save the project
+    project_file = app.project_file
+    app.save_project()
+
+    # Step 5: Close the project
+    app.close_project(app.project_name, save=False)
+
+    # Step 6: Reopen the project
+    app2 = add_app(project=project_file, application=Emit)
+    rev = app2.results.analyze()
+
+    # Step 7: Verify the terminator table data matches what was set
+    reopened_terminator = rev.get_component_node("TestTerminator")
+    assert reopened_terminator is not None
+    reopened_terminator = cast(Terminator, reopened_terminator)
+    assert reopened_terminator.terminator_type == Terminator.TerminatorTypeOption.PARAMETRIC
+    assert reopened_terminator.table_data == expected_terminator_table
+
+    # Verify the amplifier table data matches what was set
+    reopened_amplifier = rev.get_component_node("TestAmplifier")
+    assert reopened_amplifier is not None
+    reopened_amplifier = cast(Amplifier, reopened_amplifier)
+    assert reopened_amplifier.table_data == expected_amplifier_table
+
+    app2.close_project(app2.project_name, save=False)
