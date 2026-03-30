@@ -22,39 +22,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
-
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 
 
-class Interaction:
+class InteractionInstance:
     def __init__(self, emit_obj):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
 
-    def get_worst_instance(self, result_type: ResultType):
-        """Get the worst instance for this interaction."""
-        if result_type == ResultType.POWER_AT_RX:
-            err_msg = "Worst case instances are not available for Power At Rx."
-            warnings.warn(err_msg)
-            return None
+    def get_results_warning(self) -> str:
+        """Get the results warning for this interaction."""
+        self.emit_project._emit_com_module.CheckInstanceValidity()
 
-        # self.emit_project._emit_com_module.
+    def has_valid_values(self) -> bool:
+        """Check if this interaction has valid values."""
+        return self._emit_com.HasValidValues()
 
-        return self._emit_com.GetWorstInstance()
+    def get_value(self, result_type: ResultType) -> float:
+        """Get the value of this interaction."""
+        return self._emit_com.GetValue()
 
-    def has_valid_availability(self):
-        """Check if this interaction has valid availability."""
-        return self._emit_com.HasValidAvailability()
+    def get_largest_problem_type(self):
+        """Get the largest problem type for this interaction."""
+        return self._emit_com.GetLargestProblemType()
 
-    def get_availability(self):
-        """Get the availability of this interaction."""
-        return self._emit_com.GetAvailability()
-
-    def get_availability_warning(self):
-        """Get the availability warning for this interaction."""
-        return self._emit_com.GetAvailabilityWarning()
-
-    def get_instance(self, index):
-        """Get the instance at the specified index for this interaction."""
-        return self._emit_com.GetInstance(index)
+    def get_largest_emi_problem_type(self) -> str:
+        """Get the largest EMI problem type for this interaction."""
+        return self._emit_com.GetLargestEMIProblemType()
