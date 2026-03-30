@@ -326,6 +326,27 @@ def test_objects_by_layer(aedt_app) -> None:
     assert aedt_app.modeler.geometries[lines_on_top[0]].placement_layer == "1_Top"
 
 
+def test_object_by_polygon(aedt_app) -> None:
+    objs = aedt_app.modeler.objects_by_polygon([[0, 0], [0, 10], [10, 10], [10, 0]], "1_Top")
+    assert len(objs) > 0
+    objs = aedt_app.modeler.objects_by_polygon([[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]], "1_Top")
+    assert len(objs) > 0
+    polygon = [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]
+    p = aedt_app.modeler.oeditor.Polygon()
+    for pp in polygon:
+        point = aedt_app.modeler.oeditor.Point()
+        point.SetX(pp[0])
+        point.SetY(pp[1])
+        p.AddPoint(point)
+    if polygon[-1] != polygon[0]:
+        point = aedt_app.modeler.oeditor.Point()
+        point.SetX(polygon[0][0])
+        point.SetY(polygon[0][1])
+        p.AddPoint(point)
+    objs = aedt_app.modeler.objects_by_polygon(p, "1_Top")
+    assert len(objs) > 0
+
+
 def test_set_solderball(aedt_app) -> None:
     assert not aedt_app.modeler.components["U1"].die_enabled
     assert not aedt_app.modeler.components["U1"].die_type
