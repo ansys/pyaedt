@@ -22,26 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Enums and constants for EMIT API.
+"""
+Constants for the EMIT module.
 
-These enums are defined directly from the ``EmitDataTypes.h`` header file
-and provide type-safe constants for use with EMIT operations.
+Enum values are defined directly here. For AEDT versions < 2027.1, the values may be
+overwritten at runtime by ``_init_enums()`` with values from the ``EmitApiPython`` module.
+
 """
 
 
 class MutableEnum:
-    """Base class for EMIT enum types.
-
-    Provides a members() method to retrieve all enum values.
-    """
-
     @classmethod
     def members(cls):
-        """Return all enum members."""
-        members = [
+        return [
             getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
         ]
-        return members
 
 
 class ResultType(MutableEnum):

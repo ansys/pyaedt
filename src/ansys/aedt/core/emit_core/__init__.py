@@ -87,7 +87,7 @@ def _init_enums(aedt_version) -> None:
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
-    else:
+    elif numeric_version <= 251:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
