@@ -152,6 +152,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Add logger
         self.add_logger(self.root, row=4, column=0)
+        self.apply_theme(self.theme_color)
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
