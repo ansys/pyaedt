@@ -538,6 +538,23 @@ class AMIEyeDiagram(CommonReport):
                 new_exprs.append(expr)
         return new_exprs
 
+    @expressions.setter
+    def expressions(self, value: list | dict | str) -> None:
+        if isinstance(value, dict):
+            self._legacy_props["expressions"].append = value
+        elif isinstance(value, list):
+            self._legacy_props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self._legacy_props["expressions"].append(el)
+                else:
+                    self._legacy_props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self._legacy_props["expressions"], list):
+                self._legacy_props["expressions"].append({"name": value})
+            else:
+                self._legacy_props["expressions"] = [{"name": value}]
+
     @property
     def quantity_type(self):
         """Quantity type used in the AMI analysis plot.
@@ -1077,23 +1094,6 @@ class EyeDiagram(AMIEyeDiagram):
         if self._legacy_props.get("expressions", None) is None:
             return []
         return [k.get("name", None) if isinstance(k, dict) else k for k in self._legacy_props["expressions"]]
-
-    @expressions.setter
-    def expressions(self, value: list | dict | str) -> None:
-        if isinstance(value, dict):
-            self._legacy_props["expressions"].append = value
-        elif isinstance(value, list):
-            self._legacy_props["expressions"] = []
-            for el in value:
-                if isinstance(el, dict):
-                    self._legacy_props["expressions"].append(el)
-                else:
-                    self._legacy_props["expressions"].append({"name": el})
-        elif isinstance(value, str):
-            if isinstance(self._legacy_props["expressions"], list):
-                self._legacy_props["expressions"].append({"name": value})
-            else:
-                self._legacy_props["expressions"] = [{"name": value}]
 
     @property
     def time_start(self) -> str:
