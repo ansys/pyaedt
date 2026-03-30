@@ -197,8 +197,7 @@ However, you must set up the following environment variables:
 
 .. code::
 
-    export ANSYSEM_ROOT222=/path/to/AedtRoot/AnsysEM/v222/Linux64
-    export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
+    export ANSYSEM_ROOT261=/path/to/AedtRoot/AnsysEM/v261/Linux64
 
 
 Install offline from a wheelhouse
