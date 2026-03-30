@@ -250,7 +250,7 @@ wheels = [
 
 [[package]]
 name = "ansys-tools-common"
-version = "0.4.5"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -259,9 +259,9 @@ dependencies = [
     { name = "scooby" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/9d/766b63da63cf399e7491e4cb7888cd5123a53f73ac628195e44e547e548b/ansys_tools_common-0.4.5.tar.gz", hash = "sha256:aa5db021ecd3109694ec60dbcc6ac36d06ab6cd74b019330ffdc31f3f4ba10e4", size = 304034, upload-time = "2026-03-03T09:35:56.05Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/2b/a8c625d424b5b933b6d27a325c1e4f4632bc7e2276204722058f65f7ab32/ansys_tools_common-0.5.0.tar.gz", hash = "sha256:2dd98e6fcb4a0ceb7e118b394575bffbd9c7b7dbcfc6d56ffdd03de79ce3145a", size = 323011, upload-time = "2026-03-17T09:48:41.562Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/cb/3a582e7def973709b86b0bce519e751144f42abeb66a9df2a7ae83eef719/ansys_tools_common-0.4.5-py3-none-any.whl", hash = "sha256:47830bcf0ce10ab78b07e6f6f18df565ec7bde8f99a9a19d064e22396edadd75", size = 76372, upload-time = "2026-03-03T09:35:54.747Z" },
+    { url = "https://files.pythonhosted.org/packages/82/ba/81800ad31d57df6245ca6a9f63aaf39a649e3417a1a1f81d7572cb520765/ansys_tools_common-0.5.0-py3-none-any.whl", hash = "sha256:07f537d3095a731a6f9fd8909940ab1da2a4a108dedf52cd91596e28c685b5a1", size = 86936, upload-time = "2026-03-17T09:48:39.765Z" },
 ]
 
 [[package]]
