@@ -327,16 +327,7 @@ def install_pyaedt():
         pip_exe = venv_dir / "bin" / "pip"
         uv_exe = venv_dir / "bin" / "uv"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
-        ld_library_path_dirs_to_add = [
-            r"{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
-                args.edt_root, args.python_version.replace(".", "_")
-            ),
-            r"{}/common/mono/Linux64/lib64".format(args.edt_root),
-            r"{}".format(args.edt_root),
-        ]
-        if args.version < "232":
-            ld_library_path_dirs_to_add.append(r"{}/Delcross".format(args.edt_root))
-        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
         os.environ["TK_LIBRARY"] = r"{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
