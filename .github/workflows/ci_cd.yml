@@ -102,7 +102,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+      - uses: ansys/actions/check-vulnerabilities@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -117,7 +117,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+      - uses: ansys/actions/check-actions-security@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/check-pr-title@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -194,7 +194,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-style@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -211,7 +211,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/doc-build@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -238,7 +238,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -434,7 +434,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -482,7 +482,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -522,7 +521,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -579,7 +578,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -599,7 +598,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -629,8 +628,6 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
@@ -671,7 +668,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -728,7 +725,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -749,7 +746,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -779,8 +776,6 @@ jobs:
           done
 
       - name: Run tests marked with 'visualization'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
@@ -873,7 +868,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -921,7 +916,6 @@ jobs:
 
       - name: Run tests marked with 'icepak'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -1015,7 +1009,7 @@ jobs:
     if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -1061,7 +1055,6 @@ jobs:
 
       - name: Run tests marked with 'layout'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -1074,9 +1067,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
- #=================================================================================================
- #vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- #=================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
@@ -1101,7 +1094,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -1149,7 +1142,7 @@ jobs:
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -1169,7 +1162,7 @@ jobs:
           prune-cache: true
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -1190,8 +1183,6 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
@@ -1373,7 +1364,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
+        uses: ansys/actions/build-library@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}

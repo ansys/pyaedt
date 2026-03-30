@@ -66,6 +66,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Cable
     from ansys.aedt.core.emit_core.nodes.generated import Circulator
+    from ansys.aedt.core.emit_core.nodes.generated import CouplingLinkNode
     from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
     from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
@@ -347,6 +348,19 @@ def test_duplicate_components(emit_app):
     band: Band = [b for b in radio.children if isinstance(b, Band)][0]
     with pytest.raises(NotImplementedError):
         band.duplicate("DuplicatedBand")
+
+    # test multiplexer band setting
+    port_list1 = [
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band A",
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band B",
+        "NODE-*-RF Systems-*-Disconnected Components-*-Components-*-dup 4 Port Multiplexer-*-Pass Band C",
+    ]
+    assert dup_multiplexer4.ports == port_list1
+    dup_multiplexer4.ports = ["Pass Band C", "Pass Band A", "Pass Band B"]
+    assert dup_multiplexer4.ports == ["Pass Band C", "Pass Band A", "Pass Band B"]
+    port_string = "|".join(port_list1)
+    dup_multiplexer4.ports = port_string
+    assert dup_multiplexer4.ports == port_list1
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1392,14 +1406,6 @@ def test_protection_filtering(interference) -> None:
         assert protection_power_matrix == expected_protection_power
 
 
-"""
-.. note::
-The following test should be maintained as the last test within this file to ensure
-that the AEDT app functions as intended.
-
-"""
-
-
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
 def test_couplings_1(cell_phone) -> None:
     links = cell_phone.couplings.linkable_design_names
@@ -1419,6 +1425,35 @@ def test_couplings_1(cell_phone) -> None:
     assert len(links) == 0
     for link in cell_phone.couplings.coupling_names:
         assert link == "ATA_Analysis"
+
+    rev: Revision = cell_phone.results.analyze()
+    gps_ant: AntennaNode = rev.get_component_node("GPS")
+    wifi_ant: AntennaNode = rev.get_component_node("WiFi")
+    coupling_data = rev.get_coupling_data_node()
+    assert coupling_data is not None
+
+    for child in coupling_data.children:
+        if child.name == "ATA_Analysis":
+            coupling_link: CouplingLinkNode = child
+            break
+
+    assert coupling_link is not None
+    assert coupling_link.ports == ["(undefined)", "(undefined)"]
+    # test setting the port map with AntennaNodes
+    coupling_link.ports = [gps_ant, wifi_ant]
+    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+
+    # set the antennas with short names
+    coupling_link.ports = "Cellular|GPS"
+    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
+
+    # set the antennas with full node names
+    coupling_link.ports = "NODE-*-Scene-*-GPS|NODE-*-Scene-*-WiFi"
+    assert coupling_link.ports == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-WiFi"]
+
+    # set the antennas with a list of short names
+    coupling_link.ports = ["Cellular", "GPS"]
+    assert coupling_link.ports == ["NODE-*-Scene-*-Cellular", "NODE-*-Scene-*-GPS"]
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1441,7 +1476,51 @@ def test_couplings_2(tutorial) -> None:
     rev: Revision = tutorial.results.analyze()
     gps_ant: AntennaNode = rev.get_component_node("GPS")
     assert gps_ant.parent_name == "NODE-*-Scene"
-    assert gps_ant._full_node_name == gps_ant.parent_name + "-*-" + gps_ant.name
+    assert gps_ant._full_node_name() == gps_ant.parent_name + "-*-" + gps_ant.name
+
+
+@pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2025.2")
+def test_couplings_new_api(tutorial):
+    rev: Revision = tutorial.results.analyze()
+    scene_node: EmitSceneNode = rev.get_scene_node()
+    assert scene_node is not None
+
+    # test CAD nodes
+    scene_children = scene_node.children
+    antenna_names = []
+    for child in scene_children:
+        if child.node_type == "CADNode":
+            assert child.name == "Fighter_Jet"
+        else:
+            antenna_names.append(child.name)
+
+    # test antenna nodes
+    assert len(antenna_names) == 4
+    valid_antenna_names = ["GPS", "UHF-1", "UHF-2", "VHF-UHF"]
+    for antenna_name in antenna_names:
+        assert antenna_name in valid_antenna_names
+        valid_antenna_names.remove(antenna_name)
+
+    # get the Touchstone coupling node
+    couplings_node: CouplingsNode = rev.get_coupling_data_node()
+    assert couplings_node is not None
+    for child in couplings_node.children:
+        if child.node_type == "TouchstoneCouplingNode":
+            coupling_node: TouchstoneCouplingNode = child
+            break
+
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
+    # test setting the port map with antenna (short names)
+    coupling_node.port_antenna_assignment = "GPS|UHF-2"
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
+    # test setting the port map with antenna (full node names)
+    coupling_node.port_antenna_assignment = "NODE-*-Scene-*-UHF-1|NODE-*-Scene-*-VHF-UHF"
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-UHF-1", "NODE-*-Scene-*-VHF-UHF"]
+    # test setting the port map with antenna node
+    ant1 = rev.get_component_node("GPS")
+    ant2 = rev.get_component_node("UHF-2")
+    coupling_node.port_antenna_assignment = [ant1, ant2]
+    assert coupling_node.port_antenna_assignment == ["NODE-*-Scene-*-GPS", "NODE-*-Scene-*-UHF-2"]
 
 
 @pytest.mark.skipif(
@@ -2146,8 +2225,14 @@ def test_imports(emit_app, file_tmp_root) -> None:
     # some instability in maintaining the node_ids
     couplings_node: CouplingsNode = rev.get_coupling_data_node()
     touchstone_node = couplings_node.children[-1]
-    touchstone_node.port_antenna_assignment = "|".join(antenna_list)
-    assert touchstone_node.port_antenna_assignment == antenna_list
+    touchstone_node.port_antenna_assignment = antenna_list
+    assert touchstone_node.port_antenna_assignment == [
+        "NODE-*-Scene-*-Antenna",
+        "NODE-*-Scene-*-Antenna 2",
+        "NODE-*-Scene-*-Antenna 3",
+        "NODE-*-Scene-*-Antenna 4",
+        "NODE-*-Scene-*-Antenna 5",
+    ]
 
     # TODO: the next line is only needed for 25.2, which had
     # some instability in maintaining the node_ids

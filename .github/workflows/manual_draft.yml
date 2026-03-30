@@ -3,13 +3,6 @@ name: Draft workflow
 on:
   workflow_dispatch:
     inputs:
-      build-wheels:
-        description: "Build wheelhouse artifacts"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
       test-solvers-windows:
         description: "Testing solvers (Windows)"
         default: 'no'
@@ -96,132 +89,6 @@ permissions: {}
 
 jobs:
 
-  build-wheelhouse:
-    name: Build wheelhouse and smoke tests
-    if: github.event.inputs.build-wheels == 'yes'
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read   # Required to read repository content for building
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-    steps:
-      - name: Build wheelhouse and perform smoke test
-        id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@22d03f365874cc55ffb84705f5f635f055b6f2b8 # v10.2.8
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-          target: 'all'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2'
-
-      - name: Import python package
-        env:
-          ACTIVATE_VENV: ${{ steps.build-wheelhouse.outputs.activate-venv }}
-        shell: bash
-        run: |
-          ${ACTIVATE_VENV}
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-      - name: Collect wheel artifacts
-        shell: bash
-        run: |
-          set -eux
-          mkdir -p wheelhouse-artifacts
-          find "$GITHUB_WORKSPACE" -type f -name '*.whl' -exec cp "{}" wheelhouse-artifacts/ \;
-          if ! find wheelhouse-artifacts -maxdepth 1 -type f -name '*.whl' -print -quit | grep -q .; then
-            echo "::error::No wheel artifacts were found in the workspace."
-            exit 1
-          fi
-          find wheelhouse-artifacts -maxdepth 1 -type f -name '*.whl' | sed 's#^wheelhouse-artifacts/##' | sort > wheelhouse-artifacts/wheels.txt
-
-      - name: Upload wheel artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: manual-wheelhouse-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: wheelhouse-artifacts
-
-  build-wheelhouse-rocky:
-    name: Build wheelhouse (Rocky Linux)
-    if: github.event.inputs.build-wheels == 'yes'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-    permissions:
-      contents: read   # Required to read repository content for building
-    container:
-      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
-    steps:
-      - name: Install build deps
-        shell: bash
-        run: |
-          set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
-            gcc make wget tar xz bzip2 \
-            bzip2-devel zlib-devel xz-devel \
-            openssl-devel libffi-devel sqlite-devel \
-            readline-devel tk-devel \
-            libuuid-devel expat-devel \
-            pkgconf-pkg-config ca-certificates
-          update-ca-trust
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Pre-install explicit Python version using uv
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
-        shell: bash
-        run: uv python install "$PYTHON_VERSION"
-
-      - name: Build wheelhouse and perform smoke test
-        id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@1f4f0896a8e49d3aec2f02ced215b04a32c85f28 # v10.2.7
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: rocky-linux-8
-          python-version: ${{ matrix.python-version }}
-          target: 'all'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2'
-
-      - name: Import python package
-        env:
-          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
-        shell: bash
-        run: |
-          ${ACTIVATE_VENV}
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-      - name: Collect wheel artifacts
-        shell: bash
-        run: |
-          set -eux
-          mkdir -p wheelhouse-artifacts
-          find "$GITHUB_WORKSPACE" -type f -name '*.whl' -exec cp "{}" wheelhouse-artifacts/ \;
-          if ! find wheelhouse-artifacts -maxdepth 1 -type f -name '*.whl' -print -quit | grep -q .; then
-            echo "::error::No wheel artifacts were found in the workspace."
-            exit 1
-          fi
-          find wheelhouse-artifacts -maxdepth 1 -type f -name '*.whl' | sed 's#^wheelhouse-artifacts/##' | sort > wheelhouse-artifacts/wheels.txt
-
-      - name: Upload wheel artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: manual-wheelhouse-rocky-linux-8-py${{ matrix.python-version }}
-          path: wheelhouse-artifacts
-
   system-test-solvers-windows:
     name: Testing solvers and coverage (Windows)
     if: github.event.inputs.test-solvers-windows == 'yes'
@@ -287,7 +154,7 @@ jobs:
     if: github.event.inputs.test-solvers-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -301,8 +168,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -311,8 +176,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -328,7 +191,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -416,7 +278,7 @@ jobs:
     if: github.event.inputs.test-general-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -430,8 +292,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -440,8 +300,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -469,7 +327,6 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
@@ -499,7 +356,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -560,7 +417,7 @@ jobs:
 
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -570,7 +427,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -578,8 +435,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -588,8 +443,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -605,15 +458,12 @@ jobs:
       # NOTE: Run visualization tests in two separate steps to avoid conflicts when
       # loading Ansys EM libraries and vtk osmesa backend.
       - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 30
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
 
@@ -651,7 +501,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -711,7 +561,7 @@ jobs:
     if: github.event.inputs.test-extensions-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -720,7 +570,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
 
       - name: Setup Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -728,8 +578,6 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
@@ -738,8 +586,6 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pip install . --group tests
@@ -753,15 +599,12 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
