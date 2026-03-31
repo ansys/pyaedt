@@ -69,7 +69,6 @@ class TemplateExtension(ExtensionProjectCommon):
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
             toggle_row=6,

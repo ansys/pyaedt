@@ -241,7 +241,7 @@ class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
-        theme_color: str = "light",
+        theme_color: str | None = None,
         withdraw: bool = False,
         add_custom_content: bool = True,
         toggle_row: int | None = None,
@@ -259,7 +259,8 @@ class ExtensionCommon(PyAedtBase):
         title : str
             The title of the main window.
         theme_color: str, optional
-            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+            The theme color to apply to the UI. Options are ``"light"`` or ``"dark"``.
+            If ``None``, the theme is inferred from the AEDT environment.
         withdraw : bool, optional
             If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
@@ -273,11 +274,14 @@ class ExtensionCommon(PyAedtBase):
             from the AEDT installation directory. This is necessary for extensions that interact
             directly with layout databases via the EDB API. The default is ``False``.
         """
-        self.theme_color = get_aedt_theme()
-        if "dark" in self.theme_color.lower():
-            self.theme_color = "dark"
-        if self.theme_color not in ["light", "dark"]:
-            raise ValueError(f"Invalid theme color: {self.theme_color}. Use 'light' or 'dark'.")
+        if theme_color is None:
+            theme_color = get_aedt_theme()
+            if "dark" in theme_color.lower():
+                theme_color = "dark"
+            elif theme_color not in ["light", "dark"]:
+                theme_color = "light"
+        elif theme_color not in ["light", "dark"]:
+            raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
 
         self.use_edb = use_edb
 
@@ -295,6 +299,7 @@ class ExtensionCommon(PyAedtBase):
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
