@@ -49,7 +49,7 @@ def main_callback(
 ) -> None:
     """CLI for PyAEDT."""
     if json_output:
-        common._json_mode = True
+        common.json_mode = True
 
 
 @app.command()
@@ -58,8 +58,8 @@ def version() -> None:
     import ansys.aedt.core
 
     ver = ansys.aedt.core.__version__
-    if common._json_mode:
-        common._output(data={"version": ver})
+    if common.json_mode:
+        common.print_output(data={"version": ver})
     else:
         typer.echo("PyAEDT version: ", nl=False)
         typer.secho(ver, fg="cyan")
@@ -73,8 +73,8 @@ def aedt_versions() -> None:
 
         versions = _aedt_versions.installed_versions
         data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
-        if common._json_mode:
-            common._output(data=data)
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             if not versions:
                 typer.secho("No AEDT versions found.", fg="yellow")
@@ -83,8 +83,8 @@ def aedt_versions() -> None:
             for ver, path in versions.items():
                 typer.echo(f"  {ver}: {path}")
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)

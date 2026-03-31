@@ -58,18 +58,18 @@ def run_script(
 
         settings.enable_logger = True
 
-        d = common._get_desktop(port=port)
+        d = common.get_desktop(port=port)
         d.odesktop.RunScript(str(path.resolve()))
         data = {"executed": True, "script": str(path.resolve())}
-        if common._json_mode:
-            common._output(data=data)
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             typer.secho(f"Script executed: {path.name}", fg="green")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
@@ -86,13 +86,13 @@ def run_code(
     Set ``result`` to return a value.
     """
     try:
-        d = common._get_desktop(port=port)
+        d = common.get_desktop(port=port)
         namespace = {"desktop": d, "odesktop": d.odesktop, "result": None}
         exec(code, namespace)  # nosec B102 - user-provided code execution is the intended feature
         result_val = namespace.get("result")
         data = {"executed": True, "result": str(result_val) if result_val is not None else None}
-        if common._json_mode:
-            common._output(data=data)
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             typer.secho("Code executed.", fg="green")
             if result_val is not None:
@@ -100,8 +100,8 @@ def run_code(
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)

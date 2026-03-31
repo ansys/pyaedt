@@ -26,7 +26,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
+import json
+import os
+import tempfile
 
 try:
     import typer
@@ -40,154 +42,87 @@ from ansys.aedt.core.cli import common
 export_app = typer.Typer(help="Export commands")
 
 
-class ExportFormat(str, Enum):
-    step = "step"
-    iges = "iges"
-    sat = "sat"
-    stl = "stl"
-
-
 @export_app.command("screenshot")
 def screenshot(
-    output: str = typer.Option("screenshot.jpg", "--output", "-o", help="Output file path"),
-    design_name: str = typer.Option(None, "--design", "-d", help="Design to capture"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    path: str = typer.Option("screenshot.jpg", "--path", "-o", help="Output file path"),
+    project: str = typer.Option(None, "--project", help="Project containing the design to capture"),
+    design: str = typer.Option(None, "--design", "-d", help="Design to capture"),
 ) -> None:
     """Capture a screenshot of the AEDT design view."""
     try:
-        import ansys.aedt.core as aedt
-
-        session = common._load_session()
-        if session is None:
-            if common._json_mode:
-                common._output(error="No active session.")
-            else:
-                typer.secho("No active session.", fg="red")
-            raise typer.Exit(code=1)
-
-        if port is not None:
-            session["port"] = port
-        aedt.settings.enable_logger = False
-        app = aedt.get_pyaedt_app(
-            version=session["version"],
-            port=session["port"],
-            machine=session.get("machine", "localhost"),
-            new_desktop=False,
-            close_on_exit=False,
-            design=design_name,
-        )
-        app.export_design_preview_to_jpg(output)
-        data = {"screenshot": output, "design": app.design_name}
-        if common._json_mode:
-            common._output(data=data)
+        _, app, context = common.get_design_app(port=port, project_name=project, design_name=design)
+        try:
+            app.export_design_preview_to_jpg(path)
+        except Exception as export_error:
+            raise RuntimeError(
+                f"Failed to export screenshot: {export_error}. Try saving the project first before exporting an image."
+            ) from export_error
+        data = {"screenshot": path, "design": app.design_name, "project": context["project"]}
+        if common.json_mode:
+            common.print_output(data=data)
         else:
-            typer.secho(f"Screenshot saved to '{output}'", fg="green")
+            typer.secho(f"Screenshot saved to '{path}'", fg="green")
+            typer.echo(f"  Design: {app.design_name}")
+            typer.echo(f"  Project: {context['project']}")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
 
 
-@export_app.command("touchstone")
-def export_touchstone(
-    output_path: str = typer.Argument(..., help="Output file path (e.g. results.s2p)"),
-    setup_name: str = typer.Option(None, "--setup", "-s", help="Setup to export"),
-    sweep_name: str = typer.Option(None, "--sweep", help="Sweep name"),
-    design_name: str = typer.Option(None, "--design", "-d", help="Design to export from"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+@export_app.command("config")
+def export_config(
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    output: str = typer.Option(None, "--output", "-o", help="Output JSON file path (prints to terminal if omitted)"),
+    project: str = typer.Option(None, "--project", help="Project containing the design to export"),
+    design: str = typer.Option(None, "--design", "-d", help="Design to export config from"),
+    overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite existing config file"),
 ) -> None:
-    """Export S-parameters to Touchstone format."""
+    """Export design configuration (parameters, setup, etc.) as JSON."""
     try:
-        import ansys.aedt.core as aedt
-
-        session = common._load_session()
-        if session is None:
-            if common._json_mode:
-                common._output(error="No active session.")
-            else:
-                typer.secho("No active session.", fg="red")
-            raise typer.Exit(code=1)
-
-        if port is not None:
-            session["port"] = port
-        aedt.settings.enable_logger = False
-        app = aedt.get_pyaedt_app(
-            version=session["version"],
-            port=session["port"],
-            machine=session.get("machine", "localhost"),
-            new_desktop=False,
-            close_on_exit=False,
-            design=design_name,
-        )
-        kwargs = {"output_file": output_path}
-        if setup_name:
-            kwargs["setup"] = setup_name
-        if sweep_name:
-            kwargs["sweep"] = sweep_name
-        app.export_touchstone(**kwargs)
-        data = {"exported": True, "path": output_path, "setup": setup_name}
-        if common._json_mode:
-            common._output(data=data)
+        temp_config_file = None
+        _, app, context = common.get_design_app(port=port, project_name=project, design_name=design)
+        if output:
+            config_target = output if output.lower().endswith(".json") else f"{output}.json"
         else:
-            typer.secho(f"Touchstone exported to '{output_path}'", fg="green")
+            fd, config_target = tempfile.mkstemp(suffix=".json")
+            os.close(fd)
+            os.remove(config_target)
+            temp_config_file = config_target
+
+        config_file = app.configurations.export_config(config_file=config_target, overwrite=overwrite)
+        if not config_file:
+            raise RuntimeError("Failed to export configuration.")
+
+        with open(config_file, "r", encoding="utf-8") as f:
+            config_content = json.load(f)
+
+        data = {"config": config_content, "design": app.design_name, "project": context["project"]}
+        if output:
+            data["config_file"] = config_file
+
+        if common.json_mode:
+            common.print_output(data=data)
+        else:
+            if output:
+                typer.secho(f"Configuration exported to '{config_file}'", fg="green")
+                typer.echo(f"  Design: {app.design_name}")
+                typer.echo(f"  Project: {context['project']}")
+            else:
+                typer.echo(json.dumps(config_content, indent=2))
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
-
-
-@export_app.command("3d")
-def export_3d(
-    output_path: str = typer.Argument(..., help="Output file path"),
-    export_format: ExportFormat = typer.Option("step", "--format", "-f", help="Export format"),
-    design_name: str = typer.Option(None, "--design", "-d", help="Design to export"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
-) -> None:
-    """Export 3D geometry in CAD formats."""
-    try:
-        import ansys.aedt.core as aedt
-
-        session = common._load_session()
-        if session is None:
-            if common._json_mode:
-                common._output(error="No active session.")
-            else:
-                typer.secho("No active session.", fg="red")
-            raise typer.Exit(code=1)
-
-        if port is not None:
-            session["port"] = port
-        aedt.settings.enable_logger = False
-        app = aedt.get_pyaedt_app(
-            version=session["version"],
-            port=session["port"],
-            machine=session.get("machine", "localhost"),
-            new_desktop=False,
-            close_on_exit=False,
-            design=design_name,
-        )
-        app.modeler.export_3d_model(
-            file_name=output_path,
-            file_format=f".{export_format.value}",
-        )
-        data = {"exported": True, "path": output_path, "format": export_format.value}
-        if common._json_mode:
-            common._output(data=data)
-        else:
-            typer.secho(f"3D model exported to '{output_path}'", fg="green")
-    except typer.Exit:
-        raise
-    except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
-        else:
-            typer.secho(f"Error: {e}", fg="red")
-        raise typer.Exit(code=1)
+    finally:
+        if temp_config_file and os.path.exists(temp_config_file):
+            os.remove(temp_config_file)

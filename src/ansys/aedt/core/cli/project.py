@@ -58,64 +58,32 @@ class AEDTAppType(str, Enum):
 
 @project_app.command(name="list")
 def list_projects(
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """List all open projects."""
+    """List open projects together with their designs."""
     try:
-        d = common._get_desktop(port=port)
-        projects = list(d.odesktop.GetProjectList())
+        d = common.get_desktop(port=port)
+        projects = common.list_projects_with_designs(d.odesktop)
         data = {"projects": projects, "count": len(projects)}
-        if common._json_mode:
-            common._output(data=data)
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             if not projects:
                 typer.secho("No projects open.", fg="yellow")
                 return
             typer.secho(f"{len(projects)} project(s):", fg="green")
-            for p in projects:
-                typer.echo(f"  - {p}")
+            for project in projects:
+                typer.echo(f"  - {project['name']}")
+                if project["designs"]:
+                    for design in project["designs"]:
+                        typer.echo(f"      - {design['name']} ({design['type']})")
+                else:
+                    typer.echo("      - (no designs)")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
-        else:
-            typer.secho(f"Error: {e}", fg="red")
-        raise typer.Exit(code=1)
-
-
-@project_app.command(name="list-designs")
-def list_designs(
-    project_name: str = typer.Option(None, "--project", "-p", help="Project name (uses active if omitted)"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
-) -> None:
-    """List all designs in a project."""
-    try:
-        d = common._get_desktop(port=port)
-        odesktop = d.odesktop
-        if project_name:
-            proj = odesktop.SetActiveProject(project_name)
-        else:
-            proj = odesktop.GetActiveProject()
-        if not proj:
-            raise RuntimeError("No active project found.")
-        designs = []
-        for design_name in proj.GetTopDesignList():
-            design = proj.SetActiveDesign(design_name)
-            design_type = design.GetDesignType()
-            designs.append({"name": design_name, "type": design_type})
-        data = {"project": proj.GetName(), "designs": designs, "count": len(designs)}
-        if common._json_mode:
-            common._output(data=data)
-        else:
-            typer.secho(f"Designs in '{data['project']}':", fg="green")
-            for des in designs:
-                typer.echo(f"  - {des['name']} ({des['type']})")
-    except typer.Exit:
-        raise
-    except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
@@ -123,30 +91,26 @@ def list_designs(
 
 @project_app.command(name="open")
 def open_project(
-    project_path: str = typer.Argument(..., help="Path to .aedt project file"),
-    design_name: str = typer.Option(None, "--design", "-d", help="Design to activate after opening"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    path: str = typer.Argument(..., help="Path to .aedt project file"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Open in non-graphical mode"),
 ) -> None:
     """Open an AEDT project file."""
     try:
-        d = common._get_desktop(port=port)
-        d.odesktop.OpenProject(project_path)
+        d = common.get_desktop(port=port)
+        d.odesktop.OpenProject(path)
         proj = d.odesktop.GetActiveProject()
         proj_name = proj.GetName() if proj else "Unknown"
-        if design_name and proj:
-            proj.SetActiveDesign(design_name)
-        data = {"project": proj_name, "path": project_path, "active_design": design_name}
-        if common._json_mode:
-            common._output(data=data)
+        data = {"project": proj_name, "path": path}
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             typer.secho(f"Opened project '{proj_name}'", fg="green")
-            if design_name:
-                typer.echo(f"  Active design: {design_name}")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
@@ -154,162 +118,144 @@ def open_project(
 
 @project_app.command(name="save")
 def save_project(
-    project_name: str = typer.Option(None, "--project", "-p", help="Project to save (uses active if omitted)"),
-    save_as: str = typer.Option(None, "--save-as", help="New file path for Save As"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+    path: str = typer.Option(None, "--path", help="Save-as path ending with .aedt (omit to save in place)"),
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Save an AEDT project."""
+    """Save the active AEDT project. Use --path for Save As."""
     try:
-        d = common._get_desktop(port=port)
-        odesktop = d.odesktop
-        if project_name:
-            proj = odesktop.SetActiveProject(project_name)
-        else:
-            proj = odesktop.GetActiveProject()
+        d = common.get_desktop(port=port)
+        proj = d.odesktop.GetActiveProject()
         if not proj:
             raise RuntimeError("No active project found.")
-        if save_as:
-            proj.SaveAs(save_as, True)
+        if path:
+            if not path.lower().endswith(".aedt"):
+                raise typer.BadParameter("--path must end with .aedt when provided.")
+            proj.SaveAs(path, True)
         else:
             proj.Save()
-        data = {"project": proj.GetName(), "saved_as": save_as}
-        if common._json_mode:
-            common._output(data=data)
+        data = {"project": proj.GetName(), "saved_as": path}
+        if common.json_mode:
+            common.print_output(data=data)
         else:
             msg = f"Project '{proj.GetName()}' saved"
-            if save_as:
-                msg += f" as '{save_as}'"
+            if path:
+                msg += f" as '{path}'"
             typer.secho(msg, fg="green")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
 
 
-@project_app.command(name="create-design")
-def create_design(
-    app_type: AEDTAppType = typer.Argument(..., help="Application type"),
-    name: str = typer.Option(None, "--name", "-n", help="Design name"),
-    project_name: str = typer.Option(None, "--project", "-p", help="Target project"),
-    solution_type: str = typer.Option(None, "--solution-type", "-s", help="Solution type"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+@project_app.command(name="create")
+def create_project(
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    project: str = typer.Option(None, "--project", help="Project name to create/use"),
+    design: str = typer.Option(None, "--design", "-d", help="Design name to create"),
+    design_type: AEDTAppType = typer.Option(None, "--type", "-t", help="Design type (required with --design)"),
 ) -> None:
-    """Create a new design in AEDT."""
+    """Create a project, or create a design in a specified project."""
     try:
-        import ansys.aedt.core as aedt
+        if not project:
+            raise typer.BadParameter("--project is required.")
+        if design and not design_type:
+            raise typer.BadParameter("--type is required when --design is specified.")
+        if design_type and not design:
+            raise typer.BadParameter("--design is required when --type is specified.")
 
-        session = common._load_session()
-        if session is None:
-            if common._json_mode:
-                common._output(error="No active session. Run 'pyaedt connect' first.")
+        if design:
+            import ansys.aedt.core as aedt
+
+            aedt.settings.enable_logger = False
+            app_map = {
+                "Hfss": aedt.Hfss,
+                "Maxwell2d": aedt.Maxwell2d,
+                "Maxwell3d": aedt.Maxwell3d,
+                "Q3d": aedt.Q3d,
+                "Q2d": aedt.Q2d,
+                "Icepak": aedt.Icepak,
+                "Circuit": aedt.Circuit,
+                "TwinBuilder": aedt.TwinBuilder,
+                "Mechanical": aedt.Mechanical,
+                "Emit": aedt.Emit,
+                "Rmxprt": aedt.Rmxprt,
+                "Hfss3dLayout": aedt.Hfss3dLayout,
+                "MaxwellCircuit": aedt.MaxwellCircuit,
+            }
+            cls = app_map[design_type.value]
+            app_instance = cls(
+                port=port,
+                project=project,
+                design=design,
+                new_desktop=False,
+                close_on_exit=False,
+            )
+            data = {
+                "project": app_instance.project_name,
+                "design": app_instance.design_name,
+                "type": design_type.value,
+            }
+            if common.json_mode:
+                common.print_output(data=data)
             else:
-                typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
-            raise typer.Exit(code=1)
-
-        if port is not None:
-            session["port"] = port
-        aedt.settings.enable_logger = False
-        app_map = {
-            "Hfss": aedt.Hfss,
-            "Maxwell2d": aedt.Maxwell2d,
-            "Maxwell3d": aedt.Maxwell3d,
-            "Q3d": aedt.Q3d,
-            "Q2d": aedt.Q2d,
-            "Icepak": aedt.Icepak,
-            "Circuit": aedt.Circuit,
-            "TwinBuilder": aedt.TwinBuilder,
-            "Mechanical": aedt.Mechanical,
-            "Emit": aedt.Emit,
-            "Rmxprt": aedt.Rmxprt,
-            "Hfss3dLayout": aedt.Hfss3dLayout,
-            "MaxwellCircuit": aedt.MaxwellCircuit,
-        }
-        cls = app_map[app_type.value]
-        kwargs = {
-            "version": session["version"],
-            "port": session["port"],
-            "machine": session.get("machine", "localhost"),
-            "new_desktop": False,
-            "close_on_exit": False,
-        }
-        if name:
-            kwargs["design"] = name
-        if project_name:
-            kwargs["project"] = project_name
-        if solution_type:
-            kwargs["solution_type"] = solution_type
-
-        app_instance = cls(**kwargs)
-        data = {
-            "design": app_instance.design_name,
-            "type": app_type.value,
-            "project": app_instance.project_name,
-            "solution_type": solution_type,
-        }
-        if common._json_mode:
-            common._output(data=data)
+                typer.secho(
+                    f"Created {design_type.value} design '{data['design']}' in project '{data['project']}'",
+                    fg="green",
+                )
         else:
-            typer.secho(f"Created {app_type.value} design '{data['design']}'", fg="green")
+            d = common.get_desktop(port=port)
+            d.odesktop.NewProject()
+            proj = d.odesktop.GetActiveProject()
+            if proj:
+                proj.Rename(project, True)
+            proj_name = proj.GetName() if proj else project
+            data = {"project": proj_name}
+            if common.json_mode:
+                common.print_output(data=data)
+            else:
+                typer.secho(f"Created project '{proj_name}'", fg="green")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
 
 
-@project_app.command(name="analyze")
-def analyze(
-    setup_name: str = typer.Option(None, "--setup", "-s", help="Setup to analyze (all if omitted)"),
-    design_name: str = typer.Option(None, "--design", "-d", help="Target design"),
-    num_cores: int = typer.Option(None, "--cores", "-c", help="CPU cores to use"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
+@project_app.command(name="close")
+def close_project(
+    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    project: str = typer.Option(None, "--project", help="Project name to close (closes active if omitted)"),
 ) -> None:
-    """Run simulation analysis on a design."""
+    """Close an AEDT project."""
     try:
-        import ansys.aedt.core as aedt
-
-        session = common._load_session()
-        if session is None:
-            if common._json_mode:
-                common._output(error="No active session.")
-            else:
-                typer.secho("No active session. Run 'pyaedt connect' first.", fg="red")
-            raise typer.Exit(code=1)
-
-        if port is not None:
-            session["port"] = port
-        aedt.settings.enable_logger = False
-        app = aedt.get_pyaedt_app(
-            version=session["version"],
-            port=session["port"],
-            machine=session.get("machine", "localhost"),
-            new_desktop=False,
-            close_on_exit=False,
-            design=design_name,
-        )
-        kwargs = {}
-        if setup_name:
-            kwargs["setup"] = setup_name
-        if num_cores:
-            kwargs["num_cores"] = num_cores
-        app.analyze(**kwargs)
-        data = {"analyzed": True, "design": app.design_name, "setup": setup_name or "all"}
-        if common._json_mode:
-            common._output(data=data)
+        d = common.get_desktop(port=port)
+        odesktop = d.odesktop
+        if project:
+            odesktop.CloseProject(project)
+            closed_name = project
         else:
-            typer.secho(f"Analysis complete for '{app.design_name}'", fg="green")
+            proj = odesktop.GetActiveProject()
+            if not proj:
+                raise RuntimeError("No active project to close.")
+            closed_name = proj.GetName()
+            odesktop.CloseProject(closed_name)
+
+        if common.json_mode:
+            common.print_output(data={"closed": closed_name})
+        else:
+            typer.secho(f"Project '{closed_name}' closed.", fg="green")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)

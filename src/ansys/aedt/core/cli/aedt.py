@@ -22,9 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""AEDT connection and status commands."""
+"""Session management commands: start, list, stop, attach."""
 
 from __future__ import annotations
+
+import os
+import sys
+import threading
+import time
+
+import psutil
 
 try:
     import typer
@@ -34,119 +41,417 @@ except ImportError:  # pragma: no cover
     )
 
 from ansys.aedt.core.cli import common
+from ansys.aedt.core.generic.general_methods import _check_psutil_connections
+from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.general_methods import is_linux
 
 session_app = typer.Typer(help="Session management commands")
 
 
-@session_app.command("connect")
-def connect(
-    port: int = typer.Option(50051, "--port", "-p", help="gRPC port"),
-    machine: str = typer.Option("localhost", "--machine", "-m", help="Hostname or IP"),
-    version: str = typer.Option(None, "--version", "-v", help="AEDT version (e.g. 2026.1)"),
-    non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Non-graphical mode"),
+def _extract_version_from_cmdline(cmd_line: list[str]) -> str:
+    """Extract the AEDT version from a process command line."""
+    if not cmd_line:
+        return "unknown"
+
+    for part in cmd_line:
+        if "\\v" in part or "/v" in part:
+            version_parts = part.split("\\v" if "\\" in part else "/v")
+            if len(version_parts) > 1:
+                version = version_parts[1][:3] if len(version_parts[1]) >= 3 else version_parts[1]
+                if len(version) == 3 and version.isdigit():
+                    return f"20{version[0:2]}.{version[2]}"
+    return "unknown"
+
+
+def _get_default_aedt_process_name(student_version: bool) -> str:
+    if is_linux:
+        return "ansysedtsv" if student_version else "ansysedt"
+    return "ansysedtsv.exe" if student_version else "ansysedt.exe"
+
+
+def _discover_aedt_sessions() -> list[dict[str, object]]:
+    sessions_by_pid: dict[int, dict[str, object]] = {}
+    for student_version in (False, True):
+        for pid, port in active_sessions(student_version=student_version).items():
+            sessions_by_pid[pid] = {
+                "pid": pid,
+                "port": None if port == -1 else port,
+                "student_version": student_version,
+                "name": _get_default_aedt_process_name(student_version),
+                "version": "unknown",
+            }
+
+    connections = _check_psutil_connections(list(sessions_by_pid.keys())) if sessions_by_pid else {}
+    for pid, session in sessions_by_pid.items():
+        connection_data = connections.get(pid, [])
+        for connection in connection_data:
+            cmdline = connection.get("cmdline")
+            if isinstance(cmdline, str) and cmdline:
+                session["version"] = _extract_version_from_cmdline(cmdline.split())
+                break
+
+    return sorted(sessions_by_pid.values(), key=lambda session: int(session["pid"]))
+
+
+@session_app.command("start")
+def start(
+    version: str = typer.Option("2026.1", "--version", "-v", help="AEDT version to start (e.g. 2026.1)"),
+    port: int = typer.Option(50051, "--port", help="gRPC port (0 for auto)"),
+    non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start in non-graphical mode"),
 ) -> None:
-    """Connect to a running AEDT instance via gRPC."""
+    """Start a new AEDT instance."""
     try:
+        if not common.json_mode:
+            typer.echo("Starting AEDT ", nl=False)
+            typer.secho(version, fg="cyan", nl=False)
+            typer.echo("...")
+            if non_graphical:
+                typer.echo("Starting in non-graphical mode...")
+
         from ansys.aedt.core import settings
         from ansys.aedt.core.desktop import Desktop
 
         settings.enable_logger = False
-        d = Desktop(
-            version=version,
-            port=port,
-            machine=machine,
-            non_graphical=non_graphical,
-            new_desktop=False,
-            close_on_exit=False,
-        )
-        actual_version = version or str(d.aedt_version_id)
-        common._save_session(port=d.port, machine=machine, version=actual_version)
-        data = {"port": d.port, "machine": machine, "version": actual_version}
-        if common._json_mode:
-            common._output(data=data)
-        else:
-            typer.secho(f"Connected to AEDT {actual_version} on {machine}:{d.port}", fg="green")
-    except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
-        else:
-            typer.secho(f"Error connecting: {e}", fg="red")
-        raise typer.Exit(code=1)
 
+        args = {
+            "version": version,
+            "non_graphical": non_graphical,
+            "new_desktop": True,
+            "close_on_exit": False,
+        }
+        if port > 0:
+            args["port"] = port
+            if not common.json_mode:
+                typer.echo("Using port: ", nl=False)
+                typer.secho(f"{port}", fg="cyan")
 
-@session_app.command("disconnect")
-def disconnect(
-    close_projects: bool = typer.Option(False, "--close-projects", help="Close all projects before disconnecting"),
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
-) -> None:
-    """Disconnect from AEDT and clear session."""
-    try:
-        session = common._load_session()
-        if session:
-            if port is not None:
-                session["port"] = port
-            try:
-                from ansys.aedt.core import settings
-                from ansys.aedt.core.desktop import Desktop
+        progress_running = True
 
-                settings.enable_logger = False
-                d = Desktop(
-                    version=session["version"],
-                    port=session["port"],
-                    machine=session.get("machine", "localhost"),
-                    new_desktop=False,
-                    close_on_exit=False,
-                )
-                d.release_desktop(close_projects=close_projects, close_on_exit=False)
-            except Exception:
-                pass  # Best-effort disconnect
-        common._clear_session()
-        if common._json_mode:
-            common._output(data={"disconnected": True})
-        else:
-            typer.secho("Disconnected from AEDT.", fg="green")
-    except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
-        else:
-            typer.secho(f"Error disconnecting: {e}", fg="red")
-        raise typer.Exit(code=1)
+        if not common.json_mode:
+            progress_chars = ["|", "/", "-", "\\"]
 
+            def show_progress() -> None:
+                i = 0
+                while progress_running:
+                    sys.stdout.write(f"\r{progress_chars[i % len(progress_chars)]} Initializing AEDT...")
+                    sys.stdout.flush()
+                    time.sleep(0.2)
+                    i += 1
+                sys.stdout.write("\r" + " " * 50 + "\r")
+                sys.stdout.flush()
 
-@session_app.command("status")
-def status(
-    port: int = typer.Option(None, "--port", help="Override port to target a specific AEDT instance"),
-) -> None:
-    """Show AEDT connection status and info."""
-    try:
-        d = common._get_desktop(port=port)
-        odesktop = d.odesktop
-        projects = odesktop.GetProjectList()
-        active_project = odesktop.GetActiveProject()
-        active_project_name = active_project.GetName() if active_project else None
+            progress_thread = threading.Thread(target=show_progress, daemon=True)
+            progress_thread.start()
+
+        d = Desktop(**args)
+        progress_running = False
 
         data = {
-            "connected": True,
-            "version": str(d.aedt_version_id),
-            "port": d.port,
-            "process_id": odesktop.GetProcessID(),
-            "projects": list(projects),
-            "active_project": active_project_name,
+            "port": int(d.port) if isinstance(d.port, (int, float)) else 0,
+            "version": version,
+            "non_graphical": non_graphical,
         }
-        if common._json_mode:
-            common._output(data=data)
+        if common.json_mode:
+            common.print_output(data=data)
         else:
-            typer.secho("AEDT Status:", fg="bright_blue", bold=True)
-            typer.echo(f"  Version: {data['version']}")
-            typer.echo(f"  Port: {data['port']}")
-            typer.echo(f"  PID: {data['process_id']}")
-            typer.echo(f"  Projects: {', '.join(data['projects']) or 'None'}")
-            typer.echo(f"  Active project: {data['active_project'] or 'None'}")
+            typer.secho(f"AEDT started successfully on port {d.port}", fg="green")
+    except Exception as e:
+        if common.json_mode:
+            common.print_output(error=str(e))
+        else:
+            typer.secho(f"Error starting AEDT: {str(e)}", fg="red")
+        raise typer.Exit(code=1)
+
+
+@session_app.command("list")
+def list_sessions() -> None:
+    """List all running AEDT instances."""
+    aedt_sessions = _discover_aedt_sessions()
+
+    if common.json_mode:
+        procs_data = []
+        for session in aedt_sessions:
+            procs_data.append(
+                {
+                    "pid": session["pid"],
+                    "name": session["name"],
+                    "port": session["port"],
+                    "version": session["version"],
+                    "student_version": bool(session.get("student_version", False)),
+                }
+            )
+        common.print_output(data={"processes": procs_data, "count": len(procs_data)})
+        return
+
+    if not aedt_sessions:
+        typer.secho("No AEDT processes currently running.", fg="yellow")
+        return
+
+    typer.echo("Found ", nl=False)
+    typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
+    typer.echo(" AEDT instance(s):")
+    typer.echo("-" * 60)
+
+    for session in aedt_sessions:
+        port = session["port"]
+        version = session["version"]
+        edition = session.get("student_version", False)
+        typer.echo("  PID: ", nl=False)
+        typer.secho(f"{session['pid']}", fg="cyan", nl=False)
+        typer.echo(" | Version: ", nl=False)
+        typer.secho(f"{version}", fg="blue", nl=False)
+        if edition:
+            typer.echo(" | Edition: ", nl=False)
+            typer.secho("Student" if edition else "Standard", fg="magenta", nl=False)
+        typer.echo(" | Port: ", nl=False)
+        if port is not None:
+            typer.secho(f"{port}", fg="green")
+        else:
+            typer.secho("COM mode", fg="yellow")
+
+
+@session_app.command("stop")
+def stop(
+    port: int | None = typer.Option(None, "--port", help="Port of the AEDT instance to stop"),
+    all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
+) -> None:
+    """Stop an AEDT instance by port or stop all running instances."""
+    try:
+        aedt_sessions = _discover_aedt_sessions()
+        if all:
+            stopped_pids = []
+            skipped_pids = []
+            for session in aedt_sessions:
+                try:
+                    psutil.Process(int(session["pid"])).kill()
+                    stopped_pids.append(int(session["pid"]))
+                except psutil.NoSuchProcess:
+                    continue
+                except psutil.AccessDenied:
+                    skipped_pids.append(int(session["pid"]))
+            if common.json_mode:
+                common.print_output(data={"stopped": True, "all": True, "pids": stopped_pids, "skipped": skipped_pids})
+            else:
+                if skipped_pids:
+                    typer.secho("Some AEDT processes could not be stopped.", fg="yellow")
+                else:
+                    typer.secho("All AEDT processes stopped.", fg="green")
+            return
+
+        if port is None:
+            message = "Either --port or --all must be provided."
+            if common.json_mode:
+                common.print_output(error=message)
+            else:
+                typer.secho(message, fg="red")
+            raise typer.Exit(code=1)
+
+        target_session = next((session for session in aedt_sessions if session["port"] == port), None)
+
+        if target_session is None:
+            if common.json_mode:
+                common.print_output(error=f"No AEDT process found on port {port}.")
+            else:
+                typer.secho(f"No AEDT process found on port {port}.", fg="red")
+            raise typer.Exit(code=1)
+
+        pid = int(target_session["pid"])
+        try:
+            psutil.Process(pid).kill()
+        except psutil.AccessDenied:
+            if common.json_mode:
+                common.print_output(error=f"Access denied for process PID {pid}.")
+            else:
+                typer.secho(f"Access denied for process PID {pid}.", fg="red")
+            raise typer.Exit(code=1)
+        except psutil.NoSuchProcess:
+            if common.json_mode:
+                common.print_output(error=f"AEDT process PID {pid} is no longer running.")
+            else:
+                typer.secho(f"AEDT process PID {pid} is no longer running.", fg="red")
+            raise typer.Exit(code=1)
+
+        if common.json_mode:
+            common.print_output(data={"stopped": True, "pid": pid, "port": port})
+        else:
+            typer.secho(f"AEDT process (PID {pid}, port {port}) stopped.", fg="green")
     except typer.Exit:
         raise
     except Exception as e:
-        if common._json_mode:
-            common._output(error=str(e))
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
+
+
+@session_app.command("attach")
+def attach(
+    port: int = typer.Option(None, "--port", help="gRPC port to attach to"),
+    project: str = typer.Option(None, "--project", help="Project to activate in the console session"),
+    design: str = typer.Option(None, "--design", help="Design to set as active in the console"),
+) -> None:
+    """Attach to a running AEDT instance and open an interactive PyAEDT console.
+
+    If --port is not given, lists available instances for interactive selection.
+    """
+    aedt_sessions = _discover_aedt_sessions()
+
+    if not aedt_sessions:
+        typer.secho("No AEDT processes currently running.", fg="yellow")
+        typer.echo("Start AEDT first using: ", nl=False)
+        typer.secho("pyaedt session start", fg="cyan")
+        return
+
+    if port is not None:
+        target_session = next((session for session in aedt_sessions if session["port"] == port), None)
+
+        if target_session is None:
+            typer.secho(f"No AEDT process found on port {port}.", fg="red")
+            typer.echo("Available AEDT instances:")
+            for session in aedt_sessions:
+                session_port = session["port"]
+                typer.echo(f"  PID: {session['pid']}, Port: {session_port or 'COM mode'}")
+            return
+
+        version = str(target_session["version"])
+        typer.echo("Attaching to process ", nl=False)
+        typer.secho(f"{target_session['pid']}", fg="cyan", nl=False)
+        typer.echo(f" (port {port})...")
+        _activate_console_context(port=port, project=project, design=design)
+        _launch_console(int(target_session["pid"]), version, design)
+    else:
+        _attach_interactive(aedt_sessions, project, design)
+
+
+def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | None, design: str | None) -> None:
+    """Interactive mode to select and attach to an AEDT process.
+
+    Parameters
+    ----------
+    aedt_sessions : list[dict[str, object]]
+        List of available AEDT processes
+    design : str or None
+        Design name to set active, or None
+    """
+    typer.echo("Found ", nl=False)
+    typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
+    typer.echo(" AEDT instance(s):\n")
+
+    process_info = []
+    for idx, session in enumerate(aedt_sessions, 1):
+        port = session["port"]
+        version = session["version"]
+        process_info.append({"idx": idx, "pid": session["pid"], "port": port, "version": version})
+
+        typer.secho(f"  {idx}", fg="yellow", nl=False)
+        typer.echo(". PID: ", nl=False)
+        typer.secho(f"{session['pid']}", fg="cyan", nl=False)
+        typer.echo(" | Version: ", nl=False)
+        typer.secho(f"{version}", fg="blue", nl=False)
+        typer.echo(" | Port: ", nl=False)
+        if port is not None:
+            typer.secho(f"{port}", fg="green")
+        else:
+            typer.secho("COM mode", fg="yellow")
+
+    typer.echo("")
+    choice_idx = None
+    while choice_idx is None:
+        typer.echo("Select instance (1-", nl=False)
+        typer.secho(f"{len(process_info)}", fg="yellow", nl=False)
+        typer.echo(") or '", nl=False)
+        typer.secho("q", fg="red", nl=False)
+        typer.echo("' to quit: ", nl=False)
+        choice = input().strip()
+
+        if choice.lower() == "q":
+            typer.echo("Cancelled.")
+            return
+
+        try:
+            choice_idx = int(choice)
+            if choice_idx < 1 or choice_idx > len(process_info):
+                typer.secho(f"Invalid selection. Please enter a number between 1 and {len(process_info)}.", fg="red")
+                choice_idx = None
+        except ValueError:
+            typer.secho("Invalid input. Please enter a number.", fg="red")
+
+    selected = process_info[choice_idx - 1]
+    typer.echo("\nAttaching to process ", nl=False)
+    typer.secho(f"{selected['pid']}", fg="cyan", nl=False)
+    typer.echo("...")
+    _activate_console_context(port=selected["port"], project=project, design=design)
+    _launch_console(selected["pid"], selected["version"], design)
+
+
+def _activate_console_context(port: int | None, project: str | None = None, design: str | None = None) -> None:
+    """Activate the requested project and design before launching the console."""
+    if not project and not design:
+        return
+    if port is None:
+        raise RuntimeError("Using --project or --design with session attach requires a gRPC-enabled AEDT instance.")
+
+    desktop = common.get_desktop(port=port)
+    if design:
+        common.resolve_project_and_design(desktop.odesktop, project_name=project, design_name=design)
+    else:
+        common.resolve_project(desktop.odesktop, project_name=project)
+
+
+def _launch_console(pid: int, version: str, design: str | None = None) -> None:
+    """Launch an interactive PyAEDT console attached to an AEDT process.
+
+    Parameters
+    ----------
+    pid : int
+        Process ID of the AEDT instance
+    version : str
+        AEDT version string
+    design : str or None
+        Design name to set as active, or None
+    """
+    from pathlib import Path
+    import subprocess  # nosec B404 - subprocess needed for launching interactive console
+
+    env = os.environ.copy()
+    env["PYAEDT_PROCESS_ID"] = str(pid)
+    if version and version != "unknown":
+        env["PYAEDT_DESKTOP_VERSION"] = version
+    else:
+        env.pop("PYAEDT_DESKTOP_VERSION", None)
+    if design:
+        env["PYAEDT_DESIGN"] = design
+
+    try:
+        import ansys.aedt.core
+
+        package_dir = Path(ansys.aedt.core.__file__).parent
+        console_setup_path = package_dir / "extensions" / "installer" / "console_setup.py"
+
+        if not console_setup_path.exists():
+            typer.secho(f"Error: console_setup.py not found at {console_setup_path}", fg="red")
+            return
+    except Exception as e:
+        typer.secho(f"Error locating console_setup.py: {str(e)}", fg="red")
+        return
+
+    import importlib.util
+
+    if importlib.util.find_spec("IPython") is None:  # pragma: no cover
+        typer.secho("IPython is required for the interactive console.", fg="red")
+        typer.echo("Install it with: ", nl=False)
+        typer.secho("pip install ipython", fg="cyan")
+        return
+
+    python_exe = sys.executable
+    typer.echo("")
+
+    try:  # pragma: no cover
+        subprocess.run(  # nosec B603 - trusted paths from sys.executable and package location
+            [python_exe, "-m", "IPython", "-i", str(console_setup_path)], env=env, check=False
+        )
+    except KeyboardInterrupt:  # pragma: no cover
+        typer.echo("\n\nInterrupted.")
+    except Exception as e:  # pragma: no cover
+        typer.secho(f"Error launching console: {str(e)}", fg="red")

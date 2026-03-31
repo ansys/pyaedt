@@ -142,7 +142,7 @@ When helping a user, do not describe this behavior as “active project” or �
 | `pyaedt --json session start --version 2026.1 [--port 50051] [--non-graphical]` | Start a new AEDT instance |
 | `pyaedt --json session list` | List running AEDT instances with PID, version, and port |
 | `pyaedt --json session stop --port 50051` | Stop a specific AEDT instance by port |
-| `pyaedt --json session stop --all --port 50051` | Stop all AEDT instances. `--port` is currently required by the CLI signature even though `--all` drives behavior. |
+| `pyaedt --json session stop --all` | Stop all AEDT instances. |
 | `pyaedt session attach [--port 50051] [--project NAME] [--design NAME]` | Launch an interactive PyAEDT console attached to a running instance |
 
 Notes:
@@ -364,5 +364,5 @@ pyaedt --json session stop --port 50051
 If all AEDT instances must be terminated:
 
 ```bash
-pyaedt --json session stop --all --port 50051
+pyaedt --json session stop --all
 ```

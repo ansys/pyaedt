@@ -31,12 +31,14 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
-from ansys.aedt.core.cli import common
 from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
-from ansys.aedt.core.cli.common import _display_config
-from ansys.aedt.core.cli.common import _load_config
-from ansys.aedt.core.cli.common import _prompt_config_value
-from ansys.aedt.core.cli.common import _save_config
+from ansys.aedt.core.cli.common import display_config
+from ansys.aedt.core.cli.common import get_tests_folder
+from ansys.aedt.core.cli.common import json_mode
+from ansys.aedt.core.cli.common import load_config
+from ansys.aedt.core.cli.common import print_output
+from ansys.aedt.core.cli.common import prompt_config_value
+from ansys.aedt.core.cli.common import save_config
 
 test_config_app = typer.Typer(help="Test configuration management (local_config.json)", invoke_without_command=True)
 
@@ -63,17 +65,17 @@ def test_config_callback(
     if ctx.invoked_subcommand is not None:
         return
 
-    tests_folder = common._get_tests_folder()
+    tests_folder = get_tests_folder()
     config_path = tests_folder / "local_config.json"
 
     if config_path.exists():
-        config = _load_config(config_path)
+        config = load_config(config_path)
     else:
         config = DEFAULT_TEST_CONFIG.copy()
-        _save_config(config_path, config)
+        save_config(config_path, config)
 
-    if common._json_mode:
-        common._output(data={"config_path": str(config_path), "config": config})
+    if json_mode:
+        print_output(data={"config_path": str(config_path), "config": config})
         return
 
     typer.echo("\n" + "=" * 70)
@@ -93,7 +95,7 @@ def test_config_callback(
         typer.secho("OK", fg="green", bold=True, nl=False)
         typer.echo(" Configuration file created with defaults")
 
-    _display_config(config, "Current Test Configuration", CONFIG_DESCRIPTIONS)
+    display_config(config, "Current Test Configuration", CONFIG_DESCRIPTIONS)
 
     if show:
         return
@@ -135,17 +137,17 @@ def test_config_callback(
         typer.echo("      Current: ", nl=False)
         typer.secho(current_display, fg=color)
 
-        new_value = _prompt_config_value(key, value)
+        new_value = prompt_config_value(key, value)
         new_config[key] = new_value
 
     typer.echo("\n" + "-" * 70)
     typer.echo("  Saving configuration...")
-    _save_config(config_path, new_config)
+    save_config(config_path, new_config)
 
     typer.echo("\n" + "=" * 70)
     typer.secho("  Configuration Updated Successfully!", fg="green", bold=True)
     typer.echo("=" * 70)
 
-    _display_config(new_config, "Updated Test Configuration", CONFIG_DESCRIPTIONS)
+    display_config(new_config, "Updated Test Configuration", CONFIG_DESCRIPTIONS)
     typer.secho("  Configuration saved to:", fg="bright_blue")
     typer.secho(f"  {config_path}\n", fg="cyan")
