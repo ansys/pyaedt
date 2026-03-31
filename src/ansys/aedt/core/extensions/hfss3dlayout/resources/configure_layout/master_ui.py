@@ -93,7 +93,6 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
         super().__init__(
             self.EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
             toggle_row=2,

@@ -126,6 +126,8 @@ def environment_variables(oDesktop):
     else:
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
     os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
+    if version > "2025.2":
+        os.environ["PYAEDT_GLOBAL_THEME"] = str(oDesktop.GetRegistryString("Desktop/ColorScheme"))
     if is_linux:
         # Path of AEDT installation, needed for loading EDB DLLs
         edt_root = os.path.normpath(oDesktop.GetExeDir())

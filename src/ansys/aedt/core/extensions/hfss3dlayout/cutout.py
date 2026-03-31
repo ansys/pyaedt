@@ -80,9 +80,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
-        super().__init__(
-            EXTENSION_TITLE, theme_color="light", withdraw=withdraw, add_custom_content=False, use_edb=True
-        )
+        super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=False, use_edb=True)
         self.data: CutoutData = CutoutData()
         # NOTE: Objects net are loaded only once, if a new project/design is opened
         # the extension has to be opened again or this value will not refresh.
