@@ -34,8 +34,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
-pytest.importorskip("pyedb", "0.21.0")
-
 TEST_SUBFOLDER = "T45"
 EDB_PROJECT = "ANSYS-HSD_V1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
