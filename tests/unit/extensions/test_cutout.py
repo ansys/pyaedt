@@ -67,8 +67,8 @@ def mock_hfss_3d_layout_with_primitives(request, mock_hfss_3d_layout_app):
     }
 
     edb_padstacks = MagicMock(instances=instances)
-    edb_modeler = MagicMock(primitives_by_net=primitives_by_net)
-    edb = MagicMock(modeler=edb_modeler, padstacks=edb_padstacks)
+    edb_layout = MagicMock(primitives_by_net=primitives_by_net)
+    edb = MagicMock(layout=edb_layout, padstacks=edb_padstacks)
     modeler = MagicMock(edb=edb)
 
     mock_oeditor = MagicMock()

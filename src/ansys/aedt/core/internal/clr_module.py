@@ -103,6 +103,7 @@ if is_linux and cpython:
                 dotnet_root=str(dotnet_root),
             )
             os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
+
             is_clr = True
         except ImportError:
             msg = "pythonnet or dotnetcore not installed. PyAEDT will work only in client mode."

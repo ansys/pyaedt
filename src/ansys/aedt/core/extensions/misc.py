@@ -47,6 +47,7 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -83,6 +84,21 @@ def get_aedt_version() -> str:
 def is_student() -> bool:
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
+    return res
+
+
+def get_aedt_path() -> str | None:
+    """Get AEDT path from environment variable."""
+    version = get_aedt_version()
+    fallback_path = aedt_versions.installed_versions.get(version, None)
+
+    res = os.getenv("PYAEDT_DESKTOP_PATH", fallback_path)
+    return res
+
+
+def get_aedt_theme() -> str:
+    """Get AEDT theme from environment variable."""
+    res = os.getenv("PYAEDT_GLOBAL_THEME", "light")
     return res
 
 
@@ -225,11 +241,12 @@ class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
-        theme_color: str = "light",
+        theme_color: str | None = None,
         withdraw: bool = False,
         add_custom_content: bool = True,
         toggle_row: int | None = None,
         toggle_column: int | None = None,
+        use_edb: bool = False,
     ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
@@ -242,7 +259,8 @@ class ExtensionCommon(PyAedtBase):
         title : str
             The title of the main window.
         theme_color: str, optional
-            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+            The theme color to apply to the UI. Options are ``"light"`` or ``"dark"``.
+            If ``None``, the theme is inferred from the AEDT environment.
         withdraw : bool, optional
             If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
@@ -251,14 +269,37 @@ class ExtensionCommon(PyAedtBase):
             The row index where the toggle button will be placed.
         toggle_column : int, optional
             The column index where the toggle button will be placed.
+        use_edb : bool, optional
+            Whether to use PyEDB. When set to ``True`` on Linux, the required native libraries are loaded automatically
+            from the AEDT installation directory. This is necessary for extensions that interact
+            directly with layout databases via the EDB API. The default is ``False``.
         """
-        if theme_color not in ["light", "dark"]:
+        if theme_color is None:
+            theme_color = get_aedt_theme()
+            if "dark" in theme_color.lower():
+                theme_color = "dark"
+            elif theme_color not in ["light", "dark"]:
+                theme_color = "light"
+        elif theme_color not in ["light", "dark"]:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
+        self.use_edb = use_edb
+
+        aedt_install_dir = get_aedt_path()
+
+        if is_linux and self.use_edb and aedt_install_dir:
+            import ctypes
+
+            ctypes.cdll.LoadLibrary(
+                os.path.join(aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1")
+            )
+            ctypes.cdll.LoadLibrary(os.path.join(aedt_install_dir, "libEDBCWrapper.so"))
 
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
@@ -266,13 +307,13 @@ class ExtensionCommon(PyAedtBase):
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
-        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
+        self.apply_theme(self.theme_color)
 
     def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
         """Create a button to toggle between light and dark themes."""
@@ -354,9 +395,9 @@ class ExtensionCommon(PyAedtBase):
     def toggle_theme(self) -> None:
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
-            self.__apply_theme("dark")
+            self.apply_theme("dark")
         elif self.root.theme == "dark":
-            self.__apply_theme("light")
+            self.apply_theme("light")
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
@@ -442,7 +483,7 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str):
+    def apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
@@ -546,6 +587,7 @@ class ExtensionCommon(PyAedtBase):
                 student_version=is_student(),
                 close_on_exit=False,
             )
+
         return self.__desktop
 
     @property
@@ -1084,6 +1126,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
                 ("!active", "#F3C767"),
             ],
             foreground=[("active", "black"), ("!active", "black")],
+        )
+
+        # Apply the colors and font to the style for SpinBox
+        style.configure(
+            "PyAEDT.TSpinbox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
         )
 
 

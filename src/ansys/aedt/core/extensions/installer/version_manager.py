@@ -45,6 +45,7 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_aedt_theme
 from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -119,8 +120,12 @@ class VersionManager:
         # Help for opening links
         self.help = Help()
 
-        self.theme.apply_light_theme(self.style)
-        self.theme_color = "light"
+        # Detect AEDT theme similarly to ExtensionCommon behavior.
+        self.theme_color = self._resolve_theme_color()
+        if self.theme_color == "dark":
+            self.theme.apply_dark_theme(self.style)
+        else:
+            self.theme.apply_light_theme(self.style)
 
         self.venv_information = tkinter.StringVar()
         self.pyaedt_info = tkinter.StringVar()
@@ -171,6 +176,16 @@ class VersionManager:
 
         # Check for PyAEDT updates on startup
         self.check_for_pyaedt_update_on_startup()
+
+    @staticmethod
+    def _resolve_theme_color() -> str:
+        """Resolve AEDT theme preference and normalize it to "light" or "dark"."""
+        theme_color = get_aedt_theme()
+        if "dark" in theme_color.lower():
+            return "dark"
+        if theme_color in ["light", "dark"]:
+            return theme_color
+        return "light"
 
     def toggle_theme(self) -> None:
         if self.theme_color == "light":

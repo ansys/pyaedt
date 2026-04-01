@@ -286,9 +286,7 @@ Requirements:
 
 On Linux, in addition to the preceding requirements, these environments are needed:
 
-- You can use the Python 3.10 or later version that is installed.
-- You can export ``ANSYSEM_ROOT252=/path/to/AnsysEM/v252/AnsysEM``.
-
+- You can export ``ANSYSEM_ROOT261=/path/to/AnsysEM/v261/AnsysEM``.
 
 On the server, the ``pyaedt_service_manager`` service listen for incoming connections:
 
