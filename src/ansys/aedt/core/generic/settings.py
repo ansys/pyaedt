@@ -189,7 +189,21 @@ class Settings(PyAedtBase):
         self.__custom_lsf_command = DEFAULT_CUSTOM_SUBMISSION_STRING
         # Settings related to environment variables that are set before launching a new AEDT session
         # This includes those that enable the beta features!
-        self.__aedt_environment_variables: dict[str, str] = {}
+        self.__aedt_environment_variables: dict[str, str] = {
+            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+            "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+            "ANSYSEM_FEATURE_F545177_ECAD_INTEGRATION_WITH_APHI_ENABLE": "1",
+            "ANSYSEM_FEATURE_F650636_MECH_LAYOUT_COMPONENT_ENABLE": "1",
+            "ANSYSEM_FEATURE_F538630_MECH_TRANSIENT_THERMAL_ENABLE": "1",
+            "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE": "1",
+            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
+            "AnsysSendMsg": "1",
+            "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
+        }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         # General settings

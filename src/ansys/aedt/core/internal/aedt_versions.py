@@ -78,7 +78,7 @@ class AedtVersions(PyAedtBase):
                 product_dir = os.getenv(version_env_var)
                 parent_dir = os.path.join(product_dir, "..")
                 _script_dir = Path(script_dir).resolve()
-                _product_dir = Path(product_dir).resolve()
+
                 _parent_dir = Path(parent_dir).resolve()
                 if _script_dir.is_relative_to(_parent_dir) or _script_dir.is_relative_to(product_dir):
                     self._is_pyaedt_in_edt = True
