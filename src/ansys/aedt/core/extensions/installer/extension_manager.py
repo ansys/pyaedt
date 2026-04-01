@@ -145,7 +145,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Selector for whether optional extensions are enabled.
         # This is used to disable interaction with extensions that
         # require dependencies not included in the base pyaedt install
-        self._optional_extensions = False
+        self._optional_extensions = True
 
         self.python_interpreter = Path(sys.executable)
         self.toolkits = None
