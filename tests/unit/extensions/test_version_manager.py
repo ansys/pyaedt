@@ -180,6 +180,14 @@ def test_activate_venv_and_exes() -> None:
     assert "VIRTUAL_ENV" in manager.activated_env
 
 
+def test_version_manager_window_bounds() -> None:
+    manager = _make_vm()
+
+    manager.root.geometry.assert_called_with(f"{vm.VersionManager.UI_WIDTH}x{vm.VersionManager.UI_HEIGHT}")
+    manager.root.minsize.assert_called_once_with(vm.VersionManager.UI_MIN_WIDTH, vm.VersionManager.UI_MIN_HEIGHT)
+    manager.root.maxsize.assert_called_once_with(vm.VersionManager.UI_MAX_WIDTH, vm.VersionManager.UI_MAX_HEIGHT)
+
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.shutil.which")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
 def test_is_git_available_and_messagebox(mock_showerror, mock_which) -> None:
