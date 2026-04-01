@@ -852,6 +852,8 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             "button_bg": "#E8E8E8",
             "button_hover_bg": "#DADADA",
             "button_active_bg": "#CACACA",
+            "button_disabled_bg": "#D9D9D9",
+            "button_disabled_fg": "#7A7A7A",
             "button_border": "#C0C0C0",
             "tab_bg_inactive": "#F0F0F0",
             "tab_bg_active": "#FAFAFA",
@@ -886,6 +888,8 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             "button_bg": "#3C3F41",
             "button_hover_bg": "#4A4D50",
             "button_active_bg": "#575B5E",
+            "button_disabled_bg": "#45484B",
+            "button_disabled_fg": "#9A9A9A",
             "button_border": "#5C5F62",
             "tab_bg_inactive": "#2D2F31",
             "tab_bg_active": "#383A3C",
@@ -1148,6 +1152,26 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             "PyAEDT.ActionWeb.TButton",
             background=[("active", colors["button_active_bg"]), ("!active", colors["button_bg"])],
             foreground=[("active", colors["text"]), ("!active", colors["text"])],
+        )
+
+        style.configure(
+            "PyAEDT.ActionDisabled.TButton",
+            background=colors["button_disabled_bg"],
+            foreground=colors["button_disabled_fg"],
+            **_action_base,
+        )
+        style.map(
+            "PyAEDT.ActionDisabled.TButton",
+            background=[
+                ("disabled", colors["button_disabled_bg"]),
+                ("active", colors["button_disabled_bg"]),
+                ("!active", colors["button_disabled_bg"]),
+            ],
+            foreground=[
+                ("disabled", colors["button_disabled_fg"]),
+                ("active", colors["button_disabled_fg"]),
+                ("!active", colors["button_disabled_fg"]),
+            ],
         )
 
         # Launch button (Ansys gold)

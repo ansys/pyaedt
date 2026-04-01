@@ -37,6 +37,7 @@ import webbrowser
 
 import PIL.Image
 import PIL.ImageTk
+import PIL.ImageOps
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
 from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
@@ -98,6 +99,8 @@ AEDT_EXTENSION_APPLICATIONS = [
 class ExtensionManager(ExtensionProjectCommon):
     """Extension for move it in AEDT."""
 
+    OPTIONAL_EXTENSION_TOOLTIP = "This extension requires optional dependencies and is currently unavailable."
+
     def _resolve_category_folder(self, category: str) -> str:
         """Resolve the extension folder name from a category or product name.
 
@@ -120,6 +123,13 @@ class ExtensionManager(ExtensionProjectCommon):
         # Fallback: use the lower-cased category
         return category_lower
 
+    def _get_category_toolkits(self, category: str) -> dict:
+        """Return toolkit metadata for a category using either folder or product names."""
+        if not self.toolkits:
+            return {}
+        mapped_category = AEDT_APPLICATIONS.get(str(category).lower(), category)
+        return self.toolkits.get(mapped_category, {})
+
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
@@ -131,6 +141,11 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         self.active_process = None
         self.active_extension = None
+
+        # Selector for whether optional extensions are enabled.
+        # This is used to disable interaction with extensions that
+        # require dependencies not included in the base pyaedt install
+        self._optional_extensions = False
 
         self.python_interpreter = Path(sys.executable)
         self.toolkits = None
@@ -148,13 +163,13 @@ class ExtensionManager(ExtensionProjectCommon):
         self.logs_window = None
         self.logs_text_widget = None
         self._log_stream_threads = []
+        self.apply_theme(self.theme_color)
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
         # Add logger
         self.add_logger(self.root, row=4, column=0)
-        self.apply_theme(self.theme_color)
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
@@ -415,15 +430,15 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
         # Load extensions from TOML
-        extensions = list(self.toolkits.get(self.current_category, {}).keys())
+        category_toolkits = self._get_category_toolkits(self.current_category)
+        extensions = list(category_toolkits.keys())
         options = {}
         toml_names = set()
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[self.current_category][extension_name].get("name",
-                                                                                                   extension_name)
-                toml_names.add(self.toolkits[self.current_category][extension_name].get("name", extension_name))
+                options[extension_name] = category_toolkits[extension_name].get("name", extension_name)
+                toml_names.add(category_toolkits[extension_name].get("name", extension_name))
         else:
             options["Custom"] = "Custom"
 
@@ -455,18 +470,17 @@ class ExtensionManager(ExtensionProjectCommon):
 
             # Check if extension has URL for clickable functionality
             has_url = False
+            extension_info = self._get_extension_info(self.current_category, option)
+            is_optional = self.is_optional_extension_disabled(self.current_category, option)
             if option.lower() == "custom":
                 # Custom option always has a URL (documentation link)
                 has_url = True
             else:
-                extension_info = self.toolkits.get(self.current_category, {}).get(
-                    option, {}
-                )
                 has_url = extension_info.get("url", None) is not None
 
             # If this is a custom extension from XML, use image and script fields
             if (
-                option not in self.toolkits.get(self.current_category, {}) and
+                option not in category_toolkits and
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
@@ -531,7 +545,7 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 try:
                     # Try to find the icon for this specific extension
-                    extension_info = self.toolkits[self.current_category][option]
+                    extension_info = category_toolkits[option]
                     if extension_info.get("icon"):
                         icon_path = (
                             EXTENSIONS_PATH
@@ -599,16 +613,14 @@ class ExtensionManager(ExtensionProjectCommon):
             # Determine if this is an extension (has script) or toolkit (does not have script)
             is_extension = False
             is_toolkit = False
-            if (option.lower() != "custom" and
-                option in self.toolkits.get(category, {})):
-                extension_info = self.toolkits[category][option]
+            if option.lower() != "custom" and option in category_toolkits:
+                extension_info = category_toolkits[option]
                 is_extension = (
                     extension_info.get("script", None) is not None
                 )
                 is_toolkit = not is_extension
             # For custom extensions from XML, treat as extension (show Launch button)
-            if (option not in self.toolkits.get(category, {}) and
-                option != "Custom"):
+            if option not in category_toolkits and option != "Custom":
                 is_extension = True
                 is_toolkit = False
 
@@ -623,12 +635,12 @@ class ExtensionManager(ExtensionProjectCommon):
                 overlay_frame.place(relx=1.0, y=4, anchor="ne", x=-4)
 
                 pin_icon = self.create_pin_icon(
-                    overlay_frame, category, option
+                    overlay_frame, category, option, disabled=is_optional
                 )
                 pin_icon.pack()
             # Show appropriate buttons based on type
             if (option.lower() == "custom" or
-                (option not in self.toolkits.get(category, {}) and
+                (option not in category_toolkits and
                  option != "Custom")):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
@@ -650,10 +662,21 @@ class ExtensionManager(ExtensionProjectCommon):
                 web_btn = ttk.Button(
                     button_frame,
                     text="Open Web",
-                    style="PyAEDT.ActionWeb.TButton",
-                    command=lambda cat=category,
-                    opt=option: self.launch_web_url(cat, opt),
+                    style=(
+                        "PyAEDT.ActionDisabled.TButton"
+                        if is_optional
+                        else "PyAEDT.ActionWeb.TButton"
+                    ),
+                    command=(
+                        None
+                        if is_optional
+                        else lambda cat=category, opt=option: self.launch_web_url(cat, opt)
+                    ),
+                    cursor="" if is_optional else "hand2",
+                    takefocus=not is_optional,
                 )
+                if is_optional:
+                    ToolTip(web_btn, self.OPTIONAL_EXTENSION_TOOLTIP)
                 web_btn.pack(expand=True, fill="x")
             elif is_extension:
                 # For extensions, show only "Launch" button (pin handles pin/unpin)
@@ -663,10 +686,21 @@ class ExtensionManager(ExtensionProjectCommon):
                 launch_btn = ttk.Button(
                     button_frame,
                     text="Launch",
-                    style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=category,
-                    opt=option: self.launch_extension(cat, opt),
+                    style=(
+                        "PyAEDT.ActionDisabled.TButton"
+                        if is_optional
+                        else "PyAEDT.ActionLaunch.TButton"
+                    ),
+                    command=(
+                        None
+                        if is_optional
+                        else lambda cat=category, opt=option: self.launch_extension(cat, opt)
+                    ),
+                    cursor="" if is_optional else "hand2",
+                    takefocus=not is_optional,
                 )
+                if is_optional:
+                    ToolTip(launch_btn, self.OPTIONAL_EXTENSION_TOOLTIP)
                 launch_btn.pack(expand=True, fill="x")
 
         # Expand columns – uniform ensures every card column is the same width.
@@ -675,6 +709,9 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def launch_extension(self, category: str, option: str):
         """Launch extension without pinning it to AEDT top bar."""
+        if self.is_optional_extension_disabled(category, option):
+            self._log_optional_extension_blocked(option)
+            return
         if self.active_process and self.active_process.poll() is None:
             self.log_message(f"{self.active_extension} is already running.")
             return
@@ -975,6 +1012,9 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
+        if self.is_optional_extension_disabled(category, option):
+            self._log_optional_extension_blocked(option)
+            return
         if option.lower() == "custom":
             script_file, option = self.handle_custom_extension()
             icon = (
@@ -1215,7 +1255,12 @@ class ExtensionManager(ExtensionProjectCommon):
         return PIL.ImageTk.PhotoImage(img, master=self.root)
 
     def create_pin_icon(
-        self, parent: tkinter.Widget, category: str, option: str, size=(20, 20)
+        self,
+        parent: tkinter.Widget,
+        category: str,
+        option: str,
+        size=(20, 20),
+        disabled: bool = False,
     ) -> ttk.Label:
         """Create a pin icon based on extension installation status.
 
@@ -1260,6 +1305,20 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Load pin image
         pin_img = PIL.Image.open(str(pin_path))
+        if disabled:
+            theme_colors = (
+                self.theme.light
+                if self.root.theme == "light"
+                else self.theme.dark
+            )
+            alpha = pin_img.convert("RGBA").getchannel("A").point(lambda value: int(value * 0.6))
+            grayscale = PIL.ImageOps.grayscale(pin_img.convert("RGBA"))
+            pin_img = PIL.ImageOps.colorize(
+                grayscale,
+                black=theme_colors["button_disabled_fg"],
+                white=theme_colors["button_disabled_fg"],
+            ).convert("RGBA")
+            pin_img.putalpha(alpha)
 
         # Use the extracted method for theme background handling
         pin_photo = self.create_theme_background_image(
@@ -1271,17 +1330,18 @@ class ExtensionManager(ExtensionProjectCommon):
             parent,
             image=pin_photo,
             style="PyAEDT.TLabel",
-            cursor="hand2",
+            cursor="hand2" if not disabled else "",
         )
 
         # Add tooltip
-        ToolTip(pin_label, tooltip_text)
+        ToolTip(pin_label, self.OPTIONAL_EXTENSION_TOOLTIP if disabled else tooltip_text)
 
         # Bind click event
-        pin_label.bind(
-            "<Button-1>",
-            lambda e: self.on_pin_click(category, option),
-        )
+        if not disabled:
+            pin_label.bind(
+                "<Button-1>",
+                lambda e: self.on_pin_click(category, option),
+            )
         return pin_label
 
     def on_pin_click(self, category: str, option: str):
@@ -1294,6 +1354,9 @@ class ExtensionManager(ExtensionProjectCommon):
         option : str
             The extension name.
         """
+        if self.is_optional_extension_disabled(category, option):
+            self._log_optional_extension_blocked(option)
+            return
         is_pinned = self.check_extension_pinned(category, option)
 
         if is_pinned:
@@ -1443,6 +1506,36 @@ class ExtensionManager(ExtensionProjectCommon):
             self.desktop.logger.error(f"Error opening web URL: {e}")
             messagebox.showerror("Error", msg)
             return False
+
+    def _get_extension_info(self, category: str, option: str) -> dict:
+        """Return toolkit metadata for a built-in extension entry."""
+        if not self.toolkits or option.lower() == "custom":
+            return {}
+        return self._get_category_toolkits(category).get(option, {})
+
+    @property
+    def optional_extensions(self) -> bool:
+        """Whether optional extensions are enabled for interaction."""
+        return getattr(self, "_optional_extensions", False)
+
+    @optional_extensions.setter
+    def optional_extensions(self, value: bool) -> None:
+        """Enable or disable optional extensions globally."""
+        self._optional_extensions = bool(value)
+
+    def is_optional_extension(self, category: str, option: str) -> bool:
+        """Whether the extension entry is marked optional in the catalog."""
+        return bool(self._get_extension_info(category, option).get("optional", False))
+
+    def is_optional_extension_disabled(self, category: str, option: str) -> bool:
+        """Whether an optional extension should be shown as disabled."""
+        return self.is_optional_extension(category, option) and not self.optional_extensions
+
+    def _log_optional_extension_blocked(self, option: str) -> None:
+        """Record when a disabled optional extension action is blocked."""
+        msg = f"{option} is disabled because it requires optional dependencies."
+        self.desktop.logger.info(msg)
+        self.log_message(msg)
 
     def check_for_pyaedt_update_on_startup(self) -> None:
         """Spawn a background thread to check PyPI for a newer PyAEDT release.

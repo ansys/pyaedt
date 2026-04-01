@@ -32,6 +32,7 @@ import pytest
 
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.generic.settings import is_linux
 
 
@@ -99,6 +100,7 @@ def test_extension_manager_load_extensions(mock_toolkits, mock_desktop, mock_aed
     }
 
     extension = ExtensionManager(withdraw=True)
+    extension.toolkits = mock_toolkits.return_value
     extension.load_extensions("HFSS")
 
     canvas = next(w for w in extension.right_panel.winfo_children() if isinstance(w, tkinter.Canvas))
@@ -108,6 +110,92 @@ def test_extension_manager_load_extensions(mock_toolkits, mock_desktop, mock_aed
     assert found
 
     extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_optional_extension_is_disabled(mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+    """Optional extensions stay visible but disable launch and pin actions."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {
+        "HFSS": {
+            "MyOptionalExt": {
+                "name": "Optional Ext",
+                "script": "dummy.py",
+                "icon": None,
+                "url": "https://example.com",
+                "optional": True,
+            }
+        }
+    }
+
+    extension = ExtensionManager(withdraw=True)
+    extension.toolkits = mock_toolkits.return_value
+    extension.load_extensions("HFSS")
+    extension.root.update_idletasks()
+
+    canvas = next(w for w in extension.right_panel.winfo_children() if isinstance(w, tkinter.Canvas))
+    scroll_frame = canvas.winfo_children()[0]
+    target_card = next(
+        card
+        for card in scroll_frame.winfo_children()
+        if isinstance(card, tkinter.ttk.Frame)
+        and any(isinstance(child, tkinter.Frame) for child in card.winfo_children())
+    )
+
+    main_icon_frame = next(
+        child
+        for child in target_card.winfo_children()
+        if isinstance(child, tkinter.ttk.Frame)
+        and child.winfo_children()
+        and isinstance(child.winfo_children()[0], tkinter.ttk.Label)
+        and child.winfo_children()[0].cget("image")
+    )
+    icon = main_icon_frame.winfo_children()[0]
+    assert str(icon.cget("cursor")) == "hand2"
+    assert icon.bind("<Button-1>")
+
+    launch_button = next(
+        widget
+        for child in target_card.winfo_children()
+        if isinstance(child, tkinter.ttk.Frame)
+        for widget in child.winfo_children()
+        if isinstance(widget, tkinter.ttk.Button)
+    )
+    assert launch_button.cget("style") == "PyAEDT.ActionDisabled.TButton"
+    assert str(launch_button.cget("cursor")) == ""
+
+    overlay_frame = next(child for child in target_card.winfo_children() if isinstance(child, tkinter.Frame))
+    pin_icon = overlay_frame.winfo_children()[0]
+    assert pin_icon.cget("cursor") == ""
+    assert pin_icon.bind("<Button-1>") == ""
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_common_optional_extension_is_disabled_with_mapped_category(mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+    """Mapped categories like Common->Project must resolve to the correct toolkit metadata."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {
+        "Project": {
+            "GenerateReport": {
+                "name": "Generate report",
+                "script": "create_report.py",
+                "optional": True,
+                "url": "https://example.com",
+            }
+        }
+    }
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager.__new__(ExtensionManager)
+    extension.toolkits = toolkit_data
+    extension._optional_extensions = False
+
+    assert extension._get_category_toolkits("Common") == toolkit_data["Project"]
+    assert extension.is_optional_extension_disabled("Common", "GenerateReport") is True
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
@@ -407,6 +495,32 @@ def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_po
     extension.root.destroy()
 
 
+@patch("subprocess.Popen")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_optional_extension_is_blocked(
+    mock_desktop, mock_toolkits, mock_popen, mock_aedt_app
+) -> None:
+    """Optional extensions must not launch even if called programmatically."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "optional": True}}}
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager.__new__(ExtensionManager)
+    extension.toolkits = toolkit_data
+    extension.desktop = mock_desktop.return_value
+    extension.active_process = None
+    extension.active_extension = None
+    extension.current_category = "HFSS"
+    extension.log_message = MagicMock()
+    assert extension.is_optional_extension("HFSS", "MyExt") is True
+    assert extension.is_optional_extension_disabled("HFSS", "MyExt") is True
+
+    extension.launch_extension("HFSS", "MyExt")
+
+    mock_popen.assert_not_called()
+
+
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
@@ -569,6 +683,57 @@ def test_extension_manager_pin_extension(mock_add_script, mock_toolkits, mock_de
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
+def test_extension_manager_pin_optional_extension_is_blocked(
+    mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app
+) -> None:
+    """Optional extensions must not be pinnable."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {
+        "HFSS": {
+            "MyExt": {
+                "name": "My Extension",
+                "script": "dummy.py",
+                "icon": "icon.png",
+                "optional": True,
+            }
+        }
+    }
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager.__new__(ExtensionManager)
+    extension.toolkits = toolkit_data
+    extension.desktop = mock_desktop.return_value
+    extension.current_category = "HFSS"
+    extension.log_message = MagicMock()
+
+    extension.pin_extension("HFSS", "MyExt")
+
+    mock_add_script.assert_not_called()
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_optional_extensions_property_controls_disable_logic(mock_desktop, mock_toolkits, mock_aedt_app) -> None:
+    """The optional_extensions property should control whether optional entries are disabled."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "optional": True}}}
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager.__new__(ExtensionManager)
+    extension.toolkits = toolkit_data
+
+    assert extension.optional_extensions is False
+    assert extension.is_optional_extension_disabled("HFSS", "MyExt") is True
+
+    extension.optional_extensions = True
+
+    assert extension.optional_extensions is True
+    assert extension.is_optional_extension_disabled("HFSS", "MyExt") is False
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 def test_extension_manager_toggle_theme(mock_toolkits, mock_desktop, mock_aedt_app) -> None:
     """Test theme toggling."""
     mock_desktop.return_value = MagicMock()
@@ -586,6 +751,18 @@ def test_extension_manager_toggle_theme(mock_toolkits, mock_desktop, mock_aedt_a
     mock_add_content.assert_called_once()
 
     extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_optional_extension_button_style_updates_with_theme(mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+    """Disabled action theme colors should be defined for both light and dark modes."""
+    theme = ExtensionTheme()
+
+    assert theme.light["button_disabled_bg"]
+    assert theme.light["button_disabled_fg"]
+    assert theme.dark["button_disabled_bg"]
+    assert theme.dark["button_disabled_fg"]
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
