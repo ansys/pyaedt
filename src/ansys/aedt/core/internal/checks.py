@@ -41,7 +41,7 @@ def install_message(target: str) -> str:
     )
 
 
-ERROR_GRAPHICS_REQUIRED = install_message("graphics")
+GRAPHICS_REQUIRED = install_message("graphics")
 """Message to display when graphics are required for a method."""
 __GRAPHICS_AVAILABLE = None
 """Global variable to store the result of the graphics imports."""
@@ -137,9 +137,9 @@ def check_graphics_available(warning: bool = False) -> None:
 
     if _GRAPHICS_AVAILABLE is False:  # pragma: no cover
         if warning or "PYTEST_CURRENT_TEST" in os.environ:
-            warnings.warn(ERROR_GRAPHICS_REQUIRED)
+            warnings.warn(GRAPHICS_REQUIRED)
         else:
-            raise ImportError(ERROR_GRAPHICS_REQUIRED)
+            raise ImportError(GRAPHICS_REQUIRED)
 
 
 def graphics_required(method: callable) -> callable:

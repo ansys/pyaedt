@@ -630,6 +630,11 @@ class Desktop(PyAedtBase):
             return
         # Initialize Desktop variables.
 
+        if aedt_versions.is_pyaedt_in_edt():
+            pyaedt_logger.info(f"PyAedt is installed in Electronics Desktop {aedt_versions.pyaedt_edt_version}.")
+            pyaedt_logger.info(f"Overriding requested version: {version}")
+            version = aedt_versions.pyaedt_edt_version
+
         self.__closed = False
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
