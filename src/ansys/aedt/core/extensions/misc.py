@@ -881,7 +881,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         }
 
         # --- Dark palette -----------------------------------------------------
-        # Shaded-gray surface (not pure black) that matches typical AEDT dark UI.
+        # Shaded-gray surface
         self.dark = {
             "widget_bg": "#2D2F31",
             "text": "#E4E4E4",
@@ -1103,7 +1103,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
         )
 
-        # --- Action button (smaller font) base settings -----------------------
+        # --- Action button base settings -----------------------
         action_button_font = ("Segoe UI", 9)
         _action_base = dict(
             borderwidth=0,
@@ -1115,7 +1115,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             padding=(10, 4),
         )
 
-        # Success button (green – for adding shortcuts)
+        # Success button
         style.configure(
             "PyAEDT.Success.TButton",
             background="#2EA043",
@@ -1128,7 +1128,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             foreground=[("active", "white"), ("!active", "white")],
         )
 
-        # Danger button (red – for removing shortcuts)
+        # Danger button
         style.configure(
             "PyAEDT.Danger.TButton",
             background="#CF222E",
@@ -1141,7 +1141,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             foreground=[("active", "white"), ("!active", "white")],
         )
 
-        # Web action button (inherits theme button colours)
+        # Web action button
         style.configure(
             "PyAEDT.ActionWeb.TButton",
             background=colors["button_bg"],
@@ -1199,7 +1199,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             padding=(4, 2),
         )
 
-        # --- Scrollbar (minimal, rounded thumb) --------------------------------
+        # --- Scrollbar --------------------------------
         _scrollbar_cfg = dict(
             background=colors["button_bg"],
             troughcolor=colors["pane_bg"],
@@ -1216,8 +1216,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         )
 
         # Default scrollbar styles – applied to every ttk.Scrollbar that
-        # does not use a custom style name, ensuring dark-mode colours
-        # propagate automatically.
+        # does not use a custom style name
         for _orient in ("Vertical", "Horizontal"):
             style.configure(f"{_orient}.TScrollbar", **_scrollbar_cfg)
             style.map(f"{_orient}.TScrollbar", **_scrollbar_map)
@@ -1226,7 +1225,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         style.configure("PyAEDT.Vertical.TScrollbar", **_scrollbar_cfg)
         style.map("PyAEDT.Vertical.TScrollbar", **_scrollbar_map)
 
-        # --- Entry (for any ttk Entry widgets) --------------------------------
+        # --- Entry --------------------------------
         style.configure(
             "PyAEDT.TEntry",
             fieldbackground=colors["combobox_bg"],
@@ -1266,12 +1265,7 @@ def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
 
 
 class ToolTip:
-    """Create a tooltip for a given widget.
-
-    The tooltip automatically adapts its colours to the current
-    extension theme (light / dark) by inspecting the ``theme``
-    attribute on the widget's top-level window.
-    """
+    """Create a tooltip for a given widget."""
 
     # Palette keyed by theme name.
     _COLORS = {

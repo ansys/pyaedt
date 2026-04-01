@@ -131,6 +131,7 @@ def test_extension_manager_optional_extension_is_disabled(mock_toolkits, mock_de
 
     extension = ExtensionManager(withdraw=True)
     extension.toolkits = mock_toolkits.return_value
+    extension.optional_extensions = False
     extension.load_extensions("HFSS")
     extension.root.update_idletasks()
 
