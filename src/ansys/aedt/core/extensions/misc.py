@@ -929,8 +929,6 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
     def _apply_theme(self, style, colors):
         style.theme_use("clam")
 
-        _RADIUS = 4
-
         # --- Paned window -----------------------------------------------------
         style.configure(
             "TPanedwindow",
