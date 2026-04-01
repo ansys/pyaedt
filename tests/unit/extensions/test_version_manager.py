@@ -160,8 +160,10 @@ def _make_vm():
 
     desktop.release_desktop = MagicMock()
 
-    # Instantiate
-    manager = vm.VersionManager(ui, desktop)
+    # Instantiate without live PyPI lookups or background update threads.
+    with patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown"):
+        with patch.object(vm.VersionManager, "check_for_pyaedt_update_on_startup", return_value=None):
+            manager = vm.VersionManager(ui, desktop)
     manager.update_and_reload = MagicMock()
 
     return manager
@@ -343,9 +345,10 @@ def test_hide_loading_invalid_key() -> None:
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown")
 @patch("ansys.aedt.core.extensions.installer.version_manager.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror, tmp_path) -> None:
+def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_get_latest, mock_showerror, tmp_path) -> None:
     manager = _make_vm()
     # Ensure the manager reports a stable Python version for tests
     manager.__class__.python_version = property(lambda self: "3.10")
