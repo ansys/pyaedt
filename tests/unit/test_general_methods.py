@@ -61,10 +61,10 @@ class TestGeneralMethods:
         assert _normalize_version_to_string("245") == "2024.5"
 
     def test_valid_string_R_formats(self) -> None:
-        assert _normalize_version_to_string("2025R2") == "2025.2"
-        assert _normalize_version_to_string("2025 R2") == "2025.2"
-        assert _normalize_version_to_string("25R2") == "2025.2"
-        assert _normalize_version_to_string("25 R2") == "2025.2"
+        assert _normalize_version_to_string("2026R1") == "2026.1"
+        assert _normalize_version_to_string("2026 R1") == "2026.1"
+        assert _normalize_version_to_string("26R1") == "2026.1"
+        assert _normalize_version_to_string("26 R1") == "2026.1"
 
     def test_none_value_as_version(self) -> None:
         assert _normalize_version_to_string(None) is None
@@ -111,7 +111,7 @@ class TestGeneralMethods:
             "2023.12SV",
         ],
     )
-    def test_valid_versions(self, version) -> None:
+    def test_valid_versions(self, version):
         assert _is_version_format_valid(version)
 
     @pytest.mark.parametrize(
@@ -130,5 +130,5 @@ class TestGeneralMethods:
             2023.2,  # float type
         ],
     )
-    def test_invalid_versions(self, version) -> None:
+    def test_invalid_versions(self, version):
         assert not _is_version_format_valid(version)

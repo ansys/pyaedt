@@ -558,6 +558,9 @@ def test_em_field_box(aedt_app) -> None:
     assert aedt_app.field_setups
     assert box_nf.properties["U Size"] == "200mm"
 
+    box_nf.properties["V Size"] = "20mm"
+    assert box_nf.properties["V Size"] == "20mm"
+
     cs = aedt_app.modeler.create_coordinate_system()
     box_nf2 = aedt_app.insert_em_field_box(custom_coordinate_system=cs.name)
     assert box_nf2.name in aedt_app.field_setup_names

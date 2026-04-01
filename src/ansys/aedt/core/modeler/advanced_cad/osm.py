@@ -21,13 +21,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 import math as mathlib
 from pathlib import Path
+from typing import TYPE_CHECKING
 import warnings
 
 import numpy as np
 from numpy.typing import NDArray
+import pyvista as pv
+import vtk
+
+if TYPE_CHECKING:
+    from pyvista import PolyData
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -53,7 +60,7 @@ class BuildingsPrep(PyAedtBase):
     @staticmethod
     @pyaedt_function_handler()
     @graphics_required
-    def create_building_roof(all_pos: NDArray[np.float64]):
+    def create_building_roof(all_pos: NDArray[np.float64]) -> "PolyData":
         """Generate a filled in polygon from outline.
 
         Includes concave and convex shapes.
@@ -64,11 +71,8 @@ class BuildingsPrep(PyAedtBase):
 
         Returns
         -------
-        :class:`pyvista.PolygonData`
+        :class:`pyvista.PolyData`
         """
-        import pyvista as pv
-        import vtk
-
         points = vtk.vtkPoints()
         for each in all_pos:
             points.InsertNextPoint(each[0], each[1], each[2])
@@ -111,7 +115,7 @@ class BuildingsPrep(PyAedtBase):
         ----------
         center_lat_lon : list
             Latitude and longitude.
-        terrain_mesh : :class:`pyvista.PolygonData`
+        terrain_mesh : :class:`pyvista.PolyData`
             Terrain mesh.
         max_radius : float, int
             Radius around latitude and longitude.
@@ -121,8 +125,6 @@ class BuildingsPrep(PyAedtBase):
         dict
             Info of generated stl file.
         """
-        import pyvista as pv
-
         gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
 
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
@@ -281,8 +283,6 @@ class RoadPrep(PyAedtBase):
         dict
             Info of generated stl file.
         """
-        import pyvista as pv
-
         graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
         g_projected = ox.project_graph(graph)
@@ -399,8 +399,6 @@ class TerrainPrep(PyAedtBase):
         dict
             Info of generated stl file.
         """
-        import pyvista as pv
-
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
         max_radius = max_radius * (buffer_percent + 1)

@@ -227,7 +227,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None):
+    def __init__(self, app, name, props=None, boundarytype=None) -> None:
         self.auto_update = True
         self._app = app
         self._name = name
@@ -247,7 +247,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return child_object
 
     @property
-    def props(self):
+    def props(self) -> BoundaryProps:
         """Maxwell parameter data.
 
         Returns
@@ -264,14 +264,14 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self.__props
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Boundary Name."""
         if self._child_object:
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
-    def name(self, value) -> None:
+    def name(self, value: str) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = value
@@ -300,7 +300,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a boundary.
 
         Returns
@@ -363,7 +363,7 @@ class MaxwellMatrix(MaxwellParameters):
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
-    >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+    >>> m2d = Maxwell2d(version="2026.1", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
     >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
     >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
     >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -385,7 +385,7 @@ class MaxwellMatrix(MaxwellParameters):
     >>> m2d.release_desktop(True, True)
     """
 
-    def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None):
+    def __init__(self, app, name, props=None, schema: MaxwellMatrixSchema | None = None) -> None:
         """Initialize Maxwell matrix.
 
         Parameters
@@ -462,7 +462,7 @@ class MaxwellMatrix(MaxwellParameters):
         return self.__reduced_matrices
 
     @pyaedt_function_handler()
-    def join_series(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
+    def join_series(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in series.
 
         Parameters
@@ -485,7 +485,7 @@ class MaxwellMatrix(MaxwellParameters):
         )
 
     @pyaedt_function_handler()
-    def join_parallel(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
+    def join_parallel(self, sources: list, matrix_name: str = None, join_name: str = None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in parallel.
 
         Parameters
@@ -508,7 +508,9 @@ class MaxwellMatrix(MaxwellParameters):
         )
 
     @pyaedt_function_handler()
-    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+    def _create_matrix_reduction(
+        self, red_type: str, sources: list, matrix_name: str = None, join_name: str = None
+    ) -> MaxwellReducedMatrix:
         if self._app.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError(r"Matrix reduction is available only in Eddy Current\AC Magnetic solver.")
         if not matrix_name:
@@ -546,7 +548,7 @@ class MaxwellReducedMatrix:
     >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
     >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
-    >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+    >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
     >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
     >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
@@ -631,7 +633,7 @@ class MaxwellReducedMatrix:
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import SourceACMagnetic, MatrixACMagnetic
 
-        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
         Assign a matrix and create a reduced matrix by joining sources in series.
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
@@ -716,7 +718,7 @@ class MaxwellReducedMatrix:
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
         >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 
-        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+        >>> m3d = Maxwell3d(version="2026.1", solution_type=SolutionsMaxwell3D.ACMagnetic)
 
         Assign a matrix and create a reduced matrix by joining sources in series.
         >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
@@ -763,7 +765,7 @@ class MaxwellReducedMatrix:
 class MaxwellReducedMatrixOperation:
     """Represent a reduced matrix operation in Maxwell (join in series or parallel)."""
 
-    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]):
+    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]) -> None:
         self.parent_matrix = parent_matrix
         self.reduced_matrix = reduced_matrix
         self.name = name
@@ -773,7 +775,7 @@ class MaxwellReducedMatrixOperation:
 class MaxwellForce(MaxwellParameters):
     """Initialize Maxwell force."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Force")
         self._app = app
 
@@ -781,7 +783,7 @@ class MaxwellForce(MaxwellParameters):
 class MaxwellTorque(MaxwellParameters):
     """Initialize Maxwell torque."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="Torque")
         self._app = app
 
@@ -789,6 +791,6 @@ class MaxwellTorque(MaxwellParameters):
 class MaxwellLayoutForce(MaxwellParameters):
     """Initialize Maxwell layout force."""
 
-    def __init__(self, app, name, props=None):
+    def __init__(self, app, name, props=None) -> None:
         super().__init__(app, name, props=props, boundarytype="LayoutForce")
         self._app = app

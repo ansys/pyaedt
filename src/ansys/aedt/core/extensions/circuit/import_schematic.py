@@ -63,7 +63,6 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=1,
@@ -116,7 +115,7 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         )
         browse_button.grid(row=0, column=2, padx=10, pady=10)
 
-        def callback():
+        def callback() -> None:
             file_extension = self._text_widget.get(
                 "1.0",
                 tkinter.END,

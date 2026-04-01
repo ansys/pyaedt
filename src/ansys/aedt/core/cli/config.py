@@ -242,7 +242,7 @@ def test_callback(
 
 
 @test_app.command()
-def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2025.2)")) -> None:
+def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2026.1)")) -> None:
     """Set AEDT desktop version."""
     import re
 
@@ -250,7 +250,7 @@ def desktop_version(value: str = typer.Argument(None, help="AEDT version (format
         """Validate version format."""
         if re.match(r"^\d{4}\.\d$", v):
             return True, ""
-        return False, "Invalid format. Please use YYYY.R (e.g., 2025.2)"
+        return False, "Invalid format. Please use YYYY.R (e.g., 2026.1)"
 
     _update_string_config("desktopVersion", value, "desktopVersion", validate_version)
 

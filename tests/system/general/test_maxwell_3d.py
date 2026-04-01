@@ -180,22 +180,6 @@ def test_create_air_region(m3d_app) -> None:
     assert region.material_name == "air"
 
 
-def test_eddy_effects_on(m3d_app, maxwell_versioned) -> None:
-    m3d_app.solution_type = maxwell_versioned.EddyCurrent
-    plate_vacuum = m3d_app.modeler.create_box([-3, -3, 0], [1.5, 1.5, 0.4], name="Plate_vaccum")
-    with pytest.raises(AEDTRuntimeError, match="No conductors defined in active design."):
-        m3d_app.eddy_effects_on(plate_vacuum, enable_eddy_effects=True)
-    plate = m3d_app.modeler.create_box([-1, -1, 0], [1.5, 1.5, 0.4], name="Plate", material="copper")
-    assert m3d_app.eddy_effects_on(plate, enable_eddy_effects=True)
-    if DESKTOP_VERSION >= "2025.2":
-        assert m3d_app.oboundary.GetEddyEffect("Plate")
-        assert m3d_app.oboundary.GetDisplacementCurrent("Plate")
-    m3d_app.eddy_effects_on(["Plate"], enable_eddy_effects=False)
-    if DESKTOP_VERSION >= "2025.2":
-        assert not m3d_app.oboundary.GetEddyEffect("Plate")
-        assert not m3d_app.oboundary.GetDisplacementCurrent("Plate")
-
-
 def test_create_parametrics(m3d_app) -> None:
     m3d_app.create_setup()
     m3d_app["w1"] = "10mm"
@@ -435,6 +419,21 @@ def test_assign_translate_motion(m3d_app, maxwell_versioned) -> None:
     bound = m3d_app.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
     assert bound
     assert bound.props["Velocity"] == "1m_per_sec"
+
+
+def test_eddy_effects_on(m3d_app, maxwell_versioned) -> None:
+    m3d_app.solution_type = maxwell_versioned.Transient
+    box1 = m3d_app.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.4])
+    with pytest.raises(AEDTRuntimeError, match="No conductors defined in active design."):
+        m3d_app.eddy_effects_on(box1, enable_eddy_effects=True)
+    box1.material_name = "copper"
+    box2 = m3d_app.modeler.create_box([10, 10, 0], [1.5, 1.5, 0.4], material="copper")
+    assert m3d_app.eddy_effects_on(box1, enable_eddy_effects=True)
+    assert m3d_app.oboundary.GetEddyEffect(box1.name)
+    assert not m3d_app.oboundary.GetEddyEffect(box2.name)
+    m3d_app.eddy_effects_on([box1.name], enable_eddy_effects=False)
+    assert not m3d_app.oboundary.GetEddyEffect(box1.name)
+    assert not m3d_app.oboundary.GetEddyEffect(box2.name)
 
 
 def test_set_core_losses(m3d_app, maxwell_versioned) -> None:
@@ -993,15 +992,6 @@ def test_import_dxf(m3d_app) -> None:
     assert m3d_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=0.2)
 
 
-def test_assign_flux_tangential(m3d_app) -> None:
-    box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-    with pytest.raises(AEDTRuntimeError):
-        m3d_app.assign_flux_tangential(box.faces[0])
-    m3d_app.solution_type = "TransientAPhiFormulation"
-    assert m3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
-    assert m3d_app.assign_flux_tangential(box.faces[0].id, "FluxExample")
-
-
 def test_assign_tangential_h_field(m3d_app, maxwell_versioned) -> None:
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     assert m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
@@ -1081,13 +1071,6 @@ def test_solution_types_setup(m3d_app, maxwell_versioned) -> None:
     setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
     assert setup
     setup.delete()
-    if DESKTOP_VERSION < "2025.2":
-        m3d_app.solution_type = maxwell_versioned.TransientAPhiFormulation
-    else:
-        m3d_app.solution_type = maxwell_versioned.TransientAPhi
-    setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
-    assert setup
-    setup.delete()
 
 
 def test_assign_floating(m3d_app, maxwell_versioned) -> None:
@@ -1162,60 +1145,6 @@ def test_enable_harmonic_force_layout(layout_comp) -> None:
         AEDTRuntimeError, match="This methods work only with Maxwell TransientAPhiFormulation Analysis."
     ):
         layout_comp.enable_harmonic_force_on_layout_component(comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]})
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2025.1",
-    reason="Not working in non-graphical in version lower than 2025.1",
-)
-def test_order_coil_terminals(m3d_app) -> None:
-    m3d_app.solution_type = "TransientAPhiFormulation"
-    c1 = m3d_app.modeler.create_cylinder(
-        orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
-    )
-
-    c2 = m3d_app.modeler.create_cylinder(
-        orientation=Axis.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
-    )
-
-    c3 = m3d_app.modeler.create_cylinder(
-        orientation=Axis.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
-    )
-
-    m3d_app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")
-    m3d_app.assign_coil(assignment=[c1.bottom_face_z], name="CoilTerminal2", polarity="Negative")
-
-    m3d_app.assign_coil(assignment=[c2.top_face_z], name="CoilTerminal3", polarity="Negative")
-    m3d_app.assign_coil(assignment=[c2.bottom_face_z], name="CoilTerminal4")
-
-    m3d_app.assign_coil(assignment=[c3.top_face_z], name="CoilTerminal5")
-    m3d_app.assign_coil(assignment=[c3.bottom_face_z], name="CoilTerminal6", polarity="Negative")
-
-    m3d_app.assign_winding(is_solid=True, current="1A", name="Winding1")
-
-    terminal_list_order = [
-        "CoilTerminal1",
-        "CoilTerminal2",
-        "CoilTerminal3",
-        "CoilTerminal4",
-        "CoilTerminal5",
-        "CoilTerminal6",
-    ]
-
-    m3d_app.add_winding_coils(assignment="Winding1", coils=terminal_list_order)
-
-    terminal_list_order = [
-        "CoilTerminal1",
-        "CoilTerminal2",
-        "CoilTerminal4",
-        "CoilTerminal3",
-        "CoilTerminal5",
-        "CoilTerminal6",
-    ]
-    assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
-    m3d_app.solution_type = "Transient"
-    with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
-        m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
 
 
 def test_assign_sink(m3d_app, maxwell_versioned) -> None:

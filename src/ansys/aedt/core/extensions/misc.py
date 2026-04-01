@@ -47,6 +47,7 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -62,31 +63,46 @@ DEFAULT_BD: int = 1
 DEFAULT_BORDERWIDTH: int = 1
 
 
-def get_process_id():
+def get_process_id() -> int | None:
     """Get process ID from environment variable."""
     value = os.getenv("PYAEDT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
-def get_port():
+def get_port() -> int:
     """Get gRPC port from environment variable."""
     res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
-def get_aedt_version():
+def get_aedt_version() -> str:
     """Get AEDT release from environment variable."""
     res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 
-def is_student():
+def is_student() -> bool:
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
 
 
-def get_latest_version(package_name, timeout: int = 3):
+def get_aedt_path() -> str | None:
+    """Get AEDT path from environment variable."""
+    version = get_aedt_version()
+    fallback_path = aedt_versions.installed_versions.get(version, None)
+
+    res = os.getenv("PYAEDT_DESKTOP_PATH", fallback_path)
+    return res
+
+
+def get_aedt_theme() -> str:
+    """Get AEDT theme from environment variable."""
+    res = os.getenv("PYAEDT_GLOBAL_THEME", "light")
+    return res
+
+
+def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
@@ -171,6 +187,7 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
         log.debug("PyAEDT update check: could not import version.")
         return None, None
 
+    log.debug(f"Checking for PyAEDT updates. Current version: {current_version}")
     latest = get_latest_version("pyaedt")
     if not latest or latest == "Unknown":
         log.debug("PyAEDT update check: latest version unavailable.")
@@ -224,11 +241,12 @@ class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
-        theme_color: str = "light",
+        theme_color: str | None = None,
         withdraw: bool = False,
         add_custom_content: bool = True,
         toggle_row: int | None = None,
         toggle_column: int | None = None,
+        use_edb: bool = False,
     ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
@@ -241,7 +259,8 @@ class ExtensionCommon(PyAedtBase):
         title : str
             The title of the main window.
         theme_color: str, optional
-            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+            The theme color to apply to the UI. Options are ``"light"`` or ``"dark"``.
+            If ``None``, the theme is inferred from the AEDT environment.
         withdraw : bool, optional
             If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
@@ -250,14 +269,37 @@ class ExtensionCommon(PyAedtBase):
             The row index where the toggle button will be placed.
         toggle_column : int, optional
             The column index where the toggle button will be placed.
+        use_edb : bool, optional
+            Whether to use PyEDB. When set to ``True`` on Linux, the required native libraries are loaded automatically
+            from the AEDT installation directory. This is necessary for extensions that interact
+            directly with layout databases via the EDB API. The default is ``False``.
         """
-        if theme_color not in ["light", "dark"]:
+        if theme_color is None:
+            theme_color = get_aedt_theme()
+            if "dark" in theme_color.lower():
+                theme_color = "dark"
+            elif theme_color not in ["light", "dark"]:
+                theme_color = "light"
+        elif theme_color not in ["light", "dark"]:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
+        self.use_edb = use_edb
+
+        aedt_install_dir = get_aedt_path()
+
+        if is_linux and self.use_edb and aedt_install_dir:
+            import ctypes
+
+            ctypes.cdll.LoadLibrary(
+                os.path.join(aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1")
+            )
+            ctypes.cdll.LoadLibrary(os.path.join(aedt_install_dir, "libEDBCWrapper.so"))
 
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
@@ -265,15 +307,15 @@ class ExtensionCommon(PyAedtBase):
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
-        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
+        self.apply_theme(self.theme_color)
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
+    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent,
@@ -301,7 +343,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent, row, column) -> None:
+    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
@@ -350,16 +392,16 @@ class ExtensionCommon(PyAedtBase):
 
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
-    def toggle_theme(self):
+    def toggle_theme(self) -> None:
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
-            self.__apply_theme("dark")
+            self.apply_theme("dark")
         elif self.root.theme == "dark":
-            self.__apply_theme("light")
+            self.apply_theme("light")
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
-    def log_message(self, message: str) -> None:
+    def log_message(self, message: str):
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
             widget = self._widgets["log_text_widget"]
@@ -371,7 +413,7 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb) -> None:  # pragma: no cover
+        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
@@ -441,7 +483,7 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str) -> None:
+    def apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
@@ -545,10 +587,11 @@ class ExtensionCommon(PyAedtBase):
                 student_version=is_student(),
                 close_on_exit=False,
             )
+
         return self.__desktop
 
     @property
-    def aedt_application(self):
+    def aedt_application(self) -> object:
         """Return the active AEDT application instance."""
         if self.__aedt_application is None:
             active_project_name = self.active_project_name
@@ -577,7 +620,7 @@ class ExtensionCommon(PyAedtBase):
         return self.__data
 
     @data.setter
-    def data(self, value: ExtensionCommonData):
+    def data(self, value: ExtensionCommonData) -> None:
         if not isinstance(value, ExtensionCommonData):
             raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
         self.__data = value
@@ -612,7 +655,7 @@ class ExtensionCommon(PyAedtBase):
         return res
 
     @abstractmethod
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add content to the extension UI.
 
         This method should be implemented by subclasses to add specific content
@@ -633,7 +676,7 @@ class ExtensionCommon(PyAedtBase):
 class ExtensionIcepakCommon(ExtensionCommon):
     """Common methods for Icepak extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
             self.release_desktop()
@@ -643,7 +686,7 @@ class ExtensionIcepakCommon(ExtensionCommon):
 class ExtensionHFSSCommon(ExtensionCommon):
     """Common methods for HFSS extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an HFSS design."""
         if self.aedt_application.design_type != "HFSS":
             self.release_desktop()
@@ -653,7 +696,7 @@ class ExtensionHFSSCommon(ExtensionCommon):
 class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
     """Common methods for HFSS 3D Layout extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an HFSS 3D Layout design."""
         if self.aedt_application.design_type != "HFSS 3D Layout Design":
             self.release_desktop()
@@ -663,7 +706,7 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
 class ExtensionMaxwell2DCommon(ExtensionCommon):
     """Common methods for Maxwell 2D extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell 2D design."""
         if self.aedt_application.design_type != "Maxwell 2D":
             self.release_desktop()
@@ -673,7 +716,7 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
 class ExtensionMaxwell3DCommon(ExtensionCommon):
     """Common methods for Maxwell 3D extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell 3D design."""
         if self.aedt_application.design_type != "Maxwell 3D":
             self.release_desktop()
@@ -683,7 +726,7 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
 class ExtensionCircuitCommon(ExtensionCommon):
     """Common methods for Circuit extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an Circuit design."""
         if self.aedt_application.design_type != "Circuit Design":
             self.release_desktop()
@@ -693,7 +736,7 @@ class ExtensionCircuitCommon(ExtensionCommon):
 class ExtensionTwinBuilderCommon(ExtensionCommon):
     """Common methods for TwinBuilder extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a TwinBuilder design."""
         if self.aedt_application.design_type != "Twin Builder":
             self.release_desktop()
@@ -703,7 +746,7 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
 class ExtensionEMITCommon(ExtensionCommon):
     """Common methods for EMIT extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an EMIT design."""
         if self.aedt_application.design_type != "EMIT":
             self.release_desktop()
@@ -721,7 +764,7 @@ class ExtensionProjectCommon(ExtensionCommon):
         pass
 
 
-def create_default_ui(title, withdraw: bool = False):
+def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, ExtensionTheme, ttk.Style]:
     import tkinter
     from tkinter import ttk
 
@@ -731,7 +774,7 @@ def create_default_ui(title, withdraw: bool = False):
     import ansys.aedt.core.extensions
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    def report_callback_exception(self, exc, val, tb) -> None:
+    def report_callback_exception(self, exc, val, tb):
         showerror("Error", message=str(val))
 
     def report_callback_exception_withdraw(self, exc, val, tb):
@@ -771,7 +814,7 @@ def create_default_ui(title, withdraw: bool = False):
     return root, theme, style
 
 
-def get_arguments(args=None, description: str = ""):  # pragma: no cover
+def get_arguments(args=None, description: str = "") -> dict:  # pragma: no cover
     """Get extension arguments."""
     output_args = {"is_batch": False, "is_test": False}
 
@@ -857,15 +900,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         # Set default font
         self.default_font = ("Arial", 12)
 
-    def apply_light_theme(self, style) -> None:
+    def apply_light_theme(self, style: ttk.Style):
         """Apply light theme."""
         self._apply_theme(style, self.light)
 
-    def apply_dark_theme(self, style) -> None:
+    def apply_dark_theme(self, style: ttk.Style):
         """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
-    def _apply_theme(self, style, colors) -> None:
+    def _apply_theme(self, style, colors):
         # Apply the colors and font to the style
         style.theme_use("clam")
 
@@ -1085,6 +1128,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             foreground=[("active", "black"), ("!active", "black")],
         )
 
+        # Apply the colors and font to the style for SpinBox
+        style.configure(
+            "PyAEDT.TSpinbox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+        )
+
 
 def __string_to_bool(v):  # pragma: no cover
     """Change string to bool."""
@@ -1115,11 +1167,11 @@ class ToolTip:
         self.widget.bind("<Leave>", self.leave)
         self.tipwindow = None
 
-    def enter(self, event=None) -> None:
+    def enter(self, event=None):
         """Show tooltip on mouse enter."""
         self.show_tooltip()
 
-    def leave(self, event=None) -> None:
+    def leave(self, event=None):
         """Hide tooltip on mouse leave."""
         self.hide_tooltip()
 

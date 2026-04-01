@@ -80,12 +80,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
-        super().__init__(
-            EXTENSION_TITLE,
-            theme_color="light",
-            withdraw=withdraw,
-            add_custom_content=False,
-        )
+        super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=False, use_edb=True)
         self.data: CutoutData = CutoutData()
         # NOTE: Objects net are loaded only once, if a new project/design is opened
         # the extension has to be opened again or this value will not refresh.
@@ -190,17 +185,17 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.grid(row=1, column=2, **DEFAULT_PADDING)
 
     @property
-    def objects_net(self):
+    def objects_net(self) -> dict:
         """Get objects by net from the EDB modeler."""
         return self.__objects_net
 
     @property
-    def widgets(self):
+    def widgets(self) -> dict:
         """Get mapping to the extension's widgets"""
         return self.__widgets
 
     @property
-    def execute_cutout(self):
+    def execute_cutout(self) -> bool:
         """Get whether the cutout should be executed."""
         return self.__execute_cutout
 
@@ -210,7 +205,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         if not self.aedt_application.modeler.edb:
             self.release_desktop()
             raise AEDTRuntimeError("Extension cannot be used with an empty HFSS 3D Layout design.")
-        for net, net_objs in self.aedt_application.modeler.edb.modeler.primitives_by_net.items():
+        for net, net_objs in self.aedt_application.modeler.edb.layout.primitives_by_net.items():
             res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():
             res[net_obj.net_name].append(net_obj.aedt_name)

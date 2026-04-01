@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
+from pathlib import Path
 import shutil
 
 import pytest
@@ -65,6 +67,7 @@ CYLINDER_PRIMITIVE_FILE_WRONG_KEYS = "cylinder_geometry_creation_wrong_keys.csv"
 PRISM_PRIMITIVE_FILE = "prism_geometry_creation.csv"
 PRISM_PRIMITIVE_FILE_MISSING_VALUES = "prism_geometry_creation_missing_values.csv"
 PRISM_PRIMITIVE_FILE_WRONG_KEYS = "prism_geometry_creation_wrong_keys.csv"
+ENCRYPTED_DESIGN = "encrypted_design"
 
 TEST_SUBFOLDER = "T08"
 POLYLINE_PROJECT = "polyline_231"
@@ -78,6 +81,17 @@ def aedt_app(add_app):
     project_name = app.project_name
     yield app
     app.close_project(name=project_name, save=False)
+
+
+@pytest.fixture
+def encrypted_app(add_app_example):
+    app = add_app_example(
+        application=Hfss,
+        project=ENCRYPTED_DESIGN,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 # Utils functions
@@ -1588,15 +1602,16 @@ def test_insert_3dcomponent(aedt_app) -> None:
     assert isinstance(obj_3dcomp, UserDefinedComponent)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
-@pytest.mark.skipif(USE_GRPC and DESKTOP_VERSION < "2023.1", reason="Failing in grpc")
 def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir) -> None:
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
     input_file = shutil.copy2(file_original, test_tmp_dir / ENCRYPTED_CYL)
 
-    assert not aedt_app.modeler.insert_3d_component(str(input_file))
-    # assert not aedt_app.modeler.insert_3d_component(encrypted_cylinder, password="dfgdg")
     assert aedt_app.modeler.insert_3d_component(str(input_file), password="test")
+    assert len(aedt_app.modeler.object_list) == 1
+
+
+def test_encrypted_3dcomp_design(encrypted_app) -> None:
+    assert len(encrypted_app.modeler.object_list) == 1
 
 
 def test_group_components(aedt_app) -> None:
@@ -2547,3 +2562,44 @@ def test_delete_all_points(aedt_app) -> None:
 
     assert result
     assert [] == aedt_app.modeler.oeditor.GetPoints()
+
+
+@pytest.mark.skipif(is_linux, reason="Failing VTK in Linux runners")
+def test_import_from_open_street_map(add_app, test_tmp_dir):
+    hfss = add_app(application=Hfss, solution_type="SBR+")
+
+    result = hfss.modeler.import_from_openstreet_map(
+        latitude_longitude=[40.273726, -80.168269],
+        env_name="test_hfss_environment",
+        terrain_radius=50,
+        road_step=3,
+        plot_before_importing=False,
+        import_in_aedt=True,
+    )
+
+    # Verify the result structure
+    assert result is not None
+    assert result["name"] == "test_hfss_environment"
+    assert result["type"] == "environment"
+    assert "parts" in result
+    assert "terrain" in result["parts"]
+    assert "buildings" in result["parts"]
+    assert "roads" in result["parts"]
+
+    # Verify objects were imported to HFSS
+    assert len(hfss.modeler.object_names) > 0
+
+    # Verify JSON file was created
+    json_file = Path(hfss.working_directory) / "test_hfss_environment.json"
+    assert json_file.exists()
+
+    # Verify JSON content
+    with open(json_file, "r", encoding="utf-8") as f:
+        json_data = json.load(f)
+        assert json_data["name"] == "test_hfss_environment"
+        assert json_data["radius"] == 50
+
+    # Verify model units are set to meters
+    assert hfss.modeler.model_units == "meter"
+
+    hfss.close_project(save=False)

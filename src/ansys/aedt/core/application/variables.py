@@ -759,7 +759,7 @@ class VariableManager(PyAedtBase):
         return all_variables
 
     @pyaedt_function_handler()
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
 
@@ -768,7 +768,7 @@ class VariableManager(PyAedtBase):
         return self.variables[variable_name]
 
     @pyaedt_function_handler()
-    def __setitem__(self, variable, value) -> None:
+    def __setitem__(self, variable, value):
         self.set_variable(variable, value)
         return True
 
@@ -787,7 +787,7 @@ class VariableManager(PyAedtBase):
                     del dict_var[var_name]
 
     @pyaedt_function_handler()
-    def _update_variable_dict(self, object_list) -> None:
+    def _update_variable_dict(self, object_list):
         """Update variable dictionary.
 
         Parameters
@@ -953,7 +953,7 @@ class VariableManager(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> aedtapp = Maxwell3d(version="2025.2")
+        >>> aedtapp = Maxwell3d(version="2026.1")
 
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.

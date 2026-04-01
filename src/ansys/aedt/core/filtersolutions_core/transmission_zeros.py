@@ -143,7 +143,7 @@ class TransmissionZeros:
         self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
-    def row(self, row_index):
+    def row(self, row_index: int) -> tuple[str, str]:
         """Get the transmission zero ratio or bandwidth and the position of the element
         causing the transmission zero from a row in the transmission zeros table.
 
@@ -172,7 +172,7 @@ class TransmissionZeros:
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
 
-    def update_row(self, row_index, zero=None, position=None) -> None:
+    def update_row(self, row_index: int, zero: str = None, position: str = None) -> None:
         """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
@@ -194,7 +194,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def append_row(self, zero=None, position=None) -> None:
+    def append_row(self, zero: str = None, position: str = None) -> None:
         """Append a new row that includes the ratio or bandwidth and position.
 
         Parameters
@@ -211,7 +211,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, zero=None, position=None) -> None:
+    def insert_row(self, row_index: int, zero: str = None, position: str = None) -> None:
         """Insert a new row that includes the ratio or bandwidth and the position.
 
         Parameters
@@ -231,7 +231,7 @@ class TransmissionZeros:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index) -> None:
+    def remove_row(self, row_index: int) -> None:
         """Remove a row, including the ratio or bandwidth and the position.
 
         Parameters

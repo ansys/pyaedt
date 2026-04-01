@@ -26,18 +26,17 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 import math
 from pathlib import Path
+import re
 import tempfile
 from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
-from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
-from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
@@ -48,7 +47,10 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
     from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+    from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -117,7 +119,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -190,7 +192,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(version=252, project="myfile2.aedt")
+    >>> hfss = Hfss(version=261, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -199,7 +201,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     Create an instance of HFSS using the 2025 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(version="252", project="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="261", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -251,7 +253,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle near field setups
-    def _create_boundary(self, name: str, props, boundary_type) -> NearFieldSetup:
+    def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
@@ -2571,8 +2573,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.2", new_desktop=False)
-        >>> source = Hfss(project=source_project, design="feeder", version="2025.2", new_desktop=False)
+        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2026.1", new_desktop=False)
+        >>> source = Hfss(project=source_project, design="feeder", version="2026.1", new_desktop=False)
         >>> target.create_sbr_linked_antenna(
         ...     source, target_cs="feederPosition", field_type="farfield"
         ... )  # doctest: +SKIP
@@ -5418,12 +5420,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def insert_near_field_box(
         self,
-        u_length: float | int | str = 20,
-        u_samples: float | int | str = 21,
-        v_length: float | int | str = 20,
-        v_samples: float | int | str = 21,
-        w_length: float | int | str = 20,
-        w_samples: float | int | str = 21,
+        u_length: float | int | str = 20.0,
+        u_samples: int | str = 21,
+        v_length: float | int | str = 20.0,
+        v_samples: int | str = 21,
+        w_length: float | int | str = 20.0,
+        w_samples: int | str = 21,
         units: str = "mm",
         custom_radiation_faces: str | None = None,
         custom_coordinate_system: str | None = None,
@@ -5436,17 +5438,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        u_length : float, str, optional
+        u_length : float, int, str, optional
             U axis length. The default is ``20``.
-        u_samples : float, str, optional
+        u_samples : int, str, optional
             U axis samples. The default is ``21``.
-        v_length : float, str, optional
+        v_length : float, int, str, optional
             V axis length. The default is ``20``.
-        v_samples : float, str, optional
+        v_samples : int, str, optional
             V axis samples. The default is ``21``.
-        w_length : float, str, optional
+        w_length : float, int, str, optional
             W axis length. The default is ``20``.
-        w_samples : float, str, optional
+        w_samples : int, str, optional
             W axis samples. The default is ``21``.
         units : str
             Length units. The default is ``"mm"``.
@@ -5472,13 +5474,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             props["CustomRadiationSurface"] = ""
 
-        defs = ["U Size", "V Size", "W Size", "U Samples", "V Samples", "W Samples"]
-        props[defs[0]] = self.value_with_units(u_length, units)
-        props[defs[1]] = self.value_with_units(v_length, units)
-        props[defs[2]] = self.value_with_units(w_length, units)
-        props[defs[3]] = self.value_with_units(u_samples, units)
-        props[defs[4]] = self.value_with_units(v_samples, units)
-        props[defs[5]] = self.value_with_units(w_samples, units)
+        props["Length"] = self.value_with_units(u_length, units)
+        props["Width"] = self.value_with_units(v_length, units)
+        props["Height"] = self.value_with_units(w_length, units)
+        props["LengthSamples"] = u_samples
+        props["WidthSamples"] = v_samples
+        props["HeightSamples"] = w_samples
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5840,7 +5841,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
-    ) -> FfdSolutionDataExporter | FfdSolutionData | bool:
+    ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
 
@@ -5889,6 +5890,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
         """
+        from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+
         if not variations:
             variations = variation_string_to_dict(self.design_variation())
 
@@ -5969,7 +5973,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         overwrite: bool | None = True,
         link_to_hfss: bool | None = True,
         variation_name: str | None = None,
-    ) -> MonostaticRCSExporter | Path | bool:
+    ) -> "MonostaticRCSExporter | Path | bool":
         """Export monostatic radar cross-section (RCS) data from HFSS.
 
         This method exports RCS simulation data into a standardized metadata format
@@ -6064,6 +6068,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> rcs_data = MonostaticRCSData(str(metadata_file))
         >>> rcs_data.plot_3d()
         """
+        from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+
         if not variations:
             variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:
@@ -6396,14 +6402,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: str | int | list,
         reference: Object3d | int | list | None = None,
-        create_port_sheet: bool | None = False,
-        port_on_plane: bool | None = True,
-        integration_line: int | Gravity | None = 0,
-        impedance: float | None = 50,
+        create_port_sheet: bool = False,
+        port_on_plane: bool = True,
+        integration_line: int | Gravity | list[float] = 0,
+        impedance: float | int = 50,
         name: str | None = None,
-        renormalize: bool | None = True,
-        deembed: bool | None = False,
-        terminals_rename: bool | None = True,
+        renormalize: bool = True,
+        deembed: bool = False,
+        terminals_rename: bool = True,
+        auto_identify: bool = False,
     ) -> BoundaryObject:
         """Create a waveport taking the closest edges of two objects.
 
@@ -6430,10 +6437,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
-        deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
+        deembed : bool, optional
+            Enabling deembeing. The default is ``False``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
+        auto_identify : bool, optional
+            Whether to auto-identify port terminal when ``assignment`` is a sheet object and only one conductor object
+            is touching ``assignment``, as in when creating a "conductor-to-boundary" terminal port. The default is
+            ``False``.
 
         Returns
         -------
@@ -6497,6 +6508,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 and self.desktop_class.aedt_version_id >= "2024.1"
             )
             and not reference
+            and not auto_identify
         ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
@@ -7694,3 +7706,605 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         # UI is not updated, and it needs to save the project
         self.save_project()
         return True
+
+    @pyaedt_function_handler()
+    def create_fresnel_variables(self, setup_sweep: str) -> None:
+        """
+        Create (or overwrite) the output variables in HFSS needed to compute Fresnel reflection/transmission
+        coefficients between Floquet ports.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Name of the setup and sweep.
+        """
+        floquet_ports = self.get_fresnel_floquet_ports()
+        is_reflection = len(floquet_ports) == 1
+
+        def _create_var(variable: str, expression: str) -> None:
+            self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
+
+        # Always create the base reflection variables (exist for both isotropic & anisotropic)
+        _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
+        _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
+
+        # Cross-pol reflection (safe to create always; unused for isotropic cases)
+        _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
+        _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
+
+        # Transmission variables only if there are two Floquet ports
+        if not is_reflection:
+            top, bot = floquet_ports[0], floquet_ports[1]
+            # renormalization factors for transfer coefficients
+            _create_var("renorm_t", f"sqrt(re(Zo({bot}:1))/re(Zo({top}:1)))")
+            _create_var("renorm_t_inv", f"sqrt(re(Zo({top}:1))/re(Zo({bot}:1)))")
+            # Co-pol transmission
+            _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
+            _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
+            # Cross-pol transmission
+            _create_var("t_tm_te", f"S({bot}:2,{top}:1)*renorm_t")
+            _create_var("t_te_tm", f"S({bot}:1,{top}:2)*renorm_t")
+            # "Inverse" (swap ports) — needed for anisotropic RT tables
+            _create_var("r_te_inv", f"S({bot}:1,{bot}:1)")
+            _create_var("r_tm_inv", f"-S({bot}:2,{bot}:2)")
+            _create_var("r_tm_te_inv", f"-S({bot}:2,{bot}:1)")
+            _create_var("r_te_tm_inv", f"S({bot}:1,{bot}:2)")
+            _create_var("t_te_inv", f"S({top}:1,{bot}:1)*renorm_t_inv")
+            _create_var("t_tm_inv", f"S({top}:2,{bot}:2)*renorm_t_inv")
+            _create_var("t_tm_te_inv", f"S({top}:2,{bot}:1)*renorm_t_inv")
+            _create_var("t_te_tm_inv", f"S({top}:1,{bot}:2)*renorm_t_inv")
+
+            # Port impedances (for scaling transmission)
+            _create_var(f"Zo_{floquet_ports[0]}_1", f"Zo({floquet_ports[0]}:1)")
+            _create_var(f"Zo_{floquet_ports[1]}_1", f"Zo({floquet_ports[1]}:1)")
+
+    @pyaedt_function_handler()
+    def get_fresnel_coefficients(
+        self,
+        setup_sweep: str,
+        theta_name: str,
+        phi_name: str,
+        output_file: str | Path = None,
+        is_isotropic: bool | None = None,
+    ) -> Path:
+        """
+        Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
+
+        This method calculates the Fresnel reflection (and optionally transmission) coefficients for TE and TM modes
+        using S-parameters between Floquet ports in a HFSS simulation. The results are written to an ``.rttbl`` file in
+        a format compatible with SBR+ native tables.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Name of the setup and sweep.
+        theta_name : str
+            Name of the variation parameter representing the theta angle.
+        phi_name : str
+            Name of the variation parameter representing the phi angle.
+        output_file : str or :class:`pathlib.Path`, optional
+            Path to save the output ``.rttbl`` file. If not provided, a file will be generated automatically
+            in the toolkit directory.
+        is_isotropic : bool, optional
+            Whether to get isotropic or anisotropic coefficients.
+             If ``None``, the method will attempt to determine isotropy based on the parametric sweep.
+
+        Returns
+        -------
+        :class:`pathlib.Path`
+            The path to the generated `.rttbl` file containing Fresnel coefficients.
+
+        """
+        self.create_fresnel_variables(setup_sweep=setup_sweep)
+
+        floquet_ports = self.get_fresnel_floquet_ports()
+
+        file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
+        output_file = Path(self.toolkit_directory, file_name) if output_file is None else Path(output_file)
+
+        if output_file.is_file():
+            new_name = f"{generate_unique_name('fresnel_coefficients', self.design_name)}.rttbl"
+            output_file = Path(self.toolkit_directory, new_name)
+
+        # Determine if it is reflection-only (single Floquet port) or reflection/transmission (two ports)
+        is_reflection = len(floquet_ports) == 1
+
+        def _get_sd(varname: str):
+            return self.post.get_solution_data_per_variation(
+                "Modal Solution Data", setup_sweep, ["Domain:=", "Sweep"], variations, varname
+            )
+
+        variations = self.available_variations.all
+        variations["Freq"] = "All"
+
+        r_te = _get_sd("r_te")
+        frequencies = r_te.primary_sweep_values
+        frequency_units = r_te.units_sweeps["Freq"]
+
+        # Isotropy check
+        if theta_name not in r_te.active_variation and phi_name not in r_te.active_variation:
+            raise AEDTRuntimeError("At least one scan should be performed on theta or phi.")
+        elif (
+            not is_isotropic
+            and theta_name in r_te.active_variation
+            and phi_name in r_te.active_variation
+            and r_te.variations
+        ):
+            # If is_isotropic is None, the following algorithm will choose
+            if is_isotropic is None:
+                is_isotropic = True
+                for var in r_te.variations:
+                    if var[phi_name] != 0.0:
+                        is_isotropic = False
+                        break
+                if is_isotropic:
+                    self.logger.add_info_message("Isotropic mode selected.")
+                else:
+                    self.logger.add_info_message("Anisotropic mode selected.")
+
+        if phi_name not in r_te.active_variation:
+            is_isotropic = True
+
+        # Load required datasets
+        r_tm = _get_sd("r_tm")
+        if not is_isotropic:
+            r_tm_te = _get_sd("r_tm_te")
+            r_te_tm = _get_sd("r_te_tm")
+            if not is_reflection:
+                r_te_inv = _get_sd("r_te_inv")
+                r_tm_inv = _get_sd("r_tm_inv")
+                r_tm_te_inv = _get_sd("r_tm_te_inv")
+                r_te_tm_inv = _get_sd("r_te_tm_inv")
+
+        t_te = t_tm = None
+        if not is_reflection:
+            t_te = _get_sd("t_te")
+            t_tm = _get_sd("t_tm")
+            if not is_isotropic:
+                t_te_inv = _get_sd("t_te_inv")
+                t_tm_inv = _get_sd("t_tm_inv")
+                t_tm_te = _get_sd("t_tm_te")
+                t_tm_te_inv = _get_sd("t_tm_te_inv")
+                t_te_tm = _get_sd("t_te_tm")
+                t_te_tm_inv = _get_sd("t_te_tm_inv")
+
+        # Port impedances for scaling (only when transmission exists)
+        if not is_reflection:
+            imp_top = _get_sd(f"Zo({floquet_ports[0]}:1)")
+            imp_bot = _get_sd(f"Zo({floquet_ports[1]}:1)")
+
+        # Build angular grid and a variation index to avoid repeated scans
+        theta_max = 0.0
+        phi_step = 0.0
+        var_index = {}
+        is_360_defined = False
+        theta_units = r_te.units_sweeps[theta_name]
+        phi_units = "deg"
+
+        if is_isotropic:
+            angles = {"0.0deg": []}
+            for var in r_te.variations:
+                th = var[theta_name]
+                if th > theta_max:
+                    theta_max = th
+                angles["0.0deg"].append(th)
+                var_index[(th, None)] = var
+
+            angles["0.0deg"] = list(set(angles["0.0deg"]))
+            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+
+        else:
+            angles = {}
+            phi_values = []
+            theta_units = r_te.units_sweeps[theta_name]
+            phi_units = r_te.units_sweeps[phi_name]
+            for var in r_te.variations:
+                phi = var[phi_name]
+                theta = var[theta_name]
+
+                phase_shift = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
+                z = np.exp(1j * phase_shift)
+                new_phi = np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0)
+
+                if new_phi >= 0:
+                    phi_values.append(new_phi)
+                    var_index[(abs(theta), new_phi)] = var
+
+                    key = f"{new_phi}{phi_units}"
+                    angles.setdefault(key, []).append(abs(theta))
+                    if theta_max < theta <= 90.0:
+                        theta_max = theta
+
+            if 360.0 in phi_values:
+                is_360_defined = True
+
+            # Reorder Phi angles to ensure they are in ascending order
+            angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
+
+            theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
+            theta_step = np.round(theta_step, 6)
+            phi_diff = sorted(set(phi_values))
+            phi_step = abs(phi_diff[1] - phi_diff[0])
+            phi_step = np.round(phi_step, 6)
+
+        # Write output file
+        with open(output_file, "w") as ofile:
+            ofile.write("# SBR native file format for Fresnel reflection / reflection-transmission table data.\n")
+            ofile.write(f"# Generated from {self.project_name} project and {self.design_name} design.\n")
+            ofile.write(
+                "# The following key is critical in distinguishing between a reflection table and a"
+                " reflection/transmission table, as well as between isotropic and anisotropic notations.\n"
+            )
+
+            if is_reflection:
+                ofile.write("ReflTable\n" if is_isotropic else "AnisotropicReflTable\n")
+            else:
+                ofile.write("RTTable\n" if is_isotropic else "AnisotropicRTTable\n")
+
+            ofile.write(
+                "# The incident angle theta is measured from the vertical (Z-axis) towards the horizon (XY-plane) "
+                "and must start from 0.\n"
+            )
+            ofile.write("# Maximum simulated theta value, deg.\n")
+            if is_isotropic:
+                ofile.write(f"# ThetaMax {theta_max}\n")  # until ThetaMax key becomes allowed
+            else:
+                ofile.write(f"ThetaMax {theta_max}\n")
+
+            ofile.write("# The angular sampling is specified by the number of theta steps.\n")
+            ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
+            if is_isotropic:
+                nb_theta_points = int(90 / theta_step)  # until ThetaMax key becomes allowed
+            else:
+                angles_keys = list(angles.keys())
+                nb_theta_points = len(angles[angles_keys[0]]) - 1
+            ofile.write(f"{nb_theta_points}\n")
+            ofile.write(f"# theta_step is {theta_step} {theta_units}.\n")
+            if not is_isotropic:
+                ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
+                nb_phi_points = len(angles.keys())
+                if is_360_defined:
+                    nb_phi_points -= 1
+                ofile.write(f"{nb_phi_points}\n")
+                ofile.write(f"# phi_step is {phi_step} {phi_units}.\n")
+
+            ofile.write("# Frequency domain\n")
+            if len(frequencies) > 1:
+                ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
+                ofile.write(f"MultiFreq {frequencies[0]} {frequencies[1]} {len(frequencies) - 1}\n")
+            else:
+                freq = frequencies[0]
+                ofile.write(f"# Frequency-independent dataset. Simulated at {freq} {frequency_units}.\n")
+                ofile.write("MonoFreq\n")
+
+            if is_isotropic:
+                ofile.write("# Data section follows. Frequency loops within theta.\n")
+                if is_reflection:
+                    ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im>\n")
+                else:
+                    ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im> <t_te_re> <t_te_im> <t_tm_re> <t_tm_im>\n")
+            else:
+                ofile.write("# Data section follows. Frequency loops within theta within phi.\n")
+                if is_reflection:
+                    ofile.write(
+                        "# <r_tete_re> <r_tete_im> <r_tmtm_re> <r_tmtm_im> <r_tmte_re> <r_tmte_im> <r_tetm_re> "
+                        "<r_tetm_im>\n"
+                    )
+                else:
+                    ofile.write(
+                        "# <r_tete_re> <r_tete_im> <r_tmtm_re> <r_tmtm_im> <r_tmte_re> <r_tmte_im><r_tetm_re> "
+                        "<r_tetm_im> <t_tete_re> <t_tete_im> <t_tmtm_re> <t_tmtm_im>  <t_tmte_re> <t_tmte_im>"
+                        " <t_tetm_re> <t_tetm_im> \n"
+                    )
+
+            if is_isotropic:
+                for theta in angles["0.0deg"]:
+                    v = var_index[(theta, None)]
+
+                    # R TE
+                    r_te.active_variation = v
+                    re_r_te = r_te.get_expression_data(formula="real")[1]
+                    im_r_te = r_te.get_expression_data(formula="imag")[1]
+
+                    # R TM
+                    r_tm.active_variation = v
+                    re_r_tm = r_tm.get_expression_data(formula="real")[1]
+                    im_r_tm = r_tm.get_expression_data(formula="imag")[1]
+
+                    if is_reflection:
+                        for i in range(len(frequencies)):
+                            ofile.write(f"{re_r_te[i]:.5e}\t{im_r_te[i]:.5e}\t{re_r_tm[i]:.5e}\t{im_r_tm[i]:.5e}\n")
+                    else:
+                        # Impedance scaling factor (computed once for this theta)
+                        imp_top.active_variation = v
+                        imp_bot.active_variation = v
+                        imp1_real = imp_top.get_expression_data(formula="real")[1]
+                        imp2_real = imp_bot.get_expression_data(formula="real")[1]
+
+                        factor = [math.sqrt(b / a) for a, b in zip(imp1_real, imp2_real)]
+
+                        # T TE
+                        t_te.active_variation = v
+                        re_t_te = [a * b for a, b in zip(t_te.get_expression_data(formula="real")[1], factor)]
+                        im_t_te = [a * b for a, b in zip(t_te.get_expression_data(formula="imag")[1], factor)]
+
+                        # T TM
+                        t_tm.active_variation = v
+                        re_t_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="real")[1], factor)]
+                        im_t_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="imag")[1], factor)]
+
+                        for i in range(len(frequencies)):
+                            ofile.write(
+                                f"{re_r_te[i]:.5e}\t{im_r_te[i]:.5e}\t"
+                                f"{re_r_tm[i]:.5e}\t{im_r_tm[i]:.5e}\t"
+                                f"{re_t_te[i]:.5e}\t{im_t_te[i]:.5e}\t"
+                                f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
+                            )
+
+                if is_isotropic:  # until ThetaMax key becomes allowed
+                    # Isotropic coefficients must to until 90 deg
+                    last_theta = angles["0.0deg"][-1]
+                    if last_theta != 90:
+                        next_theta = last_theta + theta_step
+                        while next_theta <= 90.0:
+                            next_theta += theta_step
+                            for _ in frequencies:
+                                if is_reflection:
+                                    ofile.write("\t".join(["0.0"] * 4) + "\n")
+                                else:
+                                    ofile.write("\t".join(["0.0"] * 8) + "\n")
+
+            else:
+                write_360 = []
+                for phi_key, theta_list in angles.items():
+                    phi_q = Quantity(phi_key)
+
+                    for t in theta_list:
+                        vkey = (t, phi_q.value)
+
+                        # R TE TE
+                        r_te.active_variation = var_index[vkey]
+                        re_r_te_te = r_te.get_expression_data(formula="real")[1]
+                        im_r_te_te = r_te.get_expression_data(formula="imag")[1]
+
+                        # R TM TM
+                        r_tm.active_variation = var_index[vkey]
+                        re_r_tm_tm = r_tm.get_expression_data(formula="real")[1]
+                        im_r_tm_tm = r_tm.get_expression_data(formula="imag")[1]
+
+                        # R TM TE
+                        r_tm_te.active_variation = var_index[vkey]
+                        re_r_tm_te = r_tm_te.get_expression_data(formula="real")[1]
+                        im_r_tm_te = r_tm_te.get_expression_data(formula="imag")[1]
+
+                        # R TE TM
+                        r_te_tm.active_variation = var_index[vkey]
+                        re_r_te_tm = r_te_tm.get_expression_data(formula="real")[1]
+                        im_r_te_tm = r_te_tm.get_expression_data(formula="imag")[1]
+
+                        if is_reflection:
+                            for i in range(len(frequencies)):
+                                output_str = (
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
+                                )
+                                if phi_q.value == 0.0 and not is_360_defined:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
+                        else:
+                            # Impedance scaling factor (computed once per (theta, phi))
+                            imp_top.active_variation = var_index[vkey]
+                            imp_bot.active_variation = var_index[vkey]
+                            imp1_real = imp_top.get_expression_data(formula="real")[1]
+                            imp2_real = imp_bot.get_expression_data(formula="real")[1]
+
+                            factor = [math.sqrt(b / a) for a, b in zip(imp2_real, imp1_real)]
+
+                            # T TE TE
+                            t_te.active_variation = var_index[vkey]
+                            re_t_te_te = [a * b for a, b in zip(t_te.get_expression_data(formula="real")[1], factor)]
+                            im_t_te_te = [a * b for a, b in zip(t_te.get_expression_data(formula="imag")[1], factor)]
+
+                            # T TM TM
+                            t_tm.active_variation = var_index[vkey]
+                            re_t_tm_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="real")[1], factor)]
+                            im_t_tm_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="imag")[1], factor)]
+
+                            # T TM TE
+                            t_tm_te.active_variation = var_index[vkey]
+                            re_t_tm_te = [a * b for a, b in zip(t_tm_te.get_expression_data(formula="real")[1], factor)]
+                            im_t_tm_te = [a * b for a, b in zip(t_tm_te.get_expression_data(formula="imag")[1], factor)]
+
+                            # T TE TM
+                            t_te_tm.active_variation = var_index[vkey]
+                            re_t_te_tm = [a * b for a, b in zip(t_te_tm.get_expression_data(formula="real")[1], factor)]
+                            im_t_te_tm = [a * b for a, b in zip(t_te_tm.get_expression_data(formula="imag")[1], factor)]
+
+                            for i in range(len(frequencies)):
+                                output_str = (
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
+                                    f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
+                                    f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
+                                    f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
+                                    f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
+                                )
+                                if phi_q.value == 0.0 and not is_360_defined:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
+
+                    if not is_reflection:
+                        theta_list.reverse()
+                        for t in theta_list:
+                            vkey = (t, phi_q.value)
+                            # R TE TE (inverse)
+                            r_te_inv.active_variation = var_index[vkey]
+                            re_r_te_te = r_te_inv.get_expression_data(formula="real")[1]
+                            im_r_te_te = r_te_inv.get_expression_data(formula="imag")[1]
+
+                            # R TM TM (inverse)
+                            r_tm_inv.active_variation = var_index[vkey]
+                            re_r_tm_tm = r_tm_inv.get_expression_data(formula="real")[1]
+                            im_r_tm_tm = r_tm_inv.get_expression_data(formula="imag")[1]
+
+                            # R TM TE (inverse)
+                            r_tm_te_inv.active_variation = var_index[vkey]
+                            re_r_tm_te = r_tm_te_inv.get_expression_data(formula="real")[1]
+                            im_r_tm_te = r_tm_te_inv.get_expression_data(formula="imag")[1]
+
+                            # R TE TM (inverse)
+                            r_te_tm_inv.active_variation = var_index[vkey]
+                            re_r_te_tm = r_te_tm_inv.get_expression_data(formula="real")[1]
+                            im_r_te_tm = r_te_tm_inv.get_expression_data(formula="imag")[1]
+
+                            # Impedance scaling factor for inverse part (mirrors original direction)
+                            imp_top.active_variation = var_index[vkey]
+                            imp_bot.active_variation = var_index[vkey]
+                            imp1_real = imp_top.get_expression_data(formula="real")[1]
+                            imp2_real = imp_bot.get_expression_data(formula="real")[1]
+                            factor = [math.sqrt(a / b) for a, b in zip(imp1_real, imp2_real)]
+
+                            # T TE TE (inverse)
+                            t_te_inv.active_variation = var_index[vkey]
+                            re_t_te_te = [
+                                a * b for a, b in zip(t_te_inv.get_expression_data(formula="real")[1], factor)
+                            ]
+                            im_t_te_te = [
+                                a * b for a, b in zip(t_te_inv.get_expression_data(formula="imag")[1], factor)
+                            ]
+
+                            # T TM TM (inverse)
+                            t_tm_inv.active_variation = var_index[vkey]
+                            re_t_tm_tm = [
+                                a * b for a, b in zip(t_tm_inv.get_expression_data(formula="real")[1], factor)
+                            ]
+                            im_t_tm_tm = [
+                                a * b for a, b in zip(t_tm_inv.get_expression_data(formula="imag")[1], factor)
+                            ]
+
+                            # T TM TE (inverse)
+                            t_tm_te_inv.active_variation = var_index[vkey]
+                            re_t_tm_te = [
+                                a * b for a, b in zip(t_tm_te_inv.get_expression_data(formula="real")[1], factor)
+                            ]
+                            im_t_tm_te = [
+                                a * b for a, b in zip(t_tm_te_inv.get_expression_data(formula="imag")[1], factor)
+                            ]
+
+                            # T TE TM (inverse)
+                            t_te_tm_inv.active_variation = var_index[vkey]
+                            re_t_te_tm = [
+                                a * b for a, b in zip(t_te_tm_inv.get_expression_data(formula="real")[1], factor)
+                            ]
+                            im_t_te_tm = [
+                                a * b for a, b in zip(t_te_tm_inv.get_expression_data(formula="imag")[1], factor)
+                            ]
+
+                            for i in range(len(frequencies)):
+                                output_str = (
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
+                                    f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
+                                    f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
+                                    f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
+                                    f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
+                                )
+                                if phi_q.value == 0.0 and not is_360_defined:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
+
+                if not is_360_defined:
+                    for phi_360_str in write_360:
+                        ofile.write(phi_360_str)
+
+        if len(frequencies) > 1:
+            freq_step = frequencies[1] - frequencies[0]
+            self.logger.add_info_message(
+                f"RTTBL file was created for Theta values from 0 to {theta_max} deg, "
+                f"with the step of {theta_step} deg,"
+                f" and for the range of frequencies from {frequencies[0]} {frequency_units}"
+                f" to {frequencies[-1]} {frequency_units} with the step of {freq_step} {frequency_units}."
+            )
+        else:
+            self.logger.add_info_message(
+                f"RTTBL file was created for Theta values from 0 to {theta_max} deg, "
+                f"with the step of {theta_step} deg, for {frequencies[0]} {frequency_units}."
+            )
+
+        self.logger.add_info_message(f"Fresnel coefficients exported to: {output_file}")
+        return output_file
+
+    @pyaedt_function_handler()
+    def get_fresnel_floquet_ports(self) -> list[str]:
+        """
+        Identify and validate Floquet ports from excitation names.
+
+        This method extracts port and mode information from the excitation names,
+        checks that each port has exactly two modes, and identifies the top and
+        bottom ports based on their bounding box Z-coordinate. The function
+        supports only two Floquet ports. If more than two ports are defined or
+        the mode conditions are not met, appropriate errors are logged.
+
+        Returns
+        -------
+        list of str
+            A list containing the names of the top and bottom Floquet ports, ordered by their Z-coordinate
+            (top port first). If only one port is defined, it returns a list with that single port name.
+        """
+        port_mode_list = self.excitation_names
+
+        ports = defaultdict(set)
+
+        for item in port_mode_list:
+            if ":" in item:
+                port_name, mode = item.split(":")
+                ports[port_name].add(int(mode))
+
+        if len(ports) > 2:
+            raise AEDTRuntimeError("More than 2 Floquet ports defined.")
+
+        if len(ports) == 0:
+            raise AEDTRuntimeError("No Floquet ports defined.")
+
+        for port, modes in ports.items():
+            if len(modes) < 2:
+                raise AEDTRuntimeError(
+                    f"Number of modes in {port} must be at least 2 (higher modes are ignored for processing)."
+                )
+
+        if len(ports) == 1:
+            return list(ports.keys())
+
+        excitations = self.design_excitations
+        top_port = None
+        bot_port = None
+        top_pos = None
+        for exc in excitations.values():
+            assignment = exc.properties["Assignment"]
+            if "(Face_" in assignment or "( Face_" in assignment:
+                face_id = int(re.search(r"Face_(\d+)", assignment).group(1))
+                bounding_box = self.modeler.get_face_center(face_id)
+            else:
+                assigment_object = self.modeler[assignment]
+                bounding_box = assigment_object.bounding_box
+
+            if top_port is None or top_pos is None:
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            elif top_pos < bounding_box[2]:
+                bot_port = top_port
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            else:
+                bot_port = exc.name
+
+        return [top_port, bot_port]

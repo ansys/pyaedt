@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingLinkNode(EmitNode):
@@ -31,16 +32,19 @@ class CouplingLinkNode(EmitNode):
         self._is_component = False
 
     @property
-    def parent(self):
+    @min_aedt_version("2025.2")
+    def parent(self) -> EmitNode:
         """The parent of this emit node."""
         return self._parent
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
     @property
+    @min_aedt_version("2025.2")
     def enabled(self) -> bool:
         """Enable/Disable coupling link.
 
@@ -50,15 +54,26 @@ class CouplingLinkNode(EmitNode):
         return val == "true"
 
     @enabled.setter
+    @min_aedt_version("2025.2")
     def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
-    def ports(self):
+    @min_aedt_version("2025.2")
+    def ports(self) -> list[str]:
         """Maps each port in the link to an antenna in the project."""
         val = self._get_property("Ports")
         return val
 
     @ports.setter
-    def ports(self, value) -> None:
+    @min_aedt_version("2025.2")
+    def ports(self, value: list[str] | list[EmitNode] | str) -> None:
+        if isinstance(value, (list, tuple)):
+            if all(isinstance(v, EmitNode) for v in value):
+                value = "|".join(self._full_node_name(v.name) for v in value)
+            else:
+                value = "|".join(self._full_node_name(v) for v in value)
+        else:
+            parts = value.split("|")
+            value = "|".join(self._full_node_name(p) for p in parts)
         self._set_property("Ports", f"{value}")

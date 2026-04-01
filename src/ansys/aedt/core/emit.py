@@ -57,7 +57,7 @@ class Emit(Design, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``, ``2026.1``, ``"2026.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -97,7 +97,7 @@ class Emit(Design, PyAedtBase):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, version=252)
+    >>> aedtapp = Emit(projectname, designame, version=261)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 

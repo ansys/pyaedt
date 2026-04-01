@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 
+from itertools import combinations
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -148,6 +150,20 @@ class ScatteringMethods(PyAedtBase):
             List of strings representing insertion losses of the excitations.
             For example, ``["S(1,2)"]``.
 
+        Examples
+        --------
+        >>> # Example 1: Get insertion loss between specific driver and receiver pairs
+        >>> hfss.get_all_insertion_loss_list(
+        ...     drivers=["Port1_TX", "Port2_TX", "Port3_TX"],
+        ...     receivers=["Port1_RX", "Port2_RX", "Port3_RX"],
+        ...     math_formula="dB",
+        ... )
+        ['dB(S(Port1_TX,Port1_RX))', 'dB(S(Port2_TX,Port2_RX))', 'dB(S(Port3_TX,Port3_RX))']
+
+        >>> # Example 2: Get insertion loss using prefix filtering
+        >>> hfss.get_all_insertion_loss_list(drivers_prefix_name="DIE", receivers_prefix_name="BGA")
+        ['S(DIE_Port1,BGA_Port1)', 'S(DIE_Port2,BGA_Port2)']
+
         References
         ----------
         >>> oEditor.GetAllPorts
@@ -163,7 +179,7 @@ class ScatteringMethods(PyAedtBase):
         spar = []
         if not nets and len(drivers) != len(receivers):
             self.logger.error("The TX and RX lists should be the same length.")
-            return False
+            return []
         if nets:
             for el in nets:
                 x = [i for i in drivers if el in i]
@@ -181,18 +197,21 @@ class ScatteringMethods(PyAedtBase):
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for i in drivers:
-                for j in receivers:
-                    if i == j:
-                        continue
-                    if (
-                        math_formula
-                        and f"{math_formula}(S({j},{i}))" not in spar
-                        and f"{math_formula}(S({i},{j}))" not in spar
-                    ):
-                        spar.append(f"{math_formula}(S({i},{j}))")
-                    elif not math_formula and f"S({i},{j})" not in spar and f"S({j},{i})" not in spar:
-                        spar.append(f"S({i},{j})")
+            # When drivers and receivers are different lists, pair by index
+            if drivers != receivers:
+                for driver, receiver in zip(drivers, receivers):
+                    if driver != receiver:
+                        if math_formula:
+                            spar.append(f"{math_formula}(S({driver},{receiver}))")
+                        else:
+                            spar.append(f"S({driver},{receiver})")
+            # When drivers and receivers are the same list, generate all insertion loss combinations
+            else:
+                for driver, receiver in combinations(drivers, 2):
+                    if math_formula:
+                        spar.append(f"{math_formula}(S({driver},{receiver}))")
+                    else:
+                        spar.append(f"S({driver},{receiver})")
         return spar
 
     @pyaedt_function_handler()

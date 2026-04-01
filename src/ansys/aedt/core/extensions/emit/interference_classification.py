@@ -61,7 +61,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._default_protection_levels = [30.0, -4.0, -30.0, -104.0]  # Damage, Overload, Intermod, Desensitization
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
         )
@@ -339,7 +338,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             self._current_radio = None  # Clear tracking when back to global
             self._global_protection_level = True
 
-    def _on_radio_dropdown_changed(self, _evt=None) -> None:
+    def _on_radio_dropdown_changed(self, _evt=None):
         """Update legend entry values when selected radio changes."""
         # First, save the current Entry values to the previously selected radio
         prev_radio = getattr(self, "_current_radio", None)
@@ -492,7 +491,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         return tx, rx, colors, matrix
 
     # --------------- UI rendering helpers ----------------
-    def _render_matrix(self, tab: str) -> None:
+    def _render_matrix(self, tab: str):
         """Display the results matrix on the canvas for the given tab."""
         matrix = self._matrix.get(tab)
         if not matrix:

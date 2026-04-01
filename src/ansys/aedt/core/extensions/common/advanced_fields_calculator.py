@@ -70,7 +70,6 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=2,
@@ -83,7 +82,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical"""
         if self.aedt_application.design_type not in [
             "HFSS",
@@ -183,7 +182,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         ok_button.grid(row=2, column=0, padx=15, pady=10)
 
     @property
-    def available_descriptions(self):
+    def available_descriptions(self) -> dict:
         """Get available descriptions for fields calculator expressions."""
         return self.__available_descriptions
 

@@ -89,12 +89,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
-        super().__init__(
-            EXTENSION_TITLE,
-            theme_color="light",
-            withdraw=withdraw,
-            add_custom_content=False,
-        )
+        super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=False, use_edb=True)
         # Initialize data object
         self.data = ParametrizeEdbExtensionData()
 
@@ -272,13 +267,13 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
-    def show_error_message(self, message) -> None:
+    def show_error_message(self, message: str):
         """Show error message."""
         import tkinter.messagebox
 
         tkinter.messagebox.showerror("Error", message)
 
-    def generate_callback(self):
+    def generate_callback(self) -> None:
         """Generate callback function."""
         try:
             # Validate expansion values

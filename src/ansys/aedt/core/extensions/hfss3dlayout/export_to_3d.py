@@ -63,12 +63,13 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
         # Initialize the common extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=1,
             toggle_column=1,
+            use_edb=True,
         )
+
         # Add private attributes and initialize them through load info
         self.__load_aedt_info()
 

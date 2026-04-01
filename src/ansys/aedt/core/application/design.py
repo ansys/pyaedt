@@ -199,6 +199,11 @@ class Design(AedtObjects, PyAedtBase):
         self._design_datasets: list = []
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
+
+        if version is not None:
+            # Clear global state before initialization
+            settings.aedt_version = None
+
         self._desktop_class = self.__init_desktop_from_design(
             settings.aedt_version if settings.aedt_version else version,
             non_graphical,
@@ -340,7 +345,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name: str, design_name: str, solution_type: str = None) -> None:
+    def _init_design(self, project_name: str, design_name: str, solution_type: str = None):
         """Initializes a new design.
 
         Parameters
@@ -598,7 +603,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key: str):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
@@ -1215,7 +1220,6 @@ class Design(AedtObjects, PyAedtBase):
             activedes, warning_msg = self._find_design()
             if activedes:
                 self._odesign = self.desktop_class.active_design(self.oproject, activedes, self.design_type)
-                self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
             else:
@@ -2336,12 +2340,20 @@ class Design(AedtObjects, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
-        >>> m3d.create_em_target_design("Icepak", design_setup="Forced")
+        >>> from ansys.aedt.core import Maxwell3d, Mechanical
+        >>> from ansys.aedt.core.generic.aedt_constants import IcepakFeaConstants
+        >>> m3d = Maxwell3d(version="2026.1")
+        From 2026.1 Mechanical has been renamed to IcepakFEA.
+        The target design must be passed through the IcepakFeaConstants metaclass.
+        This will automatically detect the AEDT version and pass the correct design name to the API.
+        >>> m3d.create_em_target_design(design=IcepakFeaConstants.NAME)
+        >>> mechanical = Mechanical(version="2026.1")
+        >>> mechanical.release_desktop(False, False)
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
+        if not self.setups:
+            raise AEDTRuntimeError("No setup in source design.")
         if design not in [DesignType.ICEPAK, DesignType.ICEPAKFEA]:
             raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
         design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
@@ -2351,7 +2363,7 @@ class Design(AedtObjects, PyAedtBase):
                 raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
             design_setup_args.append(design_setup)
         else:
-            design = DesignType.ICEPAKFEA
+            design = DesignType.ICEPAKFEA.NAME
         if not setup:
             setup = self.nominal_adaptive
         self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
@@ -2842,37 +2854,40 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        input_file = Path(input_file)
-        with open_file(input_file, "r") as f:
-            lines = f.read().splitlines()
-        header = lines[0]
-        points = lines[1:]
+        in_file = Path(input_file)
+        if in_file.is_file():
+            with in_file.open(encoding="utf-8") as f:
+                lines = f.read().splitlines()
+            header = lines[0]
+            points = lines[1:]
 
-        header_list = header.split("\t")
-        units = ["", ""]
-        cont = 0
-        for h in header_list:
-            result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
-            if result:
-                units[cont] = result.group(1)
-            cont += 1
+            header_list = header.split("\t")
+            units = ["", ""]
+            cont = 0
+            for h in header_list:
+                result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
+                if result:
+                    units[cont] = result.group(1)
+                cont += 1
 
-        xlist = []
-        ylist = []
-        for item in points:
-            xlist.append(float(item.split()[0]))
-            ylist.append(float(item.split()[1]))
+            xlist = []
+            ylist = []
+            for item in points:
+                xlist.append(float(item.split()[0]))
+                ylist.append(float(item.split()[1]))
 
-        if not name:
-            name = input_file.stem
+            if not name:
+                name = input_file.stem
 
-        if name[0] == "$":
-            name = name[1:]
-            is_project_dataset = True
+            if name[0] == "$":
+                name = name[1:]
+                is_project_dataset = True
 
-        return self.create_dataset(
-            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
-        )
+            return self.create_dataset(
+                name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
+            )
+        else:
+            raise FileNotFoundError(f"Input file '{in_file}' does not exist.")
 
     @pyaedt_function_handler()
     def import_dataset3d(
@@ -4042,24 +4057,68 @@ class Design(AedtObjects, PyAedtBase):
             return val
 
     @pyaedt_function_handler()
-    def evaluate_expression(self, expression: str) -> float:
+    def evaluate_expression(self, expression: str) -> float | str | None:
         """Evaluate a valid string expression and return the numerical value in SI units.
+
+        This method evaluates mathematical expressions containing design variables, project variables,
+        units, and mathematical operations. It handles various expression types including:
+        - Simple numeric values, for example ``"42"``.
+        - Values with units, for example ``"10mm"``.
+        - Mathematical expressions, for example ``"34mm*sqrt(2)"`` or ``"pi/2"``.
+        - Variable references, for example ``"$var1"``.
+        - PWL (Piecewise Linear) dataset references.
+        - Combined expressions, for example ``"$G1*p2/34"``.
 
         Parameters
         ----------
         expression : str
             A valid string expression for a design property or project variable.
-            For example, ``"34mm*sqrt(2)"`` or ``"$G1*p2/34"``.
 
         Returns
         -------
-        float
-            Evaluated value for the string expression.
+        float or str or None
+            Evaluated value for the string expression in SI units.
+            - Returns ``float`` for successfully evaluated numeric expressions
+            - Returns ``str`` for PWL dataset references or invalid expressions
+            - Returns ``None`` if evaluation fails completely
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["width"] = "10mm"
+        >>> hfss["height"] = "20mm"
+        >>> # Evaluate simple numeric value
+        >>> result = hfss.evaluate_expression("42")  # Returns 42.0
+        >>> # Evaluate value with units
+        >>> result = hfss.evaluate_expression("10mm")  # Returns 0.01 (in meters)
+        >>> # Evaluate expression with variables
+        >>> result = hfss.evaluate_expression("width*height")  # Returns 0.0002 (in m²)
+        >>> # Evaluate mathematical expression
+        >>> result = hfss.evaluate_expression("sqrt(width^2 + height^2)")
+
+        Notes
+        -----
+        The method attempts multiple strategies to evaluate the expression:
+
+        * Direct variable lookup if the expression is a variable name.
+        * Check for PWL dataset references.
+        * Try direct numeric conversion.
+        * Create temporary internal variable to leverage AEDT's expression evaluator.
+
+        For expressions containing project variables (prefixed with $), AEDT restrictions apply.
+        Project variables cannot reference design variables.
+
+        The method uses an internal variable named "pyaedt_evaluator" for complex evaluations.
+        All results are returned in SI units regardless of the input unit system.
         """
-        # Set the value of an internal reserved design variable to the specified string
+        # Strategy 1: Direct variable lookup
+        # If the expression is exactly a variable name, return its SI value directly
         if expression in self._variable_manager.variables:
             return self._variable_manager.variables[expression].si_value
+
+        # Strategy 2: Check for PWL (Piecewise Linear) dataset references
+        # PWL expressions reference datasets and should be returned as-is
         elif "pwl" in str(expression):
             for ds in self.project_datasets:
                 if ds in expression:
@@ -4067,23 +4126,77 @@ class Design(AedtObjects, PyAedtBase):
             for ds in self.design_datasets:
                 if ds in expression:
                     return expression
+
+        # Strategy 3: Try direct numeric conversion
+        # If the expression is a simple number, convert and return it
         try:
             return float(expression)
         except ValueError:
             pass
+
+        # Strategy 4: Use AEDT's internal expression evaluator
+        # Create a temporary internal variable with the expression and retrieve its evaluated value
         try:
-            variable_name = "pyaedt_evaluator"
-            if "$" in expression:
-                variable_name = "$pyaedt_evaluator"
-            self._variable_manager.set_variable(
-                variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
+            # Determine variable type based on expression content
+            # Project variables (with $) require special handling
+            variable_name = "$pyaedt_evaluator" if "$" in expression else "pyaedt_evaluator"
+
+            try:
+                # Attempt to create the internal evaluator variable
+                result = self._variable_manager.set_variable(
+                    variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
+                )
+
+                if not result and "$" in expression:
+                    # AEDT restriction: Project variables cannot contain design variables
+                    # Fallback to design variable if project variable creation fails
+                    self.logger.debug("Project variable creation failed. Attempting with design variable as fallback.")
+                    variable_name = "pyaedt_evaluator"
+                    result = self._variable_manager.set_variable(
+                        variable_name,
+                        expression=expression,
+                        read_only=True,
+                        hidden=True,
+                        description="Internal_Evaluator",
+                    )
+
+                if result:
+                    # Successfully created the variable, extract its evaluated SI value
+                    eval_value = self._variable_manager.variables[variable_name].si_value
+                    return eval_value
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError(
+                        f"Failed to create internal evaluator variable with expression: {expression}"
+                    )
+
+            except GrpcApiError as e:
+                # If an exception happened during variable creation,
+                # check if it was due to using a project variable with design variable references
+                if "$" in expression and not settings.release_on_exception:
+                    # Retry with design variable if project variable failed
+                    self.logger.debug(f"Retrying with design variable. Original error: {str(e)}")
+                    variable_name = "pyaedt_evaluator"
+                    result = self._variable_manager.set_variable(
+                        variable_name,
+                        expression=expression,
+                        read_only=True,
+                        hidden=True,
+                        description="Internal_Evaluator",
+                    )
+                    if result:
+                        eval_value = self._variable_manager.variables[variable_name].si_value
+                        return eval_value
+                    raise AEDTRuntimeError(
+                        f"Failed to create internal evaluator variable with expression: {expression}"
+                    ) from e
+                else:  # pragma: no cover
+                    raise
+
+        except Exception as e:  # pragma: no cover
+            # Final fallback: log warning and return the original expression
+            self.logger.warning(
+                f"Unable to evaluate expression '{expression}'. Error: {str(e)}. Returning expression as-is."
             )
-            eval_value = self._variable_manager.variables[variable_name].si_value
-            # Extract the numeric value of the expression (in SI units!)
-            self.odesign.Undo()
-            return eval_value
-        except Exception:
-            self.logger.warning(f"Invalid string expression {expression}")
             return expression
 
     @pyaedt_function_handler()

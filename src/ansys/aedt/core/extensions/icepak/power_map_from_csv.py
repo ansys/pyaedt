@@ -83,7 +83,6 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
         )
@@ -143,7 +142,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.root.destroy()
 
 
-def create_powermaps_from_csv(ipk, csv_path: Path) -> None:
+def create_powermaps_from_csv(ipk: Icepak, csv_path: Path) -> None:
     """Create powermap from an Icepak classic CSV file.
 
     Parameters
@@ -161,7 +160,7 @@ def create_powermaps_from_csv(ipk, csv_path: Path) -> None:
     create_powermaps_from_data(ipk, data)
 
 
-def create_powermaps_from_data(ipk, data: PowerMapFromCSVExtensionData) -> None:
+def create_powermaps_from_data(ipk: Icepak, data: PowerMapFromCSVExtensionData) -> None:
     """Create power maps from geometric and source information.
 
     Parameters
