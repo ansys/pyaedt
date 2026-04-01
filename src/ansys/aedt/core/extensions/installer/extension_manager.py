@@ -65,11 +65,11 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Extension Manager"
 
 # Default width and height for the extension window
-WIDTH = 850
+WIDTH = 900
 HEIGHT = 450
 
 # Maximum dimensions for the extension window
-MAX_WIDTH = 850
+MAX_WIDTH = 900
 MAX_HEIGHT = 550
 
 # Minimum dimensions for the extension window

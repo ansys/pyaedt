@@ -161,9 +161,9 @@ def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_ae
     extension = ExtensionManager(withdraw=True)
 
     assert EXTENSION_TITLE == "Extension Manager"
-    assert WIDTH == 850
+    assert WIDTH == 900
     assert HEIGHT == 450
-    assert MAX_WIDTH == 850
+    assert MAX_WIDTH == 900
     assert MAX_HEIGHT == 550
     assert MIN_WIDTH == 850
     assert MIN_HEIGHT == 400
