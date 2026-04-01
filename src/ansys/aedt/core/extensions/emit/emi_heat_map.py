@@ -80,7 +80,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
             toggle_row=None,

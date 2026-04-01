@@ -1439,17 +1439,15 @@ class ReportPlotter(PyAedtBase):
                 legend_names,
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.12),
-                fontsize=7 if len(legend_names) > 80 else 9,
+                fontsize=10 if len(legend_names) < 12 else 7,
                 frameon=True,
                 edgecolor="black",
-                ncol=2,
+                ncol=2 if len(legend_names) > 6 else 1,
                 facecolor=self.__general_back_color,
                 labelcolor=self.__grid_color,
             )
-        self.ax.set_xlabel(
-            trace.x_label if len(legend_names) == 1 else "Y1", color=self.__grid_color, fontsize=self.text_size
-        )
-        self.ax.set_ylabel(trace.y_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_xlabel(trace.x_label, color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel("Y1", color=self.__grid_color, fontsize=self.text_size)
         self.ax.set_title(
             self.title,
             color=self.__grid_color,
@@ -1617,24 +1615,25 @@ class ReportPlotter(PyAedtBase):
             maxx = max(xc)
             miny = min(yc)
             maxy = max(yc)
-            grid_size = 300
             if is_contour and filter_colormap:
                 mask = zc < filter_colormap
                 zc = zc[mask]
                 yc = yc[mask]
                 xc = xc[mask]
-                grid_size = 100
-            Xc, Yc, Z = bin_to_grid(xc, yc, zc, nx=grid_size, ny=grid_size)
+            Xc, Yc, Z = bin_to_grid(xc, yc, zc)
             if is_contour:
-                mesh = self.ax.pcolormesh(Xc, Yc, Z, norm=LogNorm(), shading="auto", cmap="nipy_spectral")
+                mesh = self.ax.pcolormesh(Xc, Yc, Z, norm=LogNorm(), shading="auto", cmap="jet")
                 cbar = self.fig.colorbar(mesh, ax=self.ax)
                 cbar.ax.tick_params(labelsize=self.text_size, colors=self.__grid_color)
             else:
-                cmap = plt.cm.nipy_spectral
-                cmap.set_under(self.__general_plot_color)
-
-                Z = np.ma.masked_less(Z, minz)
-                self.ax.pcolormesh(Xc, Yc, Z, cmap=cmap)
+                Z = np.ma.masked_less(Z, minz, np.nan)
+                self.ax.pcolormesh(
+                    Xc,
+                    Yc,
+                    Z,
+                    cmap="jet",
+                    shading="auto",
+                )
             self.ax.set_xlim(minx, maxx)  # set X axis min and max
             self.ax.set_ylim(miny, maxy)  # set Y axis min and max
         else:
@@ -1783,7 +1782,7 @@ class ReportPlotter(PyAedtBase):
                 label=trace.name,
                 color=trace.trace_color,
             )
-            if trace.hatch_above:
+            if not trace.hatch_above:
                 y_data = [i + delta for i in trace._cartesian_data[1]]
                 self.ax.fill_between(
                     trace._cartesian_data[0] * rate,

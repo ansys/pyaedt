@@ -39,6 +39,7 @@ FEBI
 FE-BI
 file_path
 fix_disjoints
+Floquet
 FRTM
 getters
 Github
@@ -97,6 +98,7 @@ RC
 reusability
 RF
 RMXprt
+RTTBL
 scipy
 setters
 SIwave
