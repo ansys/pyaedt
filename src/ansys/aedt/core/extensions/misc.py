@@ -96,6 +96,12 @@ def get_aedt_path() -> str | None:
     return res
 
 
+def get_aedt_theme() -> str:
+    """Get AEDT theme from environment variable."""
+    res = os.getenv("PYAEDT_GLOBAL_THEME", "light")
+    return res
+
+
 def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
@@ -235,7 +241,7 @@ class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
-        theme_color: str = "light",
+        theme_color: str | None = None,
         withdraw: bool = False,
         add_custom_content: bool = True,
         toggle_row: int | None = None,
@@ -253,7 +259,8 @@ class ExtensionCommon(PyAedtBase):
         title : str
             The title of the main window.
         theme_color: str, optional
-            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+            The theme color to apply to the UI. Options are ``"light"`` or ``"dark"``.
+            If ``None``, the theme is inferred from the AEDT environment.
         withdraw : bool, optional
             If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
@@ -267,7 +274,13 @@ class ExtensionCommon(PyAedtBase):
             from the AEDT installation directory. This is necessary for extensions that interact
             directly with layout databases via the EDB API. The default is ``False``.
         """
-        if theme_color not in ["light", "dark"]:
+        if theme_color is None:
+            theme_color = get_aedt_theme()
+            if "dark" in theme_color.lower():
+                theme_color = "dark"
+            elif theme_color not in ["light", "dark"]:
+                theme_color = "light"
+        elif theme_color not in ["light", "dark"]:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
 
         self.use_edb = use_edb
@@ -286,6 +299,7 @@ class ExtensionCommon(PyAedtBase):
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
@@ -293,13 +307,13 @@ class ExtensionCommon(PyAedtBase):
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
-        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
+        self.apply_theme(self.theme_color)
 
     def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
         """Create a button to toggle between light and dark themes."""
@@ -381,9 +395,9 @@ class ExtensionCommon(PyAedtBase):
     def toggle_theme(self) -> None:
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
-            self.__apply_theme("dark")
+            self.apply_theme("dark")
         elif self.root.theme == "dark":
-            self.__apply_theme("light")
+            self.apply_theme("light")
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
@@ -469,7 +483,7 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str):
+    def apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
