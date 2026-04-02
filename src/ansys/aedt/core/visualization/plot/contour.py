@@ -22,7 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import matplotlib.pyplot as plt
+import warnings
+
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 import numpy as np
 
 from ansys.aedt.core.generic.settings import settings
