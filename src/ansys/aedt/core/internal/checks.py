@@ -25,7 +25,6 @@
 """Provides functions for performing common checks."""
 
 from functools import wraps
-import os
 import warnings
 
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
