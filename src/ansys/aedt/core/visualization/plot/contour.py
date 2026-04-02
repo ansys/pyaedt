@@ -26,7 +26,6 @@ import warnings
 
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 
-
 try:
     import matplotlib.pyplot as plt
 except ImportError:
