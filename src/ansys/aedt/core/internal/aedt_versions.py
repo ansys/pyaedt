@@ -55,6 +55,7 @@ class AedtVersions(PyAedtBase):
         self._current_version = None
         self._current_student_version = None
         self._latest_version = None
+        # NOTE: Attributes related the logic of using the PyAEDT bundled in AEDT
         self._is_pyaedt_in_edt = None
         self._pyaedt_edt_version = None
 
