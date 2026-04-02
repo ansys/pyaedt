@@ -10,7 +10,6 @@ This document contains the release notes for the project.
 .. towncrier release notes start
 
 `1.0.0rc2 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0rc2>`_ - April 01, 2026
-=====================================================================================
 
 .. tab-set::
 
