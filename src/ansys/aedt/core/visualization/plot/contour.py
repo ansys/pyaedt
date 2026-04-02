@@ -23,9 +23,10 @@
 # SOFTWARE.
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.internal.checks import GRAPHICS_REQUIRED
 
-import numpy as np
 try:
     import matplotlib.pyplot as plt
 except ImportError:
