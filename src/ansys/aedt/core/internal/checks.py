@@ -136,7 +136,7 @@ def check_graphics_available(warning: bool = False) -> None:
             _GRAPHICS_AVAILABLE = False
 
     if _GRAPHICS_AVAILABLE is False:  # pragma: no cover
-        if warning or "PYTEST_CURRENT_TEST" in os.environ:
+        if warning:
             warnings.warn(GRAPHICS_REQUIRED)
         else:
             raise ImportError(GRAPHICS_REQUIRED)
