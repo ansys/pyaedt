@@ -115,7 +115,6 @@ tests = [
 ]
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.8",
-    "jupyter",
     "numpydoc==1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
@@ -123,11 +122,6 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.21",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.48",
-    "ansys-tools-visualization-interface",
-    "fpdf2",
-    "rpyc>=6.0.0,<6.1",
-    "scikit-rf>=0.30.0,<1.12",
 ]
 
 
