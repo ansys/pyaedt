@@ -98,6 +98,7 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: false
+          optional-dependencies-name: 'all'
           group-dependencies-name: 'doc'
 
   smoke-tests:
