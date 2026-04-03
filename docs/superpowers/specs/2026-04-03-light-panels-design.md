@@ -35,7 +35,10 @@
 - Add a new boolean Typer option: `--light`.
 - Pass `light=light` to `add_pyaedt_to_aedt(...)`.
 - Keep `--skip-version-manager` independent so it applies in both full and light modes.
-- Update the success output so light installs report the reduced installed set accurately.
+- Derive the success output in the CLI from the same input flags that define the requested install set:
+  - full mode: grouped utilities, Run Script, Extension Manager, and optionally Version Manager
+  - light mode: Console, Extension Manager, and optionally Version Manager
+- Do not require the installer to return a richer payload for this feature; the existing boolean success contract remains unchanged.
 
 ### Installer changes
 
@@ -54,6 +57,7 @@
 
 - Do not call `_install_utilities_group()`.
 - Register Console directly with `customize_automation_tab.add_script_to_menu(...)` as a standalone item.
+- Do not pass `group_name` or `group_icon` when registering Console in light mode.
 - Install Extension Manager.
 - Install Version Manager unless `skip_version_manager=True`.
 - Do not install CLI, Jupyter, or Run Script.
@@ -88,6 +92,10 @@
   - installer returning `False`
   - unexpected exceptions
 - No silent fallback between light and full modes. If the requested install mode fails, the command fails.
+- Treat registration as an all-or-fail operation at the command level:
+  - if any required `add_script_to_menu(...)` call raises or the installer returns `False`, `pyaedt panels add` exits with failure
+  - this feature does not introduce rollback or cleanup of entries that may have been written before the failure
+  - the behavior stays aligned with the current installer contract rather than adding transactional semantics
 
 ## Testing
 
@@ -97,6 +105,12 @@
   - updated success output for light mode
   - the new `light` argument being passed to `add_pyaedt_to_aedt`
 - Preserve existing coverage for full mode and skip-version-manager behavior.
+- Add installer-level tests for `add_pyaedt_to_aedt(..., light=True)` to verify:
+  - Console is registered directly without a utilities group
+  - Extension Manager is registered
+  - Version Manager is registered unless skipped
+  - CLI, Jupyter, and Run Script are not registered in light mode
+  - full mode continues to use the grouped utilities path unchanged
 
 ## Approach rationale
 
