@@ -43,19 +43,13 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.internal.checks import is_notebook
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import Mesh
 
-# Check that graphics are available
-try:
-    check_graphics_available()
-
-    import pyvista as pv
-except ImportError:
-    warnings.warn(ERROR_GRAPHICS_REQUIRED)
+import pyvista as pv
 
 
 @pyaedt_function_handler()
@@ -78,21 +72,21 @@ def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.Struc
     return ff_mesh
 
 
-def is_notebook() -> bool:
-    """Check if pyaedt is running in Jupyter or not.
+# def is_notebook() -> bool:
+#     """Check if pyaedt is running in Jupyter or not.
 
-    Returns
-    -------
-    bool
-    """
-    try:
-        shell = get_ipython().__class__.__name__
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        else:
-            return False
-    except NameError:
-        return False  # Probably standard Python interpreter
+#     Returns
+#     -------
+#     bool
+#     """
+#     try:
+#         shell = get_ipython().__class__.__name__
+#         if shell == "ZMQInteractiveShell":
+#             return True  # Jupyter notebook or qtconsole
+#         else:
+#             return False
+#     except NameError:
+#         return False  # Probably standard Python interpreter
 
 
 def is_float(istring: str) -> float:
@@ -1448,6 +1442,7 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
+    @requires_graphical_dependency("imageio")
     def animate(self, show: bool = True) -> bool:
         """Animate the current field plot.
 
