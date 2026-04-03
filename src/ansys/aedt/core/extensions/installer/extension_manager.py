@@ -56,6 +56,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.aedt_constants import DesignType
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -145,7 +146,7 @@ class ExtensionManager(ExtensionProjectCommon):
         # Selector for whether optional extensions are enabled.
         # This is used to disable interaction with extensions that
         # require dependencies not included in the base pyaedt install
-        self._optional_extensions = True
+        self._optional_extensions = None
 
         self.python_interpreter = Path(sys.executable)
         self.toolkits = None
@@ -1516,7 +1517,11 @@ class ExtensionManager(ExtensionProjectCommon):
     @property
     def optional_extensions(self) -> bool:
         """Whether optional extensions are enabled for interaction."""
-        return getattr(self, "_optional_extensions", False)
+        optional_extensions = getattr(self, "_optional_extensions", None)
+        if optional_extensions is None:
+            optional_extensions = not aedt_versions.is_pyaedt_in_edt()
+            self._optional_extensions = optional_extensions
+        return bool(optional_extensions)
 
     @optional_extensions.setter
     def optional_extensions(self, value: bool) -> None:

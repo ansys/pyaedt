@@ -514,6 +514,7 @@ def test_extension_manager_launch_optional_extension_is_blocked(
     extension.active_extension = None
     extension.current_category = "HFSS"
     extension.log_message = MagicMock()
+    extension._optional_extensions = False
     assert extension.is_optional_extension("HFSS", "MyExt") is True
     assert extension.is_optional_extension_disabled("HFSS", "MyExt") is True
 
@@ -707,6 +708,7 @@ def test_extension_manager_pin_optional_extension_is_blocked(
     extension.desktop = mock_desktop.return_value
     extension.current_category = "HFSS"
     extension.log_message = MagicMock()
+    extension._optional_extensions = False
 
     extension.pin_extension("HFSS", "MyExt")
 
@@ -715,17 +717,27 @@ def test_extension_manager_pin_optional_extension_is_blocked(
 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_optional_extensions_property_controls_disable_logic(mock_desktop, mock_toolkits, mock_aedt_app) -> None:
-    """The optional_extensions property should control whether optional entries are disabled."""
+@patch("ansys.aedt.core.extensions.installer.extension_manager.aedt_versions.is_pyaedt_in_edt")
+def test_optional_extensions_property_controls_disable_logic(
+    mock_is_pyaedt_in_edt, mock_desktop, mock_toolkits, mock_aedt_app
+) -> None:
+    """Optional extension availability should default from AEDT bundled mode and honor explicit overrides."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "optional": True}}}
     mock_toolkits.return_value = toolkit_data
 
     extension = ExtensionManager.__new__(ExtensionManager)
     extension.toolkits = toolkit_data
+    extension._optional_extensions = None
 
+    mock_is_pyaedt_in_edt.return_value = True
     assert extension.optional_extensions is False
     assert extension.is_optional_extension_disabled("HFSS", "MyExt") is True
+
+    extension._optional_extensions = None
+    mock_is_pyaedt_in_edt.return_value = False
+    assert extension.optional_extensions is True
+    assert extension.is_optional_extension_disabled("HFSS", "MyExt") is False
 
     extension.optional_extensions = True
 
