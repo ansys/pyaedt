@@ -630,6 +630,11 @@ class Desktop(PyAedtBase):
             return
         # Initialize Desktop variables.
 
+        if aedt_versions.is_pyaedt_in_edt():
+            pyaedt_logger.info(f"PyAedt is installed in Electronics Desktop {aedt_versions.pyaedt_edt_version}.")
+            pyaedt_logger.info(f"Overriding requested version: {version}")
+            version = aedt_versions.pyaedt_edt_version
+
         self.__closed = False
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
@@ -669,6 +674,9 @@ class Desktop(PyAedtBase):
 
         self.logger.info(f"AEDT version {self.aedt_version_id}{' Student' if student_version else ''}.")
 
+        if aedt_versions.is_pyaedt_in_edt():
+            self.logger.info("PyAEDT launched from AEDT installation folder. Forcing grpc mode.")
+            self.__starting_mode = "grpc"
         # Starting AEDT
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
@@ -823,11 +831,7 @@ class Desktop(PyAedtBase):
     def check_starting_mode(self) -> None:
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
-        if "oDesktop" in dir(sys.modules["__main__"]):  # pragma: no cover
-            # we are inside the AEDT Ironpython console
-            self.logger.info("Ironpython session with embedded oDesktop")
-            self.__starting_mode = "console_in"
-        elif is_linux:
+        if is_linux:
             self.__starting_mode = "grpc"
         elif is_windows and "pythonnet" not in modules:
             self.__starting_mode = "grpc"
@@ -845,15 +849,14 @@ class Desktop(PyAedtBase):
                     self.__starting_mode = "grpc"
                 else:
                     self.__starting_mode = "com"
+                    self.logger.warning("DotNet COM mode is deprecated and will be soon removed. Use grpc instead.")
             else:
                 raise ValueError(
                     f"The version specified ({self.aedt_version_id}) doesn't correspond "
                     "to the pid specified ({self.aedt_process_id})"
                 )
         elif float(self.aedt_version_id) < 2022.2:  # pragma no cover
-            self.__starting_mode = "com"
-            if self.non_graphical:
-                self.logger.disable_desktop_log()
+            raise Exception("Unsupported AEDT version")
         elif float(self.aedt_version_id) == 2022.2:  # pragma no cover
             if self.non_graphical:
                 self.logger.disable_desktop_log()

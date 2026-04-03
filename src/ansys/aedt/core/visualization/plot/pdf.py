@@ -27,8 +27,12 @@ from dataclasses import field
 import json
 import os
 
-from fpdf import FPDF
-from fpdf import FontFace
+try:
+    from fpdf import FPDF
+    from fpdf import FontFace
+except ImportError:  # pragma: no cover
+    raise ImportError("fpdf2 is required. Please install with 'pip install pyaedt[all]' or 'pip install fpdf2'")
+
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase

@@ -34,7 +34,7 @@ import numpy as np
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.visualization.plot.contour import bin_to_grid
 from ansys.aedt.core.visualization.plot.contour import extract_eye_opening_contour_by_center
@@ -51,7 +51,7 @@ try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
 except ImportError:
-    warnings.warn(ERROR_GRAPHICS_REQUIRED)
+    warnings.warn(GRAPHICS_REQUIRED)
 
 
 def is_notebook() -> bool:
