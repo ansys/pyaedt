@@ -21,10 +21,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 
+from ansys.aedt.core.internal.checks import GRAPHICS_REQUIRED
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    warnings.warn(GRAPHICS_REQUIRED)
 from ansys.aedt.core.generic.settings import settings
 
 
