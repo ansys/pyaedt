@@ -223,7 +223,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group unit-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
@@ -275,7 +275,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group integration-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
@@ -331,7 +331,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -401,7 +401,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -467,7 +467,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -540,7 +540,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -606,7 +606,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -680,7 +680,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -741,7 +741,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -811,7 +811,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -874,7 +874,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -944,7 +944,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1011,7 +1011,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1084,7 +1084,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1146,7 +1146,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1214,7 +1214,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
