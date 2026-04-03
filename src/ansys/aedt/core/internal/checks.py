@@ -141,8 +141,6 @@ def check_dependency_available(dependency: str, warning: bool = False) -> bool:
     ImportError
         If dependency is not available and warning is False.
     """
-    global _GRAPHICS_DEPENDENCIES
-
     if dependency not in _GRAPHICS_DEPENDENCIES:
         raise ValueError(f"Unknown dependency: {dependency}. Valid options: {list(_GRAPHICS_DEPENDENCIES.keys())}")
 
