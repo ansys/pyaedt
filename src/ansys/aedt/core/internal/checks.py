@@ -29,22 +29,6 @@ import warnings
 
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-
-def install_message(dependency: str | list[str], target: str, level: str = "method") -> str:
-    """Generate an installation message for missing dependencies."""
-    if isinstance(dependency, list):
-        msg = f"Dependencies {', '.join(dependency)} are required."
-    else:
-        msg = f"Dependency {dependency} is required."
-    msg += f" Please install the ``{target}`` target to use this {level}."
-    msg += f" You can install it by running `pip install pyaedt[{target}]`"
-    msg += " or `pip install pyaedt[all]`." if target != "all" else "."
-    return msg
-
-
-# ERROR_GRAPHICS_REQUIRED = install_message("graphics")
-# """Message to display when graphics are required for a method."""
-
 # NOTE: This should be updated for any modifications in pyaedt's graphics install target.
 # Graphics dependencies cache
 _GRAPHICS_DEPENDENCIES = {
@@ -58,6 +42,18 @@ _GRAPHICS_DEPENDENCIES = {
     "vtk": None,
 }
 """Cache for individual graphics dependencies availability."""
+
+
+def install_message(dependency: str | list[str], target: str, level: str = "method") -> str:
+    """Generate an installation message for missing dependencies."""
+    if isinstance(dependency, list):
+        msg = f"Dependencies {', '.join(dependency)} are required."
+    else:
+        msg = f"Dependency {dependency} is required."
+    msg += f" Please install the ``{target}`` target to use this {level}."
+    msg += f" You can install it by running `pip install pyaedt[{target}]`"
+    msg += " or `pip install pyaedt[all]`." if target != "all" else "."
+    return msg
 
 
 def min_aedt_version(min_version: str) -> callable:
