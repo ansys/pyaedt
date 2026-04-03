@@ -26,9 +26,12 @@
 from typing import TYPE_CHECKING
 from typing import Any
 
+# NOTE: Do not perform pyedb imports out of TYPECHECKING or the methods below to avoid conda issues.
+# Currently pyedb isn't part of conda and importing it at the top level of this module leads to
+# errors when importing ansys.aedt.core
 if TYPE_CHECKING:
+    from pyedb import Edb as EdbApp
     from pyedb import Siwave
-from pyedb import Edb as EdbApp
 
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -115,6 +118,8 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
+    from pyedb import Edb as EdbApp
+
     if version is not None:
         # Clear global state before initialization
         settings.aedt_version = None
