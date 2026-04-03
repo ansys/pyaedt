@@ -31,10 +31,11 @@ import psutil
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
 
 # Default configuration for local_config.json
 DEFAULT_TEST_CONFIG = {
