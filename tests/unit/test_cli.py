@@ -505,6 +505,69 @@ def test_panels_add_help(cli_runner) -> None:
     assert "Add PyAEDT panels to AEDT installation" in result.stdout
 
 
+def test_panels_add_help_includes_light_flag(cli_runner) -> None:
+    """Test panels add help includes light mode option."""
+    result = cli_runner.invoke(app, ["panels", "add", "--help"])
+
+    assert result.exit_code == 0
+    assert "--light" in result.stdout
+
+
+def test_panels_add_light_success(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test successful light-mode panel installation."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib), "--light"],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
+    assert "  • Console" in result.stdout
+    assert "  • Extension Manager" in result.stdout
+    assert "  • Version Manager" in result.stdout
+    assert "PyAEDT Utilities" not in result.stdout
+    assert "Run Script" not in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        light=True,
+    )
+
+
+def test_panels_add_light_with_skip_version_manager(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
+    """Test light-mode panel installation with version manager skipped."""
+    result = cli_runner.invoke(
+        app,
+        [
+            "panels",
+            "add",
+            "--personal-lib",
+            str(temp_personal_lib),
+            "--light",
+            "--skip-version-manager",
+        ],
+        input="1\n",
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping Version Manager tab..." in result.stdout
+    assert "  • Console" in result.stdout
+    assert "  • Extension Manager" in result.stdout
+    assert "  • Version Manager" not in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=True,
+        light=True,
+    )
+
+
 def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions) -> None:
     """Test successful panel installation."""
     result = cli_runner.invoke(
@@ -525,6 +588,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
         skip_version_manager=False,
+        light=False,
     )
 
 
@@ -552,6 +616,7 @@ def test_panels_add_with_skip_version_manager(
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
         skip_version_manager=True,
+        light=False,
     )
 
 
@@ -572,6 +637,7 @@ def test_panels_add_short_options(
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
         skip_version_manager=False,
+        light=False,
     )
 
 
@@ -707,6 +773,7 @@ def test_panels_add_strips_whitespace(
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
         skip_version_manager=False,
+        light=False,
     )
 
 
@@ -1169,7 +1236,11 @@ def test_panels_add_with_reset_success(
     )
 
     assert result.exit_code == 0
-    mock_add_pyaedt_to_aedt.assert_called_once()
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        light=False,
+    )
 
 
 def test_panels_add_with_reset_short_option(
@@ -1200,7 +1271,11 @@ def test_panels_add_with_reset_no_toolkits(
     )
 
     assert result.exit_code == 0
-    mock_add_pyaedt_to_aedt.assert_called_once()
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        light=False,
+    )
 
 
 def test_panels_add_with_reset_nested_content(
@@ -1288,6 +1363,7 @@ def test_panels_add_with_reset_and_skip_version_manager(
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
         skip_version_manager=True,
+        light=False,
     )
 
 

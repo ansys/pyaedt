@@ -52,6 +52,11 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
+    light: bool = typer.Option(
+        False,
+        "--light",
+        help="Install only the light PyAEDT panel set (Console, Extension Manager, and optional Version Manager)",
+    ),
     reset: bool = typer.Option(
         False,
         "--reset",
@@ -68,6 +73,7 @@ def add_panels(
     --------
         pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add --personal-lib "..." --light
         pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
     """
@@ -186,6 +192,7 @@ def add_panels(
         result = add_pyaedt_to_aedt(
             personal_lib=str(personal_lib_path),
             skip_version_manager=skip_version_manager,
+            light=light,
         )
 
         if not result:
@@ -194,11 +201,19 @@ def add_panels(
 
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
-        typer.secho("  • PyAEDT Utilities (Console, CLI, Jupyter)", fg=typer.colors.GREEN)
-        typer.secho("  • Run Script", fg=typer.colors.GREEN)
-        typer.secho("  • Extension Manager", fg=typer.colors.GREEN)
+        installed_panels = (
+            ["Console", "Extension Manager"]
+            if light
+            else [
+                "PyAEDT Utilities (Console, CLI, Jupyter)",
+                "Run Script",
+                "Extension Manager",
+            ]
+        )
         if not skip_version_manager:
-            typer.secho("  • Version Manager", fg=typer.colors.GREEN)
+            installed_panels.append("Version Manager")
+        for panel_name in installed_panels:
+            typer.secho(f"  • {panel_name}", fg=typer.colors.GREEN)
         typer.secho(
             "\nRestart AEDT to see the new panels on the Automation tab.",
             fg=typer.colors.YELLOW,
