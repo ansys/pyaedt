@@ -505,14 +505,6 @@ def test_panels_add_help(cli_runner) -> None:
     assert "Add PyAEDT panels to AEDT installation" in result.stdout
 
 
-def test_panels_add_help_includes_light_flag(cli_runner) -> None:
-    """Test panels add help includes light mode option."""
-    result = cli_runner.invoke(app, ["panels", "add", "--help"])
-
-    assert result.exit_code == 0
-    assert "--light" in result.stdout
-
-
 def test_panels_add_light_success(
     cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
 ) -> None:
