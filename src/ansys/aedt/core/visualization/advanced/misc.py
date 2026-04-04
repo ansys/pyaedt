@@ -35,7 +35,7 @@ from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 
@@ -454,7 +454,7 @@ def parse_rdat_file(file_path: str) -> dict:
 
 
 @pyaedt_function_handler()
-@graphics_required
+@requires_graphical_dependency("pyvista")
 def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None) -> None:
     import pyvista as pv
 
@@ -526,7 +526,7 @@ def preview_pyvista(dict_in: dict, decimation: int = 0, output_stls: list = None
 
 
 @pyaedt_function_handler()
-@graphics_required
+@requires_graphical_dependency("pyvista")
 def simplify_and_preview_stl(
     input_file: str, output_file: str = None, decimation: float = 0.5, preview: bool = False
 ) -> str:

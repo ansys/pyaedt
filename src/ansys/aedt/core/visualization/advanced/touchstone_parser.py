@@ -40,7 +40,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # NOTE: Create a base class that conditionally inherits from skrf.Network.
@@ -362,7 +362,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
                         temp_list.append(i)
         return temp_list
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def plot_insertion_losses(self, threshold: float = -3, plot: bool = True):
         """Plot all insertion losses.
 
@@ -389,7 +389,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
             plt.show()
         return temp_list
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def plot(self, index_couples: list = None, show: bool = True) -> bool:
         """Plot a list of curves.
 
@@ -415,7 +415,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
             plt.show()
         return True
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def plot_return_losses(self) -> bool:
         """Plot all return losses.
 
@@ -597,7 +597,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
                     values.append([self.port_names.index(i), self.port_names.index(k)])
         return values
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def plot_next_xtalk_losses(self, tx_prefix: str = "") -> bool:
         """Plot all next crosstalk curves.
 
@@ -619,7 +619,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         plt.show()
         return True
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def plot_fext_xtalk_losses(self, tx_prefix: str, rx_prefix: str, skip_same_index_couples: bool = True) -> bool:
         """Plot all fext crosstalk curves.
 
@@ -647,7 +647,7 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    @graphics_required
+    @requires_graphical_dependency("matplotlib")
     def get_worst_curve(
         self,
         freq_min: float = None,

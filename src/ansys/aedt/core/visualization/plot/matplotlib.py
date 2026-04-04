@@ -27,22 +27,20 @@ from __future__ import annotations
 import ast
 import math
 import os
-import warnings
 
 import numpy as np
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.checks import GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.internal.checks import install_message
+from ansys.aedt.core.internal.checks import is_notebook
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.plot.contour import bin_to_grid
 from ansys.aedt.core.visualization.plot.contour import extract_eye_opening_contour_by_center
 
 # Check that graphics are available
 try:
-    check_graphics_available()
-
     from matplotlib.animation import FuncAnimation
     from matplotlib.colors import LogNorm
     from matplotlib.colors import Normalize
@@ -50,25 +48,9 @@ try:
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
-except ImportError:
-    warnings.warn(GRAPHICS_REQUIRED)
-
-
-def is_notebook() -> bool:
-    """Check if pyaedt is running in Jupyter or not.
-
-    Returns
-    -------
-    bool
-    """
-    try:
-        shell = get_ipython().__class__.__name__
-        if shell in ["ZMQInteractiveShell"]:  # pragma: no cover
-            return True  # Jupyter notebook or qtconsole
-        else:
-            return False
-    except NameError:
-        return False  # Probably standard Python interpreter
+except ImportError as e:
+    msg = install_message("matplotlib", "graphics", level="module")
+    raise ImportError(msg) from e
 
 
 def is_ipython() -> bool:
@@ -593,7 +575,7 @@ class ReportPlotter(PyAedtBase):
 
         Returns
         -------
-         dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
         """
         return self._traces
 
@@ -603,7 +585,7 @@ class ReportPlotter(PyAedtBase):
 
         Returns
         -------
-         list[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        list[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
         """
         return list(self._traces.values())
 
@@ -789,6 +771,7 @@ class ReportPlotter(PyAedtBase):
 
     # Open an image from a computer
     @pyaedt_function_handler()
+    @requires_graphical_dependency("pillow")
     def _open_image_local(self):
         from PIL import Image
 
