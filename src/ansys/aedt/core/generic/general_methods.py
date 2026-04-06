@@ -1014,7 +1014,7 @@ def _check_connection_grpc_port(
     # Step 1: Iterate through possible localhost IP addresses
     # Check both IPv6 (::) and IPv4 (127.0.0.1) localhost addresses
     ip_search = ["::", "127.0.0.1"]
-    if machine not in ip_search:
+    if machine and machine not in ip_search:
         ip_search.append(machine)
 
     for ip in ip_search:
