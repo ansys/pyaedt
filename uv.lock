@@ -1839,23 +1839,6 @@ wheels = [
 ]
 
 [[package]]
-name = "jupyter"
-version = "1.1.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ipykernel" },
-    { name = "ipywidgets" },
-    { name = "jupyter-console" },
-    { name = "jupyterlab" },
-    { name = "nbconvert" },
-    { name = "notebook" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/58/f3/af28ea964ab8bc1e472dba2e82627d36d470c51f5cd38c37502eeffaa25e/jupyter-1.1.1.tar.gz", hash = "sha256:d55467bceabdea49d7e3624af7e33d59c37fff53ed3a350e1ac957bed731de7a", size = 5714959, upload-time = "2024-08-30T07:15:48.299Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/38/64/285f20a31679bf547b75602702f7800e74dbabae36ef324f716c02804753/jupyter-1.1.1-py2.py3-none-any.whl", hash = "sha256:7a59533c22af65439b24bbe60373a4e95af8f16ac65a6c00820ad378e3f7cc83", size = 2657, upload-time = "2024-08-30T07:15:47.045Z" },
-]
-
-[[package]]
 name = "jupyter-client"
 version = "8.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1869,26 +1852,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/05/e4/ba649102a3bc3fbca54e7239fb924fd434c766f855693d86de0b1f2bec81/jupyter_client-8.8.0.tar.gz", hash = "sha256:d556811419a4f2d96c869af34e854e3f059b7cc2d6d01a9cd9c85c267691be3e", size = 348020, upload-time = "2026-01-08T13:55:47.938Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2d/0b/ceb7694d864abc0a047649aec263878acb9f792e1fec3e676f22dc9015e3/jupyter_client-8.8.0-py3-none-any.whl", hash = "sha256:f93a5b99c5e23a507b773d3a1136bd6e16c67883ccdbd9a829b0bbdb98cd7d7a", size = 107371, upload-time = "2026-01-08T13:55:45.562Z" },
-]
-
-[[package]]
-name = "jupyter-console"
-version = "6.6.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ipykernel" },
-    { name = "ipython", version = "8.38.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "ipython", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "jupyter-client" },
-    { name = "jupyter-core" },
-    { name = "prompt-toolkit" },
-    { name = "pygments" },
-    { name = "pyzmq" },
-    { name = "traitlets" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/bd/2d/e2fd31e2fc41c14e2bcb6c976ab732597e907523f6b2420305f9fc7fdbdb/jupyter_console-6.6.3.tar.gz", hash = "sha256:566a4bf31c87adbfadf22cdf846e3069b59a71ed5da71d6ba4d8aaad14a53539", size = 34363, upload-time = "2023-03-06T14:13:31.02Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/77/71d78d58f15c22db16328a476426f7ac4a60d3a5a7ba3b9627ee2f7903d4/jupyter_console-6.6.3-py3-none-any.whl", hash = "sha256:309d33409fcc92ffdad25f0bcdf9a4a9daa61b6f341177570fdac03de5352485", size = 24510, upload-time = "2023-03-06T14:13:28.229Z" },
 ]
 
 [[package]]
@@ -2779,22 +2742,6 @@ wheels = [
 ]
 
 [[package]]
-name = "notebook"
-version = "7.5.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jupyter-server" },
-    { name = "jupyterlab" },
-    { name = "jupyterlab-server" },
-    { name = "notebook-shim" },
-    { name = "tornado" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/78/08/9d446fbb49f95de316ea6d7f25d0a4bc95117dd574e35f405895ac706f29/notebook-7.5.4.tar.gz", hash = "sha256:b928b2ba22cb63aa83df2e0e76fe3697950a0c1c4a41b84ebccf1972b1bb5771", size = 14167892, upload-time = "2026-02-24T14:13:56.116Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/01/05e5387b53e0f549212d5eff58845886f3827617b5c9409c966ddc07cb6d/notebook-7.5.4-py3-none-any.whl", hash = "sha256:860e31782b3d3a25ca0819ff039f5cf77845d1bf30c78ef9528b88b25e0a9850", size = 14578014, upload-time = "2026-02-24T14:13:52.274Z" },
-]
-
-[[package]]
 name = "notebook-shim"
 version = "0.2.4"
 source = { registry = "https://pypi.org/simple" }
@@ -3547,6 +3494,7 @@ graphics = [
     { name = "ansys-tools-visualization-interface" },
     { name = "fpdf2" },
     { name = "matplotlib" },
+    { name = "pillow" },
     { name = "pyvista", extra = ["io"] },
     { name = "vtk" },
 ]
@@ -3559,47 +3507,27 @@ jupyter = [
 [package.dev-dependencies]
 dev = [
     { name = "ansys-sphinx-theme" },
-    { name = "ansys-tools-visualization-interface" },
     { name = "cryptography" },
-    { name = "fpdf2" },
-    { name = "jupyter" },
-    { name = "matplotlib" },
     { name = "mock" },
     { name = "numpydoc" },
-    { name = "openpyxl" },
-    { name = "osmnx" },
-    { name = "pandas" },
     { name = "prek" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-testmon" },
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
-    { name = "pyvista", extra = ["io"] },
     { name = "recommonmark" },
-    { name = "requests" },
-    { name = "rpyc" },
-    { name = "scikit-rf" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-autobuild" },
     { name = "sphinx-copybutton" },
     { name = "sphinx-design" },
     { name = "sphinx-gallery" },
-    { name = "tables", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "tables", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "typer" },
 ]
 doc = [
     { name = "ansys-sphinx-theme" },
-    { name = "ansys-tools-visualization-interface" },
-    { name = "fpdf2" },
-    { name = "jupyter" },
     { name = "numpydoc" },
-    { name = "pyvista", extra = ["io"] },
     { name = "recommonmark" },
-    { name = "rpyc" },
-    { name = "scikit-rf" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-autobuild" },
@@ -3607,51 +3535,14 @@ doc = [
     { name = "sphinx-design" },
     { name = "sphinx-gallery" },
 ]
-integration-tests = [
-    { name = "fpdf2" },
-    { name = "matplotlib" },
-    { name = "mock" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-testmon" },
-    { name = "requests" },
-    { name = "rpyc" },
-    { name = "typer" },
-]
 tests = [
-    { name = "ansys-tools-visualization-interface" },
     { name = "cryptography" },
-    { name = "fpdf2" },
-    { name = "matplotlib" },
     { name = "mock" },
-    { name = "openpyxl" },
-    { name = "osmnx" },
-    { name = "pandas" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-testmon" },
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
-    { name = "pyvista", extra = ["io"] },
-    { name = "requests" },
-    { name = "rpyc" },
-    { name = "scikit-rf" },
-    { name = "tables", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "tables", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "typer" },
-]
-unit-tests = [
-    { name = "fpdf2" },
-    { name = "mock" },
-    { name = "openpyxl" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-testmon" },
-    { name = "requests" },
-    { name = "rpyc" },
-    { name = "typer" },
 ]
 
 [package.metadata]
@@ -3684,11 +3575,12 @@ requires-dist = [
     { name = "osmnx", marker = "extra == 'examples'", specifier = ">=2.0.0,<2.2" },
     { name = "pandas", marker = "extra == 'all'", specifier = ">=1.1.0,<2.4" },
     { name = "pandas", marker = "extra == 'examples'", specifier = ">=1.1.0,<2.4" },
+    { name = "pillow", marker = "extra == 'graphics'" },
     { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0,<6.7" },
     { name = "psutil" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pydantic", specifier = ">=2.6.4,<2.13" },
-    { name = "pyedb", specifier = ">=0.24.0,!=0.28.0" },
+    { name = "pyedb", specifier = ">=0.71.0" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'all'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'graphics'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["jupyter"], marker = "extra == 'examples'", specifier = ">=0.38.0,<0.48" },
@@ -3711,95 +3603,40 @@ provides-extras = ["dotnet", "graphics", "jupyter", "all", "examples"]
 [package.metadata.requires-dev]
 dev = [
     { name = "ansys-sphinx-theme", specifier = ">=1.0.0,<1.8" },
-    { name = "ansys-tools-visualization-interface" },
     { name = "cryptography" },
-    { name = "fpdf2" },
-    { name = "jupyter" },
-    { name = "matplotlib", specifier = ">=3.5.0,<3.11" },
     { name = "mock", specifier = ">=5.1.0,<5.3" },
     { name = "numpydoc", specifier = "==1.10.0" },
-    { name = "openpyxl", specifier = ">=3.1.0,<3.3" },
-    { name = "osmnx", specifier = ">=2.0.0,<2.2" },
-    { name = "pandas", specifier = ">=1.1.0,<2.4" },
     { name = "prek", specifier = "==0.3.6" },
     { name = "pytest", specifier = ">=7.4.0,<9.1" },
     { name = "pytest-cov", specifier = ">=4.0.0,<7.1" },
     { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
     { name = "pytest-timeout", specifier = ">=2.3.0,<2.5" },
     { name = "pytest-xdist", specifier = ">=3.5.0,<3.9" },
-    { name = "pyvista", extras = ["io"], specifier = ">=0.38.0,<0.48" },
     { name = "recommonmark" },
-    { name = "requests" },
-    { name = "rpyc", specifier = ">=6.0.0,<6.1" },
-    { name = "scikit-rf", specifier = ">=0.30.0,<1.12" },
     { name = "sphinx", specifier = ">=7.1.0,<8.3" },
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
     { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
     { name = "sphinx-gallery", specifier = ">=0.14.0,<0.21" },
-    { name = "tables" },
-    { name = "typer", specifier = ">=0.20.0" },
 ]
 doc = [
     { name = "ansys-sphinx-theme", specifier = ">=1.0.0,<1.8" },
-    { name = "ansys-tools-visualization-interface" },
-    { name = "fpdf2" },
-    { name = "jupyter" },
     { name = "numpydoc", specifier = "==1.10.0" },
-    { name = "pyvista", extras = ["io"], specifier = ">=0.38.0,<0.48" },
     { name = "recommonmark" },
-    { name = "rpyc", specifier = ">=6.0.0,<6.1" },
-    { name = "scikit-rf", specifier = ">=0.30.0,<1.12" },
     { name = "sphinx", specifier = ">=7.1.0,<8.3" },
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
     { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
     { name = "sphinx-gallery", specifier = ">=0.14.0,<0.21" },
 ]
-integration-tests = [
-    { name = "fpdf2" },
-    { name = "matplotlib", specifier = ">=3.5.0,<3.11" },
-    { name = "mock", specifier = ">=5.1.0,<5.3" },
-    { name = "openpyxl", specifier = ">=3.1.0,<3.3" },
-    { name = "pandas", specifier = ">=1.1.0,<2.4" },
-    { name = "pytest", specifier = ">=7.4.0,<9.1" },
-    { name = "pytest-cov", specifier = ">=4.0.0,<7.1" },
-    { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
-    { name = "requests" },
-    { name = "rpyc", specifier = ">=6.0.0,<6.1" },
-    { name = "typer", specifier = ">=0.20.0" },
-]
 tests = [
-    { name = "ansys-tools-visualization-interface" },
     { name = "cryptography" },
-    { name = "fpdf2" },
-    { name = "matplotlib", specifier = ">=3.5.0,<3.11" },
     { name = "mock", specifier = ">=5.1.0,<5.3" },
-    { name = "openpyxl", specifier = ">=3.1.0,<3.3" },
-    { name = "osmnx", specifier = ">=2.0.0,<2.2" },
-    { name = "pandas", specifier = ">=1.1.0,<2.4" },
     { name = "pytest", specifier = ">=7.4.0,<9.1" },
     { name = "pytest-cov", specifier = ">=4.0.0,<7.1" },
     { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
     { name = "pytest-timeout", specifier = ">=2.3.0,<2.5" },
     { name = "pytest-xdist", specifier = ">=3.5.0,<3.9" },
-    { name = "pyvista", extras = ["io"], specifier = ">=0.38.0,<0.48" },
-    { name = "requests" },
-    { name = "rpyc", specifier = ">=6.0.0,<6.1" },
-    { name = "scikit-rf", specifier = ">=0.30.0,<1.12" },
-    { name = "tables" },
-    { name = "typer", specifier = ">=0.20.0" },
-]
-unit-tests = [
-    { name = "fpdf2" },
-    { name = "mock", specifier = ">=5.1.0,<5.3" },
-    { name = "openpyxl", specifier = ">=3.1.0,<3.3" },
-    { name = "pytest", specifier = ">=7.4.0,<9.1" },
-    { name = "pytest-cov", specifier = ">=4.0.0,<7.1" },
-    { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
-    { name = "requests" },
-    { name = "rpyc", specifier = ">=6.0.0,<6.1" },
-    { name = "typer", specifier = ">=0.20.0" },
 ]
 
 [[package]]
