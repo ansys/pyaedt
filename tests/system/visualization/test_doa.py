@@ -22,19 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
 
 import numpy as np
 import pytest
 
-from ansys.aedt.core.internal.checks import GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-
-try:
-    check_graphics_available()
-except ImportError:
-    warnings.warn(GRAPHICS_REQUIRED)
 
 
 @pytest.fixture(scope="module", autouse=True)

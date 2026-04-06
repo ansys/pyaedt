@@ -303,7 +303,7 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        if is_grpc_session_active(port):
+        if is_grpc_session_active(port, machine=host):
             break
         timeout -= 1
         time.sleep(1)
@@ -840,7 +840,10 @@ class Desktop(PyAedtBase):
         elif self.aedt_process_id and not self.new_desktop:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
             sessions = active_sessions(
-                version=self.aedt_version_id, student_version=self.student_version, non_graphical=self.non_graphical
+                version=self.aedt_version_id,
+                student_version=self.student_version,
+                non_graphical=self.non_graphical,
+                machine=self.machine,
             )
             self.logger.info(sessions)
             if self.aedt_process_id in sessions:
@@ -1567,7 +1570,7 @@ class Desktop(PyAedtBase):
                     if self.is_grpc_api:
                         self.grpc_plugin.Release()
                     timeout = 20
-                    while pid in active_sessions():
+                    while pid in active_sessions(machine=self.machine):
                         time.sleep(1)
                         if timeout == 0:
                             os.kill(pid, 9)
@@ -1589,7 +1592,7 @@ class Desktop(PyAedtBase):
                 return False
         if not settings.remote_rpc_session:  # pragma: no cover
             timeout = 10
-            while pid in active_sessions():
+            while pid in active_sessions(machine=self.machine):
                 time.sleep(1)
                 timeout -= 1
                 if timeout == 0:
@@ -2678,10 +2681,10 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self, port):
+    def _validate_port(self, port, machine):
         if port == 0:
             return port
-        active_ports = is_grpc_session_active(port)
+        active_ports = is_grpc_session_active(port, machine)
         if self.new_desktop and active_ports:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
@@ -2708,7 +2711,10 @@ class Desktop(PyAedtBase):
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
         else:
             sessions = grpc_active_sessions(
-                version=self.aedt_version_id, student_version=self.student_version, non_graphical=self.non_graphical
+                version=self.aedt_version_id,
+                student_version=self.student_version,
+                non_graphical=self.non_graphical,
+                machine=self.machine,
             )
             if sessions:
                 self.__port = sessions[0]
@@ -2762,7 +2768,7 @@ class Desktop(PyAedtBase):
                     "This may indicate a problem with a concurrent AEDT launch. Proceeding anyway."
                 )
                 break
-            if not active_sessions():
+            if not active_sessions(machine=self.machine):
                 self.logger.debug("No active AEDT sessions detected. Proceeding with launch.")
                 break
             time.sleep(1)
@@ -2868,7 +2874,7 @@ class Desktop(PyAedtBase):
                 lock_file = self._on_ci_generate_lock_file()
 
             # Validate port availability/compatibility
-            self.__port = self._validate_port(self.port)
+            self.__port = self._validate_port(self.port, self.machine)
             is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
@@ -2877,6 +2883,10 @@ class Desktop(PyAedtBase):
                 is_launched, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
+                if not is_launched:
+                    raise Exception(
+                        f"Failed to start new AEDT gRPC session on port {self.port} on machine {self.machine}."
+                    )
                 self.launched_by_pyaedt = True
 
             self.new_desktop = not is_launched

@@ -29,6 +29,9 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
+
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
 import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -37,7 +40,6 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -909,7 +911,7 @@ class FRTMPlotter(PyAedtBase):
         plot_size: tuple = (1920, 1440),
         animation: bool = True,
         figure: "Figure" = None,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a 2D plot of the range profile.
 
         Parameters
@@ -967,6 +969,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_profile(output_file="range_profile.gif", animation=True, show=False)
         >>> frtm_plotter.plot_range_profile(animation=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
         if frame is not None:
             all_data = {frame: self.all_data[frame]}
@@ -1042,7 +1046,7 @@ class FRTMPlotter(PyAedtBase):
         show_legend: bool = True,
         size: tuple = (1920, 1440),
         figure: "Figure" = None,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create range-Doppler contour plot.
 
         Parameters
@@ -1099,6 +1103,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_doppler(frame=frame_number)
         >>> frtm_plotter.plot_range_doppler(output_file="range_doppler.gif", animation=True, show=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
         if frame is not None:
             all_data = {frame: self.all_data[frame]}
@@ -1194,7 +1200,7 @@ class FRTMPlotter(PyAedtBase):
         show_legend: bool = True,
         size: tuple = (1920, 1440),
         figure: "Figure" = None,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create range-angle map contour plot.
 
         Parameters
@@ -1262,6 +1268,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_angle_map(frame=frame_number)
         >>> frtm_plotter.plot_range_angle_map(output_file="range_angle_map.gif", animation=True, show=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
 
         if frame is not None:
