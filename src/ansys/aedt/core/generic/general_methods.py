@@ -1016,6 +1016,7 @@ def _check_connection_grpc_port(
     ip_search = ["::", "127.0.0.1", "::ffff:127.0.0.1"]
     if machine and machine not in ip_search:
         ip_search.append(machine)
+        ip_search.append(f"::ffff:{machine}")
 
     for ip in ip_search:
         # Step 2: Iterate through all processes in the connections dictionary
