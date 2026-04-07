@@ -1013,7 +1013,7 @@ def _check_connection_grpc_port(
         - ``False``: Only return port if process does NOT have ``-ng`` flag (graphical mode)
         - ``None``: Ignore graphical mode (return port regardless)
     machine : str, optional
-        Specific machine IP address.
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
@@ -1182,7 +1182,7 @@ def active_sessions(
         If ``False``, only graphical sessions are returned.
         If ``None``, all sessions are returned regardless of mode.
     machine : str, optional
-        Specific machine IP address.
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
@@ -1336,7 +1336,7 @@ def grpc_active_sessions(
     non_graphical : bool, optional
         Whether to check only for active non-graphical sessions. The default is ``False``.
     machine : str, optional
-        Specific machine IP address.
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
