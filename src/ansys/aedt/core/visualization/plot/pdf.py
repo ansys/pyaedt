@@ -30,16 +30,18 @@ import os
 try:
     from fpdf import FPDF
     from fpdf import FontFace
-except ImportError:  # pragma: no cover
-    raise ImportError("fpdf2 is required. Please install with 'pip install pyaedt[all]' or 'pip install fpdf2'")
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
 
+    msg = install_message("fpdf", "graphics", level="module")
+    raise ImportError(msg) from e
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 
 @dataclass
@@ -479,6 +481,7 @@ class AnsysReport(FPDF, PyAedtBase):
             self.__figure_idx += 1
         return True
 
+    @requires_graphical_dependency("pillow")
     def add_image_with_aspect_ratio(
         self, path: str, caption: str = "", max_width: float = None, max_height: float = None
     ) -> bool:
@@ -699,7 +702,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.output(os.path.join(file_path, file_name))
         return os.path.join(file_path, file_name)
 
-    @graphics_required
+    @requires_graphical_dependency("matplotlib", "pillow")
     def add_chart(self, x_values: list, y_values: list, x_caption: str, y_caption: str, title: str) -> None:
         """Add a chart to the report using matplotlib.
 
