@@ -1715,9 +1715,15 @@ class ReportPlotter(PyAedtBase):
                     self.ax.add_patch(patch)
 
         self.ax.set_xlabel(
-            f"Unit Interval ({self._eye_mask.eye_xunits if self._eye_mask else ''})'", color=self.__grid_color, fontsize=self.text_size
+            f"Unit Interval ({self._eye_mask.eye_xunits if self._eye_mask else ''})'",
+            color=self.__grid_color,
+            fontsize=self.text_size,
         )
-        self.ax.set_ylabel(f"Amplitude ({self._eye_mask.eye_yunits if self._eye_mask else ''})", color=self.__grid_color, fontsize=self.text_size)
+        self.ax.set_ylabel(
+            f"Amplitude ({self._eye_mask.eye_yunits if self._eye_mask else ''})",
+            color=self.__grid_color,
+            fontsize=self.text_size,
+        )
         self.ax.set_title(
             "Statistical Eye Diagram" if not is_contour else "Contour Eye Diagram",
             color=self.__grid_color,
