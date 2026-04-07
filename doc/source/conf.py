@@ -151,6 +151,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
+    "ansys_sphinx_theme.extension.minigallery",
 ]
 
 # Intersphinx mapping
@@ -342,3 +343,19 @@ linkcheck_ignore = [
 # available until the release is published.
 if switcher_version != "dev":
     linkcheck_ignore.append(f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}")  # noqa: E501
+
+
+ansys_gallery_fqn_prefixes = ["ansys.aedt.core"]
+# One or more pre-built JSON files from external libraries
+ansys_gallery_example_json = [
+    {
+        # Path to the JSON file, relative to conf.py (srcdir)
+        "file": "_static/ansys_aedt_core_examples.json",
+
+        # External hosted docs — card links point to this base URL
+        "base_url": "https://examples.aedt.docs.pyansys.com/version/dev/examples",
+
+        # Only pull in FQNs from this package
+        "fqn_prefixes": ["ansys.aedt.core"],
+    },
+]
