@@ -2464,8 +2464,11 @@ class Desktop(PyAedtBase):
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
         if self.aedt_install_dir is None:
-            if specified_version in self.installed_versions:
+            if settings.override_install_dir:
+                self.aedt_install_dir = settings.override_install_dir
+            else:
                 self.aedt_install_dir = self.installed_versions[specified_version]
+
         if settings.remote_rpc_session:
             try:
                 version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]

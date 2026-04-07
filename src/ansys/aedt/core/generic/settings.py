@@ -106,6 +106,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
+    "override_installation_dir",
     "num_cores",
     "use_local_example_data",
     "pyd_libraries_path",
@@ -224,6 +225,7 @@ class Settings(PyAedtBase):
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
         self.__skip_license_check: bool = True
+        self.__override_install_dir: str | None = None
         # Previously 'public' attributes
         self.__formatter: logging.Formatter | None = None
         self.__remote_rpc_session: Any = None
@@ -865,6 +867,15 @@ class Settings(PyAedtBase):
     @skip_license_check.setter
     def skip_license_check(self, value: bool) -> None:
         self.__skip_license_check = value
+
+    @property
+    def override_install_dir(self) -> str | None:
+        """Override default AEDT installation path."""
+        return self.__override_install_dir
+
+    @override_install_dir.setter
+    def override_install_dir(self, value: str) -> None:
+        self.__override_install_dir = value
 
     @property
     def use_local_example_data(self) -> bool:
