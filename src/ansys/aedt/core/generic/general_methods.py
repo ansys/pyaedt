@@ -938,7 +938,12 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
             # Get all TCP network connections for this specific process
             # prc.net_connections() returns a list of named tuples (sconn objects)
             # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
-            for conn in prc.net_connections():
+            if hasattr(prc, "net_connections"):
+                prc_connections = prc.net_connections()
+            else:  # pragma: no cover
+                prc_connections = prc.connections()
+
+            for conn in prc_connections:
                 # Build a connection dictionary with the information we need
                 # conn.laddr: Local address as a named tuple with .ip and .port attributes
                 # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
