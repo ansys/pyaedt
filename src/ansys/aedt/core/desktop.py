@@ -681,7 +681,7 @@ class Desktop(PyAedtBase):
         if aedt_versions.is_pyaedt_in_edt():
             self.logger.info("PyAEDT launched from AEDT installation folder. Forcing grpc mode.")
             self.__starting_mode = "grpc"
-            
+
         # Starting AEDT
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
