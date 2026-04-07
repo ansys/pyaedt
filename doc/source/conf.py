@@ -351,10 +351,8 @@ ansys_gallery_example_json = [
     {
         # Path to the JSON file, relative to conf.py (srcdir)
         "file": "_static/ansys_aedt_core_examples.json",
-
         # External hosted docs — card links point to this base URL
         "base_url": "https://examples.aedt.docs.pyansys.com/version/dev/examples",
-
         # Only pull in FQNs from this package
         "fqn_prefixes": ["ansys.aedt.core"],
     },
