@@ -674,9 +674,14 @@ class Desktop(PyAedtBase):
 
         self.logger.info(f"AEDT version {self.aedt_version_id}{' Student' if student_version else ''}.")
 
+        # Determine the starting mode (grpc, com, or console) based on environment,
+        # user preferences, and whether we are connecting to an existing session.
+        self.check_starting_mode()
+
         if aedt_versions.is_pyaedt_in_edt():
             self.logger.info("PyAEDT launched from AEDT installation folder. Forcing grpc mode.")
             self.__starting_mode = "grpc"
+
         # Starting AEDT
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
@@ -691,6 +696,8 @@ class Desktop(PyAedtBase):
             settings.aedt_version = self.aedt_version_id
             if self.__starting_mode == "com":  # pragma no cover
                 self.logger.info("Launching PyAEDT with CPython and PythonNET.")
+                self.is_grpc_api = False
+                self.new_desktop = new_desktop
                 self.__init_dotnet()
             elif self.__starting_mode == "grpc":
                 result = self.__init_grpc()
