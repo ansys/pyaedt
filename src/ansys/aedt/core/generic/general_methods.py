@@ -1313,7 +1313,10 @@ def com_active_sessions(
 
 @pyaedt_function_handler()
 def grpc_active_sessions(
-    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
+    version: str | None = None,
+    student_version: bool | None = False,
+    non_graphical: bool | None = False,
+    machine: str | None = False,
 ):
     """Get information for the active gRPC AEDT sessions.
 
@@ -1327,13 +1330,15 @@ def grpc_active_sessions(
         Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
         Whether to check only for active non-graphical sessions. The default is ``False``.
+    machine : str, optional
+        Specific machine IP address.
 
     Returns
     -------
     List
         List of gRPC ports.
     """
-    all_sessions = active_sessions(version, student_version, non_graphical)
+    all_sessions = active_sessions(version, student_version, non_graphical, machine)
 
     return_list = []
     for _, p in all_sessions.items():
