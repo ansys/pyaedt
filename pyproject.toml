@@ -115,7 +115,7 @@ tests = [
     "cryptography",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.8",
+    "ansys-sphinx-theme@git+https://github.com/ansys/ansys-sphinx-theme.git@feat/minigallery-auto",
     "numpydoc==1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
