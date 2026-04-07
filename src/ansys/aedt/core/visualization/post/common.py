@@ -1985,7 +1985,13 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
+                try:
+                    return self._report_plotter(
+                        report, show=show, snapshot_path=snapshot_path, width=width, height=height
+                    )
+                except Exception:
+                    self.logger.error("Failed to create report.")
+                    return False
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -2023,6 +2029,8 @@ class PostProcessorCommon(PyAedtBase):
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
+        if "__EyeOpening" in report.variations:
+            report.variations["__EyeOpening"] = ["All"]
         report_plotter = ReportPlotter(solution_data=sols)
         report_plotter.width = width
         report_plotter.height = height
@@ -2057,6 +2065,10 @@ class PostProcessorCommon(PyAedtBase):
         except KeyError:
             pass
         try:
+            report_plotter.grid_enable_minor_y = report._legacy_props["general"]["grid"]["minor_y"]
+        except KeyError:
+            pass
+        try:
             report_plotter.grid_color = [i / 255 for i in report._legacy_props["general"]["grid"]["major_color"]]
         except KeyError:
             pass
@@ -2064,8 +2076,8 @@ class PostProcessorCommon(PyAedtBase):
             report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
-        sw = [sols.primary_sweep_values]
         for curve in sols.expressions:
+            sw = [sols.primary_sweep_values]
             if "__Amplitude" in sols.intrinsics and "__UnitInterval" in sols.intrinsics:
                 x, y = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
                 sw = [x[:, 0], x[:, 1], y]
@@ -2087,6 +2099,10 @@ class PostProcessorCommon(PyAedtBase):
                     props["trace_width"] = pp["width"]
                 except KeyError:
                     pass
+                try:
+                    props["show_symbol"] = pp["show_symbol"]
+                except KeyError:
+                    props["show_symbol"] = False
                 try:
                     props["trace_color"] = [i / 255 for i in pp["color"]]
                 except KeyError:
@@ -2869,11 +2885,7 @@ class Reports(PyAedtBase):
                     report_cat = "Statistical Eye"
                 rep = report_eye.AMIEyeDiagram(self._post_app, report_cat, setup)
                 rep.quantity_type = quantity_type
-                expressions = self._retrieve_default_expressions(expressions, rep, setup)
-                if isinstance(expressions, list):
-                    rep._legacy_props["expressions"] = expressions
-                else:
-                    rep._legacy_props["expressions"] = [expressions]
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 return rep
 
             else:

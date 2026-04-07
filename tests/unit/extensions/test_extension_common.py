@@ -149,12 +149,14 @@ def test_common_extension_without_active_project(mock_desktop, mock_active_sessi
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_common_extension_without_aedt_session(mock_desktop) -> None:
+def test_common_extension_without_aedt_session(mock_desktop, mock_active_sessions) -> None:
     """Test accessing desktop without AEDT session.."""
     mock_desktop_instance = MagicMock()
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
+    mock_active_sessions.return_value = {}
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     with pytest.raises(AEDTRuntimeError):

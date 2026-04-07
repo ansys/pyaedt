@@ -578,7 +578,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @expressions.setter
     def expressions(self, value: list) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append(value)
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:
