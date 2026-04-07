@@ -794,7 +794,13 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     # /nh - No header row in output (easier to parse)
     cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
     result = subprocess.run(
-        cmd, capture_output=True, text=True, shell=False, check=False, creationflags=subprocess.CREATE_NO_WINDOW
+        cmd,
+        capture_output=True,
+        text=True,
+        shell=False,
+        encoding="mbcs",
+        check=False,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )  # nosec
 
     # Parse the CSV output from tasklist
@@ -977,6 +983,7 @@ def _check_connection_grpc_port(
     pid: int,
     version: str | None = None,
     non_graphical: bool | None = None,
+    machine: str | None = None,
 ) -> int:
     """Find the gRPC port for a specific process from its network connections.
 
@@ -1000,6 +1007,8 @@ def _check_connection_grpc_port(
         - ``True``: Only return port if process has ``-ng`` flag (non-graphical mode)
         - ``False``: Only return port if process does NOT have ``-ng`` flag (graphical mode)
         - ``None``: Ignore graphical mode (return port regardless)
+    machine : str, optional
+        Specific machine IP address.
 
     Returns
     -------
@@ -1009,8 +1018,13 @@ def _check_connection_grpc_port(
 
     """
     # Step 1: Iterate through possible localhost IP addresses
-    # Check both IPv6 (::) and IPv4 (127.0.0.1) localhost addresses
-    for ip in ["::", "127.0.0.1"]:
+    # Check both IPv6 (::), IPv4 (127.0.0.1) localhost addresses and IPv6 mapped as IPv4.
+    ip_search = ["::", "127.0.0.1", "::ffff:127.0.0.1"]
+    if machine and machine not in ip_search:
+        ip_search.append(machine)
+        ip_search.append(f"::ffff:{machine}")
+
+    for ip in ip_search:
         # Step 2: Iterate through all processes in the connections dictionary
         # input_pid: Process ID from the connections dict
         # conn: List of connection dictionaries for that process
@@ -1061,7 +1075,7 @@ def _check_connection_grpc_port(
 
 
 @pyaedt_function_handler()
-def is_grpc_session_active(port: int) -> bool:
+def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     """Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
@@ -1077,6 +1091,8 @@ def is_grpc_session_active(port: int) -> bool:
     ----------
     port : int
         The gRPC port number to check.
+    machine : str, optional
+        Specific machine IP address.
 
     Returns
     -------
@@ -1120,14 +1136,14 @@ def is_grpc_session_active(port: int) -> bool:
 
         connections = _check_psutil_connections(list(return_dict.keys()))
         for pid in return_dict.keys():
-            if _check_connection_grpc_port(connections, pid, None, None) == port:
+            if _check_connection_grpc_port(connections, pid, None, None, machine) == port:
                 return True
     return False
 
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None, student_version: bool = False, non_graphical: bool | None = None
+    version: str = None, student_version: bool = False, non_graphical: bool | None = None, machine: str | None = None
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
@@ -1160,6 +1176,8 @@ def active_sessions(
         If ``True``, only non-graphical sessions are returned.
         If ``False``, only graphical sessions are returned.
         If ``None``, all sessions are returned regardless of mode.
+    machine : str, optional
+        Specific machine IP address.
 
     Returns
     -------
@@ -1257,7 +1275,7 @@ def active_sessions(
         for pid in [i for i, v in return_dict.items() if v == -1]:
             # Check for LISTEN connections on localhost that match our filters
             # This method also applies version and non_graphical filters
-            return_dict[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
+            return_dict[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical, machine)
 
     return return_dict
 

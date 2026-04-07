@@ -48,11 +48,7 @@ from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LISTEN_ALL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LOCAL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_SECURE_MODE
 from tests.conftest import DESKTOP_VERSION
-
-pytestmark = pytest.mark.skipif(DESKTOP_VERSION < "2026.2", reason="To be moved in another test suite.")
-
-# pytestmark = pytest.mark.desktop_grpc_stransport
-
+from tests.conftest import NON_GRAPHICAL
 
 # NOTE: Activating this environment variable forces PyAEDT to use the
 # old grpc connection arguments. This is useful for testing backward
@@ -63,6 +59,12 @@ AEDT_VERSION = DESKTOP_VERSION
 HOST_NAME = socket.gethostbyname(socket.gethostname())
 IS_WINDOWS = os.name == "nt"
 GRPC_CONNECTION_TIMEOUT = 30  # seconds
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop() -> None:
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
 
 
 def get_local_ip():
@@ -480,7 +482,7 @@ def test_desktop_default_to_wnua_on_windows(monkeypatch) -> None:
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
     monkeypatch.setattr(settings, "grpc_listen_all", DEFAULT_GRPC_LISTEN_ALL)
 
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True)
     assert desktop.grpc_mode == "wnua"
     desktop.release_desktop()
 
@@ -492,7 +494,7 @@ def test_desktop_default_to_uds_on_linux(monkeypatch) -> None:
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
     monkeypatch.setattr(settings, "grpc_listen_all", DEFAULT_GRPC_LISTEN_ALL)
 
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True)
     assert desktop.grpc_mode == "uds"
     desktop.release_desktop()
 
@@ -516,7 +518,7 @@ def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, m
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(certs_dir))
     with patch.object(Path, "is_file", side_effect=lambda self: self.name != missing_file, autospec=True):
         with pytest.raises(FileNotFoundError) as exc:
-            Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True)
+            Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True)
 
     assert f"Certificate file '{missing_file}' not found in folder" in str(exc.value)
 
@@ -530,6 +532,7 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
     monkeypatch.setattr(settings, "grpc_secure_mode", DEFAULT_GRPC_SECURE_MODE)
     monkeypatch.setattr(settings, "grpc_listen_all", DEFAULT_GRPC_LISTEN_ALL)
+    monkeypatch.setattr(settings, "desktop_launch_timeout", GRPC_CONNECTION_TIMEOUT)
     port = _find_free_port()
 
     for file in ("ca.crt", "client.crt", "client.key", "server.crt", "server.key"):
@@ -539,13 +542,12 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
 
     with pytest.raises(Exception):
-        Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, port=port)
+        Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, port=port)
     from ansys.aedt.core.generic.general_methods import active_sessions
 
     sessions = active_sessions()
     for j, k in sessions.items():
-        if k == port:
-            os.kill(j, signal.SIGTERM)
+        os.kill(j, signal.SIGTERM)
 
 
 @pytest.mark.skipif(
@@ -560,7 +562,7 @@ def test_desktop_local_insecure_success(machine, monkeypatch) -> None:
     monkeypatch.setattr(settings, "grpc_listen_all", False)
     port = None if machine != "localhost" else _find_free_port()
 
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, port=port)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, port=port)
     assert desktop.grpc_mode == "insecure"
     desktop.release_desktop()
 
@@ -580,7 +582,7 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
 
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
     assert desktop.grpc_mode == "mtls"
     desktop.release_desktop()
 
@@ -595,9 +597,11 @@ def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
     monkeypatch.setattr(settings, "grpc_local", False)
     monkeypatch.setattr(settings, "grpc_secure_mode", False)
     monkeypatch.setattr(settings, "grpc_listen_all", False)
+    monkeypatch.setattr(settings, "desktop_launch_timeout", GRPC_CONNECTION_TIMEOUT)
+
     port = _find_free_port()
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
 
     assert desktop.grpc_mode == "insecure"
     desktop.release_desktop()
@@ -613,7 +617,7 @@ def test_desktop_remote_insecure_success(machine, monkeypatch) -> None:
 #    monkeypatch.setattr(settings, 'grpc_listen_all', False)
 #     port = _find_free_port()
 #     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "10")
-#     desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
+#     desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
 
 #     assert desktop.grpc_mode == "insecure"
 #     desktop.release_desktop()
@@ -634,7 +638,7 @@ def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
     generate_certs([machine], tmp_path)
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", f"{GRPC_CONNECTION_TIMEOUT}")
-    desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
+    desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
 
     assert desktop.grpc_mode == "mtls"
     desktop.release_desktop()
@@ -652,7 +656,7 @@ def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
 #     generate_certs([machine], tmp_path)
 #     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
 #     monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "10")
-#     desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
+#     desktop = Desktop(version=AEDT_VERSION, non_graphical=NON_GRAPHICAL, new_desktop=True, machine=machine, port=port)
 
 #     assert desktop.grpc_mode == "mtls"
 #     desktop.release_desktop()
