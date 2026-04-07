@@ -106,7 +106,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
-    "override_installation_dir",
+    "override_install_dir",
     "num_cores",
     "use_local_example_data",
     "pyd_libraries_path",

@@ -154,7 +154,7 @@ Below is the content that can be updated through the YAML file.
         # Skip license check during Desktop initialization
         skip_license_check: false
         # Override Desktop installation path
-        override_installation_dir: null
+        override_install_dir: null
         # Get the path to the PyD libraries (not editable)
         pyd_libraries_path: null
         # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
