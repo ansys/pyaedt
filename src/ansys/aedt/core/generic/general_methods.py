@@ -1321,7 +1321,7 @@ def grpc_active_sessions(
     version: str | None = None,
     student_version: bool | None = False,
     non_graphical: bool | None = False,
-    machine: str | None = False,
+    machine: str | None = None,
 ):
     """Get information for the active gRPC AEDT sessions.
 
