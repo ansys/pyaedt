@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import read_toml
 def add_pyaedt_to_aedt(
     personal_lib,
     skip_version_manager: bool = False,
+    skip_extension_manager: bool = False,
     light: bool = False,
     odesktop=None,
 ) -> bool:
@@ -44,8 +45,10 @@ def add_pyaedt_to_aedt(
         AEDT personal library folder.
     skip_version_manager : bool, optional
         Skip the version manager tab. The default is ``False``.
+    skip_extension_manager : bool, optional
+        Skip the extension manager tab. The default is ``False``.
     light : bool, optional
-        Install only Console, Extension Manager, and optional Version Manager.
+        Install only Console, optional Extension Manager, and optional Version Manager.
         The default is ``False``.
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
@@ -63,10 +66,11 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    if skip_version_manager:
-        pyaedt_tabs = ["Utilities", "Run_Script", "ExtensionManager"]
-    else:
-        pyaedt_tabs = ["Utilities", "Run_Script", "ExtensionManager", "VersionManager"]
+    pyaedt_tabs = ["Utilities", "Run_Script"]
+    if not skip_extension_manager:
+        pyaedt_tabs.append("ExtensionManager")
+    if not skip_version_manager:
+        pyaedt_tabs.append("VersionManager")
     # Name of the console utilities group in the Automation tab.
     utilities_title = "PyAEDT Utilities"
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
@@ -146,7 +150,9 @@ def add_pyaedt_to_aedt(
 
     if light:
         _install_extension("Console")
-        _install_extension("ExtensionManager")
+        _install_extension("Run Script")
+        if not skip_extension_manager:
+            _install_extension("ExtensionManager")
         if not skip_version_manager:
             _install_extension("VersionManager")
         return True

@@ -52,10 +52,15 @@ def add_panels(
         "--skip-version-manager",
         help="Skip installing the Version Manager tab",
     ),
+    skip_extension_manager: bool = typer.Option(
+        False,
+        "--skip-extension-manager",
+        help="Skip installing the Extension Manager tab",
+    ),
     light: bool = typer.Option(
         False,
         "--light",
-        help="Install only the light PyAEDT panel set (Console, Extension Manager, and optional Version Manager)",
+        help="Install only the light PyAEDT panel set (Console, Run Script, and optional manager panels)",
     ),
     reset: bool = typer.Option(
         False,
@@ -66,8 +71,8 @@ def add_panels(
 ):
     """Add PyAEDT panels to AEDT installation.
 
-    TThis command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
-    and optionally Version Manager) into your AEDT installation.
+    This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
+    and optional Version Manager) into your AEDT installation.
 
     Examples
     --------
@@ -187,11 +192,15 @@ def add_panels(
         if skip_version_manager:
             typer.secho("Skipping Version Manager tab...", fg=typer.colors.YELLOW)
 
+        if skip_extension_manager:
+            typer.secho("Skipping Extension Manager tab...", fg=typer.colors.YELLOW)
+
         from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
         result = add_pyaedt_to_aedt(
             personal_lib=str(personal_lib_path),
             skip_version_manager=skip_version_manager,
+            skip_extension_manager=skip_extension_manager,
             light=light,
         )
 
@@ -202,14 +211,10 @@ def add_panels(
         typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
         installed_panels = (
-            ["Console", "Extension Manager"]
-            if light
-            else [
-                "PyAEDT Utilities (Console, CLI, Jupyter)",
-                "Run Script",
-                "Extension Manager",
-            ]
+            ["Console", "Run Script"] if light else ["PyAEDT Utilities (Console, CLI, Jupyter)", "Run Script"]
         )
+        if not skip_extension_manager:
+            installed_panels.append("Extension Manager")
         if not skip_version_manager:
             installed_panels.append("Version Manager")
         for panel_name in installed_panels:
