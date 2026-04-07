@@ -162,7 +162,7 @@ def _make_vm():
 
     # Instantiate without live PyPI lookups or background update threads.
     with patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown"):
-        with patch.object(vm.VersionManager, "check_for_pyaedt_update_on_startup", return_value=None):
+        with patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update_on_startup"):
             manager = vm.VersionManager(ui, desktop)
     manager.update_and_reload = MagicMock()
 
