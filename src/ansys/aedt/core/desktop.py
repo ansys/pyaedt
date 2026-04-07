@@ -2464,7 +2464,7 @@ class Desktop(PyAedtBase):
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
         if self.aedt_install_dir is None:
-            if settings.override_install_dir:
+            if settings.override_install_dir:  # pragma: no cover
                 self.aedt_install_dir = settings.override_install_dir
             else:
                 self.aedt_install_dir = self.installed_versions[specified_version]
