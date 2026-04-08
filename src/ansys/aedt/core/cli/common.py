@@ -297,8 +297,13 @@ def _get_port(proc: psutil.Process) -> int | None:
     if "-grpcsrv" in cmd_line:
         res = int(cmd_line[cmd_line.index("-grpcsrv") + 1])
     else:
+        if hasattr(psutil, "net_connections"):
+            prc_connections = psutil.net_connections()
+        else:  # pragma: no cover
+            prc_connections = psutil.connections()
+
         # Look in the typical port range for AEDT
-        for i in psutil.net_connections():
+        for i in prc_connections:
             if i.pid == proc.pid and i.status == "LISTEN" and 50000 <= i.laddr.port <= 50100:
                 res = i.laddr.port
                 break
