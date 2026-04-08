@@ -2435,6 +2435,8 @@ class Desktop(PyAedtBase):
         self.aedt_install_dir = self.odesktop.GetExeDir()
 
     def __check_version(self, specified_version, student_version):
+        if settings.override_install_dir:
+            settings.logger.warning(f"Overriding path found: {settings.override_install_dir}")
         if self.current_version == "" and aedt_versions.latest_version == "":
             raise AEDTRuntimeError("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         specified_version = _normalize_version_to_string(specified_version)
@@ -2474,10 +2476,7 @@ class Desktop(PyAedtBase):
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
         if self.aedt_install_dir is None:
-            if settings.override_install_dir:  # pragma: no cover
-                self.aedt_install_dir = settings.override_install_dir
-            else:
-                self.aedt_install_dir = self.installed_versions[specified_version]
+            self.aedt_install_dir = self.installed_versions[specified_version]
 
         if settings.remote_rpc_session:
             try:

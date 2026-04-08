@@ -107,7 +107,7 @@ class AedtVersions(PyAedtBase):
         if self._list_installed_ansysem is None:
             version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
             version_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
-            if not version_list:
+            if not version_list and not settings.override_install_dir:
                 warnings.warn(
                     "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx`` or"
                     "``AWP_ROOTxxx``."
@@ -182,6 +182,28 @@ class AedtVersions(PyAedtBase):
                     if settings.logger:
                         settings.logger.debug(f"Failed to parse version and release from {current_version_id}")
             self._installed_versions = return_dict
+        if settings.override_install_dir:  # pragma: no cover
+            path = Path(settings.override_install_dir)
+            student_version = False
+            client = False
+            exe_list = [str(i.name) for i in list(path.glob("*"))]
+            if "ansysedtsv.exe" in exe_list or "ansysedtsv" in exe_list:
+                student_version = True
+            if "ansysedt.exe" not in exe_list:
+                client = True
+            parts = path.parts
+            ansysem_part = parts.index("AnsysEM")
+            if ansysem_part:
+                part = parts[ansysem_part - 1]
+                try:
+                    if int(part[1:]) < 200 or int(part[1:]) > 1000:
+                        raise Exception
+                    aedt_version = f"20{part[1:3]}.{part[-1]}"
+                except Exception:
+                    raise RuntimeError(f"Failed to parse version from {settings.override_install_dir}")
+            suffix = "CL" if client and not student_version else "SV" if student_version else ""
+            var_name = f"{aedt_version}{suffix}"
+            self._installed_versions[var_name] = settings.override_install_dir
         return self._installed_versions
 
     @property
