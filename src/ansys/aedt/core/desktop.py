@@ -57,6 +57,7 @@ from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import _get_target_processes
+from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -440,17 +441,6 @@ def _check_settings(settings: Settings):
         raise ValueError("Invalid memory value.")
     if not settings.lsf_aedt_command:
         raise ValueError("Invalid LSF AEDT command.")
-
-
-def _is_port_occupied(port, host=None):
-    """Check if a port is occupied."""
-    if host is None:
-        host = "127.0.0.1"
-    if not port:
-        return False
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.5)
-        return s.connect_ex((host, port)) == 0
 
 
 def _find_free_port():
