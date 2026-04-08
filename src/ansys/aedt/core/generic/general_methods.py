@@ -936,7 +936,12 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
             # Get all TCP network connections for this specific process
             # prc.net_connections() returns a list of named tuples (sconn objects)
             # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
-            for conn in prc.net_connections():
+            if hasattr(prc, "net_connections"):
+                prc_connections = prc.net_connections()
+            else:  # pragma: no cover
+                prc_connections = prc.connections()
+
+            for conn in prc_connections:
                 # Build a connection dictionary with the information we need
                 # conn.laddr: Local address as a named tuple with .ip and .port attributes
                 # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
@@ -1006,7 +1011,7 @@ def _check_connection_grpc_port(
         - ``False``: Only return port if process does NOT have ``-ng`` flag (graphical mode)
         - ``None``: Ignore graphical mode (return port regardless)
     machine : str, optional
-        Specific machine IP address.
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
@@ -1175,7 +1180,7 @@ def active_sessions(
         If ``False``, only graphical sessions are returned.
         If ``None``, all sessions are returned regardless of mode.
     machine : str, optional
-        Specific machine IP address.
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
@@ -1311,7 +1316,10 @@ def com_active_sessions(
 
 @pyaedt_function_handler()
 def grpc_active_sessions(
-    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
+    version: str | None = None,
+    student_version: bool | None = False,
+    non_graphical: bool | None = False,
+    machine: str | None = None,
 ):
     """Get information for the active gRPC AEDT sessions.
 
@@ -1325,13 +1333,15 @@ def grpc_active_sessions(
         Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
         Whether to check only for active non-graphical sessions. The default is ``False``.
+    machine : str, optional
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------
     List
         List of gRPC ports.
     """
-    all_sessions = active_sessions(version, student_version, non_graphical)
+    all_sessions = active_sessions(version, student_version, non_graphical, machine)
 
     return_list = []
     for _, p in all_sessions.items():
