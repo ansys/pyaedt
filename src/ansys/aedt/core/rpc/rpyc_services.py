@@ -11,12 +11,14 @@ import subprocess  # nosec
 import sys
 import tempfile
 import time
+from platform import machine
 
 import rpyc
 
 from ansys.aedt.core import is_windows
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import _ServerArgs, _get_grpcsrv_args
+from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.filesystem import is_safe_path
@@ -346,8 +348,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
         timeout = settings.desktop_launch_timeout
         while timeout > 0:
-            active_sessions = grpc_active_sessions()
-            if port in active_sessions:
+            if is_grpc_session_active(port):
                 # Find AEDT version key for the current AEDT path
                 aedt_version = next((version for version, path in aedt_versions.installed_versions.items() if path == ansysem_path))
                 # Settings PYAEDT_DESKTOP_VERSION environment variable to allow using it

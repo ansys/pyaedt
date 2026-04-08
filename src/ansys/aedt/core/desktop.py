@@ -93,6 +93,15 @@ class TransportMode(str, Enum):
     (INSECURE, UDS, MTLS, WNUA) = ("insecure", "uds", "mtls", "wnua")
 
 
+def get_local_ip(host):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect((host, 80))
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+
 class _ServerArgs:
     """Class handling gRPC server arguments (server command line).
 
@@ -135,7 +144,8 @@ class _ServerArgs:
             return f"{self.__port}" if self.__port is not None else ""
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
-
+        if self.__host not in ["127.0.0.1", "localhost"]:
+            self.__host = get_local_ip(self.__host)
         host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
         mode = (
             "SecureMode"
@@ -304,7 +314,9 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        if is_grpc_session_active(port, machine=host):
+        if is_grpc_session_active(
+            port,
+        ):
             break
         timeout -= 1
         time.sleep(1)
@@ -1570,7 +1582,7 @@ class Desktop(PyAedtBase):
                     if self.is_grpc_api:
                         self.grpc_plugin.Release()
                     timeout = 20
-                    while pid in active_sessions(machine=self.machine):
+                    while pid in active_sessions():
                         time.sleep(1)
                         if timeout == 0:
                             os.kill(pid, 9)
@@ -2648,7 +2660,7 @@ class Desktop(PyAedtBase):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
             if str(server_args).endswith((":SecureMode", ":InsecureMode")):
-                self.machine += ":" + str(server_args).split(":")[-1]
+                self.machine = str(server_args).split(":")[0] + ":" + str(server_args).split(":")[-1]
             # NOTE: When working locally, machine is updated to an empty string to work with UDS.
             # This is necessary when working with UDS and also works for WNUA.
             elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
@@ -2692,7 +2704,7 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self, port, machine):
+    def _validate_port(self, port, machine=None):
         """Validate the specified gRPC port.
 
         On top of checking the port, this method also determines if a new AEDT session
@@ -2726,12 +2738,12 @@ class Desktop(PyAedtBase):
         if settings.use_multi_desktop or self.new_desktop:
             self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
+
         else:
             sessions = grpc_active_sessions(
                 version=self.aedt_version_id,
                 student_version=self.student_version,
                 non_graphical=self.non_graphical,
-                machine=self.machine,
             )
             if sessions:
                 self.__port = sessions[0]
@@ -2785,7 +2797,7 @@ class Desktop(PyAedtBase):
                     "This may indicate a problem with a concurrent AEDT launch. Proceeding anyway."
                 )
                 break
-            if not active_sessions(machine=self.machine):
+            if not active_sessions():
                 self.logger.debug("No active AEDT sessions detected. Proceeding with launch.")
                 break
             time.sleep(1)
