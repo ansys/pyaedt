@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,7 +25,6 @@ import locale
 import math
 from pathlib import Path
 import secrets
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -55,7 +54,7 @@ class CircuitComponents(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partname):
+    def __getitem__(self, partname) -> CircuitComponent:
         """Retrieve a part.
 
         Parameters
@@ -65,7 +64,7 @@ class CircuitComponents(PyAedtBase):
 
         Returns
         -------
-        type
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Part object details.
         """
         if isinstance(partname, int):
@@ -76,7 +75,7 @@ class CircuitComponents(PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
@@ -91,7 +90,7 @@ class CircuitComponents(PyAedtBase):
         self.limits_mils = 20000
 
     @pyaedt_function_handler()
-    def get_wire_by_name(self, name):
+    def get_wire_by_name(self, name: str) -> Wire:
         """Wire class by name.
 
         Parameters
@@ -111,7 +110,7 @@ class CircuitComponents(PyAedtBase):
                 return w
 
     @property
-    def wires(self):
+    def wires(self) -> dict:
         """All schematic wires in the design.
 
         Returns
@@ -135,7 +134,7 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """Aedt oDefinitionManager.
+        """AEDT oDefinitionManager.
 
         References
         ----------
@@ -149,49 +148,22 @@ class CircuitComponents(PyAedtBase):
         return self._app.ocomponent_manager
 
     @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
-
-    @property
     def osymbol_manager(self):
         """Model manager object."""
         return self._app.osymbol_manager
 
     @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
-        return self._app.osymbol_manager
-
-    @property
-    def version(self):
+    def version(self) -> str:
         """Version."""
         return self._app._aedt_version
 
     @property
-    def model_units(self):
+    def model_units(self) -> str:
         """Model units."""
         return self._app.units.length
 
     @property
-    def schematic_units(self):
+    def schematic_units(self) -> str:
         """Schematic units.
 
         Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
@@ -200,16 +172,16 @@ class CircuitComponents(PyAedtBase):
         return self._modeler.schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value: str) -> None:
         self._modeler.schematic_units = value
 
     @property
-    def design_type(self):
+    def design_type(self) -> str:
         """Design type."""
         return self._app.design_type
 
     @property
-    def nets(self):
+    def nets(self) -> list:
         """List of all schematic nets."""
         nets_comp = self.oeditor.GetAllNets()
         nets = []
@@ -261,7 +233,7 @@ class CircuitComponents(PyAedtBase):
         return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
 
     @pyaedt_function_handler()
-    def _get_location(self, location=None, update_current_location=True):
+    def _get_location(self, location=None, update_current_location: bool = True):
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
@@ -280,7 +252,7 @@ class CircuitComponents(PyAedtBase):
         return xpos, ypos
 
     @pyaedt_function_handler()
-    def create_unique_id(self):
+    def create_unique_id(self) -> int:
         """Create an unique ID.
 
         Returns
@@ -302,7 +274,7 @@ class CircuitComponents(PyAedtBase):
         return comp_id
 
     @pyaedt_function_handler()
-    def add_pin_iports(self, name, id_num):
+    def add_pin_iports(self, name: str, id_num: int) -> bool:
         """Add ports on pins.
 
         Parameters
@@ -328,7 +300,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=None, angle=0):
+    def create_interface_port(self, name: str, location: list = None, angle: int = 0, page: int = 1) -> Excitations:
         """Create an interface port.
 
         Parameters
@@ -339,6 +311,8 @@ class CircuitComponents(PyAedtBase):
             Position on the X and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -359,7 +333,7 @@ class CircuitComponents(PyAedtBase):
         xpos, ypos = self._get_location(location, update_current_location=False)
 
         arg1 = ["NAME:IPortProps", "Name:=", name]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
         comp_id = int(comp_name.split(";")[-1])
@@ -370,7 +344,9 @@ class CircuitComponents(PyAedtBase):
         return self._app.design_excitations[name]
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=None, angle=0, label_position="Auto"):
+    def create_page_port(
+        self, name: str, location: list = None, angle: int = 0, label_position: str = "Auto", page: int = 1
+    ) -> CircuitComponent:
         """Create a page port.
 
         Parameters
@@ -385,6 +361,8 @@ class CircuitComponents(PyAedtBase):
         label_position : str, optional
             Label position. The default is ``"auto"``.
             Options are ''"Center"``, ``"Left"``, ``"Right"``, ``"Top"``, ``"Bottom"``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -404,7 +382,7 @@ class CircuitComponents(PyAedtBase):
             [
                 "NAME:Attributes",
                 "Page:=",
-                1,
+                page,
                 "X:=",
                 xpos,
                 "Y:=",
@@ -447,7 +425,7 @@ class CircuitComponents(PyAedtBase):
         return self.components[comp_id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=None, angle=0, page=1):
+    def create_gnd(self, location: list = None, angle: int = 0, page: int = 1) -> CircuitComponent:
         """Create a ground.
 
         Parameters
@@ -485,8 +463,10 @@ class CircuitComponents(PyAedtBase):
             if name in self.components[el].composed_name:
                 return self.components[el]
 
-    @pyaedt_function_handler(touchstone_full_path="input_file")
-    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True):
+    @pyaedt_function_handler()
+    def create_model_from_touchstone(
+        self, input_file: str | Path, model_name: str = None, show_bitmap: bool = True, image_path: str = None
+    ) -> str | bool:
         """Create a model from a Touchstone file.
 
         Parameters
@@ -498,6 +478,8 @@ class CircuitComponents(PyAedtBase):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        image_path : str, optional
+            Path to the image. The default is ``None``.
 
         Returns
         -------
@@ -523,14 +505,19 @@ class CircuitComponents(PyAedtBase):
                 line = line.strip()
                 if line.startswith(("!", "#", "")):
                     if "Port" in line and "=" in line and "Impedance" not in line:
-                        port_names.append(line.split("=")[-1].strip().replace(" ", "_").strip("[]"))
+                        port_names.append(line.split("=")[-1].strip().replace(" ", "_"))
                 else:
                     break
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
-            bmp_file_name = Path(image_subcircuit_path).name
+            if not image_path:
+                image_subcircuit_path = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
+            else:
+                image_subcircuit_path = Path(image_path)
+
+            bmp_file_name = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
+            bmp_file_name = bmp_file_name.name
 
         if not port_names:
             port_names = [str(i + 1) for i in range(num_terminal)]
@@ -737,8 +724,10 @@ class CircuitComponents(PyAedtBase):
         self.ocomponent_manager.Add(arg)
         return model_name
 
-    @pyaedt_function_handler(touchstone_full_path="input_file")
-    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
+    @pyaedt_function_handler()
+    def create_model_from_nexxim_state_space(
+        self, input_file: str, num_terminal: int, model_name: str = None, port_names: list = None
+    ) -> str | bool:
         """Create a model from a Touchstone file.
 
         Parameters
@@ -979,11 +968,13 @@ class CircuitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_touchstone_component(
         self,
-        model_name,
-        location=None,
-        angle=0,
-        show_bitmap=True,
-    ):
+        model_name: str,
+        location: list[float] = None,
+        angle: int = 0,
+        show_bitmap: bool = True,
+        page: int = 1,
+        image_path: str = None,
+    ) -> CircuitComponent:
         """Create a component from a Touchstone model.
 
         Parameters
@@ -998,6 +989,10 @@ class CircuitComponents(PyAedtBase):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
+        image_path : str, optional
+            Path to the image. The default is ``None``.
 
         Returns
         -------
@@ -1021,15 +1016,17 @@ class CircuitComponents(PyAedtBase):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
+        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         # id = self.create_unique_id()
         if Path(model_name).exists():
-            model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
+            model_name = self.create_model_from_touchstone(
+                str(model_name), show_bitmap=show_bitmap, image_path=image_path
+            )
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         self.add_id_to_component(comp_id, comp_name)
@@ -1038,12 +1035,13 @@ class CircuitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_nexxim_state_space_component(
         self,
-        model_name,
-        num_terminal,
-        location=None,
-        angle=0,
-        port_names=None,
-    ):
+        model_name: str,
+        num_terminal: int,
+        location: list[float] = None,
+        angle: int = 0,
+        port_names: list[str] = None,
+        page: int = 1,
+    ) -> CircuitComponent:
         """Create a component from a Touchstone model.
 
         Parameters
@@ -1059,7 +1057,8 @@ class CircuitComponents(PyAedtBase):
                     Angle rotation in degrees. The default is ``0``.
                 port_names : list, optional
                     Name of ports.
-        .
+                page: int,  optional
+                    Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1081,24 +1080,24 @@ class CircuitComponents(PyAedtBase):
         xpos, ypos = self._get_location(location)
         # id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         self.add_id_to_component(comp_id, comp_name)
         return self.components[comp_id]
 
-    @pyaedt_function_handler(inst_name="name")
+    @pyaedt_function_handler()
     def create_component(
         self,
-        name=None,
-        component_library="Resistors",
-        component_name="RES_",
-        location=None,
-        angle=0,
-        use_instance_id_netlist=False,
-        global_netlist_list=None,
-        page=1,
-    ):
+        name: str | None = None,
+        component_library: str = "Resistors",
+        component_name: str = "RES_",
+        location: list[float] = None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
+        global_netlist_list: list = None,
+        page: int = 1,
+    ) -> CircuitComponent:
         """Create a component from a library.
 
         Parameters
@@ -1119,7 +1118,7 @@ class CircuitComponents(PyAedtBase):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
-        page: int, optional
+        page: int,  optional
             Schematic page number. The default value is ``1``.
 
         Returns
@@ -1160,8 +1159,8 @@ class CircuitComponents(PyAedtBase):
             self.enable_global_netlist(component_name, global_netlist_list)
         return self.components[comp_id]
 
-    @pyaedt_function_handler(component_name="assignment")
-    def disable_data_netlist(self, assignment):
+    @pyaedt_function_handler()
+    def disable_data_netlist(self, assignment: str) -> bool:
         """Disable the Nexxim global net list.
 
         Parameters
@@ -1194,8 +1193,8 @@ class CircuitComponents(PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(component_name="assignment")
-    def enable_global_netlist(self, assignment, global_netlist_list=None):
+    @pyaedt_function_handler()
+    def enable_global_netlist(self, assignment: str, global_netlist_list: list = None) -> bool:
         """Enable Nexxim global net list.
 
         Parameters
@@ -1234,8 +1233,8 @@ class CircuitComponents(PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(symbol_name="name", pin_lists="pins")
-    def create_symbol(self, name, pins):
+    @pyaedt_function_handler()
+    def create_symbol(self, name: str, pins: list) -> bool:
         """Create a symbol.
 
         Parameters
@@ -1314,7 +1313,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_use_instance_name(self, component_library="", component_name="RES_"):
+    def enable_use_instance_name(self, component_library: str = "", component_name: str = "RES_") -> bool:
         """Enable the use of the instance name.
 
         Parameters
@@ -1360,7 +1359,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def refresh_all_ids(self):
+    def refresh_all_ids(self) -> int:
         """Refresh all IDs and return the number of components.
 
         References
@@ -1378,7 +1377,6 @@ class CircuitComponents(PyAedtBase):
                     if name[0].startswith("IPort"):
                         port_name = name[0].replace("IPort@", "")
                         o = Excitations(self, name=port_name)
-                        o.is_port = True
                     else:
                         o = CircuitComponent(self, tabname=self.tab_name)
                         o.name = name[0]
@@ -1391,13 +1389,11 @@ class CircuitComponents(PyAedtBase):
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
 
-                    if o.is_port:
-                        o._props = o._excitation_props()
                     self.components[objID] = o
         return len(self.components)
 
-    @pyaedt_function_handler(id="component_id")
-    def add_id_to_component(self, component_id, name=None):
+    @pyaedt_function_handler()
+    def add_id_to_component(self, component_id: int, name: str = None) -> int:
         """Add an ID to a component.
 
         Parameters
@@ -1431,9 +1427,6 @@ class CircuitComponents(PyAedtBase):
                     o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
-                if o.is_port:
-                    o._props = o._excitation_props()
-
                 self.components[objID] = o
             return len(self.components)
         obj = self.oeditor.GetAllElements()
@@ -1455,15 +1448,12 @@ class CircuitComponents(PyAedtBase):
                     o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
-                if o.is_port:
-                    o._props = o._excitation_props()
-
                 self.components[objID] = o
 
         return len(self.components)
 
-    @pyaedt_function_handler(objname="assignment")
-    def get_obj_id(self, assignment):
+    @pyaedt_function_handler()
+    def get_obj_id(self, assignment: str) -> int | None:
         """Retrieve the ID of an object.
 
         Parameters
@@ -1482,8 +1472,8 @@ class CircuitComponents(PyAedtBase):
                 return el
         return None
 
-    @pyaedt_function_handler(partid="assignment")
-    def get_pins(self, assignment):
+    @pyaedt_function_handler()
+    def get_pins(self, assignment: int | str) -> list:
         """Retrieve one or more pins.
 
         Parameters
@@ -1510,8 +1500,8 @@ class CircuitComponents(PyAedtBase):
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
-    @pyaedt_function_handler(partid="assignment", pinname="pin")
-    def get_pin_location(self, assignment, pin):
+    @pyaedt_function_handler()
+    def get_pin_location(self, assignment: int, pin: str) -> list:
         """Retrieve the location of a pin.
 
         Parameters
@@ -1540,29 +1530,7 @@ class CircuitComponents(PyAedtBase):
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string, it's returned as is.
-
-        .. deprecated:: 0.14.0
-           Use :func:`value_with_units` in Analysis class instead.
-
-        Parameters
-        ----------
-        value : float, int, str
-            Input  number or string.
-        units : optional
-            Units for formatting. The default is ``None``, which uses ``"meter"``.
-
-        Returns
-        -------
-        str
-           String concatenating the value and unit.
-
-        """
-        return self._app.value_with_units(value, units)
-
-    @pyaedt_function_handler(points_array="points", line_width="width")
-    def create_line(self, points, color=0, width=0):
+    def create_line(self, points: list, color: int = 0, width: int = 0, page: int = 1):
         """Draw a graphical line.
 
         Parameters
@@ -1574,23 +1542,22 @@ class CircuitComponents(PyAedtBase):
             Color or the line. The default is ``"0"``.
         width : float, optional
             Width of the line. The default is ``0``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.Line`
-            Line Object.
-
         >>> oEditor.CreateLine
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
         # id = self.create_unique_id()
         return self.oeditor.CreateLine(
             ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color],
-            ["NAME:Attributes", "Page:=", 1],
+            ["NAME:Attributes", "Page:=", page],
         )
 
-    @pyaedt_function_handler(points_array="points", wire_name="name")
-    def create_wire(self, points, name="", page=1):
+    @pyaedt_function_handler()
+    def create_wire(self, points: list, name: str = "", page: int = 1) -> Wire | bool:
         """Create a wire.
 
         Parameters
@@ -1635,7 +1602,7 @@ class CircuitComponents(PyAedtBase):
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, file_name, component_library):
+    def __init__(self, name: str, component_manager, file_name: str, component_library) -> None:
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name
@@ -1643,14 +1610,21 @@ class ComponentInfo(PyAedtBase):
         self._props = None
 
     @property
-    def props(self):
+    def props(self) -> dict:
         """Retrieve the component properties."""
         if not self._props:
             self._props = load_keyword_in_aedt_file(self.file_name, self.name)
         return self._props
 
-    @pyaedt_function_handler(inst_name="assignment")
-    def place(self, assignment, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler()
+    def place(
+        self,
+        assignment: str = None,
+        location: list = None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
+        page: int = 1,
+    ) -> CircuitComponent:
         """Create a component from a library.
 
         Parameters
@@ -1664,6 +1638,8 @@ class ComponentInfo(PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1683,6 +1659,7 @@ class ComponentInfo(PyAedtBase):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
 
@@ -1720,7 +1697,7 @@ class ComponentCatalog(PyAedtBase):
                 self._component_manager._logger.warning("Component not found.")
                 return None
 
-    def __init__(self, component_manager):
+    def __init__(self, component_manager) -> None:
         self._component_manager = component_manager
         self._app = self._component_manager._app
         self.components = {}
@@ -1751,7 +1728,7 @@ class ComponentCatalog(PyAedtBase):
                 )
 
     @pyaedt_function_handler()
-    def find_components(self, filter_str="*"):
+    def find_components(self, filter_str: str = "*") -> list:
         """Find all components with given filter wildcards.
 
         Parameters

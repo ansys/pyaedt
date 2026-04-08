@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -46,7 +46,7 @@ MOCK_AEDT_EXE = "aedt_path.exe"
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_default_values(mock_get_exe):
+def test_job_configuration_data_default_values(mock_get_exe) -> None:
     """Test the default values of JobConfigurationData."""
     data = JobConfigurationData()
 
@@ -73,7 +73,7 @@ def test_job_configuration_data_default_values(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_custom_properties(mock_get_exe):
+def test_job_configuration_data_custom_properties(mock_get_exe) -> None:
     """Test custom properties of JobConfigurationData."""
     data = JobConfigurationData()
 
@@ -88,7 +88,7 @@ def test_job_configuration_data_custom_properties(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_execution_configuration_properties(mock_get_exe):
+def test_job_configuration_data_execution_configuration_properties(mock_get_exe) -> None:
     """Test execution configuration properties of JobConfigurationData."""
     data = JobConfigurationData()
 
@@ -118,7 +118,7 @@ def test_job_configuration_data_execution_configuration_properties(mock_get_exe)
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_check_failure(mock_get_exe):
+def test_job_configuration_data_check_failure(mock_get_exe) -> None:
     """Test that check method raises ValueError for invalid configurations."""
     data = JobConfigurationData()
 
@@ -152,7 +152,7 @@ def test_job_configuration_data_check_failure(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_check_none_assign_success(mock_get_exe):
+def test_job_configuration_data_check_none_assign_success(mock_get_exe) -> None:
     """Test that optional attributes can be assigned None without raising errors."""
     data = JobConfigurationData()
 
@@ -163,7 +163,7 @@ def test_job_configuration_data_check_none_assign_success(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_check_consistency_failure(mock_get_exe):
+def test_job_configuration_data_check_consistency_failure(mock_get_exe) -> None:
     """Test that check_consistency raises ValueError for inconsistent configurations."""
     data = JobConfigurationData(num_tasks=4, max_tasks_per_node=3)
     with pytest.raises(ValueError, match=re.escape("Tasks per node (4) exceeds max tasks per node (3).")):
@@ -177,7 +177,7 @@ def test_job_configuration_data_check_consistency_failure(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog):
+def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog) -> None:
     """Test that align_dependent_attributes sets default values and logs warnings."""
     caplog.set_level(logging.INFO)
 
@@ -189,7 +189,7 @@ def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog)
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_resources_configuration_dict_interaction(mock_get_exe):
+def test_resources_configuration_dict_interaction(mock_get_exe) -> None:
     """Test that _ResourcesConfiguration interaction from/to a dictionary."""
     data_dict = {
         "exclusive": False,
@@ -210,7 +210,7 @@ def test_resources_configuration_dict_interaction(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_dict_interaction(mock_get_exe):
+def test_job_configuration_data_dict_interaction(mock_get_exe) -> None:
     """Test that JobConfigurationData interaction from/to a dictionary."""
     data_dict = {
         "auto_hpc": False,
@@ -241,7 +241,7 @@ def test_job_configuration_data_dict_interaction(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
-def test_job_configuration_data_to_json_and_from_json(mock_get_exe, tmp_path):
+def test_job_configuration_data_to_json_and_from_json(mock_get_exe, tmp_path) -> None:
     """Test that JobConfigurationData can be serialized to JSON and deserialized back."""
     data = JobConfigurationData()
 
@@ -260,7 +260,7 @@ def test_job_configuration_data_to_json_and_from_json(mock_get_exe, tmp_path):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_switch_between_hpc_method_values(mock_get_exe):
+def test_switch_between_hpc_method_values(mock_get_exe) -> None:
     """Test that switching between HPC methods works correctly on setting attributes."""
     data = JobConfigurationData()
     assert HPCMethod.USE_NODES_AND_CORES == data._JobConfigurationData__hpc_method
@@ -276,7 +276,7 @@ def test_switch_between_hpc_method_values(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_save_areg_generates_file_with_expected_content(mock_get_exe, tmp_path):
+def test_save_areg_generates_file_with_expected_content(mock_get_exe, tmp_path) -> None:
     """Test that save_areg generates a file with expected content."""
     EXPECTED_CONTENT = r"""$begin 'AddEntries'
 	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\

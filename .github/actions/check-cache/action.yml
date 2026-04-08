@@ -1,0 +1,82 @@
+name: 'Wait for main Cache Update'
+description: 'Waits for the main cache update workflow to complete before proceeding with tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Wait for main cache update
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        echo "Checking if main cache update is running..."
+
+        # First check if the workflow file exists on the main branch
+        if ! gh api repos/${GITHUB_REPOSITORY}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
+          echo "::notice::Cache update workflow (update-testmondata-cache.yml) not found on main branch yet."
+          echo "::notice::This is expected before the workflow is merged. Skip for now"
+          exit 0
+        fi
+
+        max_attempts=60
+        attempt=0
+
+        while [ $attempt -lt $max_attempts ]; do
+          # Get workflow run for the base commit SHA
+          RUN_DATA=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=main \
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json status,conclusion)
+
+          # Check if we got any results
+          if [ "$RUN_DATA" == "[]" ] || [ -z "$RUN_DATA" ]; then
+            echo "::notice::No cache update workflow found for base commit (using existing cache)"
+            exit 0
+          fi
+
+          # Extract status and conclusion using gh's JMESPath query
+          RUN_STATUS=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=main \
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json status \
+            --jq '.[0].status')
+
+          RUN_CONCLUSION=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=main \
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json conclusion \
+            --jq '.[0].conclusion')
+
+          echo "::notice::Workflow status: $RUN_STATUS, conclusion: $RUN_CONCLUSION"
+
+          # Check if workflow is completed
+          if [ "$RUN_STATUS" == "completed" ]; then
+            if [ "$RUN_CONCLUSION" == "success" ]; then
+              echo "::notice::Cache update completed successfully. Proceeding with tests."
+              exit 0
+            elif [ "$RUN_CONCLUSION" == "failure" ] || [ "$RUN_CONCLUSION" == "cancelled" ] || [ "$RUN_CONCLUSION" == "skipped" ]; then
+              echo "::error::Cache update workflow $RUN_CONCLUSION. Please retrigger the failed/cancelled/skipped workflow before running tests. Go to: https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml and retrigger the workflow."
+              exit 1
+            else
+              echo "::error::Cache update workflow completed with unexpected conclusion: $RUN_CONCLUSION"
+              exit 1
+            fi
+          fi
+
+          # Workflow is still queued or in_progress
+          attempt=$((attempt + 1))
+          echo "::notice::Attempt $attempt/$max_attempts: Cache update workflow is $RUN_STATUS, waiting 10s..."
+          sleep 10
+        done
+
+        echo "::error::Timeout waiting for cache update workflow to complete. Cannot proceed without verified cache."
+        exit 1
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GH_TOKEN: ${{ github.token }}

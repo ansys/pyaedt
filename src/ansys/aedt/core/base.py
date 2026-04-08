@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+
+import inspect
 
 
 class DirMixin:
@@ -51,7 +54,24 @@ class DirMixin:
     @property
     def public_dir(self):
         """Shortcut for dir(self)."""
-        return sorted(i for i in dir(self) if not i.startswith("_") and i != "public_dir")
+        result = []
+        for name in dir(self):
+            if name.startswith("_") or name == "public_dir":
+                continue
+
+            # NOTE: Could be necessary to handle properties that raise exceptions, e.g. NotImplementedError
+            try:
+                obj = getattr(self, name)
+            except (AttributeError, RuntimeError):
+                continue
+
+            doc = inspect.getdoc(obj)
+            if doc and ".. deprecated::" in doc:
+                continue
+
+            result.append(name)
+
+        return sorted(result)
 
 
 class PyAedtBase(DirMixin):
@@ -71,4 +91,8 @@ class PyAedtBase(DirMixin):
       once in the hierarchy.
     """
 
-    pass
+    def __repr__(self) -> str:
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
+
+    def __str__(self) -> str:
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"

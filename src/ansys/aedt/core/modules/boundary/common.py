@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,7 @@ class BoundaryProps(dict):
             if not res:
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
-    def __init__(self, boundary, props):
+    def __init__(self, boundary, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -74,6 +74,12 @@ class BoundaryProps(dict):
 class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
 
+    def __repr__(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
+
     @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve boundary properties.
@@ -96,14 +102,14 @@ class BoundaryCommon(PropsManager, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def _initialize_tree_node(self):
+    def _initialize_tree_node(self) -> bool:
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the boundary.
 
         Returns
@@ -172,7 +178,7 @@ class BoundaryCommon(PropsManager, PyAedtBase):
             return []
 
 
-def disable_auto_update(func):
+def disable_auto_update(func: callable) -> callable:
     """Decorator used to disable automatic update."""
 
     def wrapper(self, *args, **kwargs):
@@ -221,7 +227,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):
+    def __init__(self, app, name: str, props=None, boundarytype=None, auto_update: bool = True) -> None:
         self.auto_update = False
         self._app = app
         self._name = name
@@ -286,7 +292,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return None
 
     @property
-    def props(self):
+    def props(self) -> BoundaryProps:
         """Boundary data.
 
         Returns
@@ -303,7 +309,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self.__props
 
     @property
-    def type(self):
+    def type(self) -> str:
         """Boundary type.
 
         Returns
@@ -326,18 +332,18 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return self._type
 
     @type.setter
-    def type(self, value):
+    def type(self, value: str) -> None:
         self._type = value
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Boundary Name."""
         if getattr(self, "child_object", None):
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         if getattr(self, "child_object", None):
             try:
                 self.properties["Name"] = value
@@ -367,7 +373,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a boundary.
 
         Returns
@@ -475,6 +481,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignFixedSupport(self._get_args())
         elif bound_type == "Voltage":
             self._app.oboundary.AssignVoltage(self._get_args())
+        elif bound_type == "VoltageAPhi":
+            self._app.oboundary.AssignVoltageAPhi(self._get_args())
         elif bound_type == "VoltageDrop":
             self._app.oboundary.AssignVoltageDrop(self._get_args())
         elif bound_type == "Floating":
@@ -513,6 +521,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
         elif bound_type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
+        elif bound_type == "SurfaceGround":
+            self._app.oboundary.AssignSingleSurfaceGround(self._get_args())
         elif bound_type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
         elif bound_type == "Lumped Port":
@@ -544,6 +554,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "Far Field Wave":
+            self._app.oboundary.AssignFarFieldWave(self._get_args())
         elif bound_type == "Hertzian Dipole Wave":
             self._app.oboundary.AssignHertzianDipoleWave(self._get_args())
         elif bound_type == "ResistiveSheet":
@@ -554,7 +566,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the boundary.
 
         Returns
@@ -700,7 +712,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_assignment(self):
+    def update_assignment(self) -> bool:
         """Update the boundary assignment.
 
         Returns

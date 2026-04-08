@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,11 +36,7 @@ import sys
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
+import traceback
 
 import PIL.Image
 import PIL.ImageTk
@@ -51,6 +47,7 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -58,39 +55,54 @@ NO_ACTIVE_PROJECT = "No active project"
 NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
 SUN = "\u263d"
-DEFAULT_PADDING = {"padx": 15, "pady": 10}
+DEFAULT_PADDING = {"padx": 10, "pady": 6}
 DEFAULT_WIDTH = 10
 DEFAULT_FOREGROUND: str = "white"
 DEFAULT_FOREGROUND_DARK: str = "black"
-DEFAULT_BD: int = 1
-DEFAULT_BORDERWIDTH: int = 1
+DEFAULT_BD: int = 0
+DEFAULT_BORDERWIDTH: int = 0
 
 
-def get_process_id():
+def get_process_id() -> int | None:
     """Get process ID from environment variable."""
-    value = os.getenv("PYAEDT_SCRIPT_PROCESS_ID")
+    value = os.getenv("PYAEDT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
-def get_port():
+def get_port() -> int:
     """Get gRPC port from environment variable."""
-    res = int(os.getenv("PYAEDT_SCRIPT_PORT", 0))
+    res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
-def get_aedt_version():
+def get_aedt_version() -> str:
     """Get AEDT release from environment variable."""
-    res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
+    res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 
-def is_student():
+def is_student() -> bool:
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
 
 
-def get_latest_version(package_name, timeout=3):
+def get_aedt_path() -> str | None:
+    """Get AEDT path from environment variable."""
+    version = get_aedt_version()
+    fallback_path = aedt_versions.installed_versions.get(version, None)
+
+    res = os.getenv("PYAEDT_DESKTOP_PATH", fallback_path)
+    return res
+
+
+def get_aedt_theme() -> str:
+    """Get AEDT theme from environment variable."""
+    res = os.getenv("PYAEDT_GLOBAL_THEME", "light")
+    return res
+
+
+def get_latest_version(package_name: str, timeout: int = (2, 2)) -> str:
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
@@ -103,7 +115,7 @@ def get_latest_version(package_name, timeout=3):
         return UNKNOWN_VERSION
 
 
-def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
     """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
 
     Returns
@@ -132,7 +144,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return False
 
-    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+    def read_version_file(file_path: Path) -> tuple[str | None, bool]:
         """Read version file and return (last_known_version, show_updates).
 
         File format:
@@ -157,7 +169,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return None, True
 
-    def write_version_file(file_path: Path, version: str, show_updates: bool):
+    def write_version_file(file_path: Path, version: str, show_updates: bool) -> None:
         """Write version and preference to file."""
         try:
             file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -175,6 +187,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         log.debug("PyAEDT update check: could not import version.")
         return None, None
 
+    log.debug(f"Checking for PyAEDT updates. Current version: {current_version}")
     latest = get_latest_version("pyaedt")
     if not latest or latest == "Unknown":
         log.debug("PyAEDT update check: latest version unavailable.")
@@ -228,12 +241,13 @@ class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
-        theme_color: str = "light",
+        theme_color: str | None = None,
         withdraw: bool = False,
         add_custom_content: bool = True,
-        toggle_row: Optional[int] = None,
-        toggle_column: Optional[int] = None,
-    ):
+        toggle_row: int | None = None,
+        toggle_column: int | None = None,
+        use_edb: bool = False,
+    ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
         This function creates a Tkinter root window, applies a theme, sets the
@@ -245,7 +259,8 @@ class ExtensionCommon(PyAedtBase):
         title : str
             The title of the main window.
         theme_color: str, optional
-            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+            The theme color to apply to the UI. Options are ``"light"`` or ``"dark"``.
+            If ``None``, the theme is inferred from the AEDT environment.
         withdraw : bool, optional
             If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
@@ -254,36 +269,59 @@ class ExtensionCommon(PyAedtBase):
             The row index where the toggle button will be placed.
         toggle_column : int, optional
             The column index where the toggle button will be placed.
+        use_edb : bool, optional
+            Whether to use PyEDB. When set to ``True`` on Linux, the required native libraries are loaded automatically
+            from the AEDT installation directory. This is necessary for extensions that interact
+            directly with layout databases via the EDB API. The default is ``False``.
         """
-        if theme_color not in ["light", "dark"]:
+        if theme_color is None:
+            theme_color = get_aedt_theme()
+            if "dark" in theme_color.lower():
+                theme_color = "dark"
+            elif theme_color not in ["light", "dark"]:
+                theme_color = "light"
+        elif theme_color not in ["light", "dark"]:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
+        self.use_edb = use_edb
+
+        aedt_install_dir = get_aedt_path()
+
+        if is_linux and self.use_edb and aedt_install_dir:
+            import ctypes
+
+            ctypes.cdll.LoadLibrary(
+                os.path.join(aedt_install_dir, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1")
+            )
+            ctypes.cdll.LoadLibrary(os.path.join(aedt_install_dir, "libEDBCWrapper.so"))
 
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self.theme_color = theme_color
         self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
-        self.__data: Optional[ExtensionCommonData] = None
+        self.__data: ExtensionCommonData | None = None
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
-        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.check_design_type()
+        self.apply_theme(self.theme_color)
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+    def add_toggle_theme_button(self, parent: tkinter.Widget, toggle_row: int, toggle_column: int):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent,
             style="PyAEDT.TFrame",
-            relief=tkinter.SUNKEN,
-            borderwidth=2,
+            relief=tkinter.FLAT,
+            borderwidth=0,
             name="theme_button_frame",
         )
         button_frame.grid(
@@ -305,7 +343,7 @@ class ExtensionCommon(PyAedtBase):
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_logger(self, parent, row, column):
+    def add_logger(self, parent: tkinter.Widget, row: int, column: int):
         logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
@@ -354,12 +392,12 @@ class ExtensionCommon(PyAedtBase):
 
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
-    def toggle_theme(self):
+    def toggle_theme(self) -> None:
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
-            self.__apply_theme("dark")
+            self.apply_theme("dark")
         elif self.root.theme == "dark":
-            self.__apply_theme("light")
+            self.apply_theme("light")
         else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
@@ -375,11 +413,52 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def report_callback_exception(self, exc, val, tb):
-            """Custom exception showing an error message."""
-            if not val:
-                val = "An error occurred when using the extension."
-            showerror("Error", message=f"{val}")
+        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+            """Custom exception showing an error message with details button."""
+            win = tkinter.Toplevel()
+            win.title("Error")
+            win.resizable(False, False)
+            win.grab_set()
+
+            label = tkinter.Label(win, text=val, justify="left")
+            label.grid(row=0, column=0, columnspan=2, **DEFAULT_PADDING)
+
+            details_frame = ttk.Frame(win)
+            details_shown = False
+
+            tb_str = "".join(traceback.format_exception(exc, val, tb))
+
+            text = tkinter.Text(details_frame, width=80, height=20, wrap="none")
+            text.insert("1.0", tb_str)
+            text.configure(state="disabled")
+            text.grid(row=0, column=0, sticky="nsew")
+
+            scrollbar = ttk.Scrollbar(details_frame, orient="vertical", command=text.yview)
+            scrollbar.grid(row=0, column=1, sticky="ns")
+            text.configure(yscrollcommand=scrollbar.set)
+
+            details_frame.grid_columnconfigure(0, weight=1)
+            details_frame.grid_rowconfigure(0, weight=1)
+
+            def toggle_details() -> None:
+                nonlocal details_shown
+                details_shown = not details_shown
+                if details_shown:
+                    details_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", **DEFAULT_PADDING)
+                    button_details.config(text="Hide Traceback")
+                    win.resizable(True, True)
+                else:
+                    details_frame.grid_remove()
+                    button_details.config(text="Show Traceback")
+                    win.resizable(False, False)
+
+            button_details = ttk.Button(win, text="Show Traceback", command=toggle_details)
+            button_details.grid(row=1, column=0, sticky="w", **DEFAULT_PADDING)
+
+            button_ok = ttk.Button(win, text="OK", command=win.destroy)
+            button_ok.grid(row=1, column=1, sticky="e", **DEFAULT_PADDING)
+
+            details_frame.grid_remove()
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
@@ -388,7 +467,7 @@ class ExtensionCommon(PyAedtBase):
         if withdraw:
             tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
         else:
-            tkinter.Tk.report_callback_exception = report_callback_exception
+            tkinter.Tk.report_callback_exception = show_error_with_details
 
         root = tkinter.Tk()
         root.title(title)
@@ -404,13 +483,13 @@ class ExtensionCommon(PyAedtBase):
 
         return root
 
-    def __apply_theme(self, theme_color: str):
+    def apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
         for widget in self.__find_all_widgets(
             self.root,
-            (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar),
+            (tkinter.Text, tkinter.Listbox, tkinter.Canvas, tkinter.Scrollbar),
         ):
             if isinstance(widget, tkinter.Text):
                 widget.configure(
@@ -426,13 +505,13 @@ class ExtensionCommon(PyAedtBase):
                 )
             elif isinstance(widget, tkinter.Canvas):
                 widget.configure(
-                    background=theme_colors_dict["pane_bg"],
-                    highlightbackground=theme_colors_dict["tab_border"],
-                    highlightcolor=theme_colors_dict["tab_border"],
+                    background=theme_colors_dict["widget_bg"],
+                    highlightthickness=0,
+                    bd=0,
                 )
             else:
                 if "background" in widget.keys():
-                    widget.configure(background=self.theme.light["widget_bg"])
+                    widget.configure(background=theme_colors_dict["widget_bg"])
 
         button_text = None
         if theme_color == "light":
@@ -453,8 +532,8 @@ class ExtensionCommon(PyAedtBase):
     def __find_all_widgets(
         self,
         widget: tkinter.Widget,
-        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
-    ) -> List[tkinter.Widget]:
+        widget_classes: type[tkinter.Widget] | tuple[type[tkinter.Widget], ...],
+    ) -> list[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
         if isinstance(widget, widget_classes):
@@ -463,7 +542,7 @@ class ExtensionCommon(PyAedtBase):
             res.extend(self.__find_all_widgets(child, widget_classes))
         return res
 
-    def __on_close(self):
+    def __on_close(self) -> None:
         self.release_desktop()
         self.root.destroy()
 
@@ -485,15 +564,16 @@ class ExtensionCommon(PyAedtBase):
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
+
             aedt_active_sessions = active_sessions(
                 version=version,
                 student_version=False,
-                non_graphical=False,
+                non_graphical=None,
             )
             student_active_sessions = active_sessions(
                 version=version,
                 student_version=True,
-                non_graphical=False,
+                non_graphical=None,
             )
 
             if not aedt_active_sessions and not student_active_sessions:
@@ -507,10 +587,11 @@ class ExtensionCommon(PyAedtBase):
                 student_version=is_student(),
                 close_on_exit=False,
             )
+
         return self.__desktop
 
     @property
-    def aedt_application(self):
+    def aedt_application(self) -> object:
         """Return the active AEDT application instance."""
         if self.__aedt_application is None:
             active_project_name = self.active_project_name
@@ -528,18 +609,18 @@ class ExtensionCommon(PyAedtBase):
             self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
         return self.__aedt_application
 
-    def release_desktop(self):
+    def release_desktop(self) -> bool:
         """Release AEDT desktop instance."""
         if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             self.desktop.release_desktop(False, False)
         return True
 
     @property
-    def data(self) -> Optional[ExtensionCommonData]:
+    def data(self) -> ExtensionCommonData | None:
         return self.__data
 
     @data.setter
-    def data(self, value: ExtensionCommonData):
+    def data(self, value: ExtensionCommonData) -> None:
         if not isinstance(value, ExtensionCommonData):
             raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
         self.__data = value
@@ -574,7 +655,7 @@ class ExtensionCommon(PyAedtBase):
         return res
 
     @abstractmethod
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add content to the extension UI.
 
         This method should be implemented by subclasses to add specific content
@@ -595,7 +676,7 @@ class ExtensionCommon(PyAedtBase):
 class ExtensionIcepakCommon(ExtensionCommon):
     """Common methods for Icepak extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
             self.release_desktop()
@@ -605,7 +686,7 @@ class ExtensionIcepakCommon(ExtensionCommon):
 class ExtensionHFSSCommon(ExtensionCommon):
     """Common methods for HFSS extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an HFSS design."""
         if self.aedt_application.design_type != "HFSS":
             self.release_desktop()
@@ -615,7 +696,7 @@ class ExtensionHFSSCommon(ExtensionCommon):
 class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
     """Common methods for HFSS 3D Layout extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an HFSS 3D Layout design."""
         if self.aedt_application.design_type != "HFSS 3D Layout Design":
             self.release_desktop()
@@ -625,7 +706,7 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
 class ExtensionMaxwell2DCommon(ExtensionCommon):
     """Common methods for Maxwell 2D extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell 2D design."""
         if self.aedt_application.design_type != "Maxwell 2D":
             self.release_desktop()
@@ -635,7 +716,7 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
 class ExtensionMaxwell3DCommon(ExtensionCommon):
     """Common methods for Maxwell 3D extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell 3D design."""
         if self.aedt_application.design_type != "Maxwell 3D":
             self.release_desktop()
@@ -645,7 +726,7 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
 class ExtensionCircuitCommon(ExtensionCommon):
     """Common methods for Circuit extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is an Circuit design."""
         if self.aedt_application.design_type != "Circuit Design":
             self.release_desktop()
@@ -655,17 +736,27 @@ class ExtensionCircuitCommon(ExtensionCommon):
 class ExtensionTwinBuilderCommon(ExtensionCommon):
     """Common methods for TwinBuilder extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a TwinBuilder design."""
         if self.aedt_application.design_type != "Twin Builder":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
 
 
+class ExtensionEMITCommon(ExtensionCommon):
+    """Common methods for EMIT extensions."""
+
+    def check_design_type(self) -> None:
+        """Check if the active design is an EMIT design."""
+        if self.aedt_application.design_type != "EMIT":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with EMIT designs.")
+
+
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check the active design type.
 
         Not required for extension at project level.
@@ -673,10 +764,9 @@ class ExtensionProjectCommon(ExtensionCommon):
         pass
 
 
-def create_default_ui(title, withdraw=False):
+def create_default_ui(title: str, withdraw: bool = False) -> tuple[tkinter.Tk, ExtensionTheme, ttk.Style]:
     import tkinter
     from tkinter import ttk
-    from tkinter.messagebox import showerror
 
     import PIL.Image
     import PIL.ImageTk
@@ -724,7 +814,7 @@ def create_default_ui(title, withdraw=False):
     return root, theme, style
 
 
-def get_arguments(args=None, description=""):  # pragma: no cover
+def get_arguments(args=None, description: str = "") -> dict:  # pragma: no cover
     """Get extension arguments."""
     output_args = {"is_batch": False, "is_test": False}
 
@@ -742,108 +832,131 @@ def get_arguments(args=None, description=""):  # pragma: no cover
 
 
 class ExtensionTheme(PyAedtBase):  # pragma: no cover
-    def __init__(self):
-        # Define light and dark theme colors
+    """Theme definition for PyAEDT extension UIs.
+
+    Provides light and dark color palettes, a default font, and methods
+    to apply the chosen palette to a ``ttk.Style`` instance.  All colours
+    are specified as hex strings so there are no external dependencies.
+    """
+
+    # Ansys brand accent used across both themes.
+    _ANSYS_GOLD = "#FFB71B"
+    _ANSYS_GOLD_HOVER = "#E6A200"
+
+    def __init__(self) -> None:
+        # --- Light palette ---------------------------------------------------
+        # Clean, airy palette inspired by modern Ansys product surfaces.
         self.light = {
-            "widget_bg": "#FFFFFF",
-            "text": "#000000",
-            "button_bg": "#E6E6E6",
-            "button_hover_bg": "#D9D9D9",
-            "button_active_bg": "#B8B8B8",
-            "button_border": "#B0B0B0",
+            "widget_bg": "#FAFAFA",
+            "text": "#1E1E1E",
+            "button_bg": "#E8E8E8",
+            "button_hover_bg": "#DADADA",
+            "button_active_bg": "#CACACA",
+            "button_disabled_bg": "#D9D9D9",
+            "button_disabled_fg": "#7A7A7A",
+            "button_border": "#C0C0C0",
             "tab_bg_inactive": "#F0F0F0",
-            "tab_bg_active": "#FFFFFF",
-            "tab_border": "#D9D9D9",
-            "label_bg": "#FFFFFF",
-            "label_fg": "#000000",
-            "labelframe_bg": "#FFFFFF",
-            "labelframe_fg": "#000000",
-            "labelframe_title_bg": "#FFFFFF",  # Background for title (text)
-            "labelframe_title_fg": "#000000",  # Text color for title
-            "radiobutton_bg": "#FFFFFF",  # Background for Radiobutton
-            "radiobutton_fg": "#000000",  # Text color for Radiobutton
-            "radiobutton_selected": "#E0E0E0",  # Color when selected
-            "radiobutton_unselected": "#FFFFFF",  # Color when unselected
-            "pane_bg": "#F0F0F0",  # Background for PanedWindow
-            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindow
-            "combobox_bg": "#FFFFFF",  # Matches widget_bg
-            "combobox_arrow_bg": "#E6E6E6",  # Matches button_bg
-            "combobox_arrow_fg": "#000000",  # Matches text
-            "combobox_readonly_bg": "#F0F0F0",  # Matches tab_bg_inactive
-            "checkbutton_bg": "#FFFFFF",  # Matches widget_bg
-            "checkbutton_fg": "#000000",  # Matches text
-            "checkbutton_indicator_bg": "#D9D9D9",  # Matches button_hover_bg
-            "checkbutton_active_bg": "#B8B8B8",  # Matches button_active_bg
+            "tab_bg_active": "#FAFAFA",
+            "tab_border": "#D4D4D4",
+            "label_bg": "#FAFAFA",
+            "label_fg": "#1E1E1E",
+            "labelframe_bg": "#FAFAFA",
+            "labelframe_fg": "#1E1E1E",
+            "labelframe_title_bg": "#FAFAFA",
+            "labelframe_title_fg": "#1E1E1E",
+            "radiobutton_bg": "#FAFAFA",
+            "radiobutton_fg": "#1E1E1E",
+            "radiobutton_selected": "#D6D6D6",
+            "radiobutton_unselected": "#FAFAFA",
+            "pane_bg": "#F2F2F2",
+            "sash_color": "#C8C8C8",
+            "combobox_bg": "#FFFFFF",
+            "combobox_arrow_bg": "#E8E8E8",
+            "combobox_arrow_fg": "#1E1E1E",
+            "combobox_readonly_bg": "#F2F2F2",
+            "checkbutton_bg": "#FAFAFA",
+            "checkbutton_fg": "#1E1E1E",
+            "checkbutton_indicator_bg": "#D4D4D4",
+            "checkbutton_active_bg": "#CACACA",
         }
 
+        # --- Dark palette -----------------------------------------------------
+        # Shaded-gray surface
         self.dark = {
-            "widget_bg": "#313335",
-            "text": "#FFFFFF",
-            "button_bg": "#45494A",
-            "button_hover_bg": "#5A5E5F",
-            "button_active_bg": "#6A6E6F",
-            "button_border": "#918E8E",
-            "tab_bg_inactive": "#313335",
-            "tab_bg_active": "#2B2B2B",
+            "widget_bg": "#2D2F31",
+            "text": "#E4E4E4",
+            "button_bg": "#3C3F41",
+            "button_hover_bg": "#4A4D50",
+            "button_active_bg": "#575B5E",
+            "button_disabled_bg": "#45484B",
+            "button_disabled_fg": "#9A9A9A",
+            "button_border": "#5C5F62",
+            "tab_bg_inactive": "#2D2F31",
+            "tab_bg_active": "#383A3C",
             "tab_border": "#3E4042",
-            "label_bg": "#313335",  # Background for labels
-            "label_fg": "#FFFFFF",  # Text color for labels
-            "labelframe_bg": "#313335",  # Background for LabelFrame
-            "labelframe_fg": "#FFFFFF",  # Text color for LabelFrame
-            "labelframe_title_bg": "#313335",  # Dark background for title (text)
-            "labelframe_title_fg": "#FFFFFF",  # Dark text color for title
-            "radiobutton_bg": "#2E2E2E",  # Background for Radiobutton
-            "radiobutton_fg": "#FFFFFF",  # Text color for Radiobutton
-            "radiobutton_selected": "#45494A",  # Color when selected
-            "radiobutton_unselected": "#313335",  # Color when unselected
-            "pane_bg": "#2E2E2E",  # Background for PanedWindow
-            "combobox_bg": "#313335",  # Matches widget_bg
-            "combobox_arrow_bg": "#606060",  # Matches button_hover_bg
-            "combobox_arrow_fg": "#FFFFFF",  # Matches text
-            "combobox_readonly_bg": "#2E2E2E",  # Matches pane_bg
-            "checkbutton_bg": "#313335",  # Matches widget_bg
-            "checkbutton_fg": "#FFFFFF",  # Matches text
-            "checkbutton_indicator_bg": "#2E2E2E",  # Matches pane_bg
-            "checkbutton_active_bg": "#45494A",  # Matches radiobutton_selected
+            "label_bg": "#2D2F31",
+            "label_fg": "#E4E4E4",
+            "labelframe_bg": "#2D2F31",
+            "labelframe_fg": "#E4E4E4",
+            "labelframe_title_bg": "#2D2F31",
+            "labelframe_title_fg": "#E4E4E4",
+            "radiobutton_bg": "#2D2F31",
+            "radiobutton_fg": "#E4E4E4",
+            "radiobutton_selected": "#4A4D50",
+            "radiobutton_unselected": "#2D2F31",
+            "pane_bg": "#262829",
+            "sash_color": "#3E4042",
+            "combobox_bg": "#2D2F31",
+            "combobox_arrow_bg": "#4A4D50",
+            "combobox_arrow_fg": "#E4E4E4",
+            "combobox_readonly_bg": "#262829",
+            "checkbutton_bg": "#2D2F31",
+            "checkbutton_fg": "#E4E4E4",
+            "checkbutton_indicator_bg": "#262829",
+            "checkbutton_active_bg": "#4A4D50",
         }
 
-        # Set default font
-        self.default_font = ("Arial", 12)
+        self.default_font = ("Segoe UI", 10)
 
-    def apply_light_theme(self, style):
+    def apply_light_theme(self, style: ttk.Style):
         """Apply light theme."""
         self._apply_theme(style, self.light)
 
-    def apply_dark_theme(self, style):
+    def apply_dark_theme(self, style: ttk.Style):
         """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):
-        # Apply the colors and font to the style
         style.theme_use("clam")
 
-        style.configure("TPanedwindow", background=colors["pane_bg"])
+        # --- Paned window -----------------------------------------------------
+        style.configure(
+            "TPanedwindow",
+            background=colors["pane_bg"],
+            lightcolor=colors["pane_bg"],
+            darkcolor=colors["pane_bg"],
+            bordercolor=colors["tab_border"],
+        )
 
+        # --- Standard button --------------------------------------------------
         style.configure(
             "PyAEDT.TButton",
             background=colors["button_bg"],
             foreground=colors["text"],
-            bd=DEFAULT_BD,
-            borderwidth=DEFAULT_BORDERWIDTH,
-            relief="solid",
+            borderwidth=1,
+            relief="flat",
             focuscolor="none",
             highlightthickness=0,
             font=self.default_font,
             anchor="center",
-            padding=(8, 4),
+            padding=(10, 5),
+            bordercolor=colors["button_border"],
         )
-
-        # Apply the color for hover and active states
         style.map(
             "PyAEDT.TButton",
             background=[
                 ("active", colors["button_active_bg"]),
-                ("!active", colors["button_hover_bg"]),
+                ("!active", colors["button_bg"]),
             ],
             foreground=[
                 ("active", colors["text"]),
@@ -853,38 +966,54 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
                 ("active", colors["button_border"]),
                 ("!active", colors["button_border"]),
             ],
+            relief=[("pressed", "sunken"), ("!pressed", "flat")],
         )
 
-        # Apply the color for hover and active states
-
-        # Apply the colors and font to the style for Frames
+        # --- Frame ------------------------------------------------------------
         style.configure(
             "PyAEDT.TFrame",
             background=colors["widget_bg"],
             borderwidth=0,
             relief="flat",
-            font=self.default_font,
         )
 
-        # Apply the colors and font to the style for Tabs
+        # Card-style frame with a subtle rounded border for extension cards.
+        style.configure(
+            "PyAEDT.Card.TFrame",
+            background=colors["widget_bg"],
+            borderwidth=1,
+            relief="solid",
+            bordercolor=colors["tab_border"],
+        )
+
+        # --- Notebook / Tabs --------------------------------------------------
         style.configure(
             "TNotebook",
             background=colors["tab_bg_inactive"],
             bordercolor=colors["tab_border"],
-            font=self.default_font,
+            lightcolor=colors["tab_bg_inactive"],
+            darkcolor=colors["tab_bg_inactive"],
+            tabmargins=(2, 2, 2, 0),
         )
         style.configure(
             "TNotebook.Tab",
             background=colors["tab_bg_inactive"],
             foreground=colors["text"],
+            bordercolor=colors["tab_border"],
+            lightcolor=colors["tab_bg_inactive"],
+            darkcolor=colors["tab_bg_inactive"],
             font=self.default_font,
+            padding=(10, 4),
         )
         style.map(
             "TNotebook.Tab",
             background=[("selected", colors["tab_bg_active"])],
+            foreground=[("selected", colors["text"])],
+            lightcolor=[("selected", colors["tab_bg_active"])],
+            darkcolor=[("selected", colors["tab_bg_active"])],
         )
 
-        # Apply the colors and font to the style for Labels
+        # --- Label ------------------------------------------------------------
         style.configure(
             "PyAEDT.TLabel",
             background=colors["label_bg"],
@@ -892,28 +1021,40 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             font=self.default_font,
         )
 
-        # Apply the colors and font to the style for LabelFrames
+        # --- LabelFrame -------------------------------------------------------
         style.configure(
             "PyAEDT.TLabelframe",
             background=colors["labelframe_bg"],
             foreground=colors["labelframe_fg"],
+            borderwidth=1,
+            relief="groove",
+            bordercolor=colors["tab_border"],
             font=self.default_font,
         )
         style.configure(
-            "PyAEDT.TLabelframe.Label",  # Style for title text
+            "PyAEDT.TLabelframe.Label",
             background=colors["labelframe_title_bg"],
             foreground=colors["labelframe_title_fg"],
             font=self.default_font,
         )
 
-        # Apply the colors and font to the style for Radiobuttons
+        # --- Radiobutton ------------------------------------------------------
         style.configure(
             "PyAEDT.TRadiobutton",
             background=colors["radiobutton_bg"],
             foreground=colors["radiobutton_fg"],
+            focuscolor="none",
             font=self.default_font,
         )
-
+        style.map(
+            "PyAEDT.TRadiobutton",
+            background=[
+                ("active", colors["radiobutton_selected"]),
+                ("selected", colors["radiobutton_selected"]),
+                ("!selected", colors["radiobutton_unselected"]),
+            ],
+        )
+        # Ensure un-prefixed TRadiobutton is also mapped for toggle consistency.
         style.map(
             "TRadiobutton",
             background=[
@@ -922,7 +1063,7 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             ],
         )
 
-        # Apply the colors and font to the style for Combobox
+        # --- Combobox ---------------------------------------------------------
         style.configure(
             "PyAEDT.TCombobox",
             fieldbackground=colors["combobox_bg"],
@@ -930,112 +1071,175 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
             foreground=colors["text"],
             font=self.default_font,
             arrowcolor=colors["combobox_arrow_fg"],
+            bordercolor=colors["button_border"],
+            lightcolor=colors["combobox_bg"],
+            darkcolor=colors["combobox_bg"],
+            padding=(4, 2),
         )
         style.map(
             "PyAEDT.TCombobox",
             fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
             foreground=[("readonly", colors["text"])],
+            bordercolor=[
+                ("focus", colors["button_border"]),
+                ("!focus", colors["button_border"]),
+            ],
         )
 
-        # Style for Checkbutton
+        # --- Checkbutton ------------------------------------------------------
         style.configure(
             "PyAEDT.TCheckbutton",
             background=colors["checkbutton_bg"],
             foreground=colors["checkbutton_fg"],
             font=self.default_font,
             indicatorcolor=colors["checkbutton_indicator_bg"],
-            focuscolor=colors["checkbutton_active_bg"],  # For focus/active state
+            focuscolor="none",
         )
         style.map(
             "PyAEDT.TCheckbutton",
             background=[("active", colors["checkbutton_active_bg"])],
             indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
         )
-        action_button_font = ("Arial", 10)
 
-        # Success button style (green for adding the shortcut)
-        style.configure(
-            "PyAEDT.Success.TButton",
-            background="#28a745",  # Green
-            foreground=DEFAULT_FOREGROUND,
-            bd=DEFAULT_BD,
-            borderwidth=DEFAULT_BORDERWIDTH,
-            relief="solid",
+        # --- Action button base settings -----------------------
+        action_button_font = ("Segoe UI", 9)
+        _action_base = dict(
+            borderwidth=0,
+            relief="flat",
             focuscolor="none",
             highlightthickness=0,
             font=action_button_font,
             anchor="center",
-            padding=(8, 4),
+            padding=(10, 4),
+        )
+
+        # Success button
+        style.configure(
+            "PyAEDT.Success.TButton",
+            background="#2EA043",
+            foreground=DEFAULT_FOREGROUND,
+            **_action_base,
         )
         style.map(
             "PyAEDT.Success.TButton",
-            background=[
-                ("active", "#218838"),
-                ("!active", "#28a745"),
-            ],
+            background=[("active", "#238636"), ("!active", "#2EA043")],
             foreground=[("active", "white"), ("!active", "white")],
         )
 
-        # Danger button style (red for removing the shortcut)
+        # Danger button
         style.configure(
             "PyAEDT.Danger.TButton",
-            background="#dc3545",  # Red
+            background="#CF222E",
             foreground=DEFAULT_FOREGROUND,
-            bd=DEFAULT_BD,
-            borderwidth=DEFAULT_BORDERWIDTH,
-            relief="solid",
-            focuscolor="none",
-            highlightthickness=0,
-            font=action_button_font,
-            anchor="center",
-            padding=(8, 4),
+            **_action_base,
         )
         style.map(
             "PyAEDT.Danger.TButton",
-            background=[
-                ("active", "#c82333"),
-                ("!active", "#dc3545"),
-            ],
+            background=[("active", "#B3151E"), ("!active", "#CF222E")],
             foreground=[("active", "white"), ("!active", "white")],
         )
 
-        # Web button style
+        # Web action button
         style.configure(
             "PyAEDT.ActionWeb.TButton",
-            bd=DEFAULT_BD,
-            borderwidth=DEFAULT_BORDERWIDTH,
-            relief="solid",
-            focuscolor="none",
-            highlightthickness=0,
-            font=action_button_font,
-            anchor="center",
-            padding=(8, 4),
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            **_action_base,
+        )
+        style.map(
+            "PyAEDT.ActionWeb.TButton",
+            background=[("active", colors["button_active_bg"]), ("!active", colors["button_bg"])],
+            foreground=[("active", colors["text"]), ("!active", colors["text"])],
         )
 
-        # Launch button style (ANSYS dark yellow)
+        style.configure(
+            "PyAEDT.ActionDisabled.TButton",
+            background=colors["button_disabled_bg"],
+            foreground=colors["button_disabled_fg"],
+            **_action_base,
+        )
+        style.map(
+            "PyAEDT.ActionDisabled.TButton",
+            background=[
+                ("disabled", colors["button_disabled_bg"]),
+                ("active", colors["button_disabled_bg"]),
+                ("!active", colors["button_disabled_bg"]),
+            ],
+            foreground=[
+                ("disabled", colors["button_disabled_fg"]),
+                ("active", colors["button_disabled_fg"]),
+                ("!active", colors["button_disabled_fg"]),
+            ],
+        )
+
+        # Launch button (Ansys gold)
         style.configure(
             "PyAEDT.ActionLaunch.TButton",
-            background="#F3C767",  # ANSYS dark yellow
+            background=self._ANSYS_GOLD,
             foreground=DEFAULT_FOREGROUND_DARK,
-            bd=DEFAULT_BD,
-            borderwidth=DEFAULT_BORDERWIDTH,
-            relief="solid",
-            focuscolor="none",
-            highlightthickness=0,
-            font=action_button_font,
-            anchor="center",
-            padding=(8, 4),
+            **_action_base,
         )
         style.map(
             "PyAEDT.ActionLaunch.TButton",
-            background=[
-                (
-                    "active",
-                    "#E6A600",
-                ),  # Slightly darker yellow for active
-                ("!active", "#F3C767"),
-            ],
+            background=[("active", self._ANSYS_GOLD_HOVER), ("!active", self._ANSYS_GOLD)],
             foreground=[("active", "black"), ("!active", "black")],
+        )
+
+        # --- Spinbox ----------------------------------------------------------
+        style.configure(
+            "PyAEDT.TSpinbox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            bordercolor=colors["button_border"],
+            arrowcolor=colors["combobox_arrow_fg"],
+            padding=(4, 2),
+        )
+
+        # --- Scrollbar --------------------------------
+        _scrollbar_cfg = dict(
+            background=colors["button_bg"],
+            troughcolor=colors["pane_bg"],
+            bordercolor=colors["pane_bg"],
+            lightcolor=colors["button_bg"],
+            darkcolor=colors["button_bg"],
+            arrowcolor=colors["text"],
+            borderwidth=0,
+            relief="flat",
+            width=10,
+        )
+        _scrollbar_map = dict(
+            background=[("active", colors["button_hover_bg"])],
+        )
+
+        # Default scrollbar styles – applied to every ttk.Scrollbar that
+        # does not use a custom style name
+        for _orient in ("Vertical", "Horizontal"):
+            style.configure(f"{_orient}.TScrollbar", **_scrollbar_cfg)
+            style.map(f"{_orient}.TScrollbar", **_scrollbar_map)
+
+        # Prefixed variants for explicit use.
+        style.configure("PyAEDT.Vertical.TScrollbar", **_scrollbar_cfg)
+        style.map("PyAEDT.Vertical.TScrollbar", **_scrollbar_map)
+
+        # --- Entry --------------------------------
+        style.configure(
+            "PyAEDT.TEntry",
+            fieldbackground=colors["combobox_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            bordercolor=colors["button_border"],
+            lightcolor=colors["combobox_bg"],
+            darkcolor=colors["combobox_bg"],
+            padding=(4, 2),
+        )
+        style.map(
+            "PyAEDT.TEntry",
+            bordercolor=[
+                ("focus", colors["button_border"]),
+                ("!focus", colors["button_border"]),
+            ],
         )
 
 
@@ -1048,7 +1252,7 @@ def __string_to_bool(v):  # pragma: no cover
     return v
 
 
-def __parse_arguments(args=None, description=""):  # pragma: no cover
+def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
     """Parse arguments."""
     parser = argparse.ArgumentParser(description=description)
     if args:
@@ -1061,12 +1265,26 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
 class ToolTip:
     """Create a tooltip for a given widget."""
 
-    def __init__(self, widget, text="Widget info"):
+    # Palette keyed by theme name.
+    _COLORS = {
+        "light": {"bg": "#F5F5DC", "fg": "#1E1E1E", "border": "#C0C0C0"},
+        "dark": {"bg": "#3C3F41", "fg": "#E4E4E4", "border": "#5C5F62"},
+    }
+
+    def __init__(self, widget, text: str = "Widget info") -> None:
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)
         self.widget.bind("<Leave>", self.leave)
         self.tipwindow = None
+
+    def _current_colors(self) -> dict:
+        """Return the colour dict for the active theme."""
+        try:
+            theme = getattr(self.widget.winfo_toplevel(), "theme", "light")
+        except Exception:
+            theme = "light"
+        return self._COLORS.get(theme, self._COLORS["light"])
 
     def enter(self, event=None):
         """Show tooltip on mouse enter."""
@@ -1076,10 +1294,11 @@ class ToolTip:
         """Hide tooltip on mouse leave."""
         self.hide_tooltip()
 
-    def show_tooltip(self):  # pragma: no cover
+    def show_tooltip(self) -> None:  # pragma: no cover
         """Display tooltip."""
         if self.tipwindow or not self.text:
             return
+        colors = self._current_colors()
         x = self.widget.winfo_rootx() + 25
         y = self.widget.winfo_rooty() + 25
         self.tipwindow = tw = tkinter.Toplevel(self.widget)
@@ -1089,14 +1308,18 @@ class ToolTip:
             tw,
             text=self.text,
             justify=tkinter.LEFT,
-            background="#ffffe0",
+            background=colors["bg"],
+            foreground=colors["fg"],
             relief=tkinter.SOLID,
             borderwidth=1,
-            font=("Arial", 9, "normal"),
+            highlightbackground=colors["border"],
+            font=("Segoe UI", 9, "normal"),
+            padx=6,
+            pady=3,
         )
         label.pack(ipadx=1)
 
-    def hide_tooltip(self):  # pragma: no cover
+    def hide_tooltip(self) -> None:  # pragma: no cover
         """Hide tooltip."""
         tw = self.tipwindow
         self.tipwindow = None
@@ -1104,7 +1327,7 @@ class ToolTip:
             tw.destroy()
 
 
-def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
+def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None:
     """Record that the user declined the update notification."""
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)

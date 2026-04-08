@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,14 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from collections import defaultdict
 import csv
 import os
+import pathlib
 import shutil
 import sys
 import tempfile
-import warnings
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AllowedMarkers
@@ -42,20 +45,13 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
-try:
+if TYPE_CHECKING:
     import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n"
-        """>> pip install pandas"""
-    )
-    pd = None
 
 
 class BaseFolderPlot(PyAedtBase):
     @abstractmethod
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Convert the settings to a dictionary.
 
         Returns
@@ -65,7 +61,7 @@ class BaseFolderPlot(PyAedtBase):
         """
 
     @abstractmethod
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the settings from a dictionary.
 
         Parameters
@@ -90,7 +86,7 @@ class ColorMapSettings(BaseFolderPlot):
         Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
     """
 
-    def __init__(self, map_type="Spectrum", color="Rainbow"):
+    def __init__(self, map_type: str = "Spectrum", color: str = "Rainbow") -> None:
         self._map_type = None
         self.map_type = map_type
 
@@ -103,12 +99,12 @@ class ColorMapSettings(BaseFolderPlot):
         self.color = color
 
     @property
-    def map_type(self):
+    def map_type(self) -> str:
         """Get the color map type for the field plot."""
         return self._map_type
 
     @map_type.setter
-    def map_type(self, value):
+    def map_type(self, value: str) -> None:
         """Set the type of color mapping for the field plot.
 
         Parameters
@@ -126,7 +122,7 @@ class ColorMapSettings(BaseFolderPlot):
         self._map_type = value
 
     @property
-    def color(self):
+    def color(self) -> str | list[float]:
         """Get the color based on the map type.
 
         Returns
@@ -141,7 +137,7 @@ class ColorMapSettings(BaseFolderPlot):
             return self._color_uniform
 
     @color.setter
-    def color(self, v):
+    def color(self, v: str | list[float]) -> None:
         """Set the colormap based on the map type.
 
         Parameters
@@ -179,11 +175,15 @@ class ColorMapSettings(BaseFolderPlot):
         if not isinstance(value, list) or len(value) != 3:
             raise ValueError(f"{value} is not valid. Three values (R, G, B) must be passed.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         color_repr = self.color
         return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        color_repr = self.color
+        return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
+
+    def to_dict(self) -> dict:
         """Convert the color map settings to a dictionary.
 
         Returns
@@ -199,7 +199,7 @@ class ColorMapSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, settings):
+    def from_dict(self, settings: dict) -> None:
         """Initialize the number format settings of the colormap settings from a dictionary.
 
         Parameters
@@ -230,14 +230,18 @@ class AutoScale(BaseFolderPlot):
     """
 
     def __init__(
-        self, n_levels=10, limit_precision_digits=False, precision_digits=3, use_current_scale_for_animation=False
-    ):
+        self,
+        n_levels: int = 10,
+        limit_precision_digits: bool = False,
+        precision_digits: int = 3,
+        use_current_scale_for_animation: bool = False,
+    ) -> None:
         self.n_levels = n_levels
         self.limit_precision_digits = limit_precision_digits
         self.precision_digits = precision_digits
         self.use_current_scale_for_animation = use_current_scale_for_animation
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"AutoScale(n_levels={self.n_levels}, "
             f"limit_precision_digits={self.limit_precision_digits}, "
@@ -245,7 +249,15 @@ class AutoScale(BaseFolderPlot):
             f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
         )
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return (
+            f"AutoScale(n_levels={self.n_levels}, "
+            f"limit_precision_digits={self.limit_precision_digits}, "
+            f"precision_digits={self.precision_digits}, "
+            f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
+        )
+
+    def to_dict(self) -> dict:
         """Convert the auto-scale settings to a dictionary.
 
         Returns
@@ -261,7 +273,7 @@ class AutoScale(BaseFolderPlot):
             "AnimationStaticScale": self.use_current_scale_for_animation,
         }
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the auto-scale settings from a dictionary.
 
         Parameters
@@ -289,15 +301,18 @@ class MinMaxScale(BaseFolderPlot):
         Maximum value of the scale. Default is `1`.
     """
 
-    def __init__(self, n_levels=10, min_value=0, max_value=1):
+    def __init__(self, n_levels: int = 10, min_value: int = 0, max_value: int = 1) -> None:
         self.n_levels = n_levels
         self.min_value = min_value
         self.max_value = max_value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
+
+    def to_dict(self) -> dict:
         """Convert the min-max scale settings to a dictionary.
 
         Returns
@@ -308,7 +323,7 @@ class MinMaxScale(BaseFolderPlot):
         """
         return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the min-max scale settings from a dictionary.
 
         Parameters
@@ -331,17 +346,20 @@ class SpecifiedScale(PyAedtBase):
         Scale levels. Default is `None`.
     """
 
-    def __init__(self, scale_values=None):
+    def __init__(self, scale_values=None) -> None:
         if scale_values is None:
             scale_values = []
         if not isinstance(scale_values, list):
             raise ValueError("scale_values must be a list.")
         self.scale_values = scale_values
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"SpecifiedScale(scale_values={self.scale_values})"
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return f"SpecifiedScale(scale_values={self.scale_values})"
+
+    def to_dict(self) -> dict:
         """Convert the specified scale settings to a dictionary.
 
         Returns
@@ -352,7 +370,7 @@ class SpecifiedScale(PyAedtBase):
         """
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the specified scale settings from a dictionary.
 
         Parameters
@@ -377,19 +395,19 @@ class NumberFormat(BaseFolderPlot):
         Precision of the numbers. Default is `4`.
     """
 
-    def __init__(self, format_type="Automatic", width=4, precision=4):
+    def __init__(self, format_type: str = "Automatic", width: int = 4, precision: int = 4) -> None:
         self._format_type = format_type
         self.width = width
         self.precision = precision
         self._accepted = ["Automatic", "Scientific", "Decimal"]
 
     @property
-    def format_type(self):
+    def format_type(self) -> str:
         """Get the current number format type."""
         return self._format_type
 
     @format_type.setter
-    def format_type(self, v):
+    def format_type(self, v: str) -> None:
         """Set the numeric format type of the scale.
 
         Parameters
@@ -406,10 +424,13 @@ class NumberFormat(BaseFolderPlot):
         else:
             raise ValueError(f"{v} is not valid. Accepted values are {', '.join(self._accepted)}.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
+
+    def to_dict(self) -> dict:
         """Convert the number format settings to a dictionary.
 
         Returns
@@ -425,7 +446,7 @@ class NumberFormat(BaseFolderPlot):
             "ValueNumberFormatPrecision": self.precision,
         }
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the number format settings of the field plot settings from a dictionary.
 
         Parameters
@@ -462,13 +483,13 @@ class Scale3DSettings(BaseFolderPlot):
 
     def __init__(
         self,
-        scale_type="Auto",
+        scale_type: str = "Auto",
         scale_settings=AutoScale(),
-        log=False,
-        db=False,
-        unit=None,
-        number_format=NumberFormat(),
-    ):
+        log: bool = False,
+        db: bool = False,
+        unit: int = None,
+        number_format: NumberFormat = NumberFormat(),
+    ) -> None:
         self._scale_type = None  # Initialize with None to use the setter for validation
         self._scale_settings = None
         self._unit = None
@@ -484,12 +505,12 @@ class Scale3DSettings(BaseFolderPlot):
         self.scale_settings = scale_settings
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         """Get unit used in the plot."""
         return EnumUnits(self._unit).name
 
     @unit.setter
-    def unit(self, v):
+    def unit(self, v: str) -> None:
         """Set unit used in the plot.
 
         Parameters
@@ -504,12 +525,12 @@ class Scale3DSettings(BaseFolderPlot):
                 raise KeyError(f"{v} is not a valid unit.")
 
     @property
-    def scale_type(self):
+    def scale_type(self) -> str:
         """Get type of scale used for the field plot."""
         return self._scale_type
 
     @scale_type.setter
-    def scale_type(self, value):
+    def scale_type(self, value: str) -> None:
         """Set the scale type used for the field plot.
 
         Parameters
@@ -535,13 +556,13 @@ class Scale3DSettings(BaseFolderPlot):
             self._scale_settings = self._specified_scale
 
     @property
-    def scale_settings(self):
+    def scale_settings(self) -> AutoScale | MinMaxScale | SpecifiedScale:
         """Get the current scale settings based on the scale type."""
         self.scale_type = self.scale_type  # update correct scale settings
         return self._scale_settings
 
     @scale_settings.setter
-    def scale_settings(self, value):
+    def scale_settings(self, value: AutoScale | MinMaxScale | SpecifiedScale) -> None:
         """Set the current scale settings based on the scale type."""
         if self.scale_type == "Auto":
             if isinstance(value, AutoScale):
@@ -557,13 +578,19 @@ class Scale3DSettings(BaseFolderPlot):
                 return
         raise ValueError("Invalid scale settings for current scale type.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Scale3DSettings(scale_type='{self.scale_type}', scale_settings={self.scale_settings}, "
             f"log={self.log}, db={self.db})"
         )
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return (
+            f"Scale3DSettings(scale_type='{self.scale_type}', scale_settings={self.scale_settings}, "
+            f"log={self.log}, db={self.db})"
+        )
+
+    def to_dict(self) -> dict:
         """Convert the scale settings to a dictionary.
 
         Returns
@@ -584,7 +611,7 @@ class Scale3DSettings(BaseFolderPlot):
         arg_out["Scale3DSettings"].update(self.scale_settings.to_dict())
         return arg_out
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the scale settings of the field plot settings from a dictionary.
 
         Parameters
@@ -624,7 +651,9 @@ class MarkerSettings(BaseFolderPlot):
         Whether to map the field magnitude to the arrow color. Default is `True`.
     """
 
-    def __init__(self, marker_type="Box", map_size=False, map_color=True, marker_size=0.005):
+    def __init__(
+        self, marker_type: str = "Box", map_size: bool = False, map_color: bool = True, marker_size: float = 0.005
+    ) -> None:
         self._marker_type = None
         self.marker_type = marker_type
         self.map_size = map_size
@@ -632,12 +661,12 @@ class MarkerSettings(BaseFolderPlot):
         self.marker_size = marker_size
 
     @property
-    def marker_type(self):
+    def marker_type(self) -> str:
         """Get the type of maker to use."""
         return AllowedMarkers(self._marker_type).name
 
     @marker_type.setter
-    def marker_type(self, v):
+    def marker_type(self, v: str) -> None:
         """Set the type of maker to use.
 
         Parameters
@@ -651,13 +680,19 @@ class MarkerSettings(BaseFolderPlot):
         except KeyError:
             raise KeyError(f"{v} is not a valid marker type.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
             f"map_color={self.map_color}, marker_size={self.marker_size})"
         )
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return (
+            f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
+            f"map_color={self.map_color}, marker_size={self.marker_size})"
+        )
+
+    def to_dict(self) -> dict:
         """Convert the marker settings to a dictionary.
 
         Returns
@@ -675,7 +710,7 @@ class MarkerSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the marker settings of the field plot settings from a dictionary.
 
         Parameters
@@ -718,16 +753,16 @@ class ArrowSettings(BaseFolderPlot):
 
     def __init__(
         self,
-        arrow_type="Line",
-        arrow_size=0.005,
-        map_size=False,
-        map_color=True,
-        show_arrow_tail=False,
-        magnitude_filtering=False,
-        magnitude_threshold=0,
-        min_magnitude=0,
-        max_magnitude=0.5,
-    ):
+        arrow_type: str = "Line",
+        arrow_size: float = 0.005,
+        map_size: bool = False,
+        map_color: bool = True,
+        show_arrow_tail: bool = False,
+        magnitude_filtering: bool = False,
+        magnitude_threshold: int = 0,
+        min_magnitude: int = 0,
+        max_magnitude: float = 0.5,
+    ) -> None:
         self._arrow_type = None
         self._allowed_arrow_types = ["Line", "Cylinder", "Umbrella"]
         self.arrow_type = arrow_type
@@ -741,12 +776,12 @@ class ArrowSettings(BaseFolderPlot):
         self.max_magnitude = max_magnitude
 
     @property
-    def arrow_type(self):
+    def arrow_type(self) -> str:
         """Get the type of arrows used in the field plot."""
         return self._arrow_type
 
     @arrow_type.setter
-    def arrow_type(self, v):
+    def arrow_type(self, v: str) -> None:
         """Set the type of arrows for the field plot.
 
         Parameters
@@ -764,7 +799,7 @@ class ArrowSettings(BaseFolderPlot):
         else:
             raise ValueError(f"{v} is not valid. Accepted values are {','.join(self._allowed_arrow_types)}.")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
             f"map_size={self.map_size}, map_color={self.map_color}, "
@@ -773,7 +808,16 @@ class ArrowSettings(BaseFolderPlot):
             f"max_magnitude={self.max_magnitude})"
         )
 
-    def to_dict(self):
+    def __str__(self) -> str:
+        return (
+            f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
+            f"map_size={self.map_size}, map_color={self.map_color}, "
+            f"show_arrow_tail={self.show_arrow_tail}, magnitude_filtering={self.magnitude_filtering}, "
+            f"magnitude_threshold={self.magnitude_threshold}, min_magnitude={self.min_magnitude}, "
+            f"max_magnitude={self.max_magnitude})"
+        )
+
+    def to_dict(self) -> dict:
         """Convert the arrow settings to a dictionary.
 
         Returns
@@ -796,7 +840,7 @@ class ArrowSettings(BaseFolderPlot):
             }
         }
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the arrow settings of the field plot settings from a dictionary.
 
         Parameters
@@ -837,12 +881,12 @@ class FolderPlotSettings(BaseFolderPlot):
     def __init__(
         self,
         postprocessor,
-        folder_name,
-        arrow_settings=None,
-        marker_settings=None,
-        scale_settings=None,
-        color_map_settings=None,
-    ):
+        folder_name: str,
+        arrow_settings: ArrowSettings = None,
+        marker_settings: MarkerSettings = None,
+        scale_settings: Scale3DSettings = None,
+        color_map_settings: ColorMapSettings = None,
+    ) -> None:
         self.arrow_settings = arrow_settings
         self.marker_settings = marker_settings
         self.scale_settings = scale_settings
@@ -850,13 +894,13 @@ class FolderPlotSettings(BaseFolderPlot):
         self._postprocessor = postprocessor
         self._folder_name = folder_name
 
-    def update(self):
+    def update(self) -> None:
         """Update folder plot settings."""
         out = []
         _dict2arg(self.to_dict(), out)
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Convert the field plot settings to a dictionary.
 
         Returns
@@ -873,7 +917,7 @@ class FolderPlotSettings(BaseFolderPlot):
         out.update(self.color_map_settings.to_dict())
         return {"FieldsPlotSettings": out}
 
-    def from_dict(self, dictionary):
+    def from_dict(self, dictionary: dict) -> None:
         """Initialize the field plot settings from a dictionary.
 
         Parameters
@@ -914,32 +958,21 @@ class FieldPlot(PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        objlist="objects",
-        surfacelist="surfaces",
-        linelist="lines",
-        cutplanelist="cutplanes",
-        solutionName="solution",
-        quantityName="quantity",
-        IntrinsincList="intrinsics",
-        seedingFaces="seeding_faces",
-        layers_nets="layer_nets",
-        layers_plot_type="layer_plot_type",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         postprocessor,
-        objects=None,
-        surfaces=None,
-        lines=None,
-        cutplanes=None,
-        solution="",
-        quantity="",
-        intrinsics=None,
-        seeding_faces=None,
-        layer_nets=None,
-        layer_plot_type="LayerNetsExtFace",
-    ):
+        objects: list = None,
+        surfaces: list = None,
+        lines: list = None,
+        cutplanes: list = None,
+        solution: str = "",
+        quantity: str = "",
+        intrinsics: dict = None,
+        seeding_faces: list = None,
+        layer_nets: list = None,
+        layer_plot_type: str = "LayerNetsExtFace",
+    ) -> None:
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
         self.volumes = [] if objects is None else objects
@@ -1015,14 +1048,14 @@ class FieldPlot(PyAedtBase):
             return fps
 
     @property
-    def folder_settings(self):
+    def folder_settings(self) -> FolderPlotSettings:
         """Get the folder settings."""
         if self._folder_settings is None:
             self._folder_settings = self._parse_folder_settings()
         return self._folder_settings
 
     @folder_settings.setter
-    def folder_settings(self, v):
+    def folder_settings(self, v: FolderPlotSettings) -> None:
         """Set the fieldplot folder settings.
 
         Parameters
@@ -1041,18 +1074,18 @@ class FieldPlot(PyAedtBase):
             raise ValueError("Invalid type for `folder_settings`, use `FolderPlotSettings` class.")
 
     @property
-    def filter_boxes(self):
+    def filter_boxes(self) -> list:
         """Volumes on which filter the plot."""
         return self._filter_boxes
 
     @filter_boxes.setter
-    def filter_boxes(self, val):
+    def filter_boxes(self, val: list) -> None:
         if isinstance(val, str):
             val = [val]
         self._filter_boxes = val
 
     @property
-    def plotGeomInfo(self):
+    def plotGeomInfo(self) -> list:
         """Plot geometry information."""
         idx = 0
         if self.volumes:
@@ -1128,7 +1161,7 @@ class FieldPlot(PyAedtBase):
         return info
 
     @property
-    def intrinsicVar(self):
+    def intrinsicVar(self) -> str:
         """Intrinsic variable.
 
         Returns
@@ -1142,7 +1175,7 @@ class FieldPlot(PyAedtBase):
         return var
 
     @property
-    def plotsettings(self):
+    def plotsettings(self) -> list:
         """Plot settings.
 
         Returns
@@ -1228,7 +1261,9 @@ class FieldPlot(PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename=None, visibility=False):  # pragma: no cover
+    def get_points_value(
+        self, points: list | dict, filename: str | None = None, visibility: bool = False
+    ) -> "dict | pd.DataFrame":  # pragma: no cover
         """
         Get points data from field plot.
 
@@ -1328,15 +1363,17 @@ class FieldPlot(PyAedtBase):
             self.oField.ClearAllMarkers()
 
         # Convert to pandas
-        if pd is not None:
-            df = pd.DataFrame(out_dict, columns=out_dict.keys())
+        try:
+            import pandas as pd_module
+
+            df = pd_module.DataFrame(out_dict, columns=list(out_dict.keys()))
             df = df.set_index("Name")
             return df
-        else:
+        except ImportError:  # pragma: no cover
             return out_dict
 
     @property
-    def surfacePlotInstruction(self):
+    def surfacePlotInstruction(self) -> list:
         """Surface plot settings.
 
         Returns
@@ -1383,7 +1420,7 @@ class FieldPlot(PyAedtBase):
         return out
 
     @property
-    def surfacePlotInstructionLineTraces(self):
+    def surfacePlotInstructionLineTraces(self) -> list:
         """Surface plot settings for field line traces.
 
         ..note::
@@ -1454,7 +1491,7 @@ class FieldPlot(PyAedtBase):
         return out
 
     @property
-    def field_plot_settings(self):
+    def field_plot_settings(self) -> list:
         """Field Plot Settings.
 
         Returns
@@ -1499,7 +1536,7 @@ class FieldPlot(PyAedtBase):
         ]
 
     @property
-    def field_line_trace_plot_settings(self):
+    def field_line_trace_plot_settings(self) -> list:
         """Settings for the field line traces in the plot.
 
         Returns
@@ -1515,7 +1552,7 @@ class FieldPlot(PyAedtBase):
         ]
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a field plot.
 
         Returns
@@ -1543,7 +1580,7 @@ class FieldPlot(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the field plot.
 
         .. note::
@@ -1598,7 +1635,7 @@ class FieldPlot(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update_field_plot_settings(self):
+    def update_field_plot_settings(self) -> bool:
         """Modify the field plot settings.
 
         .. note::
@@ -1613,59 +1650,25 @@ class FieldPlot(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
         self._postprocessor.field_plots.pop(self.name, None)
 
     @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
-        """Change Field Plot Scale.
-
-        .. deprecated:: 0.10.1
-           Use :class:`FieldPlot.folder_settings` methods instead.
-
-        Parameters
-        ----------
-        minimum_value : str, float
-            Minimum value of the scale.
-        maximum_value : str, float
-            Maximum value of the scale.
-        is_log : bool, optional
-            Set to ``True`` if Log Scale is setup.
-        is_db : bool, optional
-            Set to ``True`` if dB Scale is setup.
-        scale_levels : int, optional
-            Set number of color levels. The default is ``None``, in which case the
-            setting is not changed.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.SetPlotFolderSettings
-        """
-        return self._postprocessor.change_field_plot_scale(
-            self.plot_folder, minimum_value, maximum_value, is_log, is_db, scale_levels
-        )
-
-    @pyaedt_function_handler()
     def export_image(
         self,
-        full_path=None,
-        width=1920,
-        height=1080,
-        orientation="isometric",
-        display_wireframe=True,
-        selections=None,
-        show_region=True,
-        show_axis=True,
-        show_grid=True,
-        show_ruler=True,
-    ):
+        full_path: str | pathlib.Path = None,
+        width: int = 1920,
+        height: int = 1080,
+        orientation: str = "isometric",
+        display_wireframe: bool = True,
+        selections: list = None,
+        show_region: bool = True,
+        show_axis: bool = True,
+        show_grid: bool = True,
+        show_ruler: bool = True,
+    ) -> str | bool:
         """Export the active plot to an image file.
 
         .. note::
@@ -1741,8 +1744,13 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_image_from_aedtplt(
-        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
-    ):
+        self,
+        export_path: str | pathlib.Path = None,
+        view: str = "isometric",
+        plot_mesh: bool = False,
+        scale_min: float = None,
+        scale_max: float = None,
+    ) -> str | bool:
         """Save an image of the active plot using PyVista.
 
         .. note::
@@ -1783,8 +1791,8 @@ class FieldPlot(PyAedtBase):
             return self._postprocessor.plot_field_from_fieldplot(
                 self.name,
                 project_path=export_path,
-                meshplot=plot_mesh,
-                imageformat="jpg",
+                mesh_plot=plot_mesh,
+                image_format="jpg",
                 view=view,
                 plot_label=self.quantity,
                 show=False,

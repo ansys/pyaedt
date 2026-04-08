@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,17 +23,21 @@
 # SOFTWARE.
 
 # coding=utf-8
+from __future__ import annotations
+
 import os
 import pathlib
 from pathlib import Path
 import re
 import shutil
 from struct import unpack
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import TYPE_CHECKING
 
 from numpy import float64
+
+if TYPE_CHECKING:
+    from numpy import array
+    from numpy import ndarray
 from numpy import zeros
 from pydantic import BaseModel
 from pydantic import Field
@@ -71,16 +75,16 @@ class FrequencyFigure(ReportBase):
 
 class AdvancedReport(ReportBase):
     version: str = Field("1.0", alias="Version")
-    rpt_name: Optional[str] = Field("", alias="RptName")
+    rpt_name: str | None = Field("", alias="RptName")
     touchstone: str = Field(..., alias="Touchstone")
     expiration: str = Field(default="12/31/2100", alias="Expiration")
     mode: str = Field(..., alias="Mode")
-    dpextract: Optional[str] = Field("", alias="DPExtract")
+    dpextract: str | None = Field("", alias="DPExtract")
     port: str = Field(..., alias="Port")
     r: int = Field(50, alias="R")
     report_dir: str = Field(..., alias="ReportDir")
     extrapolate: str = Field(..., alias="Extrapolate")
-    watermark: Optional[str] = Field("", alias="WaterMark")
+    watermark: str | None = Field("", alias="WaterMark")
     td_length: str = Field(..., alias="TDLength")
     fq_axis_log: str = Field("F", alias="FqAxis Log")
     fq_unit: str = Field("GHz", alias="FqUnit")
@@ -95,10 +99,10 @@ class AdvancedReport(ReportBase):
     var_list: str = Field(..., alias="VARList")
     cascade: str = Field(default="", alias="CASCADE")  # additional file to be formed via cascading
 
-    frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
+    frequency_domain: list[FrequencyFigure] | None = Field(default=[], alias="[Frequency Domain]")
 
     @classmethod
-    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":  # pragma: no cover
+    def from_spisim_cfg(cls, file_path: str | Path) -> "AdvancedReport":  # pragma: no cover
         """Load SPIsim configuration file."""
         with open(file_path, "r") as f:
             content = f.read()
@@ -162,7 +166,7 @@ class AdvancedReport(ReportBase):
 
         return cls(**config)
 
-    def dump_spisim_cfg(self, file_path: Union[str, Path]) -> str:
+    def dump_spisim_cfg(self, file_path: str | Path) -> str:
         """Create a SPIsim configuration file."""
         data = self.model_dump(by_alias=True)
 
@@ -185,7 +189,7 @@ class AdvancedReport(ReportBase):
 class SpiSim(PyAedtBase):
     """Provides support to SpiSim batch mode."""
 
-    def __init__(self, touchstone_file=""):
+    def __init__(self, touchstone_file: str = "") -> None:
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
@@ -196,7 +200,7 @@ class SpiSim(PyAedtBase):
         self._working_directory = ""
 
     @property
-    def working_directory(self):
+    def working_directory(self) -> str:
         """Working directory.
 
         Returns
@@ -210,10 +214,10 @@ class SpiSim(PyAedtBase):
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, val):
+    def working_directory(self, val: str) -> None:
         self._working_directory = val
 
-    def _copy_to_relative_path(self, file_name):
+    def _copy_to_relative_path(self, file_name: str) -> str:
         """Convert a path to a relative path."""
         if not pathlib.Path(file_name).is_file():
             return file_name
@@ -249,7 +253,7 @@ class SpiSim(PyAedtBase):
         return temp
 
     @pyaedt_function_handler()
-    def __compute_spisim(self, parameter, config_file, out_file="", in_file=""):
+    def __compute_spisim(self, parameter, config_file, out_file: str = "", in_file: str = ""):
         import subprocess  # nosec
 
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
@@ -324,22 +328,22 @@ class SpiSim(PyAedtBase):
     @pyaedt_function_handler()
     def compute_erl(
         self,
-        config_file=None,
-        port_order=None,
-        specify_through_ports=None,
-        bandwidth=None,
-        tdr_duration=None,
-        z_terminations=None,
-        transition_time=None,
-        fixture_delay=None,
-        input_amplitude=None,
-        ber=None,
-        pdf_bin_size=None,
-        signal_loss_factor=None,
-        permitted_reflection=None,
-        reflections_length=None,
-        modulation_type=None,
-    ):
+        config_file: str = None,
+        port_order: str = None,
+        specify_through_ports: list = None,
+        bandwidth: float = None,
+        tdr_duration: float = None,
+        z_terminations: float = None,
+        transition_time: float = None,
+        fixture_delay: float = None,
+        input_amplitude: float = None,
+        ber: float = None,
+        pdf_bin_size: float = None,
+        signal_loss_factor: float = None,
+        permitted_reflection: float = None,
+        reflections_length: float = None,
+        modulation_type: str = None,
+    ) -> bool | float:
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
         .. warning::
@@ -470,13 +474,13 @@ class SpiSim(PyAedtBase):
     @pyaedt_function_handler
     def compute_com(
         self,
-        standard,
-        config_file=None,
-        port_order="EvenOdd",
-        fext_s4p="",
-        next_s4p="",
-        out_folder="",
-    ):
+        standard: int = 1,
+        config_file: str = None,
+        port_order: str = "EvenOdd",
+        fext_s4p: str = "",
+        next_s4p: str = "",
+        out_folder: str = "",
+    ) -> list | float:
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
         .. warning::
@@ -534,7 +538,7 @@ class SpiSim(PyAedtBase):
     def __compute_com(
         self,
         com_parameter,
-    ):
+    ) -> list | float:
         """Compute Channel Operating Margin (COM).
 
         .. warning::
@@ -567,8 +571,8 @@ class SpiSim(PyAedtBase):
         out_processing = self.__compute_spisim("COM", cfg_file)
         return self.__get_output_parameter_from_result(out_processing, "COM")
 
-    @pyaedt_function_handler
-    def export_com_configure_file(self, file_path, standard=1):
+    @pyaedt_function_handler()
+    def export_com_configure_file(self, file_path: str, standard: int = 1) -> bool:
         """Generate a configuration file for SpiSim.
 
         Parameters
@@ -590,14 +594,14 @@ class SpiSim(PyAedtBase):
         tx_ports: list[int],
         rx_ports: list[int],
         victim_ports: list[int],
-        tx_resistance: Union[int, float, str] = 30,
+        tx_resistance: int | float | str = 30,
         tx_capacitance: str = "0.2p",
-        rx_resistance: Union[int, float, str] = 50,
+        rx_resistance: int | float | str = 50,
         rx_capacitance: str = "0.2p",
-        packaging_type="standard",
-        data_rate="GTS04",
+        packaging_type: str = "standard",
+        data_rate: str = "GTS04",
         report_directory: str = None,
-    ):
+    ) -> bool:
         """Universal Chiplet Interface Express (UCIe) Compliance support.
 
         Parameters
@@ -625,9 +629,9 @@ class SpiSim(PyAedtBase):
         """
 
         class Ucie(BaseModel):
-            TxR: Union[str, int]
+            TxR: str | int
             TxC: str
-            RxR: Union[str, int]
+            RxR: str | int
             RxC: str
             TxIdx: str
             RxIdx: str
@@ -715,7 +719,7 @@ class SpiSim(PyAedtBase):
             raise AEDTRuntimeError("SPIsim Failed")
 
 
-def detect_encoding(file_path, expected_pattern="", re_flags=0):
+def detect_encoding(file_path: str, expected_pattern: str = "", re_flags: int = 0) -> str:
     """Check encoding of a file."""
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:
@@ -752,10 +756,10 @@ class DataSet(PyAedtBase):
 
     def __init__(
         self,
-        name,
+        name: str,
         whattype,
         datalen,
-    ):
+    ) -> None:
         """Base Class for both Axis and Trace Classes.
 
         Defines the common operations between both.
@@ -764,7 +768,7 @@ class DataSet(PyAedtBase):
         self.whattype = whattype
         self.data = zeros(datalen, dtype=float64)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
     def __iter__(self):
@@ -774,7 +778,7 @@ class DataSet(PyAedtBase):
         return self.data[item]
 
     @property
-    def wave(self):
+    def wave(self) -> ndarray:
         """Retrieves the trace data.
 
         Returns
@@ -794,15 +798,15 @@ class Trace(DataSet):
 
     def __init__(
         self,
-        name,
+        name: str,
         whattype,
         datalen,
         axis,
-    ):
+    ) -> None:
         super().__init__(name, whattype, datalen)
         self.axis = axis
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the axis.
 
         Returns
@@ -823,16 +827,16 @@ class SpiSimRawRead(PyAedtBase):
     """Class for reading SPISim wave Files. It can read all types of Files."""
 
     @staticmethod
-    def read_float64(f):
+    def read_float64(f) -> float:  # pragma: no cover
         s = f.read(8)
         return unpack("d", s)[0]
 
     @staticmethod
-    def read_float32(f):  # pragma: no cover
+    def read_float32(f) -> float:  # pragma: no cover
         s = f.read(4)
         return unpack("f", s)[0]
 
-    def __init__(self, raw_filename: str, **kwargs):
+    def __init__(self, raw_filename: str, **kwargs) -> None:
         raw_filename = Path(raw_filename)
 
         raw_file = open(raw_filename, "rb")
@@ -915,7 +919,7 @@ class SpiSimRawRead(PyAedtBase):
         self.raw_params["No. Variables"] = self.nVariables
         self.raw_params["Variables"] = [var.name for var in self._traces]
 
-    def get_raw_property(self, property_name=None):
+    def get_raw_property(self, property_name: str = None) -> str | dict:
         """
         Get a property. By default, it returns all properties defined in the RAW file.
 
@@ -933,7 +937,7 @@ class SpiSimRawRead(PyAedtBase):
             raise ValueError("Invalid property. Use %s" % str(self.raw_params.keys()))
 
     @property
-    def trace_names(self):
+    def trace_names(self) -> list:
         """Returns a list of exiting trace names of the RAW file.
 
         Returns
@@ -943,7 +947,7 @@ class SpiSimRawRead(PyAedtBase):
         """
         return [trace.name for trace in self._traces]
 
-    def get_trace(self, trace_ref):
+    def get_trace(self, trace_ref: str | int) -> Trace:
         """Retrieve the trace with the requested name (trace_ref).
 
         Parameters
@@ -962,7 +966,7 @@ class SpiSimRawRead(PyAedtBase):
         else:
             return self._traces[trace_ref]
 
-    def get_wave(self, trace_ref):
+    def get_wave(self, trace_ref: str | int) -> ndarray:
         """Retrieve the wave data with the requested name (trace_ref).
 
         Parameters
@@ -977,7 +981,7 @@ class SpiSimRawRead(PyAedtBase):
         """
         return self.get_trace(trace_ref).wave
 
-    def get_axis(self):
+    def get_axis(self) -> array:
         """Function equivalent to get_trace(0).wave instruction.
 
         Returns
@@ -990,7 +994,7 @@ class SpiSimRawRead(PyAedtBase):
         else:  # pragma: no cover
             raise RuntimeError("This RAW file does not have an axis.")
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Compute the length of the data.
 
         Returns

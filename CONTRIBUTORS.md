@@ -47,6 +47,7 @@
 * [German](https://github.com/germa89)
 * [gkorompi](https://github.com/gkorompi)
 * [gmalinve](https://github.com/gmalinve)
+* [GongYeSUDA](https://github.com/GongYeSUDA)
 * [HaiwenZhang](https://github.com/HaiwenZhang)
 * [Hui Zhou](https://github.com/hui-zhou-a)
 * [Irene Woyna](https://github.com/IreneWoyna)

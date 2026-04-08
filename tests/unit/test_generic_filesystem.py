@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,7 @@ from ansys.aedt.core.internal.filesystem import is_safe_path
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -45,7 +45,7 @@ def desktop():
         ("/path/;rm -rf /file.txt", [".txt"], False),
     ],
 )
-def test_is_safe_path(path, allowed_extensions, expected):
+def test_is_safe_path(path, allowed_extensions, expected) -> None:
     """Test the is_safe_path function."""
     with mock.patch("pathlib.Path.exists", return_value=True), mock.patch("pathlib.Path.is_file", return_value=True):
         assert is_safe_path(path, allowed_extensions) == expected

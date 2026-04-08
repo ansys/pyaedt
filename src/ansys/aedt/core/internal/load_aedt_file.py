@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 from pathlib import Path
 import re
@@ -32,7 +33,7 @@ from ansys.aedt.core.generic.general_methods import settings
 # public interface
 
 
-def load_entire_aedt_file(filename):
+def load_entire_aedt_file(filename: str | Path) -> dict:
     """Load the entire AEDT file and return the dictionary
 
     Parameters
@@ -53,7 +54,7 @@ def load_entire_aedt_file(filename):
     return f_d
 
 
-def load_keyword_in_aedt_file(filename, keyword, design_name=None):
+def load_keyword_in_aedt_file(filename: str | Path, keyword: str, design_name: str | None = None) -> dict:
     """Load s specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -106,6 +107,24 @@ _len_all_lines = 0
 _count = 0
 
 
+def get_designs(filename: str | Path) -> list[str]:
+    """Get the list of designs in an AEDT file.
+
+    Parameters
+    ----------
+    filename : str or pathlib.Path
+        Path to the AEDT file.
+
+    Returns
+    -------
+    list of str
+        List of design names found in the AEDT file.
+    """
+    filename = Path(filename)
+    designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]
+    return [info["DesignName"] for info in designs["DesignInfo"]]
+
+
 def _parse_value(v):
     """Parse value in C# format."""
     #  duck typing parse of the value 'v'
@@ -150,7 +169,7 @@ def _separate_list_elements(v):
     return l2
 
 
-def _decode_recognized_subkeys(sk, d):
+def _decode_recognized_subkeys(sk, d) -> bool:
     """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
@@ -211,7 +230,7 @@ def _decode_recognized_subkeys(sk, d):
     return False
 
 
-def _decode_recognized_key(keyword, line, d):
+def _decode_recognized_key(keyword, line, d) -> bool:
     """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
@@ -313,7 +332,7 @@ def _decode_recognized_key(keyword, line, d):
     return True
 
 
-def _decode_subkey(line, d):
+def _decode_subkey(line, d) -> None:
     """
 
     Parameters
@@ -454,12 +473,14 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
     return _count
 
 
-def _read_aedt_file(filename):
+def _read_aedt_file(filename: str | Path) -> None:
     """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters
     ----------
-    filename :
+    filename : str | Path
+        AEDT filename with path
+
         AEDT filename with path
 
     Returns

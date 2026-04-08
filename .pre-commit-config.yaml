@@ -1,35 +1,27 @@
 ci:
-    autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
-    autoupdate_branch: 'chore/pre-commit-autoupdate'
-    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
-    autoupdate_schedule: weekly
+  autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
+  autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
+  autoupdate_schedule: weekly
 
-files: |
-    (?x)(
-        ^src/ansys/aedt/core/|
-        tests/
-    )
 exclude: |
-    (?x)(
-        ^src/ansys/aedt/core/rpc/|
-        ^src/ansys/aedt/core/sbrplus/matlab/|
-        ^src/ansys/aedt/core/extensions/installer|
-        tests/system/general/example_models/|
-        tests/system/visualization/example_models/|
-        tests/system/extensions/example_models/|
-        tests/system/solvers/example_models/
-    )
+  (?x)(
+      src/ansys/aedt/core/rpc/|
+      src/ansys/aedt/core/sbrplus/matlab/|
+      src/ansys/aedt/core/extensions/installer|
+      src/pyaedt|
+      tests/system/.*/example_models/
+  )
 
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.10
+  rev: aca6d4c8045a504e2812ea4bedff1d0a09e437bc  # frozen: v0.15.8
   hooks:
     - id: ruff-check
     - id: ruff-format
-    
+
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
+  rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
   hooks:
     - id: codespell
       args: ["--ignore-words", "doc/styles/config/vocabularies/ANSYS/accept.txt"]
@@ -37,33 +29,38 @@ repos:
         - tomli
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
     - id: debug-statements
     - id: trailing-whitespace
 
-# validate GitHub workflow files
+# Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.33.0
+  rev: ed81924a8b1cecdaa570b072528fa80c9c4d6ccd  # frozen: 0.37.1
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.19.1
+  rev: dda8db18cfc68df532abf33b185ecd12d5b7b326  # frozen: 1.20.0
   hooks:
     - id: blacken-docs
       additional_dependencies: [black==25.1.0]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-  rev: v1.6.1
+  rev: 500543de231a91e6157db630075d70320709b834  # frozen: v1.6.1
   hooks:
     - id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.4.4
+  rev: 680b297da7584a07eb7c92b6b4e9baf88ece3e0e  # frozen: v0.6.0
   hooks:
     - id: add-license-headers
+      exclude: |
+        (?x)^(
+            .*\.pyd |
+            .*\.py_build |
+        )$
       files: '(src|examples|tests)/.*\.(py)'
       args:
       - --custom_template=mit_license.jinja2

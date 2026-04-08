@@ -8,13 +8,16 @@ This code creates the JSON file:
 .. code:: python
 
     from ansys.aedt.core import Icepak
+
     ipk = Icepak()
     filename = "test"
-    ipk.export_3d_model(file_name=filename,
-                        file_path=ipk.working_directory,
-                        file_format=".step",
-                        object_list=[],
-                        removed_objects=[])
+    ipk.export_3d_model(
+        file_name=filename,
+        file_path=ipk.working_directory,
+        file_format=".step",
+        object_list=[],
+        removed_objects=[],
+    )
     conf_file = ipk.configurations.export_config()
     ipk.release_desktop()
 

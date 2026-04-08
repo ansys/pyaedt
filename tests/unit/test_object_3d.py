@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -39,7 +39,7 @@ def object_3d_setup():
         yield mock_instance
 
 
-def test_clone_failure(object_3d_setup):
+def test_clone_failure(object_3d_setup) -> None:
     mock_primitives = MagicMock()
     mock_primitives.clone.return_value = [False]
     object_3d = Object3d()

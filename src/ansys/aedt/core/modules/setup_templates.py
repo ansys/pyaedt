@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1967,7 +1967,7 @@ class SetupKeys:
         return template_out
 
     @staticmethod
-    def get_setup_templates():
+    def get_setup_templates() -> dict:
         from ansys.aedt.core.generic.general_methods import settings
 
         template = SetupKeys.SetupTemplates
@@ -1984,7 +1984,7 @@ class SetupKeys:
                 template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_252)
         return template
 
-    def get_default_icepak_template(self, default_type):
+    def get_default_icepak_template(self, default_type: str = "Default") -> dict:
         """
         Update the setup based on the class arguments or a dictionary.
 

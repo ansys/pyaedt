@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 import shutil
 
 import pytest
@@ -35,16 +34,16 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 
 
-def test_import_stl_success(add_app, local_scratch):
+def test_import_stl_success(add_app, test_tmp_dir) -> None:
     """Test the extension with an STL file."""
     # Test with STL file
-    stl_path = Path(TESTS_GENERAL_PATH, "example_models", "T20", "sphere.stl")
-    copy_stl_path = Path(local_scratch.path, "sphere.stl")
-    shutil.copy(stl_path, copy_stl_path)
+    stl_path = TESTS_GENERAL_PATH / "example_models" / "T20" / "sphere.stl"
+    copy_stl_path = test_tmp_dir / "sphere.stl"
+    shutil.copy2(stl_path, copy_stl_path)
 
     aedtapp = add_app(
         application=ansys.aedt.core.Hfss,
-        project_name="workflow_stl",
+        project="workflow_stl",
     )
 
     data = ImportNastranExtensionData(
@@ -57,10 +56,10 @@ def test_import_stl_success(add_app, local_scratch):
 
     assert main(data)
     assert len(aedtapp.modeler.object_list) == 1
-    aedtapp.close_project(aedtapp.project_name)
+    aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_import_nastran_exceptions():
+def test_import_nastran_exceptions() -> None:
     """Test exceptions thrown by the Import Nastran extension."""
     # Test no file path
     data = ImportNastranExtensionData(file_path="")
@@ -103,12 +102,12 @@ def test_import_nastran_exceptions():
         main(data)
 
 
-def test_import_nastran_extension_ui(add_app):
+def test_import_nastran_extension_ui(add_app) -> None:
     """Test the extension UI instantiation."""
     # Create an active AEDT app so extension checks pass
     aedtapp = add_app(
         application=ansys.aedt.core.Hfss,
-        project_name="extension_ui",
+        project="extension_ui",
     )
 
     extension = ImportNastranExtension(withdraw=True)
@@ -140,7 +139,7 @@ def test_import_nastran_extension_ui(add_app):
     aedtapp.close_project(aedtapp.project_name)
 
 
-def test_import_nastran_data_class():
+def test_import_nastran_data_class() -> None:
     """Test ImportNastranExtensionData class."""
     # Test default values
     data = ImportNastranExtensionData()

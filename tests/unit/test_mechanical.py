@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,7 +40,7 @@ def mechanical_setup():
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_em_losses_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_em_losses_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
 
     with pytest.raises(AEDTRuntimeError):
@@ -48,7 +48,7 @@ def test_assign_em_losses_failure_with_wrong_solution_type(mechanical_setup):
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_uniform_convection_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_uniform_convection_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
     mock_assignment = MagicMock()
 
@@ -57,7 +57,7 @@ def test_assign_uniform_convection_failure_with_wrong_solution_type(mechanical_s
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_uniform_temperature_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_uniform_temperature_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
     mock_assignment = MagicMock()
 
@@ -66,7 +66,7 @@ def test_assign_uniform_temperature_failure_with_wrong_solution_type(mechanical_
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_heat_flux_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_heat_flux_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
     mock_assignment = MagicMock()
     mock_heat_flux_type = MagicMock()
@@ -77,7 +77,7 @@ def test_assign_heat_flux_failure_with_wrong_solution_type(mechanical_setup):
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_heat_generation_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_heat_generation_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
     mock_assignment = MagicMock()
     mock_value = MagicMock()
@@ -87,7 +87,7 @@ def test_assign_heat_generation_failure_with_wrong_solution_type(mechanical_setu
 
 
 @patch.object(Mechanical, "solution_type", "Dummy")
-def test_assign_thermal_map_failure_with_wrong_solution_type(mechanical_setup):
+def test_assign_thermal_map_failure_with_wrong_solution_type(mechanical_setup) -> None:
     mechanical = Mechanical()
     mock_assignment = MagicMock()
     mock_value = MagicMock()
