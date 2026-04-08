@@ -30,6 +30,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
+from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -154,7 +155,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             interaction = engine.run(domain)
         else:
-            interaction = self.emit_project._emit_com_module.RunEmitDomain(
+            interaction: Interaction = self.emit_project._emit_com_module.RunEmitDomain(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -163,6 +164,7 @@ class Simulation:
                 domain.interferer_band_names,
                 domain.interferer_channel_frequencies,
             )
+            interaction.domain = domain
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
