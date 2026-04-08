@@ -34,6 +34,25 @@ The `pyaedt` executable may not be on the system PATH. It is always available in
 
 If the wrapper is already on PATH, `pyaedt --json ...` is also fine.
 
+## Working Directory For Generated Artifacts
+
+Use temporary directories for all exports and generated files unless the user specifies otherwise.
+
+**Rules:**
+- Create a task-specific subfolder under the OS temp directory
+- Use `tempfile.mkdtemp(prefix="pyaedt-agent-")` (Python), `$env:TEMP` (Windows), or `${TMPDIR:-/tmp}` (Linux/macOS)
+- Do not write to the repository or arbitrary folders unless explicitly requested
+- Move artifacts from temp only after successful export if the user wants to keep them
+
+**Quick reference:**
+```python
+import tempfile
+
+temp_dir = tempfile.mkdtemp(prefix="pyaedt-agent-")
+```
+
+Pass this path to `--path` or `--output` in export commands.
+
 ## Golden Rule: Prefer --json
 
 Use `--json` for every non-interactive command so output stays structured and machine-parseable.
@@ -267,7 +286,7 @@ pyaedt --json project create --project "PatchAntenna" --design "HFSSDesign1" --t
 ### Workflow 4: Run Automation
 
 ```bash
-pyaedt --json script run "./setup_antenna.py" --port 50051
+pyaedt --json script run "<temp-dir>/setup_antenna.py" --port 50051
 
 # Or a small one-off command
 pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
@@ -277,11 +296,11 @@ pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
 
 ```bash
 # If the instance has exactly one project and one design, selectors can be omitted
-pyaedt --json export screenshot --port 50051 --path "preview.jpg"
-pyaedt --json export config --port 50051 --output "config.json" --overwrite
+pyaedt --json export screenshot --port 50051 --path "<temp-dir>/preview.jpg"
+pyaedt --json export config --port 50051 --output "<temp-dir>/config.json" --overwrite
 
 # If ambiguous, specify the missing selector(s)
-pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "preview.jpg"
+pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "<temp-dir>/preview.jpg"
 ```
 
 ### Workflow 6: Generated Script Execution
@@ -296,7 +315,7 @@ pyaedt --json session list
 pyaedt --json session start --version 2026.1 --non-graphical
 
 # Step 3: run the script on the chosen port
-pyaedt --json script run "path/to/generated_script.py" --port 50051
+pyaedt --json script run "<temp-dir>/generated_script.py" --port 50051
 ```
 
 Rules:
@@ -345,6 +364,7 @@ processes = response["data"]["processes"]
 - When multiple instances are found, present the full list with port, version, and PID before asking.
 - When a generated script must be executed automatically, determine the target port first and then run `script run --port ...`.
 - Generated scripts intended to reuse an existing AEDT instance should use `new_desktop=False`.
+- Unless the user explicitly asks for another destination, create and use a task-specific temporary folder for exports, generated scripts, screenshots, configs, and other intermediate files.
 
 ## Performance Tips
 
