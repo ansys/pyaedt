@@ -1493,6 +1493,9 @@ class Desktop(PyAedtBase):
         if Path(project_file).stem in self.project_list:
             proj = self.active_project(Path(project_file).stem)
         else:
+            lock_file = project_file + ".lock"
+            if os.path.exists(lock_file):
+                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
             proj = self.odesktop.OpenProject(project_file)
         if proj:
             active_design = self.active_design(proj)

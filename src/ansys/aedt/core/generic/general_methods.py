@@ -75,8 +75,6 @@ inclusion_list = [
 
 
 def _write_mes(mes_text) -> None:
-    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
-        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
