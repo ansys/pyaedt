@@ -874,7 +874,7 @@ class Settings(PyAedtBase):
         return self.__override_install_dir
 
     @override_install_dir.setter
-    def override_install_dir(self, value: str) -> None:
+    def override_install_dir(self, value: str | None) -> None:
         self.__override_install_dir = value
 
     @property
