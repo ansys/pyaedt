@@ -185,13 +185,13 @@ if version > "2023.1":
                     print(f"ERROR: Failed to write to log file: {e}")
 
 
-    # Register the Hook
-    ip = get_ipython()
-    if ip:
-        # Register the function to run after every command execution
-        ip.events.register('post_run_cell', log_successful_command)
-        # Inform the user that logging is active
-        print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
-        print(" ")
-        print(" ")
-        print(" ")
+    # # Register the Hook
+    # ip = get_ipython()
+    # if ip:
+    #     # Register the function to run after every command execution
+    #     ip.events.register('post_run_cell', log_successful_command)
+    #     # Inform the user that logging is active
+    #     print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
+    #     print(" ")
+    #     print(" ")
+    #     print(" ")
