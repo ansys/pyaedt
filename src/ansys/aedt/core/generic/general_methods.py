@@ -34,6 +34,7 @@ import logging
 import os
 import platform
 import re
+import socket
 import subprocess  # nosec
 import sys
 import time
@@ -1077,6 +1078,17 @@ def _check_connection_grpc_port(
     return -1
 
 
+def _is_port_occupied(port, host=None):
+    """Check if a port is occupied."""
+    if host is None:
+        host = "127.0.0.1"
+    if not port:
+        return False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex((host, port)) == 0
+
+
 @pyaedt_function_handler()
 def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     """Check if a gRPC session is active on the specified port.
@@ -1118,6 +1130,8 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is available.")
     """
     # On Linux, try to resolve unknown ports using Unix socket analysis
+    if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
+        return _is_port_occupied(port, machine)
     if is_linux:
         try:
             sockets = _run_ss_xlp()
