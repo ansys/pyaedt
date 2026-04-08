@@ -28,6 +28,74 @@ import os
 
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.internal.desktop_sessions import (
+    _desktop_sessions,
+)
+
+
+def _resolve_personal_lib(personal_lib):
+    logger = logging.getLogger("Global")
+    if personal_lib:
+        return personal_lib
+
+    if not _desktop_sessions:
+        logger.error("Personallib is not provided. There is no available desktop session.")
+        return None
+    d = list(_desktop_sessions.values())[0]
+    return d.personallib
+
+
+def _install_catalog_extension(extension_key, personal_lib, odesktop=None):
+    personal_lib = _resolve_personal_lib(personal_lib)
+    if not personal_lib:
+        return False
+
+    project_workflows_dir = os.path.dirname(__file__)
+    extensions_catalog = read_toml(os.path.join(project_workflows_dir, "extensions_catalog.toml"))
+    extension_info = extensions_catalog.get(extension_key)
+    if not extension_info:
+        return False
+
+    script_path = os.path.join(project_workflows_dir, extension_info["script"]) if extension_info["script"] else None
+    icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+    customize_automation_tab.add_script_to_menu(
+        extension_info["name"],
+        script_path,
+        extension_info["template"],
+        icon_file=icon_file,
+        product="Project",
+        copy_to_personal_lib=False,
+        panel="Panel_PyAEDT_Installer",
+        personal_lib=personal_lib,
+        odesktop=odesktop,
+    )
+    return True
+
+
+def add_extension_manager(personal_lib, odesktop=None) -> bool:
+    """Install only the Extension Manager panel in AEDT.
+
+    Parameters
+    ----------
+    personal_lib : str
+        AEDT personal library folder.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
+    """
+    return _install_catalog_extension("ExtensionManager", personal_lib, odesktop)
+
+
+def add_version_manager(personal_lib, odesktop=None) -> bool:
+    """Install only the Version Manager panel in AEDT.
+
+    Parameters
+    ----------
+    personal_lib : str
+        AEDT personal library folder.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
+    """
+    return _install_catalog_extension("VersionManager", personal_lib, odesktop)
 
 
 def add_pyaedt_to_aedt(
@@ -53,15 +121,9 @@ def add_pyaedt_to_aedt(
     odesktop : oDesktop, optional
         Desktop session. The default is ``None``.
     """
-    logger = logging.getLogger("Global")
+    personal_lib = _resolve_personal_lib(personal_lib)
     if not personal_lib:
-        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
-
-        if not _desktop_sessions:
-            logger.error("Personallib is not provided. There is no available desktop session.")
-            return False
-        d = list(_desktop_sessions.values())[0]
-        personal_lib = d.personallib
+        return False
 
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
