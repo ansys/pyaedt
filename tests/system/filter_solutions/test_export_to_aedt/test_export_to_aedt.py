@@ -35,7 +35,6 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import SKIP_MODELITHICS
-from tests.conftest import USE_GRPC
 from tests.system.filter_solutions.resources import read_resource_file
 from tests.system.filter_solutions.resources import resource_path
 
@@ -472,9 +471,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_dielectric_height == "3 mm"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.065 "
 
-    @pytest.mark.skipif(
-        DESKTOP_VERSION < "2026.1" or USE_GRPC, reason="Skipped on versions earlier than 2026.1 or gRPC mode"
-    )
+    @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     def test_import_tuned_variables(self, lumped_design):
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
