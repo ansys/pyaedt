@@ -69,7 +69,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -135,7 +135,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -166,7 +166,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -228,11 +228,11 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -288,13 +288,13 @@ jobs:
 
       - name: Pre-install specific Python version using uv
         env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
+          PYTHON_VERSION: ${{ github.event.inputs.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}

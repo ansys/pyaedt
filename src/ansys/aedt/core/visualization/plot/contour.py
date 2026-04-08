@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 
 def bin_to_grid(
@@ -126,11 +126,14 @@ def _nearest_index(sorted_1d, value):
 
 
 # --- 3) Robust contour extraction (version-agnostic using .allsegs) ---
+@requires_graphical_dependency("matplotlib")
 def _extract_contours_xy(Xc, Yc, mask_float, level=0.5):
     """
     Returns list of polygons (each Nx2) via marching squares on a binary mask.
     Works across Matplotlib versions using QuadContourSet.allsegs.
     """
+    import matplotlib.pyplot as plt
+
     fig, ax = plt.subplots()
     try:
         cs = ax.contour(Xc, Yc, mask_float, levels=[level])
