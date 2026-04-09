@@ -33,7 +33,8 @@ from ansys.aedt.core.common_rpc import pyaedt_service_manager
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.hfss import Hfss
 from tests.conftest import DESKTOP_VERSION
-from tests.system.general.test_desktop_grpc_transport import generate_certs
+from tests.conftest import NON_GRAPHICAL
+from tests.system.solvers.sequential.test_desktop_grpc_transport import generate_certs
 
 GRPC_CONNECTION_TIMEOUT = 30
 
@@ -86,7 +87,7 @@ def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
     settings.remote_rpc_service_manager_port = PORT_SERVER_MANAGER
 
     cl1 = create_session(SERVER_HOST, client_port=port_client)
-    cl1.aedt(host=SERVER_HOST, port=port_aedt, non_graphical=False)
+    cl1.aedt(host=SERVER_HOST, port=port_aedt, non_graphical=NON_GRAPHICAL)
     hfss = Hfss(machine=SERVER_HOST, port=port_aedt)
     box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 
@@ -97,25 +98,24 @@ def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
     cl1.close()
 
 
-# NOTE: Uncomment this test to test insecure gRPC connection.
-# @pytest.mark.skipif(
-#     DESKTOP_VERSION < "2026.1",
-#     reason="Not working in versions without grpc patch",
-# )
-# def test_remote_hfss_workflow_with_insecure(rpc_server, tmp_path, monkeypatch):
-#     # Set up ports and settings for insecure gRPC connection
-#     port_client, port_aedt = find_client_and_aedt_ports()
-#     settings.grpc_local = False
-#     settings.grpc_secure_mode = False
-#     settings.remote_rpc_service_manager_port = PORT_SERVER_MANAGER
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
+def test_remote_hfss_workflow_with_insecure(rpc_server, tmp_path, monkeypatch):
+    # Set up ports and settings for insecure gRPC connection
+    port_client, port_aedt = find_client_and_aedt_ports()
+    settings.grpc_local = False
+    settings.grpc_secure_mode = False
+    settings.remote_rpc_service_manager_port = PORT_SERVER_MANAGER
 
-#     cl1 = create_session(SERVER_HOST, client_port=port_client)
-#     cl1.aedt(host=SERVER_HOST, port=port_aedt, non_graphical=False, secure=False)
-#     hfss = Hfss(machine=SERVER_HOST, port=port_aedt)
-#     box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
+    cl1 = create_session(SERVER_HOST, client_port=port_client)
+    cl1.aedt(host=SERVER_HOST, port=port_aedt, non_graphical=NON_GRAPHICAL, secure=False)
+    hfss = Hfss(machine=SERVER_HOST, port=port_aedt)
+    box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 
-#     assert box is not None
+    assert box is not None
 
-#     # NOTE: This is required as each test creates a new desktop session.
-#     hfss.desktop_class.close_desktop()
-#     cl1.close()
+    # NOTE: This is required as each test creates a new desktop session.
+    hfss.desktop_class.close_desktop()
+    cl1.close()
