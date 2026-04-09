@@ -298,7 +298,8 @@ box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 ```
 
 Port numbers can be adjusted as needed.
-The host name should align with the host name or IP address used to start the service manager.
+The host name should align with the host name or
+IP address used to start the service manager.
 
 ## Variables
 
