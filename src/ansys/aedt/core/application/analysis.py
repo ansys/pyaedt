@@ -2723,7 +2723,10 @@ class AvailableVariations(PyAedtBase):
         ----------
         >>> oModule.GetAvailableVariations
         """
-        return self._app.osolution.GetAvailableVariations(setup_sweep)
+        variations = []
+        if self._app.osolution:
+            variations = self._app.osolution.GetAvailableVariations(setup_sweep)
+        return variations
 
     @pyaedt_function_handler()
     def __variable_names(self):

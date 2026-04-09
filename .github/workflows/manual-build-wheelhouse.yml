@@ -228,7 +228,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
@@ -288,9 +288,9 @@ jobs:
 
       - name: Pre-install specific Python version using uv
         env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
+          PYTHON_VERSION: ${{ github.event.inputs.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky

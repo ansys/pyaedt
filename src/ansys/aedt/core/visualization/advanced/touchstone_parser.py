@@ -131,12 +131,13 @@ class TouchstoneData(_TouchstoneBase, PyAedtBase):
         elif touchstone_file and touchstone_file.is_file():
             rf.Network.__init__(self, touchstone_file)
             if not self.port_names:
+                pattern = re.compile(r"!\s*port\[[^\]]+\]\s*=\s*(\S+)", re.IGNORECASE)
                 with open(touchstone_file, "r") as f:
                     lines = f.readlines()
                     pnames = []
                     for line in lines:
-                        if line.lower().startswith("! port"):
-                            pnames.append(line.split("=")[-1].strip())
+                        if pattern.match(line):
+                            pnames.append(pattern.match(line).group(1).strip())
                     if not pnames:
                         pnames = [f"{i + 1}" for i in range(self.nports)]
                 self.port_names = pnames

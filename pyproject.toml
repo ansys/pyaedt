@@ -35,7 +35,7 @@ dependencies = [
     "ansys-tools-common",
     "grpcio>=1.50.0,<1.79",
     "jsonschema",
-    "psutil",
+    "psutil>=6.0.0",
     "pyedb>=0.71.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
