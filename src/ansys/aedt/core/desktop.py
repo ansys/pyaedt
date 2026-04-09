@@ -854,7 +854,6 @@ class Desktop(PyAedtBase):
                 version=self.aedt_version_id,
                 student_version=self.student_version,
                 non_graphical=self.non_graphical,
-                machine=self.machine,
             )
             self.logger.debug(f"Available sessions: {sessions}")
             if self.aedt_process_id in sessions:
@@ -1606,7 +1605,7 @@ class Desktop(PyAedtBase):
                 return False
         if not settings.remote_rpc_session:  # pragma: no cover
             timeout = 10
-            while pid in active_sessions(machine=self.machine):
+            while pid in active_sessions():
                 time.sleep(1)
                 timeout -= 1
                 if timeout == 0:

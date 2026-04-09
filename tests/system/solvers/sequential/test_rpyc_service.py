@@ -71,6 +71,9 @@ def rpc_server():
     time.sleep(5)
 
     yield
+    settings.remote_rpc_session = None
+    settings.grpc_local = True
+    settings.grpc_secure_mode = True
 
 
 @pytest.mark.skipif(
