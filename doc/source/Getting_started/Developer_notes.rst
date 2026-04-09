@@ -87,7 +87,7 @@ When direct or transitive test dependencies change (in the ``uv.lock`` file), th
 This is necessary to ensure that the dependency graph is accurate and that affected tests are correctly identified.
 
 Edge cases and considerations
-------------------------------
+-----------------------------
 
 This section covers common edge cases and considerations when working with PyAEDT's CI/CD pipeline
 and Testmon integration.
@@ -123,6 +123,23 @@ If the ``update-testmondata-cache.yml`` workflow fails:
 - The error message directs users to relaunch the workflow at:
   ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
 - Once the cache update completes successfully, PR workflows can proceed.
+
+Skipped tests transitioning to enabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a test is skipped on ``main`` (e.g., via ``pytest.mark.skip`` or ``pytest.mark.skipif``) and
+the PR enables it by removing or modifying the skip condition, Testmon may not correctly handle
+the transition. This can lead to the newly enabled test never running in CI, causing unexpected
+failures or missed coverage.
+
+.. warning::
+
+   If your PR enables previously skipped tests, Testmon may silently skip running them.
+   Always verify and force that the newly enabled tests are executed and pass before merging.
+
+A real-world example of this issue causing a CI failure can be found in
+`PR #7465 <https://github.com/ansys/pyaedt/pull/7465>`_.
+
 
 Pruning Testmon caches
 ~~~~~~~~~~~~~~~~~~~~~~~
