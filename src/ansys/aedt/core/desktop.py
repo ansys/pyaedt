@@ -144,7 +144,9 @@ class _ServerArgs:
             return f"{self.__port}" if self.__port is not None else ""
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
-        if self.__host not in ["127.0.0.1", "localhost"] and not settings.grpc_listen_all:
+        if settings.grpc_listen_all:
+            self.__host = "0.0.0.0"
+        elif self.__host not in ["127.0.0.1", "localhost"]:
             self.__host = get_local_ip(self.__host)
         host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
         mode = (
