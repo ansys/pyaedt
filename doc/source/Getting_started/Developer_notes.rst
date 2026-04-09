@@ -127,7 +127,7 @@ If the ``update-testmondata-cache.yml`` workflow fails:
 Skipped tests transitioning to enabled
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a test is skipped on ``main`` (e.g., via ``pytest.mark.skip`` or ``pytest.mark.skipif``) and
+When a test is skipped on ``main`` (for example via ``pytest.mark.skip`` or ``pytest.mark.skipif``) and
 the PR enables it by removing or modifying the skip condition, Testmon may not correctly handle
 the transition. This can lead to the newly enabled test never running in CI, causing unexpected
 failures or missed coverage.
