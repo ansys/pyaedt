@@ -27,7 +27,6 @@ from pathlib import Path
 import shutil
 import subprocess  # nosec
 import sys
-import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -50,7 +49,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ToolTip
-from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -180,7 +179,11 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # After UI initialization schedule the non-blocking update check
         try:
-            self.check_for_pyaedt_update_on_startup()
+            check_for_pyaedt_update_on_startup(
+            self.root,
+            self.desktop.personallib,
+            self.show_pyaedt_update_popup,
+            )
         except Exception:  # don't let update checker break the UI
             logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
@@ -1541,28 +1544,6 @@ class ExtensionManager(ExtensionProjectCommon):
         msg = f"{option} is disabled because it requires optional dependencies."
         self.desktop.logger.info(msg)
         self.log_message(msg)
-
-    def check_for_pyaedt_update_on_startup(self) -> None:
-        """Spawn a background thread to check PyPI for a newer PyAEDT release.
-        """
-        def worker() -> None: # pragma: no cover
-            log = logging.getLogger("Global")
-            try:
-                latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest:
-                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
-                    return
-                try:
-                    self.root.after(
-                        0,
-                        lambda: self.show_pyaedt_update_popup(latest, declined_file)
-                    )
-                except Exception:
-                    log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
-            except Exception:
-                log.debug("PyAEDT update check: worker failed.", exc_info=True)
-
-        threading.Thread(target=worker, daemon=True).start()
 
     def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
