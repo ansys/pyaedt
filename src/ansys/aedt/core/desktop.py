@@ -146,7 +146,7 @@ class _ServerArgs:
             raise ValueError(f"Invalid transport mode {self.__mode}.")
         host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
 
-        if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:
+        if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
             self.__host = get_local_ip(self.__host)
 
         mode = (
