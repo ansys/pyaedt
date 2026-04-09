@@ -34,11 +34,14 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from colorama import init
 
-
-aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) 
-version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) 
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
 print("Loading the PyAEDT Console.")
+
+# Initialize colorama to enable ANSI escape sequence support for colored terminal output on Windows
+init()
 
 try:
     from ansys.aedt.core import *  # noqa: F401
@@ -49,12 +52,12 @@ try:
     from ansys.aedt.core import settings
     settings.release_on_exception = False
 
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
     console_setup_dir = Path(__file__).resolve().parent
-    if "PersonalLib" in console_setup_dir.parts:
-        sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
+
+    sys.path.append(str(console_setup_dir / ".." / ".." / ".." / ".." / ".."))
 
     from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
@@ -62,6 +65,7 @@ except ImportError:
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
     from ansys.aedt.core import settings
+
     settings.release_on_exception = False
 
 
@@ -183,15 +187,3 @@ if version > "2023.1":
                 except Exception as e:
                     # Handle potential file writing errors
                     print(f"ERROR: Failed to write to log file: {e}")
-
-
-    # # Register the Hook
-    # ip = get_ipython()
-    # if ip:
-    #     # Register the function to run after every command execution
-    #     ip.events.register('post_run_cell', log_successful_command)
-    #     # Inform the user that logging is active
-    #     print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
-    #     print(" ")
-    #     print(" ")
-    #     print(" ")
