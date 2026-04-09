@@ -287,7 +287,8 @@ from ansys.aedt.core.common_rpc import create_session
 from ansys.aedt.core.hfss import Hfss
 
 # Required for the Hfss call below to behave as expected.
-# If not set, the client attempts to launch a local instance of AEDT instead of connecting to the remote server.
+# If not set, the client attempts to launch a local instance
+# of AEDT instead of connecting to the remote server.
 settings.grpc_local = False
 
 cl1 = create_session("host name", client_port=50010)

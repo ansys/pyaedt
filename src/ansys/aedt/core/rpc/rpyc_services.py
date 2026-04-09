@@ -11,7 +11,6 @@ import subprocess  # nosec
 import sys
 import tempfile
 import time
-from platform import machine
 
 import rpyc
 
@@ -557,7 +556,6 @@ class ServiceManager(rpyc.Service, PyAedtBase):
 
             logger.debug(f"Starting a RPyC GlobalService worker with command: {command}")
             p = subprocess.Popen(command)  # nosec
-            
             time.sleep(2)
             
             self.__processes[port] = p
@@ -578,7 +576,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
         -------
         bool
         """
-        if port in list(self.__processes.keys()):
+        if port in self.__processes.keys():
             try:
                 self.__processes[port].terminate()
                 return True
