@@ -13,15 +13,14 @@ else:
     folder = "winx64"
 
 # AEDT installation path
-aedt_install_path = os.path.abspath(aedt_install_path + "/../")
+install_path = os.path.abspath(oDesktop.GetExeDir() + "/../")
 
 sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 # Check if the script is running using CPython interpreter from AEDT installation
 pyaedt_path = None
-if aedt_install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
-    pyaedt_path = os.path.join(aedt_install_path, r"commonfiles/CPython/3_10/{0}/Release/Ansys/PyAEDT".format(folder))
-    sys.path.append(r"##EXTENSION_TEMPLATES##")
+if install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
+    pyaedt_path = os.path.join(install_path, r"commonfiles/CPython/3_10/{0}/Release/Ansys/PyAEDT".format(folder))
 
 import pyaedt_utils
 
@@ -57,8 +56,8 @@ def main():
 
         # Open extension manager
         if pyaedt_path:
-		    site_packages_path = os.path.join(aedt_install_path,
-		    "../commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(folder))
+		    site_packages_path = os.path.join(install_path,
+		    "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(folder))
             os.environ["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path]))
 
 		if is_linux:
