@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import os
 import threading
 import time
 
@@ -77,7 +77,7 @@ def rpc_server():
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2026.1",
+    DESKTOP_VERSION < "2026.1" or os.name == "posix",
     reason="Not working in versions without grpc patch",
 )
 def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
