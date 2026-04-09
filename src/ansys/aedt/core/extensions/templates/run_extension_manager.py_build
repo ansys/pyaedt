@@ -59,7 +59,7 @@ def main():
             site_packages_path = os.path.join(install_path, "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(folder))
             os.environ["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
 
-		if is_linux:
+        if is_linux:
             command = [python_exe, extension_pyaedt_script]
             my_env = os.environ.copy()
             subprocess.Popen(command, env=my_env)
