@@ -854,7 +854,7 @@ class Desktop(PyAedtBase):
                 non_graphical=self.non_graphical,
                 machine=self.machine,
             )
-            self.logger.info(sessions)
+            self.logger.debug(f"Available sessions: {sessions}")
             if self.aedt_process_id in sessions:
                 if sessions[self.aedt_process_id] != -1:
                     self.port = sessions[self.aedt_process_id]
