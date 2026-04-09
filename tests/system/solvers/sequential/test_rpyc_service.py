@@ -92,10 +92,11 @@ def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
     box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 
     assert box is not None
-
+    settings.grpc_local = True
     # NOTE: This is required as each test creates a new desktop session.
     hfss.desktop_class.close_desktop()
     cl1.close()
+    settings.remote_rpc_session = None
 
 
 @pytest.mark.skipif(
@@ -115,7 +116,11 @@ def test_remote_hfss_workflow_with_insecure(rpc_server, tmp_path, monkeypatch):
     box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 
     assert box is not None
+    settings.grpc_local = True
+    settings.grpc_secure_mode = True
+    settings.remote_rpc_service_manager_port = PORT_SERVER_MANAGER
 
     # NOTE: This is required as each test creates a new desktop session.
     hfss.desktop_class.close_desktop()
     cl1.close()
+    settings.remote_rpc_session = None
