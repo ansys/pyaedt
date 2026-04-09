@@ -199,4 +199,4 @@ if version > "2023.1":
             print(" ")
             print(" ")
     except Exception as e:
-        pass
+        print(f"WARNING: Failed to enable PyAEDT command logging: {e}")
