@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+
 import pytest
 
 from ansys.aedt.core import Circuit
@@ -30,9 +32,12 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
 
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
+@pytest.mark.skipif(ON_CI, reason="Lead to access violation issues on CI runners")
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name
