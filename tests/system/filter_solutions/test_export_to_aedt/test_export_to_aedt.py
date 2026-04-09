@@ -38,6 +38,8 @@ from tests.conftest import SKIP_MODELITHICS
 from tests.system.filter_solutions.resources import read_resource_file
 from tests.system.filter_solutions.resources import resource_path
 
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
+
 first_modelithics_inductor = "AVX -> IND_AVX_0201_101 Accu-L"
 second_modelithics_inductor = "AVX -> IND_AVX_0402_101 AccuL"
 third_modelithics_inductor = "Wurth -> IND_WTH_0603_003 WE-KI"
@@ -62,6 +64,7 @@ reverse_y_axis_error = (
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.2")
+@pytest.mark.skipif(ON_CI, reason="Lead to access violation issues on CI runners")
 class TestClass:
     @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_lumped_export_to_aedt(self, lumped_design):
