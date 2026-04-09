@@ -286,8 +286,8 @@ from ansys.aedt.core import settings
 from ansys.aedt.core.common_rpc import create_session
 from ansys.aedt.core.hfss import Hfss
 
-# Required for the Hfss call below to behave as expected. If not set, the client will
-# attempt to launch a local instance of AEDT instead of connecting to the remote server.
+# Required for the Hfss call below to behave as expected.
+# If not set, the client attempts to launch a local instance of AEDT instead of connecting to the remote server.
 settings.grpc_local = False
 
 cl1 = create_session("host name", client_port=50010)
@@ -296,14 +296,15 @@ hfss = Hfss(machine="host name", port=50011)
 box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 ```
 
-Port numbers can be adjusted as needed. The host name should align with the host name or IP address used to start the service manager.
+Port numbers can be adjusted as needed.
+The host name should align with the host name or IP address used to start the service manager.
 
 ## Variables
 
 ``` python
-from ansys.aedt.core.HFSS import HFSS
+from ansys.aedt.core.Hfss import Hfss
 
-with HFSS as hfss:
+with Hfss as hfss:
     hfss["dim"] = "1mm"  # design variable
     hfss["$dim"] = "1mm"  # project variable
 ```
