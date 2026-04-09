@@ -46,7 +46,7 @@ class RxSaturationNode(EmitNode):
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name, "CsvFile")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
