@@ -318,6 +318,7 @@ def launch_aedt(
     while timeout > 0:
         if is_grpc_session_active(
             port,
+            host,
         ):
             break
         timeout -= 1
