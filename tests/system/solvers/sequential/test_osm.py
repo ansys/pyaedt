@@ -24,18 +24,17 @@
 
 """Test OpenStreetMap (OSM) module functionality with real pyvista and osmnx."""
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pytest
 
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
 from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
 from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
-
-
-@pytest.fixture(scope="module", autouse=True)
-def desktop() -> None:
-    """Override the desktop fixture to DO NOT open the Desktop when running this test class."""
-    return
 
 
 @pytest.fixture
@@ -46,9 +45,48 @@ def temp_cad_path(tmp_path):
     return str(cad_dir)
 
 
+@pytest.mark.skipif(is_linux, reason="Failing VTK in Linux runners")
+def test_import_from_open_street_map(add_app, test_tmp_dir):
+    hfss = add_app(application=Hfss, solution_type="SBR+")
+
+    result = hfss.modeler.import_from_openstreet_map(
+        latitude_longitude=[40.273726, -80.168269],
+        env_name="test_hfss_environment",
+        terrain_radius=50,
+        road_step=3,
+        plot_before_importing=False,
+        import_in_aedt=True,
+    )
+
+    # Verify the result structure
+    assert result is not None
+    assert result["name"] == "test_hfss_environment"
+    assert result["type"] == "environment"
+    assert "parts" in result
+    assert "terrain" in result["parts"]
+    assert "buildings" in result["parts"]
+    assert "roads" in result["parts"]
+
+    # Verify objects were imported to HFSS
+    assert len(hfss.modeler.object_names) > 0
+
+    # Verify JSON file was created
+    json_file = Path(hfss.working_directory) / "test_hfss_environment.json"
+    assert json_file.exists()
+
+    # Verify JSON content
+    with open(json_file, "r", encoding="utf-8") as f:
+        json_data = json.load(f)
+        assert json_data["name"] == "test_hfss_environment"
+        assert json_data["radius"] == 50
+
+    # Verify model units are set to meters
+    assert hfss.modeler.model_units == "meter"
+
+    hfss.close_project(save=False)
+
+
 # BuildingsPrep tests
-
-
 def test_buildings_init(temp_cad_path):
     """Test BuildingsPrep initialization."""
     buildings_prep = BuildingsPrep(temp_cad_path)
@@ -67,8 +105,6 @@ def test_create_building_roof(temp_cad_path):
 
 
 # RoadPrep tests
-
-
 def test_road_init(temp_cad_path):
     """Test RoadPrep initialization."""
     road_prep = RoadPrep(temp_cad_path)
@@ -95,8 +131,6 @@ def test_create_roads(temp_cad_path):
 
 
 # TerrainPrep tests
-
-
 def test_terrain_init(temp_cad_path):
     """Test TerrainPrep initialization."""
     terrain_prep = TerrainPrep(temp_cad_path)
@@ -164,8 +198,6 @@ def test_terrain_get_elevation_different_grid_sizes():
 
 
 # File operations tests
-
-
 def test_buildings_path_handling(temp_cad_path):
     """Test that BuildingsPrep handles paths correctly."""
     buildings_prep = BuildingsPrep(temp_cad_path)
