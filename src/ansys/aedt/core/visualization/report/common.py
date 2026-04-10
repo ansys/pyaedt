@@ -805,7 +805,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                         )
                     except Exception:
                         max_from_tool = 0.99
-                    max_from_tool = min(max_from_tool, float(self._legacy_props["general"]["contours_max_limit"]))
+                    max_from_tool = min(
+                        float(max_from_tool), float(self._legacy_props["general"]["contours_max_limit"])
+                    )
                     try:
                         self._change_property(
                             "Contour",
