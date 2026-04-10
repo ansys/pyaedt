@@ -769,17 +769,6 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Num. Contours", "Value:=", str(self._legacy_props["general"]["contours_number"])],
                         ],
                     )
-                try:
-                    self._change_property(
-                        "Contour",
-                        f" Plot {self.traces[0].name}",
-                        ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
-                    )
-                    max_from_tool = self._app._oreportsetup.GetPropertyValue(
-                        "Contour", f"{self.plot_name}: Plot {self.traces[0].name}", "Max"
-                    )
-                except Exception:
-                    max_from_tool = 0.99
                 if "contours_scale" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
@@ -789,18 +778,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Axis Scale", "Value:=", str(self._legacy_props["general"]["contours_scale"])],
                         ],
                     )
-                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
-                    value = (
-                        "Auto Limits"
-                        if self._legacy_props["general"]["enable_contours_auto_limit"]
-                        else "Specify Limits"
-                    )
-                    if value == "Specify Limits":
-                        self._change_property(
-                            "Contour",
-                            f" Plot {self.traces[0].name}",
-                            ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", value]],
-                        )
+
                 if "contours_min_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
@@ -811,20 +789,34 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                         ],
                     )
                 if "contours_max_limit" in self._legacy_props.get("general", {}):
-                    max_from_tool = min(
-                        float(max_from_tool), float(self._legacy_props["general"]["contours_max_limit"])
+                    self._change_property(
+                        "Contour",
+                        f" Plot {self.traces[0].name}",
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:Max", "Value:=", str(self._legacy_props["general"]["contours_max_limit"])],
+                        ],
                     )
-                    try:
+                    messages = self._app.odesktop.GetMessages("", "", 1)
+                    if messages:
+                        last_message = messages[-1].strip()[:-1]
+                        if "value of specify limits is greater than data maximum" in last_message:
+                            val = last_message.split(" ")[-1]
+                            self._change_property(
+                                "Contour",
+                                f" Plot {self.traces[0].name}",
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Max", "Value:=", val],
+                                ],
+                            )
+                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
+                    if self._legacy_props["general"]["enable_contours_auto_limit"]:
                         self._change_property(
                             "Contour",
                             f" Plot {self.traces[0].name}",
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Max", "Value:=", str(max_from_tool)],
-                            ],
+                            ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
                         )
-                    except Exception:
-                        self._app.logger.error("Failed to update Max contour value")
             self.eye_mask(
                 points=eye_points,
                 x_units=eye_xunits,
