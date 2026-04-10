@@ -36,8 +36,8 @@ import sys
 import tempfile
 from colorama import init
 
-aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) 
-version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) 
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
 print("Loading the PyAEDT Console.")
 
 # Initialize colorama to enable ANSI escape sequence support for colored terminal output on Windows
