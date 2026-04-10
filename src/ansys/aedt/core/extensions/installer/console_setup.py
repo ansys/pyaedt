@@ -201,5 +201,5 @@ if version > "2023.1":
             print(" ")
             print(" ")
             print(" ")
-    except Exception as e:  # nosec
+    except Exception:  # nosec
         pass
