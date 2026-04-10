@@ -83,15 +83,15 @@ def aedt_script():
             return
 
         # Add environment variables
+        my_env = dict(os.environ.copy())
         pyaedt_utils.environment_variables(oDesktop)
         if pyaedt_path:
             site_packages_path = os.path.join(install_path,
                                               "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(
                                                   folder))
-            os.environ["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
+            my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
 
         # Run workflow
-        my_env = dict(os.environ.copy())
         error_handler = os.path.normpath(os.path.join(r"##EXTENSION_TEMPLATES##", "extension_error_handler.py"))
         command = [python_exe, error_handler, "--script", extension_pyaedt_script]
         subprocess.Popen(command, env=my_env)
