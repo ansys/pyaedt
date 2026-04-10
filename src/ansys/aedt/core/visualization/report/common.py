@@ -770,6 +770,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                         ],
                     )
                 try:
+                    self._change_property(
+                        "Contour",
+                        f" Plot {self.traces[0].name}",
+                        ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
+                    )
                     max_from_tool = self._app._oreportsetup.GetPropertyValue(
                         "Contour", f"{self.plot_name}: Plot {self.traces[0].name}", "Max"
                     )
@@ -790,11 +795,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                         if self._legacy_props["general"]["enable_contours_auto_limit"]
                         else "Specify Limits"
                     )
-                    self._change_property(
-                        "Contour",
-                        f" Plot {self.traces[0].name}",
-                        ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", value]],
-                    )
+                    if value == "Specify Limits":
+                        self._change_property(
+                            "Contour",
+                            f" Plot {self.traces[0].name}",
+                            ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", value]],
+                        )
                 if "contours_min_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
