@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,14 +34,11 @@ import os
 from pathlib import Path
 import sys
 import tempfile
-from colorama import init
 
 aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
 version = os.environ.get("PYAEDT_DESKTOP_VERSION", None)
 print("Loading the PyAEDT Console.")
 
-# Initialize colorama to enable ANSI escape sequence support for colored terminal output on Windows
-init()
 
 try:
     from ansys.aedt.core import *  # noqa: F401
@@ -66,6 +63,12 @@ except (ImportError, ModuleNotFoundError):
     from ansys.aedt.core.generic.general_methods import is_windows
     from ansys.aedt.core import settings
     settings.release_on_exception = False
+
+if is_windows:
+    from colorama import init
+
+    # Initialize colorama to enable ANSI escape sequence support for colored terminal output on Windows
+    init()
 
 
 def release(d) -> None:
@@ -198,5 +201,5 @@ if version > "2023.1":
             print(" ")
             print(" ")
             print(" ")
-    except Exception as e:
-        print(f"WARNING: Failed to enable PyAEDT command logging: {e}")
+    except Exception:  # nosec
+        pass
