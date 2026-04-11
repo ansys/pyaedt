@@ -358,6 +358,12 @@ def create_session(
 
         cl = connect(host, port)
         logger.info("Created new session on port %s", port)
+        # NOTE: Keep the ServiceManager connection alive by attaching it to the
+        # GlobalService client object.  If this reference is dropped, Python's GC
+        # will close the ServiceManager connection which triggers on_disconnect and
+        # terminates every GlobalService subprocess it spawned – closing the stream
+        # underneath cl and making it unusable.
+        cl._service_manager_connection = client
         if "host" not in dir(cl):
             cl.host = host
         if "aedt_port" not in dir(cl):
