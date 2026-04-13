@@ -2973,7 +2973,6 @@ class Design(AedtObjects, PyAedtBase):
         if not name:
             name = path.stem
 
-        is_project_dataset = False
         if name.startswith("$"):
             name = name[1:]
             is_project_dataset = True
