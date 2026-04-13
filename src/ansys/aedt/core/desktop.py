@@ -67,6 +67,7 @@ from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.scheduler import JobConfigurationData
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -1932,42 +1933,38 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        clustername: str | None = None,
-        project_file: str | Path | None = None,
+        project_file: str | Path,
+        cluster_name: str | None = None,
         aedt_full_exe_path: str | None = None,
-        numnodes: int | None = 1,
-        numcores: int | None = 32,
+        nodes: int | None = 1,
+        cores: int | None = 32,
         wait_for_license: bool | None = True,
+        auto_hpc: bool = True,
         setting_file: str | None = None,
     ) -> int:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
         ----------
-        clustername : str, optional
-            Name of the cluster to submit the job to.
         project_file : str or :class:`pathlib.Path`
-            Full path to the project. The path should be visible from the server where the
-            simulation will run.
-            If the client path is used then the
-            mapping between the client and server path must be specified in the `setting_file``.
+            Full path to the project.
+        cluster_name : str, optional
+            Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file on the server. The default is ``None``, in which
             case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used. On linux
             this path should point to the Linux executable ``"ansysedt"``.
-        numnodes : int, optional
+        nodes : int, optional
             Number of nodes. The default is ``1``.
-        numcores : int, optional
+        cores : int, optional
             Number of cores. The default is ``32``.
         wait_for_license : bool, optional
              Whether to wait for a license to become available. The default is ``True``.
+        auto_hpc: bool, optional
+            Whether to automatically select the auto HPC option. The default is ``True``.
         setting_file : str, optional
-            Name of the "*.areg" file to use as a template. The default value
-            is ``None`` in which case a default template will be used.
-            If ``setting_file`` is passed it can be located either on the client or server.
-            If the "*.areg" file is on the client information from ``numcores`` and ``numnodes``
-            will be added. If the "*.areg" file is on the server it
-            will be applied without modifications.
+            Job settings file. The file has the "*.areg" format.
+            The default value is ``None`` in which case a default template will be used.
 
         Returns
         -------
@@ -1978,72 +1975,27 @@ class Desktop(PyAedtBase):
         ----------
         >>> oDesktop.SubmitJob
         """
-        if project_file:
-            project_path = Path(project_file).parent
-            project_name = Path(project_file).stem
+        # Save and close project if opened before submitting
+        project_path = Path(project_file).parent
+        project_name = Path(project_file).stem
+        if project_name in self.project_list:
+            self.save_project(project_name, project_path)
             if project_name in self.project_list:
-                self.save_project(project_name, project_path)
-                if project_name in self.project_list:
-                    self.odesktop.CloseProject(project_name)
+                self.odesktop.CloseProject(project_name)
 
-        if not clustername and setting_file:
+        if setting_file:
             job = self.odesktop.SubmitJob(str(setting_file), str(project_file))
         else:
-            if not aedt_full_exe_path:
-                version = self.odesktop.GetVersion()[2:6]
-                if version >= "22.2":
-                    version_name = "v" + version.replace(".", "")
-                else:
-                    version_name = "AnsysEM" + version
-                if Path(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)).exists():
-                    aedt_full_exe_path = (
-                        r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
-                    )
-                elif Path(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)).exists():
-                    aedt_full_exe_path = (
-                        r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
-                    )
-                else:
-                    self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                    return False
-            else:
-                if not Path(aedt_full_exe_path).exists():
-                    self.logger.warning("The AEDT executable path is not visible from the client.")
-                aedt_full_exe_path.replace("\\", "\\\\")
-
-            path_file = Path(__file__)
             destination_reg = Path(project_path) / "Job_settings.areg"
-            if not setting_file:
-                setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
-            if Path(setting_file).exists():
-                f1 = open_file(destination_reg, "w")
-                with open_file(setting_file) as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if "\\	$begin" == line[:8]:
-                            lin = f"\\	$begin \\'{clustername}\\'\\\n"
-                            f1.write(lin)
-                        elif "\\	$end" == line[:6]:
-                            lin = f"\\	$end \\'{clustername}\\'\\\n"
-                            f1.write(lin)
-                        elif "NumCores=" in line:
-                            lin = f"\\	\\	\\	\\	NumCores={numcores}\\\n"
-                            f1.write(lin)
-                        elif "NumNodes=1" in line:
-                            lin = f"\\	\\	\\	\\	NumNodes={numnodes}\\\n"
-                            f1.write(lin)
-                        elif "ProductPath" in line:
-                            lin = f"\\	\\	ProductPath =\\'{aedt_full_exe_path}\\'\\\n"
-                            f1.write(lin)
-                        elif "WaitForLicense" in line:
-                            lin = f"\\	\\	WaitForLicense={str(wait_for_license).lower()}\\\n"
-                            f1.write(lin)
-                        else:
-                            f1.write(line)
-                f1.close()
-            else:
-                self.logger.warning("Setting file not found on client machine. Considering it as server path.")
-                destination_reg = setting_file
+            job_config = JobConfigurationData(
+                cluster_name=cluster_name,
+                num_nodes=nodes,
+                num_cores=cores,
+                wait_for_license=wait_for_license,
+                product_full_path=aedt_full_exe_path,
+                auto_hpc=auto_hpc,
+            )
+            job_config.save_areg(destination_reg)
             job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
@@ -2062,7 +2014,8 @@ class Desktop(PyAedtBase):
         ----------
         scheduler_type : str
             Name of the scheduler.
-            Options are `"RSM"``, `""Windows HPC"``, `""LSF``, `""SGE"``, `""PBS"``, `""Ansys Cloud"``.
+            Options are `"RSM"``, `""Windows HPC"``, `""HPC Platform Services``, `""Remote RSM"``,
+             `""Ansys Cloud Burst Compute"``.
         address : str, optional
             String specifying the IP address or hostname of the head node or for the
             remote host running the RSM service.
@@ -2075,7 +2028,6 @@ class Desktop(PyAedtBase):
             Boolean used to force display of the Select Scheduler GUI to allow for
              password entry prior to job submission.
 
-
         Returns
         -------
         str
@@ -2087,14 +2039,8 @@ class Desktop(PyAedtBase):
         >>> from ansys.aedt.core import Desktop
 
         >>> d = Desktop(version="2026.1", new_desktop=False)
-        >>> d.select_scheduler("Ansys Cloud")
-        >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
-        ... )
-        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.select_scheduler("HPC Platform Services", address="https://myserver.com:8443/hps/")
+        >>> job_id = d.submit_job("via_gsg.aedt")
         >>> d.release_desktop(False, False)
         """
         if not address:

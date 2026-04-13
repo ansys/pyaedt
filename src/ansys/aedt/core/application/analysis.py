@@ -2061,18 +2061,18 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        cluster_name: str,
-        aedt_full_exe_path: str = None,
+        cluster_name: str | None = None,
+        aedt_full_exe_path: str | None = None,
         nodes: int = 1,
         cores: int = 32,
         wait_for_license: bool = True,
         setting_file: str = None,
-    ) -> str:  # pragma: no cover
+    ) -> int:  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
         ----------
-        cluster_name : str
+        cluster_name : str, optional
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file. The default is ``None``, in which
@@ -2084,11 +2084,12 @@ class Analysis(Design, PyAedtBase):
         wait_for_license : bool, optional
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
-            Name of the file to use as a template. The default value is ``None``.
+            Job settings file. The file has the "*.areg" format.
+            The default value is ``None`` in which case a default template will be used.
 
         Returns
         -------
-        str
+        int
             ID of the job.
 
         References
@@ -2096,7 +2097,13 @@ class Analysis(Design, PyAedtBase):
         >>> oDesktop.SubmitJob
         """
         return self.desktop_class.submit_job(
-            self.project_file, cluster_name, aedt_full_exe_path, nodes, cores, wait_for_license, setting_file
+            project_file=self.project_file,
+            cluster_name=cluster_name,
+            aedt_full_exe_path=aedt_full_exe_path,
+            nodes=nodes,
+            cores=cores,
+            wait_for_license=wait_for_license,
+            setting_file=setting_file,
         )
 
     @pyaedt_function_handler()

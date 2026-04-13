@@ -1,6 +1,6 @@
 $begin 'AddEntries'
 	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\
-\	$begin \'ClusterName\'\
+	\	$begin \'{{cluster_name}}\'
 \	\	Monitor={{monitor}}\
 \	\	WaitForLicense={{wait_for_license}}\
 \	\	UsePPELicensing={{use_ppe}}\
@@ -71,7 +71,7 @@ $begin 'AddEntries'
 \	\	\	SelectedOption=\'\'\
 \	\	$end \'MultiStepJobSettings\'\
 \	\	NumVariationsToDistributeInAuto=1\
-\	$end \'ClusterName\'\
+	\	$end \'{{cluster_name}}\'
 $end \'\'\
 '
 

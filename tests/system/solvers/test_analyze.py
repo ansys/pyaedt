@@ -866,3 +866,17 @@ def test_change_property(m3d_app) -> None:
             property_names=["a"],
             property_values="15mm",
         )
+
+
+def test_submit_job(m3d_app) -> None:
+    box = m3d_app.modeler.create_box([0, 0, 0], ["10mm", "20mm", "30mm"], name="Box", material="copper")
+    m3d_app.modeler.create_region([100, 100, 0, 0, 100, 100])
+
+    m3d_app.assign_current(box.bottom_face_y, "1A")
+    m3d_app.assign_current(box.top_face_y, "1A", swap_direction=True)
+
+    # setup = m3d_app.create_setup()
+
+    m3d_app.desktop_class.select_scheduler("RSM")
+    m3d_app.submit_job(cluster_name="rsm__")
+    pass
