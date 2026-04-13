@@ -1,41 +1,39 @@
 $begin 'AddEntries'
 	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\
 \	$begin \'ClusterName\'\
-\	\	Monitor={{monitor}}\
-\	\	WaitForLicense={{wait_for_license}}\
-\	\	UsePPELicensing={{use_ppe}}\
-\	\	EnableWebClient=false\
-\	\	SolveUsingNgAEDT={{ng_solve}}\
+\	\	Monitor=true\
+\	\	WaitForLicense=true\
+\	\	UsePPELicensing=false\
 \	\	BatchExtract=false\
 \	\	BatchOptions()\
-\	\	ProductPath=\'{{product_full_path}}\'\
+\	\	ProductPath=\'product_full_path\'\
 \	\	BatchExtractPath=\'\'\
 \	\	UseMultiStep=false\
 \	\	UseLSDSO=false\
 \	\	$begin \'\'\
-\	\	\	Method={{_JobConfigurationData__hpc_method}}\
+\	\	\	Method=3\
 \	\	\	$begin \'TasksAndCoresBlock\'\
 \	\	\	\	IsExclusive=false\
 \	\	\	\	RAMLimit=90\
-\	\	\	\	NumTasks={{num_tasks}}\
-\	\	\	\	NumCoresPerDistributedTask={{cores_per_task}}\
+\	\	\	\	NumTasks=0\
+\	\	\	\	NumCoresPerDistributedTask=0\
 \	\	\	\	LimitTasksPerNodeEnabled=false\
-\	\	\	\	NumMaxTasksPerNode={{max_tasks_per_node}}\
-\	\	\	\	NumGpus={{num_gpus}}\
+\	\	\	\	NumMaxTasksPerNode=0\
+\	\	\	\	NumGpus=0\
 \	\	\	$end \'TasksAndCoresBlock\'\
 \	\	\	$begin \'RAMConstrainedBlock\'\
 \	\	\	\	IsExclusive=false\
-\	\	\	\	RAMLimit={{ram_limit}}\
-\	\	\	\	NumCores={{num_cores}}\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumCores=0\
 \	\	\	\	RAMPerCoreCheckbox=false\
-\	\	\	\	RAMPerCoreInGB=\'{{ram_per_core}}\'\
+\	\	\	\	RAMPerCoreInGB=\'2.0\'\
 \	\	\	$end \'RAMConstrainedBlock\'\
 \	\	\	$begin \'NodesAndCoresBlock\'\
-\	\	\	\	IsExclusive={{exclusive}}\
-\	\	\	\	RAMLimit={{ram_limit}}\
-\	\	\	\	NumNodes={{num_nodes}}\
-\	\	\	\	NumCores={{num_cores}}\
-\	\	\	\	NumGpus={{num_gpus}}\
+\	\	\	\	IsExclusive=true\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumNodes=1\
+\	\	\	\	NumCores=32\
+\	\	\	\	NumGpus=0\
 \	\	\	$end \'NodesAndCoresBlock\'\
 \	\	\	$begin \'NodeListBlock\'\
 \	\	\	\	$begin \'MachineListVec\'\
@@ -43,11 +41,11 @@ $begin 'AddEntries'
 \	\	\	$end \'NodeListBlock\'\
 \	\	$end \'\'\
 \	\	$begin \'JobAttributes\'\
-\	\	\	JobName=\'{{job_name}}\'\
+\	\	\	JobName=\'\'\
 \	\	\	JobPriority=\'\'\
-\	\	\	SubmissionOptions=\'{{custom_submission_string}}\'\
-\	\	\	SubmissionOptionsReplace={{use_custom_submission_string}}\
-\	\	\	FixJobName={{fix_job_name}}\
+\	\	\	SubmissionOptions=\'\'\
+\	\	\	SubmissionOptionsReplace=false\
+\	\	\	FixJobName=false\
 \	\	$end \'JobAttributes\'\
 \	\	$begin \'UniformComputeResources\'\
 \	\	$end \'UniformComputeResources\'\
@@ -64,8 +62,8 @@ $begin 'AddEntries'
 \	\	\	OverwriteFiles=false\
 \	\	$end \'ArchiveOptions\'\
 \	\	$begin \'SharedDirectories\'\
-\	\	\	WindowsPaths[{{shared_directory_windows}}]\
-\	\	\	LinuxPaths[{{shared_directory_linux}}]\
+\	\	\	WindowsPaths[0:]\
+\	\	\	LinuxPaths[0:]\
 \	\	$end \'SharedDirectories\'\
 \	\	$begin \'MultiStepJobSettings\'\
 \	\	\	SelectedOption=\'\'\
