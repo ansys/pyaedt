@@ -22,8 +22,8 @@
 # THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json
-import tkinter
 from pathlib import Path
+import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import mock_open
 from unittest.mock import patch
@@ -746,14 +746,14 @@ def test_main_export_tab_file(tmp_path):
             "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
             return_value=mock_aedtapp,
         ),
-        patch(
-            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv"
-        ) as mock_write_csv,
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv") as mock_write_csv,
     ):
         result = main(data)
 
     assert result is True
-    mock_write_csv.assert_called_once_with(str(tab_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]], delimiter="\t")
+    mock_write_csv.assert_called_once_with(
+        str(tab_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]], delimiter="\t"
+    )
 
 
 def test_main_export_csv_file(tmp_path):
@@ -796,16 +796,12 @@ def test_main_export_csv_file(tmp_path):
             "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
             return_value=mock_aedtapp,
         ),
-        patch(
-            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv"
-        ) as mock_write_csv,
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv") as mock_write_csv,
     ):
         result = main(data)
 
     assert result is True
-    mock_write_csv.assert_called_once_with(
-        str(csv_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]]
-    )
+    mock_write_csv.assert_called_once_with(str(csv_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]])
 
 
 def test_main_export_npy_file(tmp_path):
@@ -848,9 +844,7 @@ def test_main_export_npy_file(tmp_path):
             "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
             return_value=mock_aedtapp,
         ),
-        patch(
-            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.np.save"
-        ) as mock_np_save,
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.np.save") as mock_np_save,
     ):
         result = main(data)
 
@@ -906,4 +900,3 @@ def test_main_export_unsupported_suffix(tmp_path):
         pytest.raises(Exception, match=r"\.xyz is not supported"),
     ):
         main(data)
-
