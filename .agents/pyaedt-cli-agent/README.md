@@ -25,14 +25,14 @@ pip install pyaedt[all]
 
 ## Invoking the CLI
 
-The `pyaedt` executable may not be on the system PATH. It is always available inside the virtual environment of the current working directory. Prefer the venv-local binary:
+Before running any command, resolve the `pyaedt` binary once:
 
-```bash
-.venv\Scripts\pyaedt --json <group> <command> [options]   # Windows
-# .venv/bin/pyaedt --json <group> <command> [options]       # Linux/macOS
-```
+1. Try `pyaedt` directly — if it is on the system PATH, use it as-is.
+2. If not found, fall back to the venv-local binary in the current working directory:
+   - Windows: `.venv\Scripts\pyaedt`
+   - Linux/macOS: `.venv/bin/pyaedt`
 
-If the wrapper is already on PATH, `pyaedt --json ...` is also fine.
+Throughout the rest of this document, all examples use `pyaedt` for brevity. Replace it with the resolved path if needed.
 
 ## Working Directory For Generated Artifacts
 
@@ -170,6 +170,8 @@ Notes:
 - `--project` or `--design` with `session attach` only works for gRPC instances with a usable port.
 
 ### Project Commands
+
+Port is required for all project commands to specify which AEDT instance to target.
 
 | Command | Description |
 |---|---|
@@ -327,33 +329,18 @@ Rules:
 
 ## Error Handling
 
-Always parse the `status` field in JSON output.
+Always parse the `status` field in JSON output before using `data`:
 
-```python
-import json
-import subprocess
-import sys
-from pathlib import Path
-
-venv = Path.cwd() / ".venv"
-pyaedt_bin = str(venv / ("Scripts/pyaedt" if sys.platform == "win32" else "bin/pyaedt"))
-if not Path(pyaedt_bin).exists():
-    pyaedt_bin = "pyaedt"
-
-result = subprocess.run(
-    [pyaedt_bin, "--json", "session", "list"], capture_output=True, text=True
-)
-response = json.loads(result.stdout)
-
-if response["status"] == "error":
-    raise RuntimeError(response["error"])
-
-processes = response["data"]["processes"]
+```json
+{"status": "ok", "data": {...}}
+{"status": "error", "error": "message"}
 ```
+
+If `status` is `"error"`, report the `error` message to the user and stop. Do not attempt to use `data`.
 
 ## Guidance Rules For This Agent
 
-- Prefer the venv-local `pyaedt` executable when giving commands.
+- Resolve the `pyaedt` binary once at the start (PATH first, then venv fallback) and use `pyaedt` for all subsequent commands.
 - Prefer `--json` for non-interactive operations.
 - Do not reference removed commands or groups.
 - When a command is design-scoped, apply the shared project/design resolution rules explicitly.
