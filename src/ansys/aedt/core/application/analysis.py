@@ -2067,7 +2067,7 @@ class Analysis(Design, PyAedtBase):
         cores: int = 32,
         wait_for_license: bool = True,
         setting_file: str = None,
-    ) -> int:  # pragma: no cover
+    ) -> int:
         """Submit a job to be solved on a cluster.
 
         Parameters

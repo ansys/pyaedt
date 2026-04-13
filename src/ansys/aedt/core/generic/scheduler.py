@@ -64,7 +64,8 @@ JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Setti
 class HPCMethod(IntEnum):
     """Enumeration for HPC settings.
 
-    Values specify the method used for HPC distribution in the ``"Job_Settings.areg"`` file.
+    Values specify the method used for HPC distribution in
+     the ``"Job_Settings.areg"`` file.
 
     Attributes
     ----------
@@ -797,7 +798,7 @@ class JobConfigurationData(PyAedtBase):
             data = json.load(f)
         return cls.from_dict(data)
 
-    def save_areg(self, file_path: str | Path = "Job_Settings.areg") -> Path:
+    def save_areg(self, file_path: str = "Job_Settings.areg") -> Path:
         """Save the job settings to an AREG file."""
         # Check if inconsistencies in resources configuration exist
         self.__resources_conf.check_consistency()

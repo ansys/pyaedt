@@ -67,7 +67,6 @@ from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.scheduler import JobConfigurationData
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -1939,7 +1938,6 @@ class Desktop(PyAedtBase):
         nodes: int | None = 1,
         cores: int | None = 32,
         wait_for_license: bool | None = True,
-        auto_hpc: bool = True,
         setting_file: str | None = None,
     ) -> int:  # pragma: no cover
         """Submit a job to be solved on a cluster.
@@ -1960,8 +1958,6 @@ class Desktop(PyAedtBase):
             Number of cores. The default is ``32``.
         wait_for_license : bool, optional
              Whether to wait for a license to become available. The default is ``True``.
-        auto_hpc: bool, optional
-            Whether to automatically select the auto HPC option. The default is ``True``.
         setting_file : str, optional
             Job settings file. The file has the "*.areg" format.
             The default value is ``None`` in which case a default template will be used.
@@ -1986,19 +1982,100 @@ class Desktop(PyAedtBase):
         if setting_file:
             job = self.odesktop.SubmitJob(str(setting_file), str(project_file))
         else:
+            if not aedt_full_exe_path:
+                version = self.odesktop.GetVersion()[2:6]
+                if version >= "22.2":
+                    version_name = "v" + version.replace(".", "")
+                else:
+                    version_name = "AnsysEM" + version
+                if Path(r"\\" + cluster_name + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)).exists():
+                    aedt_full_exe_path = (
+                        r"\\\\\\\\" + cluster_name + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
+                    )
+                elif Path(r"\\" + cluster_name + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)).exists():
+                    aedt_full_exe_path = (
+                        r"\\\\\\\\" + cluster_name + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
+                    )
+                else:
+                    self.logger.error("AEDT shared path does not exist. Provide a full path.")
+                    return False
+            else:
+                if not Path(aedt_full_exe_path).exists():
+                    self.logger.warning("The AEDT executable path is not visible from the client.")
+                aedt_full_exe_path.replace("\\", "\\\\")
+            if project_name in self.project_list:
+                self.odesktop.CloseProject(project_name)
+            path_file = Path(__file__)
             destination_reg = Path(project_path) / "Job_settings.areg"
-            job_config = JobConfigurationData(
-                cluster_name=cluster_name,
-                num_nodes=nodes,
-                num_cores=cores,
-                wait_for_license=wait_for_license,
-                product_full_path=aedt_full_exe_path,
-                auto_hpc=auto_hpc,
-            )
-            job_config.save_areg(destination_reg)
+            if not setting_file:
+                setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
+            if Path(setting_file).exists():
+                f1 = open_file(destination_reg, "w")
+                with open_file(setting_file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if "\\	$begin" == line[:8]:
+                            lin = f"\\	$begin \\'{cluster_name}\\'\\\n"
+                            f1.write(lin)
+                        elif "\\	$end" == line[:6]:
+                            lin = f"\\	$end \\'{cluster_name}\\'\\\n"
+                            f1.write(lin)
+                        elif "NumCores=" in line:
+                            lin = f"\\	\\	\\	\\	NumCores={cores}\\\n"
+                            f1.write(lin)
+                        elif "NumNodes=1" in line:
+                            lin = f"\\	\\	\\	\\	NumNodes={nodes}\\\n"
+                            f1.write(lin)
+                        elif "ProductPath" in line:
+                            lin = f"\\	\\	ProductPath =\\'{aedt_full_exe_path}\\'\\\n"
+                            f1.write(lin)
+                        elif "WaitForLicense" in line:
+                            lin = f"\\	\\	WaitForLicense={str(wait_for_license).lower()}\\\n"
+                            f1.write(lin)
+                        else:
+                            f1.write(line)
+                f1.close()
             job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
+
+    @pyaedt_function_handler()
+    def launch_job_monitor(
+        self,
+        input_file: str | Path,
+    ) -> bool:  # pragma: no cover
+        """Launch job monitor. This method is opening the job monitor tool.
+
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`
+            Full path to the project.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesktop.LaunchJobMonitor
+        """
+        return self.odesktop.LaunchJobMonitor(str(input_file))
+
+    @pyaedt_function_handler()
+    def job_status(self) -> str:  # pragma: no cover
+        """Get job status from job monitor.Job monitor has to be opened.
+
+        Returns
+        -------
+        str
+            A string specifying the job state.
+
+        References
+        ----------
+        >>> oDesktop.RefreshJobMonitor
+        """
+        return self.odesktop.RefreshJobMonitor()
 
     @pyaedt_function_handler()
     def select_scheduler(
