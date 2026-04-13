@@ -1675,15 +1675,15 @@ class PostProcessorCommon(PyAedtBase):
     def get_solution_data(
         self,
         expressions: str | list = None,
-        setup_sweep_name: str = None,
-        domain: str = None,
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        report_category: str = None,
-        context: str | dict = None,
-        subdesign_id: int = None,
+        setup_sweep_name: str | None = None,
+        domain: str | None = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        report_category: str | None = None,
+        context: str | dict | None = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
-        math_formula: str = None,
+        math_formula: str | None = None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
