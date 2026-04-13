@@ -33,10 +33,12 @@ import logging
 import os
 from pathlib import Path
 import sys
+import threading
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
 import traceback
+from typing import Callable
 
 import PIL.Image
 import PIL.ImageTk
@@ -180,6 +182,10 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
 
     log = logging.getLogger("Global")
 
+    if aedt_versions.is_pyaedt_in_edt():
+        log.debug("PyAEDT update check: skipped in EDT sandbox environment.")
+        return None, None
+
     # Get current PyAEDT version
     try:
         from ansys.aedt.core import __version__ as current_version
@@ -230,6 +236,37 @@ def check_for_pyaedt_update(personallib: str) -> tuple[str | None, Path | None]:
         return None, None
 
     return latest, version_file
+
+
+def check_for_pyaedt_update_on_startup(
+    root: tkinter.Widget,
+    personallib: str,
+    show_update_callback: Callable[[str, Path], None],
+) -> None:
+    """Spawn a background thread to check PyPI and schedule an optional UI prompt.
+
+    The network check is skipped when running in the EDT sandbox.
+    """
+    log = logging.getLogger("Global")
+
+    if aedt_versions.is_pyaedt_in_edt():
+        log.debug("PyAEDT update check: startup check skipped in EDT sandbox environment.")
+        return
+
+    def worker() -> None:
+        try:
+            latest, declined_file = check_for_pyaedt_update(personallib)
+            if not latest:
+                log.debug("PyAEDT update check: no prompt required or latest unavailable.")
+                return
+            try:
+                root.after(0, lambda: show_update_callback(latest, declined_file))
+            except Exception:
+                log.debug("PyAEDT update check: failed to schedule UI callback.", exc_info=True)
+        except Exception:
+            log.debug("PyAEDT update check: worker failed.", exc_info=True)
+
+    threading.Thread(target=worker, daemon=True).start()
 
 
 @dataclass

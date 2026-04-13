@@ -56,7 +56,6 @@ from tests.conftest import NON_GRAPHICAL
 # os.environ["PYAEDT_USE_PRE_GRPC_ARGS"] = "True"
 
 AEDT_VERSION = DESKTOP_VERSION
-HOST_NAME = socket.gethostbyname(socket.gethostname())
 IS_WINDOWS = os.name == "nt"
 GRPC_CONNECTION_TIMEOUT = 30  # seconds
 
@@ -649,9 +648,9 @@ def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path) -> None:
 # @pytest.mark.parametrize("machine", REMOTE_HOSTS)
 # def test_desktop_remote_mtls_all_interface_success(machine, monkeypatch, tmp_path):
 #     """Test that Desktop can connect in remote mTLS mode listening on all interfaces."""
-#    monkeypatch.setattr(settings, 'grpc_local', False)
-#    monkeypatch.setattr(settings, 'grpc_secure_mode', True)
-#    monkeypatch.setattr(settings, 'grpc_listen_all', True)
+#     monkeypatch.setattr(settings, 'grpc_local', False)
+#     monkeypatch.setattr(settings, 'grpc_secure_mode', True)
+#     monkeypatch.setattr(settings, 'grpc_listen_all', True)
 #     port = _find_free_port()
 #     generate_certs([machine], tmp_path)
 #     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))

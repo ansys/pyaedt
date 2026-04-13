@@ -33,7 +33,7 @@ classifiers = [
 
 dependencies = [
     "ansys-tools-common",
-    "grpcio>=1.50.0,<1.79",
+    "grpcio>=1.50.0,<1.81",
     "jsonschema",
     "psutil>=6.0.0",
     "pyedb>=0.71.0",
@@ -105,7 +105,7 @@ dev = [
 ]
 tests = [
     "pytest>=7.4.0,<9.1",
-    "pytest-cov>=4.0.0,<7.1",
+    "pytest-cov>=4.0.0,<7.2",
     "pytest-testmon>=2.0.0,<3.0",
     "mock>=5.1.0,<5.3",
     "pytest-testmon>=2.0.0,<3.0",
