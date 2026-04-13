@@ -778,13 +778,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Axis Scale", "Value:=", str(self._legacy_props["general"]["contours_scale"])],
                         ],
                     )
-                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
-                    self._change_property(
-                        "Contour",
-                        f" Plot {self.traces[0].name}",
-                        ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
-                    )
-                elif "contours_min_limit" in self._legacy_props.get("general", {}):
+
+                if "contours_min_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
@@ -793,7 +788,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Min", "Value:=", str(self._legacy_props["general"]["contours_min_limit"])],
                         ],
                     )
-                elif "contours_max_limit" in self._legacy_props.get("general", {}):
+                if "contours_max_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
@@ -802,6 +797,26 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                             ["NAME:Max", "Value:=", str(self._legacy_props["general"]["contours_max_limit"])],
                         ],
                     )
+                    messages = self._app.odesktop.GetMessages("", "", 1)
+                    if messages:
+                        last_message = messages[-1].strip()[:-1]
+                        if "value of specify limits is greater than data maximum" in last_message:
+                            val = last_message.split(" ")[-1]
+                            self._change_property(
+                                "Contour",
+                                f" Plot {self.traces[0].name}",
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Max", "Value:=", val],
+                                ],
+                            )
+                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
+                    if self._legacy_props["general"]["enable_contours_auto_limit"]:
+                        self._change_property(
+                            "Contour",
+                            f" Plot {self.traces[0].name}",
+                            ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
+                        )
             self.eye_mask(
                 points=eye_points,
                 x_units=eye_xunits,

@@ -557,15 +557,25 @@ def test_edit_sources_terminal(aedt_app) -> None:
     p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
 
     assert aedt_app.edit_sources(
-        {f"{p1.name}": "10W", f"{p2.name}": ("20W", "0deg", True)},
+        {f"{p1.name}_T1": "10V", f"{p2.name}_T1": ("20V", "0deg")},
         include_port_post_processing=True,
         use_incident_voltage=True,
     )
 
     assert aedt_app.edit_sources(
-        {f"{p1.name}": "10V", f"{p2.name}": ("20V", "20deg", True)},
+        {f"{p1.name}_T1": "10V", f"{p2.name}_T1": ("20V", "20deg")},
         include_port_post_processing=True,
         max_available_power="40W",
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}_T1": ("20V", "20deg"), f"{p2.name}_T1": ("20W", "0deg", True)},
+        use_incident_voltage=False,
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}_T1": ("20V", "20deg", False), f"{p2.name}_T1": ("20W", "0deg", True, "30ohm", "5ohm")},
+        use_incident_voltage=False,
     )
 
 

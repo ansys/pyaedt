@@ -33,8 +33,8 @@ from ansys.aedt.core.desktop import TransportMode
 from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
 from ansys.aedt.core.desktop import _find_free_port
-from ansys.aedt.core.desktop import _is_port_occupied
 from ansys.aedt.core.desktop import _ServerArgs
+from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 

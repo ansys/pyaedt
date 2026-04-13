@@ -34,6 +34,7 @@ import logging
 import os
 import platform
 import re
+import socket
 import subprocess  # nosec
 import sys
 import time
@@ -75,8 +76,6 @@ inclusion_list = [
 
 
 def _write_mes(mes_text) -> None:
-    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
-        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
@@ -794,7 +793,13 @@ def _get_pids_by_name_windows(image_name: str) -> list[int]:
     # /nh - No header row in output (easier to parse)
     cmd = ["tasklist", "/fi", f"imagename eq {image_name}", "/fo", "csv", "/nh"]
     result = subprocess.run(
-        cmd, capture_output=True, text=True, shell=False, check=False, creationflags=subprocess.CREATE_NO_WINDOW
+        cmd,
+        capture_output=True,
+        text=True,
+        shell=False,
+        encoding="mbcs",
+        check=False,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )  # nosec
 
     # Parse the CSV output from tasklist
@@ -932,7 +937,12 @@ def _check_psutil_connections(pids: list[int]) -> dict[int, list[str, Any]]:
             # Get all TCP network connections for this specific process
             # prc.net_connections() returns a list of named tuples (sconn objects)
             # Each connection has attributes: fd, family, type, laddr, raddr, status, pid
-            for conn in prc.net_connections():
+            if hasattr(prc, "net_connections"):
+                prc_connections = prc.net_connections()
+            else:  # pragma: no cover
+                prc_connections = prc.connections()
+
+            for conn in prc_connections:
                 # Build a connection dictionary with the information we need
                 # conn.laddr: Local address as a named tuple with .ip and .port attributes
                 # conn.laddr.ip: Local IP address (e.g., "127.0.0.1", "::", "0.0.0.0")
@@ -1001,6 +1011,7 @@ def _check_connection_grpc_port(
         - ``False``: Only return port if process does NOT have ``-ng`` flag (graphical mode)
         - ``None``: Ignore graphical mode (return port regardless)
 
+
     Returns
     -------
     int
@@ -1008,9 +1019,20 @@ def _check_connection_grpc_port(
         ``-1`` if no matching connection is found.
 
     """
+
+    def get_local_ip():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect((socket.gethostname(), 80))
+            return s.getsockname()[0]
+        finally:
+            s.close()
+
     # Step 1: Iterate through possible localhost IP addresses
-    # Check both IPv6 (::) and IPv4 (127.0.0.1) localhost addresses
-    for ip in ["::", "127.0.0.1"]:
+    # Check both IPv6 (::), IPv4 (127.0.0.1) localhost addresses and IPv6 mapped as IPv4.
+    ip_search = ["::", "127.0.0.1", "::ffff:127.0.0.1", get_local_ip()]
+
+    for ip in ip_search:
         # Step 2: Iterate through all processes in the connections dictionary
         # input_pid: Process ID from the connections dict
         # conn: List of connection dictionaries for that process
@@ -1060,8 +1082,19 @@ def _check_connection_grpc_port(
     return -1
 
 
+def _is_port_occupied(port, host=None):
+    """Check if a port is occupied."""
+    if host is None:
+        host = "127.0.0.1"
+    if not port:
+        return False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex((host, port)) == 0
+
+
 @pyaedt_function_handler()
-def is_grpc_session_active(port: int) -> bool:
+def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     """Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
@@ -1077,6 +1110,8 @@ def is_grpc_session_active(port: int) -> bool:
     ----------
     port : int
         The gRPC port number to check.
+    machine : str, optional
+        Specific machine IP address.
 
     Returns
     -------
@@ -1098,7 +1133,10 @@ def is_grpc_session_active(port: int) -> bool:
     ... else:
     ...     print("Port 50051 is available.")
     """
+    pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
     # On Linux, try to resolve unknown ports using Unix socket analysis
+    if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
+        return _is_port_occupied(port, machine)
     if is_linux:
         try:
             sockets = _run_ss_xlp()
@@ -1127,7 +1165,9 @@ def is_grpc_session_active(port: int) -> bool:
 
 @pyaedt_function_handler()
 def active_sessions(
-    version: str = None, student_version: bool = False, non_graphical: bool | None = None
+    version: str = None,
+    student_version: bool = False,
+    non_graphical: bool | None = None,
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
@@ -1295,8 +1335,10 @@ def com_active_sessions(
 
 @pyaedt_function_handler()
 def grpc_active_sessions(
-    version: str | None = None, student_version: bool | None = False, non_graphical: bool | None = False
-):
+    version: str | None = None,
+    student_version: bool | None = False,
+    non_graphical: bool | None = False,
+) -> list[int]:
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
@@ -1309,6 +1351,8 @@ def grpc_active_sessions(
         Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
         Whether to check only for active non-graphical sessions. The default is ``False``.
+    machine : str, optional
+        Specific machine IP address. The default is ``None``, in which case local machine is checked.
 
     Returns
     -------

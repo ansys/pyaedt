@@ -4201,12 +4201,52 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                         phase = "0deg"
                     else:
                         phase = vals[1]
-                if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                if isinstance(vals, (list, tuple)) and len(vals) >= 3:
                     terminated = vals[2]
                 else:
                     terminated = False
                 if not use_incident_voltage and self.solution_type == "Terminal":
-                    setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+                    if not terminated:
+                        setting.append(
+                            ["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase]
+                        )
+                    else:
+                        if isinstance(vals, (list, tuple)) and len(vals) == 5:
+                            resistance = vals[3]
+                            reactance = vals[4]
+                            setting.append(
+                                [
+                                    "Name:=",
+                                    key,
+                                    "Terminated:=",
+                                    terminated,
+                                    "Magnitude:=",
+                                    power,
+                                    "Phase:=",
+                                    phase,
+                                    "Resistance:=",
+                                    resistance,
+                                    "Reactance:=",
+                                    reactance,
+                                ]
+                            )
+                        else:
+                            setting.append(
+                                [
+                                    "Name:=",
+                                    key,
+                                    "Terminated:=",
+                                    terminated,
+                                    "Magnitude:=",
+                                    power,
+                                    "Phase:=",
+                                    phase,
+                                    "Resistance:=",
+                                    "50ohm",
+                                    "Reactance:=",
+                                    "0ohm",
+                                ]
+                            )
                 else:
                     setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
             argument = []
