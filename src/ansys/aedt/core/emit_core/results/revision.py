@@ -114,7 +114,7 @@ class Revision:
                 self.name = name
                 """Name of the revision."""
 
-        else:
+        else:  # pragma: no cover
             if not name:
                 name = emit_obj.odesign.GetCurrentResult()
                 if not name:
