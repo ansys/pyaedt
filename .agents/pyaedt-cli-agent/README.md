@@ -178,8 +178,8 @@ Port is required for all project commands to specify which AEDT instance to targ
 | `pyaedt --json project list --port 50051` | List all open projects and their designs |
 | `pyaedt --json project open "C:/path/to/file.aedt" --port 50051 [--non-graphical]` | Open an AEDT project file |
 | `pyaedt --json project save --port 50051 [--path "C:/new/file.aedt"]` | Save the active project, optionally as a new file |
-| `pyaedt --json project create --name ProjectA --port 50051` | Create a project |
-| `pyaedt --json project create --project ProjectA --design Design1 --type Hfss --port 50051` | Create a design inside an existing project |
+| `pyaedt --json project create --name ProjectA --port 50051` | Create a **project** — use `--name` |
+| `pyaedt --json project create --project ProjectA --design Design1 --type Hfss --port 50051` | Create a **design** inside an existing project — use `--project` + `--design` + `--type` |
 | `pyaedt --json project close --port 50051 [--project ProjectA]` | Close a project, or the active project if omitted |
 
 `project create` behavior:
@@ -278,10 +278,10 @@ Use this first when you need to understand which project and design selectors wi
 ### Workflow 3: Create A Project Or A Design
 
 ```bash
-# Create a project
+# Create a project — use --name ONLY (do NOT add --design or --type)
 pyaedt --json project create --name "PatchAntenna" --port 50051
 
-# Create a design in an existing project
+# Create a design in an existing project — use --project + --design + --type ONLY (do NOT add --name)
 pyaedt --json project create --project "PatchAntenna" --design "HFSSDesign1" --type Hfss --port 50051
 ```
 
@@ -343,6 +343,7 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 - Resolve the `pyaedt` binary once at the start (PATH first, then venv fallback) and use `pyaedt` for all subsequent commands.
 - Prefer `--json` for non-interactive operations.
 - Do not reference removed commands or groups.
+- For `project create`: use `--name` + `--port` to create a project; use `--project` + `--design` + `--type` + `--port` to create a design. Never combine `--name` with `--project`, `--design`, or `--type`.
 - When a command is design-scoped, apply the shared project/design resolution rules explicitly.
 - When the available project/design selection is ambiguous, ask for the missing selector instead of guessing.
 - Use `project list --port ...` to inspect the AEDT state before choosing selectors.
