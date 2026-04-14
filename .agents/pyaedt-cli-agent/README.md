@@ -305,24 +305,13 @@ pyaedt session attach --port 50051
 Prefer `session attach` first. Graduate to `script run` only once the workflow is known and needs to be repeatable or automated.
 
 
-### Workflow 4: Run Automation
+### Workflow 5: Run Automation
 
 ```bash
 pyaedt --json script run "<temp-dir>/setup_antenna.py" --port 50051
 
 # Or a small one-off command
-pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
-```
-
-### Workflow 5: Export Design Data
-
-```bash
-# If the instance has exactly one project and one design, selectors can be omitted
-pyaedt --json export screenshot --port 50051 --path "<temp-dir>/preview.jpg"
-pyaedt --json export config --port 50051 --output "<temp-dir>/config.json" --overwrite
-
-# If ambiguous, specify the missing selector(s)
-pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "<temp-dir>/preview.jpg"
+pyaedt --json script code "result = desktop.project_list" --port 50051
 ```
 
 ### Workflow 6: Generated Script Execution
@@ -347,6 +336,17 @@ Rules:
 - Do not tell the user to run the generated script manually if the workflow requires automatic execution.
 - Generated scripts intended for an existing AEDT instance should use `new_desktop=False`.
 
+### Workflow 7: Export Design Data
+
+```bash
+# If the instance has exactly one project and one design, selectors can be omitted
+pyaedt --json export screenshot --port 50051 --path "<temp-dir>/preview.jpg"
+pyaedt --json export config --port 50051 --output "<temp-dir>/config.json" --overwrite
+
+# If ambiguous, specify the missing selector(s)
+pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "<temp-dir>/preview.jpg"
+```
+
 ## Error Handling
 
 Always parse the `status` field in JSON output before using `data`:
@@ -367,7 +367,7 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 - When a command is design-scoped, apply the shared project/design resolution rules explicitly.
 - When the available project/design selection is ambiguous, ask for the missing selector instead of guessing.
 - Use `project list --port ...` to inspect the AEDT state before choosing selectors.
-- Use `script code` for small one-off actions and `script run` for real scripts.
+- Use `script run` for real scripts.
 - Use `session attach` as the first choice for interactive, exploratory, or debugging workflows; fall back to `script run` only when the workflow is defined, repeatable, or automated.
 - When multiple instances are found, present the full list with port, version, and PID before asking.
 - When a generated script must be executed automatically, determine the target port first and then run `script run --port ...`.
