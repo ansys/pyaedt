@@ -33,5 +33,6 @@ def main() -> None:
         secure=args.secure,
     )
 
+
 if __name__ == "__main__":
     main()
