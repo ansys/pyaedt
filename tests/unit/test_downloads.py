@@ -47,6 +47,10 @@ def test_download_touchstone(test_tmp_dir):
 
 def test_download_netlist(test_tmp_dir):
     assert downloads.download_netlist(test_tmp_dir)
+    # Example already downloaded
+    assert downloads.download_netlist(test_tmp_dir)
+    # Delete examples
+    assert downloads.delete_downloads()
 
 
 def test_download_sbr(test_tmp_dir):
