@@ -2921,7 +2921,6 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         """
-
         if self.design_type not in ["Maxwell 3D", "Icepak"]:
             is_project_dataset = True
 
