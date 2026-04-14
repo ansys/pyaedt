@@ -73,35 +73,3 @@ def run_script(
         else:
             typer.secho(f"Error: {e}", fg="red")
         raise typer.Exit(code=1)
-
-
-@script_app.command("code")
-def run_code(
-    code: str = typer.Argument(..., help="Python code to execute"),
-    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
-) -> None:
-    """Execute inline Python code with access to the AEDT desktop object.
-
-    The code runs in a namespace with ``desktop`` and ``odesktop`` available.
-    Set ``result`` to return a value.
-    """
-    try:
-        d = common.get_desktop(port=port)
-        namespace = {"desktop": d, "odesktop": d.odesktop, "result": None}
-        exec(code, namespace)  # nosec B102 - user-provided code execution is the intended feature
-        result_val = namespace.get("result")
-        data = {"executed": True, "result": str(result_val) if result_val is not None else None}
-        if common.json_mode:
-            common.print_output(data=data)
-        else:
-            typer.secho("Code executed.", fg="green")
-            if result_val is not None:
-                typer.echo(f"Result: {result_val}")
-    except typer.Exit:
-        raise
-    except Exception as e:
-        if common.json_mode:
-            common.print_output(error=str(e))
-        else:
-            typer.secho(f"Error: {e}", fg="red")
-        raise typer.Exit(code=1)

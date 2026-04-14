@@ -868,18 +868,6 @@ def test_script_run_success(mock_get_desktop, cli_runner, tmp_path):
 
 
 @patch("ansys.aedt.core.cli.common.get_desktop")
-def test_script_code_success(mock_get_desktop, cli_runner):
-    mock_desktop = Mock()
-    mock_get_desktop.return_value = mock_desktop
-
-    result = cli_runner.invoke(app, ["script", "code", "result = 42", "--port", "50051"])
-
-    assert result.exit_code == 0
-    assert "Code executed" in result.output
-    assert "Result: 42" in result.output
-
-
-@patch("ansys.aedt.core.cli.common.get_desktop")
 def test_script_run_json(mock_get_desktop, cli_runner, tmp_path):
     script_file = tmp_path / "test_script.py"
     script_file.write_text("print('hello')", encoding="utf-8")
@@ -891,28 +879,6 @@ def test_script_run_json(mock_get_desktop, cli_runner, tmp_path):
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert data["data"]["executed"] is True
-
-
-@patch("ansys.aedt.core.cli.common.get_desktop")
-def test_script_code_without_result(mock_get_desktop, cli_runner):
-    mock_desktop = Mock()
-    mock_get_desktop.return_value = mock_desktop
-
-    result = cli_runner.invoke(app, ["script", "code", "value = 1", "--port", "50051"])
-
-    assert result.exit_code == 0
-    assert "Result:" not in result.output
-
-
-@patch("ansys.aedt.core.cli.common.get_desktop")
-def test_script_code_exception(mock_get_desktop, cli_runner):
-    mock_desktop = Mock()
-    mock_get_desktop.return_value = mock_desktop
-
-    result = cli_runner.invoke(app, ["script", "code", "raise RuntimeError('boom')", "--port", "50051"])
-
-    assert result.exit_code == 1
-    assert "Error: boom" in result.output
 
 
 @patch("ansys.aedt.core.cli.common.get_design_app")
