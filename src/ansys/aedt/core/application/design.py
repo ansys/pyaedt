@@ -2982,6 +2982,9 @@ class Design(AedtObjects, PyAedtBase):
         if name.startswith("$"):
             name = name[1:]
             is_project_dataset = True
+        else:
+            name = name[1:]
+            is_project_dataset = False
 
         if self.design_type not in ["Maxwell 3D", "Icepak"]:
             is_project_dataset = True
