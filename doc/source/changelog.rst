@@ -9,6 +9,184 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.26.1 <https://github.com/ansys/pyaedt/releases/tag/v0.26.1>`_ - April 13, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Enhance extension manager with optional extensions support
+          - `#7479 <https://github.com/ansys/pyaedt/pull/7479>`_
+
+        * - Implemented light panels and multiple improvements
+          - `#7487 <https://github.com/ansys/pyaedt/pull/7487>`_
+
+        * - Pass resistance and reactance in Edit Sources
+          - `#7502 <https://github.com/ansys/pyaedt/pull/7502>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump aiohttp from 3.13.3 to 3.13.4
+          - `#7482 <https://github.com/ansys/pyaedt/pull/7482>`_
+
+        * - Bump nick-fields/retry from 3.0.2 to 4.0.0
+          - `#7488 <https://github.com/ansys/pyaedt/pull/7488>`_
+
+        * - Bump ansys/actions from 10.2.11 to 10.2.12
+          - `#7491 <https://github.com/ansys/pyaedt/pull/7491>`_
+
+        * - Bump ipython from 8.38.0 to 8.39.0
+          - `#7492 <https://github.com/ansys/pyaedt/pull/7492>`_
+
+        * - Bump actions/cache from 5.0.1 to 5.0.4
+          - `#7493 <https://github.com/ansys/pyaedt/pull/7493>`_
+
+        * - Bump prek from 0.3.6 to 0.3.8
+          - `#7494 <https://github.com/ansys/pyaedt/pull/7494>`_
+
+        * - Bump django from 5.2.12 to 5.2.13
+          - `#7518 <https://github.com/ansys/pyaedt/pull/7518>`_
+
+        * - Bump cryptography from 46.0.6 to 46.0.7
+          - `#7520 <https://github.com/ansys/pyaedt/pull/7520>`_
+
+        * - Bump astral-sh/setup-uv from 7.3.0 to 8.0.0
+          - `#7530 <https://github.com/ansys/pyaedt/pull/7530>`_
+
+        * - Bump codecov/codecov-action from 5.5.2 to 6.0.0
+          - `#7531 <https://github.com/ansys/pyaedt/pull/7531>`_
+
+        * - Bump requests from 2.33.0 to 2.33.1
+          - `#7532 <https://github.com/ansys/pyaedt/pull/7532>`_
+
+        * - Bump grpcio from 1.78.1 to 1.80.0
+          - `#7533 <https://github.com/ansys/pyaedt/pull/7533>`_
+
+        * - Bump pillow from 12.1.1 to 12.2.0
+          - `#7534 <https://github.com/ansys/pyaedt/pull/7534>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add note on testmon + skipped test transition
+          - `#7525 <https://github.com/ansys/pyaedt/pull/7525>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - COM connection
+          - `#7465 <https://github.com/ansys/pyaedt/pull/7465>`_
+
+        * - Implemented modification for 26R1 SP
+          - `#7475 <https://github.com/ansys/pyaedt/pull/7475>`_
+
+        * - Fixed requirements from japanese language
+          - `#7500 <https://github.com/ansys/pyaedt/pull/7500>`_
+
+        * - Improved touchstone_parser.py using regex to identify port names
+          - `#7503 <https://github.com/ansys/pyaedt/pull/7503>`_
+
+        * - Bugfix/eyeplot without limitlines
+          - `#7505 <https://github.com/ansys/pyaedt/pull/7505>`_
+
+        * - Add machine parameter to grpc_active_sessions for specific IP address filtering
+          - `#7509 <https://github.com/ansys/pyaedt/pull/7509>`_
+
+        * - Message missing in case of errors raised and debug mode disabled.
+          - `#7512 <https://github.com/ansys/pyaedt/pull/7512>`_
+
+        * - Fixed check on machine port availability for remote connection
+          - `#7513 <https://github.com/ansys/pyaedt/pull/7513>`_
+
+        * - Enhance capacitor creation with name parameter and refresh IDs
+          - `#7516 <https://github.com/ansys/pyaedt/pull/7516>`_
+
+        * - Skip tests on CI runners to prevent access violation issues
+          - `#7524 <https://github.com/ansys/pyaedt/pull/7524>`_
+
+        * - Move test_osm.py and add import_from_open_street_map to sequential tests
+          - `#7528 <https://github.com/ansys/pyaedt/pull/7528>`_
+
+        * - Fix Contour settings
+          - `#7529 <https://github.com/ansys/pyaedt/pull/7529>`_
+
+        * - Maintain ServiceManager connection
+          - `#7535 <https://github.com/ansys/pyaedt/pull/7535>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.26.0
+          - `#7476 <https://github.com/ansys/pyaedt/pull/7476>`_
+
+        * - Update CHANGELOG for v1.0.0rc2
+          - `#7478 <https://github.com/ansys/pyaedt/pull/7478>`_
+
+        * - Update import logic to fix conda
+          - `#7485 <https://github.com/ansys/pyaedt/pull/7485>`_
+
+        * - Add criptography
+          - `#7495 <https://github.com/ansys/pyaedt/pull/7495>`_
+
+        * - Pre-commit automatic update
+          - `#7499 <https://github.com/ansys/pyaedt/pull/7499>`_
+
+        * - Fix python input
+          - `#7501 <https://github.com/ansys/pyaedt/pull/7501>`_
+
+        * - Bump vtk version into v9.6.1
+          - `#7514 <https://github.com/ansys/pyaedt/pull/7514>`_
+
+        * - Bump pytest-cov version into v7.1.0
+          - `#7515 <https://github.com/ansys/pyaedt/pull/7515>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Rpyc service logic and clean up
+          - `#7402 <https://github.com/ansys/pyaedt/pull/7402>`_
+
+        * - Graphic related imports and exception handling
+          - `#7486 <https://github.com/ansys/pyaedt/pull/7486>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Clean up some tests implementation
+          - `#7431 <https://github.com/ansys/pyaedt/pull/7431>`_
+
+
 `1.0.0rc2 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0rc2>`_ - April 01, 2026
 
 .. tab-set::
