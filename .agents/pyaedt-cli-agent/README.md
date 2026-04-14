@@ -275,6 +275,28 @@ pyaedt session attach --port 50051
 # >>> hfss.modeler["MyBox"].color = (255, 0, 0)
 ```
 
+#### Sending Multi-Line Code to the iPython Console
+
+When the agent sends code to the iPython console that spans **more than one line** (loops, conditionals, function definitions, etc.), pasting it directly causes an `IndentationError` or `SyntaxError` because the console treats each line as a separate input.
+
+**Always wrap multi-line blocks in `exec()`**, encoding all newlines as `\n` inside a single string:
+
+```python
+# Fails — the console breaks on the loop body
+for i in range(3):
+    print(i)
+
+# Correct — send as a single exec() call
+exec("for i in range(3):\n    print(i)")
+```
+
+Rules:
+
+- Use `exec()` for **any** block that contains indented code (loops, `if`, `with`, function or class definitions).
+- Single-statement lines (imports, assignments, function calls) do **not** need `exec()`.
+- Escape all inner double-quotes as `\"` if the outer delimiter is `"`, or use concatenated string literals as shown above.
+- Keep `exec()` calls as short as possible; if the block grows beyond ~10 lines prefer saving a temp script and using `script run` instead.
+
 **When to prefer `session attach` over `script run`:**
 
 | Situation | Preferred approach |
@@ -289,6 +311,29 @@ pyaedt session attach --port 50051
 | Traceability and logging required | `script run` |
 
 Prefer `session attach` first. Graduate to `script run` only once the workflow is known and needs to be repeatable or automated.
+
+#### Working With Multiple Designs Simultaneously
+
+When the user needs to work on **more than one design at the same time**, open a **separate iPython console for each design** instead of switching designs inside a single console.
+This keeps every design live and editable without closing or releasing any of them.
+
+```bash
+# Terminal 1 — console for Design A
+pyaedt session attach --port 50051 --project "ProjectA" --design "DesignA"
+
+# Terminal 2 — console for Design B (same or different project)
+pyaedt session attach --port 50051 --project "ProjectA" --design "DesignB"
+
+# Terminal 3 — console for a design in a different project
+pyaedt session attach --port 50051 --project "ProjectB" --design "DesignC"
+```
+
+Rules:
+
+- Each console holds its own PyAEDT object bound to a specific design — closing one console does **not** close the others.
+- All consoles share the same AEDT instance (same `--port`), so changes made in one are visible in AEDT immediately.
+- Do **not** call `desktop.release_desktop()` or `aedt_app.release_desktop()` inside any of these consoles unless you intentionally want to shut down AEDT for all open consoles.
+- If the designs live in different AEDT instances, use the matching `--port` for each console.
 
 
 ### Workflow 5: Run Automation
@@ -352,6 +397,8 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 - Use `project list --port ...` to inspect the AEDT state before choosing selectors.
 - Use `script run` for real scripts.
 - Use `session attach` as the first choice for interactive, exploratory, or debugging workflows; fall back to `script run` only when the workflow is defined, repeatable, or automated.
+- When sending multi-line code (loops, conditionals, function definitions) to a `session attach` iPython console, always wrap the entire block in a single `exec("line1\nline2\n...")` call. Never paste raw indented blocks directly — they cause `IndentationError` or `SyntaxError`.
+- When the user needs to work on **multiple designs simultaneously**, instruct them to open one `session attach` console per design (one terminal per design). Never switch designs inside a single console to handle multiple designs at once.
 - When multiple instances are found, present the full list with port, version, and PID before asking.
 - When a generated script must be executed automatically, determine the target port first and then run `script run --port ...`.
 - Generated scripts intended to reuse an existing AEDT instance should use `new_desktop=False`.
