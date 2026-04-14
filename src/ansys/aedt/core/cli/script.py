@@ -59,7 +59,8 @@ def run_script(
         settings.enable_logger = True
 
         d = common.get_desktop(port=port)
-        d.odesktop.RunScript(str(path.resolve()))
+        script_globals = {"__file__": str(path.resolve()), "desktop": d}
+        exec(compile(path.read_text(encoding="utf-8"), str(path.resolve()), "exec"), script_globals)  # noqa: S102
         data = {"executed": True, "script": str(path.resolve())}
         if common.json_mode:
             common.print_output(data=data)
