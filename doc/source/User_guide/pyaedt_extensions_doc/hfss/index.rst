@@ -37,3 +37,10 @@ HFSS extensions
             :margin: 2 2 0 0
 
             Automated assembly workflow.
+
+   .. grid-item-card:: Fresnel
+            :link: fresnel
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.

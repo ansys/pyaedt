@@ -102,7 +102,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+      - uses: ansys/actions/check-vulnerabilities@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -117,7 +117,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+      - uses: ansys/actions/check-actions-security@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/check-pr-title@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -167,7 +167,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -194,7 +194,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/doc-style@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -211,7 +211,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/doc-build@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -220,6 +220,7 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: false
+          optional-dependencies-name: 'all'
           group-dependencies-name: 'doc'
 
   smoke-tests:
@@ -235,16 +236,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.10', '3.11', '3.12', '3.13']
+        target: ['', 'all']
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ matrix.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -278,7 +280,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -291,7 +293,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group unit-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
@@ -324,7 +326,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -337,7 +339,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group integration-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
@@ -374,7 +376,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -387,7 +389,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -448,7 +450,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -461,7 +463,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -515,7 +517,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -531,7 +533,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -592,7 +594,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -608,7 +610,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -662,7 +664,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -678,7 +680,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -740,7 +742,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -756,7 +758,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -808,7 +810,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -821,7 +823,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -882,7 +884,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -895,7 +897,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -949,7 +951,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -962,7 +964,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1023,7 +1025,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1034,7 +1036,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1088,7 +1090,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1104,7 +1106,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1156,7 +1158,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1172,7 +1174,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1215,7 +1217,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1228,16 +1230,16 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
 
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
+#      - name: Restore testmondata cache
+#        uses: ./.github/actions/testmon-cache
+#        with:
+#          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+#          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1286,7 +1288,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1299,7 +1301,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1364,7 +1366,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-library@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}

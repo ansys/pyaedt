@@ -129,9 +129,9 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "AnsysSendMsg",
 ]
 
-DEFAULT_GRPC_LOCAL = True
-DEFAULT_GRPC_SECURE_MODE = True
-DEFAULT_GRPC_LISTEN_ALL = False
+DEFAULT_GRPC_LOCAL: bool = True
+DEFAULT_GRPC_SECURE_MODE: bool = True
+DEFAULT_GRPC_LISTEN_ALL: bool = False
 
 
 def generate_log_filename() -> str:

@@ -31,7 +31,7 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+      - uses: ansys/actions/doc-deploy-changelog@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -45,7 +45,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+      - uses: ansys/actions/check-vulnerabilities@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -59,7 +59,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+      - uses: ansys/actions/check-actions-security@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/doc-style@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -89,7 +89,7 @@ jobs:
           version: 1.8.25
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/doc-build@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -98,6 +98,7 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: false
+          optional-dependencies-name: 'all'
           group-dependencies-name: 'doc'
 
   smoke-tests:
@@ -115,7 +116,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -161,7 +162,7 @@ jobs:
           update-ca-trust
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -173,7 +174,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: rocky-linux-8
@@ -210,7 +211,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -223,7 +224,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group unit-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
@@ -233,7 +234,7 @@ jobs:
           xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -262,7 +263,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -275,7 +276,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group integration-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
@@ -285,7 +286,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} tests/integration
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -318,7 +319,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -331,7 +332,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -352,7 +353,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -388,7 +389,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -401,7 +402,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -418,7 +419,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -451,7 +452,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -467,7 +468,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -488,7 +489,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -524,7 +525,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -540,7 +541,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -555,7 +556,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -590,7 +591,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -606,7 +607,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -627,7 +628,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -664,7 +665,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -680,7 +681,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -695,7 +696,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -728,7 +729,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -741,7 +742,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -762,7 +763,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-icepak-tests-windows
           files: ./coverage.xml
@@ -798,7 +799,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -811,7 +812,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -828,7 +829,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-icepak-tests-linux
           files: ./coverage.xml
@@ -861,7 +862,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -874,7 +875,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -895,7 +896,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-layout-tests-windows
           files: ./coverage.xml
@@ -931,7 +932,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -944,7 +945,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -961,7 +962,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-layout-tests-linux
           files: ./coverage.xml
@@ -995,7 +996,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1011,7 +1012,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1032,7 +1033,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -1068,7 +1069,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1084,7 +1085,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1099,7 +1100,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -1133,7 +1134,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1146,7 +1147,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1167,7 +1168,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
@@ -1201,7 +1202,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1214,7 +1215,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1235,7 +1236,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
@@ -1271,7 +1272,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-library@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -1290,7 +1291,7 @@ jobs:
       contents: write   # Required to create GitHub releases and upload release assets
     steps:
       - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ env.PACKAGE_NAME }}-artifacts
           path: ${{ env.PACKAGE_NAME }}-artifacts
@@ -1304,7 +1305,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/release-github@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           add-artifact-attestation-notes: true
           generate-release-notes: false
@@ -1320,7 +1321,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/doc-deploy-stable@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}

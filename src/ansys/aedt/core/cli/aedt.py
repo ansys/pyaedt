@@ -438,18 +438,24 @@ def _launch_console(pid: int, version: str, design: str | None = None) -> None:
 
     import importlib.util
 
-    if importlib.util.find_spec("IPython") is None:  # pragma: no cover
-        typer.secho("IPython is required for the interactive console.", fg="red")
-        typer.echo("Install it with: ", nl=False)
-        typer.secho("pip install ipython", fg="cyan")
-        return
-
     python_exe = sys.executable
     typer.echo("")
 
+    use_ipython = importlib.util.find_spec("IPython") is not None
+    if not use_ipython:  # pragma: no cover
+        typer.secho("IPython not found — falling back to standard Python interactive console.", fg="yellow")
+        typer.echo("For a richer experience, install it with: ", nl=False)
+        typer.secho("pip install ipython", fg="cyan")
+
+    cmd = (
+        [python_exe, "-m", "IPython", "-i", str(console_setup_path)]
+        if use_ipython
+        else [python_exe, "-i", str(console_setup_path)]
+    )
+
     try:  # pragma: no cover
         subprocess.run(  # nosec B603 - trusted paths from sys.executable and package location
-            [python_exe, "-m", "IPython", "-i", str(console_setup_path)], env=env, check=False
+            cmd, env=env, check=False
         )
     except KeyboardInterrupt:  # pragma: no cover
         typer.echo("\n\nInterrupted.")

@@ -82,11 +82,11 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=6,
             toggle_column=1,
+            use_edb=True,
         )
 
         # Initialize all widgets as None
