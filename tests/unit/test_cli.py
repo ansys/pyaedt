@@ -658,7 +658,11 @@ def test_panels_add_reset_and_skip_version_manager(cli_runner, temp_personal_lib
     assert "Deleting existing Toolkits directory" in result.stdout
     assert "Skipping Version Manager tab" in result.stdout
     assert not toolkits_path.exists()
-    mock_add.assert_called_once_with(personal_lib=str(temp_personal_lib), skip_version_manager=True)
+    mock_add.assert_called_once()
+    assert mock_add.call_args.kwargs["personal_lib"] == str(temp_personal_lib)
+    assert mock_add.call_args.kwargs["skip_version_manager"] is True
+    assert mock_add.call_args.kwargs["skip_extension_manager"] is False
+    assert mock_add.call_args.kwargs["light"] is False
 
 
 def test_doc_group_help(cli_runner):
