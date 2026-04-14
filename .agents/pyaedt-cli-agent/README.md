@@ -197,21 +197,7 @@ Supported `--type` values:
 | Command | Description |
 |---|---|
 | `pyaedt --json script run "path/to/script.py" --port 50051` | Execute a Python script inside AEDT |
-| `pyaedt --json script code "result = 42" --port 50051` | Execute inline Python code inside AEDT |
 
-`script code` runs with:
-
-- `desktop`: the PyAEDT Desktop object
-- `odesktop`: the native AEDT desktop object
-- `result`: set this to return a value
-
-Example:
-
-```bash
-pyaedt --json script code "result = odesktop.GetProjectList()" --port 50051
-```
-
-Use `script code` for short, one-off operations. Use `script run` for reusable or multi-step workflows.
 
 ### Export Commands
 
@@ -309,9 +295,6 @@ Prefer `session attach` first. Graduate to `script run` only once the workflow i
 
 ```bash
 pyaedt --json script run "<temp-dir>/setup_antenna.py" --port 50051
-
-# Or a small one-off command
-pyaedt --json script code "result = desktop.project_list" --port 50051
 ```
 
 ### Workflow 6: Generated Script Execution
@@ -378,7 +361,6 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 
 - Use `session list` before starting AEDT so you do not launch unnecessary instances.
 - Use `project list --port ...` to inspect available projects and designs before attempting a design-scoped export.
-- Use `script code` for quick queries instead of creating full scripts.
 - Use `--non-graphical` when launching AEDT for headless or agent workflows.
 
 ## Cleanup
