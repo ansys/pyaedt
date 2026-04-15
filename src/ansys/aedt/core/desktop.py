@@ -95,11 +95,12 @@ class TransportMode(str, Enum):
 
 def get_local_ip(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    if host is None:
-        host = "127.0.0.1"
 
     try:
-        s.connect((host, 80))
+        if host is None:  # pragma: no cover
+            s.connect((socket.gethostname(), 80))
+        else:
+            s.connect((host, 80))
         return s.getsockname()[0]
     finally:
         s.close()
@@ -147,6 +148,7 @@ class _ServerArgs:
             return f"{self.__port}" if self.__port is not None else ""
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
+
         host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
 
         if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
