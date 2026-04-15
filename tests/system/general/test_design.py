@@ -342,12 +342,31 @@ def test_import_dataset3d(aedt_app) -> None:
     ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
     assert ds8.name == "$dataset_csv"
 
-def test_import_dataset3d_design_level(maxwell_app) -> None:
-    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
-    ds = maxwell_app.import_dataset3d(filename, name="$design_dataset", is_project_dataset=False)
-    assert ds.name == "design_dataset"
-    ds = maxwell_app.import_dataset3d(filename, name="design_dataset", is_project_dataset=False)
-    assert ds.name == "design_dataset"
+
+def test_import_dataset3d_maxwell(maxwell_app) -> None:
+    """Test project-level and design-level datasets with Maxwell 3D."""
+    # Project level tests
+    filename_tab = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.tab"
+    filename_csv = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
+
+    ds8 = maxwell_app.import_dataset3d(filename_tab)
+    assert ds8.name == "$Dataset_3D"
+    ds8 = maxwell_app.import_dataset3d(filename_csv, name="dataset_csv")
+    assert ds8.name == "$dataset_csv"
+    assert ds8.delete()
+    ds10 = maxwell_app.import_dataset3d(filename_csv, name="$dataset_test")
+    assert ds10.zunit == "mm"
+    ds8 = maxwell_app.import_dataset3d(filename_csv, name="dataset_csv", encoding="utf-8-sig")
+    assert ds8.name == "$dataset_csv"
+    # Design level tests (only Maxwell 3D and Icepak support these)
+    ds = maxwell_app.import_dataset3d(filename_csv, name="$csv_design_dataset", is_project_dataset=False)
+    assert ds.name == "csv_design_dataset"
+    ds = maxwell_app.import_dataset3d(filename_csv, name="csv_design_dataset_2", is_project_dataset=False)
+    assert ds.name == "csv_design_dataset_2"
+    ds = maxwell_app.import_dataset3d(filename_tab, name="$tab_design_dataset", is_project_dataset=False)
+    assert ds.name == "tab_design_dataset"
+    ds = maxwell_app.import_dataset3d(filename_tab, name="tab_design_dataset_2", is_project_dataset=False)
+    assert ds.name == "tab_design_dataset_2"
 
 def test_import_dataset3d_xlsx(aedt_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.xlsx"
