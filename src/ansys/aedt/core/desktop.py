@@ -160,6 +160,8 @@ class _ServerArgs:
 
     @property
     def host_ip(self):
+        if self.__host in ["127.0.0.1", "localhost", "0.0.0.0"]:
+            return self.__host
         return get_local_ip(self.__host)
 
 
