@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
@@ -81,6 +82,13 @@ def aedt_app(add_app):
     app = add_app(application=Hfss)
     yield app
     app.close_project(save=False)
+
+
+@pytest.fixture
+def maxwell_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 def test_design_name(aedt_app) -> None:
@@ -334,6 +342,12 @@ def test_import_dataset3d(aedt_app) -> None:
     ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
     assert ds8.name == "$dataset_csv"
 
+def test_import_dataset3d_design_level(maxwell_app) -> None:
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
+    ds = maxwell_app.import_dataset3d(filename, name="$design_dataset", is_project_dataset=False)
+    assert ds.name == "design_dataset"
+    ds = maxwell_app.import_dataset3d(filename, name="design_dataset", is_project_dataset=False)
+    assert ds.name == "design_dataset"
 
 def test_import_dataset3d_xlsx(aedt_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.xlsx"

@@ -2921,8 +2921,6 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         """
-        if self.design_type not in ["Maxwell 3D", "Icepak"]:
-            is_project_dataset = True
 
         path = Path(input_file)
         file_extension = path.suffix.lstrip(".").lower()
@@ -2983,10 +2981,11 @@ class Design(AedtObjects, PyAedtBase):
             name = name.removeprefix("$")
 
         if name.startswith("$"):
-            name = name[1:]
+            name = name.removeprefix("$")
+
+        # Only Maxwell and Icepak enable design datasets
+        if self.design_type not in ["Maxwell 3D", "Icepak"]:
             is_project_dataset = True
-        else:
-            is_project_dataset = False
 
         return self.create_dataset(
             name,
