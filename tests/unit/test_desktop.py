@@ -212,6 +212,7 @@ def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch) -> No
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", "dummy_path")
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.MTLS)
@@ -224,6 +225,7 @@ def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch) -
     """Test the string representation of _ServerArgs for Insecure mode."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)
