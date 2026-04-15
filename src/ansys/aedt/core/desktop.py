@@ -129,6 +129,16 @@ class _ServerArgs:
         """Get transport mode."""
         return self.__mode
 
+    @property
+    def host(self):
+        """Get host."""
+        return self.__host
+
+    @property
+    def port(self):
+        """Get port."""
+        return self.__port
+
     def __check_settings(self):
         """Validate settings to ensure they are compatible with the transport mode."""
         if settings.grpc_local and settings.grpc_listen_all:
@@ -144,12 +154,12 @@ class _ServerArgs:
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
 
-        host = self.__host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
+        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
-            self.__host = get_local_ip(self.__host)
+            self.__host = get_local_ip(self.host)
 
-        host = self.__host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
+        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         mode = (
             "SecureMode"
@@ -160,9 +170,7 @@ class _ServerArgs:
 
     @property
     def host_ip(self):
-        if self.__host in ["127.0.0.1", "localhost", "0.0.0.0"]:
-            return self.__host
-        return get_local_ip(self.__host)
+        return get_local_ip(self.host)
 
 
 def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
@@ -2670,7 +2678,10 @@ class Desktop(PyAedtBase):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
             if str(server_args).endswith((":SecureMode", ":InsecureMode")):
-                self.machine = server_args.host_ip + ":" + str(server_args).split(":")[-1]
+                host_ip = server_args.host_ip
+                if server_args.host == "localhost":
+                    host_ip = "localhost"
+                self.machine = host_ip + ":" + str(server_args).split(":")[-1]
             # NOTE: When working locally, machine is updated to an empty string to work with UDS.
             # This is necessary when working with UDS and also works for WNUA.
             elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
