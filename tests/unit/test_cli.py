@@ -48,6 +48,7 @@ from ansys.aedt.core.cli.common import print_output
 from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 from ansys.aedt.core.cli.config import test_config_app
+from ansys.aedt.core.generic.general_methods import is_windows
 
 
 @pytest.fixture(autouse=True)
@@ -71,10 +72,16 @@ def mock_online_help():
 
 @pytest.fixture
 def mock_installed_versions():
-    mock_versions = {
-        "2026.1": r"C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM",
-        "2025.2": r"C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
-    }
+    if is_windows:
+        mock_versions = {
+            "2026.1": r"C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM",
+            "2025.2": r"C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
+        }
+    else:
+        mock_versions = {
+            "2026.1": "/opt/ansys_inc/v261/AnsysEM",
+            "2025.2": "/opt/ansys_inc/v252/AnsysEM",
+        }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
         new_callable=PropertyMock,
