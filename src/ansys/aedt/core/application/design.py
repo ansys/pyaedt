@@ -2921,7 +2921,6 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         """
-
         path = Path(input_file)
         file_extension = path.suffix.lstrip(".").lower()
 

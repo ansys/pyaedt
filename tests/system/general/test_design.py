@@ -342,12 +342,14 @@ def test_import_dataset3d(aedt_app) -> None:
     ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
     assert ds8.name == "$dataset_csv"
 
+
 def test_import_dataset3d_design_level(maxwell_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
     ds = maxwell_app.import_dataset3d(filename, name="$design_dataset", is_project_dataset=False)
     assert ds.name == "design_dataset"
     ds = maxwell_app.import_dataset3d(filename, name="design_dataset", is_project_dataset=False)
     assert ds.name == "design_dataset"
+
 
 def test_import_dataset3d_xlsx(aedt_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.xlsx"
