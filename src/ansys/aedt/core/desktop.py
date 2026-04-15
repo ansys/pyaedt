@@ -94,13 +94,11 @@ class TransportMode(str, Enum):
 
 
 def get_local_ip(host):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         host = host if host else socket.gethostname()
-        s.connect((host, 80))
-        return s.getsockname()[0]
-    finally:
-        s.close()
+        return socket.gethostbyname(host)
+    except Exception:
+        return "127.0.0.1"
 
 
 class _ServerArgs:
