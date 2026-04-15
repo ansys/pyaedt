@@ -95,6 +95,9 @@ class TransportMode(str, Enum):
 
 def get_local_ip(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    if host is None:
+        host = "127.0.0.1"
+
     try:
         s.connect((host, 80))
         return s.getsockname()[0]
