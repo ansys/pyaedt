@@ -44,6 +44,7 @@ from ansys.aedt.core.cli import common
 from ansys.aedt.core.generic.general_methods import _check_psutil_connections
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 session_app = typer.Typer(help="Session management commands")
 
@@ -95,7 +96,9 @@ def _discover_aedt_sessions() -> list[dict[str, object]]:
 
 @session_app.command("start")
 def start(
-    version: str = typer.Option("2026.1", "--version", "-v", help="AEDT version to start (e.g. 2026.1)"),
+    version: str = typer.Option(
+        aedt_versions.current_version, "--version", "-v", help="AEDT version to start (e.g. 2026.1)"
+    ),
     port: int = typer.Option(50051, "--port", help="gRPC port (0 for auto)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start in non-graphical mode"),
 ) -> None:

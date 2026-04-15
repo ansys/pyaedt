@@ -96,9 +96,9 @@ app.add_typer(session_app, name="session")
 app.add_typer(project_app, name="project")
 app.add_typer(script_app, name="script")
 app.add_typer(export_app, name="export")
-app.add_typer(test_config_app, name="test-config")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
+app.add_typer(test_config_app, name="test-config")
 
 if __name__ == "__main__":
     app()
