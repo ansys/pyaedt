@@ -13,11 +13,15 @@ To see the available commands, run:
 
     pyaedt --help
 
-The CLI also supports a global JSON output mode for automation:
+All commands can be run with ``--json`` to output results in JSON format for easy parsing in scripts.
 
-.. code-block:: bash
+.. code-block:: console
 
-    pyaedt --json version
+    $ pyaedt --json version
+    {"status": "ok", "data": {"version": "1.0.dev0"}}
+
+    $ pyaedt version
+    PyAEDT version: 1.0.dev0
 
 
 Main commands
@@ -31,9 +35,27 @@ The CLI is organized into these top-level commands:
 * ``project`` - List, open, create, save, and close AEDT projects
 * ``script`` - Run a Python script inside AEDT
 * ``export`` - Export screenshots or design configuration data
-* ``test-config`` - Create, inspect, or update ``tests/local_config.json``
 * ``panels`` - Install PyAEDT panels into AEDT
 * ``doc`` - Open PyAEDT documentation and related resources
+* ``test-config`` - Create, inspect, or update ``tests/local_config.json``
+
+
+Version commands
+----------------
+
+Use the ``version`` commands to check the installed PyAEDT version or AEDT versions on the machine.
+
+**PyAEDT version**
+
+.. code-block:: bash
+
+    pyaedt version
+
+**AEDT installed version**
+
+.. code-block:: bash
+
+    pyaedt aedt-versions
 
 
 Session commands
@@ -268,6 +290,6 @@ Use ``--help`` on any command group or command to see the available options:
     pyaedt project --help
     pyaedt script run --help
     pyaedt export --help
-    pyaedt test-config --help
     pyaedt panels add --help
     pyaedt doc --help
+    pyaedt test-config --help
