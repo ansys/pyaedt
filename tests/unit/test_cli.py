@@ -501,11 +501,19 @@ def test_extract_version_from_cmdline_parses_windows_paths():
     assert aedt_mod._extract_version_from_cmdline([]) == "unknown"
 
 
-def test_discover_aedt_sessions_collects_versions():
+@pytest.mark.parametrize(
+    ("on_linux", "expected_name", "expected_sv_name"),
+    [
+        (False, "ansysedt.exe", "ansysedtsv.exe"),
+        (True, "ansysedt", "ansysedtsv"),
+    ],
+)
+def test_discover_aedt_sessions_collects_versions(on_linux, expected_name, expected_sv_name):
     def active_sessions_side_effect(student_version=False):
         return {22: -1} if student_version else {11: 50051}
 
     with (
+        patch("ansys.aedt.core.cli.aedt.is_linux", on_linux),
         patch("ansys.aedt.core.cli.aedt.active_sessions", side_effect=active_sessions_side_effect),
         patch(
             "ansys.aedt.core.cli.aedt._check_psutil_connections",
@@ -515,8 +523,8 @@ def test_discover_aedt_sessions_collects_versions():
         sessions = aedt_mod._discover_aedt_sessions()
 
     assert sessions == [
-        {"pid": 11, "port": 50051, "student_version": False, "name": "ansysedt.exe", "version": "2026.1"},
-        {"pid": 22, "port": None, "student_version": True, "name": "ansysedtsv.exe", "version": "unknown"},
+        {"pid": 11, "port": 50051, "student_version": False, "name": expected_name, "version": "2026.1"},
+        {"pid": 22, "port": None, "student_version": True, "name": expected_sv_name, "version": "unknown"},
     ]
 
 

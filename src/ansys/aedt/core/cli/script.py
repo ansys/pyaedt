@@ -31,6 +31,7 @@ from contextlib import redirect_stderr
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+import runpy
 
 try:
     import typer
@@ -49,7 +50,8 @@ def run_script(
     script_path: str = typer.Argument(..., help="Path to .py script file"),
     port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
 ) -> None:
-    """Execute a Python script file inside AEDT.
+    """
+    Execute a Python script file inside AEDT.
 
     The desktop is kept alive after execution and verbose logging is enabled.
     """
@@ -68,7 +70,7 @@ def run_script(
         stdout_context = redirect_stdout(stream) if common.json_mode else nullcontext()
         stderr_context = redirect_stderr(stream) if common.json_mode else nullcontext()
         with stdout_context, stderr_context:
-            exec(compile(path.read_text(encoding="utf-8"), str(path.resolve()), "exec"), script_globals)  # noqa: S102
+            runpy.run_path(str(path.resolve()), init_globals=script_globals, run_name="__main__")
         data = {"executed": True, "script": str(path.resolve())}
         if common.json_mode:
             common.print_output(data=data)

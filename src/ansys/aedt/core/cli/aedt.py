@@ -216,12 +216,12 @@ def list_sessions() -> None:
 @session_app.command("stop")
 def stop(
     port: int | None = typer.Option(None, "--port", help="Port of the AEDT instance to stop"),
-    all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
+    stop_all: bool = typer.Option(False, "--all", help="Stop all running AEDT instances"),
 ) -> None:
     """Stop an AEDT instance by port or stop all running instances."""
     try:
         aedt_sessions = _discover_aedt_sessions()
-        if all:
+        if stop_all:
             stopped_pids = []
             skipped_pids = []
             for session in aedt_sessions:
@@ -294,7 +294,8 @@ def attach(
     project: str = typer.Option(None, "--project", help="Project to activate in the console session"),
     design: str = typer.Option(None, "--design", help="Design to set as active in the console"),
 ) -> None:
-    """Attach to a running AEDT instance and open an interactive PyAEDT console.
+    """
+    Attach to a running AEDT instance and open an interactive PyAEDT console.
 
     If --port is not given, lists available instances for interactive selection.
     """
@@ -328,14 +329,18 @@ def attach(
 
 
 def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | None, design: str | None) -> None:
-    """Interactive mode to select and attach to an AEDT process.
+    """
+    Interactive mode to select and attach to an AEDT process.
 
     Parameters
     ----------
     aedt_sessions : list[dict[str, object]]
         List of available AEDT processes
+    project : str or None
+        Project name to activate, or None
     design : str or None
         Design name to set active, or None
+
     """
     typer.echo("Found ", nl=False)
     typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
@@ -403,7 +408,8 @@ def _activate_console_context(port: int | None, project: str | None = None, desi
 
 
 def _launch_console(pid: int, version: str, design: str | None = None) -> None:
-    """Launch an interactive PyAEDT console attached to an AEDT process.
+    """
+    Launch an interactive PyAEDT console attached to an AEDT process.
 
     Parameters
     ----------
@@ -413,6 +419,7 @@ def _launch_console(pid: int, version: str, design: str | None = None) -> None:
         AEDT version string
     design : str or None
         Design name to set as active, or None
+
     """
     from pathlib import Path
     import subprocess  # nosec B404 - subprocess needed for launching interactive console

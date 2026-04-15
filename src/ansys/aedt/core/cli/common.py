@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from contextlib import suppress
 import json
 from pathlib import Path
 import re
@@ -52,12 +53,14 @@ def print_output(data=None, error=None):
 
 
 def get_desktop(port: int):
-    """Connect to a running AEDT instance by gRPC port. Returns Desktop instance.
+    """
+    Connect to a running AEDT instance by gRPC port.
 
     Parameters
     ----------
     port : int
         gRPC port of the AEDT instance.
+
     """
     if port is None:
         if json_mode:
@@ -138,10 +141,8 @@ def list_projects_with_designs(odesktop) -> list[dict]:
         if active_project_name:
             restored_project = odesktop.SetActiveProject(active_project_name)
             if restored_project and active_design_name:
-                try:
+                with suppress(Exception):
                     restored_project.SetActiveDesign(active_design_name)
-                except Exception:
-                    pass
 
     return projects
 
