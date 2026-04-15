@@ -635,15 +635,10 @@ class EmitNode:
         """
         try:
             node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
-        except Exception:
-            error_text = None
-            if len(self._emit_obj.logger.messages.error_level) > 0:
-                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
-            else:
-                error_text = (
-                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of node type: "{import_type}"'
-                )
-            raise Exception(error_text)
+        except Exception as e:
+            raise Exception(
+                f'Failed to import "{file_path}" as "{import_type}": {e}'
+            ) from e
         return self._get_node(node_id)
 
     @min_aedt_version("2025.2")
