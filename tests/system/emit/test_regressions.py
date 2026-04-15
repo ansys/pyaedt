@@ -517,7 +517,7 @@ def test_defect_1442777_csv_import_bounds_validation(emit_app) -> None:
             [f"{f},{v}" for f, v in
              [(1e-6, -5), (10e-6, -10), (50e-6, -15), (100e-6, -20), (500e-6, -30),
               (1e3, -40), (5e3, -50), (10e3, -60), (50e3, -70), (100e3, -80)]]
-        ))
+        ))  
         csv_paths.append(valid_csv)
         result = custom_coupling.import_csv_file(valid_csv)
         assert result is not None
