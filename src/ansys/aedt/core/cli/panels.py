@@ -44,7 +44,6 @@ def add_panels(
     personal_lib: str = typer.Option(
         None,
         "--personal-lib",
-        "-p",
         help="Path to AEDT PersonalLib folder",
         prompt="Enter path to PersonalLib folder",
     ),
@@ -66,7 +65,6 @@ def add_panels(
     reset: bool = typer.Option(
         False,
         "--reset",
-        "-r",
         help="Delete existing Toolkits directory before installing",
     ),
 ):
