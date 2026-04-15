@@ -868,11 +868,14 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                 pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()  # nosec
 
             for pid in pids:
-                if os.path.exists(f"/proc/{pid}/cmdline"):
+                try:
                     with open(f"/proc/{pid}/cmdline", "rb") as f:
                         # Command line arguments in /proc are null-byte separated
                         cmdline = f.read().decode().split("\0")
                         found_data.append((int(pid), [arg for arg in cmdline if arg]))
+                except (FileNotFoundError, ProcessLookupError, PermissionError):  # pragma: no cover
+                    # Process may have exited between pgrep and open/read.
+                    pyaedt_logger.debug(f"Process {pid} exited before its cmdline could be read.")
         except subprocess.CalledProcessError:
             pyaedt_logger.debug("No matching processes found.")
 
