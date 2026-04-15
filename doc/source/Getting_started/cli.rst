@@ -1,535 +1,273 @@
 Command line interface
 ======================
 
-PyAEDT provides a command line interface (CLI) to help you manage AEDT processes and test configurations
-from your terminal. The CLI offers simple commands to start, stop, and monitor AEDT sessions without
-writing any Python code.
+PyAEDT provides a command line interface (CLI) for starting AEDT sessions, working with open
+projects, running scripts, exporting data, and opening documentation directly from a terminal.
 
 Get started
 -----------
 
-To use the CLI, open your terminal and type:
+To see the available commands, run:
 
 .. code-block:: bash
 
     pyaedt --help
 
-This displays all available commands and options.
+The CLI also supports a global JSON output mode for automation:
+
+.. code-block:: bash
+
+    pyaedt --json version
 
 
-Main Commands
+Main commands
 -------------
 
-The PyAEDT CLI provides these main commands:
+The CLI is organized into these top-level commands:
 
 * ``version`` - Display the installed PyAEDT version
-* ``processes`` - List all running AEDT processes
-* ``start`` - Start a new AEDT session
-* ``stop`` - Stop running AEDT processes
-* ``attach`` - Attach to a running AEDT process for interactive work
-* ``config`` - Manage test configuration settings
-* ``panels`` - Install PyAEDT panels in AEDT
-* ``doc`` - Quick access to PyAEDT documentation
+* ``aedt-versions`` - List AEDT versions installed on the machine
+* ``session`` - Start, list, stop, or attach to AEDT sessions
+* ``project`` - List, open, create, save, and close AEDT projects
+* ``script`` - Run a Python script inside AEDT
+* ``export`` - Export screenshots or design configuration data
+* ``test-config`` - Create, inspect, or update ``tests/local_config.json``
+* ``panels`` - Install PyAEDT panels into AEDT
+* ``doc`` - Open PyAEDT documentation and related resources
 
 
-Display version
-~~~~~~~~~~~~~~~
+Session commands
+----------------
 
-Check which version of PyAEDT you have installed:
+Use the ``session`` group to manage running AEDT instances.
 
-.. code-block:: bash
-
-    pyaedt version
-
-This shows the current PyAEDT version number.
-
-
-List running processes
-~~~~~~~~~~~~~~~~~~~~~~
-
-View all AEDT processes currently running on your system:
+**Start a session**
 
 .. code-block:: bash
 
-    pyaedt processes
+    pyaedt session start
+    pyaedt session start --version 2026.1
+    pyaedt session start --non-graphical
+    pyaedt session start --port 50051
+    pyaedt session start -v 2026.1 -ng --port 50051
 
-This command displays useful information for each process:
+By default, ``session start`` uses AEDT ``2026.1`` and port ``50051``.
+Use ``--port 0`` to let AEDT choose an available port automatically.
 
-* Process ID (PID)
-* Process name
-* Command line arguments
-* Port number (if available)
-
-
-Start AEDT
-~~~~~~~~~~
-
-Launch a new AEDT session directly from the command line:
+**List running sessions**
 
 .. code-block:: bash
 
-    pyaedt start
+    pyaedt session list
 
-This starts AEDT with default settings (latest AEDT version released, graphical mode).
+This shows the PID, detected AEDT version, and port for each running session.
 
-You can customize the startup with these options:
-
-**Set AEDT Version**
+**Attach to a running session**
 
 .. code-block:: bash
 
-    pyaedt start --version 2026.1
-    pyaedt start -v 2026.1
+    pyaedt session attach
+    pyaedt session attach --port 50051
+    pyaedt session attach --port 50051 --project MyProject --design MyDesign
 
-**Non-Graphical Mode**
+If ``--port`` is omitted, PyAEDT shows an interactive list of running sessions.
+When available, IPython is used for the interactive console.
 
-Run AEDT without the user interface (useful for automation):
-
-.. code-block:: bash
-
-    pyaedt start --non-graphical
-    pyaedt start -ng
-
-**Specify Port**
-
-Set a specific port for the AEDT connection:
+**Stop sessions**
 
 .. code-block:: bash
 
-    pyaedt start --port 50051
-    pyaedt start -p 50051
+    pyaedt session stop --port 50051
+    pyaedt session stop --all
 
-**Student Version**
 
-Start the AEDT Student edition:
+Project commands
+----------------
 
-.. code-block:: bash
+Use the ``project`` group to work with projects in an already running AEDT gRPC session.
+These commands require ``--port``.
 
-    pyaedt start --student
-
-**Combine Options**
-
-You can use multiple options together:
+**List open projects and designs**
 
 .. code-block:: bash
 
-    pyaedt start -v 2026.1 -ng -p 50051
+    pyaedt project list --port 50051
 
-
-Stop AEDT
-~~~~~~~~~
-
-Stop running AEDT processes using different methods:
-
-**Stop by Process ID**
+**Open a project**
 
 .. code-block:: bash
 
-    pyaedt stop --pid 12345
+    pyaedt project open my_project.aedt --port 50051
 
-Stop multiple processes:
-
-.. code-block:: bash
-
-    pyaedt stop --pid 12345 --pid 67890
-
-**Stop by Port**
+**Create a project**
 
 .. code-block:: bash
 
-    pyaedt stop --port 50051
+    pyaedt project create --port 50051 --project DemoProject
 
-**Stop All AEDT Processes**
-
-.. code-block:: bash
-
-    pyaedt stop --all
-    pyaedt stop -a
-
-
-Attach to AEDT
-~~~~~~~~~~~~~~
-
-Attach to a running AEDT process and launch an interactive PyAEDT console:
+**Create a design in a project**
 
 .. code-block:: bash
 
-    pyaedt attach
+    pyaedt project create --port 50051 --project DemoProject --design Filter1 --type Hfss
 
-This command detects all running AEDT processes and presents them in an interactive menu.
-You can select which process to attach to; this launches an IPython console with
-a PyAEDT Desktop instance already connected to that process.
+Supported design types include ``Hfss``, ``Maxwell2d``, ``Maxwell3d``, ``Q3d``, ``Q2d``,
+``Icepak``, ``Circuit``, ``TwinBuilder``, ``Mechanical``, ``Emit``, ``Rmxprt``,
+``Hfss3dLayout``, and ``MaxwellCircuit``.
 
-**Direct Attachment by PID**
-
-If you already know the process ID, attach directly:
+**Save the active project**
 
 .. code-block:: bash
 
-    pyaedt attach --pid 12345
-    pyaedt attach -p 12345
+    pyaedt project save --port 50051
+    pyaedt project save --port 50051 --path saved_copy.aedt
 
-This skips the interactive menu and connects immediately to the specified process.
-
-**Interactive Process Selection**
-
-When you run ``pyaedt attach``, you'll see output like this:
-
-.. code-block:: text
-
-    Found 2 AEDT process(es):
-
-      1. PID: 12345 | Version: 2026.1 | Port: 50051
-      2. PID: 67890 | Version: 2025.1 | Port: COM mode
-
-    Select process number (1-2) or 'q' to quit:
-
-Simply enter the number of the process you want to attach to, and an interactive
-console opens with PyAEDT already initialized and connected.
-
-**Using the Interactive Console**
-
-Once attached, you have access to the Desktop object and can interact with AEDT:
-
-.. code-block:: python
-
-    # The Desktop object is already available as 'desktop'
-    desktop.project_list()
-
-    # Create a new project
-    hfss = ansys.aedt.core.Hfss()
-
-    # Work with your designs
-    hfss.modeler.create_box([0, 0, 0], [10, 10, 10])
-
-**Requirements**
-
-The attach command requires IPython to be installed:
+**Close a project**
 
 .. code-block:: bash
 
-    pip install ipython
-
-Or install PyAEDT with all optional dependencies:
-
-.. code-block:: bash
-
-    pip install pyaedt[all]
+    pyaedt project close --port 50051
+    pyaedt project close --port 50051 --project DemoProject
 
 
-Test configuration management
-------------------------------
+Script and export commands
+--------------------------
 
-The ``config test`` command helps you create and modify the test configuration file
-used when running PyAEDT tests. This is useful for developers and contributors.
+Use ``script`` to execute Python inside AEDT and ``export`` to extract files from the active design.
 
-Launch the interactive configuration tool:
+**Run a script**
 
 .. code-block:: bash
 
-    pyaedt config test
+    pyaedt script run my_script.py --port 50051
 
-This starts a guided setup that walks you through all configuration options and saves
-the configuration to ``tests/local_config.json``.
+The script runs with an attached Desktop object available as ``desktop``.
 
-To see your configuration without making changes:
-
-.. code-block:: bash
-
-    pyaedt config test --show
-    pyaedt config test -s
-
-You can also set individual values directly. For example:
+**Export a screenshot**
 
 .. code-block:: bash
 
-    pyaedt config test desktop-version 2026.1
-    pyaedt config test non-graphical true
-    pyaedt config test use-grpc true
+    pyaedt export screenshot --port 50051 --path screenshot.jpg
+    pyaedt export screenshot --port 50051 --project DemoProject --design Filter1
 
-For a complete description of all configuration parameters and their usage, see the
-:ref:`Local testing parameters <contributing_aedt>` section in the Contributing guide.
+**Export design configuration**
+
+.. code-block:: bash
+
+    pyaedt export config --port 50051
+    pyaedt export config --port 50051 --output config.json
+    pyaedt export config --port 50051 --project DemoProject --design Filter1
+
+If ``--output`` is omitted, the exported JSON is printed to the terminal.
+
+
+Test configuration
+------------------
+
+Use ``test-config`` to manage the local test configuration stored in
+``tests/local_config.json``.
+
+.. code-block:: bash
+
+    pyaedt test-config
+    pyaedt test-config --show
+
+Running ``pyaedt test-config`` starts an interactive configuration flow.
 
 
 Panels management
 -----------------
 
-The ``panels`` command helps you install PyAEDT panels into your AEDT installation.
-These panels provide graphical interfaces for common PyAEDT operations directly within AEDT.
-
-**Add Panels to AEDT**
-
-Install PyAEDT panels into AEDT:
-
-.. code-block:: bash
-
-    pyaedt panels add
-
-This command launches an interactive setup that:
-
-1. Detects installed AEDT versions on your system
-2. Asks for the path to your PersonalLib folder
-3. Installs the PyAEDT panels
-
-You can also provide the PersonalLib path directly:
+Use ``panels add`` to install PyAEDT panels into AEDT.
 
 .. code-block:: bash
 
     pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
-    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reset
+    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --light
 
-**Skip Version Manager**
+Useful options:
 
-By default, the Version Manager panel is installed. To skip it:
+* ``--reset`` - Remove the existing ``Toolkits`` directory before installing
+* ``--light`` - Install only the light panel set (PyAEDT Console and Run Script)
+* ``--skip-version-manager`` - Skip the Version Manager panel
+* ``--skip-extension-manager`` - Skip the Extension Manager panel
 
-.. code-block:: bash
 
-    pyaedt panels add --skip-version-manager
+Documentation shortcuts
+-----------------------
 
-**Reset option**
-
-If you want to clean up existing installations before adding panels, use the ``--reset`` option.
-This deletes the existing ``Toolkits`` directory inside PersonalLib before installing:
-
-.. code-block:: bash
-
-    pyaedt panels add --reset
-    pyaedt panels add -r
-
-This is useful for:
-
-* Troubleshooting panel installation issues
-* Cleaning up old or corrupted panel installations
-* Performing a fresh installation
-
-You can combine options:
+Use the ``doc`` group to open online documentation and project resources:
 
 .. code-block:: bash
 
-    pyaedt panels add --personal-lib "path/to/PersonalLib" --reset --skip-version-manager
-    pyaedt panels add -p "path/to/PersonalLib" -r
-
-**Installed Panels**
-
-The following panels are installed:
-
-* **PyAEDT Utilities** - A group containing:
-
-  * **Console** - Interactive Python console within AEDT
-  * **CLI** - PyAEDT command line interface access
-  * **Jupyter** - Launch Jupyter notebooks connected to AEDT
-
-* **Run Script** - Execute Python scripts from AEDT
-* **Extension Manager** - Manage PyAEDT extensions
-* **Version Manager** - Switch between AEDT versions (optional)
-
-After installation, restart AEDT to see the new panels on the Automation tab.
-
-**Common PersonalLib Locations**
-
-If you're not sure where your PersonalLib folder is located:
-
-*Windows:*
-
-.. code-block:: bash
-
-    C:\\Users\\<username>\\AppData\\Roaming\\Ansoft\\PersonalLib
-
-*Linux:*
-
-.. code-block:: bash
-
-    /home/<username>/Ansoft/PersonalLib
-
-
-Documentation access
---------------------
-
-The ``doc`` command provides quick access to PyAEDT documentation and resources directly
-from the command line. This opens the documentation in your default web browser.
-
-**Open Documentation Sections**
-
-Access different parts of the documentation:
-
-.. code-block:: bash
-
-    pyaedt doc home              # Open documentation home page
-    pyaedt doc getting-started   # Open getting started guide
-    pyaedt doc installation      # Open installation guide
-    pyaedt doc user-guide        # Open user guide
-    pyaedt doc api               # Open API reference
-    pyaedt doc examples          # Open examples gallery
-
-**Access Development Resources**
-
-.. code-block:: bash
-
-    pyaedt doc github            # Open PyAEDT GitHub repository
-    pyaedt doc issues            # Open GitHub issues page
-    pyaedt doc changelog         # Open latest changelog
-    pyaedt doc changelog 0.9.0   # Open specific version changelog
-
-**Search Documentation**
-
-Search the documentation with keywords:
-
-.. code-block:: bash
-
-    pyaedt doc search hfss        # Search for "hfss"
-    pyaedt doc search circuit     # Search for "circuit"
-    pyaedt doc search aedt mesh   # Search for "aedt mesh"
-
-The search command accepts one or more keywords and opens the documentation search page
-with your query.
-
-
-Practical examples
-------------------
-
-Here are some common workflows using the CLI:
-
-**Start AEDT and Check Status**
-
-.. code-block:: bash
-
-    # Start AEDT
-    pyaedt start -v 2026.1
-
-    # Check it's running
-    pyaedt processes
-
-    # Stop when done
-    pyaedt stop --all
-
-**Interactive Development**
-
-.. code-block:: bash
-
-    # Start AEDT
-    pyaedt start -v 2026.1
-
-    # List processes to get PID
-    pyaedt processes
-
-    # Attach to it for interactive work (interactive menu)
-    pyaedt attach
-
-    # Or attach directly by PID
-    pyaedt attach -p 12345
-
-    # Work interactively in the console
-    # When done, exit the console and stop AEDT
-    pyaedt stop --all
-
-**Automation Script**
-
-.. code-block:: bash
-
-    # Start AEDT in non-graphical mode on a specific port
-    pyaedt start -ng -p 50051
-
-    # Your automation code runs here
-    python my_script.py
-
-    # Clean up
-    pyaedt stop --port 50051
-
-**Configure Tests**
-
-.. code-block:: bash
-
-    # Use interactive mode
-    pyaedt config test
-
-    # Or set values directly
-    pyaedt config test desktop-version 2026.1
-
-**Install PyAEDT Panels**
-
-.. code-block:: bash
-
-    # Interactive mode
-    pyaedt panels add
-
-    # Or provide the PersonalLib path
-    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
-
-    # Clean install
-    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reset
-
-**Quick Documentation Access**
-
-.. code-block:: bash
-
-    # Open API reference
+    pyaedt doc
+    pyaedt doc getting-started
+    pyaedt doc installation
+    pyaedt doc user-guide
     pyaedt doc api
-
-    # Search for specific topics
-    pyaedt doc search maxwell 3d
-
-    # Open GitHub repository
+    pyaedt doc examples
     pyaedt doc github
+    pyaedt doc issues
+    pyaedt doc changelog
+    pyaedt doc changelog 0.22.0
+    pyaedt doc search hfss mesh
 
-**Emergency Cleanup**
+If no subcommand is provided, ``pyaedt doc`` opens the documentation home page.
 
-If AEDT processes are stuck:
+
+Common workflows
+----------------
+
+**Start AEDT, inspect projects, and stop it**
 
 .. code-block:: bash
 
-    # See what's running
-    pyaedt processes
+    pyaedt session start --version 2026.1 --port 50051
+    pyaedt session list
+    pyaedt project list --port 50051
+    pyaedt session stop --port 50051
 
-    # Stop everything
-    pyaedt stop --all
+**Run a script against a running session**
+
+.. code-block:: bash
+
+    pyaedt session start --non-graphical --port 50051
+    pyaedt script run my_script.py --port 50051
+    pyaedt session stop --port 50051
+
+**Export design data**
+
+.. code-block:: bash
+
+    pyaedt export screenshot --port 50051 --project DemoProject --design Filter1
+    pyaedt export config --port 50051 --project DemoProject --design Filter1 --output filter1.json
 
 
-Troubleshooting
----------------
+Requirements
+------------
 
-**Command Not Found**
-
-If ``pyaedt`` command is not recognized, ensure PyAEDT is installed with CLI support:
+If the ``pyaedt`` command is not available, install PyAEDT with CLI dependencies:
 
 .. code-block:: bash
 
     pip install pyaedt[all]
 
-**Cannot Stop Process**
-
-If you get "Access denied" errors:
-
-* You can only stop processes owned by your user
-* Some processes may require administrator privileges
-* Try closing AEDT normally from the application first
-
-**AEDT Won't Start**
-
-Common issues when starting AEDT:
-
-* Verify AEDT is installed and in your system PATH
-* Check the version number is correct (for example, 2025.1, 2025.2 or 2026.1)
-* Ensure license server is available
-
-**Configuration Not Found**
-
-The test configuration is created in the ``tests`` folder relative to the PyAEDT installation.
-If you're not in a development environment, you may need to navigate to the correct directory first.
+The interactive attach console uses IPython when it is installed.
 
 
 Get help
 --------
 
-For detailed help on any command:
+Use ``--help`` on any command group or command to see the available options:
 
 .. code-block:: bash
 
     pyaedt --help
-    pyaedt start --help
-    pyaedt stop --help
-    pyaedt attach --help
-    pyaedt config test --help
+    pyaedt session --help
+    pyaedt project --help
+    pyaedt script run --help
+    pyaedt export --help
+    pyaedt test-config --help
     pyaedt panels add --help
     pyaedt doc --help
-
-For more information, visit the PyAEDT documentation or GitHub repository.
