@@ -97,10 +97,8 @@ def get_local_ip(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
-        if host is None:  # pragma: no cover
-            s.connect((socket.gethostname(), 80))
-        else:
-            s.connect((host, 80))
+        host = host if host else socket.gethostname()
+        s.connect((host, 80))
         return s.getsockname()[0]
     finally:
         s.close()
@@ -149,10 +147,12 @@ class _ServerArgs:
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
 
-        host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
+        host = self.__host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
             self.__host = get_local_ip(self.__host)
+
+        host = self.__host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         mode = (
             "SecureMode"
@@ -160,6 +160,10 @@ class _ServerArgs:
             else "InsecureMode"
         )
         return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
+
+    @property
+    def host_ip(self):
+        return get_local_ip(self.__host)
 
 
 def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
@@ -2667,7 +2671,7 @@ class Desktop(PyAedtBase):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
             if str(server_args).endswith((":SecureMode", ":InsecureMode")):
-                self.machine = str(server_args).split(":")[0] + ":" + str(server_args).split(":")[-1]
+                self.machine = server_args.host_ip + ":" + str(server_args).split(":")[-1]
             # NOTE: When working locally, machine is updated to an empty string to work with UDS.
             # This is necessary when working with UDS and also works for WNUA.
             elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
