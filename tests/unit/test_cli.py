@@ -221,7 +221,7 @@ def mock_start_command():
         }
 
 
-def test_session_start_default_parameters(cli_runner, mock_start_command):
+def test_session_start_default_parameters(cli_runner, mock_start_command, mock_installed_versions):
     result = cli_runner.invoke(app, ["--json", "session", "start"])
     assert result.exit_code == 0
     data = json.loads(result.output)
