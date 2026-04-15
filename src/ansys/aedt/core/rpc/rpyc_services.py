@@ -25,12 +25,14 @@ from ansys.aedt.core.internal.filesystem import is_safe_path
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class _AEDTGrpcInfo:
     """Class to store information about the AEDT gRPC server."""
     host: str
     port: int
     version: str
+
 
 class FileManagement(PyAedtBase):
     """Class to manage file transfer."""
