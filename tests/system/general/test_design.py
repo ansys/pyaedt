@@ -368,6 +368,7 @@ def test_import_dataset3d_maxwell(maxwell_app) -> None:
     ds = maxwell_app.import_dataset3d(filename_tab, name="tab_design_dataset_2", is_project_dataset=False)
     assert ds.name == "tab_design_dataset_2"
 
+
 def test_import_dataset3d_xlsx(aedt_app) -> None:
     filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.xlsx"
     ds9 = aedt_app.import_dataset3d(filename, name="myExcel")
