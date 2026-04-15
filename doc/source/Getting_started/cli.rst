@@ -73,7 +73,7 @@ Use the ``session`` group to manage running AEDT instances.
     pyaedt session start --port 50051
     pyaedt session start -v 2026.1 -ng --port 50051
 
-By default, ``session start`` uses AEDT ``2026.1`` and port ``50051``.
+By default, ``session start`` uses the most recent stable AEDT version installed and port ``50051``.
 Use ``--port 0`` to let AEDT choose an available port automatically.
 
 **List running sessions**
@@ -152,10 +152,10 @@ Supported design types include ``Hfss``, ``Maxwell2d``, ``Maxwell3d``, ``Q3d``, 
     pyaedt project close --port 50051 --project DemoProject
 
 
-Script and export commands
---------------------------
+Script commands
+---------------
 
-Use ``script`` to execute Python inside AEDT and ``export`` to extract files from the active design.
+Use ``script`` to execute a Python script.
 
 **Run a script**
 
@@ -164,6 +164,20 @@ Use ``script`` to execute Python inside AEDT and ``export`` to extract files fro
     pyaedt script run my_script.py --port 50051
 
 The script runs with an attached Desktop object available as ``desktop``.
+
+**Run am Ironpython script**
+
+.. code-block:: bash
+
+    pyaedt script run my_script.py --ironpython --port 50051
+
+Ironpython scripts only support native AEDT API.
+
+
+Export commands
+---------------
+
+Use ``export`` to extract files from the active design.
 
 **Export a screenshot**
 
@@ -181,20 +195,6 @@ The script runs with an attached Desktop object available as ``desktop``.
     pyaedt export config --port 50051 --project DemoProject --design Filter1
 
 If ``--output`` is omitted, the exported JSON is printed to the terminal.
-
-
-Test configuration
-------------------
-
-Use ``test-config`` to manage the local test configuration stored in
-``tests/local_config.json``.
-
-.. code-block:: bash
-
-    pyaedt test-config
-    pyaedt test-config --show
-
-Running ``pyaedt test-config`` starts an interactive configuration flow.
 
 
 Panels management
@@ -236,6 +236,20 @@ Use the ``doc`` group to open online documentation and project resources:
     pyaedt doc search hfss mesh
 
 If no subcommand is provided, ``pyaedt doc`` opens the documentation home page.
+
+
+Test configuration
+------------------
+
+Use ``test-config`` to manage the local test configuration stored in
+``tests/local_config.json``.
+
+.. code-block:: bash
+
+    pyaedt test-config
+    pyaedt test-config --show
+
+Running ``pyaedt test-config`` starts an interactive configuration flow.
 
 
 Common workflows
