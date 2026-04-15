@@ -26,6 +26,10 @@
 
 from __future__ import annotations
 
+from contextlib import nullcontext
+from contextlib import redirect_stderr
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 try:
@@ -60,7 +64,11 @@ def run_script(
 
         d = common.get_desktop(port=port)
         script_globals = {"__file__": str(path.resolve()), "desktop": d}
-        exec(compile(path.read_text(encoding="utf-8"), str(path.resolve()), "exec"), script_globals)  # noqa: S102
+        stream = StringIO()
+        stdout_context = redirect_stdout(stream) if common.json_mode else nullcontext()
+        stderr_context = redirect_stderr(stream) if common.json_mode else nullcontext()
+        with stdout_context, stderr_context:
+            exec(compile(path.read_text(encoding="utf-8"), str(path.resolve()), "exec"), script_globals)  # noqa: S102
         data = {"executed": True, "script": str(path.resolve())}
         if common.json_mode:
             common.print_output(data=data)
