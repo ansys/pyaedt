@@ -185,7 +185,7 @@ class _ServerArgs:
 
         mode = (
             "SecureMode"
-            if self.__mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
+            if self.mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
             else "InsecureMode"
         )
         return f"{host}:{self.port}:{mode}" if self.port is not None else f"{host}:{mode}"
