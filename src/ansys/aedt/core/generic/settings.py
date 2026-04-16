@@ -528,15 +528,20 @@ class Settings(PyAedtBase):
         """Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
-        The gRPC local property is automatically updated when setting this property.
-        If no certificates are available, then secure mode is automatically disabled.
         """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
     def use_lsf_scheduler(self, value: bool) -> None:
-        self.__grpc_local = not value
-        if not os.environ.get("ANSYS_GRPC_CERTIFICATES"):  # pragma: no cover
+        """LSF Scheduler setter.
+
+        The gRPC local property is automatically updated when setting this property.
+        If no certificates are available, then secure mode is automatically disabled.
+        """
+        if value:
+            self.__grpc_local = not value
+
+        if not os.environ.get("ANSYS_GRPC_CERTIFICATES") and value:  # pragma: no cover
             # If no certificaded is available, then enable insecure mode
             self.__grpc_secure_mode = not value
         self.__use_lsf_scheduler = value

@@ -76,7 +76,7 @@ def rpc_server():
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2027.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
