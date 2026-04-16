@@ -139,6 +139,30 @@ class _ServerArgs:
         """Get port."""
         return self.__port
 
+    @property
+    def host_ip(self):
+        return get_local_ip(self.host)
+
+    @property
+    def client_machine(self):
+        machine = self.host_ip
+        if str(self).endswith((":SecureMode", ":InsecureMode")):
+            host_ip = self.host_ip
+            machine = host_ip + ":" + str(self).split(":")[-1]
+
+        # NOTE: When working locally, machine is updated to an empty string to work with UDS.
+        # This is necessary when working with UDS and also works for WNUA.
+        elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
+            pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
+            machine = ""
+
+        # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
+        # with previous SP where grpc transport mode were not available
+        # This environment variable is not necessary for UDS and WNUA modes.
+        if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
+            machine = self.host_ip
+        return machine
+
     def __check_settings(self):
         """Validate settings to ensure they are compatible with the transport mode."""
         if settings.grpc_local and settings.grpc_listen_all:
@@ -154,12 +178,7 @@ class _ServerArgs:
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
 
-        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
-
-        if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
-            self.__host = get_local_ip(self.host)
-
-        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
+        host = self.host_ip if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         mode = (
             "SecureMode"
@@ -167,10 +186,6 @@ class _ServerArgs:
             else "InsecureMode"
         )
         return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
-
-    @property
-    def host_ip(self):
-        return get_local_ip(self.host)
 
 
 def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
@@ -2677,23 +2692,10 @@ class Desktop(PyAedtBase):
                 )
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
-            if str(server_args).endswith((":SecureMode", ":InsecureMode")):
-                host_ip = server_args.host_ip
-                if server_args.host == "localhost":
-                    host_ip = "localhost"
-                self.machine = host_ip + ":" + str(server_args).split(":")[-1]
-            # NOTE: When working locally, machine is updated to an empty string to work with UDS.
-            # This is necessary when working with UDS and also works for WNUA.
-            elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
-                pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
-                self.machine = ""
-            # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
-            # with previous SP where grpc transport mode were not available
-            # This environment variable is not necessary for UDS and WNUA modes.
-            if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
-                self.machine = self.machine.split(":")[0] if self.machine else self.machine
 
-            oapp = self.grpc_plugin.CreateAedtApplication(self.machine, self.port, self.non_graphical, self.new_desktop)
+            oapp = self.grpc_plugin.CreateAedtApplication(
+                server_args.client_machine, self.port, self.non_graphical, self.new_desktop
+            )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
             # NOTE: This is particularly necessary for rpyc connections where the version information is not available
