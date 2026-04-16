@@ -93,7 +93,7 @@ class Results:
             current_revision = Revision(self, self.emit_project, name)
             self.revisions.append(current_revision)
             return current_revision
-        else:
+        else:  # pragma: no cover
             revision = Revision(self, self.emit_project, name)
             self.revisions.append(revision)
             return revision
@@ -125,7 +125,7 @@ class Results:
                 if revision_name in rev.name:
                     self.revisions.remove(rev)
                     break
-        else:
+        else:  # pragma: no cover
             if revision_name in self.design.GetResultList():
                 self.design.DeleteResult(revision_name)
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
@@ -264,7 +264,7 @@ class Results:
 
             self.current_revision = self._add_revision()
             return self.current_revision
-        else:
+        else:  # pragma: no cover
             # No revisions exist, add one
             if self.current_revision is None:
                 self.current_revision = self._add_revision()

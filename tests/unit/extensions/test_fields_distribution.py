@@ -22,19 +22,22 @@
 # THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json
+from pathlib import Path
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import mock_open
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import EXTENSION_TITLE
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
 from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
 
-@pytest.mark.parametrize("mock_maxwell_3d_app", ["2025.2"], indirect=True)
+@pytest.mark.parametrize("mock_maxwell_3d_app", ["2026.1"], indirect=True)
 def test_extension_default_with_point(mock_maxwell_3d_app) -> None:
     """Test instantiation of the Fields Distribution extension for AEDT version < 2026.1."""
     # Mock the vector fields JSON file
@@ -300,7 +303,7 @@ def test_extension_error_handling(mock_maxwell_3d_app) -> None:
             FieldsDistributionExtension(withdraw=True)
 
 
-@pytest.mark.parametrize("mock_maxwell_2d_app", ["2025.2"], indirect=True)
+@pytest.mark.parametrize("mock_maxwell_2d_app", ["2026.1"], indirect=True)
 def test_extension_with_maxwell_2d(mock_maxwell_2d_app) -> None:
     """Test extension with Maxwell 2D application."""
     mock_vector_fields = {"Maxwell 2D": ["A_Vector", "H_Vector"], "Maxwell 3D": ["Vector_H"]}
@@ -698,3 +701,202 @@ def test_popup_destroy_called(mock_maxwell_3d_app) -> None:
             assert mock_popup.title.called
 
         extension.root.destroy()
+
+
+def test_main_export_tab_file(tmp_path):
+    """Test main function exports .tab file using write_csv with tab delimiter."""
+    # Create a fake .fld file that main() will read
+    fld_content = "Header line 1\nHeader line 2\n1.0 2.0 3.0\n4.0 5.0 6.0\n"
+    fld_path = tmp_path / "output.fld"
+    fld_path.write_text(fld_content)
+
+    tab_path = tmp_path / "output.tab"
+
+    data = FieldsDistributionExtensionData(
+        export_file=str(tab_path),
+        export_option="Ohmic loss",
+        objects_list=["Object1"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+
+    # Mock Desktop and get_pyaedt_app
+    mock_desktop = MagicMock()
+    mock_project = MagicMock()
+    mock_project.GetName.return_value = "Project1"
+    mock_design = MagicMock()
+    mock_design.GetName.return_value = "Design1"
+    mock_desktop.active_project.return_value = mock_project
+    mock_desktop.active_design.return_value = mock_design
+
+    mock_aedtapp = MagicMock()
+    mock_aedtapp.design_type = "Maxwell 3D"
+
+    # Mock the setup so it appears solved
+    mock_setup = MagicMock()
+    mock_setup.name = "Setup1"
+    mock_setup.is_solved = True
+    mock_aedtapp.setups = [mock_setup]
+
+    with (
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.ansys.aedt.core.Desktop",
+            return_value=mock_desktop,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
+            return_value=mock_aedtapp,
+        ),
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv") as mock_write_csv,
+    ):
+        result = main(data)
+
+    assert result is True
+    mock_write_csv.assert_called_once_with(
+        str(tab_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]], delimiter="\t"
+    )
+
+
+def test_main_export_csv_file(tmp_path):
+    """Test main function exports .csv file using write_csv with default comma delimiter."""
+    fld_content = "Header line 1\nHeader line 2\n1.0 2.0 3.0\n4.0 5.0 6.0\n"
+    fld_path = tmp_path / "output.fld"
+    fld_path.write_text(fld_content)
+
+    csv_path = tmp_path / "output.csv"
+
+    data = FieldsDistributionExtensionData(
+        export_file=str(csv_path),
+        export_option="Ohmic loss",
+        objects_list=["Object1"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+
+    mock_desktop = MagicMock()
+    mock_project = MagicMock()
+    mock_project.GetName.return_value = "Project1"
+    mock_design = MagicMock()
+    mock_design.GetName.return_value = "Design1"
+    mock_desktop.active_project.return_value = mock_project
+    mock_desktop.active_design.return_value = mock_design
+
+    mock_aedtapp = MagicMock()
+    mock_aedtapp.design_type = "Maxwell 3D"
+
+    mock_setup = MagicMock()
+    mock_setup.name = "Setup1"
+    mock_setup.is_solved = True
+    mock_aedtapp.setups = [mock_setup]
+
+    with (
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.ansys.aedt.core.Desktop",
+            return_value=mock_desktop,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
+            return_value=mock_aedtapp,
+        ),
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.write_csv") as mock_write_csv,
+    ):
+        result = main(data)
+
+    assert result is True
+    mock_write_csv.assert_called_once_with(str(csv_path), [["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]])
+
+
+def test_main_export_npy_file(tmp_path):
+    """Test main function exports .npy file using numpy save."""
+    fld_content = "Header line 1\nHeader line 2\n1.0 2.0 3.0\n4.0 5.0 6.0\n"
+    fld_path = tmp_path / "output.fld"
+    fld_path.write_text(fld_content)
+
+    npy_path = tmp_path / "output.npy"
+
+    data = FieldsDistributionExtensionData(
+        export_file=str(npy_path),
+        export_option="Ohmic loss",
+        objects_list=["Object1"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+
+    mock_desktop = MagicMock()
+    mock_project = MagicMock()
+    mock_project.GetName.return_value = "Project1"
+    mock_design = MagicMock()
+    mock_design.GetName.return_value = "Design1"
+    mock_desktop.active_project.return_value = mock_project
+    mock_desktop.active_design.return_value = mock_design
+
+    mock_aedtapp = MagicMock()
+    mock_aedtapp.design_type = "Maxwell 3D"
+
+    mock_setup = MagicMock()
+    mock_setup.name = "Setup1"
+    mock_setup.is_solved = True
+    mock_aedtapp.setups = [mock_setup]
+
+    with (
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.ansys.aedt.core.Desktop",
+            return_value=mock_desktop,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
+            return_value=mock_aedtapp,
+        ),
+        patch("ansys.aedt.core.extensions.maxwell3d.fields_distribution.np.save") as mock_np_save,
+    ):
+        result = main(data)
+
+    assert result is True
+    mock_np_save.assert_called_once()
+    saved_path = mock_np_save.call_args[0][0]
+    saved_array = mock_np_save.call_args[0][1]
+    assert saved_path == Path(str(npy_path))
+    expected = np.array([["1.0", "2.0", "3.0"], ["4.0", "5.0", "6.0"]])
+    np.testing.assert_array_equal(saved_array, expected)
+
+
+def test_main_export_unsupported_suffix(tmp_path):
+    """Test main function raises error for unsupported file extension."""
+    fld_content = "Header line 1\nHeader line 2\n1.0 2.0 3.0\n4.0 5.0 6.0\n"
+    fld_path = tmp_path / "output.fld"
+    fld_path.write_text(fld_content)
+
+    bad_path = tmp_path / "output.xyz"
+
+    data = FieldsDistributionExtensionData(
+        export_file=str(bad_path),
+        export_option="Ohmic loss",
+        objects_list=["Object1"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+
+    mock_desktop = MagicMock()
+    mock_project = MagicMock()
+    mock_project.GetName.return_value = "Project1"
+    mock_design = MagicMock()
+    mock_design.GetName.return_value = "Design1"
+    mock_desktop.active_project.return_value = mock_project
+    mock_desktop.active_design.return_value = mock_design
+
+    mock_aedtapp = MagicMock()
+    mock_aedtapp.design_type = "Maxwell 3D"
+
+    mock_setup = MagicMock()
+    mock_setup.name = "Setup1"
+    mock_setup.is_solved = True
+    mock_aedtapp.setups = [mock_setup]
+
+    with (
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.ansys.aedt.core.Desktop",
+            return_value=mock_desktop,
+        ),
+        patch(
+            "ansys.aedt.core.extensions.maxwell3d.fields_distribution.get_pyaedt_app",
+            return_value=mock_aedtapp,
+        ),
+        pytest.raises(Exception, match=r"\.xyz is not supported"),
+    ):
+        main(data)

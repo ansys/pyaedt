@@ -77,6 +77,7 @@ def test_export_to_3d_extension_button(add_app, test_tmp_dir) -> None:
     result = main(extension.data)
     aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
+
     assert result
 
 
