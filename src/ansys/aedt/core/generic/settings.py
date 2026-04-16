@@ -528,16 +528,12 @@ class Settings(PyAedtBase):
         """Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
+        When setting this property to ``True``, some gRPC properties are updated to align with the change.
         """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
     def use_lsf_scheduler(self, value: bool) -> None:
-        """
-        LSF Scheduler setter.
-
-        When setting this property to ``True``, some gRPC properties are updated to align with the change.
-        """
         if value:
             self.__grpc_local = False
 
