@@ -533,7 +533,8 @@ class Settings(PyAedtBase):
 
     @use_lsf_scheduler.setter
     def use_lsf_scheduler(self, value: bool) -> None:
-        """LSF Scheduler setter.
+        """
+        LSF Scheduler setter.
 
         When setting this property to ``True``, some gRPC properties are updated to align with the change.
         """
