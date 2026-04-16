@@ -72,6 +72,7 @@ def rpc_server():
     yield
     settings.remote_rpc_session = None
     settings.grpc_local = True
+
     settings.grpc_secure_mode = True
 
 
@@ -94,6 +95,7 @@ def test_remote_hfss_workflow_with_mtls(rpc_server, tmp_path, monkeypatch):
     box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 
     assert box is not None
+
     settings.grpc_local = True
     # NOTE: This is required as each test creates a new desktop session.
     hfss.desktop_class.close_desktop()
