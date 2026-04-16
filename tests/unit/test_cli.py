@@ -49,6 +49,7 @@ from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 from ansys.aedt.core.cli.config import test_config_app
 from ansys.aedt.core.generic.general_methods import is_windows
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 @pytest.fixture(autouse=True)
@@ -228,12 +229,12 @@ def mock_start_command():
         }
 
 
-def test_session_start_default_parameters(cli_runner, mock_start_command, mock_installed_versions):
+def test_session_start_default_parameters(cli_runner, mock_start_command):
     result = cli_runner.invoke(app, ["--json", "session", "start"])
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert data["status"] == "ok"
-    assert data["data"]["version"] == "2026.1"
+    assert data["data"]["version"] == aedt_versions.current_version
     assert data["data"]["port"] == 50051
 
 
