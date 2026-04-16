@@ -108,7 +108,7 @@ class _ServerArgs:
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
-    def __init__(self, mode, host=None, port=None) -> None:
+    def __init__(self, mode: "TransportMode", host: str | None = None, port: int | None = None) -> None:
         """Initialize server arguments.
 
         Parameters
@@ -125,27 +125,27 @@ class _ServerArgs:
         self.__port = port
 
     @property
-    def mode(self):
+    def mode(self) -> "TransportMode":
         """Get transport mode."""
         return self.__mode
 
     @property
-    def host(self):
+    def host(self) -> str:
         """Get host."""
         return self.__host
 
     @property
-    def port(self):
+    def port(self) -> int:
         """Get port."""
         return self.__port
 
     @property
-    def host_ip(self):
+    def host_ip(self) -> str:
         """Get host ip."""
         return get_local_ip(self.host)
 
     @property
-    def client_machine(self):
+    def client_machine(self) -> str:
         """Get client machine."""
         machine = self.host
         if str(self).endswith((":SecureMode", ":InsecureMode")):
@@ -165,7 +165,8 @@ class _ServerArgs:
             machine = self.host_ip
         return machine
 
-    def __check_settings(self):
+    @staticmethod
+    def __check_settings():
         """Validate settings to ensure they are compatible with the transport mode."""
         if settings.grpc_local and settings.grpc_listen_all:
             raise AEDTRuntimeError(
@@ -175,10 +176,10 @@ class _ServerArgs:
     def __repr__(self) -> str:
         self.__check_settings()
 
-        if self.__mode in (TransportMode.UDS, TransportMode.WNUA):
-            return f"{self.__port}" if self.__port is not None else ""
-        if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
-            raise ValueError(f"Invalid transport mode {self.__mode}.")
+        if self.mode in (TransportMode.UDS, TransportMode.WNUA):
+            return f"{self.port}" if self.port is not None else ""
+        if self.mode not in (TransportMode.MTLS, TransportMode.INSECURE):
+            raise ValueError(f"Invalid transport mode {self.mode}.")
 
         host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
@@ -187,7 +188,7 @@ class _ServerArgs:
             if self.__mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
             else "InsecureMode"
         )
-        return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
+        return f"{host}:{self.port}:{mode}" if self.port is not None else f"{host}:{mode}"
 
 
 def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
