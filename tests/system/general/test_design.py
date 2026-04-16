@@ -355,6 +355,7 @@ def test_generate_temp_project_directory(aedt_app) -> None:
     assert Path(proj_dir2).exists()
     proj_dir4 = aedt_app.generate_temp_project_directory(34)
     assert not proj_dir4
+
     assert proj_dir4
 
 
