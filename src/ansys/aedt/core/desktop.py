@@ -145,9 +145,9 @@ class _ServerArgs:
 
     @property
     def client_machine(self):
-        machine = self.host_ip
+        machine = self.host
         if str(self).endswith((":SecureMode", ":InsecureMode")):
-            host_ip = self.host_ip
+            host_ip = self.host
             machine = host_ip + ":" + str(self).split(":")[-1]
 
         # NOTE: When working locally, machine is updated to an empty string to work with UDS.
@@ -178,7 +178,7 @@ class _ServerArgs:
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
 
-        host = self.host_ip if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
+        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         mode = (
             "SecureMode"
