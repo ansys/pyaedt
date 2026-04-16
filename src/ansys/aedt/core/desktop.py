@@ -141,10 +141,12 @@ class _ServerArgs:
 
     @property
     def host_ip(self):
+        """Get host ip."""
         return get_local_ip(self.host)
 
     @property
     def client_machine(self):
+        """Get client machine."""
         machine = self.host
         if str(self).endswith((":SecureMode", ":InsecureMode")):
             host_ip = self.host
