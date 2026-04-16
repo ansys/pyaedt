@@ -38,7 +38,6 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
-from ansys.aedt.core.extensions.misc import aedt_versions
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -48,6 +47,7 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.filesystem import search_files
 
