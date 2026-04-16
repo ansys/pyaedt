@@ -2982,7 +2982,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         elif impedance in self.modeler.get_boundaries_name():
             impedance = generate_unique_name(impedance)
 
-        pass
+        impedance = generate_unique_name("HelloWorld")
 
         listobj = self.modeler.convert_to_selections(assignment, True)
         props = {"Objects": [], "Faces": []}
