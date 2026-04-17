@@ -22,7 +22,7 @@ This script is compatible with AEDT files, as well as A3DCOMP files (including e
 
    .. code-block:: bash
 
-      # Windows
+      # Windows - Command Prompt (cmd)
       set PYAEDT_KERNEL_AEDT_VERSION=2022.2
 
       # Linux

@@ -56,10 +56,10 @@ settings.use_multi_desktop = True
 
 # The kernel conversion process requires AEDT 2022 R2 (or later legacy kernel) as the *input*
 # desktop so that older project/component files can be read and then re-saved by the current
-# version.  If this exact release is not present the extension raises an informative error
+# version. If this exact release is not present, the extension raises an informative error
 # instead of failing silently deep inside the AEDT layer.
 # The default can be overridden by setting the ``PYAEDT_KERNEL_AEDT_VERSION`` environment
-# variable, e.g. ``set PYAEDT_KERNEL_AEDT_VERSION=2022.2`` on Windows.
+# variable, e.g. ``set PYAEDT_KERNEL_AEDT_VERSION=2022.2`` with Command Prompt (cmd) on Windows.
 REQUIRED_INPUT_VERSION = os.getenv("PYAEDT_KERNEL_AEDT_VERSION", "2022.2")
 
 on_ci = os.getenv("ON_CI", "false")
