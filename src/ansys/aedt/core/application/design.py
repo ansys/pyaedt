@@ -1307,7 +1307,19 @@ class Design(AedtObjects, PyAedtBase):
                             oTool.ImportEDB(proj_name)
                         else:
                             oTool.ImportEDB(str(Path(proj_name) / "edb.def"))
-                        self._oproject = self.desktop_class.active_project()
+                        # ImportEDB is asynchronous — AEDT processes the import in its own
+                        # event loop and does not return a project object.  Poll
+                        # active_project() until the project is ready (up to 30 s).
+                        _timeout = 30
+                        _start = time.time()
+                        self._oproject = None
+                        while self._oproject is None and (time.time() - _start) < _timeout:
+                            time.sleep(1)
+                            self._oproject = self.desktop_class.active_project()
+                        if self._oproject is None:
+                            raise RuntimeError(
+                                f"Timed out waiting for AEDT to finish importing EDB: {proj_name}"
+                            )
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(
