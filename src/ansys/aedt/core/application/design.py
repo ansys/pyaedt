@@ -1320,9 +1320,7 @@ class Design(AedtObjects, PyAedtBase):
                             time.sleep(1)
                             self._oproject = self.desktop_class.active_project()
                             if time.time() - start_counter > _message_interval:
-                                self.logger.info(
-                                    "Importing EDB. Elapsed time: %.0f s.", time.time() - _start
-                                )
+                                self.logger.info("Importing EDB. Elapsed time: %.0f s.", time.time() - _start)
                                 start_counter = time.time()
                         if self._oproject is None:
                             raise RuntimeError(f"Timed out waiting for AEDT to finish importing EDB: {proj_name}")
