@@ -1317,9 +1317,7 @@ class Design(AedtObjects, PyAedtBase):
                             time.sleep(1)
                             self._oproject = self.desktop_class.active_project()
                         if self._oproject is None:
-                            raise RuntimeError(
-                                f"Timed out waiting for AEDT to finish importing EDB: {proj_name}"
-                            )
+                            raise RuntimeError(f"Timed out waiting for AEDT to finish importing EDB: {proj_name}")
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(

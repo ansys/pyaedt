@@ -31,13 +31,11 @@ attribute 'Save'``.
 """
 
 from unittest.mock import MagicMock
-from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
 
 from ansys.aedt.core.application.design import Design
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -87,7 +85,7 @@ def _make_design(tmp_path):
 
 
 def test_oproject_edb_import_succeeds_after_retry(tmp_path):
-    """oproject setter retries active_project() until a valid project is returned.
+    """Oproject setter retries active_project() until a valid project is returned.
 
     Simulates the real-world scenario where ``ImportEDB`` is asynchronous:
     ``active_project()`` returns ``None`` on the first two calls (AEDT still
@@ -131,7 +129,7 @@ def test_oproject_edb_import_succeeds_after_retry(tmp_path):
 
 
 def test_oproject_edb_import_timeout(tmp_path):
-    """oproject setter raises RuntimeError when AEDT does not return a project in time.
+    """Oproject setter raises RuntimeError when AEDT does not return a project in time.
 
     Simulates a hung import where ``active_project()`` never returns a valid
     project object within the 30-second timeout window.
@@ -154,7 +152,7 @@ def test_oproject_edb_import_timeout(tmp_path):
 
 
 def test_oproject_aedb_folder_calls_importedb_with_def(tmp_path):
-    """oproject setter passes ``edb.def`` to ImportEDB when given an ``.aedb`` folder path.
+    """Oproject setter passes ``edb.def`` to ImportEDB when given an ``.aedb`` folder path.
 
     When the caller supplies the ``.aedb`` directory path (rather than the
     ``edb.def`` file directly), the setter must append ``edb.def`` before
