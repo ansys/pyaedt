@@ -129,9 +129,9 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "AnsysSendMsg",
 ]
 
-DEFAULT_GRPC_LOCAL = True
-DEFAULT_GRPC_SECURE_MODE = True
-DEFAULT_GRPC_LISTEN_ALL = False
+DEFAULT_GRPC_LOCAL: bool = True
+DEFAULT_GRPC_SECURE_MODE: bool = True
+DEFAULT_GRPC_LISTEN_ALL: bool = False
 
 
 def generate_log_filename() -> str:
@@ -528,11 +528,18 @@ class Settings(PyAedtBase):
         """Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
+        When setting this property to ``True``, some gRPC properties are updated to align with the change.
         """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
     def use_lsf_scheduler(self, value: bool) -> None:
+        if value:
+            self.__grpc_local = False
+
+            # Enable insecure mode when no certificates are defined
+            if not os.environ.get("ANSYS_GRPC_CERTIFICATES"):  # pragma: no cover
+                self.__grpc_secure_mode = False
         self.__use_lsf_scheduler = value
 
     @property

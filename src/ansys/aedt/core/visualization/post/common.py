@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -55,6 +55,7 @@ from ansys.aedt.core.visualization.report import netlist as report_netlist
 from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
     from ansys.aedt.core.visualization.report.emi import EMIReceiver
     from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
     from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
@@ -2007,8 +2008,9 @@ class PostProcessorCommon(PyAedtBase):
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
+    @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> "ReportPlotter":
         """Create a Matplotlib plot from a report.
 
         Parameters

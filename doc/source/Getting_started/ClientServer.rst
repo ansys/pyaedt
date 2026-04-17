@@ -274,10 +274,10 @@ PyAEDT remote service manager
 
 PyAEDT includes a service manager that can be run on the server machine and can be
 launched on-demand in AEDT sessions and act as a file manager.
-You can make a remote application call on a CPython server
-or any Windows client machine in AEDT 2022 R2 and later.
+You can make a remote application call on a CPython server or any Windows client
+machine in AEDT 2022 R2 and later.
 
-On a CPython Server run the ``pyaedt_service_manager`` service that listens on port 17878
+On a CPython server run the ``pyaedt_service_manager`` service that listens on port 17878
 for incoming requests of connections from clients. The port is configurable.
 Requirements:
 
@@ -307,11 +307,11 @@ AEDT can be launched directly while creating the session or after the connection
 
     # User can establish the connection and start a new AEDT session
     cl1 = create_session(
-        "server_name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True
+        "host name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True
     )
 
     # Optionally AEDT can be launched after the connection is established
-    cl2 = create_session("server_name", launch_aedt_on_server=False)
+    cl2 = create_session("host name", launch_aedt_on_server=False)
     cl2.aedt(port=17880, non_graphical=True)
 
 
@@ -319,7 +319,7 @@ Once AEDT is started then user can connect an application to it.
 
 .. code:: python
 
-    hfss = Hfss(machine=cl1.server_name, port=cl1.aedt_port)
+    hfss = Hfss(machine=cl1.host, port=cl1.aedt_port)
     # your code here
 
 The client can be used also to upload or download files from the server.

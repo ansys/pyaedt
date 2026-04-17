@@ -33,7 +33,7 @@ classifiers = [
 
 dependencies = [
     "ansys-tools-common",
-    "grpcio>=1.50.0,<1.79",
+    "grpcio>=1.50.0,<1.81",
     "jsonschema",
     "psutil>=6.0.0",
     "pyedb>=0.71.0",
