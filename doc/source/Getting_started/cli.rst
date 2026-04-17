@@ -206,12 +206,12 @@ Use ``panels add`` to install PyAEDT panels into AEDT.
 
     pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
     pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --reset
-    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --light
+    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib" --minimal
 
 Useful options:
 
 * ``--reset`` - Remove the existing ``Toolkits`` directory before installing
-* ``--light`` - Install only the light panel set (PyAEDT Console and Run Script)
+* ``--minimal`` - Install only the light panel set (PyAEDT Console and Run Script)
 * ``--skip-version-manager`` - Skip the Version Manager panel
 * ``--skip-extension-manager`` - Skip the Extension Manager panel
 
@@ -232,10 +232,16 @@ Use the ``doc`` group to open online documentation and project resources:
     pyaedt doc github
     pyaedt doc issues
     pyaedt doc changelog
-    pyaedt doc changelog 0.22.0
     pyaedt doc search hfss mesh
 
+**Open the changelog for a specific version**
+
+.. code-block:: bash
+
+    pyaedt doc changelog 0.26.1
+
 If no subcommand is provided, ``pyaedt doc`` opens the documentation home page.
+
 
 
 Test configuration
