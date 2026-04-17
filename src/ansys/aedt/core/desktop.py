@@ -1970,6 +1970,22 @@ class Desktop(PyAedtBase):
         References
         ----------
         >>> oDesktop.SubmitJob
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2024.2")
+        Use template
+        >>> job_id1 = desktop.submit_job(
+        ...     project_file="C:/projects/my_project.aedt",
+        ...     cluster_name="my_cluster",
+        ...     nodes=2,
+        ...     cores=64,
+        ... )
+        >>> job_id2 = desktop.submit_job(
+        ...     project_file="C:/projects/my_project2.aedt", setting_file="my_settings_file.areg"
+        ... )
+        >>> desktop.launch_job_monitor("C:/projects/my_project.aedt")
         """
         # Save and close project if opened before submitting
         project_path = Path(project_file).parent
@@ -1982,7 +1998,11 @@ class Desktop(PyAedtBase):
         if setting_file:
             job = self.odesktop.SubmitJob(str(setting_file), str(project_file))
         else:
+            if not cluster_name:
+                cluster_name = "MyCluster"
+
             if not aedt_full_exe_path:
+                # Fallback to find the aedt executable
                 version = self.odesktop.GetVersion()[2:6]
                 if version >= "22.2":
                     version_name = "v" + version.replace(".", "")
@@ -2002,13 +2022,14 @@ class Desktop(PyAedtBase):
             else:
                 if not Path(aedt_full_exe_path).exists():
                     self.logger.warning("The AEDT executable path is not visible from the client.")
-                aedt_full_exe_path.replace("\\", "\\\\")
-            if project_name in self.project_list:
-                self.odesktop.CloseProject(project_name)
+                aedt_full_exe_path = aedt_full_exe_path.replace("\\", "\\\\")
+
             path_file = Path(__file__)
             destination_reg = Path(project_path) / "Job_settings.areg"
             if not setting_file:
-                setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
+                # Template file
+                setting_file = path_file.parent / "misc" / "Job_Settings.areg"
+
             if Path(setting_file).exists():
                 f1 = open_file(destination_reg, "w")
                 with open_file(setting_file) as f:
