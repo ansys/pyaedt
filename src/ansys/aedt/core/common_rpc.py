@@ -225,7 +225,7 @@ def launch_server(
     threaded: bool = True,
     secure: bool = True,
     listen_all: bool = False,
-) -> bool:
+) -> bool:  # pragma: no cover
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
@@ -318,7 +318,7 @@ def create_session(
     non_graphical: bool | None = False,
     secure: bool | None = True,
     listen_all: bool | None = False,
-) -> Connection:
+) -> Connection:  # pragma: no cover
     """Connect to an existing server session and create a new client session from it.
 
     Parameters
@@ -394,7 +394,7 @@ def create_session(
         raise
 
 
-def connect(host: str, aedt_client_port: int) -> Connection:
+def connect(host: str, aedt_client_port: int) -> Connection:  # pragma: no cover
     """Connect to an existing server session.
 
     Parameters

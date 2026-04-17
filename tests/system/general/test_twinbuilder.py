@@ -103,6 +103,9 @@ def test_set_hmin_alternate(aedt_app) -> None:
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_set_end_time(aedt_app) -> None:
+    assert aedt_app.set_end_time(5)
+    aedt_app["a"] = "5s"
+    assert aedt_app.set_end_time(aedt_app.variable_manager.variables["a"])
     assert aedt_app.set_end_time("5s")
 
 
@@ -254,7 +257,9 @@ def test_add_excitation_model(add_app, test_tmp_dir) -> None:
 
     assert tb.add_excitation_model(project=tb.project_file, design="1 maxwell busbar", excitations=excitations)
 
-    assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+    assert tb.add_excitation_model(
+        project=project_name, design="1 maxwell busbar", excitations=excitations, setup=tb.setups[0].name
+    )
 
     assert tb.add_excitation_model(
         project=project_name,
