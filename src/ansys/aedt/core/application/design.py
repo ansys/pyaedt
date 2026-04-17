@@ -77,6 +77,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import inner_project_settings
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1309,13 +1310,20 @@ class Design(AedtObjects, PyAedtBase):
                             oTool.ImportEDB(str(Path(proj_name) / "edb.def"))
                         # ImportEDB is asynchronous — AEDT processes the import in its own
                         # event loop and does not return a project object.  Poll
-                        # active_project() until the project is ready (up to 30 s).
-                        _timeout = 30
+                        # active_project() until the project is ready.
+                        _timeout = settings.edb_import_timeout
+                        _message_interval = 15  # Issue a progress message every 15 seconds.
                         _start = time.time()
                         self._oproject = None
+                        start_counter = _start
                         while self._oproject is None and (time.time() - _start) < _timeout:
                             time.sleep(1)
                             self._oproject = self.desktop_class.active_project()
+                            if time.time() - start_counter > _message_interval:
+                                self.logger.info(
+                                    "Importing EDB. Elapsed time: %.0f s.", time.time() - _start
+                                )
+                                start_counter = time.time()
                         if self._oproject is None:
                             raise RuntimeError(f"Timed out waiting for AEDT to finish importing EDB: {proj_name}")
                         self._oproject.Save()

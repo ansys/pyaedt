@@ -109,8 +109,17 @@ def test_oproject_edb_import_succeeds_after_retry(tmp_path):
     mock_desktop.active_project.side_effect = [None, None, mock_project]
     design._desktop_class = mock_desktop
 
-    with patch("ansys.aedt.core.application.design.time") as mock_time:
-        mock_time.time.side_effect = [0, 1, 2, 3]  # well within 30 s timeout
+    with (
+        patch("ansys.aedt.core.application.design.time") as mock_time,
+        patch("ansys.aedt.core.application.design.settings") as mock_settings,
+    ):
+        mock_settings.edb_import_timeout = 300  # use explicit value, not global default
+        # time.time() calls per iteration:
+        #   _start = time.time()                            → call 1 (init)
+        #   while condition: (time.time() - _start)         → call 2, 4, 6 (each loop check)
+        #   progress: time.time() - start_counter           → call 3, 5, 7 (each body check)
+        # Loop exits after 3rd active_project() returns the mock project (oproject no longer None).
+        mock_time.time.side_effect = [0, 1, 2, 3, 3, 3, 3]
         mock_time.sleep = MagicMock()
 
         design.oproject = str(edb_def)
@@ -132,7 +141,7 @@ def test_oproject_edb_import_timeout(tmp_path):
     """Oproject setter raises RuntimeError when AEDT does not return a project in time.
 
     Simulates a hung import where ``active_project()`` never returns a valid
-    project object within the 30-second timeout window.
+    project object within the configured timeout window.
     """
     design, edb_def, _ = _make_design(tmp_path)
 
@@ -142,9 +151,13 @@ def test_oproject_edb_import_timeout(tmp_path):
     mock_desktop.active_project.return_value = None  # always None
     design._desktop_class = mock_desktop
 
-    with patch("ansys.aedt.core.application.design.time") as mock_time:
-        # Simulate time jumping past the 30 s timeout after the first sleep
-        mock_time.time.side_effect = [0, 0, 31]
+    with (
+        patch("ansys.aedt.core.application.design.time") as mock_time,
+        patch("ansys.aedt.core.application.design.settings") as mock_settings,
+    ):
+        mock_settings.edb_import_timeout = 10  # short timeout for the test
+        # Simulate time jumping past the 10 s timeout after the first poll
+        mock_time.time.side_effect = [0, 0, 11, 11, 11]
         mock_time.sleep = MagicMock()
 
         with pytest.raises(RuntimeError, match="Timed out waiting for AEDT to finish importing EDB"):
@@ -170,8 +183,12 @@ def test_oproject_aedb_folder_calls_importedb_with_def(tmp_path):
     mock_desktop.active_project.return_value = mock_project
     design._desktop_class = mock_desktop
 
-    with patch("ansys.aedt.core.application.design.time") as mock_time:
-        mock_time.time.side_effect = [0, 1]
+    with (
+        patch("ansys.aedt.core.application.design.time") as mock_time,
+        patch("ansys.aedt.core.application.design.settings") as mock_settings,
+    ):
+        mock_settings.edb_import_timeout = 300
+        mock_time.time.side_effect = [0, 1, 1, 1]
         mock_time.sleep = MagicMock()
 
         design.oproject = str(aedb_dir)

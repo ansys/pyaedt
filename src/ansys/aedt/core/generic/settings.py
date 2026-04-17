@@ -88,6 +88,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "objects_lazy_load",
     "aedt_version",
     "desktop_launch_timeout",
+    "edb_import_timeout",
     "disable_bounding_box_sat",
     "edb_dll_path",
     "enable_error_handler",
@@ -218,6 +219,7 @@ class Settings(PyAedtBase):
         self.__enable_pandas_output = False
         self.__edb_dll_path: str | None = None
         self.__desktop_launch_timeout: int = 120
+        self.__edb_import_timeout: int = 300
         self.__number_of_grpc_api_retries: int = 6
         self.__retry_n_times_time_interval: float = 0.1
         self.__wait_for_license: bool = False
@@ -751,6 +753,20 @@ class Settings(PyAedtBase):
     @desktop_launch_timeout.setter
     def desktop_launch_timeout(self, value: int) -> None:
         self.__desktop_launch_timeout = int(value)
+
+    @property
+    def edb_import_timeout(self) -> int:
+        """Timeout in seconds for waiting for AEDT to finish an asynchronous EDB import.
+
+        The default is ``300`` seconds (5 minutes). Increase this value for very large
+        EDB layouts. Can also be set via the ``general.edb_import_timeout`` key in the
+        PyAEDT YAML settings file.
+        """
+        return self.__edb_import_timeout
+
+    @edb_import_timeout.setter
+    def edb_import_timeout(self, value: int) -> None:
+        self.__edb_import_timeout = int(value)
 
     @property
     def aedt_version(self) -> str | None:
