@@ -46,6 +46,8 @@ from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_aedt_theme
 from ansys.aedt.core.extensions.misc import get_latest_version
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.help import Help
 
@@ -403,7 +405,7 @@ class VersionManager:
             # Fallback to the current environment to avoid breaking functionality
             self.activated_env = os.environ.copy()
 
-    def run_pip(self, pip_args: list, capture_output: bool=False, check: bool=True) -> str | None:
+    def run_pip(self, pip_args: list, capture_output: bool = False, check: bool = True) -> str | None:
         """Run pip using python -m pip.
 
         Arguments:
@@ -429,7 +431,7 @@ class VersionManager:
             self.loading_labels[key].config(text="")
             self.root.update_idletasks()
 
-    def update_and_reload(self, pip_args: list, loading_key: str | None = None): # pragma: no cover
+    def update_and_reload(self, pip_args: list, loading_key: str | None = None):  # pragma: no cover
         """Run pip install/upgrade and refresh the UI."""
         # Confirm action
         response = messagebox.askyesno(
@@ -449,7 +451,7 @@ class VersionManager:
             if loading_key:
                 self.hide_loading(loading_key)
             messagebox.showerror("Error: Installation Failed",
-                               f"Installation failed: {exc}")
+                                 f"Installation failed: {exc}")
             return
 
         # Refresh the UI to show updated version information
@@ -524,7 +526,7 @@ class VersionManager:
 
             self.update_and_reload(pip_args, loading_key="pyedb")
 
-    def update_all(self) -> None: # pragma: no cover
+    def update_all(self) -> None:  # pragma: no cover
         """Update both pyaedt and pyedb together.
         """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
@@ -698,12 +700,12 @@ class VersionManager:
             except Exception:  # pragma: no cover
                 return "Please restart"
 
-    def clicked_refresh(self, need_restart: bool=False):
+    def clicked_refresh(self, need_restart: bool = False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
 
-        if need_restart is False:
+        if not need_restart:
             self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
             self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
         else:
@@ -749,7 +751,7 @@ class VersionManager:
             except Exception:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
             dlg = tkinter.Toplevel(self.root)
@@ -830,14 +832,23 @@ class VersionManager:
 
 
 def get_desktop():
+    port = get_port()
     aedt_version = get_aedt_version()
+    aedt_process_id = get_process_id()
 
-    aedtapp = ansys.aedt.core.Desktop(new_desktop=False, version=aedt_version)
+    if aedt_process_id is not None:
+        new_desktop = False
+        ng = False
+    else:
+        new_desktop = True
+        ng = True
+
+    aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
 
     return aedtapp
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     # Initialize tkinter root window and run the app
     personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
     desktop = None if personal_lib else get_desktop()
