@@ -23,12 +23,15 @@
 # SOFTWARE.
 
 import math
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.generated.band import Band
 from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node import RxSusceptibilityProfNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.emit_core.results.simulation import Simulation
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.emit_core.results.simulation import Simulation
 
 
 class InteractionInstance:
@@ -85,12 +88,19 @@ class InteractionInstance:
         return self.emit_project.results.current_revision
 
     def get_results_warning(self) -> str:
-        """Get the results warning for this interaction."""
+        """Get the results warning for this interaction.
+        
+        Returns
+        -------
+        str
+            The warning message if values are invalid, empty string otherwise.
+        """
         status = self.emit_project._emit_com_module.CheckInteractionInstanceValidity()
         if status != "":
             raise RuntimeError(status)
         if not self.has_valid_values():
             return self.emit_project._emit_com_module.GetResultsWarning(self._encoded_emi)
+        return ""
 
     def has_valid_values(self) -> bool:
         """
@@ -161,7 +171,8 @@ class InteractionInstance:
         if result_type == ResultType.EMI or result_type == ResultType.DESENSE:
             val = encoded_result / 100.0
         elif result_type == ResultType.SENSITIVITY:
-            status = status = Simulation.is_domain_valid(self.domain)
+            sim = self.current_revision.get_simulation()
+            status = sim.is_domain_valid(self.domain)
             if status != "":
                 raise RuntimeError(status)
             val = encoded_result / 100.0  # desense
@@ -171,10 +182,13 @@ class InteractionInstance:
             rx_sus_prof: RxSusceptibilityProfNode = next(
                 (child for child in rx_band.children if child.node_type == "RxSusceptibilityProfNode"), None
             )
-            # I THINK THIS IS THE RIGHT PROPERTY BUT DOUBLE CHECK
+            if rx_sus_prof is None:
+                raise RuntimeError(f"Could not find RxSusceptibilityProfNode for band {self.domain.receiver_band_name}.")
+            # Property confirmed correct by user
             val = rx_sus_prof.receiver_sensitivity + max(val, 0)
         elif result_type == ResultType.POWER_AT_RX:
-            status = Simulation.is_domain_valid(self.domain)
+            sim = self.current_revision.get_simulation()
+            status = sim.is_domain_valid(self.domain)
             if status != "":
                 raise RuntimeError(status)
             # Detailed results max unfiltered power at RX
@@ -242,3 +256,34 @@ class InteractionInstance:
         else:
             text = f"Error: category {self.largest_emi_interferer_type} not found!"
         return text
+
+    def get_domain(self) -> InteractionDomain:
+        """Get the interaction domain for this instance.
+        
+        Returns
+        -------
+        InteractionDomain
+            The interaction domain.
+        """
+        return self.domain
+
+    def check_validity(self) -> None:
+        """Check if this interaction instance is still valid.
+        
+        Raises
+        ------
+        RuntimeError
+            If the instance is no longer valid.
+        """
+        # TODO: When iemit-side InteractionInstance objects are implemented with unique IDs,
+        # add COM API call to check if the object still exists:
+        # valid = self.emit_project._emit_com_module.GetInteractionInstanceValid(
+        #     self._session_id, self._unique_id
+        # )
+        # if not valid:
+        #     raise RuntimeError("InteractionInstance object is no longer valid in iemit.")
+        
+        # For now, call CheckInteractionInstanceValidity
+        status = self.emit_project._emit_com_module.CheckInteractionInstanceValidity()
+        if status != "":
+            raise RuntimeError(status)
