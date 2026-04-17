@@ -46,8 +46,6 @@ from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_aedt_theme
 from ansys.aedt.core.extensions.misc import get_latest_version
-from ansys.aedt.core.extensions.misc import get_port
-from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.help import Help
 
@@ -62,6 +60,7 @@ DISCLAIMER = (
     "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
+
 
 class VersionManager:
     TITLE = "Version Manager"
@@ -726,6 +725,7 @@ class VersionManager:
             self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
             self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
             messagebox.showinfo("Message", "Done")
+
     def _on_close(self) -> None:
         """Best-effort cleanup when the extension window is closed.
 
@@ -830,18 +830,9 @@ class VersionManager:
 
 
 def get_desktop():
-    port = get_port()
     aedt_version = get_aedt_version()
-    aedt_process_id = get_process_id()
 
-    if aedt_process_id is not None:
-        new_desktop = False
-        ng = False
-    else:
-        new_desktop = True
-        ng = True
-
-    aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
+    aedtapp = ansys.aedt.core.Desktop(new_desktop=False, version=aedt_version)
 
     return aedtapp
 

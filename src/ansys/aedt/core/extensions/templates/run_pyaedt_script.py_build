@@ -166,7 +166,7 @@ def show_launcher_dialog(initial_dir, run_callback):
             return
 
         run_callback(file_path, script_arguments, f)
-        f.Activate()
+        f.Close()
 
     btn_run.Click += run_click
 
