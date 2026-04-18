@@ -9,6 +9,67 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.26.2 <https://github.com/ansys/pyaedt/releases/tag/v0.26.2>`_ - April 17, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve desktop initialize
+          - `#7555 <https://github.com/ansys/pyaedt/pull/7555>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump pytest from 9.0.2 to 9.0.3
+          - `#7545 <https://github.com/ansys/pyaedt/pull/7545>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Export .tab format in Field Distribution Extension
+          - `#7536 <https://github.com/ansys/pyaedt/pull/7536>`_
+
+        * - Fix variable_manager for circuit class when project variables where setup
+          - `#7543 <https://github.com/ansys/pyaedt/pull/7543>`_
+
+        * - Remove an unguarded import of matplotlib
+          - `#7548 <https://github.com/ansys/pyaedt/pull/7548>`_
+
+        * - Handle exceptions when reading process command line arguments
+          - `#7550 <https://github.com/ansys/pyaedt/pull/7550>`_
+
+        * - Fix LSF issues
+          - `#7552 <https://github.com/ansys/pyaedt/pull/7552>`_
+
+        * - Resolve script execution issue
+          - `#7559 <https://github.com/ansys/pyaedt/pull/7559>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve coverage
+          - `#7542 <https://github.com/ansys/pyaedt/pull/7542>`_
+
+
 `0.26.1 <https://github.com/ansys/pyaedt/releases/tag/v0.26.1>`_ - April 13, 2026
 =================================================================================
 
