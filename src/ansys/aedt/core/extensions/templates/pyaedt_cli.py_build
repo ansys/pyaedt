@@ -64,8 +64,13 @@ def main():
     activate_script_flag = pyaedt_utils.check_file(activate_script, oDesktop)
     if not activate_script_flag:
         return
+
     # Add environment variables
     pyaedt_utils.environment_variables(oDesktop)
+
+    # Open extension manager
+    my_env = os.environ.copy()
+
     # Open terminal, activate environment, and run command
     if is_linux:
         command = pyaedt_utils.get_linux_terminal_command()
@@ -73,11 +78,11 @@ def main():
             pyaedt_utils.show_error("No terminal found on system.", oDesktop)
         terminal_command = "source \"{}\"; pyaedt --help; exec bash".format(activate_script)
         command.extend(["bash", "-c", terminal_command])
-        subprocess.Popen(command)
+        subprocess.Popen(command, env=my_env)
     else:
         terminal_command = '"{}" & pyaedt --help'.format(activate_script)
         command = ["cmd.exe", "/k", terminal_command]
-        subprocess.Popen(" ".join(command))
+        subprocess.Popen(" ".join(command), env=my_env)
 
 
 if __name__ == "__main__":
