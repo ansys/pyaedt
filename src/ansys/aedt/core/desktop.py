@@ -101,6 +101,39 @@ def get_local_ip(host):
         return "127.0.0.1"
 
 
+def _normalize_design_name(name: str | None) -> str | None:
+    """Return the AEDT design name without any prefix metadata."""
+    if not name:
+        return name
+
+    match = re.search(r"[^;]+$", name)
+    return match.group(0) if match else name
+
+
+def _get_design_display_name(design: object | None) -> str | None:
+    """Return the display name for an AEDT design object."""
+    if not design:
+        return None
+
+    try:
+        design_type = design.GetDesignType()
+    except Exception:
+        design_type = None
+
+    try:
+        if design_type == "HFSS 3D Layout Design":
+            return design.GetDesignName()
+
+        design_name = design.GetName()
+    except Exception:
+        return None
+
+    if design_type in {"Circuit Design", "Twin Builder"}:
+        return _normalize_design_name(design_name)
+
+    return design_name
+
+
 class _ServerArgs:
     """Class handling gRPC server arguments (server command line).
 
@@ -1298,6 +1331,31 @@ class Desktop(PyAedtBase):
             time.sleep(1)
             self.close_windows()
         return active_project
+
+    @property
+    def active_project_name(self) -> str | None:
+        """Get the name of the active project."""
+        active_project = self.active_project()
+        if not active_project:
+            return None
+
+        try:
+            return active_project.GetName()
+        except Exception:
+            return None
+
+    @property
+    def active_design_name(self) -> str | None:
+        """Get the display name of the active design."""
+        project_name = self.active_project_name
+        if not project_name:
+            return None
+        if not self.design_list(project_name):
+            return None
+
+        active_project = self.active_project(project_name)
+        active_design = self.active_design(active_project)
+        return _get_design_display_name(active_design)
 
     @pyaedt_function_handler()
     def close_windows(self) -> bool:

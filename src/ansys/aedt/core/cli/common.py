@@ -25,7 +25,6 @@
 from contextlib import suppress
 import json
 from pathlib import Path
-import re
 
 try:
     import typer
@@ -81,15 +80,6 @@ def get_desktop(port: int):
     return d
 
 
-def normalize_design_name(design_name: str | None) -> str | None:
-    """Return the AEDT design name without any prefix metadata."""
-    if not design_name:
-        return design_name
-
-    match = re.search(r"[^;]+$", design_name)
-    return match.group(0) if match else design_name
-
-
 def get_project_designs(desktop, project_name: str) -> list[dict]:
     """Return the designs available in a project."""
     designs = []
@@ -99,31 +89,11 @@ def get_project_designs(desktop, project_name: str) -> list[dict]:
     return designs
 
 
-def get_active_design_name(project) -> str | None:
-    """Return the active design name or ``None`` when unavailable."""
-    if not project:
-        return None
-
-    try:
-        active_design = project.GetActiveDesign()
-    except Exception:
-        return None
-
-    if not active_design:
-        return None
-
-    try:
-        return normalize_design_name(active_design.GetName())
-    except Exception:
-        return None
-
-
 def list_projects_with_designs(desktop) -> list[dict]:
     """Return all open projects together with their designs."""
     project_names = list(desktop.project_list)
-    active_project = desktop.active_project()
-    active_project_name = active_project.GetName() if active_project else None
-    active_design_name = get_active_design_name(active_project)
+    active_project_name = desktop.active_project_name
+    active_design_name = desktop.active_design_name
     projects = []
 
     try:

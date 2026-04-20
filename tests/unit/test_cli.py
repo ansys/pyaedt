@@ -448,16 +448,12 @@ def test_prompt_config_value_int(mock_prompt):
 
 
 def test_common_design_helpers():
-    project = Mock()
-    project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;D1"))
     desktop = Mock()
     desktop.design_list.return_value = ["D1"]
     desktop.design_type.return_value = "HFSS"
 
     designs = common_mod.get_project_designs(desktop, "Project1")
 
-    assert common_mod.normalize_design_name("HFSS;D1") == "D1"
-    assert common_mod.get_active_design_name(project) == "D1"
     assert designs == [{"name": "D1", "type": "HFSS"}]
     desktop.design_list.assert_called_once_with("Project1")
     desktop.design_type.assert_called_once_with(project_name="Project1", design_name="D1")
@@ -465,11 +461,11 @@ def test_common_design_helpers():
 
 def test_list_projects_with_designs_restores_active_context():
     active_project = Mock()
-    active_project.GetName.return_value = "Project2"
-    active_project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;Design2"))
 
     desktop = Mock()
     desktop.project_list = ["Project1", "Project2"]
+    desktop.active_project_name = "Project2"
+    desktop.active_design_name = "Design2"
     desktop.active_project.side_effect = lambda name=None: active_project if name is None else active_project
     desktop.design_list.side_effect = lambda project_name: [] if project_name == "Project1" else ["Design2"]
     desktop.design_type.return_value = "HFSS"
