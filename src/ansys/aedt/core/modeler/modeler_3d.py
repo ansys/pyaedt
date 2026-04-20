@@ -38,7 +38,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import install_message
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -1294,8 +1294,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if plot_before_importing:  # pragma: no cover
             try:
                 import pyvista as pv
-            except ImportError:  # pragma: no cover
-                raise ImportError(ERROR_GRAPHICS_REQUIRED)
+            except ImportError as e:  # pragma: no cover
+                msg = install_message("pyvista", "graphics")
+                raise ImportError(msg) from e
 
             self.logger.info("Viewing Geometry...")
             # view results

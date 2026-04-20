@@ -69,7 +69,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -135,7 +135,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -166,7 +166,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -219,7 +219,7 @@ jobs:
       # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
       # venv creation and wheelhouse builds work.
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -228,11 +228,11 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -281,20 +281,20 @@ jobs:
       # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
       # venv creation and wheelhouse builds work.
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Pre-install specific Python version using uv
         env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
+          PYTHON_VERSION: ${{ github.event.inputs.python-version }}
         shell: bash
-        run: uv python install "$PYTHON_VERSION"
+        run: uv python install ${PYTHON_VERSION}
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@2a2b198b65c63adb69c0d032d180e4dc728d4809 # v10.2.9
+        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}

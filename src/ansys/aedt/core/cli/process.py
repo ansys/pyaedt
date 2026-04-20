@@ -33,10 +33,11 @@ import psutil
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
 
 from ansys.aedt.core.cli.common import _can_access_process
 from ansys.aedt.core.cli.common import _find_aedt_processes
@@ -391,7 +392,7 @@ def _launch_console_setup(pid: int, version: str) -> None:
         AEDT version string
     """
     from pathlib import Path
-    import subprocess  # nosec B404 - subprocess needed for launching interactive console
+    import subprocess  # nosec B404
 
     env = os.environ.copy()
     # Set environment variables
@@ -427,7 +428,7 @@ def _launch_console_setup(pid: int, version: str) -> None:
 
     # Launch console_setup.py in interactive mode using subprocess.Popen
     try:  # pragma: no cover
-        subprocess.run([python_exe, "-i", str(console_setup_path)], env=env, check=False)  # nosec B603 - trusted paths from sys.executable and package location
+        subprocess.run([python_exe, "-i", str(console_setup_path)], env=env, check=False)  # nosec
     except KeyboardInterrupt:  # pragma: no cover
         typer.echo("\n\nInterrupted.")
     except Exception as e:  # pragma: no cover
