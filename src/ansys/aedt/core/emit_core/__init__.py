@@ -58,7 +58,7 @@ def emit_api_python():
 def _init_enums(aedt_version) -> None:
     numeric_version = int(aedt_version[-3:])
 
-    if numeric_version > 251:
+    if numeric_version > 251 and numeric_version < 271:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
@@ -87,7 +87,7 @@ def _init_enums(aedt_version) -> None:
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
         EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
-    else:
+    elif numeric_version <= 251:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
@@ -145,4 +145,3 @@ def _set_api(aedt_version) -> None:
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")
-        _init_enums(aedt_version)

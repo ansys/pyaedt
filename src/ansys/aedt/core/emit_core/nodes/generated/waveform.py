@@ -24,8 +24,8 @@
 
 from enum import Enum
 
+from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
