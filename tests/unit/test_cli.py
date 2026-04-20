@@ -570,7 +570,7 @@ def test_activate_console_context_project_only(mock_get_desktop, mock_resolve_pr
 
     aedt_mod._activate_console_context(port=50051, project="Project1")
 
-    mock_resolve_project.assert_called_once_with(desktop.odesktop, project_name="Project1")
+    mock_resolve_project.assert_called_once_with(desktop, project_name="Project1")
 
 
 def test_launch_console_reports_missing_setup_file(tmp_path, capsys):
