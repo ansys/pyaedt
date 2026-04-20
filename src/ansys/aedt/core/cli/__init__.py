@@ -70,9 +70,9 @@ def version() -> None:
 def aedt_versions() -> None:
     """List installed AEDT versions on this machine."""
     try:
-        from ansys.aedt.core.internal.aedt_versions import aedt_versions as _aedt_versions
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
-        versions = _aedt_versions.installed_versions
+        versions = aedt_versions.installed_versions
         data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
         if common.json_mode:
             common.print_output(data=data)
