@@ -169,48 +169,57 @@ def start(
 @session_app.command("list")
 def list_sessions() -> None:
     """List all running AEDT instances."""
-    aedt_sessions = _discover_aedt_sessions()
+    try:
+        aedt_sessions = _discover_aedt_sessions()
 
-    if common.json_mode:
-        procs_data = []
+        if common.json_mode:
+            procs_data = []
+            for session in aedt_sessions:
+                procs_data.append(
+                    {
+                        "pid": session["pid"],
+                        "name": session["name"],
+                        "port": session["port"],
+                        "version": session["version"],
+                        "student_version": bool(session.get("student_version", False)),
+                    }
+                )
+            common.print_output(data={"processes": procs_data, "count": len(procs_data)})
+            return
+
+        if not aedt_sessions:
+            typer.secho("No AEDT processes currently running.", fg="yellow")
+            return
+
+        typer.echo("Found ", nl=False)
+        typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
+        typer.echo(" AEDT instance(s):")
+        typer.echo("-" * 60)
+
         for session in aedt_sessions:
-            procs_data.append(
-                {
-                    "pid": session["pid"],
-                    "name": session["name"],
-                    "port": session["port"],
-                    "version": session["version"],
-                    "student_version": bool(session.get("student_version", False)),
-                }
-            )
-        common.print_output(data={"processes": procs_data, "count": len(procs_data)})
-        return
-
-    if not aedt_sessions:
-        typer.secho("No AEDT processes currently running.", fg="yellow")
-        return
-
-    typer.echo("Found ", nl=False)
-    typer.secho(f"{len(aedt_sessions)}", fg="green", nl=False)
-    typer.echo(" AEDT instance(s):")
-    typer.echo("-" * 60)
-
-    for session in aedt_sessions:
-        port = session["port"]
-        version = session["version"]
-        edition = session.get("student_version", False)
-        typer.echo("  PID: ", nl=False)
-        typer.secho(f"{session['pid']}", fg="cyan", nl=False)
-        typer.echo(" | Version: ", nl=False)
-        typer.secho(f"{version}", fg="blue", nl=False)
-        if edition:
-            typer.echo(" | Edition: ", nl=False)
-            typer.secho("Student" if edition else "Standard", fg="magenta", nl=False)
-        typer.echo(" | Port: ", nl=False)
-        if port is not None:
-            typer.secho(f"{port}", fg="green")
+            port = session["port"]
+            version = session["version"]
+            edition = session.get("student_version", False)
+            typer.echo("  PID: ", nl=False)
+            typer.secho(f"{session['pid']}", fg="cyan", nl=False)
+            typer.echo(" | Version: ", nl=False)
+            typer.secho(f"{version}", fg="blue", nl=False)
+            if edition:
+                typer.echo(" | Edition: ", nl=False)
+                typer.secho("Student" if edition else "Standard", fg="magenta", nl=False)
+            typer.echo(" | Port: ", nl=False)
+            if port is not None:
+                typer.secho(f"{port}", fg="green")
+            else:
+                typer.secho("COM mode", fg="yellow")
+    except typer.Exit:
+        raise
+    except Exception as e:
+        if common.json_mode:
+            common.print_output(error=str(e))
         else:
-            typer.secho("COM mode", fg="yellow")
+            typer.secho(f"Error: {e}", fg="red")
+        raise typer.Exit(code=1)
 
 
 @session_app.command("stop")
@@ -299,33 +308,49 @@ def attach(
 
     If --port is not given, lists available instances for interactive selection.
     """
-    aedt_sessions = _discover_aedt_sessions()
+    try:
+        aedt_sessions = _discover_aedt_sessions()
 
-    if not aedt_sessions:
-        typer.secho("No AEDT processes currently running.", fg="yellow")
-        typer.echo("Start AEDT first using: ", nl=False)
-        typer.secho("pyaedt session start", fg="cyan")
-        return
-
-    if port is not None:
-        target_session = next((session for session in aedt_sessions if session["port"] == port), None)
-
-        if target_session is None:
-            typer.secho(f"No AEDT process found on port {port}.", fg="red")
-            typer.echo("Available AEDT instances:")
-            for session in aedt_sessions:
-                session_port = session["port"]
-                typer.echo(f"  PID: {session['pid']}, Port: {session_port or 'COM mode'}")
+        if not aedt_sessions:
+            if common.json_mode:
+                common.print_output(error="No AEDT processes currently running.")
+                raise typer.Exit(code=1)
+            typer.secho("No AEDT processes currently running.", fg="yellow")
+            typer.echo("Start AEDT first using: ", nl=False)
+            typer.secho("pyaedt session start", fg="cyan")
             return
 
-        version = str(target_session["version"])
-        typer.echo("Attaching to process ", nl=False)
-        typer.secho(f"{target_session['pid']}", fg="cyan", nl=False)
-        typer.echo(f" (port {port})...")
-        _activate_console_context(port=port, project=project, design=design)
-        _launch_console(int(target_session["pid"]), version, design)
-    else:
-        _attach_interactive(aedt_sessions, project, design)
+        if port is not None:
+            target_session = next((session for session in aedt_sessions if session["port"] == port), None)
+
+            if target_session is None:
+                if common.json_mode:
+                    common.print_output(error=f"No AEDT process found on port {port}.")
+                    raise typer.Exit(code=1)
+                typer.secho(f"No AEDT process found on port {port}.", fg="red")
+                typer.echo("Available AEDT instances:")
+                for session in aedt_sessions:
+                    session_port = session["port"]
+                    typer.echo(f"  PID: {session['pid']}, Port: {session_port or 'COM mode'}")
+                return
+
+            version = str(target_session["version"])
+            if not common.json_mode:
+                typer.echo("Attaching to process ", nl=False)
+                typer.secho(f"{target_session['pid']}", fg="cyan", nl=False)
+                typer.echo(f" (port {port})...")
+            _activate_console_context(port=port, project=project, design=design)
+            _launch_console(int(target_session["pid"]), version, design)
+        else:
+            _attach_interactive(aedt_sessions, project, design)
+    except typer.Exit:
+        raise
+    except Exception as e:
+        if common.json_mode:
+            common.print_output(error=str(e))
+        else:
+            typer.secho(f"Error: {e}", fg="red")
+        raise typer.Exit(code=1)
 
 
 def _attach_interactive(aedt_sessions: list[dict[str, object]], project: str | None, design: str | None) -> None:

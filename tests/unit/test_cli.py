@@ -304,6 +304,15 @@ def test_attach_json_empty_sessions(_mock_discover, cli_runner):
     assert data["data"]["processes"] == []
 
 
+@patch("ansys.aedt.core.cli.aedt._discover_aedt_sessions", side_effect=RuntimeError("boom"))
+def test_session_list_json_error(_mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "list"])
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "boom"
+
+
 @patch("psutil.Process")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
@@ -331,6 +340,30 @@ def test_attach_by_port_not_found_lists_available(_mock_discover, cli_runner):
     assert result.exit_code == 0
     assert "No AEDT process found on port 50051" in result.stdout
     assert "PID: 12345, Port: 50052" in result.stdout
+
+
+@patch(
+    "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
+    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+)
+@patch("ansys.aedt.core.cli.aedt._activate_console_context", side_effect=RuntimeError("bad context"))
+def test_attach_by_port_error_json(mock_activate, mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "attach", "--port", "50051"])
+
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "bad context"
+
+
+@patch("ansys.aedt.core.cli.aedt._discover_aedt_sessions", return_value=[])
+def test_attach_no_aedt_sessions_json(_mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "attach"])
+
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "No AEDT processes currently running."
 
 
 def test_load_config_existing_file(tmp_path):
