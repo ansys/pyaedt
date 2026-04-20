@@ -63,7 +63,7 @@ def list_projects(
     """List open projects together with their designs."""
     try:
         d = common.get_desktop(port=port)
-        projects = common.list_projects_with_designs(d.odesktop)
+        projects = common.list_projects_with_designs(d)
         data = {"projects": projects, "count": len(projects)}
         if common.json_mode:
             common.print_output(data=data)

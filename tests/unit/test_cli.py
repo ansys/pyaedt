@@ -415,18 +415,19 @@ def test_prompt_config_value_int(mock_prompt):
 
 
 def test_common_design_helpers():
-    design = Mock()
-    design.GetDesignType.return_value = "HFSS"
     project = Mock()
-    project.GetTopDesignList.return_value = ["HFSS;D1"]
-    project.SetActiveDesign.return_value = design
     project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;D1"))
+    desktop = Mock()
+    desktop.design_list.return_value = ["D1"]
+    desktop.design_type.return_value = "HFSS"
 
-    designs = common_mod.get_project_designs(project)
+    designs = common_mod.get_project_designs(desktop, "Project1")
 
     assert common_mod.normalize_design_name("HFSS;D1") == "D1"
     assert common_mod.get_active_design_name(project) == "D1"
     assert designs == [{"name": "D1", "type": "HFSS"}]
+    desktop.design_list.assert_called_once_with("Project1")
+    desktop.design_type.assert_called_once_with(project_name="Project1", design_name="D1")
 
 
 def test_list_projects_with_designs_restores_active_context():
@@ -434,54 +435,45 @@ def test_list_projects_with_designs_restores_active_context():
     active_project.GetName.return_value = "Project2"
     active_project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;Design2"))
 
-    project1 = Mock()
-    project1.GetTopDesignList.return_value = []
+    desktop = Mock()
+    desktop.project_list = ["Project1", "Project2"]
+    desktop.active_project.side_effect = lambda name=None: active_project if name is None else active_project
+    desktop.design_list.side_effect = lambda project_name: [] if project_name == "Project1" else ["Design2"]
+    desktop.design_type.return_value = "HFSS"
 
-    design = Mock()
-    design.GetDesignType.return_value = "HFSS"
-    project2 = Mock()
-    project2.GetTopDesignList.return_value = ["HFSS;Design2"]
-    project2.SetActiveDesign.return_value = design
-
-    project_map = {"Project1": project1, "Project2": project2}
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1", "Project2"]
-    odesktop.GetActiveProject.return_value = active_project
-    odesktop.SetActiveProject.side_effect = lambda name: project_map[name]
-
-    projects = common_mod.list_projects_with_designs(odesktop)
+    projects = common_mod.list_projects_with_designs(desktop)
 
     assert projects == [
         {"name": "Project1", "designs": [], "count": 0},
         {"name": "Project2", "designs": [{"name": "Design2", "type": "HFSS"}], "count": 1},
     ]
-    project2.SetActiveDesign.assert_called_with("Design2")
+    desktop.active_project.assert_any_call("Project2")
+    desktop.active_design.assert_called_once_with(active_project, "Design2")
 
 
 def test_resolve_project_requires_explicit_selection_when_multiple_open():
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1", "Project2"]
+    desktop = Mock()
+    desktop.project_list = ["Project1", "Project2"]
 
     with pytest.raises(RuntimeError, match="Multiple projects are open"):
-        common_mod.resolve_project(odesktop)
+        common_mod.resolve_project(desktop)
 
 
 def test_resolve_project_and_design_resolves_single_design():
     design = Mock()
-    design.GetDesignType.return_value = "HFSS"
     project = Mock()
     project.GetName.return_value = "Project1"
-    project.GetTopDesignList.return_value = ["HFSS;Design1"]
-    project.SetActiveDesign.return_value = design
+    desktop = Mock()
+    desktop.project_list = ["Project1"]
+    desktop.active_project.return_value = project
+    desktop.design_list.return_value = ["Design1"]
+    desktop.design_type.return_value = "HFSS"
+    desktop.active_design.return_value = design
 
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1"]
-    odesktop.SetActiveProject.return_value = project
-
-    context = common_mod.resolve_project_and_design(odesktop)
+    context = common_mod.resolve_project_and_design(desktop)
 
     assert context == {"project": "Project1", "design": "Design1"}
-    project.SetActiveDesign.assert_called_with("Design1")
+    desktop.active_design.assert_called_once_with(project, "Design1")
 
 
 @patch("ansys.aedt.core.cli.common.get_desktop")
@@ -500,7 +492,7 @@ def test_get_design_app_uses_resolved_context(mock_resolve, mock_get_pyaedt_app,
     assert resolved_desktop is desktop
     assert resolved_app is app_instance
     assert context == {"project": "Project1", "design": "Design1"}
-    mock_resolve.assert_called_once_with(desktop.odesktop, project_name=None, design_name=None)
+    mock_resolve.assert_called_once_with(desktop, project_name=None, design_name=None)
     mock_get_pyaedt_app.assert_called_once_with(project_name="Project1", design_name="Design1", desktop=desktop)
 
 

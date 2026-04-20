@@ -402,9 +402,9 @@ def _activate_console_context(port: int | None, project: str | None = None, desi
 
     desktop = common.get_desktop(port=port)
     if design:
-        common.resolve_project_and_design(desktop.odesktop, project_name=project, design_name=design)
+        common.resolve_project_and_design(desktop, project_name=project, design_name=design)
     else:
-        common.resolve_project(desktop.odesktop, project_name=project)
+        common.resolve_project(desktop, project_name=project)
 
 
 def _launch_console(pid: int, version: str, design: str | None = None) -> None:

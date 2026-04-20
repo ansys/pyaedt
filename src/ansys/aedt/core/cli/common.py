@@ -90,18 +90,12 @@ def normalize_design_name(design_name: str | None) -> str | None:
     return match.group(0) if match else design_name
 
 
-def get_project_designs(project) -> list[dict]:
+def get_project_designs(desktop, project_name: str) -> list[dict]:
     """Return the designs available in a project."""
     designs = []
-    for raw_design_name in list(project.GetTopDesignList()):
-        design_name = normalize_design_name(raw_design_name)
-        design = project.SetActiveDesign(design_name)
-        designs.append(
-            {
-                "name": design_name,
-                "type": design.GetDesignType() if design else None,
-            }
-        )
+    for design_name in desktop.design_list(project_name):
+        design_type = desktop.design_type(project_name=project_name, design_name=design_name)
+        designs.append({"name": design_name, "type": design_type or None})
     return designs
 
 
@@ -124,37 +118,36 @@ def get_active_design_name(project) -> str | None:
         return None
 
 
-def list_projects_with_designs(odesktop) -> list[dict]:
+def list_projects_with_designs(desktop) -> list[dict]:
     """Return all open projects together with their designs."""
-    project_names = list(odesktop.GetProjectList())
-    active_project = odesktop.GetActiveProject()
+    project_names = list(desktop.project_list)
+    active_project = desktop.active_project()
     active_project_name = active_project.GetName() if active_project else None
     active_design_name = get_active_design_name(active_project)
     projects = []
 
     try:
         for project_name in project_names:
-            project = odesktop.SetActiveProject(project_name)
-            designs = get_project_designs(project)
+            designs = get_project_designs(desktop, project_name)
             projects.append({"name": project_name, "designs": designs, "count": len(designs)})
     finally:
         if active_project_name:
-            restored_project = odesktop.SetActiveProject(active_project_name)
+            restored_project = desktop.active_project(active_project_name)
             if restored_project and active_design_name:
                 with suppress(Exception):
-                    restored_project.SetActiveDesign(active_design_name)
+                    desktop.active_design(restored_project, active_design_name)
 
     return projects
 
 
-def resolve_project(odesktop, project_name: str | None = None):
+def resolve_project(desktop, project_name: str | None = None):
     """Resolve a project, requiring an explicit choice when multiple are open."""
-    project_names = list(odesktop.GetProjectList())
+    project_names = list(desktop.project_list)
 
     if project_name:
         if project_name not in project_names:
             raise RuntimeError(f"Project '{project_name}' is not open in the AEDT instance.")
-        project = odesktop.SetActiveProject(project_name)
+        project = desktop.active_project(project_name)
         if not project:
             raise RuntimeError(f"Project '{project_name}' could not be activated.")
         return project
@@ -164,23 +157,23 @@ def resolve_project(odesktop, project_name: str | None = None):
     if len(project_names) > 1:
         raise RuntimeError("Multiple projects are open. Provide --project to select one.")
 
-    project = odesktop.SetActiveProject(project_names[0])
+    project = desktop.active_project(project_names[0])
     if not project:
         raise RuntimeError(f"Project '{project_names[0]}' could not be activated.")
     return project
 
 
-def resolve_project_and_design(odesktop, project_name: str | None = None, design_name: str | None = None) -> dict:
+def resolve_project_and_design(desktop, project_name: str | None = None, design_name: str | None = None) -> dict:
     """Resolve a unique project and design selection for design-scoped commands."""
-    project = resolve_project(odesktop, project_name=project_name)
+    project = resolve_project(desktop, project_name=project_name)
     resolved_project_name = project.GetName()
-    designs = get_project_designs(project)
+    designs = get_project_designs(desktop, resolved_project_name)
     design_names = [design["name"] for design in designs]
 
     if design_name:
         if design_name not in design_names:
             raise RuntimeError(f"Design '{design_name}' is not present in project '{resolved_project_name}'.")
-        design = project.SetActiveDesign(design_name)
+        design = desktop.active_design(project, design_name)
         if not design:
             raise RuntimeError(f"Design '{design_name}' could not be activated in project '{resolved_project_name}'.")
         resolved_design_name = design_name
@@ -192,7 +185,7 @@ def resolve_project_and_design(odesktop, project_name: str | None = None, design
                 f"Project '{resolved_project_name}' contains multiple designs. Provide --design to select one."
             )
         resolved_design_name = design_names[0]
-        project.SetActiveDesign(resolved_design_name)
+        desktop.active_design(project, resolved_design_name)
 
     return {"project": resolved_project_name, "design": resolved_design_name}
 
@@ -203,7 +196,7 @@ def get_design_app(port: int, project_name: str | None = None, design_name: str 
 
     aedt.settings.enable_logger = False
     desktop = get_desktop(port=port)
-    context = resolve_project_and_design(desktop.odesktop, project_name=project_name, design_name=design_name)
+    context = resolve_project_and_design(desktop, project_name=project_name, design_name=design_name)
     app = aedt.get_pyaedt_app(project_name=context["project"], design_name=context["design"], desktop=desktop)
     return desktop, app, context
 
