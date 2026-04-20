@@ -40,10 +40,7 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli import common
 
-script_app = typer.Typer(help="Script execution commands")
 
-
-@script_app.command("run")
 def run_script(
     script_path: str = typer.Argument(..., help="Path to .py script file"),
     port: int | None = typer.Option(None, "--port", help="gRPC port of the AEDT instance"),

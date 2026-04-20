@@ -155,13 +155,13 @@ Supported design types include ``Hfss``, ``Maxwell2d``, ``Maxwell3d``, ``Q3d``, 
 Script commands
 ---------------
 
-Use ``script`` to execute a Python script.
+Use ``run`` to execute a Python script.
 
 **Run a script**
 
 .. code-block:: bash
 
-    pyaedt script run my_script.py --port 50051
+    pyaedt run my_script.py --port 50051
 
 The script runs with an attached Desktop object available as ``desktop``.
 
@@ -169,7 +169,7 @@ The script runs with an attached Desktop object available as ``desktop``.
 
 .. code-block:: bash
 
-    pyaedt script run my_script.py --ironpython --port 50051
+    pyaedt run my_script.py --ironpython --port 50051
 
 Ironpython scripts only support native AEDT API.
 
@@ -275,7 +275,7 @@ Common workflows
 .. code-block:: bash
 
     pyaedt session start --non-graphical --port 50051
-    pyaedt script run my_script.py --port 50051
+    pyaedt run my_script.py --port 50051
     pyaedt session stop --port 50051
 
 **Export design data**
@@ -308,7 +308,7 @@ Use ``--help`` on any command group or command to see the available options:
     pyaedt --help
     pyaedt session --help
     pyaedt project --help
-    pyaedt script run --help
+    pyaedt run --help
     pyaedt export --help
     pyaedt panels add --help
     pyaedt doc --help

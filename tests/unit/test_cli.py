@@ -864,7 +864,7 @@ def test_project_close_active(mock_get_desktop, cli_runner):
 @patch("ansys.aedt.core.cli.common.get_desktop")
 def test_script_run_file_not_found(mock_get_desktop, cli_runner):
     mock_get_desktop.return_value = Mock()
-    result = cli_runner.invoke(app, ["script", "run", "nonexistent.py", "--port", "50051"])
+    result = cli_runner.invoke(app, ["run", "nonexistent.py", "--port", "50051"])
     assert result.exit_code == 1
     assert "Script not found" in result.output
 
@@ -877,7 +877,7 @@ def test_script_run_success(mock_get_desktop, cli_runner, tmp_path):
     mock_desktop = Mock()
     mock_get_desktop.return_value = mock_desktop
 
-    result = cli_runner.invoke(app, ["script", "run", str(script_file), "--port", "50051"])
+    result = cli_runner.invoke(app, ["run", str(script_file), "--port", "50051"])
 
     assert result.exit_code == 0
     assert "Script executed" in result.output
@@ -890,7 +890,7 @@ def test_script_run_json(mock_get_desktop, cli_runner, tmp_path):
     mock_desktop = Mock()
     mock_get_desktop.return_value = mock_desktop
 
-    result = cli_runner.invoke(app, ["--json", "script", "run", str(script_file), "--port", "50051"])
+    result = cli_runner.invoke(app, ["--json", "run", str(script_file), "--port", "50051"])
 
     assert result.exit_code == 0
     data = json.loads(result.output)
