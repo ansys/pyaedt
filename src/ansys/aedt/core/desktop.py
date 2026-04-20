@@ -99,15 +99,6 @@ def get_local_ip(host):
         return "127.0.0.1"
 
 
-def _normalize_design_name(name: str | None) -> str | None:
-    """Return the AEDT design name without any prefix metadata."""
-    if not name:
-        return name
-
-    match = re.search(r"[^;]+$", name)
-    return match.group(0) if match else name
-
-
 def _get_design_display_name(design: object | None) -> str | None:
     """Return the display name for an AEDT design object."""
     if not design:
@@ -127,7 +118,8 @@ def _get_design_display_name(design: object | None) -> str | None:
         return None
 
     if design_type in {"Circuit Design", "Twin Builder"}:
-        return _normalize_design_name(design_name)
+        parts = design_name.split(";", 1)
+        return parts[1] if len(parts) > 1 else design_name
 
     return design_name
 

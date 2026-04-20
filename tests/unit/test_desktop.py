@@ -34,7 +34,6 @@ from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _get_design_display_name
-from ansys.aedt.core.desktop import _normalize_design_name
 from ansys.aedt.core.desktop import _ServerArgs
 from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.settings import Settings
@@ -127,12 +126,6 @@ def test_desktop_odesktop_setter() -> None:
     assert desktop.odesktop == aedt_app
 
 
-def test_normalize_design_name() -> None:
-    assert _normalize_design_name("HFSS;Design1") == "Design1"
-    assert _normalize_design_name("Design1") == "Design1"
-    assert _normalize_design_name(None) is None
-
-
 @pytest.mark.parametrize(
     ("design_type", "raw_name", "design_name", "expected"),
     [
@@ -140,6 +133,7 @@ def test_normalize_design_name() -> None:
         ("HFSS 3D Layout Design", "Layout;Ignored", "Layout1", "Layout1"),
         ("Circuit Design", "Circuit;Design1", None, "Design1"),
         ("Twin Builder", "Twin Builder;Design2", None, "Design2"),
+        ("Circuit Design", "Design1", None, "Design1"),
     ],
 )
 def test_get_design_display_name(design_type, raw_name, design_name, expected) -> None:
