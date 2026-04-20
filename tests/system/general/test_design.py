@@ -316,6 +316,8 @@ def test_import_dataset1d(aedt_app) -> None:
     assert ds4.delete()
     assert aedt_app.import_dataset1d(filename)
     assert ds5.delete()
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_dataset1d(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "dummy.tab")
 
 
 def test_import_dataset3d(aedt_app) -> None:
@@ -438,27 +440,6 @@ def test_force_project_path_disable(aedt_app) -> None:
         assert e.args[0] == "Project doesn't exist. Check it and retry."
     assert exception_raised
     settings.force_error_on_missing_project = False
-
-
-# @pytest.mark.skipif(is_linux, reason="Crashing in Linux.")
-# def test_get_app(desktop, add_app):
-#     app = add_app(application=Icepak)
-#     project_name = app.project_name
-#     d = desktop
-#     assert d[[0, 0]]
-#     assert not d[[project_name, "invalid_name"]]
-#     assert d[[0, app.design_name]]
-#     assert d[[project_name, 0]]
-#     assert not d[[project_name, 5]]
-#     assert not d[[1, 0]]
-#     assert not d[[1, 0, 3]]
-#
-#     app.create_new_project("Test")
-#     assert d[[1, 0]]
-#     assert "Test" in d[[1, 0]].project_name
-#     project_name2 = app.project_name
-#     app.close_project(project_name2)
-#     app.close_project(project_name)
 
 
 def test_toolkit(aedt_app, test_tmp_dir) -> None:

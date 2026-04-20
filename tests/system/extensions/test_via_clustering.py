@@ -30,12 +30,13 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
+
 def test_via_clustering_main_function(test_tmp_dir) -> None:
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
@@ -69,7 +70,6 @@ def test_via_clustering_main_function(test_tmp_dir) -> None:
     assert new_file.exists()
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_via_clustering_extension_ui(add_app_example) -> None:
     """Test the Via Clustering extension UI components."""
     # Create an HFSS 3D Layout application for testing
@@ -105,7 +105,6 @@ def test_via_clustering_extension_ui(add_app_example) -> None:
     hfss3d.close_project(save=False)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_via_clustering_exceptions() -> None:
     """Test exceptions thrown by the Via Clustering extension."""
     # Test missing AEDB path
@@ -128,7 +127,6 @@ def test_via_clustering_exceptions() -> None:
         main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_via_clustering_button_functions(add_app_example) -> None:
     """Test the button functions in the Via Clustering extension."""
     # Copy the test model to scratch directory
@@ -160,7 +158,6 @@ def test_via_clustering_button_functions(add_app_example) -> None:
     hfss3d.close_project(save=False)
 
 
-@pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 def test_via_clustering_data_class() -> None:
     """Test the ViaClusteringExtensionData data class."""
     # Test default initialization

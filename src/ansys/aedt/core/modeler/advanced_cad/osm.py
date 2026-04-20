@@ -25,28 +25,31 @@ from __future__ import annotations
 
 import math as mathlib
 from pathlib import Path
-from typing import TYPE_CHECKING
-import warnings
 
 import numpy as np
 from numpy.typing import NDArray
-import pyvista as pv
-import vtk
-
-if TYPE_CHECKING:
-    from pyvista import PolyData
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import install_message
+
+try:
+    import pyvista as pv
+    from pyvista import PolyData
+    import vtk
+except ImportError as e:  # pragma: no cover
+    msg = install_message(["pyvista", "vtk"], "graphics", level="module")
+    raise ImportError(msg) from e
 
 logger = settings.logger
 
 try:
     import osmnx as ox
-except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\nInstall with \n\npip install osmnx")
+except ImportError as e:  # pragma: no cover
+    msg = install_message("osmnx", "all", level="module")
+    raise ImportError(msg) from e
+
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
@@ -59,7 +62,6 @@ class BuildingsPrep(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    @graphics_required
     def create_building_roof(all_pos: NDArray[np.float64]) -> "PolyData":
         """Generate a filled in polygon from outline.
 
@@ -103,11 +105,10 @@ class BuildingsPrep(PyAedtBase):
         triFilter.Update()
 
         polygonPolyDataFiltered = triFilter.GetOutput()
-        roof = pv.PolyData(polygonPolyDataFiltered)
+        roof = PolyData(polygonPolyDataFiltered)
         return roof
 
     @pyaedt_function_handler()
-    @graphics_required
     def generate_buildings(self, center_lat_lon: list[float], terrain_mesh, max_radius: float | int = 500) -> dict:
         """Generate the buildings stl file.
 
@@ -151,7 +152,7 @@ class BuildingsPrep(PyAedtBase):
             temp = [levels, height]
             geo = geo.array
 
-            building_meshes = pv.PolyData()  # empty location where all building meshses are stored
+            building_meshes = PolyData()  # empty location where all building meshses are stored
 
             logger.info("\nGenerating Buildings")
             last_displayed = -1
@@ -251,7 +252,6 @@ class RoadPrep(PyAedtBase):
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
-    @graphics_required
     def create_roads(
         self,
         center_lat_lon: list[float],
@@ -299,8 +299,8 @@ class RoadPrep(PyAedtBase):
         start_z = bb_terrain[4] - buffer
         stop_z = bb_terrain[5] + buffer
 
-        line = pv.PolyData()
-        road_ends = pv.PolyData()
+        line = PolyData()
+        road_ends = PolyData()
         # convert each edge into a line
         count = 0
         last_displayed = -1
@@ -372,7 +372,6 @@ class TerrainPrep(PyAedtBase):
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
-    @graphics_required
     def get_terrain(
         self,
         center_lat_lon: list[float],
@@ -422,7 +421,7 @@ class TerrainPrep(PyAedtBase):
 
         file_out = str(Path(self.cad_path) / "terrain.stl")
         logger.info("saving STL as " + file_out)
-        terrain_mesh = pv.PolyData(xyz)
+        terrain_mesh = PolyData(xyz)
         terrain_mesh = terrain_mesh.delaunay_2d(tol=10 / (2 * max_radius) / 2)
         terrain_mesh = terrain_mesh.smooth(n_iter=100, relaxation_factor=0.04)
 

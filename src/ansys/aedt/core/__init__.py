@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.26.dev0"
+__version__ = "1.0.dev0"
 version = __version__
 
 # isort: off
@@ -120,7 +120,6 @@ from ansys.aedt.core.twinbuilder import TwinBuilder
 __all__ = [
     "settings",
     "inner_project_settings",
-    "downloads",
     "Edb",
     "Siwave",
     "constants",

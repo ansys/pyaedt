@@ -31,10 +31,11 @@ import psutil
 
 try:
     import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
 
 # Default configuration for local_config.json
 DEFAULT_TEST_CONFIG = {
@@ -296,8 +297,13 @@ def _get_port(proc: psutil.Process) -> int | None:
     if "-grpcsrv" in cmd_line:
         res = int(cmd_line[cmd_line.index("-grpcsrv") + 1])
     else:
+        if hasattr(psutil, "net_connections"):
+            prc_connections = psutil.net_connections()
+        else:  # pragma: no cover
+            prc_connections = psutil.connections()
+
         # Look in the typical port range for AEDT
-        for i in psutil.net_connections():
+        for i in prc_connections:
             if i.pid == proc.pid and i.status == "LISTEN" and 50000 <= i.laddr.port <= 50100:
                 res = i.laddr.port
                 break

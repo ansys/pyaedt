@@ -519,7 +519,7 @@ at the top level of the repository. Below is an example configuration with descr
 .. code-block:: json
 
   {
-      "desktopVersion": "2025.2",
+      "desktopVersion": "2026.1",
       "NonGraphical": true,
       "NewThread": true,
       "skip_circuits": false,
@@ -533,7 +533,7 @@ at the top level of the repository. Below is an example configuration with descr
 
 Parameter descriptions:
 
-- ``desktopVersion``: AEDT version to use for testing (for example, "2025.2," "2024.1").
+- ``desktopVersion``: AEDT version to use for testing (for example "2025.2" or "2026.1").
 - ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
 - ``NewThread``: Opens AEDT in a new thread.
 - ``skip_circuits``: When ``true``, skips Circuit-related tests.

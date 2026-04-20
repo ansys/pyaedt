@@ -59,7 +59,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -72,7 +72,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group unit-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run unit tests
         env:
@@ -101,7 +101,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -114,7 +114,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group integration-tests
+          uv sync --frozen --group tests --extra all
 
       - name: Run integration tests
         env:
@@ -142,7 +142,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -155,7 +155,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -191,7 +191,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main-${{ github.sha }}
@@ -203,7 +203,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -217,7 +217,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -230,7 +230,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -243,7 +243,6 @@ jobs:
 
       - name: Run tests marked with 'solvers'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -263,7 +262,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main-${{ github.sha }}
@@ -287,7 +286,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -303,7 +302,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -339,7 +338,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main-${{ github.sha }}
@@ -351,7 +350,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -365,7 +364,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -381,7 +380,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -393,8 +392,6 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
@@ -413,7 +410,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main-${{ github.sha }}
@@ -438,7 +435,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -454,7 +451,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -490,7 +487,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main-${{ github.sha }}
@@ -502,7 +499,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
@@ -517,7 +514,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -533,7 +530,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -545,8 +542,6 @@ jobs:
           done
 
       - name: Run tests marked with 'visualization'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
@@ -565,7 +560,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main-${{ github.sha }}
@@ -589,7 +584,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -602,7 +597,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -638,7 +633,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main-${{ github.sha }}
@@ -650,7 +645,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -664,7 +659,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -677,7 +672,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -690,7 +685,6 @@ jobs:
 
       - name: Run tests marked with 'icepak'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -710,7 +704,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main-${{ github.sha }}
@@ -734,7 +728,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -747,7 +741,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -782,7 +776,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main-${{ github.sha }}
@@ -794,7 +788,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -808,7 +802,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -821,7 +815,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -834,7 +828,6 @@ jobs:
 
       - name: Run tests marked with 'layout'
         env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
@@ -854,7 +847,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
@@ -878,7 +871,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -894,7 +887,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -923,7 +916,7 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -937,7 +930,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -953,8 +946,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv sync --frozen --group tests
-
+          uv sync --frozen --group tests --extra all
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -965,8 +957,6 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS_NON_TESTMON} --timeout=600 tests/system/extensions
@@ -990,7 +980,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1003,7 +993,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -1039,7 +1029,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main-${{ github.sha }}
@@ -1063,7 +1053,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1076,7 +1066,7 @@ jobs:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv sync --frozen --group tests
+          uv sync --frozen --group tests --extra all
 
 
       - name: Remove Ansys processes (if any)
@@ -1112,7 +1102,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}
