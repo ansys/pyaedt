@@ -3756,14 +3756,13 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.71.0"
+version = "0.72.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
     { name = "ansys-pythonnet" },
     { name = "cffi", marker = "sys_platform == 'linux'" },
     { name = "defusedxml" },
-    { name = "dotnetcore2", marker = "sys_platform == 'linux'" },
     { name = "numpy" },
     { name = "psutil" },
     { name = "pydantic" },
@@ -3771,9 +3770,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cc/4d/cc99e4d8e4468fbd7a0c36fbabf93f2212a3a2cbd29262852ebf22125d30/pyedb-0.71.0.tar.gz", hash = "sha256:87de3b13feb6f71a75eec14d2c937036537406f68093ee9f76ae85dc600d863c", size = 771435, upload-time = "2026-03-20T11:38:30.713Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/ca/af5542aa23751f3782c4313d24bd640637179eb6392a702641b54c4f39c4/pyedb-0.72.0.tar.gz", hash = "sha256:b90fd891938be8936141c142469425d4f19972f1e46e116bb6f5d6312fb1a9a1", size = 782478, upload-time = "2026-04-17T12:43:03.94Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/61/fd8e5db922f46465bb5cc517c6569e162a3f6263e2f476cd72a171e1e268/pyedb-0.71.0-py3-none-any.whl", hash = "sha256:db5cf31524c0f650f93200159bacd1a50f8d15e4f12be9d6f365b9f18b37db62", size = 1066273, upload-time = "2026-03-20T11:38:28.773Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/27/2e7ab2b2ba751f9545314ecff6fab8fe9fc67305058ef7ded8bd4beceb03/pyedb-0.72.0-py3-none-any.whl", hash = "sha256:97b6f6ee33caec7838cb83642b9eedef875da99c98f29be260bde6cd55916655", size = 1081998, upload-time = "2026-04-17T12:43:01.662Z" },
 ]
 
 [[package]]
