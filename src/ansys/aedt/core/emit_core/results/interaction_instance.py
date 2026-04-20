@@ -23,15 +23,11 @@
 # SOFTWARE.
 
 import math
-from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.generated.band import Band
 from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node import RxSusceptibilityProfNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-
-if TYPE_CHECKING:
-    from ansys.aedt.core.emit_core.results.simulation import Simulation
 
 
 class InteractionInstance:
@@ -49,6 +45,7 @@ class InteractionInstance:
         # Values <-30000 or >30000 are non-numeric results
         self._encoded_emi = -32768
         self._encoded_desense = -32768
+        self._power_at_rx = -200.0  # Power at RX in dBm
 
         self._largest_emi_interferer_type = -11
 
@@ -73,6 +70,16 @@ class InteractionInstance:
         self._encoded_desense = value
 
     @property
+    def power_at_rx(self) -> float:
+        """Get the power at RX value in dBm."""
+        return self._power_at_rx
+
+    @power_at_rx.setter
+    def power_at_rx(self, value: float) -> None:
+        """Set the power at RX value in dBm."""
+        self._power_at_rx = value
+
+    @property
     def largest_emi_interferer_type(self) -> float:
         """Get the largest EMI interferer type."""
         return self._largest_emi_interferer_type
@@ -95,11 +102,18 @@ class InteractionInstance:
         str
             The warning message if values are invalid, empty string otherwise.
         """
-        status = self.emit_project._emit_com_module.CheckInteractionInstanceValidity()
-        if status != "":
-            raise RuntimeError(status)
         if not self.has_valid_values():
-            return self.emit_project._emit_com_module.GetResultsWarning(self._encoded_emi)
+            # Map encoded values to warning messages
+            if self._encoded_emi == -32760:
+                return "Radio pair disabled."
+            elif self._encoded_emi == 30100:
+                return "Error in configuration."
+            elif self._encoded_emi == 30200:
+                return "An amplifier was saturated."
+            elif self._encoded_emi == 30201:
+                return "Result not available."
+            elif self._encoded_emi > 30000 or self._encoded_emi < -30000:
+                return f"Invalid encoded value: {self._encoded_emi}"
         return ""
 
     def has_valid_values(self) -> bool:
@@ -110,16 +124,7 @@ class InteractionInstance:
         -------
         bool
             True if the interaction instance has valid values, False otherwise.
-
-        Raises
-        ------
-        RuntimeError
-            If the interaction instance is invalid.
         """
-        status = self.emit_project._emit_com_module.CheckInstanceValidity()
-        if status != "":
-            raise RuntimeError(status)
-
         if self.encoded_emi > 30000 or self.encoded_emi < -30000:
             return False
         else:
@@ -146,11 +151,6 @@ class InteractionInstance:
         ValueError
             If the result type is invalid or values cannot be computed.
         """
-        # Check validity first
-        status = self.emit_project._emit_com_module.CheckInteractionInstanceValidity()
-        if status != "":
-            raise RuntimeError(status)
-
         # Get encoded result based on type
         if result_type == ResultType.EMI:
             if self.encoded_emi == 30201:
@@ -163,9 +163,8 @@ class InteractionInstance:
 
         # Check for out-of-range encoded results (except for PowerAtRx)
         if encoded_result > 30000 or encoded_result < -30000:
-            # Try to get a more specific error message from the simulation
-            self.emit_project._emit_com_module.GetResultsWarning(encoded_result)
-            error_msg = f"Unable to evaluate value: {encoded_result}."
+            warning = self.get_results_warning()
+            error_msg = f"Unable to evaluate value: {warning if warning else encoded_result}."
             raise RuntimeError(error_msg)
 
         if result_type == ResultType.EMI or result_type == ResultType.DESENSE:
@@ -187,13 +186,10 @@ class InteractionInstance:
             # Property confirmed correct by user
             val = rx_sus_prof.receiver_sensitivity + max(val, 0)
         elif result_type == ResultType.POWER_AT_RX:
-            sim = self.current_revision.get_simulation()
-            status = sim.is_domain_valid(self.domain)
-            if status != "":
-                raise RuntimeError(status)
-            # Detailed results max unfiltered power at RX
-            self.detailed_results = self.emit_project._emit_com_module.GetDetailedResults()
-            val = self.detailed_results.max_unfiltered_power_at_rx
+            # Power at RX value - must be populated when instance is created
+            if self._power_at_rx == -200.0:
+                raise RuntimeError("Power at RX value not available. Instance may not have been fully populated.")
+            val = self._power_at_rx
 
         # Round to the nearest 2 decimal places
         if val < 0:
@@ -275,15 +271,7 @@ class InteractionInstance:
         RuntimeError
             If the instance is no longer valid.
         """
-        # TODO: When iemit-side InteractionInstance objects are implemented with unique IDs,
-        # add COM API call to check if the object still exists:
-        # valid = self.emit_project._emit_com_module.GetInteractionInstanceValid(
-        #     self._session_id, self._unique_id
-        # )
-        # if not valid:
-        #     raise RuntimeError("InteractionInstance object is no longer valid in iemit.")
-        
-        # For now, call CheckInteractionInstanceValidity
-        status = self.emit_project._emit_com_module.CheckInteractionInstanceValidity()
-        if status != "":
-            raise RuntimeError(status)
+        # Check if the encoded values are within valid range
+        if not self.has_valid_values():
+            warning = self.get_results_warning()
+            raise RuntimeError(f"InteractionInstance has invalid values: {warning}")

@@ -155,7 +155,8 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             interaction = engine.run(domain)
         else:
-            interaction: Interaction = self.emit_project._emit_com_module.RunEmitDomain(
+            # Run the domain analysis via COM
+            self.emit_project._emit_com_module.RunEmitDomain(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -164,7 +165,8 @@ class Simulation:
                 domain.interferer_band_names,
                 domain.interferer_channel_frequencies,
             )
-            interaction.domain = domain
+            # Create Interaction object to access results
+            interaction = Interaction(self.emit_project, domain)
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
