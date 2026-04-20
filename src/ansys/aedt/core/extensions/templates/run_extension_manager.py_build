@@ -84,6 +84,7 @@ def main():
 
         # Open extension manager
         my_env = os.environ.copy()
+
         if pyaedt_path:
             site_packages_path = os.path.join(install_path, "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(folder))
             my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])

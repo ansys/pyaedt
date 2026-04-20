@@ -165,7 +165,7 @@ Use ``run`` to execute a Python script.
 
 The script runs with an attached Desktop object available as ``desktop``.
 
-**Run am Ironpython script**
+**Run an Ironpython script**
 
 .. code-block:: bash
 
