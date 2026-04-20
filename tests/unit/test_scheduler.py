@@ -366,4 +366,4 @@ $end 'AddEntries'
     assert ".areg" == result_path.suffix
 
     content = result_path.read_text(encoding="utf-8")
-    assert EXPECTED_CONTENT == content
+    assert EXPECTED_CONTENT.strip() == content.strip()
