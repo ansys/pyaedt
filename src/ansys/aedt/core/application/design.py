@@ -2930,8 +2930,8 @@ class Design(AedtObjects, PyAedtBase):
         vlist = []
 
         # Only Maxwell and Icepak enable design datasets
-        if self.design_type not in ["Maxwell 3D", "Icepak"]:
-            self.logger.info("Only Maxwell and Icepak enable design datasets. Setting is_project_dataset=True")
+        if not is_project_dataset and self.design_type not in ["Maxwell 3D", "Icepak"]:
+            self.logger.warning("Only Maxwell and Icepak enable design datasets. Setting is_project_dataset=True")
             is_project_dataset = True
 
         if file_extension == "xlsx":
