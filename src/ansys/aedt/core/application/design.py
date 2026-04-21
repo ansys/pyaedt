@@ -2978,14 +2978,13 @@ class Design(AedtObjects, PyAedtBase):
         if not name:
             name = path.stem
 
-        if is_project_dataset and not name.startswith("$"):
-            name = "$" + name
-
         if not is_project_dataset and name.startswith("$"):
             name = name.removeprefix("$")
+            self.logger.warning("Design dataset names don't have the $ prefix. Removing $ from dataset name. ")
 
         if name.startswith("$"):
             name = name.removeprefix("$")
+            is_project_dataset=True
 
         return self.create_dataset(
             name,
