@@ -46,6 +46,7 @@ from ansys.aedt.core.generic.general_methods import _check_psutil_connections
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.generic.general_methods import is_linux
 
 session_app = typer.Typer(help="Session management commands")
 
@@ -69,6 +70,9 @@ def _discover_aedt_sessions() -> list[dict[str, object]]:
     sessions_by_pid: dict[int, dict[str, object]] = {}
     for student_version in (False, True):
         for pid, port in active_sessions(student_version=student_version).items():
+           # Skip duplicate process in linux. active_sessions also displays the COM process in linux
+            if port == -1 and is_linux:
+                continue
             sessions_by_pid[pid] = {
                 "pid": pid,
                 "port": None if port == -1 else port,
