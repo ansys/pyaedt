@@ -48,6 +48,7 @@ from ansys.aedt.core.cli.common import print_output
 from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 from ansys.aedt.core.cli.config import test_config_app
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
@@ -634,7 +635,7 @@ def test_discover_aedt_sessions_collects_metadata():
     ):
         sessions = aedt_mod._discover_aedt_sessions()
 
-    assert sessions == [
+    expected_sessions = [
         {
             "pid": 11,
             "port": 50051,
@@ -642,16 +643,21 @@ def test_discover_aedt_sessions_collects_metadata():
             "student_version": False,
             "version": "2026.1",
             "non_graphical": True,
-        },
-        {
-            "pid": 22,
-            "port": None,
-            "mode": "com",
-            "student_version": True,
-            "version": "unknown",
-            "non_graphical": None,
-        },
+        }
     ]
+    if not is_linux:
+        expected_sessions.append(
+            {
+                "pid": 22,
+                "port": None,
+                "mode": "com",
+                "student_version": True,
+                "version": "unknown",
+                "non_graphical": None,
+            }
+        )
+
+    assert sessions == expected_sessions
 
 
 def test_activate_console_context_requires_grpc_port_for_design():
