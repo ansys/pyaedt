@@ -71,7 +71,7 @@ DEFAULT_CONFIG = {
     "local_example_folder": None,
     "skip_circuits": False,
     "skip_modelithics": True,
-    "use_pyedb_grpc": False,
+    "use_pyedb_grpc": True,
 }
 
 local_path = Path(__file__).parent

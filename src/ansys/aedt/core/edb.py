@@ -118,7 +118,7 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    from pyedb import Edb as EdbApp
+    from pyedb.generic.design_types import Edb as EdbApp
 
     if version is not None:
         # Clear global state before initialization
@@ -161,7 +161,7 @@ def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
     """Siwave Class."""
-    from pyedb.siwave import Siwave as app
+    from pyedb.generic.design_types import Siwave as app
 
     return app(
         specified_version=specified_version,
