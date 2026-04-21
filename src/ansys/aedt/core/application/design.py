@@ -2929,6 +2929,11 @@ class Design(AedtObjects, PyAedtBase):
         zlist = []
         vlist = []
 
+        # Only Maxwell and Icepak enable design datasets
+        if self.design_type not in ["Maxwell 3D", "Icepak"]:
+            self.logger.info("Only Maxwell and Icepak enable design datasets. Setting is_project_dataset=True")
+            is_project_dataset = True
+
         if file_extension == "xlsx":
             self.logger.warning("You need pandas and openpyxl library installed for reading excel files")
             lines = read_xlsx(path)
@@ -2981,10 +2986,6 @@ class Design(AedtObjects, PyAedtBase):
 
         if name.startswith("$"):
             name = name.removeprefix("$")
-
-        # Only Maxwell and Icepak enable design datasets
-        if self.design_type not in ["Maxwell 3D", "Icepak"]:
-            is_project_dataset = True
 
         return self.create_dataset(
             name,
