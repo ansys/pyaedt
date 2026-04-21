@@ -2114,9 +2114,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 is_edb_open = True
                 # Extract and map parameters
                 for param in edb_object.design_variables:
-                    parameters[param] = [param + "_" + name, edb_object.design_variables[param].value_string]
+                    parameters[param] = [param + "_" + name, str(edb_object.design_variables[param].value)]
                     if parameter_mapping:
-                        self._app[param + "_" + name] = edb_object.design_variables[param].value_string
+                        self._app[param + "_" + name] = str(edb_object.design_variables[param].value)
                 # Get coordinate systems
                 component_cs = []
                 for comp_name, comp in edb_object.components.instances.items():
@@ -2135,9 +2135,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             # Extract and map parameters
             parameters = {}
             for param in component_obj.design_variables:
-                parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+                parameters[param] = [param + "_" + name, str(component_obj.design_variables[param].value)]
                 if parameter_mapping:
-                    self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+                    self._app[param + "_" + name] = str(component_obj.design_variables[param].value)
 
             # Get coordinate systems
             component_cs = []
