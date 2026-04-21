@@ -27,6 +27,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 import threading
 import time
@@ -42,32 +43,26 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli import common
 from ansys.aedt.core.generic.general_methods import _check_psutil_connections
+from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
-from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 session_app = typer.Typer(help="Session management commands")
 
 
-def _extract_version_from_cmdline(cmd_line: list[str]) -> str:
-    """Extract the AEDT version from a process command line."""
-    if not cmd_line:
-        return "unknown"
+def _extract_session_metadata(cmdline: str | None) -> dict[str, object]:
+    """Extract display metadata from a process command line."""
+    metadata = {"version": "unknown", "non_graphical": None}
+    if not cmdline:
+        return metadata
 
-    for part in cmd_line:
-        if "\\v" in part or "/v" in part:
-            version_parts = part.split("\\v" if "\\" in part else "/v")
-            if len(version_parts) > 1:
-                version = version_parts[1][:3] if len(version_parts[1]) >= 3 else version_parts[1]
-                if len(version) == 3 and version.isdigit():
-                    return f"20{version[0:2]}.{version[2]}"
-    return "unknown"
+    # Match AEDT install paths like ...\v261\... or .../v261/... and capture the 3-digit version token.
+    version_match = re.search(r"[\\/]v(?P<version>\d{3})(?=[\\/\s]|$)", cmdline)
+    if version_match:
+        metadata["version"] = _normalize_version_to_string(version_match.group("version"))
 
-
-def _get_default_aedt_process_name(student_version: bool) -> str:
-    if is_linux:
-        return "ansysedtsv" if student_version else "ansysedt"
-    return "ansysedtsv.exe" if student_version else "ansysedt.exe"
+    metadata["non_graphical"] = "-ng" in cmdline.split()
+    return metadata
 
 
 def _discover_aedt_sessions() -> list[dict[str, object]]:
@@ -77,19 +72,23 @@ def _discover_aedt_sessions() -> list[dict[str, object]]:
             sessions_by_pid[pid] = {
                 "pid": pid,
                 "port": None if port == -1 else port,
+                "mode": "com" if port == -1 else "grpc",
                 "student_version": student_version,
-                "name": _get_default_aedt_process_name(student_version),
                 "version": "unknown",
+                "non_graphical": None,
             }
 
     connections = _check_psutil_connections(list(sessions_by_pid.keys())) if sessions_by_pid else {}
     for pid, session in sessions_by_pid.items():
-        connection_data = connections.get(pid, [])
-        for connection in connection_data:
-            cmdline = connection.get("cmdline")
-            if isinstance(cmdline, str) and cmdline:
-                session["version"] = _extract_version_from_cmdline(cmdline.split())
-                break
+        cmdline = next(
+            (
+                connection.get("cmdline")
+                for connection in connections.get(pid, [])
+                if isinstance(connection.get("cmdline"), str)
+            ),
+            None,
+        )
+        session.update(_extract_session_metadata(cmdline))
 
     return sorted(sessions_by_pid.values(), key=lambda session: int(session["pid"]))
 
@@ -178,9 +177,10 @@ def list_sessions() -> None:
                 procs_data.append(
                     {
                         "pid": session["pid"],
-                        "name": session["name"],
                         "port": session["port"],
+                        "mode": session["mode"],
                         "version": session["version"],
+                        "non_graphical": session["non_graphical"],
                         "student_version": bool(session.get("student_version", False)),
                     }
                 )
@@ -200,6 +200,7 @@ def list_sessions() -> None:
             port = session["port"]
             version = session["version"]
             edition = session.get("student_version", False)
+            non_graphical = session.get("non_graphical")
             typer.echo("  PID: ", nl=False)
             typer.secho(f"{session['pid']}", fg="cyan", nl=False)
             typer.echo(" | Version: ", nl=False)
@@ -207,6 +208,13 @@ def list_sessions() -> None:
             if edition:
                 typer.echo(" | Edition: ", nl=False)
                 typer.secho("Student" if edition else "Standard", fg="magenta", nl=False)
+            typer.echo(" | Mode: ", nl=False)
+            typer.secho("COM" if session["mode"] == "com" else "gRPC", fg="yellow", nl=False)
+            typer.echo(" | UI: ", nl=False)
+            if non_graphical is None:
+                typer.secho("Unknown", fg="white", nl=False)
+            else:
+                typer.secho("Non-graphical" if non_graphical else "Graphical", fg="white", nl=False)
             typer.echo(" | Port: ", nl=False)
             if port is not None:
                 typer.secho(f"{port}", fg="green")
