@@ -1153,7 +1153,7 @@ class LayoutComponent(PyAedtBase):
         """Get EDB information."""
         if self.edb_object:
             self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
-            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.stackup_layers.keys())}
+            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.layers.keys())}
             self.objects = {key: [True, False, 60] for key in list(self.edb_object.components.instances.keys())}
             return True
         else:  # pragma: no cover
