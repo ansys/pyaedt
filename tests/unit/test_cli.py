@@ -633,7 +633,7 @@ def test_test_config_interactive_no_changes(mock_get_tests_folder, tmp_path, cli
 @patch("ansys.aedt.core.cli.config.get_tests_folder")
 def test_test_config_interactive_updates_values(mock_get_tests_folder, mock_prompt_value, tmp_path, cli_runner):
     mock_get_tests_folder.return_value = tmp_path
-    mock_prompt_value.side_effect = ["2025.2", False, False, True, False, False, True, "examples", False]
+    mock_prompt_value.side_effect = ["2025.2", False, False, True, False, False, True, "examples", False, True]
 
     result = cli_runner.invoke(test_config_app, input="y\n")
 

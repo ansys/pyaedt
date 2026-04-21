@@ -185,6 +185,7 @@ DEFAULT_TEST_CONFIG = {
     "use_local_example_data": False,
     "local_example_folder": "",
     "skip_modelithics": True,
+    "use_pyedb_grpc": True,
 }
 
 
