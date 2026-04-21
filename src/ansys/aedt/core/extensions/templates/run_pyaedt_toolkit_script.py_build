@@ -83,8 +83,11 @@ def aedt_script():
             return
 
         # Add environment variables
-        my_env = dict(os.environ.copy())
         pyaedt_utils.environment_variables(oDesktop)
+
+        # Open extension manager
+        my_env = os.environ.copy()
+
         if pyaedt_path:
             site_packages_path = os.path.join(install_path,
                                               "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(

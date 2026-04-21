@@ -40,7 +40,6 @@ from pathlib import Path
 import pkgutil
 import re
 import shlex
-import shutil
 import socket
 import subprocess  # nosec
 import sys
@@ -54,7 +53,6 @@ from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import available_license_feature
-from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import _get_target_processes
 from ansys.aedt.core.generic.general_methods import _is_port_occupied
@@ -94,12 +92,11 @@ class TransportMode(str, Enum):
 
 
 def get_local_ip(host):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect((host, 80))
-        return s.getsockname()[0]
-    finally:
-        s.close()
+        host = host if host else socket.gethostname()
+        return socket.gethostbyname(host)
+    except Exception:
+        return "127.0.0.1"
 
 
 class _ServerArgs:
@@ -109,7 +106,7 @@ class _ServerArgs:
     :func:`_get_grpcsrv_args<ansys.aedt.core.desktop._get_grpcsrv_args>` function instead.
     """
 
-    def __init__(self, mode, host=None, port=None) -> None:
+    def __init__(self, mode: "TransportMode", host: str | None = None, port: int | None = None) -> None:
         """Initialize server arguments.
 
         Parameters
@@ -126,11 +123,48 @@ class _ServerArgs:
         self.__port = port
 
     @property
-    def mode(self):
+    def mode(self) -> "TransportMode":
         """Get transport mode."""
         return self.__mode
 
-    def __check_settings(self):
+    @property
+    def host(self) -> str:
+        """Get host."""
+        return self.__host
+
+    @property
+    def port(self) -> int:
+        """Get port."""
+        return self.__port
+
+    @property
+    def host_ip(self) -> str:
+        """Get host ip."""
+        return get_local_ip(self.host)
+
+    @property
+    def client_machine(self) -> str:
+        """Get client machine."""
+        machine = self.host
+        if str(self).endswith((":SecureMode", ":InsecureMode")):
+            host_ip = self.host
+            machine = host_ip + ":" + str(self).split(":")[-1]
+
+        # NOTE: When working locally, machine is updated to an empty string to work with UDS.
+        # This is necessary when working with UDS and also works for WNUA.
+        elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
+            pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
+            machine = ""
+
+        # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
+        # with previous SP where grpc transport mode were not available
+        # This environment variable is not necessary for UDS and WNUA modes.
+        if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
+            machine = self.host_ip
+        return machine
+
+    @staticmethod
+    def __check_settings():
         """Validate settings to ensure they are compatible with the transport mode."""
         if settings.grpc_local and settings.grpc_listen_all:
             raise AEDTRuntimeError(
@@ -140,21 +174,19 @@ class _ServerArgs:
     def __repr__(self) -> str:
         self.__check_settings()
 
-        if self.__mode in (TransportMode.UDS, TransportMode.WNUA):
-            return f"{self.__port}" if self.__port is not None else ""
-        if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
-            raise ValueError(f"Invalid transport mode {self.__mode}.")
-        host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
+        if self.mode in (TransportMode.UDS, TransportMode.WNUA):
+            return f"{self.port}" if self.port is not None else ""
+        if self.mode not in (TransportMode.MTLS, TransportMode.INSECURE):
+            raise ValueError(f"Invalid transport mode {self.mode}.")
 
-        if host not in ["127.0.0.1", "localhost", "0.0.0.0"]:  # nosec
-            self.__host = get_local_ip(self.__host)
+        host = self.host if not settings.grpc_listen_all and not settings.use_lsf_scheduler else "0.0.0.0"  # nosec
 
         mode = (
             "SecureMode"
-            if self.__mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
+            if self.mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
             else "InsecureMode"
         )
-        return f"{host}:{self.__port}:{mode}" if self.__port is not None else f"{host}:{mode}"
+        return f"{host}:{self.port}:{mode}" if self.port is not None else f"{host}:{mode}"
 
 
 def _get_grpcsrv_args(host: str | None, port: int) -> _ServerArgs:
@@ -1948,11 +1980,11 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        clustername: str,
-        project_file: str | Path | None = None,
+        project_file: str | Path,
+        cluster_name: str | None = None,
         aedt_full_exe_path: str | None = None,
-        numnodes: int | None = 1,
-        numcores: int | None = 32,
+        nodes: int | None = 1,
+        cores: int | None = 32,
         wait_for_license: bool | None = True,
         setting_file: str | None = None,
     ) -> int:  # pragma: no cover
@@ -1960,30 +1992,23 @@ class Desktop(PyAedtBase):
 
         Parameters
         ----------
-        clustername : str
+        project_file : str or :class:`pathlib.Path`
+            Full path to the project.
+        cluster_name : str, optional
             Name of the cluster to submit the job to.
-        project_file : str or :class:`pathlib.Path`, optional
-            Full path to the project. The path should be visible from the server where the
-            simulation will run.
-            If the client path is used then the
-            mapping between the client and server path must be specified in the `setting_file``.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file on the server. The default is ``None``, in which
             case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used. On linux
             this path should point to the Linux executable ``"ansysedt"``.
-        numnodes : int, optional
+        nodes : int, optional
             Number of nodes. The default is ``1``.
-        numcores : int, optional
+        cores : int, optional
             Number of cores. The default is ``32``.
         wait_for_license : bool, optional
              Whether to wait for a license to become available. The default is ``True``.
         setting_file : str, optional
-            Name of the "*.areg" file to use as a template. The default value
-            is ``None`` in which case a default template will be used.
-            If ``setting_file`` is passed it can be located either on the client or server.
-            If the "*.areg" file is on the client information from ``numcores`` and ``numnodes``
-            will be added. If the "*.areg" file is on the server it
-            will be applied without modifications.
+            Job settings file. The file has the "*.areg" format.
+            The default value is ``None`` in which case a default template will be used.
 
         Returns
         -------
@@ -1993,247 +2018,133 @@ class Desktop(PyAedtBase):
         References
         ----------
         >>> oDesktop.SubmitJob
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Desktop
+        >>> desktop = Desktop(version="2024.2")
+        Use template
+        >>> job_id1 = desktop.submit_job(
+        ...     project_file="C:/projects/my_project.aedt",
+        ...     cluster_name="my_cluster",
+        ...     nodes=2,
+        ...     cores=64,
+        ... )
+        >>> job_id2 = desktop.submit_job(
+        ...     project_file="C:/projects/my_project2.aedt", setting_file="my_settings_file.areg"
+        ... )
+        >>> desktop.launch_job_monitor("C:/projects/my_project.aedt")
         """
+        # Save and close project if opened before submitting
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list:
             self.save_project(project_name, project_path)
-        if not aedt_full_exe_path:
-            version = self.odesktop.GetVersion()[2:6]
-            if version >= "22.2":
-                version_name = "v" + version.replace(".", "")
-            else:
-                version_name = "AnsysEM" + version
-            if Path(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)).exists():
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
-                )
-            elif Path(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)).exists():
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
-                )
-            else:
-                self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                return False
+            if project_name in self.project_list:
+                self.odesktop.CloseProject(project_name)
+
+        if setting_file:
+            job = self.odesktop.SubmitJob(str(setting_file), str(project_file))
         else:
-            if not Path(aedt_full_exe_path).exists():
-                self.logger.warning("The AEDT executable path is not visible from the client.")
-            aedt_full_exe_path.replace("\\", "\\\\")
-        if project_name in self.project_list:
-            self.odesktop.CloseProject(project_name)
-        path_file = Path(__file__)
-        destination_reg = Path(project_path) / "Job_settings.areg"
-        if not setting_file:
-            setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
-        if Path(setting_file).exists():
-            f1 = open_file(destination_reg, "w")
-            with open_file(setting_file) as f:
-                lines = f.readlines()
-                for line in lines:
-                    if "\\	$begin" == line[:8]:
-                        lin = f"\\	$begin \\'{clustername}\\'\\\n"
-                        f1.write(lin)
-                    elif "\\	$end" == line[:6]:
-                        lin = f"\\	$end \\'{clustername}\\'\\\n"
-                        f1.write(lin)
-                    elif "NumCores=" in line:
-                        lin = f"\\	\\	\\	\\	NumCores={numcores}\\\n"
-                        f1.write(lin)
-                    elif "NumNodes=1" in line:
-                        lin = f"\\	\\	\\	\\	NumNodes={numnodes}\\\n"
-                        f1.write(lin)
-                    elif "ProductPath" in line:
-                        lin = f"\\	\\	ProductPath =\\'{aedt_full_exe_path}\\'\\\n"
-                        f1.write(lin)
-                    elif "WaitForLicense" in line:
-                        lin = f"\\	\\	WaitForLicense={str(wait_for_license).lower()}\\\n"
-                        f1.write(lin)
-                    else:
-                        f1.write(line)
-            f1.close()
-        else:
-            self.logger.warning("Setting file not found on client machine. Considering it as server path.")
-            destination_reg = setting_file
-        job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
+            if not cluster_name:
+                cluster_name = "MyCluster"
+
+            if not aedt_full_exe_path:
+                # Fallback to find the aedt executable
+                version = self.odesktop.GetVersion()[2:6]
+                if version >= "22.2":
+                    version_name = "v" + version.replace(".", "")
+                else:
+                    version_name = "AnsysEM" + version
+                if Path(r"\\" + cluster_name + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)).exists():
+                    aedt_full_exe_path = (
+                        r"\\\\\\\\" + cluster_name + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
+                    )
+                elif Path(r"\\" + cluster_name + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)).exists():
+                    aedt_full_exe_path = (
+                        r"\\\\\\\\" + cluster_name + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
+                    )
+                else:
+                    self.logger.error("AEDT shared path does not exist. Provide a full path.")
+                    return False
+            else:
+                if not Path(aedt_full_exe_path).exists():
+                    self.logger.warning("The AEDT executable path is not visible from the client.")
+                aedt_full_exe_path = aedt_full_exe_path.replace("\\", "\\\\")
+
+            path_file = Path(__file__)
+            destination_reg = Path(project_path) / "Job_settings.areg"
+            if not setting_file:
+                # Template file
+                setting_file = path_file.parent / "misc" / "Job_Settings.areg"
+
+            if Path(setting_file).exists():
+                f1 = open_file(destination_reg, "w")
+                with open_file(setting_file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if "\\	$begin" == line[:8]:
+                            lin = f"\\	$begin \\'{cluster_name}\\'\\\n"
+                            f1.write(lin)
+                        elif "\\	$end" == line[:6]:
+                            lin = f"\\	$end \\'{cluster_name}\\'\\\n"
+                            f1.write(lin)
+                        elif "NumCores=" in line:
+                            lin = f"\\	\\	\\	\\	NumCores={cores}\\\n"
+                            f1.write(lin)
+                        elif "NumNodes=1" in line:
+                            lin = f"\\	\\	\\	\\	NumNodes={nodes}\\\n"
+                            f1.write(lin)
+                        elif "ProductPath" in line:
+                            lin = f"\\	\\	ProductPath =\\'{aedt_full_exe_path}\\'\\\n"
+                            f1.write(lin)
+                        elif "WaitForLicense" in line:
+                            lin = f"\\	\\	WaitForLicense={str(wait_for_license).lower()}\\\n"
+                            f1.write(lin)
+                        else:
+                            f1.write(line)
+                f1.close()
+            job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
 
     @pyaedt_function_handler()
-    def submit_ansys_cloud_job(
+    def launch_job_monitor(
         self,
-        project_file: str,
-        config_name: str,
-        region: str,
-        job_name: str,
-        numnodes: int | None = 1,
-        numcores: int | None = 32,
-        wait_for_license: bool | None = True,
-        setting_file: str | None = None,
-    ) -> tuple[str, str]:  # pragma: no cover
-        """Submit a job to be solved on a cluster.
+        input_file: str | Path,
+    ) -> bool:  # pragma: no cover
+        """Launch job monitor. This method is opening the job monitor tool.
 
         Parameters
         ----------
-        project_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the project.
-        config_name : str
-            Name of the Ansys Cloud machine configuration selected.
-        region : str
-            Name of Ansys Cloud location region.
-            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
-            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
-        numnodes : int, optional
-            Number of nodes. The default is ``1``.
-        numcores : int, optional
-            Number of cores. The default is ``32``.
-        wait_for_license : bool, optional
-             Whether to wait for the license to be validated. The default is ``True``.
-        setting_file : str, optional
-            Name of the file to use as a template. The default value is ``None``.
 
         Returns
         -------
-        str, str
-            Job ID, job name.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-        >>> oDesktop.SubmitJob
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Desktop
-
-        >>> d = Desktop(version="2026.1", new_desktop=False)
-        >>> d.select_scheduler("Ansys Cloud")
-        >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
-        ... )
-        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
-        >>> d.release_desktop(False, False)
+        >>> oDesktop.LaunchJobMonitor
         """
-        project_path = Path(project_file).parent
-        project_name = Path(project_file).stem
-        if project_name in self.project_list:
-            self.save_project(project_name, project_path)
-        if not job_name:
-            job_name = generate_unique_name(project_name)
-        if project_name in self.project_list:
-            self.odesktop.CloseProject(project_name)
-        path_file = Path(__file__)
-        reg_name = generate_unique_name("ansys_cloud") + ".areg"
-        destination_reg = Path(project_path) / reg_name
-        if not setting_file:
-            setting_file = Path(path_file) / "misc" / "ansys_cloud.areg"
-        shutil.copy(setting_file, destination_reg)
-
-        f1 = open_file(destination_reg, "w")
-        with open_file(setting_file) as f:
-            lines = f.readlines()
-            i = 0
-            while i < len(lines):
-                line = lines[i]
-                if "NumTasks" in line:
-                    lin = f"\\	\\	\\	\\	NumTasks={numcores}\\\n"
-                    f1.write(lin)
-                elif "NumMaxTasksPerNode" in line:
-                    lin = f"\\	\\	\\	\\	NumMaxTasksPerNode={numcores}\\\n"
-                    f1.write(lin)
-                elif "NumNodes=1" in line:
-                    lin = f"\\	\\	\\	\\	NumNodes={numnodes}\\\n"
-                    f1.write(lin)
-                elif "Name=\\'Region\\'" in line:
-                    f1.write(line)
-                    lin = f"\\	\\	\\	\\	Value=\\'{region}\\'\\\n"
-                    f1.write(lin)
-                    i += 1
-                elif "WaitForLicense" in line:
-                    lin = f"\\	\\	WaitForLicense={str(wait_for_license).lower()}\\\n"
-                    f1.write(lin)
-                elif "	JobName" in line:
-                    lin = f"\\	\\	\\	JobName=\\'{job_name}\\'\\\n"
-                    f1.write(lin)
-                elif "Name=\\'Config\\'" in line:
-                    f1.write(line)
-                    lin = f"\\	\\	\\	\\	Value=\\'{config_name}\\'\\\n"
-                    f1.write(lin)
-                    i += 1
-                else:
-                    f1.write(line)
-                i += 1
-        f1.close()
-        try:
-            id = self.odesktop.SubmitJob(destination_reg, project_file)[0]
-            return id, job_name
-        except Exception:
-            self.logger.error("Failed to submit job. check parameters and credentials and retry")
-            return "", ""
+        return self.odesktop.LaunchJobMonitor(str(input_file))
 
     @pyaedt_function_handler()
-    def get_ansyscloud_job_info(
-        self, job_id: str | None = None, job_name: str | None = None
-    ) -> dict:  # pragma: no cover
-        """Monitor a job submitted to Ansys Cloud.
-
-        .. warning::
-
-            Do not execute this function with untrusted function argument, environment
-            variables or pyaedt global settings.
-            See the :ref:`security guide<security_ansys_cloud>` for details.
-
-        Parameters
-        ----------
-        job_id : str, optional
-            Job Id.  The default value is ``None`` if job name is used.
-        job_name : str, optional
-            Job name.  The default value is ``None`` if job id is used.
+    def job_status(self) -> str:  # pragma: no cover
+        """Get job status from job monitor.Job monitor has to be opened.
 
         Returns
         -------
-        dict
+        str
+            A string specifying the job state.
 
-        Examples
-        --------
-        >>> from ansys.aedt.core import Desktop
-
-        >>> d = Desktop(version="2026.1", new_desktop=False)
-        >>> d.select_scheduler("Ansys Cloud")
-        >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
-        ... )
-        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
-        >>> d.release_desktop(False, False)
+        References
+        ----------
+        >>> oDesktop.RefreshJobMonitor
         """
-        ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
-        if not Path(ansys_cloud_cli_path).exists():
-            raise FileNotFoundError("Ansys Cloud CLI not found. Check the installation path.")
-        command = [ansys_cloud_cli_path]
-        if job_name:
-            command += ["jobinfo", "-j", job_name]
-        elif job_id:
-            command += ["jobinfo", "-i", job_id]
-        cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("job_info")
-
-        try:
-            with open_file(cloud_info, "w") as outfile:
-                subprocess.run(command, stdout=outfile, check=True)  # nosec
-        except subprocess.CalledProcessError as e:
-            raise AEDTRuntimeError("An error occurred while monitoring a job submitted to Ansys Cloud") from e
-
-        out = {}
-        with open_file(cloud_info, "r") as infile:
-            lines = infile.readlines()
-            for i in lines:
-                if ":" in i.strip():
-                    strp = i.strip().split(":")
-                    out[strp[0]] = ":".join(strp[1:])
-        return out
+        return self.odesktop.RefreshJobMonitor()
 
     @pyaedt_function_handler()
     def select_scheduler(
@@ -2249,7 +2160,8 @@ class Desktop(PyAedtBase):
         ----------
         scheduler_type : str
             Name of the scheduler.
-            Options are `"RSM"``, `""Windows HPC"``, `""LSF``, `""SGE"``, `""PBS"``, `""Ansys Cloud"``.
+            Options are `"RSM"``, `""Windows HPC"``, `""HPC Platform Services``, `""Remote RSM"``,
+             `""Ansys Cloud Burst Compute"``.
         address : str, optional
             String specifying the IP address or hostname of the head node or for the
             remote host running the RSM service.
@@ -2262,7 +2174,6 @@ class Desktop(PyAedtBase):
             Boolean used to force display of the Select Scheduler GUI to allow for
              password entry prior to job submission.
 
-
         Returns
         -------
         str
@@ -2274,14 +2185,8 @@ class Desktop(PyAedtBase):
         >>> from ansys.aedt.core import Desktop
 
         >>> d = Desktop(version="2026.1", new_desktop=False)
-        >>> d.select_scheduler("Ansys Cloud")
-        >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
-        ... )
-        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.select_scheduler("HPC Platform Services", address="https://myserver.com:8443/hps/")
+        >>> job_id = d.submit_job("via_gsg.aedt")
         >>> d.release_desktop(False, False)
         """
         if not address:
@@ -2290,99 +2195,6 @@ class Desktop(PyAedtBase):
             return self.odesktop.SelectScheduler(scheduler_type, address)
         else:
             return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
-
-    @pyaedt_function_handler()
-    def get_available_cloud_config(self, region: str = "westeurope") -> dict:  # pragma: no cover
-        """Get available Ansys Cloud machines configuration.
-
-        .. warning::
-
-            Do not execute this function with untrusted function argument, environment
-            variables or pyaedt global settings.
-            See the :ref:`security guide<security_ansys_cloud>` for details.
-
-        Parameters
-        ----------
-        region : str
-            Name of Ansys Cloud location region.
-            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
-            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
-
-        Returns
-        -------
-        dict
-            Dictionary containing the config name and config details.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Desktop
-
-        >>> d = Desktop(version="2026.1", new_desktop=False)
-        >>> d.select_scheduler("Ansys Cloud")
-        >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
-        ... )
-        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
-        >>> d.release_desktop(False, False)
-        """
-        ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
-        if not Path(ansys_cloud_cli_path).exists():
-            raise FileNotFoundError("Ansys Cloud CLI not found. Check the installation path.")
-        ver = self.aedt_version_id.replace(".", "R")
-        command = [ansys_cloud_cli_path, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
-        cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("cloud_info")
-        try:
-            with open_file(cloud_info, "w") as outfile:
-                subprocess.run(command, stdout=outfile, check=True)  # nosec
-        except subprocess.CalledProcessError as e:
-            raise AEDTRuntimeError("An error occurred while monitoring a job submitted to Ansys Cloud") from e
-
-        dict_out = {}
-        with open_file(cloud_info, "r") as infile:
-            lines = infile.readlines()
-            for i in range(len(lines)):
-                line = lines[i].strip()
-                if line.endswith(ver):
-                    split_line = line.split("_")
-                    if split_line[1] == region:
-                        name = f"{split_line[0]} {split_line[3]}"
-                        dict_out[name] = {"Name": line}
-                        for k in range(i + 1, i + 8):
-                            spl = lines[k].split(":")
-                            try:
-                                dict_out[name][spl[0].strip()] = int(spl[1].strip())
-                            except ValueError:
-                                dict_out[name][spl[0].strip()] = spl[1].strip()
-        os.unlink(cloud_info)
-        return dict_out
-
-    @pyaedt_function_handler()
-    def download_job_results(
-        self, job_id: str, project_path: str, results_folder: str, file_type_filter: str | None = "*"
-    ) -> bool:  # pragma: no cover
-        """Download job results to a specific folder from Ansys Cloud.
-
-        Parameters
-        ----------
-        job_id : str
-            Job Id of solved project.
-        project_path : str
-            Project path to aedt file. The ".q" file will be created there to monitor download status.
-        results_folder : str
-            Folder where the simulation results will be downloaded.
-        file_type_filter : str, optional
-            A string containing filters to download. The delimiter of file types is ";". If no filter
-            specified, the default filter "*" will be applied, which requests all files for download
-
-        Returns
-        -------
-        bool
-        """
-        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, file_type_filter)
-        return True if download_status == 1 else False
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
@@ -2661,20 +2473,10 @@ class Desktop(PyAedtBase):
                 )
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
-            if str(server_args).endswith((":SecureMode", ":InsecureMode")):
-                self.machine = str(server_args).split(":")[0] + ":" + str(server_args).split(":")[-1]
-            # NOTE: When working locally, machine is updated to an empty string to work with UDS.
-            # This is necessary when working with UDS and also works for WNUA.
-            elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
-                pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
-                self.machine = ""
-            # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
-            # with previous SP where grpc transport mode were not available
-            # This environment variable is not necessary for UDS and WNUA modes.
-            if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
-                self.machine = self.machine.split(":")[0] if self.machine else self.machine
 
-            oapp = self.grpc_plugin.CreateAedtApplication(self.machine, self.port, self.non_graphical, self.new_desktop)
+            oapp = self.grpc_plugin.CreateAedtApplication(
+                server_args.client_machine, self.port, self.non_graphical, self.new_desktop
+            )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
             # NOTE: This is particularly necessary for rpyc connections where the version information is not available

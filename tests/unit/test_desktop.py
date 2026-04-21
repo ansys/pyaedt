@@ -41,8 +41,15 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 @pytest.fixture(scope="module", autouse=True)
 def mock_desktop():
-    """Fixture used to mock the creation of a Desktop instance."""
-    with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
+    """Fixture used to mock the creation of a Desktop instance.
+
+    Patching __del__ is necessary to avoid side effects associated to the logic of
+    releasing and closing the desktop.
+    """
+    with (
+        patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None),
+        patch("ansys.aedt.core.desktop.Desktop.__del__", lambda x: None),
+    ):
         yield
 
 
@@ -212,6 +219,7 @@ def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch) -> No
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", "dummy_path")
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.MTLS)
@@ -224,6 +232,7 @@ def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch) -
     """Test the string representation of _ServerArgs for Insecure mode."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)
