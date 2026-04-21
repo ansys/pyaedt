@@ -471,7 +471,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     for i in pedb.layout.primitives:
         if i.primitive_type in ["rectangle", "polygon"]:
             for pos in [via_p.position, via_n.position]:
-                if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                if i.polygon_data.is_inside(pos):
                     if i.layer_name not in via_range:
                         continue
                     if i.layer_name not in prims:
