@@ -2984,7 +2984,7 @@ class Design(AedtObjects, PyAedtBase):
 
         if name.startswith("$"):
             name = name.removeprefix("$")
-            is_project_dataset=True
+            is_project_dataset = True
 
         return self.create_dataset(
             name,
