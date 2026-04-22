@@ -39,14 +39,15 @@ classifiers = [
 dependencies = [
     "ansys-tools-common",
     "grpcio>=1.50.0,<1.81",
-    "psutil>=6.0.0",
+    "jsonschema",
+    "psutil>=5.9.2",
     "pyedb@git+https://github.com/ansys/pyedb.git@chore/aedt_dependencies",
     "tomli; python_version < '3.11'",
-    "tomli-w",
-    "pyyaml",
+    "toml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
     "pydantic>=2.6.4,<2.13",
+
 ]
 
 [project.optional-dependencies]
@@ -70,7 +71,7 @@ jupyter = [
     "ipython>=7.30.0,<9.1",
 ]
 all = [
-    "jsonschema",
+    "pyyaml",
     "matplotlib>=3.5.0,<3.11",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=2.0.0,<2.2",

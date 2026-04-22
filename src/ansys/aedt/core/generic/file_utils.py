@@ -1070,7 +1070,7 @@ def _create_json_file(json_dict, full_json_path) -> bool:
 
 @pyaedt_function_handler()
 def _create_toml_file(input_dict, full_toml_path) -> bool:
-    import tomli_w
+    import toml
 
     full_toml_path = Path(full_toml_path)
 
@@ -1093,7 +1093,7 @@ def _create_toml_file(input_dict, full_toml_path) -> bool:
 
     new_dict = _dict_toml(input_dict)
     with open_file(full_toml_path, "wb") as fp:
-        tomli_w.dump(new_dict, fp)
+        toml.dump(new_dict, fp)
     pyaedt_logger.info(f"{full_toml_path} correctly created.")
     return True
 
