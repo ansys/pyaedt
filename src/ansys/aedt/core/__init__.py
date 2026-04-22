@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "1.0.2026r1"
+__version__ = "1.0.2026.1"  # PyAEDT 1.0 for AEDT 2026 R1
 version = __version__
 
 # isort: off
