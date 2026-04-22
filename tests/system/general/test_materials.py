@@ -290,6 +290,7 @@ def test_import_materials(aedt_app) -> None:
     )
 
 
+@pytest.mark.skipif(True, reason="openpyxl not installed")
 def test_import_materials_from_excel(aedt_app) -> None:
     mats = aedt_app.materials.import_materials_from_excel(
         Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "mats.xlsx"
