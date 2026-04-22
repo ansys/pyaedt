@@ -465,8 +465,7 @@ def read_toml(input_file: str | Path) -> dict:
     """
     import toml
 
-    with open_file(input_file, "rb") as fb:
-        return toml.load(fb)
+    return toml.load(input_file)
 
 
 @pyaedt_function_handler()
@@ -1089,7 +1088,7 @@ def _create_toml_file(input_dict, full_toml_path) -> bool:
         return new_dict_toml
 
     new_dict = _dict_toml(input_dict)
-    with open_file(full_toml_path, "wb") as fp:
+    with open_file(full_toml_path, "w") as fp:
         toml.dump(new_dict, fp)
     pyaedt_logger.info(f"{full_toml_path} correctly created.")
     return True
