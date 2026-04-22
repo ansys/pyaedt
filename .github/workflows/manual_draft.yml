@@ -85,6 +85,7 @@ env:
   # Required to prevent _distutils_hack from overriding stdlib distutils when building
   # packages against the AEDT-bundled Python interpreter
   SETUPTOOLS_USE_DISTUTILS: stdlib
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
