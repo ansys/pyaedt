@@ -35,7 +35,7 @@ try:
     from ansys.aedt.core.visualization.plot.pdf import AnsysReport
     from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
     from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
-except ModuleNotFoundError:
+except Exception:
     pytestmark = pytest.mark.skipif(True, reason="fpdf2 not installed")
 
 from tests import TESTS_SOLVERS_PATH

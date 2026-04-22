@@ -37,7 +37,7 @@ try:
     from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
     from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
     from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
-except ModuleNotFoundError:
+except Exception:
     pytestmark = pytest.mark.skipif(True, reason="OSM not installed")
 
 

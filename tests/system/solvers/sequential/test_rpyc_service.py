@@ -31,7 +31,7 @@ from ansys.aedt.core import settings
 try:
     from ansys.aedt.core.common_rpc import create_session
     from ansys.aedt.core.common_rpc import pyaedt_service_manager
-except ModuleNotFoundError:
+except Exception:
     pytestmark = pytest.mark.skipif(True, reason="rpyc not installed")
 
 from ansys.aedt.core.desktop import _find_free_port

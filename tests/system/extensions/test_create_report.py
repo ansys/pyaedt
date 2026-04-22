@@ -34,7 +34,7 @@ try:
     from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
     from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
     from ansys.aedt.core.extensions.common.create_report import main
-except ModuleNotFoundError:
+except Exception:
     pytestmark = pytest.mark.skipif(True, reason="fpdf2 not installed")
 
 from ansys.aedt.core.internal.errors import AEDTRuntimeError

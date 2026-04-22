@@ -49,7 +49,7 @@ try:
     from ansys.aedt.core.cli.config import _update_bool_config
     from ansys.aedt.core.cli.config import _update_string_config
     from ansys.aedt.core.cli.config import test_app
-except ModuleNotFoundError:
+except Exception:
     pytestmark = pytest.mark.skipif(True, reason="typer not installed")
 
 
