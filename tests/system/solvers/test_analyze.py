@@ -209,6 +209,7 @@ def test_sbr_link_array(sbr_platform, add_app_example) -> None:
     app.close_project(save=False)
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed.")
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
 def test_sbr_link_array_solved(sbr_platform_solved, test_tmp_dir) -> None:
     profile = sbr_platform_solved.setups[0].get_profile()
