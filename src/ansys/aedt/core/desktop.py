@@ -692,6 +692,11 @@ class Desktop(PyAedtBase):
         self.__new_desktop = (
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
+        if os.getenv("PYAEDT_DESKTOP_PORT"):
+            self.__new_desktop = False
+            self.__port = int(os.getenv("PYAEDT_DESKTOP_PORT"))
+            settings.logger.info(f"Desktop set to work on port {self.__port}")
+
         self.aedt_version_id = (
             str(os.getenv("PYAEDT_DESKTOP_VERSION"))
             if os.getenv("PYAEDT_DESKTOP_VERSION", None)
