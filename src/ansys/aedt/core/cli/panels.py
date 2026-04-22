@@ -84,6 +84,14 @@ def add_panels(
         pyaedt panels add  # Interactive mode: select from installed versions
     """
     try:
+        from ansys.aedt.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    except ImportError:
+        raise ImportError(
+            "ansys-aedt-extensions is required for this functionality."
+            "Please install it with 'pip install pyaedt[extensions]' or with 'pip install ansys-aedt-extensions'."
+        )
+
+    try:
         installed = aedt_versions.installed_versions
 
         if not installed:
@@ -195,8 +203,6 @@ def add_panels(
 
         if skip_extension_manager:
             typer.secho("Skipping Extension Manager tab...", fg=typer.colors.YELLOW)
-
-        from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
         result = add_pyaedt_to_aedt(
             personal_lib=str(personal_lib_path),
