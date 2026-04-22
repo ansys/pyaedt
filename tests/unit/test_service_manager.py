@@ -30,9 +30,13 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.rpc import rpyc_services
+try:
+    from ansys.aedt.core.rpc import rpyc_services
 
-LOCAL_SERVER_FILE = Path(rpyc_services.__file__).parent / "local_server.py"
+    LOCAL_SERVER_FILE = Path(rpyc_services.__file__).parent / "local_server.py"
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="rpyc not installed")
+
 ERROR_MSG = "Error. No connection exists. Check if AEDT is running and if the port number is correct."
 PORT = 18000
 HOSTNAME = "DummyHostName"

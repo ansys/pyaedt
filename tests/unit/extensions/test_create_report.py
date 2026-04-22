@@ -26,9 +26,14 @@
 
 import tkinter
 
-from ansys.aedt.core.extensions.common.create_report import EXTENSION_TITLE
-from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
-from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+import pytest
+
+try:
+    from ansys.aedt.core.extensions.common.create_report import EXTENSION_TITLE
+    from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+    from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="fpdf2 not installed")
 
 
 def test_create_report_extension_default() -> None:

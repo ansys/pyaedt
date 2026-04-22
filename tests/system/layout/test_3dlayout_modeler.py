@@ -33,7 +33,6 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -1300,8 +1299,11 @@ def test_change_nets_visibility(aedt_app, test_tmp_dir) -> None:
     aedt_app.close_project(save=False)
 
 
+@pytest.mark.skipif(True, reason="fpdf2 not installed")
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
 def test_report_design(aedt_app) -> None:
+    from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+
     report = AnsysReport()
     report.create()
 

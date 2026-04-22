@@ -27,8 +27,13 @@ import time
 import pytest
 
 from ansys.aedt.core import settings
-from ansys.aedt.core.common_rpc import create_session
-from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+try:
+    from ansys.aedt.core.common_rpc import create_session
+    from ansys.aedt.core.common_rpc import pyaedt_service_manager
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="rpyc not installed")
+
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.hfss import Hfss
 from tests.conftest import DESKTOP_VERSION

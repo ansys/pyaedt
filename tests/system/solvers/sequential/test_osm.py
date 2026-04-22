@@ -32,9 +32,13 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
-from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
-from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+
+try:
+    from ansys.aedt.core.modeler.advanced_cad.osm import BuildingsPrep
+    from ansys.aedt.core.modeler.advanced_cad.osm import RoadPrep
+    from ansys.aedt.core.modeler.advanced_cad.osm import TerrainPrep
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="OSM not installed")
 
 
 @pytest.fixture

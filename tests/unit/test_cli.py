@@ -33,20 +33,24 @@ from unittest.mock import patch
 
 import psutil
 import pytest
-import typer
-from typer.testing import CliRunner
 
-from ansys.aedt.core.cli import app
-from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
-from ansys.aedt.core.cli.common import _display_config
-from ansys.aedt.core.cli.common import _get_config_path
-from ansys.aedt.core.cli.common import _get_tests_folder
-from ansys.aedt.core.cli.common import _load_config
-from ansys.aedt.core.cli.common import _prompt_config_value
-from ansys.aedt.core.cli.common import _save_config
-from ansys.aedt.core.cli.config import _update_bool_config
-from ansys.aedt.core.cli.config import _update_string_config
-from ansys.aedt.core.cli.config import test_app
+try:
+    import typer
+    from typer.testing import CliRunner
+
+    from ansys.aedt.core.cli import app
+    from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
+    from ansys.aedt.core.cli.common import _display_config
+    from ansys.aedt.core.cli.common import _get_config_path
+    from ansys.aedt.core.cli.common import _get_tests_folder
+    from ansys.aedt.core.cli.common import _load_config
+    from ansys.aedt.core.cli.common import _prompt_config_value
+    from ansys.aedt.core.cli.common import _save_config
+    from ansys.aedt.core.cli.config import _update_bool_config
+    from ansys.aedt.core.cli.config import _update_string_config
+    from ansys.aedt.core.cli.config import test_app
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="typer not installed")
 
 
 @pytest.fixture

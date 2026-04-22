@@ -30,9 +30,14 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
-from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+
+try:
+    from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+    from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+    from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="fpdf2 not installed")
+
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import DESKTOP_VERSION
 

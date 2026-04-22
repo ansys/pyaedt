@@ -26,8 +26,11 @@
 
 import pytest
 
-from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
-from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
+try:
+    from ansys.aedt.core.modeler.advanced_cad.osm import convert_latlon_to_utm
+    from ansys.aedt.core.modeler.advanced_cad.osm import convert_utm_to_latlon
+except ModuleNotFoundError:
+    pytestmark = pytest.mark.skipif(True, reason="osm not installed")
 
 
 def test_convert_latlon_to_utm() -> None:
