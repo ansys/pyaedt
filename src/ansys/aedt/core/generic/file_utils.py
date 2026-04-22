@@ -463,13 +463,10 @@ def read_toml(input_file: str | Path) -> dict:
     dict
         Parsed TOML file as a dictionary.
     """
-    try:
-        import tomllib
-    except (ImportError, ModuleNotFoundError):
-        import tomli as tomllib
+    import toml
 
     with open_file(input_file, "rb") as fb:
-        return tomllib.load(fb)
+        return toml.load(fb)
 
 
 @pyaedt_function_handler()

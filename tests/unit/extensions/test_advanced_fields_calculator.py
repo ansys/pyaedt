@@ -114,7 +114,7 @@ def test_advanced_fields_calculator_extension_load_custom(
     mock_desktop, mock_active_sessions, tmp_path, mock_hfss_with_expression_catalog
 ) -> None:
     """Test loading a custom expression catalog in the Advanced Fields Calculator extension."""
-    import tomli_w
+    import toml
 
     mock_desktop.return_value = MagicMock()
     mock_active_sessions.return_value = {0: 0}
@@ -126,7 +126,7 @@ def test_advanced_fields_calculator_extension_load_custom(
     other_content["description"] = "Other description"
     other_catalog = {"Other tag": other_content}
     with expression_catalog_path.open("wb") as fp:
-        tomli_w.dump(other_catalog, fp)
+        toml.dump(other_catalog, fp)
 
     extension = AdvancedFieldsCalculatorExtension()
 

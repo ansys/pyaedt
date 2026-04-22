@@ -38,16 +38,14 @@ classifiers = [
 
 dependencies = [
     "ansys-tools-common",
-    "grpcio>=1.50.0,<1.81",
+    "grpcio",
     "jsonschema",
-    "psutil>=5.9.2",
+    "psutil",
     "pyedb@git+https://github.com/ansys/pyedb.git@chore/aedt_dependencies",
-    "tomli; python_version < '3.11'",
     "toml",
-    "defusedxml>=0.7,<8.0",
-    "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.13",
-
+    "defusedxml",
+    "numpy",
+    "pydantic",
 ]
 
 [project.optional-dependencies]

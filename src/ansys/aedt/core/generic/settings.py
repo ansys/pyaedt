@@ -251,7 +251,10 @@ class Settings(PyAedtBase):
                 pyaedt_settings_path = Path(os.environ["HOME"]) / "pyaedt_settings.yaml"
             else:
                 pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
-        self.load_yaml_configuration(pyaedt_settings_path)
+        try:
+            self.load_yaml_configuration(pyaedt_settings_path)
+        except Exception:
+            pass
 
     # ########################## gRPC properties ##########################
 
