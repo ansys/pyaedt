@@ -79,7 +79,9 @@ env:
   TESTS_VERSION: '3.10'
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
   # On Windows, ANSYSEM_ROOT261 is a pre-existing system environment variable
+  # On Linux, it is defined per job as env var
   AEDT_PYTHON_WINDOWS_SUFFIX: 'commonfiles\CPython\3_10\winx64\Release\python\python.exe'
+  AEDT_PYTHON_LINUX_SUFFIX: 'commonfiles/CPython/3_10/linx64/Release/python/bin/python'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
