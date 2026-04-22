@@ -2,6 +2,11 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.uv]
+override-dependencies = [
+    "ansys-edb-core@git+https://github.com/ansys/pyedb-core.git@main",
+]
+
 
 [project]
 name = "pyaedt"
@@ -34,9 +39,8 @@ classifiers = [
 dependencies = [
     "ansys-tools-common",
     "grpcio>=1.50.0,<1.81",
-    "jsonschema",
     "psutil>=6.0.0",
-    "pyedb>=0.71.0",
+    "pyedb@git+https://github.com/ansys/pyedb.git@chore/aedt_dependencies",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "pyyaml",
@@ -66,6 +70,7 @@ jupyter = [
     "ipython>=7.30.0,<9.1",
 ]
 all = [
+    "jsonschema",
     "matplotlib>=3.5.0,<3.11",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=2.0.0,<2.2",
@@ -351,5 +356,4 @@ showcontent = true
 directory = "test"
 name = "Test"
 showcontent = true
-
 
