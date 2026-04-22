@@ -65,6 +65,7 @@ def test_far_field_data_txt(test_tmp_dir) -> None:
     assert ffdata.metadata["model_info"]
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 def test_far_field_data_json(test_tmp_dir) -> None:
     pyaedt_metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "pyaedt_metadata"
     pyaedt_metadata_dir = test_tmp_dir / "pyaedt_metadata"
@@ -78,6 +79,7 @@ def test_far_field_data_json(test_tmp_dir) -> None:
     assert ffdata.incident_power == 40.0
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 def test_far_field_data_xml(test_tmp_dir) -> None:
     metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "metadata"
     metadata_dir = test_tmp_dir / "metadata"
@@ -91,6 +93,7 @@ def test_far_field_data_xml(test_tmp_dir) -> None:
     assert ffdata.incident_power == 0.04
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 @pytest.mark.avoid_ansys_load
 def test_far_field_data(test_tmp_dir) -> None:
     from pyvista.plotting.plotter import Plotter
@@ -217,6 +220,7 @@ def test_far_field_data(test_tmp_dir) -> None:
     _ = matplot_lib.plot_2d(show=False)
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 @pytest.mark.avoid_ansys_load
 def test_antenna_plot(array_test, test_tmp_dir) -> None:
     ffdata = array_test.get_antenna_data(sphere="3D")
@@ -280,6 +284,7 @@ def test_antenna_plot(array_test, test_tmp_dir) -> None:
     assert Path(img5).is_file()
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 def test_farfield_exporter(array_test) -> None:
     ffdata = FfdSolutionDataExporter(
         array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
@@ -300,6 +305,7 @@ def test_farfield_exporter(array_test) -> None:
     assert Path(metadata2).is_file()
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 @pytest.mark.avoid_ansys_load
 def test_ffd_solution_data_plot_3d(test_tmp_dir) -> None:
     """Test FfdSolutionData.plot_3d() method with various parameters."""
@@ -364,6 +370,7 @@ def test_ffd_solution_data_plot_3d(test_tmp_dir) -> None:
     assert isinstance(plotter, Plotter)
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 @pytest.mark.avoid_ansys_load
 def test_update_beam_form(test_tmp_dir) -> None:
     """Test UpdateBeamForm.update_phi() and update_theta() methods."""

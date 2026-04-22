@@ -156,6 +156,7 @@ class TestClass:
         model_pv_vector.vector_field_scale = 5
         assert model_pv_vector.vector_field_scale == 5
 
+    @pytest.mark.skipif(True, reason="imageio not installed")
     @pytest.mark.avoid_ansys_load
     def test_animate(self, test_tmp_dir):
         model_pv_vector = ModelPlotter()

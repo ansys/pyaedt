@@ -1002,7 +1002,7 @@ class ModelPlotter(CommonPlotter):
     def _read_case(self, field):
         file_path = Path(field.path).resolve()
         reader = pv.get_reader(str(file_path)).read()
-        field._cached_polydata = reader[reader.keys()[0]].extract_surface(algorithm=None)
+        field._cached_polydata = reader[reader.keys()[0]].extract_surface()
 
         if (
             hasattr(field._cached_polydata.point_data, "active_vectors")

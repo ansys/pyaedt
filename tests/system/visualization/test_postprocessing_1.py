@@ -243,6 +243,7 @@ def test_get_scalar_field_value(aedt_app) -> None:
     assert isinstance(min_value, float)
 
 
+@pytest.mark.skipif(True, reason="PyVista from AEDT installation does not support it")
 @pytest.mark.avoid_ansys_load
 def test_plot_animated_field(aedt_app, test_tmp_dir) -> None:
     cutlist = ["Global:XY"]
@@ -352,6 +353,7 @@ def test_export_data_to_csv(aedt_app, test_tmp_dir) -> None:
     assert output_csv.is_file()
 
 
+@pytest.mark.skipif(True, reason="scitkit-rf not installed")
 def test_get_touchstone_data(aedt_app) -> None:
     assert aedt_app.get_touchstone_data("Setup1")
 
