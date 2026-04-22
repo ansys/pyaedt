@@ -2,77 +2,6 @@ name: Draft workflow (AEDT venv)
 
 on:
   workflow_dispatch:
-    inputs:
-      test-solvers-windows:
-        description: "Testing solvers (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-solvers-linux:
-        description: "Testing solvers (Linux)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-general-windows:
-        description: "Testing general (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-general-linux:
-        description: "Testing general (Linux)"
-        type: choice
-        default: 'no'
-        options:
-          - 'yes'
-          - 'no'
-      test-visualization-windows:
-        description: "Testing visualization (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-visualization-linux:
-        description: "Testing visualization (Linux)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-extensions-windows:
-        description: "Testing extensions (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-extensions-linux:
-        description: "Testing extensions (Linux)"
-        type: choice
-        default: 'no'
-        options:
-          - 'yes'
-          - 'no'
-      test-emit-windows:
-        description: "Testing Emit (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
-      test-filter-solutions-windows:
-        description: "Testing Filter Solutions (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
 
 env:
   ON_CI: True
@@ -101,7 +30,6 @@ jobs:
 
   system-test-solvers-windows:
     name: Testing solvers (Windows)
-    if: github.event.inputs.test-solvers-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -155,7 +83,6 @@ jobs:
 
   system-tests-general-windows:
     name: Testing general (Windows)
-    if: github.event.inputs.test-general-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -214,7 +141,6 @@ jobs:
 
   system-tests-visualization-windows:
     name: Test visualization (Windows)
-    if: github.event.inputs.test-visualization-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     env:
       MPLBACKEND: 'Agg'
@@ -278,7 +204,6 @@ jobs:
 
   system-tests-extensions-windows:
     name: Test extensions (Windows)
-    if: github.event.inputs.test-extensions-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -340,7 +265,6 @@ jobs:
 
   system-tests-emit-windows:
     name: Test EMIT (Windows)
-    if: github.event.inputs.test-emit-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -399,7 +323,6 @@ jobs:
 
   system-tests-filter-solutions:
     name: Test filter solutions (Windows)
-    if: github.event.inputs.test-filter-solutions-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -462,7 +385,6 @@ jobs:
 
   system-test-solvers-linux:
     name: Testing solvers (Linux)
-    if: github.event.inputs.test-solvers-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
@@ -516,7 +438,6 @@ jobs:
 
   system-tests-general-linux:
     name: Testing general (Linux)
-    if: github.event.inputs.test-general-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
@@ -573,7 +494,6 @@ jobs:
 
   system-tests-visualization-linux:
     name: Test visualization (Linux)
-    if: github.event.inputs.test-visualization-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
@@ -631,7 +551,6 @@ jobs:
 
   system-tests-extensions-linux:
     name: Test extensions (Linux)
-    if: github.event.inputs.test-extensions-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
@@ -690,3 +609,101 @@ jobs:
           name: pytest-extensions-linux
           path: junit/test-results.xml
         if: ${{ always() }}
+
+# =================================================================================================
+# Package jobs: build site-packages bundles
+# =================================================================================================
+
+  package-windows:
+    name: Build site-packages ZIP (Windows)
+    needs:
+      - system-test-solvers-windows
+      - system-tests-general-windows
+      - system-tests-visualization-windows
+      - system-tests-extensions-windows
+      - system-tests-emit-windows
+      - system-tests-filter-solutions
+      - system-test-solvers-linux
+      - system-tests-general-linux
+      - system-tests-visualization-linux
+      - system-tests-extensions-linux
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Create virtual environment from AEDT Python
+        run: |
+          & "$env:ANSYSEM_ROOT261\${{ env.AEDT_PYTHON_WINDOWS_SUFFIX }}" -m venv --system-site-packages .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .
+
+      - name: Create ZIP archive of site-packages
+        run: |
+          $sitePackages = ".venv\Lib\site-packages"
+          Compress-Archive -Path "$sitePackages\*" -DestinationPath "pyaedt_261sp2_winx64.zip" -Force
+          Write-Output "Created pyaedt_261sp2_winx64.zip"
+
+      - name: Upload pyaedt_261sp2_winx64.zip artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pyaedt_261sp2_winx64
+          path: pyaedt_261sp2_winx64.zip
+
+  package-linux:
+    name: Build site-packages TGZ (Linux)
+    needs:
+      - system-test-solvers-windows
+      - system-tests-general-windows
+      - system-tests-visualization-windows
+      - system-tests-extensions-windows
+      - system-tests-emit-windows
+      - system-tests-filter-solutions
+      - system-test-solvers-linux
+      - system-tests-general-linux
+      - system-tests-visualization-linux
+      - system-tests-extensions-linux
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Create virtual environment from AEDT Python
+        run: |
+          "$ANSYSEM_ROOT261/${{ env.AEDT_PYTHON_LINUX_SUFFIX }}" -m venv --system-site-packages .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt
+        run: |
+          source .venv/bin/activate
+          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org .
+
+      - name: Create TGZ archive of site-packages
+        run: |
+          SITE_PACKAGES=$(find .venv/lib -maxdepth 2 -name site-packages -type d | head -1)
+          tar -czf pyaedt_261sp2_linx64.tgz -C "$SITE_PACKAGES" .
+          echo "Created pyaedt_261sp2_linx64.tgz"
+
+      - name: Upload pyaedt_261sp2_linx64.tgz artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: pyaedt_261sp2_linx64
+          path: pyaedt_261sp2_linx64.tgz
+
