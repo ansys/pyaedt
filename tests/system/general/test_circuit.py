@@ -154,6 +154,7 @@ def test_import_netlist(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.create_schematic_from_netlist(netlist_file)
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
     touchstone_2 = shutil.copy2(TOUCHSTONE_FILE2, test_tmp_dir / TOUCHSTONE2)
@@ -248,6 +249,7 @@ def test_rotate(aedt_app) -> None:
     )
 
 
+@pytest.mark.skipif(True, reason="scikit-rf not installed")
 def test_read_touchstone(test_tmp_dir) -> None:
     from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 

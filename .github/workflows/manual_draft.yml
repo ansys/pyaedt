@@ -120,7 +120,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install . --group tests
-          pip install pytest-azurepipelines
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -175,7 +174,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install . --group tests
-          pip install pytest-azurepipelines
 
       - name: Remove Ansys processes (if any)
         shell: powershell
