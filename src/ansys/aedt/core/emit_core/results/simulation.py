@@ -226,11 +226,26 @@ class Simulation:
         >>> num_instances = sim.get_instance_count(domain)
         """
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.get_instance_count(domain)
+        if self._revision.emit_project._aedt_version < "2027.1":
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_instance_count(domain)
+        else:
+            status = self.is_domain_valid(domain)
+            if status != "":
+                raise RuntimeError(status)
+            count = self._revision.emit_project._emit_com_module.GetInstanceCount(
+                self._revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
+            return int(count)
 
     @property
-    @min_aedt_version("2027.1")
+    @min_aedt_version("2025.2")
     def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
@@ -249,17 +264,22 @@ class Simulation:
         >>> sim.n_to_1_limit
         1048576
         """
-        if self._revision.revision_loaded:
+        self._revision._load_revision()
+        if self._revision.emit_project._aedt_version >= "2027.1":
+            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(
+                self._revision.results_index))
+        else:
             engine = self._revision.emit_project._emit_api.get_engine()
-            max_instances = engine.n_to_1_limit
-        else:  # pragma: no cover
-            max_instances = None
-        return max_instances
+            return engine.n_to_1_limit
 
     @n_to_1_limit.setter
     @min_aedt_version("2025.2")
     def n_to_1_limit(self, max_instances: int):
-        if self._revision.revision_loaded:
+        self._revision._load_revision()
+        if self._revision.emit_project._aedt_version >= "2027.1":
+            self._revision.emit_project._emit_com_module.SetNto1Limit(
+                self._revision.results_index, max_instances)
+        else:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
 

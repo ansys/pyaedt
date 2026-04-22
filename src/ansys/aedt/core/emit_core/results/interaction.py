@@ -49,8 +49,6 @@ class Interaction:
         Parameters
         ----------
         result_type : ResultType
-            The interaction instance to get the worst case instance for.
-        result_type : ResultType
             The result type to get the worst case instance for.
 
         Returns
@@ -63,19 +61,21 @@ class Interaction:
         RuntimeError
             If the worst case instance cannot be retrieved.
         """
-        error = self._check_interaction_validity()
-        if error:
-            raise RuntimeError(f"Cannot get worst case instance: {error}")
-        
+        error = self.check_validity()
+        if error != "":
+            raise RuntimeError(f"Worst case instance cannot be retrieved: {error}")
+
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
             return None
         
-        # Call GetWorstInstance to get the channel indexes for the worst case
+        # Pass the domain's actual frequencies to the C++ stack.
+        # Frequencies <= 0 act as wildcards (search all channels), matching
+        # the old InteractionPrivate::getWorstInstance behavior.
         self.emit_project.results.current_revision._load_revision()
-        worst_indexes = self.emit_project._emit_com_module.GetWorstInstance(
+        result_data = self.emit_project._emit_com_module.GetWorstInstance(
             self.emit_project.results.current_revision.results_index,
-            result_type.value,
+            result_type,
             self.domain.receiver_name,
             self.domain.receiver_band_name,
             self.domain.receiver_channel_frequency,
@@ -84,45 +84,33 @@ class Interaction:
             self.domain.interferer_channel_frequencies,
         )
         
-        if not worst_indexes or len(worst_indexes) == 0:
+        # The COM method returns a pipe-delimited string:
+        # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...
+        # Empty string means no worst instance was found.
+        if not result_data:
             warnings.warn("No worst case instance found.")
             return None
         
-        # Create a new domain with the worst case channel indexes
-        # The indexes represent specific channel frequencies
+        parts = str(result_data).split("|")
+        if len(parts) < 3 or not parts[0]:
+            warnings.warn("No worst case instance found.")
+            return None
+
+        # Unpack RX fields and remaining TX flat-list: rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...
+        rx_radio, rx_band, rx_freq_str, *tx_parts = parts
         worst_domain = InteractionDomain(self.emit_project)
-        
-        # Get the band nodes to map indexes to frequencies
-        rx_band_node = self.current_revision.get_band_node(self.domain.receiver_band_name)
-        tx_band_nodes = [self.current_revision.get_band_node(name) for name in self.domain.interferer_band_names]
-        
-        if rx_band_node and len(worst_indexes) >= 2:
-            # For 1-to-1: [tx_channel_idx, rx_channel_idx]
-            tx_channel_idx = worst_indexes[0]
-            rx_channel_idx = worst_indexes[1] if len(worst_indexes) > 1 else -1
-            
-            # Get the actual frequencies from the channel indexes
-            rx_freqs = rx_band_node.get_active_frequencies(is_rx=True, units="Hz")
-            if rx_channel_idx >= 0 and rx_channel_idx < len(rx_freqs):
-                rx_freq = rx_freqs[rx_channel_idx]
-            else:
-                rx_freq = -1
-            
-            worst_domain.set_receiver(self.domain.receiver_name, self.domain.receiver_band_name, rx_freq, "Hz")
-            
-            # Set interferer with worst channel
-            if tx_band_nodes and tx_band_nodes[0] and tx_channel_idx >= 0:
-                tx_freqs = tx_band_nodes[0].get_active_frequencies(is_rx=False, units="Hz")
-                if tx_channel_idx < len(tx_freqs):
-                    tx_freq = tx_freqs[tx_channel_idx]
-                    worst_domain.set_interferer(
-                        self.domain.interferer_names[0],
-                        self.domain.interferer_band_names[0],
-                        tx_freq,
-                        "Hz"
-                    )
-        
-        # Now get the instance data for the worst case domain
+        worst_domain.set_receiver(rx_radio, rx_band, float(rx_freq_str), "Hz")
+
+        # Group tx_parts into (radio, band, freq) triples
+        tx_entries = list(zip(*[iter(tx_parts)] * 3))
+        if len(tx_entries) == 1:
+            tx_radio, tx_band, tx_freq_str = tx_entries[0]
+            worst_domain.set_interferer(tx_radio, tx_band, float(tx_freq_str), "Hz")
+        elif len(tx_entries) > 1:
+            tx_radios, tx_bands, tx_freq_strs = zip(*tx_entries)
+            worst_domain.set_interferers(list(tx_radios), list(tx_bands), [float(f) for f in tx_freq_strs], "Hz")
+
+        # Retrieve the instance data for the worst-case domain
         return self.get_instance(worst_domain)
     
 
@@ -314,7 +302,7 @@ class Interaction:
         self.emit_project.results.current_revision._load_revision()
         instance_values = self.emit_project._emit_com_module.GetInstance(
             self.emit_project.results.current_revision.results_index,
-            ResultType.EMI.value,  # Get EMI results
+            ResultType.EMI,  # Get EMI results
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -327,13 +315,15 @@ class Interaction:
         instance = InteractionInstance(self.emit_project, domain)
         
         if instance_values and len(instance_values) > 0:
-            # The COM method returns encoded values (dB * 100)
-            instance.encoded_emi = instance_values[0] if len(instance_values) > 0 else -32768
+            # The COM method returns [encodedValue, worstIntCat]
+            instance.encoded_emi = int(instance_values[0])
+            if len(instance_values) > 1:
+                instance.largest_emi_interferer_type = int(instance_values[1])
             
             # Also get desense values
             desense_values = self.emit_project._emit_com_module.GetInstance(
                 self.emit_project.results.current_revision.results_index,
-                ResultType.DESENSE.value,  # Get Desense results
+                ResultType.DESENSE,  # Get Desense results
                 domain.receiver_name,
                 domain.receiver_band_name,
                 domain.receiver_channel_frequency,
@@ -343,19 +333,50 @@ class Interaction:
             )
             
             if desense_values and len(desense_values) > 0:
-                instance.encoded_desense = desense_values[0]
+                instance.encoded_desense = int(desense_values[0])
         
         return instance
 
-    def results_exist(self) -> bool:
-        """Check if this interaction analysis is complete.
-        
+    def get_instance_count(self, domain: InteractionDomain = None) -> int:
+        """Get the number of instances (channel combinations) for this interaction domain.
+
+        Parameters
+        ----------
+        domain : InteractionDomain, optional
+            The interaction domain to count instances for.
+            If not provided, uses the interaction's own domain.
+
         Returns
         -------
-        bool
-            True if the interaction has been fully analyzed, False otherwise.
+        int
+            The number of instances in the domain (product of channel counts).
+        
+        Raises
+        ------
+        RuntimeError
+            If the domain is invalid.
         """
-        return self.emit_project._emit_com_module.GetResultsExist()
+        if domain is None:
+            domain = self.domain
+            
+        sim = self.current_revision.get_simulation()
+        status = sim.is_domain_valid(domain)
+        if status != "":
+            raise RuntimeError(status)
+
+        # Call GetInstanceCount to get the count of channel combinations
+        self.emit_project.results.current_revision._load_revision()
+        count = self.emit_project._emit_com_module.GetInstanceCount(
+            self.emit_project.results.current_revision.results_index,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
+        )
+        
+        return int(count)
 
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this interaction.
@@ -367,56 +388,23 @@ class Interaction:
         """
         return self.domain
 
-    def check_validity(self) -> None:
-        """Check if this interaction is still valid.
-        
-        Raises
-        ------
-        RuntimeError
-            If the interaction is no longer valid.
-        """
-        is_complete = self._check_results_exist()
-        
-        # Call the COM API to check interaction validity using domain
-        self.emit_project.results.current_revision._load_revision()
-        error_message = self.emit_project._emit_com_module.CheckInteractionValidity(
-            self.emit_project.results.current_revision.results_index,
-            is_complete,
-            self.domain.receiver_name,
-            self.domain.receiver_band_name,
-            self.domain.receiver_channel_frequency,
-            self.domain.interferer_names,
-            self.domain.interferer_band_names,
-            self.domain.interferer_channel_frequencies,
-        )
-        
-        if error_message:
-            raise RuntimeError(f"Interaction is not valid: {error_message}")
-
-    def _check_interaction_validity(self) -> str:
-        """Check if this interaction is valid.
+    def check_validity(self) -> str:
+        """Check if this interaction is valid. The associated domain must be valid and results must exist for the interaction.
         
         Returns
         -------
         str
             Empty string if valid, error message otherwise.
         """
-        is_complete = self._check_results_exist()
+        error = self._check_results_exist()
+        if not error:
+            return f"Interaction is not valid. The interaction results do not exist: {error}"
         
-        # Call the COM API to check interaction validity using domain
-        self.emit_project.results.current_revision._load_revision()
-        error_message = self.emit_project._emit_com_module.CheckInteractionValidity(
-            self.emit_project.results.current_revision.results_index,
-            is_complete,
-            self.domain.receiver_name,
-            self.domain.receiver_band_name,
-            self.domain.receiver_channel_frequency,
-            self.domain.interferer_names,
-            self.domain.interferer_band_names,
-            self.domain.interferer_channel_frequencies,
-        )
-        
-        return error_message
+        error = self.current_revision.get_simulation().is_domain_valid(self.domain)
+        if error:
+            return f"Interaction is not valid. The domain is invalid: {error}"
+        return ""
+    
 
     def check_valid_radio_analysis(self, rx_radio_node: RadioNode, tx_radio_node: RadioNode) -> str:
         """Check if the radio pair is valid for analysis.
