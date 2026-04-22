@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "1.0.0sp26r1"
+__version__ = "1.0.0.post2601"  # SP26 R1 — PEP 440: post XXYY where XX=service pack, YY=release
 version = __version__
 
 # isort: off
