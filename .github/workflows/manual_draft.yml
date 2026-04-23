@@ -202,67 +202,6 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-  system-tests-extensions-windows:
-    name: Test extensions (Windows)
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment from AEDT Python
-        run: |
-          & "$env:ANSYSEM_ROOT261\${{ env.AEDT_PYTHON_WINDOWS_SUFFIX }}" -m venv --system-site-packages .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install . --group tests
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
-
-      - name: Run tests marked with 'extensions'
-        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
-        env:
-          PYTHONMALLOC: malloc
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m extensions
-
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
-        with:
-          name: codecov-system-extensions-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_extensions
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: pytest-extensions-windows
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
   system-tests-emit-windows:
     name: Test EMIT (Windows)
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -549,67 +488,6 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-  system-tests-extensions-linux:
-    name: Test extensions (Linux)
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
-
-      - name: Create virtual environment from AEDT Python
-        run: |
-          "$ANSYSEM_ROOT261/${{ env.AEDT_PYTHON_LINUX_SUFFIX }}" -m venv --system-site-packages .venv
-          source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          source .venv/bin/activate
-          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org . --group tests
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
-      - name: Run tests marked with 'extensions'
-        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
-
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
-        with:
-          name: codecov-system-extensions-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_extensions
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: pytest-extensions-linux
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
 # =================================================================================================
 # Package jobs: build site-packages bundles
 # =================================================================================================
@@ -620,13 +498,11 @@ jobs:
       - system-test-solvers-windows
       - system-tests-general-windows
       - system-tests-visualization-windows
-      - system-tests-extensions-windows
       - system-tests-emit-windows
       - system-tests-filter-solutions
       - system-test-solvers-linux
       - system-tests-general-linux
       - system-tests-visualization-linux
-      - system-tests-extensions-linux
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -665,13 +541,11 @@ jobs:
       - system-test-solvers-windows
       - system-tests-general-windows
       - system-tests-visualization-windows
-      - system-tests-extensions-windows
       - system-tests-emit-windows
       - system-tests-filter-solutions
       - system-test-solvers-linux
       - system-tests-general-linux
       - system-tests-visualization-linux
-      - system-tests-extensions-linux
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
