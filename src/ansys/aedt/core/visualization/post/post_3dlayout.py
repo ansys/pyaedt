@@ -585,7 +585,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
             for layer in layers_nets:
                 if len(layer) == 1 or "no-net" in layer[1]:
                     for v in self._app.modeler.user_defined_components.values():
-                        if layer[0] in v.layout_component.edb_object.stackup.stackup_layers:
+                        if layer[0] in v.layout_component.edb_object.stackup.layers:
                             layer.extend(list(v.layout_component.edb_object.nets.nets.keys()))
             if plot_on_surface:
                 plot_type = "LayerNetsExtFace"
