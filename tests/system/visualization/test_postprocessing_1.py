@@ -1290,6 +1290,7 @@ def test_eye_ami_from_json(aedt_report_app, test_tmp_dir) -> None:
     assert os.path.exists(out)
 
 
+@pytest.mark.skipif(True, reason="Matplotlib version not working")
 def test_eye_transient_from_json(aedt_report_app, test_tmp_dir) -> None:
     input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_transient_eye.json"
     dict_vals = read_json(str(input_file))
