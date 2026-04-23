@@ -1247,6 +1247,7 @@ def test_create_fieldplot_surface_5(m2d_blank) -> None:
     assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")
 
 
+@pytest.mark.skipif(True, reason="Matplotlib version not working")
 def test_eye_ami_from_json(aedt_report_app, test_tmp_dir) -> None:
     input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_stateye.json"
     dict_vals = read_json(str(input_file))
@@ -1262,31 +1263,31 @@ def test_eye_ami_from_json(aedt_report_app, test_tmp_dir) -> None:
         plot_max_height=True,
     )
     assert os.path.exists(out)
-    # Skip because matplotlib version does not support it
-    # out = os.path.join(test_tmp_dir, "eye_diagram2.png")
-    # rep.plot_eye_diagram(
-    #     snapshot_path=out,
-    #     show=False,
-    #     is_contour=True,
-    #     filter_colormap=1e-6,
-    #     plot_max_height=False,
-    # )
-    # assert os.path.exists(out)
 
-    # input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_contoureye.json"
-    # dict_vals = read_json(str(input_file))
-    # out = os.path.join(test_tmp_dir, "contour_diagram.png")
-    # aedt_report_app.post.create_report_from_configuration(
-    #     report_settings=dict_vals,
-    #     matplotlib=True,
-    #     show=False,
-    #     solution_name="AMIAnalysis",
-    #     snapshot_path=out,
-    #     width=1200,
-    #     height=600,
-    # )
-    #
-    # assert os.path.exists(out)
+    out = os.path.join(test_tmp_dir, "eye_diagram2.png")
+    rep.plot_eye_diagram(
+        snapshot_path=out,
+        show=False,
+        is_contour=True,
+        filter_colormap=1e-6,
+        plot_max_height=False,
+    )
+    assert os.path.exists(out)
+
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_contoureye.json"
+    dict_vals = read_json(str(input_file))
+    out = os.path.join(test_tmp_dir, "contour_diagram.png")
+    aedt_report_app.post.create_report_from_configuration(
+        report_settings=dict_vals,
+        matplotlib=True,
+        show=False,
+        solution_name="AMIAnalysis",
+        snapshot_path=out,
+        width=1200,
+        height=600,
+    )
+
+    assert os.path.exists(out)
 
 
 def test_eye_transient_from_json(aedt_report_app, test_tmp_dir) -> None:
