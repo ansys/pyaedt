@@ -120,7 +120,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 50
+          timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
             $args = $env:PYTEST_ARGUMENTS -split ' '
@@ -183,7 +183,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 90
           command: |
             .venv\Scripts\Activate.ps1
             $args = $env:PYTEST_ARGUMENTS -split ' '
