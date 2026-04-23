@@ -278,7 +278,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         for k, v in self._app.modeler.user_defined_components.items():
             if v.layout_component:
                 if not layers:
-                    layers = [i for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                    layers = [i for i in v.layout_component.edb_object.stackup.layers.keys()]
                 if not nets:
                     nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
                 for layer in layers:
