@@ -695,7 +695,7 @@ class Desktop(PyAedtBase):
         )
 
         env_port = os.getenv("PYAEDT_DESKTOP_PORT")
-        if env_port and is_number(env_port) != 0:
+        if env_port and is_number(env_port) and int(env_port) != 0:
             self.__new_desktop = False
             self.__port = int(env_port)
             settings.logger.info(f"Desktop set to work on port {self.__port}")
