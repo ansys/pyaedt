@@ -318,6 +318,9 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
         name = self.generate_unique_setup_name(name)
+        if setup_type == 62 and not self.ic_mode:
+            self.logger.error("RaptorX is supported only in 'IC' mode")
+            return None
         setup = Setup3DLayout(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()

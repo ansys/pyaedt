@@ -1351,3 +1351,11 @@ def test_create_coordinate_system(aedt_app) -> None:
 def test_create_scattering(aedt_app) -> None:
     aedt_app.create_setup()
     assert aedt_app.create_scattering()
+
+
+def test_create_raptorx_setup(aedt_app) -> None:
+    aedt_app.ic_mode = True
+    setup = aedt_app.create_setup(name="raptor_setup", setup_type="RaptorX")
+    assert setup
+    sweep = setup.add_sweep()
+    assert sweep
