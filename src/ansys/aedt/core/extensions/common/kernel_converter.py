@@ -47,11 +47,20 @@ from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.filesystem import search_files
 
 settings.use_grpc_api = True
 settings.use_multi_desktop = True
+
+# The kernel conversion process requires AEDT 2022 R2 (or later legacy kernel) as the *input*
+# desktop so that older project/component files can be read and then re-saved by the current
+# version. If this exact release is not present, the extension raises an informative error
+# instead of failing silently deep inside the AEDT layer.
+# The default can be overridden by setting the ``PYAEDT_KERNEL_AEDT_VERSION`` environment
+# variable, e.g. ``set PYAEDT_KERNEL_AEDT_VERSION=2022.2`` with Command Prompt (cmd) on Windows.
+REQUIRED_INPUT_VERSION = os.getenv("PYAEDT_KERNEL_AEDT_VERSION", "2022.2")
 
 on_ci = os.getenv("ON_CI", "false")
 
@@ -402,7 +411,25 @@ def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
         aedt_process_id=AEDT_PROCESS_ID,
         student_version=IS_STUDENT,
     )
-    input_desktop = Desktop(new_desktop=True, version=222, non_graphical=True)
+
+    # Verify that the required input version (AEDT 2022 R2) is installed before attempting to
+    # launch it.  Installed versions are discovered from the registry/file-system by
+    # ``aedt_versions``; if the required version is absent we release the output desktop that
+    # has already been started and raise a clear error rather than letting the Desktop
+    # constructor fail with a cryptic message.
+    if REQUIRED_INPUT_VERSION not in aedt_versions.installed_versions:
+        available = sorted(aedt_versions.installed_versions.keys())
+        available_str = ", ".join(available) if available else "none detected"
+        output_desktop.release_desktop(False, False)
+        raise AEDTRuntimeError(
+            f"The Kernel Converter extension requires AEDT {REQUIRED_INPUT_VERSION} to be "
+            f"installed on this machine. This version is used as the legacy kernel to read "
+            f"older project files before they are re-saved with the current release. "
+            f"Please install AEDT {REQUIRED_INPUT_VERSION} and re-run the extension. "
+            f"Currently installed AEDT versions: {available_str}."
+        )
+
+    input_desktop = Desktop(new_desktop=True, version=REQUIRED_INPUT_VERSION, non_graphical=True)
 
     for file in files_path:
         try:
