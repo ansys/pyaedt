@@ -166,7 +166,7 @@ def show_launcher_dialog(initial_dir, run_callback):
             return
 
         run_callback(file_path, script_arguments, f)
-        f.Activate()
+        f.Close()
 
     btn_run.Click += run_click
 
@@ -213,8 +213,11 @@ def main():
         # Add environment variables
         pyaedt_utils.environment_variables(oDesktop)
 
-        # --- Run Script with Arguments ---
+        # Open extension manager
         my_env = os.environ.copy()
+
+        # --- Run Script with Arguments ---
+
         error_handler = os.path.normpath(os.path.join(r"##EXTENSION_TEMPLATES##", "extension_error_handler.py"))
 
         def run_selected_script(pyaedt_script, script_args, owner=None):
