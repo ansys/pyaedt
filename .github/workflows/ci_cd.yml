@@ -129,12 +129,12 @@ jobs:
 
       - name: Install requirements
         run: |
-          .venv/bin/activate
+          source .venv/bin/activate
           uv pip install -r requirements_vuln.txt
 
       - name: Install repository
         run: |
-          .venv/bin/activate
+          source .venv/bin/activate
           uv pip install -e .[all]
 
       - name: Run vulnerability check
@@ -143,5 +143,5 @@ jobs:
           DEPENDENCY_CHECK_PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
           DEPENDENCY_CHECK_REPOSITORY: ${{ github.repository }}
         run: |
-          .venv/bin/activate
+          source .venv/bin/activate
           python check_vulnerabilities.py --run-local
