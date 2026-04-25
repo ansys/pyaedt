@@ -41,7 +41,7 @@ dependencies = [
     "grpcio",
     "jsonschema",
     "psutil",
-    "pyedb@git+https://github.com/ansys/pyedb.git@chore/aedt_dependencies",
+    "pyedb==0.73.0",
     "toml",
     "defusedxml",
     "numpy",
