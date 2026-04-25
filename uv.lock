@@ -3507,7 +3507,7 @@ requires-dist = [
     { name = "psutil", specifier = ">=6.0.0" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pydantic", specifier = ">=2.6.4,<2.13" },
-    { name = "pyedb", git = "https://github.com/ansys/pyedb.git?rev=main" },
+    { name = "pyedb", specifier = "==0.73.0" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'all'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'graphics'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["jupyter"], marker = "extra == 'examples'", specifier = ">=0.38.0,<0.48" },
@@ -3729,8 +3729,8 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.72.dev0"
-source = { git = "https://github.com/ansys/pyedb.git?rev=main#3aaa9f9c9d44f2e3cd571ebf76002922a8bc682f" }
+version = "0.73.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
     { name = "ansys-pythonnet" },
@@ -3742,6 +3742,10 @@ dependencies = [
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "toml" },
     { name = "xmltodict" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/93/f3/dc2d54018d012dda0061a00ae7692af181ccdcf42c30ed063c2320bf0c99/pyedb-0.73.0.tar.gz", hash = "sha256:210bb50689cf08eb1b2ae0da383cf1f6911f7231cc5c17d2fd202bd837a85467", size = 789878, upload-time = "2026-04-24T23:30:56.437Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/46/9f7f563941d362756456745fa49a77964dd19d0a616526a1a98e18c2fc1f/pyedb-0.73.0-py3-none-any.whl", hash = "sha256:034a4ab1469683c423b33c9e9448a9e6e0e6be556092ad05c15256d559ee93f8", size = 1090598, upload-time = "2026-04-24T23:30:54.459Z" },
 ]
 
 [[package]]
