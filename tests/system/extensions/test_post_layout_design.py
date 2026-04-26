@@ -80,7 +80,7 @@ def test_layout_design_toolkit_antipad_1(add_app_example) -> None:
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
 
     h3d.save_project()
@@ -106,7 +106,7 @@ def test_layout_design_toolkit_antipad_2(add_app_example) -> None:
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
     h3d.save_project()
 
@@ -131,7 +131,7 @@ def test_layout_design_toolkit_unknown_action(add_app_example) -> None:
         application=ansys.aedt.core.Hfss3dLayout,
         is_edb=True,
         subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
-        project="ANSYS_SVP_V1_1_SFP",
+        project="siverse_sfp",
     )
     h3d.save_project()
 
