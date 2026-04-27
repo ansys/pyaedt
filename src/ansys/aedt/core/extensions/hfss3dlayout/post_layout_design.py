@@ -404,6 +404,15 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
     """Create a line void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
 
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
+
     void_name = generate_unique_name("line_void_")
     temp = []
     for i in path:
@@ -432,6 +441,7 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
     ]
     line_void_geometry.extend(temp)
     line_void_geometry.extend(["MR:=", "600mm"])
+
     args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
     h3d.oeditor.CreateLineVoid(args)
 
@@ -439,6 +449,15 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
 def _create_circle_void(h3d, owner, layer_name, center_point, radius) -> None:
     """Create a circle void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
+
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
 
     args = [
         "NAME:Contents",
