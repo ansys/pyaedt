@@ -158,7 +158,7 @@ def test_layout_design_toolkit_microvia(add_app_example) -> None:
         project="Diff_Via",
     )
     h3d.save_project()
-
+    pr1 = h3d.project_name
     # Get valid padstack definition from the design
     pedb = h3d.modeler.edb
     available_padstacks = ["pad1"]
@@ -175,7 +175,8 @@ def test_layout_design_toolkit_microvia(add_app_example) -> None:
 
     # Call main function
     result = post_layout_design.main(data)
+    pr2 = h3d.desktop_class.project_list[1]
 
     assert result is True
-    h3d.close_project(save=False)
-    h3d.close_project(save=False)
+    h3d.close_project(name=pr2, save=False)
+    h3d.close_project(name=pr1, save=False)
