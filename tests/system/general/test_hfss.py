@@ -465,6 +465,7 @@ def test_sweep_add_subrange(aedt_app) -> None:
     setup = aedt_app.create_setup(name="MySetupForSweep")
     assert not setup.get_sweep()
     sweep = setup.add_sweep()
+    assert len(setup.sweeps) == 1
     sweep1 = setup.get_sweep(sweep.name)
     assert sweep1 == sweep
     sweep2 = setup.get_sweep()
