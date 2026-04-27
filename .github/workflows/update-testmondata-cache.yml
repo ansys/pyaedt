@@ -166,7 +166,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main-${{ github.sha }}
@@ -248,7 +248,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main-${{ github.sha }}
@@ -335,7 +335,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main-${{ github.sha }}
@@ -418,7 +418,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main-${{ github.sha }}
@@ -506,7 +506,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main-${{ github.sha }}
@@ -590,7 +590,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main-${{ github.sha }}
@@ -674,7 +674,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main-${{ github.sha }}
@@ -756,7 +756,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main-${{ github.sha }}
@@ -840,7 +840,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main-${{ github.sha }}
@@ -922,7 +922,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
@@ -1006,7 +1006,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main-${{ github.sha }}
@@ -1090,7 +1090,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}
