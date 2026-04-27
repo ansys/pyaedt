@@ -40,6 +40,7 @@ MOCK_PATH = "/mock/path/file.aedt"
 def test_template_extension_default(mock_desktop, mock_active_sessions) -> None:
     """Test instantiation of the default extension."""
     mock_desktop_instance = MagicMock()
+    mock_desktop_instance.active_project_name = None
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
     mock_active_sessions.return_value = {0: 0}
@@ -57,6 +58,7 @@ def test_template_extension_default(mock_desktop, mock_active_sessions) -> None:
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_template_extension_toggle_theme(mock_desktop, mock_active_sessions) -> None:
     """Test toggling the theme of the extension."""
+    mock_desktop.return_value = MagicMock(active_project_name=None)
     mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()
@@ -79,6 +81,7 @@ def test_template_extension_with_modified_values(mock_desktop, mock_active_sessi
     """Test that the modified values of the UI are returned correctly."""
     EXPECTED_RESULT = ExtensionData(0.0, 0.0, 0.0, 1.0, MOCK_PATH)
     mock_askopenfilename.return_value = MOCK_PATH
+    mock_desktop.return_value = MagicMock(active_project_name=None)
     mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()
