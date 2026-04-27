@@ -1,0 +1,3 @@
+This folder contains a custom distribution of ansys-api-edb which handles the protobuf
+version issue faced in the SP integration. The wheel is retrieved from the following
+GitHub Actions run: https://github.com/ansys/ansys-api-edb/actions/runs/24825873756

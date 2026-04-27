@@ -2,11 +2,6 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.uv]
-override-dependencies = [
-    "ansys-edb-core@git+https://github.com/ansys/pyedb-core.git@main",
-]
-
 
 [project]
 name = "pyaedt"
@@ -41,7 +36,7 @@ dependencies = [
     "grpcio",
     "jsonschema",
     "psutil",
-    "pyedb==0.73.0",
+    "pyedb==0.73.0.261.0",
     "toml",
     "defusedxml",
     "numpy",

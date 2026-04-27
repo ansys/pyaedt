@@ -48,6 +48,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -101,6 +104,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -164,6 +170,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -222,6 +231,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -280,6 +292,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -345,6 +360,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -401,6 +419,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -458,6 +479,9 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org . --group tests
 
       - name: Remove Ansys processes (if any)
@@ -521,6 +545,9 @@ jobs:
       - name: Install pyaedt
         run: |
           .venv\Scripts\Activate.ps1
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install .
 
       - name: Create ZIP archive of site-packages
@@ -567,6 +594,9 @@ jobs:
       - name: Install pyaedt
         run: |
           source .venv/bin/activate
+          pip install .ci/ansys-api-edb/ansys_api_edb-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/ansys-edb-core/ansys_edb_core-0.3.1.261.0-py3-none-any.whl
+          pip install .ci/pyedb/pyedb-0.3.1.261.0-py3-none-any.whl
           pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org .
 
       - name: Create TGZ archive of site-packages
