@@ -2243,7 +2243,10 @@ def test_insert_layout_component(aedt_app, test_tmp_dir) -> None:
     assert isinstance(comp, UserDefinedComponent)
     assert len(aedt_app.modeler.user_defined_components[comp.name].parts) == 3
     assert comp.layout_component.edb_object
+
+    # Import again file
     comp3 = aedt_app.modeler.insert_layout_component(str(input_file), name="new_layout", parameter_mapping=True)
+
     assert isinstance(comp3, UserDefinedComponent)
     assert len(comp3.parameters) == 2
     assert comp3.layout_component.show_layout
