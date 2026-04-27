@@ -39,7 +39,7 @@ from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.export import export_app
 from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.project import project_app
-from ansys.aedt.core.cli.script import script_app
+from ansys.aedt.core.cli.script import run_script
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -70,9 +70,9 @@ def version() -> None:
 def aedt_versions() -> None:
     """List installed AEDT versions on this machine."""
     try:
-        from ansys.aedt.core.internal.aedt_versions import aedt_versions as _aedt_versions
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
-        versions = _aedt_versions.installed_versions
+        versions = aedt_versions.installed_versions
         data = {"versions": {k: str(v) for k, v in versions.items()}, "count": len(versions)}
         if common.json_mode:
             common.print_output(data=data)
@@ -91,14 +91,16 @@ def aedt_versions() -> None:
         raise typer.Exit(code=1)
 
 
+app.command(name="run")(run_script)
+
+
 # Sub-apps
 app.add_typer(session_app, name="session")
 app.add_typer(project_app, name="project")
-app.add_typer(script_app, name="script")
 app.add_typer(export_app, name="export")
-app.add_typer(test_config_app, name="test-config")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
+app.add_typer(test_config_app, name="test-config")
 
 if __name__ == "__main__":
     app()

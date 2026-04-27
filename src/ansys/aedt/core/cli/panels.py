@@ -59,7 +59,7 @@ def add_panels(
     ),
     light: bool = typer.Option(
         False,
-        "--light",
+        "--minimal",
         help="Install only the light PyAEDT panel set (Console, Run Script, and optional manager panels)",
     ),
     reset: bool = typer.Option(
@@ -68,7 +68,8 @@ def add_panels(
         help="Delete existing Toolkits directory before installing",
     ),
 ):
-    """Add PyAEDT panels to AEDT installation.
+    """
+    Add PyAEDT panels to AEDT installation.
 
     This command installs PyAEDT tabs (Console, Jupyter, Run Script, optional Extension Manager,
     and optional Version Manager) into your AEDT installation.
@@ -77,9 +78,10 @@ def add_panels(
     --------
         pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -p "/home/username/Ansoft/PersonalLib"
-        pyaedt panels add --personal-lib "..." --light
+        pyaedt panels add --personal-lib "..." --minimal
         pyaedt panels add --personal-lib "..." --reset  # Delete Toolkits before installing
         pyaedt panels add  # Interactive mode: select from installed versions
+
     """
     try:
         installed = aedt_versions.installed_versions

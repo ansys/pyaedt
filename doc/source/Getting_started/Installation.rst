@@ -197,7 +197,8 @@ However, you must set up the following environment variables:
 
 .. code::
 
-    export ANSYSEM_ROOT261=/path/to/AedtRoot/AnsysEM/v261/Linux64
+    export ANSYSEM_ROOT261=/path/to/Ansys Inc/v261/AnsysEM
+    export LD_LIBRARY_PATH=/path/to/Ansys Inc/v261/AnsysEM
 
 
 Install offline from a wheelhouse

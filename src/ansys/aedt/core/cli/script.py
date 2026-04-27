@@ -26,7 +26,10 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import subprocess  # nosec
+import sys
 
 try:
     import typer
@@ -37,31 +40,52 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli import common
 
-script_app = typer.Typer(help="Script execution commands")
 
-
-@script_app.command("run")
 def run_script(
     script_path: str = typer.Argument(..., help="Path to .py script file"),
-    port: int = typer.Option(..., "--port", help="gRPC port of the AEDT instance"),
+    port: int | None = typer.Option(None, "--port", help="gRPC port of the AEDT instance"),
+    ironpython: bool = typer.Option(False, "--ironpython", help="Run an Ironpython script"),
 ) -> None:
-    """Execute a Python script file inside AEDT.
+    """
+    Execute a Python script file in a subprocess.
 
-    The desktop is kept alive after execution and verbose logging is enabled.
+    The current environment variables are copied into the child process.
     """
     try:
         path = Path(script_path)
         if not path.exists():
             raise FileNotFoundError(f"Script not found: {script_path}")
 
-        from ansys.aedt.core import settings
+        script_path_resolved = str(path.resolve())
 
-        settings.enable_logger = True
+        if ironpython:
+            if not port:
+                data = {"executed": False, "script": script_path_resolved}
+                raise RuntimeError("No port provided")
 
-        d = common.get_desktop(port=port)
-        script_globals = {"__file__": str(path.resolve()), "desktop": d}
-        exec(compile(path.read_text(encoding="utf-8"), str(path.resolve()), "exec"), script_globals)  # noqa: S102
-        data = {"executed": True, "script": str(path.resolve())}
+            d = common.get_desktop(port=port)
+            d.odesktop.RunScript(script_path_resolved)
+            data = {"executed": True, "script": script_path_resolved}
+        else:
+            env = os.environ.copy()
+
+            result = subprocess.run(
+                [sys.executable, script_path_resolved],
+                env=env,
+                capture_output=common.json_mode,
+                text=True,
+            )  # nosec
+
+            if result.returncode != 0:
+                stderr_output = result.stderr if common.json_mode else ""
+                raise RuntimeError(
+                    f"Script exited with code {result.returncode}" + (f": {stderr_output}" if stderr_output else "")
+                )
+
+            data = {"executed": True, "script": script_path_resolved}
+            if common.json_mode and result.stdout:
+                data["stdout"] = result.stdout
+
         if common.json_mode:
             common.print_output(data=data)
         else:

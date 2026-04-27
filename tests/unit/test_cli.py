@@ -48,6 +48,9 @@ from ansys.aedt.core.cli.common import print_output
 from ansys.aedt.core.cli.common import prompt_config_value
 from ansys.aedt.core.cli.common import save_config
 from ansys.aedt.core.cli.config import test_config_app
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import is_windows
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 @pytest.fixture(autouse=True)
@@ -71,10 +74,16 @@ def mock_online_help():
 
 @pytest.fixture
 def mock_installed_versions():
-    mock_versions = {
-        "2026.1": r"C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM",
-        "2025.2": r"C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
-    }
+    if is_windows:
+        mock_versions = {
+            "2026.1": r"C:\\Program Files\\ANSYS Inc\\v261\\AnsysEM",
+            "2025.2": r"C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
+        }
+    else:
+        mock_versions = {
+            "2026.1": "/opt/ansys_inc/v261/AnsysEM",
+            "2025.2": "/opt/ansys_inc/v252/AnsysEM",
+        }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
         new_callable=PropertyMock,
@@ -146,7 +155,16 @@ def test_session_list_no_aedt(_mock_discover, cli_runner):
 
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_session_list_with_aedt(_mock_discover, cli_runner):
     result = cli_runner.invoke(app, ["session", "list"])
@@ -166,7 +184,16 @@ def test_session_stop_no_args(_mock_discover, cli_runner):
 @patch("psutil.Process")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_session_stop_all_success(mock_discover, mock_process_cls, cli_runner):
     mock_process = Mock()
@@ -182,7 +209,16 @@ def test_session_stop_all_success(mock_discover, mock_process_cls, cli_runner):
 @patch("psutil.Process")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_session_stop_by_port_success(mock_discover, mock_process_cls, cli_runner):
     mock_process = Mock()
@@ -226,7 +262,7 @@ def test_session_start_default_parameters(cli_runner, mock_start_command):
     assert result.exit_code == 0
     data = json.loads(result.output)
     assert data["status"] == "ok"
-    assert data["data"]["version"] == "2026.1"
+    assert data["data"]["version"] == aedt_versions.current_version
     assert data["data"]["port"] == 50051
 
 
@@ -251,7 +287,16 @@ def test_attach_no_aedt_sessions(_mock_discover, cli_runner):
 
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_attach_invalid_input_then_quit(_mock_discover, cli_runner):
     result = cli_runner.invoke(app, ["session", "attach"], input="abc\nq\n")
@@ -264,7 +309,16 @@ def test_attach_invalid_input_then_quit(_mock_discover, cli_runner):
 @patch("ansys.aedt.core.cli.aedt._activate_console_context")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_attach_valid_interactive_selection(mock_discover, mock_activate, mock_launch, cli_runner):
     result = cli_runner.invoke(app, ["session", "attach"], input="1\n")
@@ -278,7 +332,16 @@ def test_attach_valid_interactive_selection(mock_discover, mock_activate, mock_l
 @patch("ansys.aedt.core.cli.aedt._activate_console_context")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_attach_by_port(mock_discover, mock_activate, mock_launch, cli_runner):
     result = cli_runner.invoke(app, ["session", "attach", "--port", "50051"])
@@ -296,10 +359,28 @@ def test_attach_json_empty_sessions(_mock_discover, cli_runner):
     assert data["data"]["processes"] == []
 
 
+@patch("ansys.aedt.core.cli.aedt._discover_aedt_sessions", side_effect=RuntimeError("boom"))
+def test_session_list_json_error(_mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "list"])
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "boom"
+
+
 @patch("psutil.Process")
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50051, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_session_stop_by_port_access_denied_json(mock_discover, mock_process_cls, cli_runner):
     mock_process = Mock()
@@ -316,13 +397,55 @@ def test_session_stop_by_port_access_denied_json(mock_discover, mock_process_cls
 
 @patch(
     "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
-    return_value=[{"pid": 12345, "name": "ansysedt.exe", "port": 50052, "version": "2026.1", "student_version": False}],
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50052,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
 )
 def test_attach_by_port_not_found_lists_available(_mock_discover, cli_runner):
     result = cli_runner.invoke(app, ["session", "attach", "--port", "50051"])
     assert result.exit_code == 0
     assert "No AEDT process found on port 50051" in result.stdout
     assert "PID: 12345, Port: 50052" in result.stdout
+
+
+@patch(
+    "ansys.aedt.core.cli.aedt._discover_aedt_sessions",
+    return_value=[
+        {
+            "pid": 12345,
+            "port": 50051,
+            "mode": "grpc",
+            "version": "2026.1",
+            "non_graphical": False,
+            "student_version": False,
+        }
+    ],
+)
+@patch("ansys.aedt.core.cli.aedt._activate_console_context", side_effect=RuntimeError("bad context"))
+def test_attach_by_port_error_json(mock_activate, mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "attach", "--port", "50051"])
+
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "bad context"
+
+
+@patch("ansys.aedt.core.cli.aedt._discover_aedt_sessions", return_value=[])
+def test_attach_no_aedt_sessions_json(_mock_discover, cli_runner):
+    result = cli_runner.invoke(app, ["--json", "session", "attach"])
+
+    assert result.exit_code == 1
+    data = json.loads(result.output)
+    assert data["status"] == "error"
+    assert data["error"] == "No AEDT processes currently running."
 
 
 def test_load_config_existing_file(tmp_path):
@@ -407,73 +530,61 @@ def test_prompt_config_value_int(mock_prompt):
 
 
 def test_common_design_helpers():
-    design = Mock()
-    design.GetDesignType.return_value = "HFSS"
-    project = Mock()
-    project.GetTopDesignList.return_value = ["HFSS;D1"]
-    project.SetActiveDesign.return_value = design
-    project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;D1"))
+    desktop = Mock()
+    desktop.design_list.return_value = ["D1"]
+    desktop.design_type.return_value = "HFSS"
 
-    designs = common_mod.get_project_designs(project)
+    designs = common_mod.get_project_designs(desktop, "Project1")
 
-    assert common_mod.normalize_design_name("HFSS;D1") == "D1"
-    assert common_mod.get_active_design_name(project) == "D1"
     assert designs == [{"name": "D1", "type": "HFSS"}]
+    desktop.design_list.assert_called_once_with("Project1")
+    desktop.design_type.assert_called_once_with(project_name="Project1", design_name="D1")
 
 
 def test_list_projects_with_designs_restores_active_context():
     active_project = Mock()
-    active_project.GetName.return_value = "Project2"
-    active_project.GetActiveDesign.return_value = Mock(GetName=Mock(return_value="HFSS;Design2"))
 
-    project1 = Mock()
-    project1.GetTopDesignList.return_value = []
+    desktop = Mock()
+    desktop.project_list = ["Project1", "Project2"]
+    desktop.active_project_name = "Project2"
+    desktop.active_design_name = "Design2"
+    desktop.active_project.side_effect = lambda name=None: active_project if name is None else active_project
+    desktop.design_list.side_effect = lambda project_name: [] if project_name == "Project1" else ["Design2"]
+    desktop.design_type.return_value = "HFSS"
 
-    design = Mock()
-    design.GetDesignType.return_value = "HFSS"
-    project2 = Mock()
-    project2.GetTopDesignList.return_value = ["HFSS;Design2"]
-    project2.SetActiveDesign.return_value = design
-
-    project_map = {"Project1": project1, "Project2": project2}
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1", "Project2"]
-    odesktop.GetActiveProject.return_value = active_project
-    odesktop.SetActiveProject.side_effect = lambda name: project_map[name]
-
-    projects = common_mod.list_projects_with_designs(odesktop)
+    projects = common_mod.list_projects_with_designs(desktop)
 
     assert projects == [
         {"name": "Project1", "designs": [], "count": 0},
         {"name": "Project2", "designs": [{"name": "Design2", "type": "HFSS"}], "count": 1},
     ]
-    project2.SetActiveDesign.assert_called_with("Design2")
+    desktop.active_project.assert_any_call("Project2")
+    desktop.active_design.assert_called_once_with(active_project, "Design2")
 
 
 def test_resolve_project_requires_explicit_selection_when_multiple_open():
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1", "Project2"]
+    desktop = Mock()
+    desktop.project_list = ["Project1", "Project2"]
 
     with pytest.raises(RuntimeError, match="Multiple projects are open"):
-        common_mod.resolve_project(odesktop)
+        common_mod.resolve_project(desktop)
 
 
 def test_resolve_project_and_design_resolves_single_design():
     design = Mock()
-    design.GetDesignType.return_value = "HFSS"
     project = Mock()
     project.GetName.return_value = "Project1"
-    project.GetTopDesignList.return_value = ["HFSS;Design1"]
-    project.SetActiveDesign.return_value = design
+    desktop = Mock()
+    desktop.project_list = ["Project1"]
+    desktop.active_project.return_value = project
+    desktop.design_list.return_value = ["Design1"]
+    desktop.design_type.return_value = "HFSS"
+    desktop.active_design.return_value = design
 
-    odesktop = Mock()
-    odesktop.GetProjectList.return_value = ["Project1"]
-    odesktop.SetActiveProject.return_value = project
-
-    context = common_mod.resolve_project_and_design(odesktop)
+    context = common_mod.resolve_project_and_design(desktop)
 
     assert context == {"project": "Project1", "design": "Design1"}
-    project.SetActiveDesign.assert_called_with("Design1")
+    desktop.active_design.assert_called_once_with(project, "Design1")
 
 
 @patch("ansys.aedt.core.cli.common.get_desktop")
@@ -492,16 +603,23 @@ def test_get_design_app_uses_resolved_context(mock_resolve, mock_get_pyaedt_app,
     assert resolved_desktop is desktop
     assert resolved_app is app_instance
     assert context == {"project": "Project1", "design": "Design1"}
-    mock_resolve.assert_called_once_with(desktop.odesktop, project_name=None, design_name=None)
+    mock_resolve.assert_called_once_with(desktop, project_name=None, design_name=None)
     mock_get_pyaedt_app.assert_called_once_with(project_name="Project1", design_name="Design1", desktop=desktop)
 
 
-def test_extract_version_from_cmdline_parses_windows_paths():
-    assert aedt_mod._extract_version_from_cmdline([r"C:\Program Files\ANSYS Inc\v261\AnsysEM\ansysedt.exe"]) == "2026.1"
-    assert aedt_mod._extract_version_from_cmdline([]) == "unknown"
+def test_extract_session_metadata_parses_cmdline():
+    metadata = aedt_mod._extract_session_metadata(
+        r"C:\Program Files\ANSYS Inc\v261\AnsysEM\ansysedt.exe -grpcsrv 50051 -ng"
+    )
+
+    assert metadata == {"version": "2026.1", "non_graphical": True}
 
 
-def test_discover_aedt_sessions_collects_versions():
+def test_extract_session_metadata_handles_missing_cmdline():
+    assert aedt_mod._extract_session_metadata(None) == {"version": "unknown", "non_graphical": None}
+
+
+def test_discover_aedt_sessions_collects_metadata():
     def active_sessions_side_effect(student_version=False):
         return {22: -1} if student_version else {11: 50051}
 
@@ -509,15 +627,37 @@ def test_discover_aedt_sessions_collects_versions():
         patch("ansys.aedt.core.cli.aedt.active_sessions", side_effect=active_sessions_side_effect),
         patch(
             "ansys.aedt.core.cli.aedt._check_psutil_connections",
-            return_value={11: [{"cmdline": r"C:\Program Files\ANSYS Inc\v261\AnsysEM\ansysedt.exe"}], 22: []},
+            return_value={
+                11: [{"cmdline": r"C:\Program Files\ANSYS Inc\v261\AnsysEM\ansysedt.exe -grpcsrv 50051 -ng"}],
+                22: [],
+            },
         ),
     ):
         sessions = aedt_mod._discover_aedt_sessions()
 
-    assert sessions == [
-        {"pid": 11, "port": 50051, "student_version": False, "name": "ansysedt.exe", "version": "2026.1"},
-        {"pid": 22, "port": None, "student_version": True, "name": "ansysedtsv.exe", "version": "unknown"},
+    expected_sessions = [
+        {
+            "pid": 11,
+            "port": 50051,
+            "mode": "grpc",
+            "student_version": False,
+            "version": "2026.1",
+            "non_graphical": True,
+        }
     ]
+    if not is_linux:
+        expected_sessions.append(
+            {
+                "pid": 22,
+                "port": None,
+                "mode": "com",
+                "student_version": True,
+                "version": "unknown",
+                "non_graphical": None,
+            }
+        )
+
+    assert sessions == expected_sessions
 
 
 def test_activate_console_context_requires_grpc_port_for_design():
@@ -533,7 +673,7 @@ def test_activate_console_context_project_only(mock_get_desktop, mock_resolve_pr
 
     aedt_mod._activate_console_context(port=50051, project="Project1")
 
-    mock_resolve_project.assert_called_once_with(desktop.odesktop, project_name="Project1")
+    mock_resolve_project.assert_called_once_with(desktop, project_name="Project1")
 
 
 def test_launch_console_reports_missing_setup_file(tmp_path, capsys):
@@ -596,7 +736,7 @@ def test_test_config_interactive_no_changes(mock_get_tests_folder, tmp_path, cli
 @patch("ansys.aedt.core.cli.config.get_tests_folder")
 def test_test_config_interactive_updates_values(mock_get_tests_folder, mock_prompt_value, tmp_path, cli_runner):
     mock_get_tests_folder.return_value = tmp_path
-    mock_prompt_value.side_effect = ["2025.2", False, False, True, False, False, True, "examples", False]
+    mock_prompt_value.side_effect = ["2025.2", False, False, True, False, False, True, "examples", False, True]
 
     result = cli_runner.invoke(test_config_app, input="y\n")
 
@@ -848,7 +988,7 @@ def test_project_close_active(mock_get_desktop, cli_runner):
 @patch("ansys.aedt.core.cli.common.get_desktop")
 def test_script_run_file_not_found(mock_get_desktop, cli_runner):
     mock_get_desktop.return_value = Mock()
-    result = cli_runner.invoke(app, ["script", "run", "nonexistent.py", "--port", "50051"])
+    result = cli_runner.invoke(app, ["run", "nonexistent.py", "--port", "50051"])
     assert result.exit_code == 1
     assert "Script not found" in result.output
 
@@ -861,7 +1001,7 @@ def test_script_run_success(mock_get_desktop, cli_runner, tmp_path):
     mock_desktop = Mock()
     mock_get_desktop.return_value = mock_desktop
 
-    result = cli_runner.invoke(app, ["script", "run", str(script_file), "--port", "50051"])
+    result = cli_runner.invoke(app, ["run", str(script_file), "--port", "50051"])
 
     assert result.exit_code == 0
     assert "Script executed" in result.output
@@ -874,7 +1014,7 @@ def test_script_run_json(mock_get_desktop, cli_runner, tmp_path):
     mock_desktop = Mock()
     mock_get_desktop.return_value = mock_desktop
 
-    result = cli_runner.invoke(app, ["--json", "script", "run", str(script_file), "--port", "50051"])
+    result = cli_runner.invoke(app, ["--json", "run", str(script_file), "--port", "50051"])
 
     assert result.exit_code == 0
     data = json.loads(result.output)
