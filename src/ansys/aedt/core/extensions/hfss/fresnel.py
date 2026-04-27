@@ -677,16 +677,18 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.add_error_message("No lattice pair found.")
-            self._widgets["design_validation_label"].config(text="Failed")
-            return
+        if "Lattice Pair" not in bounds and "Secondary" not in bounds:
+            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            return False
+
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
 
         # Assign variable to lattice pair
         self.aedt_application["scan_P"] = "0deg"
         self.aedt_application["scan_T"] = "0deg"
 
-        for lattice_pair in bounds["Lattice Pair"]:
+        for lattice_pair in bounds[bound]:
             lattice_pair.properties["Theta"] = "scan_T"
             lattice_pair.properties["Phi"] = "scan_P"
 
@@ -780,15 +782,18 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Parametric setup is driven by the variables defining the scan direction
 
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.add_error_message("No lattice pair found.")
+        if "Lattice Pair" not in bounds and "Secondary" not in bounds:
+            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
             self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
 
-        lattice_pair = bounds["Lattice Pair"]
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+
+        lattice_pair = bounds[bound]
 
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
+
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
         report_quantities = self.aedt_application.post.available_report_quantities()

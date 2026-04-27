@@ -30,7 +30,7 @@ from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
 
 def test_fresnel_function(add_app) -> None:
     """Test Fresnel extension with no setup."""
-    app = add_app(application=Hfss)
+    app = add_app(application=Hfss, solution_type="Modal")
 
     extension = FresnelExtension(withdraw=True)
 
@@ -43,7 +43,7 @@ def test_fresnel_function(add_app) -> None:
 def test_fresnel_ui_interactions(add_app) -> None:
     """Test various UI interactions in the Fresnel extension."""
     # Create HFSS application for testing environment
-    app = add_app(application=Hfss)
+    app = add_app(application=Hfss, solution_type="Modal")
 
     app.create_setup()
 
@@ -103,15 +103,44 @@ def test_fresnel_ui_interactions(add_app) -> None:
     app.close_project(save=False)
 
 
-def test_fresnel_validation_method(add_app) -> None:
+def test_fresnel_validation_method_lattice(add_app) -> None:
     """Test the validation method in the Fresnel extension."""
     # Create HFSS application for testing environment
-    app = add_app(application=Hfss)
+    app = add_app(application=Hfss, solution_type="Modal")
 
     box1 = app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
     app.create_floquet_port(
         box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
     )
+    app.auto_assign_lattice_pairs(box1.name)
+    app.create_setup()
+
+    # Create extension
+    extension = FresnelExtension(withdraw=True)
+
+    # Test validate button (extraction tab)
+    validate_button = extension._widgets["validate_button"]
+    validate_button.invoke()
+
+    app.close_project(save=False)
+
+
+def test_fresnel_validation_method_primary(add_app) -> None:
+    """Test the validation method in the Fresnel extension."""
+    # Create HFSS application for testing environment
+    app = add_app(application=Hfss, solution_type="Modal")
+
+    box1 = app.modeler.create_box([-100, -100, -100], [200, 200, 200])
+
+    app.create_floquet_port(
+        box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
+    )
+
+    pr1 = app.assign_primary(box1.bottom_face_x, ["-100mm", "0mm", "-100mm"], ["-100mm", "0mm", "100mm"])
+    _ = app.assign_secondary(box1.top_face_x, pr1.name, ["100mm", "0mm", "-100mm"], ["100mm", "0mm", "100mm"])
+
+    pr2 = app.assign_primary(box1.bottom_face_y, ["0mm", "-100mm", "-100mm"], ["0mm", "-100mm", "100mm"])
+    _ = app.assign_secondary(box1.top_face_y, pr2.name, ["0mm", "100mm", "-100mm"], ["0mm", "100mm", "100mm"])
 
     app.create_setup()
 
@@ -127,7 +156,7 @@ def test_fresnel_validation_method(add_app) -> None:
 
 def test_fresnel_apply_validate_method(add_app) -> None:
     """Test the apply and validate method in the Fresnel extension."""
-    app = add_app(application=Hfss)
+    app = add_app(application=Hfss, solution_type="Modal")
 
     (inner, outer, _) = app.modeler.create_coaxial([0, 0, 0], 0)
     app.lumped_port(inner, outer, create_port_sheet=True)
