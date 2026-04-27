@@ -67,6 +67,7 @@ from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -693,9 +694,11 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
 
-        if os.getenv("PYAEDT_DESKTOP_PORT"):
+        env_port = os.getenv("PYAEDT_DESKTOP_PORT")
+        if env_port and is_number(env_port) and int(env_port) != 0:
             self.__new_desktop = False
-            self.__port = os.getenv("PYAEDT_DESKTOP_PORT")
+            self.__port = int(env_port)
+            settings.logger.info(f"Desktop set to work on port {self.__port}")
 
         self.aedt_version_id = (
             str(os.getenv("PYAEDT_DESKTOP_VERSION"))

@@ -89,7 +89,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 118
+        assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 121
 
     @pytest.mark.skipif(SKIP_MODELITHICS, reason="Modelithics is not installed.")
     def test_modelithics_inductor_list(self, lumped_design):
@@ -175,7 +175,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == first_modelithics_capacitor
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 146
+        assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 147
 
     @pytest.mark.skipif(SKIP_MODELITHICS, reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list(self, lumped_design):
@@ -262,7 +262,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 43
+        assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 46
 
     @pytest.mark.skipif(SKIP_MODELITHICS, reason="Modelithics is not installed.")
     def test_modelithics_resistor_list(self, lumped_design):
