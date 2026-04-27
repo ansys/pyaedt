@@ -298,13 +298,20 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
-    "cheatsheet": {
+}
+
+
+def is_enabled_env_var(name, default="true"):
+    return os.getenv(name, default).strip().lower() not in {"0", "false", "no", "off"}
+
+
+if is_enabled_env_var("PYAEDT_DOC_BUILD_CHEATSHEET"):
+    html_theme_options["cheatsheet"] = {
         "file": "cheatsheet/cheat_sheet.qmd",
         "pages": ["index", "Getting_started/index", "User_guide/index"],
         "title": "PyAEDT cheat sheet",
         "version": __version__,
-    },
-}
+    }
 
 # # Add button to download PDF
 # html_theme_options["icon_links"].append(

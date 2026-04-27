@@ -191,6 +191,7 @@ def main(data: ExportLayoutExtensionData) -> bool:
         if data.export_configuration:
             config_file = aedb_path.with_name(aedb_path.stem + "_config.json")
             edb.configuration.export(config_file)
+
     finally:
         # Ensure EDB is properly closed
         edb.close()

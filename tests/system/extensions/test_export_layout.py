@@ -32,7 +32,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests import TESTS_EXTENSIONS_PATH
 
-AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
+AEDB_FILE_NAME = "siverse_sfp"
 TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 

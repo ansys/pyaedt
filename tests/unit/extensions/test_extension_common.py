@@ -141,7 +141,7 @@ def test_common_extension_with_toggle() -> None:
 def test_common_extension_without_active_project(mock_desktop, mock_active_sessions) -> None:
     """Test accessing the active_project_name property of the default extension."""
     mock_desktop_instance = MagicMock()
-    mock_desktop_instance.active_project.return_value = None
+    mock_desktop_instance.active_project_name = None
     mock_desktop.return_value = mock_desktop_instance
     mock_active_sessions.return_value = {0: 0}
 
@@ -157,7 +157,7 @@ def test_common_extension_without_active_project(mock_desktop, mock_active_sessi
 def test_common_extension_without_aedt_session(mock_desktop, mock_active_sessions) -> None:
     """Test accessing desktop without AEDT session.."""
     mock_desktop_instance = MagicMock()
-    mock_desktop_instance.active_project.return_value = None
+    mock_desktop_instance.active_project_name = None
     mock_desktop.return_value = mock_desktop_instance
     mock_active_sessions.return_value = {}
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
@@ -495,7 +495,7 @@ def test_create_default_ui_withdraw_true(mock_theme_cls, mock_style_cls, mock_tk
 def test_active_design_name_returns_no_active_design_when_empty_design_list() -> None:
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True)
     desktop = MagicMock()
-    desktop.design_list.return_value = []
+    desktop.active_design_name = None
     extension._ExtensionCommon__desktop = desktop
 
     assert extension.active_design_name == NO_ACTIVE_DESIGN
