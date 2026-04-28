@@ -7917,7 +7917,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         theta_max = 0.0
         phi_step = 0.0
         var_index = {}
-        is_360_defined = False
         theta_units = r_te.units_sweeps[theta_name]
         phi_units = "deg"
 
@@ -7939,24 +7938,26 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             theta_units = r_te.units_sweeps[theta_name]
             phi_units = r_te.units_sweeps[phi_name]
             for var in r_te.variations:
-                phi = var[phi_name]
                 theta = var[theta_name]
+                phi = var[phi_name]
 
-                phase_shift = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
-                z = np.exp(1j * phase_shift)
-                new_phi = np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0)
+                phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
+                z = np.exp(1j * phi_plus_180)
+                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0),360),6)
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
                     var_index[(abs(theta), new_phi)] = var
+                    theta_fp_round = np.round(abs(theta), 6)
 
                     key = f"{new_phi}{phi_units}"
-                    angles.setdefault(key, []).append(abs(theta))
-                    if theta_max < theta <= 90.0:
-                        theta_max = theta
+                    if key not in angles:
+                        angles.setdefault(key, []).append(theta_fp_round)
+                    elif theta_fp_round not in angles.get(key):
+                        angles.setdefault(key, []).append(theta_fp_round)
 
-            if 360.0 in phi_values:
-                is_360_defined = True
+                    if theta_max < theta_fp_round <= 90.0:
+                        theta_max = theta_fp_round
 
             # Reorder Phi angles to ensure they are in ascending order
             angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
@@ -8003,8 +8004,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if not is_isotropic:
                 ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
                 nb_phi_points = len(angles.keys())
-                if is_360_defined:
-                    nb_phi_points -= 1
                 ofile.write(f"{nb_phi_points}\n")
                 ofile.write(f"# phi_step is {phi_step} {phi_units}.\n")
 
@@ -8130,8 +8129,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
                                     f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
-                                    # Duplicate phi 0 for the 360 case
+                                if phi_q.value == 0.0:
                                     write_360.append(output_str)
                                 ofile.write(output_str)
                         else:
@@ -8174,8 +8172,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
-                                    # Duplicate phi 0 for the 360 case
+                                if phi_q.value == 0.0:
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
@@ -8257,14 +8254,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
+                                if phi_q.value == 0.0: # and not is_360_defined:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
-                if not is_360_defined:
-                    for phi_360_str in write_360:
-                        ofile.write(phi_360_str)
+                #if not is_360_defined:
+                for phi_360_str in write_360:
+                    ofile.write(phi_360_str)
 
         if len(frequencies) > 1:
             freq_step = frequencies[1] - frequencies[0]
