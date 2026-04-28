@@ -7943,7 +7943,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
                 phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
                 z = np.exp(1j * phi_plus_180)
-                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0),360),6)
+                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6)
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
@@ -8254,12 +8254,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0: # and not is_360_defined:
+                                if phi_q.value == 0.0:  # and not is_360_defined:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
-                #if not is_360_defined:
+                # if not is_360_defined:
                 for phi_360_str in write_360:
                     ofile.write(phi_360_str)
 
