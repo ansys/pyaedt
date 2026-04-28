@@ -3507,7 +3507,7 @@ requires-dist = [
     { name = "psutil", specifier = ">=6.0.0" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pydantic", specifier = ">=2.6.4,<2.14" },
-    { name = "pyedb", specifier = "==0.73.0" },
+    { name = "pyedb", specifier = "==0.74.0" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'all'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'graphics'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["jupyter"], marker = "extra == 'examples'", specifier = ">=0.38.0,<0.48" },
@@ -3727,7 +3727,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.73.0"
+version = "0.74.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3741,9 +3741,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/93/f3/dc2d54018d012dda0061a00ae7692af181ccdcf42c30ed063c2320bf0c99/pyedb-0.73.0.tar.gz", hash = "sha256:210bb50689cf08eb1b2ae0da383cf1f6911f7231cc5c17d2fd202bd837a85467", size = 789878, upload-time = "2026-04-24T23:30:56.437Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/f6/3fd48a74ee9a56072969a5a79724cfb1edd73a65c3495d9f15a012e01e09/pyedb-0.74.0.tar.gz", hash = "sha256:d3d705df64a8495cda829faa07a9c0ee1e4d4ec373ed73e7e60592f5b802d625", size = 791459, upload-time = "2026-04-28T07:20:00.979Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/46/9f7f563941d362756456745fa49a77964dd19d0a616526a1a98e18c2fc1f/pyedb-0.73.0-py3-none-any.whl", hash = "sha256:034a4ab1469683c423b33c9e9448a9e6e0e6be556092ad05c15256d559ee93f8", size = 1090598, upload-time = "2026-04-24T23:30:54.459Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/da/8d07dcf9f885fa59b61d37ace8462e8fb96a4aed0f11d0f4e6d67a8faec1/pyedb-0.74.0-py3-none-any.whl", hash = "sha256:7d34ad640314b3655eaf899ce119bda0eeb3d6d12f7deb3a1f17dae431f42447", size = 1092160, upload-time = "2026-04-28T07:19:58.677Z" },
 ]
 
 [[package]]
