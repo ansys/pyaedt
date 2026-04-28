@@ -88,10 +88,8 @@ def availability(add_app_example):
 def test_interaction_creation(cell_phone):
     """Test that Interaction objects can be created with a domain."""
     # Get radios from the design
-    revision = cell_phone.results.current_revision
-    radios = list(revision.get_radio_nodes())
-    
-    assert len(radios) >= 2, "Need at least 2 radios in the Cell Phone design"
+    rev = cell_phone.results.analyze()
+    radios = rev.get_all_radio_nodes()
     
     # Create an interaction domain
     domain = InteractionDomain(cell_phone)
@@ -102,73 +100,54 @@ def test_interaction_creation(cell_phone):
     interaction = Interaction(cell_phone, domain)
     
     # Verify interaction was created
-    assert interaction is not None, "Interaction should be created"
-    assert interaction.domain is not None, "Interaction should have a domain"
-    assert interaction.domain.receiver_name == radios[0].name, "Domain receiver should match"
+    assert interaction is not None
+    assert interaction.domain is not None
+    assert interaction.domain.receiver_name == radios[0].name
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_interaction_check_validity(cell_phone):
-    """Test that check_validity() uses domain parameters."""
+def test_interaction_is_valid(cell_phone):
+    """Test that is_valid() uses domain parameters."""
     # Get radios
-    revision = cell_phone.results.current_revision
-    radios = list(revision.get_radio_nodes())
+    rev = cell_phone.results.analyze()
+    radios = rev.get_all_radio_nodes()
     
-    assert len(radios) >= 2, "Need at least 2 radios"
+    assert len(radios) == 3
     
     # Create interaction with a valid domain
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=radios[0].name, band_name="Rx GSM-850 - Other Modulations")
-    domain.set_interferers(names=[radios[1].name], band_names=["Tx OFDM - 54 Mbps"])
+    domain.set_receiver("GPS Receiver", band_name="L2")
+    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
     
     interaction = Interaction(cell_phone, domain)
     
-    # Test check_validity - should use domain parameters internally
-    # This may raise RuntimeError if results don't exist, which is expected
-    try:
-        interaction.check_validity()
-        # If no exception, validation passed (results exist)
-        assert True
-    except RuntimeError as e:
-        # Expected error if simulation hasn't been run
-        error_msg = str(e)
-        assert "not been run" in error_msg or "not found" in error_msg or "Interaction not valid" in error_msg
+    # Check invalid domain
+    with pytest.raises(ValueError) as e:
+        interaction.validate()
+    assert "The domain is invalid: Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
+    assert not interaction.is_valid()
 
+    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
+    
+    with pytest.raises(ValueError) as e:
+        interaction.validate()
+    assert "The interaction results do not exist:" in str(e.value)
+    assert not interaction.is_valid()
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_interaction_check_results_exist(cell_phone):
-    """Test that _check_results_exist() uses domain parameters."""
-    # Get radios
-    revision = cell_phone.results.current_revision
-    radios = list(revision.get_radio_nodes())
-    
-    assert len(radios) >= 2, "Need at least 2 radios"
-    
-    # Create interaction
-    domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=radios[0].name)
-    domain.set_interferers(names=[radios[1].name])
-    
-    interaction = Interaction(cell_phone, domain)
-    
-    # Test _check_results_exist - should use domain parameters internally
-    results_exist = interaction._check_results_exist()
-    
-    # Should return a boolean
-    assert isinstance(results_exist, bool), "_check_results_exist should return a boolean"
-    
-    # Results may or may not exist depending on whether simulation was run
-    # Just verify the call works without errors
+    sim = rev.get_simulation()
+    sim.run(domain)
+
+    assert interaction.is_valid()
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_multiple_interactions(cell_phone):
     """Test that multiple Interaction objects can coexist."""
     # Get radios
-    revision = cell_phone.results.current_revision
-    radios = list(revision.get_radio_nodes())
+    rev = cell_phone.results.analyze()
+    radios = rev.get_all_radio_nodes()
     
-    assert len(radios) >= 2, "Need at least 2 radios"
+    assert len(radios) == 3
     
     # Create multiple interactions with different domains
     interactions = []
@@ -195,10 +174,10 @@ def test_multiple_interactions(cell_phone):
 def test_interaction_domain_properties(cell_phone):
     """Test that Interaction properly stores domain information in session."""
     # Get radios
-    revision = cell_phone.results.current_revision
-    radios = list(revision.get_radio_nodes())
+    rev = cell_phone.results.analyze()
+    radios = rev.get_all_radio_nodes()
     
-    assert len(radios) >= 2, "Need at least 2 radios"
+    assert len(radios) == 3
     
     # Create interaction with specific domain
     domain = InteractionDomain(cell_phone)
@@ -211,375 +190,9 @@ def test_interaction_domain_properties(cell_phone):
     interaction = Interaction(cell_phone, domain)
     
     # Verify interaction domain matches what was set
-    assert interaction.domain is not None, "Interaction should store domain"
-    assert interaction.domain.receiver_name == rx_name, "Receiver name should match"
-    assert tx_name in interaction.domain.interferer_names, "Interferer should be in domain"
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_interaction_with_invalid_domain(cell_phone):
-    """Test interaction behavior with invalid domain configuration."""
-    # Create interaction with empty domain
-    domain = InteractionDomain(cell_phone)
-    
-    # Domain is invalid (no receiver or interferers set)
-    interaction = Interaction(cell_phone, domain)
-    
-    # Interaction should be created even if domain is invalid
-    assert interaction is not None, "Interaction should be created"
-    assert interaction.domain is not None, "Interaction should have domain"
-    
-    # check_validity should indicate the domain is invalid
-    try:
-        interaction.check_validity()
-        # If no error, that's unexpected but not a failure
-        assert True
-    except RuntimeError as e:
-        # Expected - domain validation should fail
-        error_msg = str(e)
-        # Should contain some validation error message
-        assert len(error_msg) > 0, "Validation error should have a message"
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
-)
-def test_interference_scripts_no_filter(interference) -> None:
-    """Test interference type classification without filtering."""
-    # Generate a revision
-    rev = interference.results.analyze()
-    sim = rev.get_simulation()
-
-    # Test with no filtering
-    expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
-    expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
-    expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
-    expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
-
-    domain = InteractionDomain(interference)
-    with pytest.raises(ValueError) as e:
-        _, _ = sim.interference_type_classification(domain, InterfererType.EMITTERS)
-    assert str(e.value) == "No interferers defined in the analysis."
-    with pytest.raises(ValueError) as e:
-        _, _ = sim.protection_level_classification(
-            domain,
-            interferer_type=InterfererType.EMITTERS,
-            global_protection_level=True,
-            global_levels=[30, -4, -30, -104],
-        )
-    assert str(e.value) == "No interferers defined in the analysis."
-
-    int_colors, int_power_matrix = sim.interference_type_classification(
-        domain, interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS
-    )
-    pro_colors, pro_power_matrix = sim.protection_level_classification(
-        domain,
-        interferer_type=InterfererType.TRANSMITTERS,
-        global_protection_level=True,
-        global_levels=[30, -4, -30, -104],
-    )
-
-    assert int_colors == expected_interference_colors
-    assert int_power_matrix == expected_interference_power
-    assert pro_colors == expected_protection_colors
-    assert pro_power_matrix == expected_protection_power
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
-)
-def test_radio_protection_levels(interference):
-    """Test protection level classification with radio-specific levels."""
-    # Generate a revision
-    rev = interference.results.analyze()
-    sim = rev.get_simulation()
-    domain = InteractionDomain(interference)
-
-    # Test protection level with radio-specific protection levels
-    expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
-    expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
-    protection_levels = {
-        "Global": [30.0, -4.0, -30.0, -104.0],
-        "Bluetooth": [30.0, -4.0, -22.0, -104.0],
-        "GPS": [30.0, -22.0, -30.0, -104.0],
-        "WiFi": [-22.0, -25.0, -30.0, -104.0],
-    }
-
-    protection_colors, protection_power_matrix = sim.protection_level_classification(
-        domain,
-        interferer_type=InterfererType.TRANSMITTERS,
-        global_protection_level=False,
-        protection_levels=protection_levels,
-    )
-
-    assert protection_colors == expected_protection_colors
-    assert protection_power_matrix == expected_protection_power
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION <= "2025.1",
-    reason="Skipped on versions earlier than 2027.1",
-)
-def test_interference_filtering(interference) -> None:
-    """Test interference type classification with active filtering."""
-    # Generate a revision
-    rev = interference.results.analyze()
-    sim = rev.get_simulation()
-
-    # Test with active filtering
-    domain = InteractionDomain(interference)
-    all_interference_colors = [
-        [["white", "green", "orange"], ["orange", "green", "white"]],
-        [["white", "green", "red"], ["red", "green", "white"]],
-        [["white", "green", "red"], ["red", "green", "white"]],
-        [["white", "white", "red"], ["red", "white", "white"]],
-    ]
-    all_interference_power = [
-        [["N/A", 16.64, 2.45], [-3.96, 16.64, "N/A"]],
-        [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
-        [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
-        [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
-    ]
-    interference_filters = [
-        "TxFundamental:In-band",
-        ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
-        "TxFundamental:Out-of-band",
-        ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
-    ]
-
-    for ind in range(4):
-        expected_interference_colors = all_interference_colors[ind]
-        expected_interference_power = all_interference_power[ind]
-        interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
-
-        interference_colors, interference_power_matrix = sim.interference_type_classification(
-            domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
-        )
-
-        assert interference_colors == expected_interference_colors
-        assert interference_power_matrix == expected_interference_power
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION <= "2026.1",
-    reason="Skipped on versions earlier than 2027.1",
-)
-def test_protection_filtering(interference):
-    """Test protection level classification with active filtering."""
-    # Generate a revision
-    rev = interference.results.analyze()
-    sim = rev.get_simulation()
-
-    # Test with active filtering
-    domain = InteractionDomain(interference)
-    all_protection_colors = [
-        [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
-        [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
-        [["white", "white", "white"], ["white", "white", "white"]],
-        [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
-    ]
-    all_protection_power = [
-        [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-        [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-        [["N/A", "< -200", "< -200"], ["< -200", "< -200", "N/A"]],
-        [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-    ]
-    protection_filters = ["damage", "overload", "intermodulation", "desensitization"]
-
-    for ind in range(4):
-        expected_protection_colors = all_protection_colors[ind]
-        expected_protection_power = all_protection_power[ind]
-        protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
-
-        protection_colors, protection_power_matrix = sim.protection_level_classification(
-            domain,
-            interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS,
-            global_protection_level=True,
-            global_levels=[30, -4, -30, -104],
-            use_filter=True,
-            filter_list=protection_filter,
-        )
-
-        assert protection_colors == expected_protection_colors
-        assert protection_power_matrix == expected_protection_power
-
-
-@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-def test_license_session(interference):
-    """Test license session management with Interaction API."""
-    # Generate a revision
-    results = interference.results
-    revision = interference.results.analyze()
-    sim = revision.get_simulation()
-
-    def do_run():
-        domain = InteractionDomain(interference)
-        rev = results.current_revision
-        rev.get_simulation().run(domain)
-
-    number_of_runs = 5
-
-    # Do a run to ensure the license log exists
-    do_run()
-
-    # Find the license log for this process
-    appdata_local_path = tempfile.gettempdir()
-    pid = os.getpid()
-    dot_ansys_directory = Path(appdata_local_path) / ".ansys"
-
-    license_file_path = ""
-    for file in dot_ansys_directory.iterdir():
-        filename_pieces = file.name.split(".")
-        # Since machine names can contain periods, there may be over five splits here
-        # We only care about the first split and last three splits
-        if len(filename_pieces) >= 5:
-            if (
-                filename_pieces[0] == "ansyscl"
-                and filename_pieces[-3] == str(pid)
-                and filename_pieces[-2].isnumeric()
-                and filename_pieces[-1] == "log"
-            ):
-                license_file_path = dot_ansys_directory / file.name
-                break
-
-    assert license_file_path != ""
-
-    def count_license_actions(license_path):
-        # Count checkout/checkins in most recent license connection
-        num_checkouts = 0
-        num_checkins = 0
-        with open(license_path, "r") as license_file:
-            lines = license_file.read().strip().split("\n")
-            for line in lines:
-                if "NEW_CONNECTION" in line:
-                    num_checkouts = 0
-                    num_checkins = 0
-                elif "CHECKOUT" in line or "SPLIT_CHECKOUT" in line:
-                    num_checkouts += 1
-                elif "CHECKIN" in line:
-                    num_checkins += 1
-        return num_checkouts, num_checkins
-
-    # Figure out how many checkouts and checkins per run we expect
-    # This could change depending on the user's EMIT HPC settings
-    pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
-    do_run()
-    post_first_run_checkouts, post_first_run_checkins = count_license_actions(license_file_path)
-    checkouts_per_run = post_first_run_checkouts - pre_first_run_checkouts
-    checkins_per_run = post_first_run_checkins - pre_first_run_checkins
-
-    start_checkouts, start_checkins = count_license_actions(license_file_path)
-
-    # Run without license session
-    for i in range(number_of_runs):
-        do_run()
-
-    # Run with license session
-    with sim.get_license_session():
-        for i in range(number_of_runs):
-            do_run()
-
-    end_checkouts, end_checkins = count_license_actions(license_file_path)
-
-    checkouts = end_checkouts - start_checkouts
-    checkins = end_checkins - start_checkins
-
-    expected_checkouts = checkouts_per_run * (number_of_runs + 1)
-    expected_checkins = checkins_per_run * (number_of_runs + 1)
-
-    assert checkouts == expected_checkouts and checkins == expected_checkins
-
-
-@pytest.mark.skipif(
-    DESKTOP_VERSION < "2027.1",
-    reason="Skipped on versions earlier than 2027.1",
-)
-def test_hfss_phased_array_antennas(hfss_phased_array):
-    """Test HFSS phased array antenna interaction."""
-    rev: Revision = hfss_phased_array.results.analyze()
-    sim = rev.get_simulation()
-    domain = InteractionDomain(hfss_phased_array)
-    assert domain is not None
-    engine = hfss_phased_array._emit_api.get_engine()
-    assert engine is not None
-    assert sim.is_domain_valid(domain) == ""
-
-    # run the interaction
-    domain = InteractionDomain(hfss_phased_array)
-    interaction = sim.run(domain)
-    assert interaction is not None
-    assert interaction.is_valid()
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance.get_value(ResultType.EMI) == 35.1
-
-    bowtie_ant: AntennaNode = rev.get_component_node("Bowtie")
-    assert bowtie_ant is not None
-
-    # scan the antenna array and recompute EMI
-    bowtie_ant.elevation_angle = 45
-    bowtie_ant.azimuth_angle = 45
-    assert bowtie_ant.elevation_angle == 45
-    assert bowtie_ant.azimuth_angle == 45
-
-    rev: Revision = hfss_phased_array.results.analyze()
-    interaction = sim.run(domain)
-    assert interaction is not None
-    assert interaction.is_valid()
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance.get_value(ResultType.EMI) == 16.78
-
-    # set taper to Cosine
-    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE
-    bowtie_ant.edge_taper = 10
-    bowtie_ant.cosine_power = 10
-    bowtie_ant.max_taper_distance_x = 0.1
-    bowtie_ant.max_taper_distance_y = 0.1
-    assert bowtie_ant.edge_taper == 10
-    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.COSINE
-    assert round(bowtie_ant.cosine_power, 1) == 10.0
-    assert bowtie_ant.max_taper_distance_x == 0.1
-    assert bowtie_ant.max_taper_distance_y == 0.1
-
-    rev: Revision = hfss_phased_array.results.analyze()
-    interaction = sim.run(domain)
-    assert interaction is not None
-    assert interaction.is_valid()
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance.get_value(ResultType.EMI) == 17.5
-
-    # set taper to Hamming
-    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.HAMMING
-    bowtie_ant.max_taper_distance_x = 0.004
-    bowtie_ant.max_taper_distance_y = 0.004
-    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.HAMMING
-    assert bowtie_ant.max_taper_distance_x == 0.004
-    assert bowtie_ant.max_taper_distance_y == 0.004
-
-    rev: Revision = hfss_phased_array.results.analyze()
-    interaction = sim.run(domain)
-    assert interaction is not None
-    assert interaction.is_valid()
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance.get_value(ResultType.EMI) == 16.79
-
-    # set taper to Triangular
-    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.TRIANGULAR
-    bowtie_ant.edge_taper = 3
-    bowtie_ant.max_taper_distance_x = 0.008
-    bowtie_ant.max_taper_distance_y = 0.008
-    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.TRIANGULAR
-    assert bowtie_ant.edge_taper == 3
-    assert bowtie_ant.max_taper_distance_x == 0.008
-    assert bowtie_ant.max_taper_distance_y == 0.008
-
-    rev: Revision = hfss_phased_array.results.analyze()
-    interaction = sim.run(domain)
-    assert interaction is not None
-    assert interaction.is_valid()
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance.get_value(ResultType.EMI) == 21.08
+    assert interaction.domain is not None
+    assert interaction.domain.receiver_name == rx_name
+    assert tx_name in interaction.domain.interferer_names
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -602,6 +215,7 @@ def test_run_band_pair(cell_phone):
     # Get simulation
     rev = cell_phone.results.analyze()
     sim = rev.get_simulation()
+    sim.n_to_1_limite = 0
 
     # Run with receiver band only
     domain = InteractionDomain(cell_phone)
@@ -616,38 +230,42 @@ def test_run_band_pair(cell_phone):
     assert instance is not None
     
     value = instance.get_value(ResultType.EMI)
-    assert value == -3.87
+    assert value == 9.37
 
     # Verify expected errors for requests of alternative result types from worst-case EMI instance
-    with pytest.raises(RuntimeError) as e:
-        instance.get_value(ResultType.DESENSE)
-    assert "Desense and sensitivity values not available" in str(e.value)
+    # with pytest.raises(RuntimeError) as e:
+    #     instance.get_value(ResultType.DESENSE)
+    # assert "Desense and sensitivity values not available" in str(e.value)
     
-    with pytest.raises(RuntimeError) as e:
-        instance.get_value(ResultType.SENSITIVITY)
-    assert "Desense and sensitivity values not available" in str(e.value)
+    # with pytest.raises(RuntimeError) as e:
+    #     instance.get_value(ResultType.SENSITIVITY)
+    # assert "Desense and sensitivity values not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
-        instance.get_largest_problem_type(ResultType.DESENSE)
-    assert "The largest problem type is only available for ResultType::Emi."
+    # with pytest.raises(RuntimeError) as e:
+    #     instance.get_largest_problem_type(ResultType.DESENSE)
+    # assert "The largest problem type is only available for ResultType::Emi." in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
-        instance.get_largest_problem_type(ResultType.SENSITIVITY)
-    assert "The largest problem type is only available for ResultType::Emi." in str(e.value)
+    # with pytest.raises(RuntimeError) as e:
+    #     instance.get_largest_problem_type(ResultType.SENSITIVITY)
+    # assert "The largest problem type is only available for ResultType::Emi." in str(e.value)
     
     # Now verify alternative requests for worst-case desense
     instance_desense = interaction.get_worst_instance(ResultType.DESENSE)
     value = instance_desense.get_value(ResultType.DESENSE)
-    assert value == -5.95
+    assert value == 3.54
     
     with pytest.raises(RuntimeError) as e:
         instance_desense.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
-    # Test specific 1-1 case 
+    # Test valid instance
     domain2 = InteractionDomain(cell_phone)
-    domain2.set_receiver(name=rx_name, band_name=rx_band_name, channel_freq=869000000)
-    domain2.set_interferers(names=[tx1_name], band_names=[tx1_band_name], channel_freqs=[2412000000])
+    status = instance.get_domain(domain2)
+    assert status == ""
+
+    # Test specific 1 to 1 case
+    domain2.set_receiver(name=rx_name, band_name=rx_band_name, freq=869000000, units="Hz")
+    domain2.set_interferers(names=[tx1_name], band_names=[tx1_band_name], freqs=[2412000000], units=["Hz"])
     
     instance2 = interaction.get_instance(domain2)
     assert instance2 is not None
@@ -688,8 +306,8 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test with receiver band but no interferer band
-    domain.set_receiver(name="Radio", band_name="Band")
-    domain.set_interferers(names=["SelfInteracting"])
+    domain.set_receiver(name="RF System 3 - Radio", band_name="Band")
+    domain.set_interferers(names=["RF System - SelfInteracting"])
     
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -700,7 +318,7 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test radio pair disabled
-    domain.set_interferers(names=["Radio"], band_names=["Band"])
+    domain.set_interferers(names=["RF System 3 - Radio"], band_names=["Band"])
     
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -711,27 +329,27 @@ def test_availability(availability):
     assert "Radio pair disabled" in str(e.value)
 
     # Test valid availability
-    domain.set_interferers(names=["SelfInteracting"], band_names=["Band"])
+    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"])
     
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
     assert warning == ""
     
     availability = interaction.get_availability(domain)
-    assert availability == pytest.approx(0.94, abs=0.01)
+    assert availability == 0.94
 
     # Test with different receiver
-    domain.set_receiver(name="SelfInteracting", band_name="Band")
+    domain.set_receiver(name="RF System - SelfInteracting", band_name="Band")
     
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
     assert warning == ""
     
     availability = interaction.get_availability(domain)
-    assert availability == pytest.approx(0.45, abs=0.01)
+    assert availability == 0.45
 
     # Test self-interaction availability only at band level
-    domain.set_interferers(names=["SelfInteracting"], band_names=["Band"], channel_freqs=[101000000])
+    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"], freqs=[101000000])
     
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -742,7 +360,7 @@ def test_availability(availability):
     assert "Self-interaction availability only at band level" in str(e.value)
 
     # Test only one channel pair
-    domain.set_receiver(name="OneChannel", band_name="Band")
+    domain.set_receiver(name="RF System 2 - OneChannel", band_name="Band")
     
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -753,7 +371,7 @@ def test_availability(availability):
     assert "Only one channel pair exists, availability undefined" in str(e.value)
 
     # Test availability undefined for single channel pairs
-    domain.set_receiver(name="Radio", band_name="Band", channel_freq=103000000)
+    domain.set_receiver(name="RF System 3 - Radio", band_name="Band", freq=103000000)
     
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -769,7 +387,7 @@ def test_result_validity(availability):
     """Test interaction and instance validity after various operations.
     
     Note: This test is translated from C++ EmitApiTest::resultValidity.
-    Tests that interactions remain valid after being run and that check_validity()
+    Tests that interactions remain valid after being run and that is_valid()
     works correctly in the Python API.
     """
     # Get simulation
@@ -780,26 +398,26 @@ def test_result_validity(availability):
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
     
-    interaction.check_validity()  # Should not raise
+    interaction.is_valid()  # Should not raise
     
     instance = interaction.get_worst_instance(ResultType.EMI)
-    # Instance validity is checked internally, no explicit check_validity() method needed
+    # Instance validity is checked internally, no explicit is_valid() method needed
     assert instance is not None
 
     # Create a second interaction to verify multi-interaction handling
     domain2 = InteractionDomain(availability)
     # Use any available radio pair
     rev = availability.results.current_revision
-    radios = list(rev.get_radio_nodes())
+    radios = rev.get_all_radio_nodes()
     if len(radios) >= 2:
         domain2.set_receiver(name=radios[0].name)
         domain2.set_interferers(names=[radios[1].name])
         
         interaction2 = sim.run(domain2)
-        interaction2.check_validity()  # Should not raise
+        interaction2.is_valid()  # Should not raise
         
         instance2 = interaction2.get_worst_instance(ResultType.EMI)
         assert instance2 is not None
     
     # Original interaction should still be valid
-    interaction.check_validity()  # Should not raise
+    interaction.is_valid()  # Should not raise

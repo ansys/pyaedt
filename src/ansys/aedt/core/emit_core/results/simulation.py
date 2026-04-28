@@ -374,8 +374,12 @@ class Simulation:
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.get_emi_category_filter_enabled(category)
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_emi_category_filter_enabled(category)
+        else:
+            return bool(self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
+                self._revision.results_index, int(category)))
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -388,8 +392,12 @@ class Simulation:
         enabled : bool
             Whether to enable the EMI category filter.
         """
-        engine = self._revision.emit_project._emit_api.get_engine()
-        engine.set_emi_category_filter_enabled(category, enabled)
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_emi_category_filter_enabled(category, enabled)
+        else:
+            self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
+                self._revision.results_index, int(category), enabled)
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")

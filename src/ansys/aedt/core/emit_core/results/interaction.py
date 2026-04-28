@@ -61,9 +61,8 @@ class Interaction:
         RuntimeError
             If the worst case instance cannot be retrieved.
         """
-        error = self.check_validity()
-        if error != "":
-            raise RuntimeError(f"Worst case instance cannot be retrieved: {error}")
+        # Validate the interaction before proceeding
+        self.validate()
 
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
@@ -85,19 +84,23 @@ class Interaction:
         )
         
         # The COM method returns a pipe-delimited string:
-        # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...
+        # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...|encodedValue|worstIntCat
         # Empty string means no worst instance was found.
         if not result_data:
             warnings.warn("No worst case instance found.")
             return None
         
         parts = str(result_data).split("|")
-        if len(parts) < 3 or not parts[0]:
+        if len(parts) < 5 or not parts[0]:
             warnings.warn("No worst case instance found.")
             return None
 
-        # Unpack RX fields and remaining TX flat-list: rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...
-        rx_radio, rx_band, rx_freq_str, *tx_parts = parts
+        # Last two fields are always encodedValue and worstIntCat
+        rx_radio, rx_band, rx_freq_str, *middle_and_tail = parts
+        worst_int_cat = int(middle_and_tail.pop())
+        encoded_value = int(middle_and_tail.pop())
+        tx_parts = middle_and_tail
+
         worst_domain = InteractionDomain(self.emit_project)
         worst_domain.set_receiver(rx_radio, rx_band, float(rx_freq_str), "Hz")
 
@@ -110,8 +113,19 @@ class Interaction:
             tx_radios, tx_bands, tx_freq_strs = zip(*tx_entries)
             worst_domain.set_interferers(list(tx_radios), list(tx_bands), [float(f) for f in tx_freq_strs], "Hz")
 
-        # Retrieve the instance data for the worst-case domain
-        return self.get_instance(worst_domain)
+        if len(tx_entries) == 1:
+            # 1-to-1: call get_instance for full values (both EMI and desense)
+            return self.get_instance(worst_domain)
+        else:
+            # N-to-1: GetInstance doesn't support multiple interferers,
+            # so use the encoded value returned by GetWorstInstance directly
+            instance = InteractionInstance(self.emit_project, worst_domain)
+            if result_type == ResultType.EMI:
+                instance.encoded_emi = encoded_value
+                instance.largest_emi_interferer_type = worst_int_cat
+            else:
+                instance.encoded_desense = encoded_value
+            return instance
     
 
     # def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
@@ -387,8 +401,34 @@ class Interaction:
             The interaction domain.
         """
         return self.domain
+    
+    def is_valid(self) -> bool:
+        """Check if this interaction is valid.
+        
+        The associated domain must be valid and results must exist for the interaction.
+        
+        Returns
+        -------
+        bool
+            True if the interaction is valid, False otherwise.
+        """
+        return self._check_validity() == ""
+    
+    def validate(self) -> None:
+        """Validate this interaction, raising an exception if invalid.
+        
+        The associated domain must be valid and results must exist for the interaction.
+        
+        Raises
+        ------
+        ValueError
+            If the interaction is not valid, with details on why.
+        """
+        error = self._check_validity()
+        if error:
+            raise ValueError(error)
 
-    def check_validity(self) -> str:
+    def _check_validity(self) -> str:
         """Check if this interaction is valid. The associated domain must be valid and results must exist for the interaction.
         
         Returns
@@ -396,46 +436,15 @@ class Interaction:
         str
             Empty string if valid, error message otherwise.
         """
-        error = self._check_results_exist()
-        if not error:
-            return f"Interaction is not valid. The interaction results do not exist: {error}"
-        
         error = self.current_revision.get_simulation().is_domain_valid(self.domain)
         if error:
             return f"Interaction is not valid. The domain is invalid: {error}"
+        
+        error = self._check_results_exist()
+        if not error:
+            return f"Interaction is not valid. The interaction results do not exist: {error}"
         return ""
     
-
-    def check_valid_radio_analysis(self, rx_radio_node: RadioNode, tx_radio_node: RadioNode) -> str:
-        """Check if the radio pair is valid for analysis.
-        
-        Parameters
-        ----------
-        rx_radio_node : RadioNode
-            The receiver radio node.
-        tx_radio_node : RadioNode
-            The transmitter radio node.
-            
-        Returns
-        -------
-        str
-            Empty string if valid, error message otherwise.
-        """
-        # Check that both radio nodes exist
-        if rx_radio_node is None:
-            return "Receiver radio node is None."
-        if tx_radio_node is None:
-            return "Transmitter radio node is None."
-        
-        # Check that both radios are enabled
-        if not hasattr(rx_radio_node, 'enabled') or not rx_radio_node.enabled:
-            return "Receiver radio is not enabled."
-        if not hasattr(tx_radio_node, 'enabled') or not tx_radio_node.enabled:
-            return "Transmitter radio is not enabled."
-        
-        # Additional validation can be added here based on radio types
-        # For now, basic validation passes
-        return ""
 
     def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
         """Check if simulation results exist for the given domain.

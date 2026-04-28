@@ -94,8 +94,8 @@ class InteractionInstance:
         """Current active Revision. Always reflects the active revision from the project."""
         return self.emit_project.results.current_revision
 
-    def get_results_warning(self) -> str:
-        """Get the results warning for this interaction.
+    def get_result_warning(self) -> str:
+        """Get the result warning for this interaction.
         
         Returns
         -------
@@ -103,13 +103,31 @@ class InteractionInstance:
             The warning message if values are invalid, empty string otherwise.
         """
         if not self.has_valid_values():
-            # Map encoded values to warning messages
-            if self._encoded_emi == -32760:
+            # Map encoded values to warning messages (matches SimulationNode::resultMessage)
+            if self._encoded_emi == -32768:
+                return "Nothing to run."
+            elif self._encoded_emi == -32760:
                 return "Radio pair disabled."
+            elif self._encoded_emi == -32751:
+                return "Channel level results only available for Channel/Band pairs."
+            elif self._encoded_emi == -32750:
+                return "Not yet run."
+            elif self._encoded_emi == -32748:
+                return "Unallowable Tx/Rx channel combination."
+            elif self._encoded_emi == -32742:
+                return "No power received."
+            elif self._encoded_emi == -32740:
+                return "No path from Tx to Rx."
+            elif self._encoded_emi == 30001:
+                return "Greater than 300 dB."
+            elif self._encoded_emi == -30001:
+                return "Less than -300 dB."
+            elif self._encoded_emi == 30020:
+                return "An amplifier was saturated."
             elif self._encoded_emi == 30100:
                 return "Error in configuration."
             elif self._encoded_emi == 30200:
-                return "An amplifier was saturated."
+                return "N to 1 results not available in Scenario Details."
             elif self._encoded_emi == 30201:
                 return "Result not available."
             elif self._encoded_emi > 30000 or self._encoded_emi < -30000:
@@ -148,48 +166,49 @@ class InteractionInstance:
         ------
         RuntimeError
             If the interaction is invalid or values are not available.
-        ValueError
-            If the result type is invalid or values cannot be computed.
         """
-        # Get encoded result based on type
-        if result_type == ResultType.EMI:
-            if self.encoded_emi == 30201:
-                raise RuntimeError("EMI value not available.")
-            encoded_result = self.encoded_emi
-        else:
-            if self.encoded_desense == 30201:
-                raise RuntimeError("Desense and sensitivity values not available.")
-            encoded_result = self.encoded_desense
-
-        # Check for out-of-range encoded results (except for PowerAtRx)
-        if encoded_result > 30000 or encoded_result < -30000:
-            warning = self.get_results_warning()
-            error_msg = f"Unable to evaluate value: {warning if warning else encoded_result}."
-            raise RuntimeError(error_msg)
-
-        if result_type == ResultType.EMI or result_type == ResultType.DESENSE:
-            val = encoded_result / 100.0
-        elif result_type == ResultType.SENSITIVITY:
-            sim = self.current_revision.get_simulation()
-            status = sim.is_domain_valid(self.domain)
-            if status != "":
-                raise RuntimeError(status)
-            val = encoded_result / 100.0  # desense
-            rx_band: Band = self.current_revision.get_band_node(self.domain.receiver_band_name)
-            if rx_band is None:
-                raise RuntimeError(f"Could not find the band {self.domain.receiver_band_name} for the receiver.")
-            rx_sus_prof: RxSusceptibilityProfNode = next(
-                (child for child in rx_band.children if child.node_type == "RxSusceptibilityProfNode"), None
-            )
-            if rx_sus_prof is None:
-                raise RuntimeError(f"Could not find RxSusceptibilityProfNode for band {self.domain.receiver_band_name}.")
-            # Property confirmed correct by user
-            val = rx_sus_prof.receiver_sensitivity + max(val, 0)
-        elif result_type == ResultType.POWER_AT_RX:
-            # Power at RX value - must be populated when instance is created
+        # PowerAtRx uses a separate compute path (DetailedResult), not encoded values.
+        # Like the old C++ InteractionInstancePrivate, we lazily compute it on demand.
+        if result_type == ResultType.POWER_AT_RX:
             if self._power_at_rx == -200.0:
-                raise RuntimeError("Power at RX value not available. Instance may not have been fully populated.")
+                self._fetch_power_at_rx()
             val = self._power_at_rx
+        else:
+            # Get encoded result based on type
+            if result_type == ResultType.EMI:
+                if self.encoded_emi == 30201:
+                    raise RuntimeError("EMI value not available.")
+                encoded_result = self.encoded_emi
+            else:
+                if self.encoded_desense == 30201:
+                    raise RuntimeError("Desense and sensitivity values not available.")
+                encoded_result = self.encoded_desense
+
+            # Check for out-of-range encoded results
+            if encoded_result > 30000 or encoded_result < -30000:
+                warning = self.get_result_warning()
+                error_msg = f"Unable to evaluate value: {warning if warning else encoded_result}."
+                raise RuntimeError(error_msg)
+
+            if result_type == ResultType.EMI or result_type == ResultType.DESENSE:
+                val = encoded_result / 100.0
+            elif result_type == ResultType.SENSITIVITY:
+                sim = self.current_revision.get_simulation()
+                status = sim.is_domain_valid(self.domain)
+                if status != "":
+                    raise RuntimeError(status)
+                val = encoded_result / 100.0  # desense
+                rx_band: Band = self.current_revision.get_band_node(self.domain.receiver_band_name)
+                if rx_band is None:
+                    raise RuntimeError(f"Could not find the band {self.domain.receiver_band_name} for the receiver.")
+                rx_sus_prof: RxSusceptibilityProfNode = next(
+                    (child for child in rx_band.children if child.node_type == "RxSusceptibilityProfNode"), None
+                )
+                if rx_sus_prof is None:
+                    raise RuntimeError(
+                        f"Could not find RxSusceptibilityProfNode for band {self.domain.receiver_band_name}."
+                    )
+                val = rx_sus_prof.receiver_sensitivity + max(val, 0)
 
         # Round to the nearest 2 decimal places
         if val < 0:
@@ -231,9 +250,14 @@ class InteractionInstance:
         -------
         text: str
             The largest EMI problem type for this interaction.
+
+        Raises
+        ------
+        RuntimeError
+            If the interaction is invalid or values are not available.
         """
         if not self.has_valid_values():
-            raise ValueError("An EMI value is not available so the largest EMI problem type is undefined.")
+            raise RuntimeError("An EMI value is not available so the largest EMI problem type is undefined.")
 
         if self.largest_emi_interferer_type == 0:
             text = "Out-of-Channel: Tx Fundamental"
@@ -263,6 +287,26 @@ class InteractionInstance:
         """
         return self.domain
 
+    def _fetch_power_at_rx(self):
+        """Lazily fetch power at Rx via the GetPowerAtRx COM/gRPC call.
+
+        Mirrors the old C++ InteractionInstancePrivate behavior where
+        DetailedResult::run() was called on demand inside getValue(PowerAtRx).
+        """
+        try:
+            power_at_rx = self.emit_project._emit_com_module.GetPowerAtRx(
+                self.emit_project.results.current_revision.results_index,
+                self.domain.receiver_name,
+                self.domain.receiver_band_name,
+                self.domain.receiver_channel_frequency,
+                self.domain.interferer_names,
+                self.domain.interferer_band_names,
+                self.domain.interferer_channel_frequencies,
+            )
+            self._power_at_rx = float(power_at_rx)
+        except Exception:
+            pass  # stays at -200.0
+
     def check_validity(self) -> None:
         """Check if this interaction instance is still valid.
         
@@ -273,5 +317,5 @@ class InteractionInstance:
         """
         # Check if the encoded values are within valid range
         if not self.has_valid_values():
-            warning = self.get_results_warning()
+            warning = self.get_result_warning()
             raise RuntimeError(f"InteractionInstance has invalid values: {warning}")
