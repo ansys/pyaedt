@@ -7937,13 +7937,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             phi_values = []
             theta_units = r_te.units_sweeps[theta_name]
             phi_units = r_te.units_sweeps[phi_name]
+            new_phi = None
             for var in r_te.variations:
                 theta = var[theta_name]
                 phi = var[phi_name]
 
                 phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
                 z = np.exp(1j * phi_plus_180)
-                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0),360),6)
+                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6)
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
@@ -7951,13 +7952,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     theta_fp_round = np.round(abs(theta), 6)
 
                     key = f"{new_phi}{phi_units}"
-                    if key not in angles:
-                        angles.setdefault(key, []).append(theta_fp_round)
-                    elif theta_fp_round not in angles.get(key):
-                        angles.setdefault(key, []).append(theta_fp_round)
+                    if theta_fp_round not in angles.setdefault(key, []):
+                        angles[key].append(theta_fp_round)
 
                     if theta_max < theta_fp_round <= 90.0:
                         theta_max = theta_fp_round
+
+            if new_phi is None:
+                raise AEDTRuntimeError("No variations found. Cannot compute phi/theta sweep data.")
 
             # Reorder Phi angles to ensure they are in ascending order
             angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
@@ -8254,12 +8256,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0: # and not is_360_defined:
+                                if phi_q.value == 0.0:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
-                #if not is_360_defined:
                 for phi_360_str in write_360:
                     ofile.write(phi_360_str)
 
