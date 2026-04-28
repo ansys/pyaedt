@@ -49,6 +49,8 @@ def mock_emit_environment():
         mock_design.GetName.return_value = "TestDesign"
 
         mock_desktop_instance = MagicMock()
+        mock_desktop_instance.active_project_name = "TestProject"
+        mock_desktop_instance.active_design_name = "TestDesign"
         mock_desktop_instance.active_project.return_value = mock_project
         mock_desktop_instance.active_design.return_value = mock_design
         mock_desktop.return_value = mock_desktop_instance

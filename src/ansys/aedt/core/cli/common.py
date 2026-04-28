@@ -22,12 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import getpass
+from contextlib import suppress
 import json
 from pathlib import Path
-import platform
-
-import psutil
 
 try:
     import typer
@@ -37,7 +34,147 @@ except ImportError as e:  # pragma: no cover
     msg = install_message("typer", "all", level="module")
     raise ImportError(msg) from e
 
-# Default configuration for local_config.json
+# ---------------------------------------------------------------------------
+# JSON output mode
+# ---------------------------------------------------------------------------
+
+json_mode = False
+
+
+def print_output(data=None, error=None):
+    """Print structured output. In JSON mode prints JSON; in human mode does nothing."""
+    if not json_mode:
+        return
+    if error:
+        typer.echo(json.dumps({"status": "error", "error": str(error)}))
+    else:
+        typer.echo(json.dumps({"status": "ok", "data": data}))
+
+
+def get_desktop(port: int):
+    """
+    Connect to a running AEDT instance by gRPC port.
+
+    Parameters
+    ----------
+    port : int
+        gRPC port of the AEDT instance.
+
+    """
+    if port is None:
+        if json_mode:
+            print_output(error="--port is required.")
+        else:
+            typer.secho("--port is required.", fg="red")
+        raise typer.Exit(code=1)
+
+    from ansys.aedt.core import settings
+    from ansys.aedt.core.desktop import Desktop
+
+    settings.enable_logger = False
+    d = Desktop(
+        port=port,
+        new_desktop=False,
+        close_on_exit=False,
+    )
+    return d
+
+
+def get_project_designs(desktop, project_name: str) -> list[dict]:
+    """Return the designs available in a project."""
+    designs = []
+    for design_name in desktop.design_list(project_name):
+        design_type = desktop.design_type(project_name=project_name, design_name=design_name)
+        designs.append({"name": design_name, "type": design_type or None})
+    return designs
+
+
+def list_projects_with_designs(desktop) -> list[dict]:
+    """Return all open projects together with their designs."""
+    project_names = list(desktop.project_list)
+    active_project_name = desktop.active_project_name
+    active_design_name = desktop.active_design_name
+    projects = []
+
+    try:
+        for project_name in project_names:
+            designs = get_project_designs(desktop, project_name)
+            projects.append({"name": project_name, "designs": designs, "count": len(designs)})
+    finally:
+        if active_project_name:
+            restored_project = desktop.active_project(active_project_name)
+            if restored_project and active_design_name:
+                with suppress(Exception):
+                    desktop.active_design(restored_project, active_design_name)
+
+    return projects
+
+
+def resolve_project(desktop, project_name: str | None = None):
+    """Resolve a project, requiring an explicit choice when multiple are open."""
+    project_names = list(desktop.project_list)
+
+    if project_name:
+        if project_name not in project_names:
+            raise RuntimeError(f"Project '{project_name}' is not open in the AEDT instance.")
+        project = desktop.active_project(project_name)
+        if not project:
+            raise RuntimeError(f"Project '{project_name}' could not be activated.")
+        return project
+
+    if not project_names:
+        raise RuntimeError("No projects are open in the AEDT instance.")
+    if len(project_names) > 1:
+        raise RuntimeError("Multiple projects are open. Provide --project to select one.")
+
+    project = desktop.active_project(project_names[0])
+    if not project:
+        raise RuntimeError(f"Project '{project_names[0]}' could not be activated.")
+    return project
+
+
+def resolve_project_and_design(desktop, project_name: str | None = None, design_name: str | None = None) -> dict:
+    """Resolve a unique project and design selection for design-scoped commands."""
+    project = resolve_project(desktop, project_name=project_name)
+    resolved_project_name = project.GetName()
+    designs = get_project_designs(desktop, resolved_project_name)
+    design_names = [design["name"] for design in designs]
+
+    if design_name:
+        if design_name not in design_names:
+            raise RuntimeError(f"Design '{design_name}' is not present in project '{resolved_project_name}'.")
+        design = desktop.active_design(project, design_name)
+        if not design:
+            raise RuntimeError(f"Design '{design_name}' could not be activated in project '{resolved_project_name}'.")
+        resolved_design_name = design_name
+    else:
+        if not design_names:
+            raise RuntimeError(f"Project '{resolved_project_name}' does not contain any designs.")
+        if len(design_names) > 1:
+            raise RuntimeError(
+                f"Project '{resolved_project_name}' contains multiple designs. Provide --design to select one."
+            )
+        resolved_design_name = design_names[0]
+        desktop.active_design(project, resolved_design_name)
+
+    return {"project": resolved_project_name, "design": resolved_design_name}
+
+
+def get_design_app(port: int, project_name: str | None = None, design_name: str | None = None):
+    """Return a Desktop and PyAEDT app for the resolved project and design."""
+    import ansys.aedt.core as aedt
+
+    aedt.settings.enable_logger = False
+    desktop = get_desktop(port=port)
+    context = resolve_project_and_design(desktop, project_name=project_name, design_name=design_name)
+    app = aedt.get_pyaedt_app(project_name=context["project"], design_name=context["design"], desktop=desktop)
+    return desktop, app, context
+
+
+# ---------------------------------------------------------------------------
+# Test configuration helpers
+# ---------------------------------------------------------------------------
+
 DEFAULT_TEST_CONFIG = {
     "desktopVersion": "2026.1",
     "NonGraphical": True,
@@ -48,10 +185,11 @@ DEFAULT_TEST_CONFIG = {
     "use_local_example_data": False,
     "local_example_folder": "",
     "skip_modelithics": True,
+    "use_pyedb_grpc": True,
 }
 
 
-def _get_tests_folder() -> Path:
+def get_tests_folder() -> Path:
     """Find the tests folder in the repository.
 
     Returns
@@ -75,7 +213,7 @@ def _get_tests_folder() -> Path:
     return cwd / "tests"
 
 
-def _load_config(config_path: Path) -> dict:
+def load_config(config_path: Path) -> dict:
     """Load configuration from JSON file.
 
     Parameters
@@ -97,7 +235,7 @@ def _load_config(config_path: Path) -> dict:
         return DEFAULT_TEST_CONFIG.copy()
 
 
-def _save_config(config_path: Path, config: dict) -> None:
+def save_config(config_path: Path, config: dict) -> None:
     """Save configuration to JSON file.
 
     Parameters
@@ -113,7 +251,7 @@ def _save_config(config_path: Path, config: dict) -> None:
         json.dump(config, f, indent=4)
 
 
-def _prompt_config_value(key: str, current_value) -> any:
+def prompt_config_value(key: str, current_value) -> any:
     """Prompt user to modify a configuration value.
 
     Parameters
@@ -150,7 +288,7 @@ def _prompt_config_value(key: str, current_value) -> any:
                 if re.match(r"^\d{4}\.\d$", new_value):
                     return new_value
                 else:
-                    typer.secho("      ✗ Invalid format. Please use YYYY.R (e.g., 2026.1)", fg="red")
+                    typer.secho("      Invalid format. Please use YYYY.R (e.g., 2026.1)", fg="red")
                     typer.echo("      ", nl=False)
         else:
             new_value = typer.prompt("New value", default=current_value, show_default=False)
@@ -163,7 +301,7 @@ def _prompt_config_value(key: str, current_value) -> any:
         return current_value
 
 
-def _display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
+def display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
     """Display configuration in a pretty formatted way.
 
     Parameters
@@ -203,122 +341,3 @@ def _display_config(config: dict, title: str = "Configuration", descriptions: di
             typer.secho(f"    {desc}", fg="bright_black")
 
     typer.echo()
-
-
-def _is_valid_process(proc: psutil.Process) -> bool:
-    """Check if a process is a valid AEDT process.
-
-    Parameters
-    ----------
-    proc : psutil.Process
-        Process to check
-
-    Returns
-    -------
-    bool
-        True if process is a valid running AEDT process
-    """
-    valid_status = proc.status() in [
-        psutil.STATUS_RUNNING,
-        psutil.STATUS_IDLE,
-        psutil.STATUS_SLEEPING,
-    ]
-
-    proc_name = proc.name().lower()
-    valid_ansysem_process = proc_name in ("ansysedt.exe", "ansysedt")
-    return valid_status and valid_ansysem_process
-
-
-def _find_aedt_processes() -> list[psutil.Process]:
-    """Discover running AEDT-related processes on the system.
-
-    Returns
-    -------
-    list[psutil.Process]
-        List of AEDT processes
-    """
-    aedt_processes = []
-
-    for proc in psutil.process_iter():
-        try:
-            if _is_valid_process(proc):
-                aedt_processes.append(proc)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-
-    return aedt_processes
-
-
-def _can_access_process(proc: psutil.Process) -> bool:
-    """Check if we have permission to access and kill a process.
-
-    Returns True if:
-    1. We can access the process information (no AccessDenied)
-    2. The process belongs to the current user
-
-    Parameters
-    ----------
-    proc : psutil.Process
-        The process to check
-
-    Returns
-    -------
-    bool
-        True if we can safely access and kill the process
-    """
-    try:
-        # Check if we can access basic process info and if it belongs to current user
-        current_user = getpass.getuser().lower()
-        process_user = proc.username().lower()
-        # Handle Windows domain format (DOMAIN\username)
-        if platform.system() == "Windows" and "\\" in process_user:
-            return current_user == process_user.split("\\")[-1]
-        return current_user == process_user
-    except (psutil.AccessDenied, psutil.NoSuchProcess):
-        # Cannot access process or process doesn't exist
-        return False
-
-
-def _get_port(proc: psutil.Process) -> int | None:
-    """Get the listening port for a given AEDT process.
-
-    Parameters
-    ----------
-    proc : psutil.Process
-        The AEDT process
-
-    Returns
-    -------
-    int | None
-        The listening port, or None if not found
-    """
-    res = None
-    cmd_line = proc.cmdline()
-    if "-grpcsrv" in cmd_line:
-        res = int(cmd_line[cmd_line.index("-grpcsrv") + 1])
-    else:
-        if hasattr(psutil, "net_connections"):
-            prc_connections = psutil.net_connections()
-        else:  # pragma: no cover
-            prc_connections = psutil.connections()
-
-        # Look in the typical port range for AEDT
-        for i in prc_connections:
-            if i.pid == proc.pid and i.status == "LISTEN" and 50000 <= i.laddr.port <= 50100:
-                res = i.laddr.port
-                break
-    return res
-
-
-def _get_config_path() -> tuple[Path, dict]:
-    """Get the configuration path and load config.
-
-    Returns
-    -------
-    tuple[Path, dict]
-        Configuration file path and loaded config
-    """
-    tests_folder = _get_tests_folder()
-    config_path = tests_folder / "local_config.json"
-    config = _load_config(config_path) if config_path.exists() else DEFAULT_TEST_CONFIG.copy()
-    return config_path, config

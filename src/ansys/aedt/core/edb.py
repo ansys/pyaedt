@@ -30,8 +30,8 @@ from typing import Any
 # Currently pyedb isn't part of conda and importing it at the top level of this module leads to
 # errors when importing ansys.aedt.core
 if TYPE_CHECKING:
-    from pyedb import Edb as EdbApp
-    from pyedb import Siwave
+    from pyedb.generic.design_types import Edb as EdbApp
+    from pyedb.generic.design_types import Siwave
 
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions

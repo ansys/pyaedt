@@ -3015,10 +3015,6 @@ class SetupHFSS(Setup, PyAedtBase):
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         sweep_n.create()
         self.sweeps.append(sweep_n)
-        for setup in self._app.setups:
-            if self.name == setup.name:
-                setup.sweeps.append(sweep_n)
-                break
         return sweep_n
 
     @pyaedt_function_handler()

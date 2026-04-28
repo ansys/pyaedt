@@ -665,31 +665,12 @@ class ExtensionCommon(PyAedtBase):
     @property
     def active_project_name(self) -> str:
         """Return the name of the active project."""
-        res = NO_ACTIVE_PROJECT
-        active_project = self.desktop.active_project()
-        if active_project:
-            res = active_project.GetName()
-        return res
+        return self.desktop.active_project_name or NO_ACTIVE_PROJECT
 
     @property
     def active_design_name(self) -> str:
         """Return the name of the active design."""
-        design_list = self.desktop.design_list(self.active_project_name)
-        active_design = None
-        if design_list:
-            active_design = self.desktop.active_design()
-        if not active_design:
-            return NO_ACTIVE_DESIGN
-        match active_design.GetDesignType():
-            case "HFSS 3D Layout Design":
-                res = active_design.GetDesignName()
-            case "Circuit Design":
-                res = active_design.GetName().split(";")[1]
-            case "Twin Builder":
-                res = active_design.GetName().split(";")[1]
-            case _:
-                res = active_design.GetName()
-        return res
+        return self.desktop.active_design_name or NO_ACTIVE_DESIGN
 
     @abstractmethod
     def add_extension_content(self) -> None:
