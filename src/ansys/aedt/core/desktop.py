@@ -778,7 +778,8 @@ class Desktop(PyAedtBase):
         self.__set_logger_file()
 
         if self.non_graphical:
-            # If non graphical, Desktop logging is not needed and can cause issues.
+            # If non-graphical, Desktop logging is not needed and can cause issues.
+            self.logger.info("Non-graphical mode detected. Disabling Desktop logs.")
             settings.enable_desktop_logs = False
 
         self.__init_desktop()

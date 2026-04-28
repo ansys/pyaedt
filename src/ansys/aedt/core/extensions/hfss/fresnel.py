@@ -677,7 +677,8 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds and "Secondary" not in bounds:
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
             self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
             self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
@@ -782,7 +783,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Parametric setup is driven by the variables defining the scan direction
 
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds and "Secondary" not in bounds:
+
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
             self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
             self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
