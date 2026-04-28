@@ -776,7 +776,11 @@ class Desktop(PyAedtBase):
 
         # Setup logging.
         self.__set_logger_file()
-        settings.enable_desktop_logs = not self.non_graphical and self.aedt_version_id < "2024.2"
+
+        if self.non_graphical:
+            # If non graphical, Desktop logging is not needed and can cause issues.
+            settings.enable_desktop_logs = False
+
         self.__init_desktop()
 
         self._check_new_desktop(aedt_process_id, student_version)
