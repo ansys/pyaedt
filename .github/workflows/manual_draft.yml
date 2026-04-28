@@ -553,7 +553,11 @@ jobs:
       - name: Create ZIP archive of site-packages
         run: |
           $sitePackages = ".venv\Lib\site-packages"
-          Compress-Archive -Path "$sitePackages\*" -DestinationPath "pyaedt_261sp2_winx64.zip" -Force
+          Get-ChildItem -Path $sitePackages -Recurse -Filter __pycache__ -Directory | Remove-Item -Recurse -Force
+          $exclude = @("pip", "pip-*dist-info", "setuptools", "setuptools-*dist-info", "wheel", "wheel-*dist-info")
+          $items = Get-ChildItem -Path $sitePackages |
+            Where-Object { $name = $_.Name; -not ($exclude | Where-Object { $name -like $_ }) }
+          Compress-Archive -Path ($items.FullName) -DestinationPath "pyaedt_261sp2_winx64.zip" -Force
           Write-Output "Created pyaedt_261sp2_winx64.zip"
 
       - name: Upload pyaedt_261sp2_winx64.zip artifact
@@ -602,7 +606,15 @@ jobs:
       - name: Create TGZ archive of site-packages
         run: |
           SITE_PACKAGES=$(find .venv/lib -maxdepth 2 -name site-packages -type d | head -1)
-          tar -czf pyaedt_261sp2_linx64.tgz -C "$SITE_PACKAGES" .
+          find "$SITE_PACKAGES" -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+          tar -czf pyaedt_261sp2_linx64.tgz -C "$SITE_PACKAGES" \
+            --exclude='pip' \
+            --exclude='pip-*dist-info' \
+            --exclude='setuptools' \
+            --exclude='setuptools-*dist-info' \
+            --exclude='wheel' \
+            --exclude='wheel-*dist-info' \
+            .
           echo "Created pyaedt_261sp2_linx64.tgz"
 
       - name: Upload pyaedt_261sp2_linx64.tgz artifact
