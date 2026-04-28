@@ -882,13 +882,14 @@ class FresnelExtension(ExtensionHFSSCommon):
 
     def get_coefficients(self):
         enable_log = settings.enable_desktop_logs
-
-        settings.enable_desktop_logs = True
+        if not self.desktop.non_graphical:
+            settings.enable_desktop_logs = True
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
         _ = self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
         )
+
         settings.enable_desktop_logs = enable_log
         self.release_desktop()
 
