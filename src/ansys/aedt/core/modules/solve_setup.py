@@ -2252,12 +2252,6 @@ class Setup3DLayout(CommonSetup):
                     primitive_dict[net].append(pt)
 
                 elif prim.__class__.__name__ in ["EdbPolygon", "Polygon"]:
-                    pdata = self._app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
-                        prim.polygon_data._edb_object.GetArcData(), True
-                    )
-
-                    pdata.Scale(0.99, pdata.GetBoundingCircleCenter())
-
                     points = prim.points()
                     pt = [points[0][0], points[1][0]]
                     pt.append(z)
@@ -3015,10 +3009,6 @@ class SetupHFSS(Setup, PyAedtBase):
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         sweep_n.create()
         self.sweeps.append(sweep_n)
-        for setup in self._app.setups:
-            if self.name == setup.name:
-                setup.sweeps.append(sweep_n)
-                break
         return sweep_n
 
     @pyaedt_function_handler()

@@ -71,7 +71,7 @@ jobs:
           flags: linux_unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -122,7 +122,7 @@ jobs:
           flags: linux_integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -188,7 +188,7 @@ jobs:
           flags: windows_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -253,7 +253,7 @@ jobs:
           flags: linux_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -322,7 +322,7 @@ jobs:
           flags: windows_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -388,7 +388,7 @@ jobs:
           flags: linux_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
@@ -459,7 +459,7 @@ jobs:
           flags: windows_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -526,7 +526,7 @@ jobs:
           flags: linux_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -592,7 +592,7 @@ jobs:
           flags: windows_system_icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-icepak-windows
           path: junit/test-results.xml
@@ -657,7 +657,7 @@ jobs:
           flags: linux_system_icepak
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-icepak-linux
           path: junit/test-results.xml
@@ -723,7 +723,7 @@ jobs:
           flags: windows_system_layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-layout-windows
           path: junit/test-results.xml
@@ -788,7 +788,7 @@ jobs:
           flags: linux_system_layout
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-layout-linux
           path: junit/test-results.xml
@@ -858,7 +858,7 @@ jobs:
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
@@ -924,7 +924,7 @@ jobs:
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
@@ -991,7 +991,7 @@ jobs:
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
@@ -1058,7 +1058,7 @@ jobs:
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
