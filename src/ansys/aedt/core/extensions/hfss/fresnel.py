@@ -673,7 +673,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["design_validation_label"]["text"] = "Passed"
         else:
             self._widgets["design_validation_label"].config(text="Failed")
-            return
+            return False
 
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
