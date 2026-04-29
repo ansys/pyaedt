@@ -40,6 +40,7 @@ from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
+from ansys.aedt.core.modules.setup_templates import SweepRaptorX
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 
@@ -397,6 +398,9 @@ class SweepHFSS3DLayout(SweepCommon):
         else:
             if setup.setuptype in [40, 41]:
                 self.props = copy.deepcopy(SweepSiwave)
+            elif setup.setuptype == 62:
+                self.props = copy.deepcopy(SweepRaptorX)
+                return
             else:
                 self.props = copy.deepcopy(Sweep3DLayout)
             # for t in props:

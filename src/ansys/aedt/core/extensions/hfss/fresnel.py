@@ -673,20 +673,23 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["design_validation_label"]["text"] = "Passed"
         else:
             self._widgets["design_validation_label"].config(text="Failed")
-            return
+            return False
 
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.add_error_message("No lattice pair found.")
-            self._widgets["design_validation_label"].config(text="Failed")
-            return
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
+            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            return False
+
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
 
         # Assign variable to lattice pair
         self.aedt_application["scan_P"] = "0deg"
         self.aedt_application["scan_T"] = "0deg"
 
-        for lattice_pair in bounds["Lattice Pair"]:
+        for lattice_pair in bounds[bound]:
             lattice_pair.properties["Theta"] = "scan_T"
             lattice_pair.properties["Phi"] = "scan_P"
 
@@ -780,64 +783,74 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Parametric setup is driven by the variables defining the scan direction
 
         bounds = self.aedt_application.boundaries_by_type
-        if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.add_error_message("No lattice pair found.")
+
+        # If not Lattice Pair, both Secondary and Primary must be available
+        if "Lattice Pair" not in bounds and ("Secondary" not in bounds or "Primary" not in bounds):
+            self.aedt_application.logger.add_error_message("No lattice pair or primary and secondary boundaries found.")
             self._widgets["design_validation_label_extraction"].config(text="Failed")
             return False
 
-        lattice_pair = bounds["Lattice Pair"]
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+
+        lattice_pair = bounds[bound]
 
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
+
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
-        report_quantities = self.aedt_application.post.available_report_quantities()
+        try:
+            report_quantities = self.aedt_application.post.available_report_quantities()
 
-        variations = self.aedt_application.available_variations.all
-        variations["Freq"] = "All"
+            variations = self.aedt_application.available_variations.all
+            variations["Freq"] = "All"
 
-        data = self.aedt_application.post.get_solution_data_per_variation(
-            "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
-        )
+            data = self.aedt_application.post.get_solution_data_per_variation(
+                "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
+            )
 
-        parametric_data = self.extract_parametric_fresnel(
-            data.variations, theta_key=theta_scan_variable, phi_key=phi_scan_variable
-        )
+            parametric_data = self.extract_parametric_fresnel(
+                data.variations, theta_key=theta_scan_variable, phi_key=phi_scan_variable
+            )
 
-        if is_isotropic:
-            if parametric_data["has_phi"]:
-                if parametric_data["phi"][0] != 0.0:
-                    self.aedt_application.logger.add_error_message("Phi sweep must contain 0.0deg.")
+            if is_isotropic:
+                if parametric_data["has_phi"]:
+                    if parametric_data["phi"][0] != 0.0:
+                        self.aedt_application.logger.add_error_message("Phi sweep must contain 0.0deg.")
+                        self._widgets["design_validation_label_extraction"].config(text="Failed")
+                        return False
+                    phi_0 = parametric_data["phi"][0]
+                    theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
+                    phi_resolution = 1.0
+                    phi_max = 0
+                    theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+                else:
+                    theta_resolution = parametric_data["theta_resolution"]
+                    phi_resolution = 1.0
+                    phi_max = 0
+                    theta_max = parametric_data["theta"][-1]
+            else:
+                if not parametric_data["has_phi"]:
+                    self.aedt_application.logger.add_error_message("Scan phi is not defined.")
                     self._widgets["design_validation_label_extraction"].config(text="Failed")
                     return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
-                phi_resolution = 1.0
-                phi_max = 0
                 theta_max = parametric_data["theta_by_phi"][phi_0][-1]
-            else:
-                theta_resolution = parametric_data["theta_resolution"]
-                phi_resolution = 1.0
-                phi_max = 0
-                theta_max = parametric_data["theta"][-1]
-        else:
-            if not parametric_data["has_phi"]:
-                self.aedt_application.logger.add_error_message("Scan phi is not defined.")
-                self._widgets["design_validation_label_extraction"].config(text="Failed")
-                return False
-            phi_0 = parametric_data["phi"][0]
-            theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
-            theta_max = parametric_data["theta_by_phi"][phi_0][-1]
-            phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
-            phi_max = 360.0 - phi_resolution
+                phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
+                phi_max = 360.0 - phi_resolution
 
-        # Show spatial directions
-
-        theta_steps = int(theta_max / theta_resolution) + 1
-        phi_steps = int(phi_max / phi_resolution) + 1
-
-        total_combinations = theta_steps * phi_steps
-        self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations)
+            # Show spatial directions
+            theta_steps = int(theta_max / theta_resolution) + 1
+            phi_steps = int(phi_max / phi_resolution) + 1
+            total_combinations = theta_steps * phi_steps
+            self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations)
+        except Exception as e:
+            self.aedt_application.logger.add_warning_message(
+                f"Could not compute spatial scan points (no solution data available): {e}"
+            )
+            self._widgets["spatial_points_label_extraction"]["text"] = "N/A (no solution data)"
+            return False
 
         # Check validations
 
@@ -868,10 +881,16 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.get_coefficients()
 
     def get_coefficients(self):
+        enable_log = settings.enable_desktop_logs
+        if not self.desktop.non_graphical:
+            settings.enable_desktop_logs = True
+
         is_isotropic = self.fresnel_type.get() == "isotropic"
         _ = self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
         )
+
+        settings.enable_desktop_logs = enable_log
         self.release_desktop()
 
         self.root.destroy()

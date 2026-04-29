@@ -36,13 +36,13 @@ dependencies = [
     "grpcio>=1.50.0,<1.81",
     "jsonschema",
     "psutil>=6.0.0",
-    "pyedb==0.73.0",
+    "pyedb==0.74.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.13",
+    "pydantic>=2.6.4,<2.14",
 ]
 
 [project.optional-dependencies]
