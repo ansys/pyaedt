@@ -67,6 +67,7 @@ from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -97,6 +98,31 @@ def get_local_ip(host):
         return socket.gethostbyname(host)
     except Exception:
         return "127.0.0.1"
+
+
+def _get_design_display_name(design: object | None) -> str | None:
+    """Return the display name for an AEDT design object."""
+    if not design:
+        return None
+
+    try:
+        design_type = design.GetDesignType()
+    except Exception:
+        design_type = None
+
+    try:
+        if design_type == "HFSS 3D Layout Design":
+            return design.GetDesignName()
+
+        design_name = design.GetName()
+    except Exception:
+        return None
+
+    if design_type in {"Circuit Design", "Twin Builder"}:
+        parts = design_name.split(";", 1)
+        return parts[1] if len(parts) > 1 else design_name
+
+    return design_name
 
 
 class _ServerArgs:
@@ -692,6 +718,13 @@ class Desktop(PyAedtBase):
         self.__new_desktop = (
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
+
+        env_port = os.getenv("PYAEDT_DESKTOP_PORT")
+        if env_port and is_number(env_port) and int(env_port) != 0:
+            self.__new_desktop = False
+            self.__port = int(env_port)
+            settings.logger.info(f"Desktop set to work on port {self.__port}")
+
         self.aedt_version_id = (
             str(os.getenv("PYAEDT_DESKTOP_VERSION"))
             if os.getenv("PYAEDT_DESKTOP_VERSION", None)
@@ -743,7 +776,12 @@ class Desktop(PyAedtBase):
 
         # Setup logging.
         self.__set_logger_file()
-        settings.enable_desktop_logs = not self.non_graphical and self.aedt_version_id < "2024.2"
+
+        if self.non_graphical:
+            # If non-graphical, Desktop logging is not needed and can cause issues.
+            self.logger.info("Non-graphical mode detected. Disabling Desktop logs.")
+            settings.enable_desktop_logs = False
+
         self.__init_desktop()
 
         self._check_new_desktop(aedt_process_id, student_version)
@@ -1296,6 +1334,31 @@ class Desktop(PyAedtBase):
             time.sleep(1)
             self.close_windows()
         return active_project
+
+    @property
+    def active_project_name(self) -> str | None:
+        """Get the name of the active project."""
+        active_project = self.active_project()
+        if not active_project:
+            return None
+
+        try:
+            return active_project.GetName()
+        except Exception:
+            return None
+
+    @property
+    def active_design_name(self) -> str | None:
+        """Get the display name of the active design."""
+        project_name = self.active_project_name
+        if not project_name:
+            return None
+        if not self.design_list(project_name):
+            return None
+
+        active_project = self.active_project(project_name)
+        active_design = self.active_design(active_project)
+        return _get_design_display_name(active_design)
 
     @pyaedt_function_handler()
     def close_windows(self) -> bool:
