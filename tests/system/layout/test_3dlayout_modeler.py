@@ -33,6 +33,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -1353,3 +1354,15 @@ def test_create_coordinate_system(aedt_app) -> None:
 def test_create_scattering(aedt_app) -> None:
     aedt_app.create_setup()
     assert aedt_app.create_scattering()
+
+
+def test_create_raptorx_setup(aedt_app) -> None:
+    aedt_app.ic_mode = False
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_setup(name="raptor_setup", setup_type="RaptorX")
+    aedt_app.ic_mode = True
+    setup = aedt_app.create_setup(name="raptor_setup", setup_type="RaptorX")
+    assert setup
+    sweep = setup.add_sweep()
+    assert sweep
+    assert len(setup.sweeps) == 1

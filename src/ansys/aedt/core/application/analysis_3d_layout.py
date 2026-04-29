@@ -30,6 +30,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
@@ -318,6 +319,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
         name = self.generate_unique_setup_name(name)
+        if setup_type == 62 and not self.ic_mode:
+            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
         setup = Setup3DLayout(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
