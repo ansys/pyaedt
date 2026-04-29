@@ -24,28 +24,31 @@
 
 import tkinter
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
 
 
-def test_fresnel_function(add_app) -> None:
-    """Test Fresnel extension with no setup."""
-    app = add_app(application=Hfss)
+@pytest.fixture()
+def aedt_app(add_app):
+    app = add_app(application=Hfss, solution_type="Modal")
+    yield app
+    app.close_project(app.project_name, save=False)
 
+
+def test_fresnel_function(aedt_app) -> None:
+    """Test Fresnel extension with no setup."""
     extension = FresnelExtension(withdraw=True)
 
     assert extension.fresnel_type.get() == "isotropic"
     assert extension.setup_names == ["No Setup"]
 
-    app.close_project(save=False)
 
-
-def test_fresnel_ui_interactions(add_app) -> None:
+def test_fresnel_ui_interactions(aedt_app) -> None:
     """Test various UI interactions in the Fresnel extension."""
     # Create HFSS application for testing environment
-    app = add_app(application=Hfss)
-
-    app.create_setup()
+    aedt_app.create_setup()
 
     # Create extension
     extension = FresnelExtension(withdraw=True)
@@ -100,20 +103,18 @@ def test_fresnel_ui_interactions(add_app) -> None:
     tabs.select(extension._widgets["settings_tab"])
     tabs.select(extension._widgets["extraction_tab"])
 
-    app.close_project(save=False)
 
-
-def test_fresnel_validation_method(add_app) -> None:
+def test_fresnel_validation_method_lattice(aedt_app) -> None:
     """Test the validation method in the Fresnel extension."""
     # Create HFSS application for testing environment
-    app = add_app(application=Hfss)
+    aedt_app.create_setup()
 
-    box1 = app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
-    app.create_floquet_port(
+    box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+    aedt_app.create_floquet_port(
         box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
     )
-
-    app.create_setup()
+    aedt_app.auto_assign_lattice_pairs(box1.name)
+    aedt_app.create_setup()
 
     # Create extension
     extension = FresnelExtension(withdraw=True)
@@ -122,49 +123,41 @@ def test_fresnel_validation_method(add_app) -> None:
     validate_button = extension._widgets["validate_button"]
     validate_button.invoke()
 
-    app.close_project(save=False)
 
+def test_fresnel_validation_method_primary(aedt_app) -> None:
+    """Test the validation method in the Fresnel extension."""
+    # Create HFSS application for testing environment
+    aedt_app.create_setup()
 
-def test_fresnel_apply_validate_method(add_app) -> None:
-    """Test the apply and validate method in the Fresnel extension."""
-    app = add_app(application=Hfss)
+    box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200])
 
-    (inner, outer, _) = app.modeler.create_coaxial([0, 0, 0], 0)
-    app.lumped_port(inner, outer, create_port_sheet=True)
-    app.create_setup()
-
-    # Create extension
-    extension = FresnelExtension(withdraw=True)
-
-    # Switch to advanced tab
-    tabs = extension._widgets["tabs"]
-    tabs.select(extension._widgets["advanced_tab"])
-
-    # Set up frequency sweep values
-    extension._widgets["start_frequency"].delete("1.0", tkinter.END)
-    extension._widgets["start_frequency"].insert(tkinter.END, "1.0")
-    extension._widgets["stop_frequency"].delete("1.0", tkinter.END)
-    extension._widgets["stop_frequency"].insert(tkinter.END, "2.0")
-    extension._widgets["step_frequency"].delete("1.0", tkinter.END)
-    extension._widgets["step_frequency"].insert(tkinter.END, "0.1")
-
-    # Test apply and validate button
-    apply_validate_button = extension._widgets["apply_validate_button"]
-    apply_validate_button.invoke()
-
-    app.close_project(save=False)
-
-
-def test_fresnel_apply_validate_method_floquet(add_app) -> None:
-    """Test the apply and validate method in the Fresnel extension."""
-    app = add_app(application=Hfss, solution_type="Modal")
-
-    box1 = app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
-    app.create_floquet_port(
+    aedt_app.create_floquet_port(
         box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
     )
 
-    app.create_setup()
+    pr1 = aedt_app.assign_primary(box1.bottom_face_x, ["-100mm", "0mm", "-100mm"], ["-100mm", "0mm", "100mm"])
+    _ = aedt_app.assign_secondary(box1.top_face_x, pr1.name, ["100mm", "0mm", "-100mm"], ["100mm", "0mm", "100mm"])
+
+    pr2 = aedt_app.assign_primary(box1.bottom_face_y, ["0mm", "-100mm", "-100mm"], ["0mm", "-100mm", "100mm"])
+    _ = aedt_app.assign_secondary(box1.top_face_y, pr2.name, ["0mm", "100mm", "-100mm"], ["0mm", "100mm", "100mm"])
+
+    aedt_app.create_setup()
+
+    # Create extension
+    extension = FresnelExtension(withdraw=True)
+
+    # Test validate button (extraction tab)
+    validate_button = extension._widgets["validate_button"]
+    validate_button.invoke()
+
+
+def test_fresnel_apply_validate_method(aedt_app) -> None:
+    """Test the apply and validate method in the Fresnel extension."""
+    aedt_app.create_setup()
+
+    (inner, outer, _) = aedt_app.modeler.create_coaxial([0, 0, 0], 0)
+    aedt_app.lumped_port(inner, outer, create_port_sheet=True)
+    aedt_app.create_setup()
 
     # Create extension
     extension = FresnelExtension(withdraw=True)
@@ -185,4 +178,33 @@ def test_fresnel_apply_validate_method_floquet(add_app) -> None:
     apply_validate_button = extension._widgets["apply_validate_button"]
     apply_validate_button.invoke()
 
-    app.close_project(save=False)
+
+def test_fresnel_apply_validate_method_floquet(aedt_app) -> None:
+    """Test the apply and validate method in the Fresnel extension."""
+    aedt_app.create_setup()
+
+    box1 = aedt_app.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
+    aedt_app.create_floquet_port(
+        box1.faces[0], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
+    )
+
+    aedt_app.create_setup()
+
+    # Create extension
+    extension = FresnelExtension(withdraw=True)
+
+    # Switch to advanced tab
+    tabs = extension._widgets["tabs"]
+    tabs.select(extension._widgets["advanced_tab"])
+
+    # Set up frequency sweep values
+    extension._widgets["start_frequency"].delete("1.0", tkinter.END)
+    extension._widgets["start_frequency"].insert(tkinter.END, "1.0")
+    extension._widgets["stop_frequency"].delete("1.0", tkinter.END)
+    extension._widgets["stop_frequency"].insert(tkinter.END, "2.0")
+    extension._widgets["step_frequency"].delete("1.0", tkinter.END)
+    extension._widgets["step_frequency"].insert(tkinter.END, "0.1")
+
+    # Test apply and validate button
+    apply_validate_button = extension._widgets["apply_validate_button"]
+    apply_validate_button.invoke()

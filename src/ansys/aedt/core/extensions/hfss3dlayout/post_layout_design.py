@@ -404,6 +404,15 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
     """Create a line void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
 
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
+
     void_name = generate_unique_name("line_void_")
     temp = []
     for i in path:
@@ -432,6 +441,7 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
     ]
     line_void_geometry.extend(temp)
     line_void_geometry.extend(["MR:=", "600mm"])
+
     args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
     h3d.oeditor.CreateLineVoid(args)
 
@@ -439,6 +449,15 @@ def _create_line_void(h3d, owner, layer_name, path, width) -> None:
 def _create_circle_void(h3d, owner, layer_name, center_point, radius) -> None:
     """Create a circle void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
+
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
 
     args = [
         "NAME:Contents",
@@ -471,7 +490,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     for i in pedb.layout.primitives:
         if i.primitive_type in ["rectangle", "polygon"]:
             for pos in [via_p.position, via_n.position]:
-                if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                if i.polygon_data.is_inside(pos):
                     if i.layer_name not in via_range:
                         continue
                     if i.layer_name not in prims:
