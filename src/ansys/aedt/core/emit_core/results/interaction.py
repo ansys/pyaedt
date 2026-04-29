@@ -68,9 +68,6 @@ class Interaction:
             warnings.warn("Worst case instances are not available for Power At Rx.")
             return None
         
-        # Pass the domain's actual frequencies to the C++ stack.
-        # Frequencies <= 0 act as wildcards (search all channels), matching
-        # the old InteractionPrivate::getWorstInstance behavior.
         self.emit_project.results.current_revision._load_revision()
         result_data = self.emit_project._emit_com_module.GetWorstInstance(
             self.emit_project.results.current_revision.results_index,
@@ -113,99 +110,18 @@ class Interaction:
             tx_radios, tx_bands, tx_freq_strs = zip(*tx_entries)
             worst_domain.set_interferers(list(tx_radios), list(tx_bands), [float(f) for f in tx_freq_strs], "Hz")
 
-        if len(tx_entries) == 1:
-            # 1-to-1: call get_instance for full values (both EMI and desense)
-            return self.get_instance(worst_domain)
+        # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
+        # result type. The other is always 30201 ("not available"), matching old API behavior.
+        instance = InteractionInstance(self.emit_project, worst_domain)
+        if result_type == ResultType.EMI:
+            instance.encoded_emi = encoded_value
+            instance.largest_emi_interferer_type = worst_int_cat
+            instance.encoded_desense = 30201
         else:
-            # N-to-1: GetInstance doesn't support multiple interferers,
-            # so use the encoded value returned by GetWorstInstance directly
-            instance = InteractionInstance(self.emit_project, worst_domain)
-            if result_type == ResultType.EMI:
-                instance.encoded_emi = encoded_value
-                instance.largest_emi_interferer_type = worst_int_cat
-            else:
-                instance.encoded_desense = encoded_value
-            return instance
+            instance.encoded_desense = encoded_value
+            instance.encoded_emi = 30201
+        return instance
     
-
-    # def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
-    #     """Get the worst instance for this interaction.
-
-    #     Parameters
-    #     ----------
-    #     result_type : ResultType
-    #         The interaction instance to get the worst case instance for.
-    #     result_type : ResultType
-    #         The result type to get the worst case instance for.
-
-    #     Returns
-    #     -------
-    #     InteractionInstance
-    #         The worst case instance for this interaction.
-
-    #     Raises
-    #     ------
-    #     RuntimeError
-    #         If the worst case instance cannot be retrieved.
-    #     """
-    #     status = self.emit_project._emit_com_module.CheckInstanceValidity()
-    #     if status != "":
-    #         raise RuntimeError(status)
-
-    #     # Can't compute worst instance for Power at RX
-    #     if result_type == ResultType.POWER_AT_RX:
-    #         err_msg = "Worst case instances are not available for Power At Rx."
-    #         warnings.warn(err_msg)
-    #         return None
-
-    #     complete = self.emit_project._emit_com_module.IsComplete()
-    #     if not complete:
-    #         warnings.warn("The result is not available. The interaction is not fully analyzed.")
-    #         return None
-
-    #     sim = self.current_revision.get_simulation()
-    #     status = sim.is_domain_valid(self.domain)
-    #     if status != "":
-    #         warnings.warn(status)
-    #         warnings.warn("The interaction domain is not valid. Cannot retrieve worst case instance.")
-    #         return None
-
-    #     count = self.emit_project._emit_com_module.GetInstanceCount(result_type.value)
-    #     if count == 0:
-    #         warnings.warn("The instance domain is empty.")
-    #         return None
-
-    #     rx_radio_node = self.current_revision.get_radio_node(self.domain.receiver_name)
-    #     rx_band_node = self.current_revision.get_band_node(self.domain.receiver_band_name) if self.domain.receiver_band_name else None
-    #     tx_radio_nodes = [self.current_revision.get_radio_node(name) for name in self.domain.interferer_names]
-    #     tx_band_nodes = [self.current_revision.get_band_node(name) for name in self.domain.interferer_band_names]
-
-    #     rx_node = rx_band_node if rx_band_node else rx_radio_node
-        
-    #     rx_channel_index = next((rx_node.get_active_frequencies(is_rx=True).index(freq) for freq in [self.domain.receiver_channel_frequency] if freq >= 0), -1)
-    #     tx_channel_indexes = next((tx_band.get_active_frequencies(is_rx=False).index(freq) for tx_band in tx_band_nodes for freq in self.domain.interferer_channel_frequencies if freq >= 0 and freq in tx_band.get_active_frequencies(is_rx=False)), -1)
-
-    #     is_desense = (result_type == ResultType.DESENSE or result_type == ResultType.SENSITIVITY)
-        
-    #     if (len(tx_radio_nodes) == 1):
-    #         tx_node = None
-    #         if len(tx_band_nodes) > 0 and tx_band_nodes[0]:
-    #             tx_node = tx_band_nodes[0]
-    #         else:
-    #             tx_node = tx_radio_nodes[0]
-    #         tx_channel_index = -1
-    #         if(len(tx_channel_indexes) > 0):
-    #             tx_channel_index = tx_channel_indexes[0]
-    #     # TODO: Complete worst instance implementation - needs new COM API
-    #     # Need to add GetWorstInstance COM method that returns:
-    #     # - encoded_emi, encoded_desense, largest_emi_interferer_type
-    #     # Then create InteractionInstance with that data:
-    #     #   worst_instance = InteractionInstance(self.emit_project, worst_domain)
-    #     #   worst_instance.encoded_emi = <from COM>
-    #     #   worst_instance.encoded_desense = <from COM>
-    #     #   worst_instance.largest_emi_interferer_type = <from COM>
-    #     #   return worst_instance
-    #     raise NotImplementedError("get_worst_instance requires new COM API: GetWorstInstance")
 
     def has_valid_availability(self, domain: InteractionDomain) -> bool:
         """Check if this interaction has valid availability.
@@ -303,6 +219,10 @@ class Interaction:
 
     def get_instance(self, domain: InteractionDomain) -> InteractionInstance:
         """Get the instance at the specified index for this interaction."""
+        # GetInstance only supports a single interferer
+        if len(domain.interferer_names) > 1:
+            raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
+
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
             raise RuntimeError("The instance domain must be fully defined.")

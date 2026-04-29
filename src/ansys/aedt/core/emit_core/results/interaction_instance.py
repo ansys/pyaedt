@@ -167,8 +167,6 @@ class InteractionInstance:
         RuntimeError
             If the interaction is invalid or values are not available.
         """
-        # PowerAtRx uses a separate compute path (DetailedResult), not encoded values.
-        # Like the old C++ InteractionInstancePrivate, we lazily compute it on demand.
         if result_type == ResultType.POWER_AT_RX:
             if self._power_at_rx == -200.0:
                 self._fetch_power_at_rx()
@@ -274,7 +272,7 @@ class InteractionInstance:
         elif self.largest_emi_interferer_type == 14:
             text = "In-Channel: Broadband"
         else:
-            text = f"Error: category {self.largest_emi_interferer_type} not found!"
+            text = f"Error: category {self.largest_emi_interferer_type} not found"
         return text
 
     def get_domain(self) -> InteractionDomain:
