@@ -27,7 +27,6 @@ jobs:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    needs: [analyze-changes]
     strategy:
       fail-fast: false
       matrix:
