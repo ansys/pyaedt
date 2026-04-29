@@ -3214,3 +3214,101 @@ def test_terminator_table_persistence(add_app) -> None:
     assert reopened_amplifier.table_data == expected_amplifier_table
 
     app2.close_project(app2.project_name, save=False)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_export_scenario_matrix_1382163(emit_app) -> None:
+    """Feature 1382163: export_scenario_matrix writes a valid CSV with header and data rows."""
+    rad1, ant1 = emit_app.schematic.create_radio_antenna(
+        radio_type="GPS Receiver", radio_name="GPS Receiver", antenna_name="Antenna"
+    )
+    rad2, ant2 = emit_app.schematic.create_radio_antenna(
+        radio_type="Bluetooth Low Energy (LE)",
+        radio_name="Bluetooth Low Energy (LE)",
+        antenna_name="Antenna",
+    )
+    rev = emit_app.results.analyze()
+    r1_bands = rev.get_all_band_nodes(rad1)
+    for band in r1_bands:
+        band.enabled = True
+    sim = rev.get_simulation()
+    domain = InteractionDomain(emit_app)
+    sim.run(domain)
+
+    csv_path = os.path.join(tempfile.mkdtemp(), "scenario_matrix.csv")
+    sim.export_scenario_matrix(csv_path)
+    assert os.path.isfile(csv_path)
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    # Must have at least one comment header line and the column header line
+    comment_lines = [l for l in lines if l.startswith("#")]
+    data_lines = [l for l in lines if not l.startswith("#")]
+    assert len(comment_lines) >= 9, "Expected categorization comment header"
+    assert len(data_lines) >= 2, "Expected column header + at least one data row"
+    # First data line is the column header
+    assert "EMI Margin" in data_lines[0]
+    assert "Availability" in data_lines[0]
+    # Data rows should have 10 comma-delimited fields
+    for row in data_lines[1:]:
+        fields = row.split(",")
+        assert len(fields) >= 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_export_selection_1382163(emit_app) -> None:
+    """Feature 1382163: export_selection writes CSV for a specific domain selection."""
+    rad1, ant1 = emit_app.schematic.create_radio_antenna(
+        radio_type="GPS Receiver", radio_name="GPS Receiver", antenna_name="Antenna"
+    )
+    rad2, ant2 = emit_app.schematic.create_radio_antenna(
+        radio_type="Bluetooth Low Energy (LE)",
+        radio_name="Bluetooth Low Energy (LE)",
+        antenna_name="Antenna",
+    )
+    rev = emit_app.results.analyze()
+    r1_bands = rev.get_all_band_nodes(rad1)
+    for band in r1_bands:
+        band.enabled = True
+    sim = rev.get_simulation()
+    domain = InteractionDomain(emit_app)
+    sim.run(domain)
+
+    # Export a specific selection (victim = GPS Receiver, aggressor = Bluetooth)
+    sel_domain = InteractionDomain(emit_app)
+    sel_domain.set_receiver("GPS Receiver")
+    sel_domain.set_interferer("Bluetooth Low Energy (LE)")
+
+    csv_path = os.path.join(tempfile.mkdtemp(), "selection.csv")
+    sim.export_selection(sel_domain, csv_path)
+    assert os.path.isfile(csv_path)
+
+    with open(csv_path, "r") as f:
+        content = f.read()
+
+    lines = content.strip().split("\n")
+    comment_lines = [l for l in lines if l.startswith("#")]
+    data_lines = [l for l in lines if not l.startswith("#")]
+    assert len(comment_lines) >= 9, "Expected categorization comment header"
+    assert len(data_lines) >= 2, "Expected column header + at least one data row"
+    assert "EMI Margin" in data_lines[0]
+    # Data rows should reference the selected radios
+    for row in data_lines[1:]:
+        fields = row.split(",")
+        assert len(fields) >= 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
+
+    # Exporting an empty/All domain should produce the same output as export_scenario_matrix
+    all_domain = InteractionDomain(emit_app)
+    scen_path = os.path.join(tempfile.mkdtemp(), "scen_via_sel.csv")
+    sim.export_selection(all_domain, scen_path)
+    assert os.path.isfile(scen_path)
+
+    matrix_path = os.path.join(tempfile.mkdtemp(), "scen_matrix.csv")
+    sim.export_scenario_matrix(matrix_path)
+    with open(scen_path, "r") as f:
+        sel_content = f.read()
+    with open(matrix_path, "r") as f:
+        mat_content = f.read()
+    assert sel_content == mat_content, "All/All selection should produce same output as scenario matrix"
