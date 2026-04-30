@@ -110,7 +110,7 @@ pyaedt --json session start --version 2026.1 --non-graphical
 
 # Then pass --port to the command you want
 pyaedt --json project list --port 50051
-pyaedt --json script run my_script.py --port 50051
+pyaedt --json run my_script.py --port 50051
 ```
 
 ## Project And Design Resolution Rules
@@ -196,7 +196,7 @@ Supported `--type` values:
 
 | Command | Description |
 |---|---|
-| `pyaedt --json script run "path/to/script.py" --port 50051` | Execute a Python script inside AEDT |
+| `pyaedt --json run "path/to/script.py" --port 50051` | Execute a Python script inside AEDT |
 
 
 ### Export Commands
@@ -295,9 +295,9 @@ Rules:
 - Use `exec()` for **any** block that contains indented code (loops, `if`, `with`, function or class definitions).
 - Single-statement lines (imports, assignments, function calls) do **not** need `exec()`.
 - Escape all inner double-quotes as `\"` if the outer delimiter is `"`, or use concatenated string literals as shown above.
-- Keep `exec()` calls as short as possible; if the block grows beyond ~10 lines prefer saving a temp script and using `script run` instead.
+- Keep `exec()` calls as short as possible; if the block grows beyond ~10 lines prefer saving a temp script and using `run` instead.
 
-**When to prefer `session attach` over `script run`:**
+**When to prefer `session attach` over `run`:**
 
 | Situation | Preferred approach |
 |---|---|
@@ -305,12 +305,12 @@ Rules:
 | Debugging a failing step interactively | `session attach` |
 | One-off geometry / parameter tweaks | `session attach` |
 | Iterating quickly on a few commands | `session attach` |
-| Defined, repeatable, multi-step workflow | `script run` |
-| CI / headless / automated pipeline | `script run` |
-| Workflow has more than ~5 steps | `script run` |
-| Traceability and logging required | `script run` |
+| Defined, repeatable, multi-step workflow | `run` |
+| CI / headless / automated pipeline | `run` |
+| Workflow has more than ~5 steps | `run` |
+| Traceability and logging required | `run` |
 
-Prefer `session attach` first. Graduate to `script run` only once the workflow is known and needs to be repeatable or automated.
+Prefer `session attach` first. Graduate to `run` only once the workflow is known and needs to be repeatable or automated.
 
 #### Working With Multiple Designs Simultaneously
 
@@ -339,7 +339,7 @@ Rules:
 ### Workflow 5: Run Automation
 
 ```bash
-pyaedt --json script run "<temp-dir>/setup_antenna.py" --port 50051
+pyaedt --json run "<temp-dir>/setup_antenna.py" --port 50051
 ```
 
 ### Workflow 6: Generated Script Execution
@@ -354,7 +354,7 @@ pyaedt --json session list
 pyaedt --json session start --version 2026.1 --non-graphical
 
 # Step 3: run the script on the chosen port
-pyaedt --json script run "<temp-dir>/generated_script.py" --port 50051
+pyaedt --json run "<temp-dir>/generated_script.py" --port 50051
 ```
 
 Rules:
@@ -395,12 +395,12 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 - When a command is design-scoped, apply the shared project/design resolution rules explicitly.
 - When the available project/design selection is ambiguous, ask for the missing selector instead of guessing.
 - Use `project list --port ...` to inspect the AEDT state before choosing selectors.
-- Use `script run` for real scripts.
-- Use `session attach` as the first choice for interactive, exploratory, or debugging workflows; fall back to `script run` only when the workflow is defined, repeatable, or automated.
+- Use `run` for real scripts.
+- Use `session attach` as the first choice for interactive, exploratory, or debugging workflows; fall back to `run` only when the workflow is defined, repeatable, or automated.
 - When sending multi-line code (loops, conditionals, function definitions) to a `session attach` iPython console, always wrap the entire block in a single `exec("line1\nline2\n...")` call. Never paste raw indented blocks directly — they cause `IndentationError` or `SyntaxError`.
 - When the user needs to work on **multiple designs simultaneously**, instruct them to open one `session attach` console per design (one terminal per design). Never switch designs inside a single console to handle multiple designs at once.
 - When multiple instances are found, present the full list with port, version, and PID before asking.
-- When a generated script must be executed automatically, determine the target port first and then run `script run --port ...`.
+- When a generated script must be executed automatically, determine the target port first and then run `run --port ...`.
 - Generated scripts intended to reuse an existing AEDT instance should use `new_desktop=False`.
 - Unless the user explicitly asks for another destination, create and use a task-specific temporary folder for exports, generated scripts, screenshots, configs, and other intermediate files.
 
