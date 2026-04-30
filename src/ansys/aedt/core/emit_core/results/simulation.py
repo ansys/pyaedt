@@ -295,7 +295,9 @@ class Simulation:
             int_freqs,
             continue_if_partial,
         )
-        if partial:
+        # Skip the error if specified via continue_if_partial, 
+        # but raise it otherwise since the user likely expects the export to be complete
+        if not continue_if_partial and partial:
             raise RuntimeError(
                 "Selection only partially simulated. Re-run the simulation "
                 "or call export_selection(..., continue_if_partial=True)."

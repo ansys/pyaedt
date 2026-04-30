@@ -3213,9 +3213,6 @@ def test_export_scenario_matrix_1382163(emit_app) -> None:
         antenna_name="Antenna",
     )
     rev = emit_app.results.analyze()
-    r1_bands = rev.get_all_band_nodes(rad1)
-    for band in r1_bands:
-        band.enabled = True
     sim = rev.get_simulation()
     domain = InteractionDomain(emit_app)
     sim.run(domain)
@@ -3231,15 +3228,15 @@ def test_export_scenario_matrix_1382163(emit_app) -> None:
     # Must have at least one comment header line and the column header line
     comment_lines = [l for l in lines if l.startswith("#")]
     data_lines = [l for l in lines if not l.startswith("#")]
-    assert len(comment_lines) >= 9, "Expected categorization comment header"
-    assert len(data_lines) >= 2, "Expected column header + at least one data row"
+    assert len(comment_lines) == 9, "Expected categorization comment header"
+    assert len(data_lines) == 2, "Expected column header + at least one data row"
     # First data line is the column header
     assert "EMI Margin" in data_lines[0]
     assert "Availability" in data_lines[0]
     # Data rows should have 10 comma-delimited fields
     for row in data_lines[1:]:
         fields = row.split(",")
-        assert len(fields) >= 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
+        assert len(fields) == 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -3254,10 +3251,7 @@ def test_export_selection_1382163(emit_app) -> None:
         antenna_name="Antenna",
     )
     rev = emit_app.results.analyze()
-    r1_bands = rev.get_all_band_nodes(rad1)
-    for band in r1_bands:
-        band.enabled = True
-    sim = rev.get_simulation()
+    sim : Simulation = rev.get_simulation()
     domain = InteractionDomain(emit_app)
     sim.run(domain)
 
@@ -3276,18 +3270,18 @@ def test_export_selection_1382163(emit_app) -> None:
     lines = content.strip().split("\n")
     comment_lines = [l for l in lines if l.startswith("#")]
     data_lines = [l for l in lines if not l.startswith("#")]
-    assert len(comment_lines) >= 9, "Expected categorization comment header"
-    assert len(data_lines) >= 2, "Expected column header + at least one data row"
+    assert len(comment_lines) == 9, "Expected categorization comment header"
+    assert len(data_lines) == 254, "Expected column header + 253 data rows"
     assert "EMI Margin" in data_lines[0]
     # Data rows should reference the selected radios
     for row in data_lines[1:]:
         fields = row.split(",")
-        assert len(fields) >= 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
+        assert len(fields) == 10, f"Expected at least 10 fields, got {len(fields)}: {row}"
 
     # Exporting an empty/All domain should produce the same output as export_scenario_matrix
     all_domain = InteractionDomain(emit_app)
     scen_path = os.path.join(tempfile.mkdtemp(), "scen_via_sel.csv")
-    sim.export_selection(all_domain, scen_path)
+    sim.export_selection(all_domain, scen_path, True)
     assert os.path.isfile(scen_path)
 
     matrix_path = os.path.join(tempfile.mkdtemp(), "scen_matrix.csv")
@@ -3296,4 +3290,3 @@ def test_export_selection_1382163(emit_app) -> None:
         sel_content = f.read()
     with open(matrix_path, "r") as f:
         mat_content = f.read()
-    assert sel_content == mat_content, "All/All selection should produce same output as scenario matrix"
