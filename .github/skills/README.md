@@ -20,8 +20,8 @@ copilot plugin install pyaedt-cli@pyaedt-skills
 
 ## Claude Code
 
-Claude uses `.claude-plugin/marketplace.json`, which is a symlink to `../.github/plugin/marketplace.json`.
+Claude uses `.claude-plugin/marketplace.json`, whose content points to `../.github/plugin/marketplace.json`.
 
 ## Maintenance
 
-When you add or update a skill, place it under `.github/plugin/<plugin-name>/skills/`. Update `.github/plugin/marketplace.json` accordingly. The symlinked `.claude-plugin/marketplace.json` will pick up changes automatically.
+When you add or update a skill, place it under `.github/plugin/<plugin-name>/skills/`. Update `.github/plugin/marketplace.json` accordingly. The referenced `.claude-plugin/marketplace.json` will pick up changes automatically.

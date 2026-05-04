@@ -1,6 +1,6 @@
 ---
 name: pyaedt-cli
-description: Use when interacting with ANSYS AEDT through the current PyAEDT CLI. Triggers on requests to start or inspect AEDT sessions, manage projects, create designs, run scripts, export screenshots or configs or use the PyAEDT command line from the workspace virtual environment.
+description: Use when interacting with ANSYS AEDT through the current PyAEDT CLI. Triggers on requests to start or inspect AEDT sessions, manage projects, create designs, run scripts, export screenshots or configurations, or use the PyAEDT command line from the workspace virtual environment.
 ---
 
 # PyAEDT CLI skill
@@ -15,7 +15,7 @@ Before any CLI command, verify `pyaedt` is installed:
 pyaedt --json version
 ```
 
-If the command fails, stop and tell the user to install it first:
+If the command fails, stop and instruct the user to install it first using the `all` installation target to enable full capabilities.
 
 ```bash
 pip install pyaedt[all]
@@ -297,7 +297,7 @@ Rules:
 - Escape all inner double-quotes as `\"` if the outer delimiter is `"`, or use concatenated string literals as shown above.
 - Keep `exec()` calls as short as possible; if the block grows beyond ~10 lines prefer saving a temp script and using `run` instead.
 
-**When to prefer `session attach` over `run`:**
+**When to prefer `session attach` command over `run` command:**
 
 | Situation | Preferred approach |
 |---|---|
