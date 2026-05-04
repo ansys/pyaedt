@@ -59,7 +59,6 @@ def get_desktop(port: int):
     ----------
     port : int
         gRPC port of the AEDT instance.
-
     """
     if port is None:
         if json_mode:
