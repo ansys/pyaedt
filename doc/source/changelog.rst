@@ -9,6 +9,126 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.26.3 <https://github.com/ansys/pyaedt/releases/tag/v0.26.3>`_ - April 29, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Scheduler pyaedt
+          - `#7541 <https://github.com/ansys/pyaedt/pull/7541>`_
+
+        * - New cli commands
+          - `#7549 <https://github.com/ansys/pyaedt/pull/7549>`_
+
+        * - Enable gRPC usage and update import paths in EDB module
+          - `#7567 <https://github.com/ansys/pyaedt/pull/7567>`_
+
+        * - RaptorX setup
+          - `#7572 <https://github.com/ansys/pyaedt/pull/7572>`_
+
+        * - Allow Primary/Secondary in Fresnel extension
+          - `#7584 <https://github.com/ansys/pyaedt/pull/7584>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump pypa/gh-action-pypi-publish from 1.13.0 to 1.14.0
+          - `#7563 <https://github.com/ansys/pyaedt/pull/7563>`_
+
+        * - Bump plotly from 6.6.0 to 6.7.0
+          - `#7564 <https://github.com/ansys/pyaedt/pull/7564>`_
+
+        * - Bump pyedb from 0.71.0 to 0.72.0
+          - `#7565 <https://github.com/ansys/pyaedt/pull/7565>`_
+
+        * - Bump nbconvert from 7.17.0 to 7.17.1
+          - `#7570 <https://github.com/ansys/pyaedt/pull/7570>`_
+
+        * - Bump actions/cache from 5.0.4 to 5.0.5
+          - `#7577 <https://github.com/ansys/pyaedt/pull/7577>`_
+
+        * - Bump actions/upload-artifact from 7.0.0 to 7.0.1
+          - `#7578 <https://github.com/ansys/pyaedt/pull/7578>`_
+
+        * - Bump prek from 0.3.8 to 0.3.9
+          - `#7579 <https://github.com/ansys/pyaedt/pull/7579>`_
+
+        * - Bump pydantic from 2.12.5 to 2.13.3
+          - `#7581 <https://github.com/ansys/pyaedt/pull/7581>`_
+
+        * - Bump pyedb from 0.73.0 to 0.74.0
+          - `#7587 <https://github.com/ansys/pyaedt/pull/7587>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update kernel conversion documentation and enforce AEDT version requirement
+          - `#7557 <https://github.com/ansys/pyaedt/pull/7557>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Create Maxwell project datasets with import_dataset3d
+          - `#7538 <https://github.com/ansys/pyaedt/pull/7538>`_
+
+        * - Added PYAEDT_DESKTOP_VERSION env check to override the default port and new_desktop values.
+          - `#7571 <https://github.com/ansys/pyaedt/pull/7571>`_
+
+        * - Duplicated sweep object
+          - `#7582 <https://github.com/ansys/pyaedt/pull/7582>`_
+
+        * - Issue 7588 fix export 3d grpc
+          - `#7589 <https://github.com/ansys/pyaedt/pull/7589>`_
+
+        * - Anisotropic rttbl export
+          - `#7590 <https://github.com/ansys/pyaedt/pull/7590>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.26.2
+          - `#7562 <https://github.com/ansys/pyaedt/pull/7562>`_
+
+        * - Pre-commit automatic update
+          - `#7566 <https://github.com/ansys/pyaedt/pull/7566>`_, `#7585 <https://github.com/ansys/pyaedt/pull/7585>`_
+
+        * - Remove Quarto installation from CI workflows and enable cheatsheet option in documentation build
+          - `#7575 <https://github.com/ansys/pyaedt/pull/7575>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update component number for Modelithics v26
+          - `#7569 <https://github.com/ansys/pyaedt/pull/7569>`_
+
+
 `0.26.2 <https://github.com/ansys/pyaedt/releases/tag/v0.26.2>`_ - April 17, 2026
 =================================================================================
 
