@@ -169,16 +169,10 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                             f"Consider disabling `settings.release_on_exception` for fallback compute. "
                         ) from e
                     else:
-                        try:
-                            self._app.post.fields_calculator.add_expression(my_expression, "")
-                            loss = self._app.post.fields_calculator.evaluate(
-                                my_expression["name"], solution, intrinsics={}
-                            )
-                        except Exception:
-                            self.logger.add_warning_message(
-                                f"Net `{net_name}` has no field data on layer `{layer_name}`."
-                            )
-                            loss = 0
+                        self.logger.add_warning_message(
+                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is zero"
+                        )
+                        loss = 0
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
 
