@@ -7,7 +7,7 @@ description: Use when interacting with ANSYS AEDT through the current PyAEDT CLI
 
 You have access to the `pyaedt` CLI to interact with ANSYS Electronics Desktop (AEDT). This skill teaches you how to use it effectively.
 
-## Pre-Flight Check (Run First)
+## Pre-flight check (run first)
 
 Before any CLI command, verify `pyaedt` is installed:
 
@@ -15,7 +15,7 @@ Before any CLI command, verify `pyaedt` is installed:
 pyaedt --json version
 ```
 
-If the command fails, stop and instruct the user to install it first using the `all` installation target to enable full capabilities.
+If the command fails, stop, and instruct the user to install it first using the `all` installation target to enable full capabilities.
 
 ```bash
 pip install pyaedt[all]
@@ -27,19 +27,19 @@ pip install pyaedt[all]
 
 Before running any command, resolve the `pyaedt` binary once:
 
-1. Try `pyaedt` directly — if it is on the system PATH, use it as-is.
+1. Try `pyaedt` directly. If it is on the system PATH, use it as-is.
 2. If not found, fall back to the venv-local binary in the current working directory:
    - Windows: `.venv\Scripts\pyaedt`
    - Linux/macOS: `.venv/bin/pyaedt`
 
 All examples use `pyaedt` for brevity. Replace it with the resolved path if needed.
 
-## Working Directory For Generated Artifacts
+## Working directory for generated artifacts
 
 Use temporary directories for all exports and generated files unless the user specifies otherwise.
 
 **Rules:**
-- Create a task-specific subfolder under the OS temp directory
+- Create a task-specific subdirectory under the OS temp directory
 - Use `tempfile.mkdtemp(prefix="pyaedt-skill-")` (Python), `$env:TEMP` (Windows), or `${TMPDIR:-/tmp}` (Linux/macOS)
 - Do not write to the repository or arbitrary folders unless explicitly requested
 - Move artifacts from temp only after successful export if the user wants to keep them
@@ -53,7 +53,7 @@ temp_dir = tempfile.mkdtemp(prefix="pyaedt-skill-")
 
 Pass this path to `--path` or `--output` in export commands.
 
-## Golden Rule: Prefer --json
+## Use --json for non-interactive commands
 
 Use `--json` for every non-interactive command so output stays structured and machine-parseable.
 
@@ -66,7 +66,7 @@ Exceptions:
 - `session attach` launches an interactive console, so human mode is acceptable.
 - `doc` commands open browser pages and are not usually consumed as structured automation output.
 
-## Current CLI Shape
+## Current CLI shape
 
 Commands are organized as:
 
@@ -92,7 +92,7 @@ Top-level commands:
 Do not invent other command groups or commands that do not exist in the current CLI.
 If a required operation is not supported by the CLI, report that to the user instead of trying to work around it.
 
-## Port-Based Model
+## Port-based model
 
 The current CLI is primarily port-based.
 
@@ -114,7 +114,7 @@ pyaedt --json project list --port 50051
 pyaedt --json run my_script.py --port 50051
 ```
 
-## Project And Design Resolution Rules
+## Project and design resolution rules
 
 Design-scoped commands use one shared resolution rule set. This is important and should be applied consistently in guidance and examples.
 
@@ -132,18 +132,18 @@ Resolution rules:
 - If neither is provided, there must be exactly one open project and exactly one design in it.
 - If the selection is ambiguous, the command fails and the missing selector must be provided.
 
-When helping a user, do not describe this behavior as “active project” or “active design” fallback unless the command actually uses that behavior. The intended behavior is uniqueness-based resolution.
+When helping a user, do not describe this behavior as "active project" or "active design" fallback unless the command actually uses that behavior. The intended behavior is uniqueness-based resolution.
 
-## Command Reference
+## Command reference
 
-### Top-Level Commands
+### Top-level commands
 
 | Command | Description |
 |---|---|
 | `pyaedt --json version` | Display the PyAEDT version |
 | `pyaedt --json aedt-versions` | List installed AEDT versions on the machine |
 
-### Session Management
+### Session management
 
 | Command | Description                                                         |
 |---|---------------------------------------------------------------------|
@@ -158,7 +158,7 @@ Notes:
 - `session attach` can work interactively if `--port` is omitted and the user selects an instance.
 - `--project` or `--design` with `session attach` only works for gRPC instances with a usable port.
 
-### Project Commands
+### Project commands
 
 Port is required for all project commands to specify which AEDT instance to target.
 
@@ -167,8 +167,8 @@ Port is required for all project commands to specify which AEDT instance to targ
 | `pyaedt --json project list --port 50051` | List all open projects and their designs |
 | `pyaedt --json project open "C:/path/to/file.aedt" --port 50051 [--non-graphical]` | Open an AEDT project file |
 | `pyaedt --json project save --port 50051 [--path "C:/new/file.aedt"]` | Save the active project, optionally as a new file |
-| `pyaedt --json project create --name ProjectA --port 50051` | Create a **project** — use `--name` |
-| `pyaedt --json project create --project ProjectA --design Design1 --type Hfss --port 50051` | Create a **design** inside an existing project — use `--project` + `--design` + `--type` |
+| `pyaedt --json project create --name ProjectA --port 50051` | Create a **project**. Use `--name`. |
+| `pyaedt --json project create --project ProjectA --design Design1 --type Hfss --port 50051` | Create a **design** inside an existing project. Use `--project` + `--design` + `--type`. |
 | `pyaedt --json project close --port 50051 [--project ProjectA]` | Close a project, or the active project if omitted |
 
 `project create` behavior:
@@ -193,14 +193,14 @@ Supported `--type` values:
 - `Hfss3dLayout`
 - `MaxwellCircuit`
 
-### Script Commands
+### Script commands
 
 | Command | Description |
 |---|---|
 | `pyaedt --json run "path/to/script.py" --port 50051` | Execute a Python script inside AEDT |
 
 
-### Export Commands
+### Export commands
 
 | Command | Description |
 |---|---|
@@ -224,9 +224,9 @@ Both commands are design-scoped and therefore follow the shared project/design r
 | `pyaedt doc issues` | Open the issues page |
 | `pyaedt doc search <keywords>` | Search the online documentation |
 
-## Common Workflows
+## Common workflows
 
-### Workflow 1: Discover Or Start AEDT
+### Workflow 1: Discover or start AEDT
 
 ```bash
 # Check for running instances
@@ -242,52 +242,52 @@ Decision rule:
 - If it returns one process, reuse that port.
 - If it returns multiple processes, ask the user which port to use.
 
-### Workflow 2: Inspect Projects On A Port
+### Workflow 2: Inspect projects on a port
 
 ```bash
 pyaedt --json project list --port 50051
 ```
 
-Use this first when you need to understand which project and design selectors will be required.
+Use this first when you need to understand which project and design selectors are required.
 
-### Workflow 3: Create A Project Or A Design
+### Workflow 3: Create a project or a design
 
 ```bash
-# Create a project — use --name ONLY (do NOT add --design or --type)
+# Create a project. Use --name ONLY (do NOT add --design or --type)
 pyaedt --json project create --name "PatchAntenna" --port 50051
 
-# Create a design in an existing project — use --project + --design + --type ONLY (do NOT add --name)
+# Create a design in an existing project. Use --project + --design + --type ONLY (do NOT add --name)
 pyaedt --json project create --project "PatchAntenna" --design "HFSSDesign1" --type Hfss --port 50051
 ```
 
-### Workflow 4: Interactive Exploration With session attach
+### Workflow 4: Interactive exploration with session attach
 
 Use `session attach` as the **first choice** when the user wants to explore, debug, or iterate on a design interactively.
-It opens an iPython console that is already connected to the target AEDT session — `desktop` is pre-injected, so PyAEDT commands can be issued one by one without writing a full script.
+It opens an interactive Python console that is already connected to the target AEDT session. `desktop` is pre-injected, so PyAEDT commands can be issued one by one without writing a full script.
 
 ```bash
-# Attach to a running instance (port optional — prompts if omitted)
+# Attach to a running instance (port optional; prompts if omitted)
 pyaedt session attach --port 50051
 
-# Inside the iPython console — the session is already live:
+# Inside the interactive Python console, the session is already live:
 # >>> import ansys.aedt.core as aedt
 # >>> hfss = aedt.Hfss(new_desktop=False, port=50051)
 # >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 # >>> hfss.modeler["MyBox"].color = (255, 0, 0)
 ```
 
-#### Sending Multi-Line Code to the iPython Console
+#### Sending multi-line code to the interactive Python console
 
-When the agent sends code to the iPython console that spans **more than one line** (loops, conditionals, function definitions, etc.), pasting it directly causes an `IndentationError` or `SyntaxError` because the console treats each line as a separate input.
+When the agent sends code to the interactive Python console that spans **more than one line** (loops, conditionals, function definitions, etc.), pasting it directly causes an `IndentationError` or `SyntaxError` because the console treats each line as a separate input.
 
 **Always wrap multi-line blocks in `exec()`**, encoding all newlines as `\n` inside a single string:
 
 ```python
-# Fails — the console breaks on the loop body
+# Fails because the console breaks on the loop body
 for i in range(3):
     print(i)
 
-# Correct — send as a single exec() call
+# Correct: send as a single exec() call
 exec("for i in range(3):\n    print(i)")
 ```
 
@@ -313,37 +313,37 @@ Rules:
 
 Prefer `session attach` first. Graduate to `run` only once the workflow is known and needs to be repeatable or automated.
 
-#### Working With Multiple Designs Simultaneously
+#### Working with multiple designs simultaneously
 
-When the user needs to work on **more than one design at the same time**, open a **separate iPython console for each design** instead of switching designs inside a single console.
+When the user needs to work on **more than one design at the same time**, open a **separate interactive Python console for each design** instead of switching designs inside a single console.
 This keeps every design live and editable without closing or releasing any of them.
 
 ```bash
-# Terminal 1 — console for Design A
+# Terminal 1: console for Design A
 pyaedt session attach --port 50051 --project "ProjectA" --design "DesignA"
 
-# Terminal 2 — console for Design B (same or different project)
+# Terminal 2: console for Design B (same or different project)
 pyaedt session attach --port 50051 --project "ProjectA" --design "DesignB"
 
-# Terminal 3 — console for a design in a different project
+# Terminal 3: console for a design in a different project
 pyaedt session attach --port 50051 --project "ProjectB" --design "DesignC"
 ```
 
 Rules:
 
-- Each console holds its own PyAEDT object bound to a specific design — closing one console does **not** close the others.
+- Each console holds its own PyAEDT object bound to a specific design. Closing one console does **not** close the others.
 - All consoles share the same AEDT instance (same `--port`), so changes made in one are visible in AEDT immediately.
 - Do **not** call `desktop.release_desktop()` or `aedt_app.release_desktop()` inside any of these consoles unless you intentionally want to shut down AEDT for all open consoles.
 - If the designs live in different AEDT instances, use the matching `--port` for each console.
 
 
-### Workflow 5: Run Automation
+### Workflow 5: Run automation
 
 ```bash
 pyaedt --json run "<temp-dir>/setup_antenna.py" --port 50051
 ```
 
-### Workflow 6: Generated Script Execution
+### Workflow 6: Generated script execution
 
 Use this workflow whenever a script has been generated and must be run automatically.
 
@@ -365,7 +365,7 @@ Rules:
 - Do not tell the user to run the generated script manually if the workflow requires automatic execution.
 - Generated scripts intended for an existing AEDT instance should use `new_desktop=False`.
 
-### Workflow 7: Export Design Data
+### Workflow 7: Export design data
 
 ```bash
 # If the instance has exactly one project and one design, selectors can be omitted
@@ -376,7 +376,7 @@ pyaedt --json export config --port 50051 --output "<temp-dir>/config.json" --ove
 pyaedt --json export screenshot --port 50051 --project "PatchAntenna" --design "HFSSDesign1" --path "<temp-dir>/preview.jpg"
 ```
 
-## Error Handling
+## Error handling
 
 Always parse the `status` field in JSON output before using `data`:
 
@@ -387,7 +387,7 @@ Always parse the `status` field in JSON output before using `data`:
 
 If `status` is `"error"`, report the `error` message to the user and stop. Do not attempt to use `data`.
 
-## Guidance Rules For This Skill
+## Guidance rules for this skill
 
 - Resolve the `pyaedt` binary once at the start (PATH first, then venv fallback) and use `pyaedt` for all subsequent commands.
 - Prefer `--json` for non-interactive operations.
@@ -398,14 +398,14 @@ If `status` is `"error"`, report the `error` message to the user and stop. Do no
 - Use `project list --port ...` to inspect the AEDT state before choosing selectors.
 - Use `run` for real scripts.
 - Use `session attach` as the first choice for interactive, exploratory, or debugging workflows; fall back to `run` only when the workflow is defined, repeatable, or automated.
-- When sending multi-line code (loops, conditionals, function definitions) to a `session attach` iPython console, always wrap the entire block in a single `exec("line1\nline2\n...")` call. Never paste raw indented blocks directly — they cause `IndentationError` or `SyntaxError`.
+- When sending multi-line code (loops, conditionals, function definitions) to a `session attach` interactive Python console, always wrap the entire block in a single `exec("line1\nline2\n...")` call. Never paste raw indented blocks directly. They cause `IndentationError` or `SyntaxError`.
 - When the user needs to work on **multiple designs simultaneously**, instruct them to open one `session attach` console per design (one terminal per design). Never switch designs inside a single console to handle multiple designs at once.
 - When multiple instances are found, present the full list with port, version, and PID before asking.
 - When a generated script must be executed automatically, determine the target port first and then run `run --port ...`.
 - Generated scripts intended to reuse an existing AEDT instance should use `new_desktop=False`.
-- Unless the user explicitly asks for another destination, create and use a task-specific temporary folder for exports, generated scripts, screenshots, configs, and other intermediate files.
+- Unless the user explicitly asks for another destination, create and use a task-specific temporary folder for exports, generated scripts, screenshots, configuration files, and other intermediate files.
 
-## Performance Tips
+## Performance tips
 
 - Use `session list` before starting AEDT so you do not launch unnecessary instances.
 - Use `project list --port ...` to inspect available projects and designs before attempting a design-scoped export.

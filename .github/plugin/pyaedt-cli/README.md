@@ -6,11 +6,11 @@ Plugin for interacting with ANSYS Electronics Desktop (AEDT) through the PyAEDT 
 
 PyAEDT CLI lets AI coding agents manage AEDT sessions, projects, and designs directly from the terminal:
 
-- **Session management** — Start, list, stop, and attach to AEDT instances
-- **Project operations** — Create, open, save, close projects and designs
-- **Script execution** — Run Python scripts inside a live AEDT session
-- **Export** — Capture screenshots and export design configurations
-- **Documentation** — Quick access to PyAEDT docs, examples, and API reference
+- **Session management**: Start, list, stop, and attach to AEDT instances
+- **Project operations**: Create, open, save, and close projects and designs
+- **Script execution**: Run Python scripts inside a live AEDT session
+- **Export**: Capture screenshots and export design configurations
+- **Documentation**: Quick access to PyAEDT docs, examples, and API reference
 
 ## Skills
 
