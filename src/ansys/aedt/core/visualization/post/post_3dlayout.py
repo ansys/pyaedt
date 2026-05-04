@@ -165,8 +165,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 except Exception as e:  # pragma: no cover
                     if settings.release_on_exception:
                         raise GrpcApiError(
-                            f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`."
-                            f"Consider disabling `settings.release_on_exception` for fallback compute. "
+                            f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`. "
+                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead of raising."
                         ) from e
                     else:
                         self.logger.add_warning_message(
