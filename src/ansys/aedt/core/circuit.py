@@ -32,7 +32,6 @@ from pathlib import Path
 import re
 import shutil
 import time
-from pydantic import BaseModel
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -59,22 +58,6 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
-
-
-class SubstrateDataBlockType(BaseModel):
-    """Provides an enum of substrate datablock types.
-    """
-
-    MICROSTRIP = 0
-    STRIPLINE = 1
-    OFFSET_STRIPLINE = 2
-    COPLANAR_WAVEGUIDE = 3
-    GROUNDED_COPLANAR_WAVE_GUIDE = 4
-    SUSPENDED_STRIPLINE = 5
-    SLOT_LINE = 6
-    RECTANGULAR_WAVEGUIDE = 7
-    SUBSTRATE_REFERENCE_NAME = 8
-
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -167,20 +150,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     """
 
     def __init__(
-        self,
-        project: str | None = None,
-        design: str | None = None,
-        solution_type: str | None = None,
-        setup: str | None = None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
-        aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+            self,
+            project: str | None = None,
+            design: str | None = None,
+            solution_type: str | None = None,
+            setup: str | None = None,
+            version: str | None = None,
+            non_graphical: bool | None = False,
+            new_desktop: bool | None = False,
+            close_on_exit: bool | None = False,
+            student_version: bool | None = False,
+            machine: str | None = "",
+            port: int | None = 0,
+            aedt_process_id: int | None = None,
+            remove_lock: bool | None = False,
     ) -> None:
         FieldAnalysisCircuit.__init__(
             self,
@@ -205,7 +188,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     def _get_number_from_string(self, stringval):
-        value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
+        value = stringval[stringval.find("=") + 1:].strip().replace("{", "").replace("}", "").replace(",", ".")
         value = value.replace("µ", "u")
         try:
             float(value)
@@ -290,10 +273,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
                     elif (
-                        "/" in fields[3]
-                        and '"' not in fields[3][0]
-                        and "'" not in fields[3][0]
-                        and "{" not in fields[3][0]
+                            "/" in fields[3]
+                            and '"' not in fields[3][0]
+                            and "'" not in fields[3][0]
+                            and "{" not in fields[3][0]
                     ):
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
@@ -343,7 +326,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                         parameter = fields[len(fields) - 1][:-1].strip()
                         if "=" in parameter:
                             parameter_list = [parameter[: parameter.find("=") - 1]]
-                            parameter_value = [parameter[parameter.find("=") + 1 :]]
+                            parameter_value = [parameter[parameter.find("=") + 1:]]
                         else:
                             parameter_list = ["MOD"]
                             parameter_value = [parameter]
@@ -374,7 +357,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     parameter = fields[len(fields) - 1][:-1].strip()
                     if "=" in parameter:
                         parameter_list = [parameter[: parameter.find("=") - 1]]
-                        parameter_value = [parameter[parameter.find("=") + 1 :]]
+                        parameter_value = [parameter[parameter.find("=") + 1:]]
                     else:
                         parameter_list = ["MOD"]
                         parameter_value = [parameter]
@@ -407,7 +390,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                     else:
-                        value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
+                        value = line[line.index("PULSE") + 6: line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         fields[1], fields[2] = fields[2], fields[1]
                         mycomp = self.modeler.schematic.create_voltage_pulse(
@@ -425,7 +408,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                     else:
-                        value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
+                        value = line[line.index("PULSE") + 6: line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         mycomp = self.modeler.schematic.create_current_pulse(
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
@@ -656,11 +639,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_source_pin_names(
-        self,
-        source_design_name: str,
-        source_project_name: str | None = None,
-        source_project_path: str | None = None,
-        port_selector: int | None = 3,
+            self,
+            source_design_name: str,
+            source_project_name: str | None = None,
+            source_project_path: str | None = None,
+            port_selector: int | None = 3,
     ) -> list:
         """Retrieve pin names.
 
@@ -741,7 +724,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 lines = f.readlines()
                 for i in lines:
                     if "[Number of Ports]" in i:
-                        ports = int(i[i.find("]") + 1 :])
+                        ports = int(i[i.find("]") + 1:])
                 portnames = [i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]]
                 if not portnames:
                     portnames = [f"Port{i + 1}" for i in range(ports)]
@@ -853,17 +836,17 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def export_fullwave_spice(
-        self,
-        design: str | None = None,
-        setup: str | None = None,
-        is_solution_file: bool | None = False,
-        filename: str | None = None,
-        passivity: bool | None = False,
-        causality: bool | None = False,
-        renormalize: bool | None = False,
-        impedance: int | None = 50,
-        error: float | None = 0.5,
-        poles: int | None = 10000,
+            self,
+            design: str | None = None,
+            setup: str | None = None,
+            is_solution_file: bool | None = False,
+            filename: str | None = None,
+            passivity: bool | None = False,
+            causality: bool | None = False,
+            renormalize: bool | None = False,
+            impedance: int | None = 50,
+            error: float | None = 0.5,
+            poles: int | None = 10000,
     ) -> str:
         """
         Export a full wave HSpice file using NDE.
@@ -981,13 +964,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_touchstone_report(
-        self,
-        name: str,
-        curves: list,
-        solution: str | None = None,
-        variations: dict | None = None,
-        differential_pairs: bool | None = False,
-        subdesign_id: int | None = None,
+            self,
+            name: str,
+            curves: list,
+            solution: str | None = None,
+            variations: dict | None = None,
+            differential_pairs: bool | None = False,
+            subdesign_id: int | None = None,
     ) -> bool:
         """Create a Touchstone plot.
 
@@ -1030,7 +1013,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def push_excitations(
-        self, instance: str, thevenin_calculation: bool | None = False, setup: str | None = "LinearFrequency"
+            self, instance: str, thevenin_calculation: bool | None = False, setup: str | None = "LinearFrequency"
     ) -> bool:
         """Push excitations for a linear frequency setup.
 
@@ -1059,16 +1042,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def push_time_excitations(
-        self,
-        instance: str,
-        start: float | None = 0.0,
-        stop: float | None = 0.0,
-        harmonics: int | None = 100,
-        window_type: str | None = "Rectangular",
-        width_percentage: float | None = 100.0,
-        kaiser: float | None = 0.0,
-        correct_coherent_gain: bool | None = True,
-        setup: str | None = "NexximTransient",
+            self,
+            instance: str,
+            start: float | None = 0.0,
+            stop: float | None = 0.0,
+            harmonics: int | None = 100,
+            window_type: str | None = "Rectangular",
+            width_percentage: float | None = 100.0,
+            kaiser: float | None = 0.0,
+            correct_coherent_gain: bool | None = True,
+            setup: str | None = "NexximTransient",
     ) -> bool:
         """Push excitations for a transient setup.
 
@@ -1294,14 +1277,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_differential_pair(
-        self,
-        assignment: str,
-        reference: str,
-        common_mode: str | None = None,
-        differential_mode: str | None = None,
-        common_reference: float | None = 25,
-        differential_reference: float | None = 100,
-        active: bool | None = True,
+            self,
+            assignment: str,
+            reference: str,
+            common_mode: str | None = None,
+            differential_mode: str | None = None,
+            common_reference: float | None = 25,
+            differential_reference: float | None = 100,
+            active: bool | None = True,
     ) -> bool:
         """Add a differential pair definition.
 
@@ -1493,28 +1476,37 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_substrate_datablock(self,
+    def add_substrate_microstrip(self,
                                 name: str,
-                                substrate_datablock_type: SubstrateDataBlockType|int|str = "MICROSTRIP",
-
+                                dielectric_height: str,
+                                dielectric_constant: float|int,
+                                dielectric_loss_tangent: float|int,
+                                air_height:str,
+                                roughness: str,
+                                metal_material: str = "copper",
+                                metal_resistivity: float|int = 1.724138,
+                                metal_thickness: str = "0.7 mil",
                                 ):
         oModule = self.odesign.GetModule("DataBlock")
         oModule.AddSubstrateDataBlock(
             [
                 "NAME:DataBlock",
-                "Name:="	, name,
-                "Type:="		, 0,
-                "MetalSpecifyType:="	, 0,
-                "DielecTempMaterial0:="	, "",
-                "DielecTempMaterial1:="	, "",
-                "DielecTempMaterial2:="	, "",
-                "DielecTempMaterial3:="	, "",
-                "DielecTempMaterial4:="	, "",
-                "MetalTempMaterial:="	, "",
-                "Dielectric:="		, ["1mm" ,"5.5" ,"0" ,"25mm" ,"0" ,"0" ,"0"],
-                "DielectricRef:="	, [2 ,"glass"],
-                "Metalization:="	, [			"Metal:="		, ["copper" ,"1.724138" ,"0.7 mil"],			"Metal:="		, ["" ,"" ,""],			"Metal:="		, ["" ,"" ,""],			"Roughness:="		, [""]]
+                "Name:=", name,
+                "Type:=", 0,
+                "MetalSpecifyType:=", 0,
+                "DielecTempMaterial0:=", "",
+                "DielecTempMaterial1:=", "",
+                "DielecTempMaterial2:=", "",
+                "DielecTempMaterial3:=", "",
+                "DielecTempMaterial4:=", "",
+                "MetalTempMaterial:=", "",
+                "Dielectric:=", [dielectric_height, str(dielectric_constant), str(dielectric_loss_tangent), air_height, "0", "0", "0"],
+                "DielectricRef:=", [0, ""],
+                "Metalization:=",
+                ["Metal:=", [metal_material, metal_resistivity, metal_thickness], "Metal:=", ["", "", ""], "Metal:=", ["", "", ""],
+                 "Roughness:=", [roughness]]
             ])
+        return True
 
     @pyaedt_function_handler()
     def browse_log_file(self, input_file: str | Path | None = None) -> Path | None:
@@ -1562,12 +1554,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
-        self,
-        project_connections: dict[str, str],
-        edb_zones_dict: dict[str, any],
-        ports: dict[str, str] | None = None,
-        schematic_units: str | None = "mm",
-        model_inc: float | None = 50,
+            self,
+            project_connections: dict[str, str],
+            edb_zones_dict: dict[str, any],
+            ports: dict[str, str] | None = None,
+            schematic_units: str | None = "mm",
+            model_inc: float | None = 50,
     ) -> bool:
         """Connect circuit model from a multizone clipped project.
 
@@ -1690,17 +1682,17 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def create_tdr_schematic_from_snp(
-        self,
-        input_file: str | Hfss3dLayout | Path,
-        tx_schematic_pins: list,
-        tx_schematic_differential_pins: list | None = None,
-        termination_pins: list | None = None,
-        differential: bool | None = True,
-        rise_time: float | int = 30,
-        use_convolution: bool | None = True,
-        analyze: bool | None = False,
-        design_name: str | None = "LNA",
-        impedance: float | None = 50,
+            self,
+            input_file: str | Hfss3dLayout | Path,
+            tx_schematic_pins: list,
+            tx_schematic_differential_pins: list | None = None,
+            termination_pins: list | None = None,
+            differential: bool | None = True,
+            rise_time: float | int = 30,
+            use_convolution: bool | None = True,
+            analyze: bool | None = False,
+            design_name: str | None = "LNA",
+            impedance: float | None = 50,
     ) -> None:
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1834,15 +1826,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def create_lna_schematic_from_snp(
-        self,
-        input_file: str,
-        start_frequency: int | float | None = 0,
-        stop_frequency: int | float | None = 30,
-        auto_assign_diff_pairs: bool = False,
-        separation: str | None = ".",
-        pattern: list | None = None,
-        analyze: bool | None = False,
-        design_name: str | None = "LNA",
+            self,
+            input_file: str,
+            start_frequency: int | float | None = 0,
+            stop_frequency: int | float | None = 30,
+            auto_assign_diff_pairs: bool = False,
+            separation: str | None = ".",
+            pattern: list | None = None,
+            analyze: bool | None = False,
+            design_name: str | None = "LNA",
     ) -> tuple[bool, list, list]:
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
 
@@ -1945,26 +1937,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def create_ami_schematic_from_snp(
-        self,
-        input_file: str,
-        ibis_tx_file: str,
-        tx_buffer_name: str,
-        rx_buffer_name: str,
-        tx_schematic_pins: list,
-        rx_schematic_pins: list,
-        tx_schematic_differential_pins: list = None,
-        rx_schematic_differentialial_pins: list = None,
-        ibis_tx_component_name: str | None = None,
-        ibis_rx_component_name: str | None = None,
-        use_ibis_buffer: bool | None = True,
-        differential: bool | None = True,
-        bit_pattern: str | None = None,
-        unit_interval: str | None = None,
-        use_convolution: bool | None = True,
-        analyze: bool | None = True,
-        design_name: str | None = "AMI",
-        ibis_rx_file: str | None = None,
-        create_setup: bool | None = True,
+            self,
+            input_file: str,
+            ibis_tx_file: str,
+            tx_buffer_name: str,
+            rx_buffer_name: str,
+            tx_schematic_pins: list,
+            rx_schematic_pins: list,
+            tx_schematic_differential_pins: list = None,
+            rx_schematic_differentialial_pins: list = None,
+            ibis_tx_component_name: str | None = None,
+            ibis_rx_component_name: str | None = None,
+            use_ibis_buffer: bool | None = True,
+            differential: bool | None = True,
+            bit_pattern: str | None = None,
+            unit_interval: str | None = None,
+            use_convolution: bool | None = True,
+            analyze: bool | None = True,
+            design_name: str | None = "AMI",
+            ibis_rx_file: str | None = None,
+            create_setup: bool | None = True,
     ) -> tuple[bool, list, list]:
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2050,27 +2042,27 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def create_ibis_schematic_from_snp(
-        self,
-        input_file: str,
-        ibis_tx_file: str,
-        tx_buffer_name: str,
-        rx_buffer_name: str,
-        tx_schematic_pins: list,
-        rx_schematic_pins: list | None = None,
-        ibis_rx_file: str | None = None,
-        tx_schematic_differential_pins: list | None = None,
-        rx_schematic_differential_pins: list | None = None,
-        ibis_tx_component_name: str | None = None,
-        ibis_rx_component_name: str | None = None,
-        use_ibis_buffer: bool | None = True,
-        differential: bool | None = True,
-        bit_pattern: str | None = None,
-        unit_interval: str | None = None,
-        use_convolution: bool = True,
-        analyze: bool | None = False,
-        design_name: str | None = "IBIS",
-        is_ami: bool | None = False,
-        create_setup: bool | None = True,
+            self,
+            input_file: str,
+            ibis_tx_file: str,
+            tx_buffer_name: str,
+            rx_buffer_name: str,
+            tx_schematic_pins: list,
+            rx_schematic_pins: list | None = None,
+            ibis_rx_file: str | None = None,
+            tx_schematic_differential_pins: list | None = None,
+            rx_schematic_differential_pins: list | None = None,
+            ibis_tx_component_name: str | None = None,
+            ibis_rx_component_name: str | None = None,
+            use_ibis_buffer: bool | None = True,
+            differential: bool | None = True,
+            bit_pattern: str | None = None,
+            unit_interval: str | None = None,
+            use_convolution: bool = True,
+            analyze: bool | None = False,
+            design_name: str | None = "IBIS",
+            is_ami: bool | None = False,
+            create_setup: bool | None = True,
     ) -> tuple[bool, list, list]:
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2168,27 +2160,27 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def create_ibis_schematic_from_pins(
-        self,
-        ibis_tx_file,
-        ibis_rx_file=None,
-        tx_buffer_name: str = "",
-        rx_buffer_name: str = "",
-        tx_schematic_pins: list | None = None,
-        rx_schematic_pins: list | None = None,
-        tx_schematic_differential_pins: list | None = None,
-        rx_schematic_differential_pins: list | None = None,
-        tx_component_name: str | None = None,
-        rx_component_name: str | None = None,
-        ibis_tx_component_name: str | None = None,
-        ibis_rx_component_name: str | None = None,
-        use_ibis_buffer: bool | None = True,
-        differential: bool | None = True,
-        bit_pattern: str | None = None,
-        unit_interval: str | None = None,
-        use_convolution: bool | None = True,
-        analyze: bool | None = False,
-        is_ami: bool | None = False,
-        create_setup: bool | None = True,
+            self,
+            ibis_tx_file,
+            ibis_rx_file=None,
+            tx_buffer_name: str = "",
+            rx_buffer_name: str = "",
+            tx_schematic_pins: list | None = None,
+            rx_schematic_pins: list | None = None,
+            tx_schematic_differential_pins: list | None = None,
+            rx_schematic_differential_pins: list | None = None,
+            tx_component_name: str | None = None,
+            rx_component_name: str | None = None,
+            ibis_tx_component_name: str | None = None,
+            ibis_rx_component_name: str | None = None,
+            use_ibis_buffer: bool | None = True,
+            differential: bool | None = True,
+            bit_pattern: str | None = None,
+            unit_interval: str | None = None,
+            use_convolution: bool | None = True,
+            analyze: bool | None = False,
+            is_ami: bool | None = False,
+            create_setup: bool | None = True,
     ) -> tuple[bool, list, list]:
         """Create a schematic from a list of pins and automatically set up an IBIS-AMI analysis.
 
@@ -2255,8 +2247,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     i
                     for i, v in self.modeler.schematic.components.items()
                     if "FileName" in v.parameters
-                    or "ModelName" in v.parameters
-                    and v.parameters["ModelName"] == "FieldSolver"
+                       or "ModelName" in v.parameters
+                       and v.parameters["ModelName"] == "FieldSolver"
                 ][0]
             except Exception:
                 self.logger.error("A component has to be passed or an Sparameter present.")
@@ -2662,16 +2654,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_table(
-        self,
-        input_file: str | Path,
-        link: bool | None = False,
-        header_rows: int | None = 0,
-        rows_to_read: int | None = -1,
-        column_separator: str | None = "Space",
-        data_type: str | None = "real",
-        sweep_columns: int | None = 0,
-        total_columns: int | None = -1,
-        real_columns: int | None = 1,
+            self,
+            input_file: str | Path,
+            link: bool | None = False,
+            header_rows: int | None = 0,
+            rows_to_read: int | None = -1,
+            column_separator: str | None = "Space",
+            data_type: str | None = "real",
+            sweep_columns: int | None = 0,
+            total_columns: int | None = -1,
+            real_columns: int | None = 1,
     ) -> bool | str:
         """Import a data table as a solution.
 

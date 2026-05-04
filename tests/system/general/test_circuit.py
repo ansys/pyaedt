@@ -165,7 +165,7 @@ def test_import_touchstone(aedt_app, test_tmp_dir) -> None:
     numports2 = len(ports2)
     assert numports2 == 3
     tx = ports[: int(numports / 2)]
-    rx = ports[int(numports / 2) :]
+    rx = ports[int(numports / 2):]
     insertions = [f"dB(S({i},{j}))" for i, j in zip(tx, rx)]
     assert aedt_app.create_touchstone_report("Insertion Losses", insertions)
     touchstone_data = aedt_app.get_touchstone_data()
@@ -317,50 +317,50 @@ def test_create_eye_setups(aedt_app) -> None:
 def test_create_ami_plots(ami_model) -> None:
     report_name = "MyReport"
     assert (
-        ami_model.post.create_ami_initial_response_plot(
-            "AMIAnalysis",
-            "b_input_15",
-            ami_model.available_variations.nominal,
-            plot_type="Rectangular Stacked Plot",
-            plot_intermediate_response=True,
-            plot_final_response=True,
-            plot_name=report_name,
-        )
-        == report_name
+            ami_model.post.create_ami_initial_response_plot(
+                "AMIAnalysis",
+                "b_input_15",
+                ami_model.available_variations.nominal,
+                plot_type="Rectangular Stacked Plot",
+                plot_intermediate_response=True,
+                plot_final_response=True,
+                plot_name=report_name,
+            )
+            == report_name
     )
     setup_name = "Dom_Verify"
     assert ami_model.create_setup(setup_name, "NexximVerifEye")
     setup_name = "Dom_Quick"
     assert ami_model.create_setup(setup_name, "NexximQuickEye")
     assert (
-        ami_model.post.create_ami_statistical_eye_plot(
-            "AMIAnalysis", "b_output4_14", ami_model.available_variations.nominal, plot_name="MyReport1"
-        )
-        == "MyReport1"
+            ami_model.post.create_ami_statistical_eye_plot(
+                "AMIAnalysis", "b_output4_14", ami_model.available_variations.nominal, plot_name="MyReport1"
+            )
+            == "MyReport1"
     )
     rep = ami_model.post.reports_by_category.statistical_eye_contour(setup="AMIAnalysis", expressions=["b_output4_14"])
     assert rep.create()
     assert (
-        ami_model.post.create_statistical_eye_plot(
-            "Dom_Quick",
-            "b_input_15.int_ami_rx.eye_probe",
-            ami_model.available_variations.nominal,
-            plot_name="MyReportQ",
-        )
-        == "MyReportQ"
+            ami_model.post.create_statistical_eye_plot(
+                "Dom_Quick",
+                "b_input_15.int_ami_rx.eye_probe",
+                ami_model.available_variations.nominal,
+                plot_name="MyReportQ",
+            )
+            == "MyReportQ"
     )
 
 
 @pytest.mark.skipif(DESKTOP_VERSION > "2021.2", reason="Skipped on versions higher than 2021.2")
 def test_create_ami_plots_b(aedt_app) -> None:
     assert (
-        aedt_app.post.create_statistical_eye_plot(
-            "Dom_Verify",
-            "b_input_15.int_ami_rx.eye_probe",
-            aedt_app.available_variations.nominal,
-            plot_name="MyReportV",
-        )
-        == "MyReportV"
+            aedt_app.post.create_statistical_eye_plot(
+                "Dom_Verify",
+                "b_input_15.int_ami_rx.eye_probe",
+                aedt_app.available_variations.nominal,
+                plot_name="MyReportV",
+            )
+            == "MyReportV"
     )
 
 
@@ -572,6 +572,17 @@ def test_netlist_data_block(aedt_app, test_tmp_dir) -> None:
     lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert aedt_app.analyze()
+
+
+def test_datablock_microstrip(aedt_app, test_tmp_dir) -> None:
+    assert aedt_app.add_substrate_microstrip(
+        name="ms",
+        dielectric_height="0.5mm",
+        dielectric_constant="3.3",
+        dielectric_loss_tangent="0.02",
+        air_height="10mm",
+        roughness="1.5um",
+    )
 
 
 def test_create_voltage_probe(aedt_app) -> None:
