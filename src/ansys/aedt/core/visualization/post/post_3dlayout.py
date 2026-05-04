@@ -159,7 +159,6 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
                     self._app.post.fields_calculator.delete_expression(my_expression["name"])
 
-
                 try:
                     self._app.post.fields_calculator.add_expression(my_expression, "")
                     loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
@@ -172,10 +171,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                     else:
                         try:
                             self._app.post.fields_calculator.add_expression(my_expression, "")
-                            loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution,
-                                                                             intrinsics={})
+                            loss = self._app.post.fields_calculator.evaluate(
+                                my_expression["name"], solution, intrinsics={}
+                            )
                         except Exception:
-                            self.logger.add_warning_message(f"Net `{net_name}` has no field data on layer `{layer_name}`.")
+                            self.logger.add_warning_message(
+                                f"Net `{net_name}` has no field data on layer `{layer_name}`."
+                            )
                             loss = 0
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
