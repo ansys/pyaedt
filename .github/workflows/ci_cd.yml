@@ -198,6 +198,7 @@ jobs:
         uses: ansys/actions/doc-style@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          files: 'doc/source/, .github/plugin/, .github/skills/'
           fail-level: 'warning'
 
   doc-build:

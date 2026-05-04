@@ -94,11 +94,12 @@ If a required operation is not supported by the CLI, report that to the user ins
 
 ## Port-Based Model
 
-The current CLI is port-based, not session-file based.
+The current CLI is primarily port-based.
 
 - `session start` launches a new AEDT instance and returns its gRPC port.
 - `session list` discovers running AEDT instances.
 - Most operational commands require `--port` explicitly.
+- `session attach` can also be used to select an existing AEDT session, including by `--project` or `--design`, so not every workflow starts from a known port.
 - There is no persisted `session connect` state to reuse later.
 
 Practical implication:
