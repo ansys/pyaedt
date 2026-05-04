@@ -32,6 +32,7 @@ from pathlib import Path
 import re
 import shutil
 import time
+from pydantic import BaseModel
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -58,6 +59,22 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
+
+
+class SubstrateDataBlockType(BaseModel):
+    """Provides an enum of substrate datablock types.
+    """
+
+    MICROSTRIP = 0
+    STRIPLINE = 1
+    OFFSET_STRIPLINE = 2
+    COPLANAR_WAVEGUIDE = 3
+    GROUNDED_COPLANAR_WAVE_GUIDE = 4
+    SUSPENDED_STRIPLINE = 5
+    SLOT_LINE = 6
+    RECTANGULAR_WAVEGUIDE = 7
+    SUBSTRATE_REFERENCE_NAME = 8
+
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -1474,6 +1491,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             ["NAME:DataBlock", "name:=", name, "filename:=", str(input_file), "filelocation:=", 0]
         )
         return True
+
+    @pyaedt_function_handler()
+    def add_substrate_datablock(self,
+                                name: str,
+                                substrate_datablock_type: SubstrateDataBlockType|int|str = "MICROSTRIP",
+
+                                ):
+        oModule = self.odesign.GetModule("DataBlock")
+        oModule.AddSubstrateDataBlock(
+            [
+                "NAME:DataBlock",
+                "Name:="	, name,
+                "Type:="		, 0,
+                "MetalSpecifyType:="	, 0,
+                "DielecTempMaterial0:="	, "",
+                "DielecTempMaterial1:="	, "",
+                "DielecTempMaterial2:="	, "",
+                "DielecTempMaterial3:="	, "",
+                "DielecTempMaterial4:="	, "",
+                "MetalTempMaterial:="	, "",
+                "Dielectric:="		, ["1mm" ,"5.5" ,"0" ,"25mm" ,"0" ,"0" ,"0"],
+                "DielectricRef:="	, [2 ,"glass"],
+                "Metalization:="	, [			"Metal:="		, ["copper" ,"1.724138" ,"0.7 mil"],			"Metal:="		, ["" ,"" ,""],			"Metal:="		, ["" ,"" ,""],			"Roughness:="		, [""]]
+            ])
 
     @pyaedt_function_handler()
     def browse_log_file(self, input_file: str | Path | None = None) -> Path | None:
