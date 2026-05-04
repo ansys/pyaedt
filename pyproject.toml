@@ -2,7 +2,6 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "pyaedt"
 dynamic = ["version"]
@@ -99,7 +98,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.3.9",
+  "prek==0.3.10",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
@@ -121,10 +120,9 @@ doc = [
     "Sphinx>=7.1.0,<8.3",
     "sphinx-autobuild==2024.10.3",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.21",
+    "sphinx-gallery>=0.14.0,<0.22",
     "sphinx_design>=0.4.0,<0.7",
 ]
-
 
 [tool.setuptools]
 include-package-data = true
@@ -318,13 +316,18 @@ title_format = "`{version} <https://github.com/ansys/pyaedt/releases/tag/v{versi
 issue_format = "`#{issue} <https://github.com/ansys/pyaedt/pull/{issue}>`_"
 
 [[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking"
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = "added"
 name = "Added"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "dependencies"
-name = "Dependencies"
+directory = "fixed"
+name = "Fixed"
 showcontent = true
 
 [[tool.towncrier.type]]
@@ -333,8 +336,8 @@ name = "Documentation"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "fixed"
-name = "Fixed"
+directory = "dependencies"
+name = "Dependencies"
 showcontent = true
 
 [[tool.towncrier.type]]
@@ -351,5 +354,4 @@ showcontent = true
 directory = "test"
 name = "Test"
 showcontent = true
-
 
