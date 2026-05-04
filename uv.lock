@@ -3544,7 +3544,7 @@ dev = [
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
     { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
-    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.21" },
+    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.22" },
 ]
 doc = [
     { name = "ansys-sphinx-theme", specifier = ">=1.0.0,<1.8" },
@@ -3554,7 +3554,7 @@ doc = [
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
     { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
     { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
-    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.21" },
+    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.22" },
 ]
 tests = [
     { name = "cryptography" },
@@ -4909,16 +4909,16 @@ wheels = [
 
 [[package]]
 name = "sphinx-gallery"
-version = "0.20.0"
+version = "0.21.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pillow" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/14/9238ac61932299b38c20c7c37dbfe60348c0348ea4d400f9ef25875b3bf7/sphinx_gallery-0.20.0.tar.gz", hash = "sha256:70281510c6183d812d3595957005ccf555c5a793f207410f6cd16a25bf08d735", size = 473502, upload-time = "2025-12-02T15:51:37.277Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/9d/91334ba9370de74564c8a1e0c54ce1bc638b35e00177cc02cb25c9c14348/sphinx_gallery-0.21.0.tar.gz", hash = "sha256:72a7734ad9100878345b8b65c249148cc0f1cd0e274adf3e3900214e4c2c5bee", size = 483616, upload-time = "2026-04-24T03:09:28.173Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/fd/818a53d4da56ef2da7b08f77bb3a825635941d1fcc6b6a490995dec1a81c/sphinx_gallery-0.20.0-py3-none-any.whl", hash = "sha256:188b7456e269649945825661b76cdbfbf0b70c2cfd5b75c9a11fe52519879e4d", size = 458655, upload-time = "2025-12-02T15:51:35.311Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/dd/d95843947392524418aa9fc4e8d205e82b4261ab2d2fab4abce7a14ee7c0/sphinx_gallery-0.21.0-py3-none-any.whl", hash = "sha256:f37bea4012f1cd7439c7782081e4259945207cf179e79b81330a6db3b18bca8b", size = 466808, upload-time = "2026-04-24T03:09:25.992Z" },
 ]
 
 [[package]]
