@@ -126,7 +126,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
             if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
                 if self._app._is_object_oriented_enabled():
-                    oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
+                    oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
                     idx = None
                     if oparam[0] in oparam[1:]:
