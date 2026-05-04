@@ -1017,11 +1017,11 @@ class ParametricSetups(PyAedtBase):
     def add(
         self,
         variable: str,
-        start_point: float,
-        end_point: float = None,
-        step: float = 100,
+        start_point: float | int | str,
+        end_point: float | int | str | None = None,
+        step: float | int | str = 100,
         variation_type: str = "LinearCount",
-        solution: str = None,
+        solution: str | None = None,
         name: str = None,
     ) -> SetupParam | bool:
         """Add a basic sensitivity analysis.
@@ -1033,7 +1033,7 @@ class ParametricSetups(PyAedtBase):
             Name of the variable.
         start_point : float, int or str
             Variation Start Point if a variation is defined or Single Value.
-        end_point : float or int, optional
+        end_point : float, int or str, optional
             Variation End Point. This parameter is optional if a Single Value is defined.
         step : float, int, or str
             Variation Step or Count depending on variation_type. The default is ``100``
