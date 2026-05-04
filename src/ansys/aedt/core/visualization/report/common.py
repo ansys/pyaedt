@@ -447,7 +447,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._is_created:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
             if oo:
                 BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False, app=self._app)
                 return True
@@ -458,7 +458,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
             _child_object = BinaryTreeNode(self.plot_name, oo, False, app=self._app)
             for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
                 if var in _child_object.children:
@@ -659,16 +659,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         _ = self.expressions[::]
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self.plot_name)
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
         except Exception:
             return _traces
         for el in oo_names:
-            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
+            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, el))):
                 continue
             try:
-                oo1 = oo.GetChildObject(el)
-                oo1_name = oo1.GetChildNames()
+                oo1 = self._app.get_oo_object(oo, el)
+                oo1_name = self._app.get_oo_name(oo, el)
                 trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
                 if trace_names:
                     for aedt_name in trace_names:
@@ -1046,11 +1046,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
         for el in oo_names:
             if "LimitLine" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _traces.append(
                     LimitLine(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1070,16 +1072,18 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         """
         _notes = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
         except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _notes.append(
                     Note(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -2196,7 +2200,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+            legend = self._app.get_oo_object(oo, "Legend")
             legend.Show_Solution_Name = not solution_name
             legend.Show_Trace_Name = not trace_name
             legend.Show_Variation_Key = not variation_key
