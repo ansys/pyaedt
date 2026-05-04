@@ -283,9 +283,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         self._field_setups = []
+        radiation_oo = self.get_oo_object(self.odesign, "Radiation")
         for field in self.field_setup_names:
-            obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
-            type_field = obj_field.GetPropValue("Type")
+            type_field = self.get_oo_property_value(radiation_oo, field, "Type")
             if type_field == "Infinite Sphere":
                 self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
             else:
@@ -302,7 +302,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         List of str
         """
-        return self.odesign.GetChildObject("Radiation").GetChildNames()
+        return self.get_oo_name(self.odesign, "Radiation")
 
     class BoundaryType(CreateBoundaryMixin, PyAedtBase):
         """Creates and manages boundaries."""
