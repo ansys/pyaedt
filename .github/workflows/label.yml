@@ -127,3 +127,44 @@ jobs:
         use-conventional-commits: true
         use-default-towncrier-config: true
         use-python-cache: false
+
+  check-pr-template:
+    name: Check PR template
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          ERRORS=()
+
+          # Check required sections exist
+          for section in "## Description" "## Issue linked" "## Checklist"; do
+            if ! echo "$PR_BODY" | grep -qF "$section"; then
+              ERRORS+=("Missing section: '$section'")
+            fi
+          done
+
+          # Check placeholder texts have been replaced
+          PLACEHOLDERS=(
+            "**Please provide a brief description of the changes made in this pull request.**"
+            "**Please mention the issue number or describe the problem this pull request addresses.**"
+          )
+          for placeholder in "${PLACEHOLDERS[@]}"; do
+            if echo "$PR_BODY" | grep -qF "$placeholder"; then
+              ERRORS+=("Placeholder not replaced: '$placeholder'")
+            fi
+          done
+
+          # Report
+          if [ ${#ERRORS[@]} -ne 0 ]; then
+            echo "PR description validation failed:"
+            for err in "${ERRORS[@]}"; do
+              echo "  - $err"
+            done
+            exit 1
+          fi
+
+          echo "PR description is valid."
