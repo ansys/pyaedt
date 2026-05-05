@@ -1472,7 +1472,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         try:
             if object_name:
-                return aedt_object.GetChildObject(object_name.replace("\\", "\\\\")).GetChildNames()
+                return aedt_object.GetChildObject(object_name).GetChildNames()
             else:
                 return aedt_object.GetChildNames()
 
@@ -1496,7 +1496,7 @@ class Design(AedtObjects, PyAedtBase):
             AEDT object if any.
         """
         try:
-            return aedt_object.GetChildObject(object_name.replace("\\", "\\\\"))
+            return aedt_object.GetChildObject(object_name)
         except Exception:
             return False
 
@@ -1517,7 +1517,7 @@ class Design(AedtObjects, PyAedtBase):
             Values returned by method if any.
         """
         try:
-            return aedt_object.GetChildObject(object_name.replace("\\", "\\\\")).GetPropNames()
+            return aedt_object.GetChildObject(object_name).GetPropNames()
         except Exception:
             return []
 
@@ -1540,7 +1540,7 @@ class Design(AedtObjects, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            return aedt_object.GetChildObject(object_name.replace("\\", "\\\\")).GetPropValue(prop_name)
+            return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except Exception:
             return None
 
@@ -1565,7 +1565,7 @@ class Design(AedtObjects, PyAedtBase):
             Values returned by method if any.
         """
         try:
-            aedt_object.GetChildObject(object_name.replace("\\", "\\\\")).SetPropValue(prop_name, value)
+            aedt_object.GetChildObject(object_name).SetPropValue(prop_name, value)
             return True
         except Exception:
             return False

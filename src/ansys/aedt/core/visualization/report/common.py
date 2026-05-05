@@ -25,6 +25,7 @@
 
 import copy
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -447,9 +448,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._is_created:
-            oo = self._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
             if oo:
-                BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False, app=self._app)
+                BinaryTreeNode.__init__(self, self.internal_plot_name, oo, False, app=self._app)
                 return True
         return False
 
@@ -458,8 +459,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
-            _child_object = BinaryTreeNode(self.plot_name, oo, False, app=self._app)
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            _child_object = BinaryTreeNode(self.internal_plot_name, oo, False, app=self._app)
             for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
                 if var in _child_object.children:
                     del _child_object.children[var]
@@ -659,8 +660,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         _ = self.expressions[::]
         _traces = []
         try:
-            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
-            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _traces
         for el in oo_names:
@@ -1043,10 +1044,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         List of :class:`ansys.aedt.core.modules.report_templates.LimitLine`
         """
         _traces = []
-        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         for el in oo_names:
             if "LimitLine" in el:
-                oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
                 oo1 = self._app.get_oo_object(oo, el)
                 _traces.append(
                     LimitLine(
@@ -1072,12 +1073,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         """
         _notes = []
         try:
-            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
-                oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
                 oo1 = self._app.get_oo_object(oo, el)
                 _notes.append(
                     Note(
@@ -1106,6 +1107,25 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
         self._legacy_props["plot_name"] = name
+
+    @property
+    def internal_plot_name(self) -> str:
+        """Internal AEDT plot name with escaped backslashes and forward slashes.
+
+        Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
+        report-related operations) require special characters in the plot
+        name to be escaped: backslashes are doubled (``\\`` -> ``\\\\``) and
+        forward slashes that are not already preceded by a backslash are
+        prefixed with a backslash (``/`` -> ``\\/``). This property returns
+        the plot name in that escaped form, ready to be passed to those
+        APIs, while :attr:`plot_name` keeps the original user-facing name.
+
+        Returns
+        -------
+        str
+            Escaped plot name suitable for AEDT internal API calls.
+        """
+        return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
 
     @property
     def variations(self) -> dict:

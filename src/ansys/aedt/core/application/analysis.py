@@ -492,7 +492,7 @@ class Analysis(Design, PyAedtBase):
         -------
         list of str
         """
-        solution_list = list(self._app.get_oo_name(self._app.oreportsetup, "Profile"))
+        solution_list = list(self.get_oo_name(self._app.oreportsetup, "Profile"))
         return [i for i in solution_list if i not in self.setup_names]
 
     @property
