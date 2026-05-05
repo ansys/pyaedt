@@ -1486,8 +1486,36 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         roughness: str,
         metal_material: str = "copper",
         metal_resistivity: float | int = 1.724138,
-        metal_thickness: str = "0.7 mil",
-    ):
+        metal_thickness: str = "0.7mil",
+    )->bool:
+        """Add a microstrip substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        name : str
+            Name of the substrate data block.
+        dielectric_height : str
+            Height of the dielectric layer, including units (for example, ``"10mil"``).
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        air_height : str
+            Height of the air region above the substrate, including units.
+        roughness : str
+            Conductor surface roughness value, including units.
+        metal_material : str, optional
+            Conductor material name. The default is ``"copper"``.
+        metal_resistivity : float or int, optional
+            Conductor resistivity value. The default is ``1.724138``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
         oModule = self.odesign.GetModule("DataBlock")
         oModule.AddSubstrateDataBlock(
             [
