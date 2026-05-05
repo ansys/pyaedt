@@ -177,6 +177,14 @@ def test_export_fullwave(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
     output = aedt_app.export_fullwave_spice(str(touchstone_1), is_solution_file=True)
     assert output
+    assert output.suffix == ".sp"
+    assert Path(output).is_file()
+    output = aedt_app.export_fullwave_spice(
+        str(touchstone_1), filename=Path(test_tmp_dir / "test.sss"), is_solution_file=True
+    )
+    assert output
+    assert output.suffix == ".sss"
+    assert Path(output).is_file()
 
 
 def test_connect_components(aedt_app) -> None:
@@ -282,6 +290,8 @@ def test_export_touchstone(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.export_touchstone(solution_name, sweep_name)
     exported_files = aedt_app.export_results()
     assert len(exported_files) > 0
+    output = aedt_app.export_fullwave_spice(filename=Path(test_tmp_dir / "test.sss"), is_solution_file=False)
+    assert output
 
 
 def test_create_sweeps(aedt_app) -> None:
