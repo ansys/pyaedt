@@ -492,10 +492,7 @@ class Analysis(Design, PyAedtBase):
         -------
         list of str
         """
-        try:
-            solution_list = list(self._app.oreportsetup.GetChildObject("Profile").GetChildNames())
-        except Exception:
-            solution_list = []
+        solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
         return [i for i in solution_list if i not in self.setup_names]
 
     @property
@@ -1850,7 +1847,7 @@ class Analysis(Design, PyAedtBase):
             except Exception:  # pragma: no cover
                 self.logger.error("Error in Solving Setup %s", name)
                 result = False
-        elif name in self.ooptimetrics.GetChildNames():
+        elif name in self.get_oo_name(self.ooptimetrics):
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name, blocking)

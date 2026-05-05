@@ -1415,7 +1415,7 @@ class Object3d(PyAedtBase):
 
         """
         try:
-            child_object = self._oeditor.GetChildObject(self.name)
+            child_object = self._primitives._app.get_oo_object(self._oeditor, self.name)
             parent = BinaryTreeNode(self.name, child_object, True)
             return parent
         except Exception:

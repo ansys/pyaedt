@@ -25,6 +25,7 @@
 
 import copy
 import os
+import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
@@ -447,9 +448,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def _initialize_tree_node(self) -> bool:
         if self._is_created:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
             if oo:
-                BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False, app=self._app)
+                BinaryTreeNode.__init__(self, self.internal_plot_name, oo, False, app=self._app)
                 return True
         return False
 
@@ -458,8 +459,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
-            _child_object = BinaryTreeNode(self.plot_name, oo, False, app=self._app)
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            _child_object = BinaryTreeNode(self.internal_plot_name, oo, False, app=self._app)
             for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
                 if var in _child_object.children:
                     del _child_object.children[var]
@@ -659,16 +660,17 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         _ = self.expressions[::]
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self.plot_name)
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _traces
         for el in oo_names:
-            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
+            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", el.replace("\\", "\\\\"))
+            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
-                oo1 = oo.GetChildObject(el)
-                oo1_name = oo1.GetChildNames()
+                oo1 = self._app.get_oo_object(oo, new_trace_name)
+                oo1_name = self._app.get_oo_name(oo, new_trace_name)
                 trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
                 if trace_names:
                     for aedt_name in trace_names:
@@ -1043,14 +1045,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         List of :class:`ansys.aedt.core.modules.report_templates.LimitLine`
         """
         _traces = []
-        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.plot_name)
+        oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         for el in oo_names:
             if "LimitLine" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _traces.append(
                     LimitLine(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1070,16 +1074,18 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         """
         _notes = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
+            oo_names = self._app.get_oo_name(self._post.oreportsetup, self.internal_plot_name)
         except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
+                oo = self._app.get_oo_object(self._post.oreportsetup, self.internal_plot_name)
+                oo1 = self._app.get_oo_object(oo, el)
                 _notes.append(
                     Note(
                         self._post,
                         f"{self.plot_name}:{el}",
-                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                        oo1,
                     )
                 )
 
@@ -1102,6 +1108,25 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
         self._legacy_props["plot_name"] = name
+
+    @property
+    def internal_plot_name(self) -> str:
+        """Internal AEDT plot name with escaped backslashes and forward slashes.
+
+        Some AEDT APIs (such as ``oReportSetup.GetChildObject`` and a few
+        report-related operations) require special characters in the plot
+        name to be escaped: backslashes are doubled (``\\`` -> ``\\\\``) and
+        forward slashes that are not already preceded by a backslash are
+        prefixed with a backslash (``/`` -> ``\\/``). This property returns
+        the plot name in that escaped form, ready to be passed to those
+        APIs, while :attr:`plot_name` keeps the original user-facing name.
+
+        Returns
+        -------
+        str
+            Escaped plot name suitable for AEDT internal API calls.
+        """
+        return re.sub(r"(?<!\\)/", r"\\/", self.plot_name.replace("\\", "\\\\"))
 
     @property
     def variations(self) -> dict:
@@ -2196,7 +2221,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
+            oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
+            legend = self._app.get_oo_object(oo, "Legend")
             legend.Show_Solution_Name = not solution_name
             legend.Show_Trace_Name = not trace_name
             legend.Show_Variation_Key = not variation_key

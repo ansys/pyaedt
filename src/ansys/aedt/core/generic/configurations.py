@@ -2002,7 +2002,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             for i, v in self._app.modeler.user_defined_components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
-                    if "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames():
+                    if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
                     obj_history = v.history()
                     if obj_history:

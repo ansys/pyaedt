@@ -138,7 +138,7 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Mesh")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+                child_object = self._app.get_oo_object(cc, self._name)
         return child_object
 
     @property
@@ -278,15 +278,15 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
         >>> oModule.EditMeshOperation
         >>> oModule.EditSBRCurvatureExtractionOp
         """
-        mesh_names = self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames()
+        mesh_oo = self._mesh._app.get_oo_object(self._mesh._app.odesign, "Mesh")
+        mesh_names = self._mesh._app.get_oo_name(mesh_oo)
         if key_name and settings.aedt_version > "2022.2" and self.name in mesh_names:
             try:
-                mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
                 if key_name in mesh_props.keys():
                     if key_name == "SurfaceRepPriority":
                         value = "Normal" if value == 0 else "High"
                     key_name = mesh_props[key_name]
-                mesh_obj.SetPropValue(key_name, value)
+                self._mesh._app.set_oo_property_value(mesh_oo, self.name, key_name, value)
                 return True
             except Exception:
                 self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
@@ -517,7 +517,7 @@ class Mesh(PyAedtBase):
         >>> mesh_operations_names = hfss.mesh.meshoperation_names
         """
         if self._app._is_object_oriented_enabled():
-            return list(self._app.odesign.GetChildObject("Mesh").GetChildNames())
+            return list(self._app.get_oo_name(self._app.odesign, "Mesh"))
         return []
 
     @property
