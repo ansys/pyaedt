@@ -665,11 +665,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         except Exception:
             return _traces
         for el in oo_names:
-            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, el))):
+            new_trace_name = re.sub(r"(?<!\\)/", r"\\/", el.replace("\\", "\\\\"))
+            if {"Families", "Source"}.isdisjoint(set(self._app.get_oo_properties(oo, new_trace_name))):
                 continue
             try:
-                oo1 = self._app.get_oo_object(oo, el)
-                oo1_name = self._app.get_oo_name(oo, el)
+                oo1 = self._app.get_oo_object(oo, new_trace_name)
+                oo1_name = self._app.get_oo_name(oo, new_trace_name)
                 trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
                 if trace_names:
                     for aedt_name in trace_names:

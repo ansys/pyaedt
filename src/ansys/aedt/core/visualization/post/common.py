@@ -623,7 +623,8 @@ class PostProcessorCommon(PyAedtBase):
                 solution = None
                 for trc_name in traces:
                     try:
-                        solution = self._app.get_oo_property_value(obj, trc_name, "Solution")
+                        new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
+                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
                         break
                     except Exception:  # nosec
                         pass
