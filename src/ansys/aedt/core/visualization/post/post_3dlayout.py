@@ -100,7 +100,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                     break
             with open(file_net, "r") as f:
                 file_net_text = f.read()
-                match = re.search(r"B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION", file_net_text, re.DOTALL)
+                match = re.search(r"B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION", file_net_text,
+                                  re.DOTALL)
                 nets = []
                 for i in match.group(1).split("\n"):
                     net_name = i.lstrip(" ").split(" ")[1]
@@ -166,7 +167,8 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                     if settings.release_on_exception:
                         raise GrpcApiError(
                             f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`. "
-                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead of raising."
+                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead "
+                            "of raising."
                         ) from e
                     else:
                         self.logger.add_warning_message(
