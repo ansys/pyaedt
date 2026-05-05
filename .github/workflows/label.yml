@@ -137,7 +137,7 @@ jobs:
       !startsWith(github.event.pull_request.title, 'BUILD(actions):')
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: read   # Required to read PR content for validation
     steps:
       - name: Check PR description
         env:
