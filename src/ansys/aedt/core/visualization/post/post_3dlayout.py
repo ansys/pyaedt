@@ -100,8 +100,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                     break
             with open(file_net, "r") as f:
                 file_net_text = f.read()
-                match = re.search(r"B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION", file_net_text,
-                                  re.DOTALL)
+                match = re.search(r"B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION", file_net_text, re.DOTALL)
                 nets = []
                 for i in match.group(1).split("\n"):
                     net_name = i.lstrip(" ").split(" ")[1]
