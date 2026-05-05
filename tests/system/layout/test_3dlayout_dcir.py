@@ -26,7 +26,6 @@
 import pytest
 from unittest.mock import patch
 
-import ansys.aedt.core.generic.settings
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
