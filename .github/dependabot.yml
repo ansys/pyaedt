@@ -21,6 +21,7 @@ updates:
     labels:
       - "maintenance"
       - "dependencies"
+    # NOTE: if the 'prefix' is changed, the changes must be adapted in label.yml
     commit-message:
       prefix: "BUILD(uv)"
 
@@ -42,5 +43,6 @@ updates:
     labels:
       - "maintenance"
       - "dependencies"
+    # NOTE: if the 'prefix' is changed, the changes must be adapted in label.yml
     commit-message:
       prefix: "BUILD(actions)"
