@@ -130,6 +130,11 @@ jobs:
 
   check-pr-template:
     name: Check PR template
+    # NOTE: Disable checking for dependabot and other automated PRs
+    if: |
+      github.event.pull_request.title != 'CHORE: Pre-commit automatic update' &&
+      !startsWith(github.event.pull_request.title, 'BUILD(uv):') &&
+      !startsWith(github.event.pull_request.title, 'BUILD(actions):')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
