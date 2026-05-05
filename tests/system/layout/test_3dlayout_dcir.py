@@ -24,7 +24,9 @@
 
 
 import pytest
+from unittest.mock import patch
 
+import ansys.aedt.core.generic.settings
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import DESKTOP_VERSION
@@ -62,3 +64,15 @@ def test_dcir(dcir_example_project) -> None:
     assert dcir_example_project.post.compute_power_by_net()
     assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
     assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
+
+
+@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
+@patch(
+    "ansys.aedt.core.visualization.post.fields_calculator.FieldsCalculator.add_expression",
+    side_effect=RuntimeError("mock add_expression failure"),
+)
+def test_dcir2(mock_add_expression, dcir_example_project) -> None:
+    assert dcir_example_project.post.compute_power_by_layer()
+    assert mock_add_expression.called
+    assert any(call.args and call.args[-1] == "" for call in mock_add_expression.call_args_list)
