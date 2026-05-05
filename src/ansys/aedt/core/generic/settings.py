@@ -203,6 +203,8 @@ class Settings(PyAedtBase):
             "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
             "AnsysSendMsg": "1",
             "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF633796_ADPE_OPTION_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
