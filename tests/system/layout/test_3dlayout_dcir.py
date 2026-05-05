@@ -23,8 +23,9 @@
 # SOFTWARE.
 
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
