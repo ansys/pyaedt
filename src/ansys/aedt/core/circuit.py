@@ -1487,7 +1487,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         metal_material: str = "copper",
         metal_resistivity: float | int = 1.724138,
         metal_thickness: str = "0.7mil",
-    )->bool:
+    ) -> bool:
         """Add a microstrip substrate data block to the circuit design.
 
         Parameters
