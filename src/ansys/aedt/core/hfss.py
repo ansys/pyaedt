@@ -7924,15 +7924,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             variations = r_te.variations
             variables = self.variable_manager.variables
 
-            if phi_name not in variables:
-                # Phi is not parametrized in the boundary
-                active_variations = variations
-            elif phi_name in r_te.active_variation:
+            if phi_name in variables and phi_name in r_te.active_variation:
                 # More than 1 phi sweep is simulated, take the nominal one
                 scan_p_value = variables[phi_name].numeric_value
                 active_variations = [v for v in variations if phi_name in v and v[phi_name] == scan_p_value]
             else:
-                # Only 1 phi is simulated
+                # Only 1 phi is simulated or Phi is not parametrized in the boundary
                 active_variations = variations
 
             theta_set = set()
