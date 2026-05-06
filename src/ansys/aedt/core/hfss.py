@@ -7929,7 +7929,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 scan_p_value = variables[phi_name].numeric_value
                 active_variations = [v for v in variations if phi_name in v and v[phi_name] == scan_p_value]
                 if not active_variations:
-                    raise AEDTRuntimeError(f"Nominal {phi_name}={scan_p_value} is not solved.")
+                    raise AEDTRuntimeError(f"Nominal {phi_name}={scan_p_value} has no results")
             else:
                 # Only 1 phi is simulated or Phi is not parametrized in the boundary
                 active_variations = variations
