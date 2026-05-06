@@ -7921,8 +7921,23 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         phi_units = "deg"
 
         if is_isotropic:
+            if phi_name not in self.variable_manager.variables:
+                # Phi is not parametrized in the boundary
+                active_variations = r_te.variations
+            else:
+                scan_p_value = self.variable_manager.variables[phi_name]
+                if phi_name in r_te.active_variation:
+                    # More than 1 phi sweep is simulated, take the nominal one
+                    active_variations = []
+                    for var1 in r_te.variations:
+                        if phi_name in var1 and var1[phi_name] == scan_p_value.numeric_value:
+                            active_variations.append(var1)
+                else:
+                    # Only 1 phi is simulated
+                    active_variations = r_te.variations
+
             angles = {"0.0deg": []}
-            for var in r_te.variations:
+            for var in active_variations:
                 th = var[theta_name]
                 if th > theta_max:
                     theta_max = th

@@ -797,7 +797,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
         variable_names = self.aedt_application.variable_manager.variable_names
-        if theta_scan_variable not in variable_names or phi_scan_variable not in variable_names:
+        if theta_scan_variable not in variable_names:
             self.aedt_application.logger.add_error_message(
                 "Lattice pair or primary and secondary boundaries must be parametrized."
             )
