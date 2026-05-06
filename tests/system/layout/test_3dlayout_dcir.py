@@ -70,9 +70,11 @@ def test_dcir(dcir_example_project) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
 @patch(
     "ansys.aedt.core.visualization.post.fields_calculator.FieldsCalculator.add_expression",
-    side_effect=RuntimeError("mock add_expression failure"),
+    side_effect=RuntimeError("Dummy exception"),
 )
-def test_dcir2(mock_add_expression, dcir_example_project) -> None:
-    assert dcir_example_project.post.compute_power_by_layer()
-    assert mock_add_expression.called
-    assert any(call.args and call.args[-1] == "" for call in mock_add_expression.call_args_list)
+def test_dcir_power_loss_fallback_to_zero(mock_add_expression, dcir_example_project) -> None:
+    """Test fallback to zero."""
+    result = dcir_example_project.post.compute_power_by_layer()
+
+    assert result is not None
+    assert all(entry == 0.0 for entry in result.values())
