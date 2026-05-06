@@ -506,7 +506,7 @@ def test_non_numeric_results(non_numeric_results):
     inst_domain.set_interferers(names=["RF System - Null"])
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
-    assert "No channels are enabled" in str(e.value)
+    assert "The interaction domain must be fully defined" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
