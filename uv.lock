@@ -1127,15 +1127,6 @@ wheels = [
 ]
 
 [[package]]
-name = "distro"
-version = "1.9.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722, upload-time = "2023-12-24T09:54:32.31Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277, upload-time = "2023-12-24T09:54:30.421Z" },
-]
-
-[[package]]
 name = "docstring-parser"
 version = "0.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1151,17 +1142,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ae/ed/aefcc8cd0ba62a0560c3c18c33925362d46c6075480bfa4df87b28e169a9/docutils-0.21.2.tar.gz", hash = "sha256:3a6b18732edf182daa3cd12775bbb338cf5691468f91eeeb109deff6ebfa986f", size = 2204444, upload-time = "2024-04-23T18:57:18.24Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/d7/9322c609343d929e75e7e5e6255e614fcc67572cfd083959cdef3b7aad79/docutils-0.21.2-py3-none-any.whl", hash = "sha256:dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2", size = 587408, upload-time = "2024-04-23T18:57:14.835Z" },
-]
-
-[[package]]
-name = "dotnetcore2"
-version = "3.1.23"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "distro" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/04/ddd3fc5c374870e5e3d386b18512e8c0c7557aca9fbc1d9f286bf9f4844d/dotnetcore2-3.1.23-py3-none-manylinux1_x86_64.whl", hash = "sha256:5f076ddc39da0c685e7de20ecb91ee81185928918ec86fbeb3bffc55dd867ab5", size = 31118828, upload-time = "2022-04-28T18:06:16.738Z" },
 ]
 
 [[package]]
@@ -3399,7 +3379,6 @@ all = [
 dotnet = [
     { name = "ansys-pythonnet" },
     { name = "cffi", marker = "sys_platform == 'linux'" },
-    { name = "dotnetcore2", marker = "sys_platform == 'linux'" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
 ]
 examples = [
@@ -3478,46 +3457,45 @@ requires-dist = [
     { name = "ansys-tools-common" },
     { name = "ansys-tools-visualization-interface", marker = "extra == 'all'" },
     { name = "ansys-tools-visualization-interface", marker = "extra == 'graphics'" },
-    { name = "cffi", marker = "sys_platform == 'linux' and extra == 'dotnet'", specifier = ">=1.16.0,<2.1" },
-    { name = "defusedxml", specifier = ">=0.7,<8.0" },
-    { name = "dotnetcore2", marker = "sys_platform == 'linux' and extra == 'dotnet'", specifier = "==3.1.23" },
+    { name = "cffi", marker = "sys_platform == 'linux' and extra == 'dotnet'", specifier = ">=1.16.0" },
+    { name = "defusedxml", specifier = ">=0.7" },
     { name = "fast-simplification", marker = "extra == 'all'", specifier = ">=0.1.7" },
     { name = "fast-simplification", marker = "extra == 'examples'", specifier = ">=0.1.7" },
     { name = "fpdf2", marker = "extra == 'all'" },
     { name = "fpdf2", marker = "extra == 'examples'" },
     { name = "fpdf2", marker = "extra == 'graphics'" },
-    { name = "grpcio", specifier = ">=1.50.0,<1.81" },
-    { name = "imageio", marker = "extra == 'examples'", specifier = ">=2.34.0,<2.38" },
-    { name = "ipython", marker = "extra == 'jupyter'", specifier = ">=7.30.0,<9.1" },
-    { name = "joblib", marker = "extra == 'examples'", specifier = ">=1.4.0,<1.6" },
+    { name = "grpcio", specifier = ">=1.50.0" },
+    { name = "imageio", marker = "extra == 'examples'", specifier = ">=2.34.0" },
+    { name = "ipython", marker = "extra == 'jupyter'", specifier = ">=7.30.0" },
+    { name = "joblib", marker = "extra == 'examples'", specifier = ">=1.4.0" },
     { name = "jsonschema" },
-    { name = "jupyterlab", marker = "extra == 'jupyter'", specifier = ">=3.6.0,<4.6" },
-    { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.5.0,<3.11" },
-    { name = "matplotlib", marker = "extra == 'examples'", specifier = ">=3.5.0,<3.11" },
-    { name = "matplotlib", marker = "extra == 'graphics'", specifier = ">=3.5.0,<3.11" },
-    { name = "numpy", specifier = ">=1.20.0,<2.3" },
-    { name = "openpyxl", marker = "extra == 'all'", specifier = ">=3.1.0,<3.3" },
-    { name = "openpyxl", marker = "extra == 'examples'", specifier = ">=3.1.0,<3.3" },
-    { name = "osmnx", marker = "extra == 'all'", specifier = ">=2.0.0,<2.2" },
-    { name = "osmnx", marker = "extra == 'examples'", specifier = ">=2.0.0,<2.2" },
-    { name = "pandas", marker = "extra == 'all'", specifier = ">=1.1.0,<2.4" },
-    { name = "pandas", marker = "extra == 'examples'", specifier = ">=1.1.0,<2.4" },
+    { name = "jupyterlab", marker = "extra == 'jupyter'", specifier = ">=3.6.0" },
+    { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.5.0" },
+    { name = "matplotlib", marker = "extra == 'examples'", specifier = ">=3.5.0" },
+    { name = "matplotlib", marker = "extra == 'graphics'", specifier = ">=3.5.0" },
+    { name = "numpy", specifier = ">=1.20.0" },
+    { name = "openpyxl", marker = "extra == 'all'", specifier = ">=3.1.0" },
+    { name = "openpyxl", marker = "extra == 'examples'", specifier = ">=3.1.0" },
+    { name = "osmnx", marker = "extra == 'all'", specifier = ">=2.0.0" },
+    { name = "osmnx", marker = "extra == 'examples'", specifier = ">=2.0.0" },
+    { name = "pandas", marker = "extra == 'all'", specifier = ">=1.1.0" },
+    { name = "pandas", marker = "extra == 'examples'", specifier = ">=1.1.0" },
     { name = "pillow", marker = "extra == 'graphics'" },
-    { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0,<6.8" },
+    { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0" },
     { name = "psutil", specifier = ">=6.0.0" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
-    { name = "pydantic", specifier = ">=2.6.4,<2.14" },
-    { name = "pyedb", specifier = "==0.74.0" },
+    { name = "pydantic", specifier = ">=2.6.4" },
+    { name = "pyedb", specifier = ">=0.75.0" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'all'", specifier = ">=0.38.0,<0.48" },
     { name = "pyvista", extras = ["io"], marker = "extra == 'graphics'", specifier = ">=0.38.0,<0.48" },
-    { name = "pyvista", extras = ["jupyter"], marker = "extra == 'examples'", specifier = ">=0.38.0,<0.48" },
+    { name = "pyvista", extras = ["jupyter"], marker = "extra == 'examples'", specifier = ">=0.38.0" },
     { name = "pywin32", marker = "sys_platform == 'win32' and extra == 'dotnet'", specifier = ">=303" },
     { name = "pyyaml" },
     { name = "requests", marker = "extra == 'all'" },
-    { name = "rpyc", marker = "extra == 'all'", specifier = ">=6.0.0,<6.1" },
-    { name = "rpyc", marker = "extra == 'examples'", specifier = ">=6.0.0,<6.1" },
-    { name = "scikit-rf", marker = "extra == 'all'", specifier = ">=0.30.0,<1.12" },
-    { name = "scikit-rf", marker = "extra == 'examples'", specifier = ">=0.30.0,<1.12" },
+    { name = "rpyc", marker = "extra == 'all'", specifier = ">=6.0.0" },
+    { name = "rpyc", marker = "extra == 'examples'", specifier = ">=6.0.0" },
+    { name = "scikit-rf", marker = "extra == 'all'", specifier = ">=0.30.0" },
+    { name = "scikit-rf", marker = "extra == 'examples'", specifier = ">=0.30.0" },
     { name = "tables", marker = "python_full_version >= '3.10' and extra == 'all'" },
     { name = "tables", marker = "python_full_version >= '3.10' and extra == 'examples'" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
@@ -3529,41 +3507,41 @@ provides-extras = ["dotnet", "graphics", "jupyter", "all", "examples"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "ansys-sphinx-theme", specifier = ">=1.0.0,<1.8" },
+    { name = "ansys-sphinx-theme", specifier = ">=1.0.0" },
     { name = "cryptography" },
-    { name = "mock", specifier = ">=5.1.0,<5.3" },
+    { name = "mock", specifier = ">=5.1.0" },
     { name = "numpydoc", specifier = "==1.10.0" },
     { name = "prek", specifier = "==0.3.10" },
-    { name = "pytest", specifier = ">=7.4.0,<9.1" },
-    { name = "pytest-cov", specifier = ">=4.0.0,<7.2" },
-    { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
-    { name = "pytest-timeout", specifier = ">=2.3.0,<2.5" },
-    { name = "pytest-xdist", specifier = ">=3.5.0,<3.9" },
+    { name = "pytest", specifier = ">=7.4.0" },
+    { name = "pytest-cov", specifier = ">=4.0.0" },
+    { name = "pytest-testmon", specifier = ">=2.0.0" },
+    { name = "pytest-timeout", specifier = ">=2.3.0" },
+    { name = "pytest-xdist", specifier = ">=3.5.0" },
     { name = "recommonmark" },
-    { name = "sphinx", specifier = ">=7.1.0,<8.3" },
+    { name = "sphinx", specifier = ">=7.1.0" },
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
-    { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
-    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.22" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.0" },
+    { name = "sphinx-design", specifier = ">=0.4.0" },
+    { name = "sphinx-gallery", specifier = ">=0.14.0" },
 ]
 doc = [
-    { name = "ansys-sphinx-theme", specifier = ">=1.0.0,<1.8" },
+    { name = "ansys-sphinx-theme", specifier = ">=1.0.0" },
     { name = "numpydoc", specifier = "==1.10.0" },
     { name = "recommonmark" },
-    { name = "sphinx", specifier = ">=7.1.0,<8.3" },
+    { name = "sphinx", specifier = ">=7.1.0" },
     { name = "sphinx-autobuild", specifier = "==2024.10.3" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.0,<0.6" },
-    { name = "sphinx-design", specifier = ">=0.4.0,<0.7" },
-    { name = "sphinx-gallery", specifier = ">=0.14.0,<0.22" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.0" },
+    { name = "sphinx-design", specifier = ">=0.4.0" },
+    { name = "sphinx-gallery", specifier = ">=0.14.0" },
 ]
 tests = [
     { name = "cryptography" },
-    { name = "mock", specifier = ">=5.1.0,<5.3" },
-    { name = "pytest", specifier = ">=7.4.0,<9.1" },
-    { name = "pytest-cov", specifier = ">=4.0.0,<7.2" },
-    { name = "pytest-testmon", specifier = ">=2.0.0,<3.0" },
-    { name = "pytest-timeout", specifier = ">=2.3.0,<2.5" },
-    { name = "pytest-xdist", specifier = ">=3.5.0,<3.9" },
+    { name = "mock", specifier = ">=5.1.0" },
+    { name = "pytest", specifier = ">=7.4.0" },
+    { name = "pytest-cov", specifier = ">=4.0.0" },
+    { name = "pytest-testmon", specifier = ">=2.0.0" },
+    { name = "pytest-timeout", specifier = ">=2.3.0" },
+    { name = "pytest-xdist", specifier = ">=3.5.0" },
 ]
 
 [[package]]
@@ -3727,23 +3705,20 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.74.0"
+version = "0.75.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
-    { name = "ansys-pythonnet" },
-    { name = "cffi", marker = "sys_platform == 'linux'" },
     { name = "defusedxml" },
     { name = "numpy" },
     { name = "psutil" },
     { name = "pydantic" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/19/f6/3fd48a74ee9a56072969a5a79724cfb1edd73a65c3495d9f15a012e01e09/pyedb-0.74.0.tar.gz", hash = "sha256:d3d705df64a8495cda829faa07a9c0ee1e4d4ec373ed73e7e60592f5b802d625", size = 791459, upload-time = "2026-04-28T07:20:00.979Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/c9/f568adf6afc39e6eda492b68798558f742caf8bd4b03ca153c2ccf044d0d/pyedb-0.75.0.tar.gz", hash = "sha256:140cba86a66821698fca44bdc592adaab69dea6bc6667d65251dd04d3aae080c", size = 796766, upload-time = "2026-05-05T11:53:54.319Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/da/8d07dcf9f885fa59b61d37ace8462e8fb96a4aed0f11d0f4e6d67a8faec1/pyedb-0.74.0-py3-none-any.whl", hash = "sha256:7d34ad640314b3655eaf899ce119bda0eeb3d6d12f7deb3a1f17dae431f42447", size = 1092160, upload-time = "2026-04-28T07:19:58.677Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/8d/bc859be9a650c80fee57b72a0aa4adcf8fc79376435cc497d741bd952684/pyedb-0.75.0-py3-none-any.whl", hash = "sha256:f02b2795e2feadc1c31a4d105d9d10dc303d8a593613cf7a3c3bfa4e67baabe4", size = 1097419, upload-time = "2026-05-05T11:53:52.182Z" },
 ]
 
 [[package]]
