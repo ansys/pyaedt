@@ -796,7 +796,13 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
-
+        variable_names = self.aedt_application.variable_manager.variable_names
+        if theta_scan_variable not in variable_names or phi_scan_variable not in variable_names:
+            self.aedt_application.logger.add_error_message(
+                "Lattice pair or primary and secondary boundaries must be parametrized."
+            )
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            return False
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
         try:
@@ -886,8 +892,19 @@ class FresnelExtension(ExtensionHFSSCommon):
             settings.enable_desktop_logs = True
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
+
+        # Obtain variable name
+        bounds = self.aedt_application.boundaries_by_type
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+        lattice_pair = bounds[bound]
+        theta_scan_variable = lattice_pair[0].properties["Theta"]
+        phi_scan_variable = lattice_pair[0].properties["Phi"]
+
         _ = self.aedt_application.get_fresnel_coefficients(
-            setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
+            setup_sweep=self.active_setup_sweep,
+            theta_name=theta_scan_variable,
+            phi_name=phi_scan_variable,
+            is_isotropic=is_isotropic,
         )
 
         settings.enable_desktop_logs = enable_log
