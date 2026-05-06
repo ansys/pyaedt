@@ -2002,7 +2002,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             for i, v in self._app.modeler.user_defined_components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
-                    if "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames():
+                    if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
                     obj_history = v.history()
                     if obj_history:
@@ -2567,7 +2567,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if (isinstance(value, list) and pin.name in value) or pin.name == value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
@@ -2590,7 +2590,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name == value:
+                            if pin.name == value or (isinstance(value, list) and pin.name in value):
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),

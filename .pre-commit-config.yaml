@@ -1,3 +1,4 @@
+# NOTE: if the 'autoupdate_commit_msg' is changed, the changes must be adapted in label.yml
 ci:
   autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
   autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'

@@ -109,7 +109,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Analysis")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+                child_object = self._app.get_oo_object(cc, self._name)
         return child_object
 
     @pyaedt_function_handler()

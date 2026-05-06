@@ -847,25 +847,32 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         impedance: int | None = 50,
         error: float | None = 0.5,
         poles: int | None = 10000,
+        column_fitting_type: int | None = 0,
+        ss_fitting_algorithm: int | None = 0,
+        passivity_type: int | None = 0,
+        common_ground: bool | None = False,
+        relative_error_tolerance: bool | None = False,
+        ensure_accurate_zfit: bool | None = False,
     ) -> str:
         """
         Export a full wave HSpice file using NDE.
 
-        .. warning::
-          This method doesn't work.
-
         Parameters
         ----------
         design : str, optional
-            Name of the design or the full path to the solution file if it is an imported file.
-            The default is ``None``.
+            Name of the design from which export the spice model or the full path to a touchstone file.
+            The default is ``None`` in which case active design is be used.
         setup : str, optional
-            Name of the setup if it is a design. The default is ``None``.
+            Name of the setup if an existing design name is provided.
+            The default is ``None`` in which case the nominal sweep is used.
         is_solution_file : bool, optional
-            Whether it is an imported solution file. The default is ``False``.
+            Whether it is an imported touchstone file. The default is ``False`` which means that spice is
+            generated from design.
         filename : str or :class:`pathlib.Path`, optional
-            Full path and name for exporting the HSpice file.
+            Full path and name for exporting the output file.
             The default is ``None``, in which case the file is exported to the working directory.
+            File extensions can be: ``.sp`` for HSpice, ``.sss`` for nexxim state space,
+            ``.cir`` for spectre and ``.lib`` for pspice. If no file name is provided then HSpice is used.
         passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
         causality : bool, optional
@@ -879,6 +886,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             Fitting error. The default is ``0.5``.
         poles : int, optional
             Number of fitting poles. The default is ``10000``.
+        column_fitting_type : int, optional
+            Column fitting type. Default is ``0`` for Entire Matrix. Values are ``1`` for 1 column at time or
+            ``2`` for 1 entry at time.
+        ss_fitting_algorithm : int, optional
+            State space fitting algorithm. Default is ``0`` for AutoFast. Values are ``1`` for Vector Fast Fit,
+            ``2`` for Vector TWA, ``3`` for Vector Iterated Rational Fit, ``4`` for Auto Accurate.
+        passivity_type : int, optional
+            Passivity type. Default is ``0`` for Iterated Fitting of passivity violation.
+            Values are ``1`` for Convex optimization, ``2`` for passivity-by-perturbation
+            and ``3`` for iterated fitting for low frequency.
+        common_ground : bool, optional
+            Whether to use common ground for all ports. The default is ``False``.
+        relative_error_tolerance : bool, optional
+            Whether to use relative error tolerance instead of absolute error. The default is ``False``.
+        ensure_accurate_zfit : bool, optional
+            Whether to ensure accurate Z fit. The default is ``False``.
 
         Returns
         -------
@@ -900,6 +923,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             if not setup:
                 setup = self.nominal_sweep
         file_path = Path(filename)
+        spice_types = {".sss": "SSS", ".sp": "HSpice", ".cir": "Spectre", ".lib": "PSpice"}
+        fitting_types = {0: "Matrix", 1: "Column", 2: "Entry"}
+        ss_fitting_algorithms = {0: "AutoFast", 1: "FastFit", 2: "TWA", 3: "IteratedRational", 4: "AutoAccurate"}
+        ss_passivity_algorithms = {
+            0: "IteratedFittingOfPV",
+            1: "ConvexOptimization",
+            2: "PassivityByPerturbation",
+            3: "IteratedFittingOfPVLF",
+        }
+
+        pt = (
+            ss_passivity_algorithms[passivity_type]
+            if passivity_type in ss_passivity_algorithms
+            else "IteratedFittingOfPVLF"
+        )
+
+        ssfa = (
+            ss_fitting_algorithms[ss_fitting_algorithm] if ss_fitting_algorithm in ss_fitting_algorithms else "AutoFast"
+        )
+        ft = fitting_types[column_fitting_type] if column_fitting_type in fitting_types else "Matrix"
+        if file_path.suffix in spice_types:
+            sp = spice_types[file_path.suffix]
+        else:
+            raise Exception("The file extension is not supported.")
         self.onetwork_data_explorer.ExportFullWaveSpice(
             design,
             is_solution_file,
@@ -909,13 +956,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             [
                 "NAME:SpiceData",
                 "SpiceType:=",
-                "HSpice",
+                sp,
                 "EnforcePassivity:=",
                 passivity,
                 "EnforceCausality:=",
                 causality,
                 "UseCommonGround:=",
-                True,
+                common_ground,
                 "ShowGammaComments:=",
                 True,
                 "Renormalize:=",
@@ -927,15 +974,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 "MaxPoles:=",
                 poles,
                 "PassivityType:=",
-                "IteratedFittingOfPV",
+                pt,
                 "ColumnFittingType:=",
-                "Matrix",
+                ft,
                 "SSFittingType:=",
-                "FastFit",
+                ssfa,
                 "RelativeErrorToleranc:=",
-                False,
+                relative_error_tolerance,
                 "EnsureAccurateZfit:=",
-                True,
+                ensure_accurate_zfit,
                 "TouchstoneFormat:=",
                 "MA",
                 "TouchstoneUnits:=",

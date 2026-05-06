@@ -67,7 +67,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.report.standard import Spectral
     from ansys.aedt.core.visualization.report.standard import Standard
 
-
 TEMPLATES_BY_NAME = {
     "Standard": report_standard.Standard,
     "EddyCurrent": report_standard.Standard,
@@ -613,17 +612,19 @@ class PostProcessorCommon(PyAedtBase):
             skip_plot = True
         if names and not skip_plot:
             for name in names:
-                obj = self._app.get_oo_object(self.oreportsetup, name)
+                new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
+                obj = self._app.get_oo_object(self.oreportsetup, new_name)
                 report_type = obj.GetPropValue("Report Type")
-                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
+                obj_child_names = self._app.get_oo_name(obj)
+                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj_child_names):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-                traces = obj.GetChildNames()
+                traces = self._app.get_oo_name(obj)
                 solution = None
                 for trc_name in traces:
-                    trc_obj = obj.GetChildObject(trc_name)
                     try:
-                        solution = trc_obj.GetPropValue("Solution")
+                        new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
+                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
                         break
                     except Exception:  # nosec
                         pass
@@ -797,7 +798,7 @@ class PostProcessorCommon(PyAedtBase):
             self.oreportsetup.RenameReport(plot_name, new_name)
             for plot in self.plots:
                 if plot.plot_name == plot_name:
-                    plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
+                    plot.plot_name = self._app.get_oo_property_value(self.oreportsetup, new_name, "Name")
             return True
         except Exception:
             return False
@@ -1857,6 +1858,9 @@ class PostProcessorCommon(PyAedtBase):
             Dictionary containing report settings.
         solution_name : str, optional
             Setup name to use.
+        name: str, optional
+            Report name. The default is ``None``, in which case the
+            default name is used.
         matplotlib : bool, optional
             Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
         show : bool, optional

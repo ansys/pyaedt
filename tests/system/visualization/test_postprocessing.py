@@ -199,6 +199,12 @@ def test_m2d_export_results(m2dtest) -> None:
 
 def test_circuit_create_report(circuit_test) -> None:
     assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
+    report = circuit_test.setups[0].create_report(["mag(S(Port1, Port1)) / mag(S(Port1, Port1))"])
+    report.plot_name = r"foo\/bar"
+    assert report.expressions[0] == "mag(S(Port1, Port1)) / mag(S(Port1, Port1))"
+
+    report.plot_name = r"foo\bar/baz"
+    assert report.expressions[0] == "mag(S(Port1, Port1)) / mag(S(Port1, Port1))"
 
 
 def test_circuit_reports_by_category_standard(circuit_test) -> None:
