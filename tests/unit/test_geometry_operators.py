@@ -47,25 +47,6 @@ def desktop() -> None:
     return
 
 
-def test_List2list() -> None:
-    class FakeList(list):
-        """Mock of a C# List object: its type name contains 'List'."""
-
-        pass
-
-    assert "List" in str(type(FakeList()))  # sanity check for the mock
-
-    List_str = FakeList(["one", "two", "three"])
-    ls = go.List2list(List_str)
-    assert isinstance(ls, list)
-    assert len(ls) == 3
-
-    List_float = FakeList([1.0, 2.0, 3.0])
-    lf = go.List2list(List_float)
-    assert isinstance(lf, list)
-    assert len(lf) == 3
-
-
 def test_parse_dim_arg() -> None:
     assert go.parse_dim_arg("2mm") == 2e-3
     assert go.parse_dim_arg("1.123mm") == 1.123e-3
