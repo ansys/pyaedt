@@ -1,3 +1,4 @@
 This folder contains a custom distribution of pyedb which handles the protobuf
 version issue faced in the SP integration. The wheel is retrieved from the following
-GitHub Actions run: https://github.com/ansys/pyedb/actions/runs/25040718697
+GitHub Actions run: https://github.com/ansys/pyedb/actions/runs/25382654448
+Associated commit SHA: 4864438243a2c8ccc0302c097938c1fe6466592a
