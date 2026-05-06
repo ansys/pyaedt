@@ -48,22 +48,21 @@ def desktop() -> None:
 
 
 def test_List2list() -> None:
-    from ansys.aedt.core.internal.clr_module import Double
-    from ansys.aedt.core.internal.clr_module import List
+    class FakeList(list):
+        """Mock of a C# List object: its type name contains 'List'."""
 
-    List_str = List[str]()
-    List_str.Add("one")
-    List_str.Add("two")
-    List_str.Add("three")
+        pass
+
+    assert "List" in str(type(FakeList()))  # sanity check for the mock
+
+    List_str = FakeList(["one", "two", "three"])
     ls = go.List2list(List_str)
     assert isinstance(ls, list)
     assert len(ls) == 3
-    List_float = List[Double]()
-    List_float.Add(1.0)
-    List_float.Add(2.0)
-    List_float.Add(3.0)
+
+    List_float = FakeList([1.0, 2.0, 3.0])
     lf = go.List2list(List_float)
-    assert isinstance(ls, list)
+    assert isinstance(lf, list)
     assert len(lf) == 3
 
 
