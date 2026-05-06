@@ -205,7 +205,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 
-Wheelhouses for CPython 3.10, 3.11, 3.12 and 3.13 are available in the releases for both Windows and Linux.
+Wheelhouses for CPython 3.10, 3.11, 3.12, 3.13 and 3.14 are available in the releases for both Windows and Linux.
 From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
