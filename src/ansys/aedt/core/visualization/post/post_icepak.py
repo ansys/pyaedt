@@ -482,9 +482,9 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         groups = list(self._app.oeditor.GetChildNames("Groups"))
         self._app.modeler.add_new_user_defined_component()
         for g in groups:
-            g1 = self._app.oeditor.GetChildObject(g)
+            g1 = self._app.get_oo_object(self._app.oeditor, g)
             if g1:
-                group_hierarchy[g] = list(g1.GetChildNames())
+                group_hierarchy[g] = list(self._app.get_oo_name(self._app.oeditor, g))
 
         def multiplier_from_dataset(expression: str, valuein: float) -> float:
             multiplier = 0

@@ -296,7 +296,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         ----------
         >>> oDesign.GetChildObject("Excitations").GetChildNames()
         """
-        return list(self.odesign.GetChildObject("Excitations").GetChildNames())
+        return list(self.get_oo_name(self.odesign, "Excitations"))
 
     @property
     def source_objects(self) -> list:

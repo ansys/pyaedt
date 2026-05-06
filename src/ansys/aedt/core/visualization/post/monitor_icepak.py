@@ -115,7 +115,7 @@ class Monitor(PyAedtBase):
     @pyaedt_function_handler
     def _find_point(self, position):  # pragma: no cover
         for point in self._app.oeditor.GetPoints():
-            point_pos = self._app.oeditor.GetChildObject(point).GetPropValue("Position")
+            point_pos = self._app.get_oo_property_value(self._app.oeditor, point, "Position")
             coord_pos = []
             for coord in range(3):
                 if isinstance(point_pos[2 * coord + 1], list):
@@ -201,10 +201,9 @@ class Monitor(PyAedtBase):
                 )
             elif "Points" in monitor_prop.keys():
                 point_name = self._find_point(
-                    self._app.odesign.GetChildObject("Monitor")
-                    .GetChildObject(monitor_name)
-                    .GetPropValue("Location")
-                    .split(", ")
+                    self._app.get_oo_property_value(
+                        self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name, "Location"
+                    ).split(", ")
                 )
                 self._point_monitors[monitor_name] = PointMonitor(
                     monitor_name,
@@ -231,7 +230,7 @@ class Monitor(PyAedtBase):
         -------
         oEditor COM Object
         """
-        return self._app.odesign.GetChildObject("Monitor").GetChildObject(monitor_name)
+        return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name)
 
     @property
     def face_monitors(self) -> dict:
@@ -545,7 +544,7 @@ class Monitor(PyAedtBase):
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
         name_sel = self._app.modeler.convert_to_selections(name, True)
-        original_monitors = list(self._app.odesign.GetChildObject("Monitor").GetChildNames())
+        original_monitors = list(self._app.get_oo_name(self._app.odesign, "Monitor"))
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         elif monitor_name in original_monitors:
@@ -629,7 +628,7 @@ class Monitor(PyAedtBase):
             return monitor.id
 
     def _delete_removed_monitors(self) -> None:
-        existing_monitors = self._app.odesign.GetChildObject("Monitor").GetChildNames()
+        existing_monitors = self._app.get_oo_name(self._app.odesign, "Monitor")
         for j in [self._face_monitors, self._point_monitors]:
             for i in list(j):
                 if i not in existing_monitors:
@@ -744,7 +743,7 @@ class ObjectMonitor(PyAedtBase):
         """
         return {
             "Name": self.name,
-            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
+            "Object": self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), self.name),
             "Type": self.type,
             "ID": self.id,
             "Location": self.location,
@@ -882,10 +881,9 @@ class PointMonitor(ObjectMonitor):
         """
         return [
             float(i.strip(self._app.modeler.model_units))
-            for i in self._app.odesign.GetChildObject("Monitor")
-            .GetChildObject(self._name)
-            .GetPropValue("Location")
-            .split(", ")
+            for i in self._app.get_oo_property_value(
+                self._app.get_oo_object(self._app.odesign, "Monitor"), self._name, "Location"
+            ).split(", ")
         ]
 
 
