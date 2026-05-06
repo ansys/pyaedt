@@ -7921,32 +7921,31 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         phi_units = "deg"
 
         if is_isotropic:
-            if phi_name not in self.variable_manager.variables:
-                # Phi is not parametrized in the boundary
-                active_variations = r_te.variations
-            else:
-                scan_p_value = self.variable_manager.variables[phi_name]
-                if phi_name in r_te.active_variation:
-                    # More than 1 phi sweep is simulated, take the nominal one
-                    active_variations = []
-                    for var1 in r_te.variations:
-                        if phi_name in var1 and var1[phi_name] == scan_p_value.numeric_value:
-                            active_variations.append(var1)
-                else:
-                    # Only 1 phi is simulated
-                    active_variations = r_te.variations
+            variations = r_te.variations
+            variables = self.variable_manager.variables
 
-            angles = {"0.0deg": []}
+            if phi_name not in variables:
+                # Phi is not parametrized in the boundary
+                active_variations = variations
+            elif phi_name in r_te.active_variation:
+                # More than 1 phi sweep is simulated, take the nominal one
+                scan_p_value = variables[phi_name].numeric_value
+                active_variations = [v for v in variations if phi_name in v and v[phi_name] == scan_p_value]
+            else:
+                # Only 1 phi is simulated
+                active_variations = variations
+
+            theta_set = set()
             for var in active_variations:
                 th = var[theta_name]
-                if th > theta_max:
-                    theta_max = th
-                angles["0.0deg"].append(th)
+                theta_set.add(th)
                 var_index[(th, None)] = var
 
-            # Removes duplicate values and sorts in ascending order
-            angles["0.0deg"] = sorted(set(angles["0.0deg"]))
-            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+            # Sorted, de-duplicated theta values
+            sorted_thetas = sorted(theta_set)
+            angles = {"0.0deg": sorted_thetas}
+            theta_max = sorted_thetas[-1]
+            theta_step = sorted_thetas[1] - sorted_thetas[0]
 
         else:
             angles = {}
