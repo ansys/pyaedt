@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,6 +25,12 @@
 import csv
 from pathlib import Path
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 import numpy as np
 
@@ -34,7 +40,6 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -58,7 +63,7 @@ class FRTMData(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file: str | Path) -> None:
         input_file = Path(input_file)
 
         if not input_file.is_file():
@@ -103,174 +108,174 @@ class FRTMData(PyAedtBase):
         self.__receiver_position = {channel: [0.0, 0.0] for channel in self.channel_names}
 
     @property
-    def dlxcd_version(self):
+    def dlxcd_version(self) -> str:
         """DlxCd version."""
         return self.__dlxcd_version
 
     @property
-    def row_count(self):
+    def row_count(self) -> int:
         """Number of rows in the dataset."""
         return self.__row_count
 
     @property
-    def col_count(self):
+    def col_count(self) -> int:
         """Number of columns in the dataset."""
         return self.__col_count
 
     @property
-    def col_header1(self):
+    def col_header1(self) -> list:
         """Primary column header names."""
         return self.__col_header1
 
     @property
-    def col_header2(self):
+    def col_header2(self) -> list:
         """Secondary column header names."""
         return self.__col_header2
 
     @property
-    def binary_record_length(self):
+    def binary_record_length(self) -> int:
         """Length of each binary record."""
         return self.__binary_record_length
 
     @property
-    def binary_start_byte(self):
+    def binary_start_byte(self) -> int:
         """Start byte index for binary data."""
         return self.__binary_start_byte
 
     @property
-    def binary_byte_type_line(self):
+    def binary_byte_type_line(self) -> str:
         """Byte type definition line for binary parsing."""
         return self.__binary_byte_type_line
 
     @property
-    def radar_waveform(self):
+    def radar_waveform(self) -> str:
         """Radar waveform configuration."""
         return self.__radar_waveform
 
     @property
-    def radar_channels(self):
+    def radar_channels(self) -> list:
         """List of radar channel configurations."""
         return self.__radar_channels
 
     @property
-    def time_start(self):
+    def time_start(self) -> float:
         """Start time of the radar data collection."""
         return self.__time_start
 
     @property
-    def time_stop(self):
+    def time_stop(self) -> float:
         """Stop time of the radar data collection."""
         return self.__time_stop
 
     @property
-    def cpi_frames(self):
+    def cpi_frames(self) -> int:
         """Number of coherent processing interval frames."""
         return self.__cpi_frames
 
     @property
-    def time_sweep(self):
+    def time_sweep(self) -> float:
         """Sweep duration for each pulse."""
         return self.__time_sweep
 
     @property
-    def cpi_duration(self):
+    def cpi_duration(self) -> float:
         """Coherent processing interval duration."""
         return self.__cpi_duration
 
     @property
-    def pulse_repetition_frequency(self):
+    def pulse_repetition_frequency(self) -> float:
         """Pulse repetition frequency (Hz)."""
         return 1 / self.__cpi_duration
 
     @property
-    def time_duration(self):
+    def time_duration(self) -> float:
         """Total time duration of signal capture."""
         return self.__time_duration
 
     @property
-    def frequency_domain_type(self):
+    def frequency_domain_type(self) -> str:
         """Type of frequency domain representation."""
         return self.__frequency_domain_type
 
     @property
-    def frequency_start(self):
+    def frequency_start(self) -> float:
         """Start frequency (Hz)."""
         return self.__frequency_start
 
     @property
-    def frequency_stop(self):
+    def frequency_stop(self) -> float:
         """Stop frequency (Hz)."""
         return self.__frequency_stop
 
     @property
-    def frequency_number(self):
+    def frequency_number(self) -> int:
         """Number of frequency steps."""
         return self.__frequency_number
 
     @property
-    def frequency_sweep(self):
+    def frequency_sweep(self) -> list:
         """Available frequencies."""
         return self.__frequency_sweep
 
     @property
-    def frequency_delta(self):
+    def frequency_delta(self) -> float:
         """Frequency step size."""
         return self.__frequency_delta
 
     @property
-    def frequency_bandwidth(self):
+    def frequency_bandwidth(self) -> float:
         """Total bandwidth of frequency sweep."""
         return self.__frequency_bandwidth
 
     @property
-    def frequency_center(self):
+    def frequency_center(self) -> float:
         """Center frequency of the sweep."""
         return self.__frequency_center
 
     @property
-    def antenna_names(self):
+    def antenna_names(self) -> list:
         """Names of the antennas used."""
         return self.__antenna_names
 
     @property
-    def channel_number(self):
+    def channel_number(self) -> int:
         """Number of radar channels."""
         return self.__channel_number
 
     @property
-    def coupling_combos(self):
+    def coupling_combos(self) -> list:
         """List of transmit-receive antenna combinations."""
         return self.__coupling_combos
 
     @property
-    def channel_names(self):
+    def channel_names(self) -> list:
         """Names assigned to radar channels."""
         return self.__channel_names
 
     @property
-    def receiver_position(self):
+    def receiver_position(self) -> list:
         """Position of receivers respected the transmitters."""
         return self.__receiver_position
 
     @receiver_position.setter
-    def receiver_position(self, value):
+    def receiver_position(self, value: list) -> None:
         """Position of receivers respected the transmitters."""
         self.__receiver_position = value
 
     @property
-    def all_data(self):
+    def all_data(self) -> dict:
         """Complete dataset."""
         return self.__all_data
 
     @property
-    def range_resolution(self):
+    def range_resolution(self) -> float:
         """Radar range resolution (meters)."""
         bw = self.frequency_bandwidth
         rr = SpeedOfLight / 2 / bw
         return rr
 
     @property
-    def range_maximum(self):
+    def range_maximum(self) -> float:
         """Maximum detectable range (meters)."""
         rr = self.range_resolution
         max_range = rr * self.frequency_number
@@ -279,7 +284,7 @@ class FRTMData(PyAedtBase):
         return max_range
 
     @property
-    def velocity_resolution(self):
+    def velocity_resolution(self) -> float:
         """Velocity resolution (m/s)."""
         fc = self.frequency_center
         tpt = self.time_duration
@@ -287,7 +292,7 @@ class FRTMData(PyAedtBase):
         return vr
 
     @property
-    def velocity_maximum(self):
+    def velocity_maximum(self) -> float:
         """Maximum measurable velocity (m/s)."""
         vr = self.velocity_resolution
         time_step = self.cpi_frames
@@ -295,7 +300,7 @@ class FRTMData(PyAedtBase):
         return vp / 2
 
     @property
-    def data_conversion_function(self):
+    def data_conversion_function(self) -> str:
         """RCS data conversion function.
 
         The available functions are:
@@ -312,7 +317,7 @@ class FRTMData(PyAedtBase):
         return self.__data_conversion_function
 
     @data_conversion_function.setter
-    def data_conversion_function(self, val):
+    def data_conversion_function(self, val: str) -> None:
         available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
         if val in available_functions:
             self.__data_conversion_function = val
@@ -571,7 +576,7 @@ class FRTMData(PyAedtBase):
         range_bins: int = None,
         cross_range_bins: int = None,
         doa_method: str = None,
-        field_of_view=None,
+        field_of_view: list = None,
         range_bin_index: int = None,
     ) -> np.ndarray:
         """
@@ -664,7 +669,7 @@ class FRTMData(PyAedtBase):
         return rng_xrng
 
     @staticmethod
-    def window_function(window="Flat", size=512):
+    def window_function(window: str = "Flat", size: int = 512) -> np.ndarray:
         """Window function.
 
         Parameters
@@ -696,7 +701,7 @@ class FRTMData(PyAedtBase):
             raise ValueError(f"Window function {window} not supported.")
         return win
 
-    def __read_frtm(self):
+    def __read_frtm(self) -> None:
         string_to_stop_reading_header = "@ BeginData"
         header = []
 
@@ -872,7 +877,7 @@ class FRTMPlotter(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, frtm_data):
+    def __init__(self, frtm_data) -> None:
         if not isinstance(frtm_data, dict):
             frtm_data = {0: frtm_data}
 
@@ -881,12 +886,12 @@ class FRTMPlotter(PyAedtBase):
         self.__logger = logger
 
     @property
-    def all_data(self):
+    def all_data(self) -> dict:
         """RCS data object."""
         return self.__all_data
 
     @property
-    def frames(self):
+    def frames(self) -> list:
         """Frames."""
         return list(self.__all_data.keys())
 
@@ -905,8 +910,8 @@ class FRTMPlotter(PyAedtBase):
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
         animation: bool = True,
-        figure=None,
-    ):
+        figure: "Figure" = None,
+    ) -> "ReportPlotter":
         """Create a 2D plot of the range profile.
 
         Parameters
@@ -964,6 +969,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_profile(output_file="range_profile.gif", animation=True, show=False)
         >>> frtm_plotter.plot_range_profile(animation=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
         if frame is not None:
             all_data = {frame: self.all_data[frame]}
@@ -1038,8 +1045,8 @@ class FRTMPlotter(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),
-        figure=None,
-    ):
+        figure: "Figure" = None,
+    ) -> "ReportPlotter":
         """Create range-Doppler contour plot.
 
         Parameters
@@ -1096,6 +1103,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_doppler(frame=frame_number)
         >>> frtm_plotter.plot_range_doppler(output_file="range_doppler.gif", animation=True, show=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
         if frame is not None:
             all_data = {frame: self.all_data[frame]}
@@ -1181,8 +1190,8 @@ class FRTMPlotter(PyAedtBase):
         range_bins: int = None,
         cross_range_bins: int = None,
         doa_method: str = None,
-        field_of_view=None,
-        dynamic_range=None,
+        field_of_view: list = None,
+        dynamic_range: float = None,
         quantity_format: str = None,
         polar: bool = False,
         title: str = "Angle vs Range (Azimuth)",
@@ -1190,8 +1199,8 @@ class FRTMPlotter(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         size: tuple = (1920, 1440),
-        figure=None,
-    ):
+        figure: "Figure" = None,
+    ) -> "ReportPlotter":
         """Create range-angle map contour plot.
 
         Parameters
@@ -1259,6 +1268,8 @@ class FRTMPlotter(PyAedtBase):
         >>> frtm_plotter.plot_range_angle_map(frame=frame_number)
         >>> frtm_plotter.plot_range_angle_map(output_file="range_angle_map.gif", animation=True, show=False)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         all_data = self.all_data
 
         if frame is not None:
@@ -1367,7 +1378,7 @@ class FRTMPlotter(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def get_results_files(input_dir, var_name="time_var"):
+def get_results_files(input_dir: str, var_name: str = "time_var") -> dict:
     path = Path(input_dir)
 
     # Find all CSV files recursively

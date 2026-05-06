@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,9 +21,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
+
 from abc import abstractmethod
 import os.path
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -36,11 +37,10 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.mesh import meshers
 
 
 class CommonRegion(PyAedtBase):
-    def __init__(self, app, name):
+    def __init__(self, app, name: str) -> None:
         self._app = app
         self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
@@ -49,7 +49,7 @@ class CommonRegion(PyAedtBase):
         self._dir_order = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
 
     @property
-    def padding_types(self):
+    def padding_types(self) -> list[str]:
         """Get a list of strings containing the padding types used.
 
         One for each direction in the following order:
@@ -63,7 +63,7 @@ class CommonRegion(PyAedtBase):
         return self._padding_type
 
     @property
-    def padding_values(self):
+    def padding_values(self) -> list[float]:
         """Get a list of padding values (string or float) used.
 
         Get one for each direction, in the following order:
@@ -77,7 +77,7 @@ class CommonRegion(PyAedtBase):
         return self._padding_value
 
     @property
-    def positive_x_padding_type(self):
+    def positive_x_padding_type(self) -> str:
         """
         Get a string with the padding type used in the +X direction.
 
@@ -88,7 +88,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+X")
 
     @property
-    def negative_x_padding_type(self):
+    def negative_x_padding_type(self) -> str:
         """
         Get a string with the padding type used in the -X direction.
 
@@ -99,7 +99,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-X")
 
     @property
-    def positive_y_padding_type(self):
+    def positive_y_padding_type(self) -> str:
         """
         Get a string with the padding type used in the +Y direction.
 
@@ -110,7 +110,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+Y")
 
     @property
-    def negative_y_padding_type(self):
+    def negative_y_padding_type(self) -> str:
         """
         Get a string with the padding type used in the -Y direction.
 
@@ -121,7 +121,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Y")
 
     @property
-    def positive_z_padding_type(self):
+    def positive_z_padding_type(self) -> str:
         """
         Get a string with the padding type used in the +Z direction.
 
@@ -132,7 +132,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+Z")
 
     @property
-    def negative_z_padding_type(self):
+    def negative_z_padding_type(self) -> str:
         """
         Get a string with the padding type used in the -Z direction.
 
@@ -143,7 +143,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Z")
 
     @property
-    def positive_x_padding(self):
+    def positive_x_padding(self) -> float:
         """
         Get a string with the padding value used in the +X direction.
 
@@ -154,7 +154,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+X", False)
 
     @property
-    def negative_x_padding(self):
+    def negative_x_padding(self) -> float:
         """
         Get a string with the padding value used in the -X direction.
 
@@ -165,7 +165,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-X", False)
 
     @property
-    def positive_y_padding(self):
+    def positive_y_padding(self) -> float:
         """
         Get a string with the padding value used in the +Y direction.
 
@@ -176,7 +176,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+Y", False)
 
     @property
-    def negative_y_padding(self):
+    def negative_y_padding(self) -> float:
         """
         Get a string with the padding value used in the -Y direction.
 
@@ -187,7 +187,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Y", False)
 
     @property
-    def positive_z_padding(self):
+    def positive_z_padding(self) -> float:
         """
         Get a string with the padding value used in the +Z direction.
 
@@ -198,7 +198,7 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("+Z", False)
 
     @property
-    def negative_z_padding(self):
+    def negative_z_padding(self) -> float:
         """
         Get a string with the padding value used in the -Z direction.
 
@@ -209,65 +209,65 @@ class CommonRegion(PyAedtBase):
         return self._get_region_data("-Z", False)
 
     @padding_types.setter
-    def padding_types(self, values):
+    def padding_types(self, values: list[str]) -> None:
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, True)
 
     @padding_values.setter
-    def padding_values(self, values):
+    def padding_values(self, values: list[float]) -> None:
         if not isinstance(values, list):
             values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, False)
 
     @positive_x_padding_type.setter
-    def positive_x_padding_type(self, value):
+    def positive_x_padding_type(self, value: float) -> None:
         self._set_region_data(value, "+X", True)
 
     @negative_x_padding_type.setter
-    def negative_x_padding_type(self, value):
+    def negative_x_padding_type(self, value: float) -> None:
         self._set_region_data(value, "-X", True)
 
     @positive_y_padding_type.setter
-    def positive_y_padding_type(self, value):
+    def positive_y_padding_type(self, value: float) -> None:
         self._set_region_data(value, "+Y", True)
 
     @negative_y_padding_type.setter
-    def negative_y_padding_type(self, value):
+    def negative_y_padding_type(self, value: float) -> None:
         self._set_region_data(value, "-Y", True)
 
     @positive_z_padding_type.setter
-    def positive_z_padding_type(self, value):
+    def positive_z_padding_type(self, value: float) -> None:
         self._set_region_data(value, "+Z", True)
 
     @negative_z_padding_type.setter
-    def negative_z_padding_type(self, value):
+    def negative_z_padding_type(self, value: float) -> None:
         self._set_region_data(value, "-Z", True)
 
     @positive_x_padding.setter
-    def positive_x_padding(self, value):
+    def positive_x_padding(self, value: float) -> None:
         self._set_region_data(value, "+X", False)
 
     @negative_x_padding.setter
-    def negative_x_padding(self, value):
+    def negative_x_padding(self, value: float) -> None:
         self._set_region_data(value, "-X", False)
 
     @positive_y_padding.setter
-    def positive_y_padding(self, value):
+    def positive_y_padding(self, value: float) -> None:
         self._set_region_data(value, "+Y", False)
 
     @negative_y_padding.setter
-    def negative_y_padding(self, value):
+    def negative_y_padding(self, value: float) -> None:
         self._set_region_data(value, "-Y", False)
 
     @positive_z_padding.setter
-    def positive_z_padding(self, value):
+    def positive_z_padding(self, value: float) -> None:
         self._set_region_data(value, "+Z", False)
 
     @negative_z_padding.setter
-    def negative_z_padding(self, value):
+    def negative_z_padding(self, value: float) -> None:
         self._set_region_data(value, "-Z", False)
 
     @property
@@ -282,7 +282,7 @@ class CommonRegion(PyAedtBase):
         if isinstance(self, Region):
             # use native apis instead of history() for performance reasons
             for o, oo in self._app.modeler.objects_by_name.items():
-                child_names = self._app.oeditor.GetChildObject(o).GetChildNames()
+                child_names = self._app.get_oo_name(self._app.oeditor, o)
                 if child_names and child_names[0].startswith("CreateRegion"):
                     return oo
             return None
@@ -290,7 +290,7 @@ class CommonRegion(PyAedtBase):
             return self._app.modeler.objects_by_name.get(self._name, None)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Get the subregion name.
 
@@ -301,7 +301,7 @@ class CommonRegion(PyAedtBase):
         return self.object.name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         try:
             if self._app.modeler.objects_by_name[self._name].name != value:
                 self._app.modeler.objects_by_name[self._name].name = value
@@ -309,16 +309,22 @@ class CommonRegion(PyAedtBase):
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
 
-    def _set_region_data(self, value, direction=None, padding_type=True):
+    def _set_region_data(self, value, direction=None, padding_type: bool = True):
         self._update_region_data()
         region = self.object
         create_region = region.history()
         set_type = ["Data", "Type"][int(padding_type)]
         create_region.properties[f"{direction} Padding {set_type}"] = value
 
-    def _update_region_data(self):
+    def _update_region_data(self) -> None:
         region = self.object
-        create_region = region.history()
+        if (
+            hasattr(self._app, "logger") and self._app.logger and hasattr(self._app.logger, "suspend_logic")
+        ):  # pragma: no cover
+            with self._app.logger.suspend_logging():
+                create_region = region.history()
+        else:
+            create_region = region.history()
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
@@ -326,7 +332,7 @@ class CommonRegion(PyAedtBase):
             self._padding_value.append(create_region.properties[f"{padding_direction} Padding Data"])
             self._coordinate_system = create_region.properties["Coordinate System"]
 
-    def _get_region_data(self, direction=None, padding_type=True):
+    def _get_region_data(self, direction=None, padding_type: bool = True):
         self._update_region_data()
         idx = self._dir_order.index(direction)
         if padding_type:
@@ -338,7 +344,7 @@ class CommonRegion(PyAedtBase):
 class Region(CommonRegion):
     """Provides Icepak global mesh region properties and methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         super(Region, self).__init__(app, None)
         try:
             self._update_region_data()
@@ -349,13 +355,15 @@ class Region(CommonRegion):
 class SubRegion(CommonRegion):
     """Provides Icepak mesh subregions properties and methods."""
 
-    def __init__(self, app, parts, name=None):
+    def __init__(self, app, parts, name: str | None = None) -> None:
         if name is None:
             name = generate_unique_name("SubRegion")
         super(SubRegion, self).__init__(app, name)
         self.create(0, "Percentage Offset", name, parts)
 
-    def create(self, padding_values, padding_types, region_name, parts):
+    def create(
+        self, padding_values: list[str | float], padding_types: list[str], region_name: str, parts: list[str]
+    ) -> bool:
         """
         Create subregion object.
 
@@ -392,7 +400,7 @@ class SubRegion(CommonRegion):
         except Exception:
             return False
 
-    def delete(self):
+    def delete(self) -> bool:
         """
         Delete the subregion object.
 
@@ -411,7 +419,7 @@ class SubRegion(CommonRegion):
             return False
 
     @property
-    def parts(self):
+    def parts(self) -> dict:
         """
         Parts included in the subregion.
 
@@ -427,7 +435,7 @@ class SubRegion(CommonRegion):
             return {}
 
     @parts.setter
-    def parts(self, parts):
+    def parts(self, parts: list[str]) -> None:
         """Parts included in the subregion.
 
         Parameters
@@ -445,7 +453,11 @@ class MeshSettings(PyAedtBase):
     to the type of settings chosen (manual or automatic).
     """
 
-    _automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
+    _automatic_mesh_settings = {
+        "MeshRegionResolution": 3,
+        "FacetLevel": 3,
+        "GeometryBasedMeshing": True,
+    }  # min: 1, max: 5
     _common_mesh_settings = {
         "ProximitySizeFunction": True,
         "CurvatureSizeFunction": True,
@@ -455,6 +467,8 @@ class MeshSettings(PyAedtBase):
         "EnforceCutCellMeshing": False,
         "Enforce2dot5DCutCell": False,
         "StairStepMeshing": False,
+        "MeshMethod": "MesherHD",
+        "ComputeGap": True,
     }
     _manual_mesh_settings = {
         "MaxElementSizeX": "0.02mm",
@@ -484,7 +498,7 @@ class MeshSettings(PyAedtBase):
         "Enforce2dot5DCutCell",
     ]
 
-    def __init__(self, mesh_class, app):
+    def __init__(self, mesh_class, app) -> None:
         self._app = app
         self._mesh_class = mesh_class
         self._instance_settings = self._common_mesh_settings.copy()
@@ -494,7 +508,7 @@ class MeshSettings(PyAedtBase):
             for arg in self._aedt_20212_args:
                 del self._instance_settings[arg]
 
-    def parse_settings_as_args(self):
+    def parse_settings_as_args(self) -> list:
         """Parse mesh region settings.
 
         Returns
@@ -511,7 +525,7 @@ class MeshSettings(PyAedtBase):
         out += ["UserSpecifiedSettings:=", self._mesh_class.manual_settings]
         return out
 
-    def parse_settings_as_dictionary(self):
+    def parse_settings_as_dictionary(self) -> dict:
         """Parse mesh region settings.
 
         Returns
@@ -527,7 +541,7 @@ class MeshSettings(PyAedtBase):
             out[k] = v
         return out
 
-    def keys(self):
+    def keys(self) -> set:
         """Get mesh region settings keys.
 
         Returns
@@ -561,7 +575,7 @@ class MeshSettings(PyAedtBase):
         """
         return self.parse_settings_as_dictionary().items()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.parse_settings_as_dictionary())
 
     def __getitem__(self, key):
@@ -602,10 +616,10 @@ class MeshSettings(PyAedtBase):
     def __iter__(self):
         return iter(self.keys())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.keys())
 
-    def __contains__(self, x):
+    def __contains__(self, x) -> bool:
         return x in self.keys()
 
 
@@ -623,7 +637,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             Dictionary-like object to handle settings.
     """
 
-    def __init__(self, units, app, name):
+    def __init__(self, units, app, name: str) -> None:
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
         self._name = name
@@ -647,23 +661,23 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Mesh")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+                child_object = self._app.get_oo_object(cc, self._name)
         return child_object
 
     @abstractmethod
-    def update(self):
+    def update(self) -> bool:
         """Update the mesh region object."""
 
     @abstractmethod
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the mesh region object."""
 
     @abstractmethod
-    def create(self):
+    def create(self) -> bool:
         """Create the mesh region object."""
 
     @pyaedt_function_handler()
-    def _initialize_tree_node(self):
+    def _initialize_tree_node(self) -> bool:
         if self._name == "Settings":
             return True
 
@@ -675,7 +689,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
         return False
 
     # backward compatibility
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         try:
             self.__getattribute__(name)
         except AttributeError:
@@ -686,7 +700,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             else:
                 return self.__dict__[name]
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value):
         skip_properties = [
             "manual_settings",
             "settings",
@@ -724,7 +738,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
 class GlobalMeshRegion(MeshRegionCommon):
     """Provides Icepak global mesh properties and methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
             app.modeler.model_units,
@@ -733,12 +747,12 @@ class GlobalMeshRegion(MeshRegionCommon):
         )
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Mesh region name."""
         return "Global"
 
     @pyaedt_function_handler
-    def update(self):
+    def update(self) -> bool:
         """Update mesh region settings with the settings in the object variable.
 
         Returns
@@ -762,16 +776,16 @@ class GlobalMeshRegion(MeshRegionCommon):
             return False
 
     @property
-    def Objects(self):
+    def Objects(self) -> str:
         """Get the region object from the modeler."""
         return self.global_region.name
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete the region object in the modeler."""
         self.global_region.object.delete()
         self.global_region = None
 
-    def create(self):
+    def create(self) -> bool:
         """Create the region object in the modeler."""
         self.delete()
         self.global_region = Region(self._app)
@@ -782,7 +796,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 class MeshRegion(MeshRegionCommon):
     """Provides Icepak subregions mesh properties and methods."""
 
-    def __init__(self, app, objects=None, name=None, **kwargs):
+    def __init__(self, app, objects=None, name: str | None = None, **kwargs) -> None:
         if name is None:
             name = generate_unique_name("MeshRegion")
         super(MeshRegion, self).__init__(
@@ -807,18 +821,6 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = objects
         if self._assignment is not None:
             self.create()
-        # backward compatibility
-        if any(i in kwargs for i in ["dimension", "meshmodule", "unit"]):
-            warnings.warn(
-                "``MeshRegion`` initialization changed. ``meshmodule``, ``dimension``, ``unit`` "
-                "arguments are not supported anymore.",
-                DeprecationWarning,
-            )
-            if "dimension" in kwargs:
-                self.manual_settings = True
-                self.settings["MaxElementSizeX"] = float(kwargs["dimension"][0]) / 20
-                self.settings["MaxElementSizeY"] = float(kwargs["dimension"][1]) / 20
-                self.settings["MaxElementSizeZ"] = float(kwargs["dimension"][2]) / 20
 
     def _parse_assignment_value(self, assignment=None):
         if assignment is None:
@@ -836,7 +838,7 @@ class MeshRegion(MeshRegionCommon):
         return a
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Name of the mesh region.
 
@@ -849,7 +851,7 @@ class MeshRegion(MeshRegionCommon):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         self._app.odesign.ChangeProperty(
             [
                 "NAME:AllTabs",
@@ -867,7 +869,7 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = self.assignment
 
     @pyaedt_function_handler
-    def update(self):
+    def update(self) -> bool:
         """Update mesh region settings with the settings in the object variable.
 
         Returns
@@ -890,7 +892,7 @@ class MeshRegion(MeshRegionCommon):
             return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the mesh region.
 
         Returns
@@ -907,7 +909,7 @@ class MeshRegion(MeshRegionCommon):
         return True
 
     @property
-    def assignment(self):
+    def assignment(self) -> list:
         """
         List of objects included in mesh region.
 
@@ -916,17 +918,17 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
+            mesh_oo = self._app.get_oo_object(self._app.odesign, "Mesh")
+            if self.name in self._app.get_oo_name(self._app.odesign, "Mesh"):
                 # try to update name, APIs lacking an easy method before 242
                 if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
                     parts = []
                     subparts = []
-                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                        subparts = (
-                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
-                        )
+                    region_props = self._app.get_oo_properties(mesh_oo, self.name)
+                    if "Parts" in region_props:
+                        parts = self._app.get_oo_property_value(mesh_oo, self.name, "Parts")
+                    if "Submodels" in region_props:
+                        subparts = self._app.get_oo_property_value(mesh_oo, self.name, "Submodels")
                     if not isinstance(parts, list):
                         parts = [parts]
                     if not isinstance(subparts, list):
@@ -948,9 +950,7 @@ class MeshRegion(MeshRegionCommon):
                         if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
                             self._assignment.name = sr
                 else:
-                    self._assignment.name = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
-                    )
+                    self._assignment.name = self._app.get_oo_property_value(mesh_oo, self.name, "Assignment")
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment
@@ -958,7 +958,7 @@ class MeshRegion(MeshRegionCommon):
             return [self._assignment]
 
     @assignment.setter
-    def assignment(self, value):
+    def assignment(self, value: list) -> None:
         arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
         try:
             self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
@@ -967,7 +967,7 @@ class MeshRegion(MeshRegionCommon):
             self._app.logger.error("Mesh region reassignment failed.")
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a mesh region.
 
         Returns
@@ -993,76 +993,6 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = self.assignment
         return result
 
-    # backward compatibility
-    @property
-    def Enable(self):
-        """
-        Get whether the mesh region is enabled.
-
-        Returns
-        -------
-        book
-        """
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        return self.enable
-
-    @Enable.setter
-    def Enable(self, val):
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        self.enable = val
-
-    @property
-    def Objects(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Objects.setter
-    def Objects(self, objects):
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
-
-    @property
-    def Submodels(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Submodels.setter
-    def Submodels(self, objects):
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
-
 
 class IcepakMesh(PyAedtBase):
     """Manages Icepak meshes.
@@ -1072,12 +1002,12 @@ class IcepakMesh(PyAedtBase):
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
 
         self._odesign = self._app._odesign
         design_type = self._odesign.GetDesignType()
-        if design_type not in meshers:
+        if not hasattr(self._app._design_type, "mesher"):
             raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
@@ -1101,7 +1031,7 @@ class IcepakMesh(PyAedtBase):
         return self._modeler.model_units
 
     @property
-    def meshregions_dict(self):
+    def meshregions_dict(self) -> dict:
         """
         Get mesh regions in the design.
 
@@ -1129,7 +1059,7 @@ class IcepakMesh(PyAedtBase):
         return self._app.omeshmodule
 
     @property
-    def boundingdimension(self):
+    def boundingdimension(self) -> list:
         """Bounding dimension."""
         return self._modeler.get_bounding_dimension()
 
@@ -1217,8 +1147,8 @@ class IcepakMesh(PyAedtBase):
 
         return meshops
 
-    @pyaedt_function_handler(meshop_name="name")
-    def assign_mesh_level(self, mesh_order, name=None):
+    @pyaedt_function_handler()
+    def assign_mesh_level(self, mesh_order: dict, name: str = None) -> list[MeshOperation] | bool:
         """Assign a mesh level to objects.
 
         Parameters
@@ -1256,8 +1186,8 @@ class IcepakMesh(PyAedtBase):
             list_meshops.append(name)
         return list_meshops
 
-    @pyaedt_function_handler(objects="assignment", filename="file_name", meshop_name="name")
-    def assign_mesh_from_file(self, assignment, file_name, name=None):
+    @pyaedt_function_handler()
+    def assign_mesh_from_file(self, assignment: list, file_name: str, name: str = None) -> MeshOperation | bool:
         """Assign a mesh from a file to objects.
 
         Parameters
@@ -1300,84 +1230,7 @@ class IcepakMesh(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def automatic_mesh_pcb(self, accuracy=2):
-        """Create a custom mesh tailored on a PCB design.
-
-        .. deprecated:: 0.8.14
-
-        Parameters
-        ----------
-        accuracy : int, optional
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, or very accurate mesh. The default is ``2``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditMeshOperation
-        """
-        warnings.warn("This method was deprecated in version 8.14.", DeprecationWarning)
-        xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
-        ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
-        zsize = self.boundingdimension[2] / (10 * accuracy)
-        MaxSizeRatio = 1 + (accuracy / 2)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.MaxSizeRatio = MaxSizeRatio
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
-        self.global_mesh_region.MaxLevels = 2
-        self.global_mesh_region.BufferLayers = 1
-        self.global_mesh_region.MinGapX = str(xsize / 10)
-        self.global_mesh_region.MinGapY = str(ysize / 10)
-        self.global_mesh_region.MinGapZ = str(zsize / 10)
-        self.global_mesh_region.update()
-        return True
-
-    @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
-    def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh.
-
-        .. deprecated:: 0.13.0
-
-        Parameters
-        ----------
-        accuracy : int
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively
-            a coarse, standard, or very accurate mesh.
-        enable_stair_step : bool, optional
-            Whether to enable a stair step. The default is ``True``.
-
-        Returns
-        -------
-         bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditMeshOperation
-        """
-        xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
-        ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
-        zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.manual_settings = True
-        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
-        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
-        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
-        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
-        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
-        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
-        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
-        self.global_mesh_region.update()
-        return True
-
-    @pyaedt_function_handler()
-    def assign_priorities(self, assignment):
+    def assign_priorities(self, assignment: list[list[Object3d | UserDefinedComponent | str]]) -> bool:
         """Set objects priorities.
 
         Parameters
@@ -1456,131 +1309,10 @@ class IcepakMesh(PyAedtBase):
         self._modeler.oeditor.UpdatePriorityList(args[0])
         return True
 
-    @pyaedt_function_handler(obj_list="assignment", comp_name="component")
-    def add_priority(self, entity_type, assignment=None, component=None, priority=3):
-        """Add priority to objects.
-
-        .. deprecated:: 0.9.1
-        Use :func:`assign_priorities` function instead.
-
-        Parameters
-        ----------
-        entity_type : int
-            Type of the entity. Options are ``1`` and ``2``, which represent respectively
-            an object and a component.
-        assignment : list
-            List of 3D objects, which can include conductors and dielectrics.
-            If a non-3D object is passed, it is excluded.
-        component : str, optional
-            Name of the component. The default is ``None``.
-        priority : int, optional
-            Level of priority. The default is ``3``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oEditor.UpdatePriorityList
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1, assignment=app.modeler.object_names, priority=3)
-        >>> app.mesh.add_priority(entity_type=2, component=app.modeler.user_defined_component_names[0], priority=2)
-        """
-        warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
-        i = priority
-
-        args = ["NAME:UpdatePriorityListData"]
-        if entity_type == 1:
-            non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
-            new_obj_list = []
-            for comp in assignment:
-                if comp != "Region" and comp in non_user_defined_component_parts:
-                    new_obj_list.append(comp)
-            assignment = ", ".join(new_obj_list)
-            if not new_obj_list:
-                return False
-            prio = [
-                "NAME:PriorityListParameters",
-                "EntityType:=",
-                "Object",
-                "EntityList:=",
-                assignment,
-                "PriorityNumber:=",
-                i,
-                "PriorityListType:=",
-                ["2D", "3D"][int(self._app.modeler[new_obj_list[0]].is3d)],
-            ]
-            self._priorities_args.append(prio)
-            args += self._priorities_args
-        elif entity_type == 2:
-            o = self._modeler.user_defined_components[component]
-            if (all(part.is3d for part in o.parts.values()) is False) and (
-                any(part.is3d for part in o.parts.values()) is True
-            ):
-                prio_3d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "3D",
-                ]
-                prio_2d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "2D",
-                ]
-                self._priorities_args.append(prio_3d)
-                self._priorities_args.append(prio_2d)
-            elif all(part.is3d for part in o.parts.values()) is True:
-                prio_3d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "3D",
-                ]
-                self._priorities_args.append(prio_3d)
-            else:
-                prio_2d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "2D",
-                ]
-                self._priorities_args.append(prio_2d)
-
-            args += self._priorities_args
-        self._modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
-        self._modeler.oeditor.UpdatePriorityList(args)
-        return True
-
-    @pyaedt_function_handler(objectlist="assignment")
-    def assign_mesh_region(self, assignment=None, level=5, name=None, **kwargs):
+    @pyaedt_function_handler()
+    def assign_mesh_region(
+        self, assignment: list = None, level: int = 5, name: str = None, **kwargs
+    ) -> MeshRegion | bool:
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -1625,7 +1357,7 @@ class IcepakMesh(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name=None):
+    def generate_mesh(self, name: str = None) -> bool:
         """Generate the mesh for a given setup name.
 
         Parameters
@@ -1646,20 +1378,15 @@ class IcepakMesh(PyAedtBase):
             name = []
         return self._odesign.GenerateMesh(name) == 0
 
-    @pyaedt_function_handler(
-        groupName="group_name",
-        localMeshParamEn="enable_local_mesh_parameters",
-        localMeshParameters="local_mesh_parameters",
-        meshop_name="name",
-    )
+    @pyaedt_function_handler()
     def assign_mesh_level_to_group(
         self,
-        mesh_level,
-        group_name,
-        enable_local_mesh_parameters=False,
-        local_mesh_parameters="No local mesh parameters",
-        name=None,
-    ):
+        mesh_level: int,
+        group_name: str,
+        enable_local_mesh_parameters: bool = False,
+        local_mesh_parameters: str = "No local mesh parameters",
+        name: str = None,
+    ) -> MeshOperation:
         """Assign a mesh level to a group.
 
         Parameters
@@ -1704,7 +1431,7 @@ class IcepakMesh(PyAedtBase):
         self.meshoperations.append(mop)
         return mop
 
-    def assign_mesh_reuse(self, assignment, mesh_file, name=None):
+    def assign_mesh_reuse(self, assignment: list, mesh_file: str, name: str = None) -> MeshOperation | bool:
         """Assign a mesh file to objects.
 
         Parameters

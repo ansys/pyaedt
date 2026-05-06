@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,8 +38,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -71,10 +71,9 @@ class ImportNastranExtensionData(ExtensionCommonData):
 class ImportNastranExtension(ExtensionProjectCommon):
     """Extension for importing Nastran or STL files in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=5,
@@ -91,15 +90,22 @@ class ImportNastranExtension(ExtensionProjectCommon):
         # Add extension content
         self.add_extension_content()
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in ["HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"]:
+        if self.aedt_application.design_type not in [
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Q3D",
+            DesignType.ICEPAKFEA,
+        ]:
             self.release_desktop()
             raise AEDTRuntimeError(
                 "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."
             )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # File path selection
         ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
@@ -192,7 +198,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             name="import_button",
         ).grid(row=5, column=1, pady=10, padx=10)
 
-    def __browse_files(self):
+    def __browse_files(self) -> None:
         """Open the file dialog to select Nastran or STL file."""
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -220,6 +226,8 @@ class ImportNastranExtension(ExtensionProjectCommon):
         decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
 
         if file_path_ui.endswith(".nas"):
+            from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+
             nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
             from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
@@ -256,7 +264,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         self.root.destroy()
 
 
-def main(data: ImportNastranExtensionData):
+def main(data: ImportNastranExtensionData) -> bool:
     """Main function to run the import nastran extension."""
     # Input validation
     if not data.file_path:
@@ -305,10 +313,7 @@ def main(data: ImportNastranExtensionData):
 
         outfile = simplify_and_preview_stl(str(file_path), decimation=data.decimate)
         aedtapp.modeler.import_3d_cad(
-            outfile,
-            healing=False,
-            create_lightweigth_part=data.lightweight,
-            merge_planar_faces=data.planar,
+            outfile, healing=False, create_lightweight_part=data.lightweight, merge_planar_faces=data.planar
         )
 
     app.logger.info("Geometry imported correctly.")

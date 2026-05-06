@@ -29,7 +29,6 @@ import platform
 import shutil
 import subprocess  # nosec
 import sys
-import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -42,8 +41,15 @@ import PIL.Image
 import PIL.ImageTk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
+from ansys.aedt.core.extensions.misc import ToolTip
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_aedt_theme
+from ansys.aedt.core.extensions.misc import get_latest_version
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.help import Help
 
 defusedxml.defuse_stdlib()
 
@@ -57,55 +63,61 @@ DISCLAIMER = (
 )
 UNKNOWN_VERSION = "Unknown"
 
+
 class VersionManager:
     TITLE = "Version Manager"
     USER_GUIDE = (
         "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/version_manager.html"
     )
-    UI_WIDTH = 800
-    UI_HEIGHT = 400
+    UI_WIDTH = 650
+    UI_HEIGHT = 320
+    UI_MAX_WIDTH = 650
+    UI_MAX_HEIGHT = 320
+    UI_MIN_WIDTH = 450
+    UI_MIN_HEIGHT = 250
 
     @property
-    def venv_path(self):
+    def venv_path(self) -> str:
         return sys.prefix
 
     @property
-    def python_exe(self):
+    def python_exe(self) -> str:
         # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
         bin_dir = "Scripts" if self.is_windows else "bin"
         exe_name = "python.exe" if self.is_windows else "python"
         return os.path.join(self.venv_path, bin_dir, exe_name)
 
     @property
-    def uv_exe(self):
-        # 'uv' is named 'uv.exe' on Windows, 'uv' on POSIX and lives in the venv scripts/bin dir.
-        bin_dir = "Scripts" if self.is_windows else "bin"
-        uv_name = "uv.exe" if self.is_windows else "uv"
-        return os.path.join(self.venv_path, bin_dir, uv_name)
-
-    @property
-    def python_version(self):
+    def python_version(self) -> str:
         temp = platform.python_version().split(".")[0:2]
         return ".".join(temp)
 
     @property
-    def pyaedt_version(self):
+    def pyaedt_version(self) -> str:
         return self.get_installed_version("pyaedt")
 
     @property
-    def pyedb_version(self):
+    def pyedb_version(self) -> str:
         return self.get_installed_version("pyedb")
 
     @property
-    def aedt_version(self):
+    def aedt_version(self) -> str:
         from ansys.aedt.core.extensions.misc import get_aedt_version
         return get_aedt_version()
 
-    @property
-    def personal_lib(self):
-        return self.desktop.personallib
+    def _get_desktop(self):
+        if self.desktop is None:
+            self.desktop = get_desktop()
+        return self.desktop
 
-    def __init__(self, ui, desktop):
+    @property
+    def personal_lib(self) -> str:
+        personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
+        if personal_lib:
+            return personal_lib
+        return self._get_desktop().personallib
+
+    def __init__(self, ui, desktop=None) -> None:
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
         self.desktop = desktop
@@ -117,8 +129,15 @@ class VersionManager:
         self.style = ttk.Style()
         self.theme = ExtensionTheme()
 
-        self.theme.apply_light_theme(self.style)
-        self.theme_color = "light"
+        # Help for opening links
+        self.help = Help()
+
+        # Detect AEDT theme similarly to ExtensionCommon behavior.
+        self.theme_color = self._resolve_theme_color()
+        if self.theme_color == "dark":
+            self.theme.apply_dark_theme(self.style)
+        else:
+            self.theme.apply_light_theme(self.style)
 
         self.venv_information = tkinter.StringVar()
         self.pyaedt_info = tkinter.StringVar()
@@ -130,15 +149,12 @@ class VersionManager:
         self.pyedb_branch_name = tkinter.StringVar()
         self.pyedb_branch_name.set("main")
 
+        # Loading indicators for update operations
+        self.loading_labels = {}
+
         # Prepare subprocess environment so the venv is effectively activated for all runs
         self.activated_env = None
         self.activate_venv()
-
-        # Install uv if not present
-        if "PYTEST_CURRENT_TEST" not in os.environ: # pragma: no cover
-            if not os.path.exists(self.uv_exe):
-                print("Installing uv...")
-                subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
 
         # Load the logo for the main window
         icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
@@ -148,7 +164,14 @@ class VersionManager:
         self.root = ui
         self.root.iconphoto(True, photo)
         self.root.title(self.TITLE)
+        self.root.minsize(self.UI_MIN_WIDTH, self.UI_MIN_HEIGHT)
+        self.root.maxsize(self.UI_MAX_WIDTH, self.UI_MAX_HEIGHT)
         self.root.geometry(f"{self.UI_WIDTH}x{self.UI_HEIGHT}")
+
+        # Apply theme colours to root window.
+        theme_colors = self.theme.dark if self.theme_color == "dark" else self.theme.light
+        self.root.configure(bg=theme_colors["widget_bg"])
+        self.root.theme = self.theme_color
 
         # Main panel
         main_frame = ttk.PanedWindow(self.root, orient=tkinter.HORIZONTAL, style="TPanedwindow")
@@ -171,9 +194,23 @@ class VersionManager:
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         # Check for PyAEDT updates on startup
-        self.check_for_pyaedt_update_on_startup()
+        check_for_pyaedt_update_on_startup(
+            self.root,
+            self.personal_lib,
+            self.show_pyaedt_update_notification,
+        )
 
-    def toggle_theme(self):
+    @staticmethod
+    def _resolve_theme_color() -> str:
+        """Resolve AEDT theme preference and normalize it to "light" or "dark"."""
+        theme_color = get_aedt_theme()
+        if "dark" in theme_color.lower():
+            return "dark"
+        if theme_color in ["light", "dark"]:
+            return theme_color
+        return "light"
+
+    def toggle_theme(self) -> None:
         if self.theme_color == "light":
             self.set_dark_theme()
             self.theme_color = "dark"
@@ -181,18 +218,45 @@ class VersionManager:
             self.set_light_theme()
             self.theme_color = "light"
 
-    def set_light_theme(self):
-        self.root.configure(bg=self.theme.light["widget_bg"])
+    def _apply_root_theme(self, colors: dict) -> None:
+        """Walk all non-ttk widgets and apply theme colours."""
+        self.root.configure(bg=colors["widget_bg"])
+        for widget in self._find_all_widgets(self.root):
+            if isinstance(widget, tkinter.Text):
+                widget.configure(
+                    background=colors["pane_bg"],
+                    foreground=colors["text"],
+                    highlightthickness=0,
+                    bd=0,
+                )
+            elif isinstance(widget, (tkinter.Canvas, tkinter.Listbox)):
+                widget.configure(
+                    background=colors["widget_bg"],
+                    highlightthickness=0,
+                    bd=0,
+                )
+
+    @staticmethod
+    def _find_all_widgets(parent: tkinter.Widget):
+        """Yield all descendant widgets of *parent*."""
+        for child in parent.winfo_children():
+            yield child
+            yield from VersionManager._find_all_widgets(child)
+
+    def set_light_theme(self) -> None:
+        self.root.theme = "light"
+        self._apply_root_theme(self.theme.light)
         self.theme.apply_light_theme(self.style)
         self.change_theme_button.config(text="\u263d")
 
-    def set_dark_theme(self):
-        self.root.configure(bg=self.theme.dark["widget_bg"])
+    def set_dark_theme(self) -> None:
+        self.root.theme = "dark"
+        self._apply_root_theme(self.theme.dark)
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
 
-    def create_button_menu(self):
-        menu_bar = ttk.Frame(self.root, height=30, style="PyAEDT.TFrame")
+    def create_button_menu(self) -> None:
+        menu_bar = ttk.Frame(self.root, height=26, style="PyAEDT.TFrame")
         help_button = ttk.Button(
             menu_bar, text="Help", command=lambda: webbrowser.open(self.USER_GUIDE), style="PyAEDT.TButton"
         )
@@ -201,115 +265,128 @@ class VersionManager:
             menu_bar, text="\u263d", command=self.toggle_theme, style="PyAEDT.TButton"
         )
 
-        self.change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
-        help_button.pack(side=tkinter.LEFT, padx=5, pady=5)
+        self.change_theme_button.pack(side=tkinter.RIGHT, padx=4, pady=3)
+        help_button.pack(side=tkinter.LEFT, padx=4, pady=3)
 
         menu_bar.pack(fill="x")
 
-    def create_ui_basic(self, parent):
-        def create_ui_wheelhouse(frame):
-            buttons = [
-                ["Update from wheelhouse", self.update_from_wheelhouse],
-                ["Update All", self.update_all],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+    def create_ui_basic(self, parent: tkinter.Widget):
+        # Use a single grid inside the parent for a clean, aligned layout.
+        parent.grid_columnconfigure(1, weight=1)
 
-        def create_ui_pyaedt(frame):
-            label = ttk.Label(frame, textvariable=self.pyaedt_info, width=30, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        # --- Row 0: PyAEDT ---
+        ttk.Label(
+            parent, textvariable=self.pyaedt_info, style="PyAEDT.TLabel",
+        ).grid(row=0, column=0, columnspan=2, sticky="w", padx=8, pady=(8, 2))
 
-            buttons = [
-                ["Update", self.update_pyaedt],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        btn_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        btn_frame0.grid(row=0, column=2, sticky="e", padx=8, pady=(8, 2))
+        ttk.Button(
+            btn_frame0, text="Update", width=14,
+            command=self.update_pyaedt, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl0 = ttk.Label(btn_frame0, text="", style="PyAEDT.TLabel")
+        lbl0.pack(side="left")
+        self.loading_labels["pyaedt"] = lbl0
 
-        def create_ui_pyedb(frame):
-            label = ttk.Label(frame, textvariable=self.pyedb_info, width=30, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        # --- Row 1: PyEDB ---
+        ttk.Label(
+            parent, textvariable=self.pyedb_info, style="PyAEDT.TLabel",
+        ).grid(row=1, column=0, columnspan=2, sticky="w", padx=8, pady=2)
 
-            buttons = [
-                ["Update", self.update_pyedb],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        btn_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        btn_frame1.grid(row=1, column=2, sticky="e", padx=8, pady=2)
+        ttk.Button(
+            btn_frame1, text="Update", width=14,
+            command=self.update_pyedb, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl1 = ttk.Label(btn_frame1, text="", style="PyAEDT.TLabel")
+        lbl1.pack(side="left")
+        self.loading_labels["pyedb"] = lbl1
 
-        def create_ui_info(frame):
-            label = ttk.Label(frame, textvariable=self.venv_information, style="PyAEDT.TLabel")
-            label.pack(anchor="w")
+        # --- Divider ---
+        divider = ttk.Frame(parent, style="PyAEDT.TFrame", height=1)
+        divider.grid(
+            row=2, column=0, columnspan=3, sticky="ew", padx=8, pady=6,
+        )
 
-        frame0 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame1 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame2 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame3 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+        # --- Row 3: Wheelhouse actions ---
+        wh_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+        wh_frame.grid(row=3, column=0, columnspan=3, sticky="ew", padx=8, pady=2)
+        ttk.Button(
+            wh_frame, text="Update from wheelhouse", width=22,
+            command=self.update_from_wheelhouse, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 6))
+        ttk.Button(
+            wh_frame, text="Update All", width=14,
+            command=self.update_all, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 6))
+        lbl_wh = ttk.Label(wh_frame, text="", style="PyAEDT.TLabel")
+        lbl_wh.pack(side="left")
+        self.loading_labels["update_all"] = lbl_wh
 
-        frame0.pack(padx=5, pady=5)
-        frame1.pack(padx=5, pady=5)
-        frame2.pack(side="top", padx=5, pady=5)
-        frame3.pack(side="top", padx=20, pady=20, fill="x")
+        # --- Row 4: Environment info (fills remaining space) ---
+        info_frame = ttk.Frame(parent, style="PyAEDT.Card.TFrame")
+        info_frame.grid(
+            row=4, column=0, columnspan=3, sticky="nsew", padx=8, pady=(6, 8),
+        )
+        parent.grid_rowconfigure(4, weight=1)
 
-        create_ui_pyaedt(frame0)
-        create_ui_pyedb(frame1)
-        create_ui_wheelhouse(frame2)
-        create_ui_info(frame3)
+        info_label = ttk.Label(
+            info_frame, textvariable=self.venv_information,
+            style="PyAEDT.TLabel", wraplength=600, justify="left",
+        )
+        info_label.pack(anchor="nw", padx=6, pady=4, fill="x")
 
-    def create_ui_advanced(self, parent):
-        def create_ui_pyaedt(frame):
-            label = ttk.Label(frame, text="PyAEDT", width=10, style="PyAEDT.TLabel")
-            label.pack(side="left")
+    def create_ui_advanced(self, parent: tkinter.Widget):
+        parent.grid_columnconfigure(2, weight=1)
 
-            buttons = [
-                ["Get Branch", self.get_pyaedt_branch],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
-            entry = ttk.Entry(frame, width=30, textvariable=self.pyaedt_branch_name)
-            entry.pack(side="left")
+        # --- Row 0: PyAEDT branch ---
+        ttk.Label(
+            parent, text="PyAEDT", width=8, style="PyAEDT.TLabel",
+        ).grid(row=0, column=0, sticky="w", padx=(8, 4), pady=6)
 
-        def create_ui_pyedb(frame):
-            label = ttk.Label(frame, text="PyEDB", width=10, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        ttk.Entry(
+            parent, width=28, textvariable=self.pyaedt_branch_name,
+        ).grid(row=0, column=1, sticky="w", padx=4, pady=6)
 
-            buttons = [
-                ["Get Branch", self.get_pyedb_branch],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
-            entry = ttk.Entry(frame, width=30, textvariable=self.pyedb_branch_name)
-            entry.pack(side="left")
+        adv_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        adv_frame0.grid(row=0, column=2, sticky="w", padx=4, pady=6)
+        ttk.Button(
+            adv_frame0, text="Get Branch", width=14,
+            command=self.get_pyaedt_branch, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl_ab0 = ttk.Label(adv_frame0, text="", style="PyAEDT.TLabel")
+        lbl_ab0.pack(side="left")
+        self.loading_labels["pyaedt_branch"] = lbl_ab0
 
-        def create_ui_pyaedt_buttons(frame):
-            buttons = [["Reset AEDT panels", self.reset_pyaedt_buttons_in_aedt]]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        # --- Row 1: PyEDB branch ---
+        ttk.Label(
+            parent, text="PyEDB", width=8, style="PyAEDT.TLabel",
+        ).grid(row=1, column=0, sticky="w", padx=(8, 4), pady=6)
 
-        frame0 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame1 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame2 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
+        ttk.Entry(
+            parent, width=28, textvariable=self.pyedb_branch_name,
+        ).grid(row=1, column=1, sticky="w", padx=4, pady=6)
 
-        frame0.pack(padx=5, pady=5)
-        frame1.pack(padx=5, pady=5)
-        frame2.pack(padx=5, pady=5)
-
-        create_ui_pyaedt(frame0)
-        create_ui_pyedb(frame1)
-        create_ui_pyaedt_buttons(frame2)
+        adv_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        adv_frame1.grid(row=1, column=2, sticky="w", padx=4, pady=6)
+        ttk.Button(
+            adv_frame1, text="Get Branch", width=14,
+            command=self.get_pyedb_branch, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl_ab1 = ttk.Label(adv_frame1, text="", style="PyAEDT.TLabel")
+        lbl_ab1.pack(side="left")
+        self.loading_labels["pyedb_branch"] = lbl_ab1
 
     @staticmethod
-    def is_git_available():
+    def is_git_available() -> bool:
         res = shutil.which("git") is not None
         if not res:
             messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
         return res
 
-    def activate_venv(self):
+    def activate_venv(self) -> None:
         """Prepare a subprocess environment that has the virtual environment activated.
         """
         try:
@@ -328,105 +405,69 @@ class VersionManager:
             # Fallback to the current environment to avoid breaking functionality
             self.activated_env = os.environ.copy()
 
-    def run_uv_pip(self, pip_args, capture_output=False, check=True):
-        """Run pip preferring the 'uv' launcher and falling back to 'python -m pip'.
+    def run_pip(self, pip_args: list, capture_output: bool = False, check: bool = True) -> str | None:
+        """Run pip using python -m pip.
 
         Arguments:
             pip_args: list of arguments to pip after the pip keyword, e.g. ['install', '-U', 'pyaedt']
             capture_output: when True returns the stdout string (uses check_output)
             check: passed to subprocess.run when not capturing output
         """
-        try:
-            cmd = [self.uv_exe, "pip"] + pip_args
-            cmd = [arg.replace("-U", "--upgrade") for arg in cmd]
-            if capture_output:
-                return subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
-            else:
-                subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
-        except Exception:
-            # Fallback to python -m pip which may be necessary in restricted environments
-            cmd = [self.python_exe, "-m", "pip"] + pip_args
-            if capture_output:
-                return subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
-            else:
-                subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
+        cmd = [self.python_exe, "-m", "pip"] + pip_args
+        if capture_output:
+            return subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
+        else:
+            subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
-    def update_and_reload(self, pip_args, modules_to_unload=None): # pragma: no cover
-        """Attempt to release processes, unload modules, run pip, and
-        reload the modules.
-        """        
+    def show_loading(self, key: str):
+        """Show loading indicator for a specific operation."""
+        if key in self.loading_labels:
+            self.loading_labels[key].config(text="⏳")
+            self.root.update_idletasks()
+
+    def hide_loading(self, key: str):
+        """Hide loading indicator for a specific operation."""
+        if key in self.loading_labels:
+            self.loading_labels[key].config(text="")
+            self.root.update_idletasks()
+
+    def update_and_reload(self, pip_args: list, loading_key: str | None = None):  # pragma: no cover
+        """Run pip install/upgrade and refresh the UI."""
         # Confirm action
         response = messagebox.askyesno(
             "Confirm Action",
-            "This will temporarily unload active modules, perform the "
-            "installation, and reload them. Continue?"
+            "This will perform the installation. Continue?"
         )
         if not response:
             return
 
-        # Default modules to try unloading to free file handles
-        modules = modules_to_unload or ["ansys.aedt.core", "pyedb"]
-
-        # Attempt to unload modules in current process to free handles
-        try:
-            import gc as _gc
-            import sys as _sys # nosec
-
-            for m in modules:
-                if m in _sys.modules:
-                    try:
-                        del _sys.modules[m]
-                    except Exception as e:
-                        messagebox.showerror("Error", f"Failed to remove module {m}: {e}")
-            _gc.collect()
-        except Exception as e:
-            # Show error to inform the user that unloading modules failed
-            messagebox.showerror("Error", f"Failed to unload modules: {e}")
+        if loading_key:
+            self.show_loading(loading_key)
 
         # Run pip install/upgrade
         try:
-            self.run_uv_pip(pip_args)
+            self.run_pip(pip_args)
         except Exception as exc:
+            if loading_key:
+                self.hide_loading(loading_key)
             messagebox.showerror("Error: Installation Failed",
-                               f"Installation failed: {exc}")
+                                 f"Installation failed: {exc}")
             return
-
-        # Attempt to reimport the modules that were unloaded
-        try:
-            import importlib
-            for m in modules:
-                try:
-                    importlib.import_module(m)
-                except Exception as e:
-                    # Module may not be available or have dependencies — show error
-                    messagebox.showerror("Error", f"Failed to import module {m}: {e}")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to reimport modules: {e}")
-
-        try:
-            self.reset_pyaedt_buttons_in_aedt(confirm=False)
-        except Exception:  # pragma: no cover
-            messagebox.showwarning(
-                "Warning",
-                "PyAEDT panels could not be updated in AEDT. You may "
-                "need to reset them manually.",
-            )
 
         # Refresh the UI to show updated version information
         self.clicked_refresh(need_restart=True)
 
-        # Inform user that update is complete
-        try:
-            messagebox.showinfo(
-                "Message",
-                "Update completed successfully. Module versions have "
-                "been refreshed."
-            )
-        except Exception as e:
-            # If showing the info fails, report it to the user
-            messagebox.showerror("Error", f"Failed to show completion message: {e}")
+        if loading_key:
+            self.hide_loading(loading_key)
 
-    def update_pyaedt(self):
+        # Inform user that update is complete
+        messagebox.showinfo(
+            "Message",
+            "Update completed successfully. Module versions have "
+            "been refreshed."
+        )
+
+    def update_pyaedt(self) -> None:
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if response:
@@ -438,13 +479,24 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                pip_args = ["install", f"pyaedt=={latest_version}"]
+                pip_args = [
+                    "install",
+                    "--upgrade-strategy",
+                    "eager",
+                    f"pyaedt[all]=={latest_version}",
+                ]
             else:
-                pip_args = ["install", "-U", "pyaedt"]
+                pip_args = [
+                    "install",
+                    "-U",
+                    "--upgrade-strategy",
+                    "eager",
+                    "pyaedt[all]",
+                ]
 
-            self.update_and_reload(pip_args)
+            self.update_and_reload(pip_args, loading_key="pyaedt[all]")
 
-    def update_pyedb(self):
+    def update_pyedb(self) -> None:
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if response:
@@ -457,18 +509,25 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                pip_args = ["install", f"pyedb=={latest_version}"]
+                pip_args = [
+                    "install",
+                    "--upgrade-strategy",
+                    "eager",
+                    f"pyedb=={latest_version}",
+                ]
             else:
-                pip_args = ["install", "-U", "pyedb"]
+                pip_args = [
+                    "install",
+                    "-U",
+                    "--upgrade-strategy",
+                    "eager",
+                    "pyedb",
+                ]
 
-            self.update_and_reload(pip_args)
+            self.update_and_reload(pip_args, loading_key="pyedb")
 
-    def update_all(self): # pragma: no cover
+    def update_all(self) -> None:  # pragma: no cover
         """Update both pyaedt and pyedb together.
-
-        This follows the same disclaimer and install flow as the individual update
-        methods and will attempt to pin to the latest PyPI version when a downgrade
-        is required.
         """
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
@@ -487,24 +546,40 @@ class VersionManager:
         # Decide pyaedt install args (pin if current > latest, else upgrade)
         try:
             if self.pyaedt_version > latest_pyaedt:
-                pip_args.append(f"pyaedt=={latest_pyaedt}")
+                pip_args.extend(
+                    [
+                        "--upgrade-strategy",
+                        "eager",
+                        f"pyaedt[all]=={latest_pyaedt}",
+                    ]
+                )
             else:
-                pip_args.extend(["-U", "pyaedt"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+                )
         except Exception:
-            pip_args.extend(["-U", "pyaedt"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+            )
 
         # Decide pyedb install args (pin if current > latest, else upgrade)
         try:
             if self.pyedb_version > latest_pyedb:
-                pip_args.append(f"pyedb=={latest_pyedb}")
+                pip_args.extend(
+                    ["--upgrade-strategy", "eager", f"pyedb=={latest_pyedb}"]
+                )
             else:
-                pip_args.extend(["pyedb"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyedb"]
+                )
         except Exception:
-            pip_args.extend(["pyedb"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyedb"]
+            )
 
-        self.update_and_reload(pip_args)
+        self.update_and_reload(pip_args, loading_key="update_all")
 
-    def get_pyaedt_branch(self):
+    def get_pyaedt_branch(self) -> None:
         if not self.is_git_available():
             return
 
@@ -513,9 +588,9 @@ class VersionManager:
         if response:
             branch_name = self.pyaedt_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"]
-            self.update_and_reload(pip_args)
+            self.update_and_reload(pip_args, loading_key="pyaedt_branch")
 
-    def get_pyedb_branch(self):
+    def get_pyedb_branch(self) -> None:
         if not self.is_git_available():
             return
 
@@ -524,10 +599,10 @@ class VersionManager:
         if response:
             branch_name = self.pyedb_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"]
-            self.update_and_reload(pip_args)
+            self.update_and_reload(pip_args, loading_key="pyedb_branch")
 
-    def update_from_wheelhouse(self):
-        def version_is_leq(version, other_version):
+    def update_from_wheelhouse(self) -> None:
+        def version_is_leq(version, other_version) -> bool:
             version_parts = [int(part) for part in version.split(".")]
             target_parts = [int(part) for part in other_version.split(".")]
             if version_parts == target_parts:
@@ -566,7 +641,7 @@ class VersionManager:
             if version_is_leq(pyaedt_version, "0.15.3"):
                 if wh_pkg_type != "installer":
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                    msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
+                    msg.extend(["", "Wheelhouse missing required installer packages."])
 
             # Check OS
             if os_system == "windows":
@@ -593,7 +668,7 @@ class VersionManager:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
-            self.run_uv_pip([
+            self.run_pip([
                 "install",
                 "--force-reinstall",
                 "--no-cache-dir",
@@ -602,41 +677,9 @@ class VersionManager:
                 "pyaedt[all]",
             ])
 
-            # Always reset PyAEDT panels after installing from wheelhouse
-            try:
-                self.reset_pyaedt_buttons_in_aedt(confirm=False)
-            except Exception:  # pragma: no cover
-                messagebox.showwarning(
-                    "Warning",
-                    "PyAEDT panels could not be updated in AEDT. You may need to reset them manually.",
-                )
-
             self.clicked_refresh(need_restart=True)
 
-    def reset_pyaedt_buttons_in_aedt(self, confirm=True):
-        """Reset PyAEDT panels in AEDT.
-
-        If confirm is True, prompt the user before proceeding and show success/error dialogs.
-        If confirm is False, perform the reset silently (no confirmation dialog) and suppress dialogs on errors.
-        """
-        if confirm:
-            response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
-            if not response:
-                return
-
-        try:
-            from ansys.aedt.core.extensions.installer.pyaedt_installer import (
-                add_pyaedt_to_aedt,
-            )
-
-            add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
-            if confirm:
-                messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
-        except Exception as e:  # pragma: no cover - best-effort panel reset
-            if confirm:
-                messagebox.showerror("Error", f"Failed to update PyAEDT panels: {e}")
-
-    def get_installed_version(self, package_name):
+    def get_installed_version(self, package_name: str) -> str:
         """Return the installed version of package_name inside the virtualenv.
 
         This runs the venv Python to query the package metadata so we can show
@@ -650,19 +693,19 @@ class VersionManager:
         except Exception:
             try:
                 # Fallback to 'pip show' and parse Version
-                out = self.run_uv_pip(["show", package_name], capture_output=True)
+                out = self.run_pip(["show", package_name], capture_output=True)
                 for line in out.splitlines():
                     if line.startswith("Version:"):
                         return line.split(":", 1)[1].strip()
             except Exception:  # pragma: no cover
                 return "Please restart"
 
-    def clicked_refresh(self, need_restart=False):
+    def clicked_refresh(self, need_restart: bool = False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
 
-        if need_restart is False:
+        if not need_restart:
             self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
             self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
         else:
@@ -684,7 +727,8 @@ class VersionManager:
             self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
             self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
             messagebox.showinfo("Message", "Done")
-    def _on_close(self):
+
+    def _on_close(self) -> None:
         """Best-effort cleanup when the extension window is closed.
 
         If a Desktop instance was provided, attempt to release it (without
@@ -707,28 +751,7 @@ class VersionManager:
             except Exception:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
-    def check_for_pyaedt_update_on_startup(self):
-        """Spawn a background thread to check PyPI for a newer PyAEDT release."""
-        def worker():
-            log = logging.getLogger("Global")
-            try:
-                latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest:
-                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
-                    return
-                try:
-                    self.root.after(
-                        0,
-                        lambda: self.show_pyaedt_update_notification(latest, declined_file)
-                    )
-                except Exception:
-                    log.debug("PyAEDT update check: failed to schedule notification.", exc_info=True)
-            except Exception:
-                log.debug("PyAEDT update check: worker failed.", exc_info=True)
-
-        threading.Thread(target=worker, daemon=True).start()
-
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):  # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
             dlg = tkinter.Toplevel(self.root)
@@ -738,7 +761,7 @@ class VersionManager:
             # Center dialog
             try:
                 self.root.update_idletasks()
-                width, height = 500, 150
+                width, height = 420, 130
                 x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
                 y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
                 dlg.geometry(f"{width}x{height}+{x}+{y}")
@@ -748,7 +771,7 @@ class VersionManager:
             # Create frame for label and changelog button
             label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             label_frame.pack(
-                padx=20, pady=(20, 10), expand=True, fill="both"
+                padx=12, pady=(12, 6), expand=True, fill="both"
             )
 
             ttk.Label(
@@ -764,14 +787,9 @@ class VersionManager:
                 justify="center",
             ).pack(side="left", expand=True, fill="both")
 
-            def open_changelog():
+            def open_changelog() -> None:
                 try:
-                    url = ("https://aedt.docs.pyansys.com/version/stable/"
-                           "changelog.html")
-                    webbrowser.open(str(url))
-                    logging.getLogger("Global").info(
-                        "Opened PyAEDT changelog."
-                    )
+                    self.help.release_notes()
                 except Exception:
                     logging.getLogger("Global").debug(
                         "Failed to open changelog", exc_info=True
@@ -788,9 +806,9 @@ class VersionManager:
             ToolTip(changelog_btn, "View changelog")
 
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
-            btn_frame.pack(padx=10, pady=(0, 10), fill="x")
+            btn_frame.pack(padx=8, pady=(0, 8), fill="x")
 
-            def close_notification():
+            def close_notification() -> None:
                 # Save the declined version to avoid showing again
                 try:
                     declined_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -830,9 +848,10 @@ def get_desktop():
     return aedtapp
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     # Initialize tkinter root window and run the app
-    desktop = get_desktop()
+    personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
+    desktop = None if personal_lib else get_desktop()
     root = tkinter.Tk()
     app = VersionManager(root, desktop)
     root.mainloop()

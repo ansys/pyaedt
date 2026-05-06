@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,46 +22,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TR_Switch(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
-    def filename(self) -> str:
-        """Name of file defining the outboard component.
-
-        Value should be a full file path.
-        """
-        val = self._get_property("Filename")
-        return val
-
-    @filename.setter
-    def filename(self, value: str):
-        self._set_property("Filename", f"{value}")
-
-    @property
+    @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
         """System Noise temperature (K) of the component.
 
@@ -72,20 +58,24 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    @min_aedt_version("2025.2")
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def insertion_loss(self) -> float:
         """TR Switch in-band loss in forward direction.
 
@@ -95,10 +85,12 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @insertion_loss.setter
-    def insertion_loss(self, value: float):
+    @min_aedt_version("2025.2")
+    def insertion_loss(self, value: float) -> None:
         self._set_property("Insertion Loss", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def finite_isolation(self) -> bool:
         """Finite Isolation.
 
@@ -111,10 +103,12 @@ class TR_Switch(EmitNode):
         return val == "true"
 
     @finite_isolation.setter
-    def finite_isolation(self, value: bool):
+    @min_aedt_version("2025.2")
+    def finite_isolation(self, value: bool) -> None:
         self._set_property("Finite Isolation", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def isolation(self) -> float:
         """TR Switch reverse isolation (i.e., loss between the Tx/Rx ports).
 
@@ -124,10 +118,12 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @isolation.setter
-    def isolation(self, value: float):
+    @min_aedt_version("2025.2")
+    def isolation(self, value: float) -> None:
         self._set_property("Isolation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def finite_bandwidth(self) -> bool:
         """Finite Bandwidth.
 
@@ -140,10 +136,12 @@ class TR_Switch(EmitNode):
         return val == "true"
 
     @finite_bandwidth.setter
-    def finite_bandwidth(self, value: bool):
+    @min_aedt_version("2025.2")
+    def finite_bandwidth(self, value: bool) -> None:
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
+    @min_aedt_version("2025.2")
     def out_of_band_attenuation(self) -> float:
         """Out-of-band loss (attenuation).
 
@@ -153,10 +151,12 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value: float):
+    @min_aedt_version("2025.2")
+    def out_of_band_attenuation(self, value: float) -> None:
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def lower_stop_band(self) -> float:
         """Lower stop band frequency.
 
@@ -167,11 +167,13 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def lower_cutoff(self) -> float:
         """Lower cutoff frequency.
 
@@ -182,11 +184,13 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def higher_cutoff(self) -> float:
         """Higher cutoff frequency.
 
@@ -197,11 +201,13 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def higher_stop_band(self) -> float:
         """Higher stop band frequency.
 
@@ -212,6 +218,7 @@ class TR_Switch(EmitNode):
         return float(val)
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")

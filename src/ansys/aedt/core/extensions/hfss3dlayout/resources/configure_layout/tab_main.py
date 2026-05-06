@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,7 +30,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 
-def create_tab_main(tab_frame, master):
+def create_tab_main(tab_frame, master) -> None:
     frame0 = ttk.Frame(tab_frame, name="frame0", style="PyAEDT.TFrame", borderwidth=1, relief="raised")
     # frame0.grid(row=0, column=0, **master.GRID_PARAMS)
     frame0.pack(fill="both", expand=True, padx=5, pady=5)
@@ -42,7 +42,7 @@ def create_tab_main(tab_frame, master):
     create_sub_frame1(frame1, master)
 
 
-def create_sub_frame0(parent, master):
+def create_sub_frame0(parent, master) -> None:
     """Import frame."""
     row = 0
     ttk.Radiobutton(
@@ -85,7 +85,7 @@ def create_sub_frame0(parent, master):
     # ).grid(row=row, column=0, sticky="w")
 
 
-def create_sub_frame1(parent, master):
+def create_sub_frame1(parent, master) -> None:
     """Export frame"""
     row = 0
 
@@ -108,18 +108,22 @@ def create_sub_frame1(parent, master):
 
     row = row + 1
     options = master.export_options.model_dump()
+
+    # Initialize checkbox variables if not already created
+    if not master.export_option_vars:
+        for name in options:
+            master.export_option_vars[name] = tk.BooleanVar(master=master.root, value=options[name])
+
     for idx, name in enumerate(options):
         col = idx % 2
-        chk = ttk.Checkbutton(parent, name=name, text=name, style="PyAEDT.TCheckbutton")
-        chk.grid(row=row, column=col, **{"sticky": "nsew"})
-        if options[name]:
-            chk.state(["selected"])
-        else:
-            chk.state(["!selected"])
+        chk = ttk.Checkbutton(
+            parent, name=name, text=name, variable=master.export_option_vars[name], style="PyAEDT.TCheckbutton"
+        )
+        chk.grid(row=row, column=col, padx=5, pady=2, sticky="w")
         row = row if col == 0 else row + 1
 
 
-def callback_select_design(master):
+def callback_select_design(master) -> None:
     """Select design to apply configuration."""
     design_path = filedialog.askopenfilename(
         title="Select Design",
@@ -140,7 +144,7 @@ def callback_select_design(master):
         master.selected_edb = design_path
 
 
-def callback_apply(master):
+def callback_apply(master) -> bool:
     file_path = filedialog.askopenfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),
@@ -172,10 +176,7 @@ def callback_export(master):
     return file_path
 
 
-def update_options(master):
+def update_options(master) -> None:
     """Update export options based on the selected checkboxes."""
-    options = master.export_options.model_dump()
-    for name in options:
-        chk = master.root.nametowidget(f".notebook.main.frame1.{name}")
-        flag = True if chk.instate(["selected"]) else False
-        setattr(master.export_options, name, flag)
+    for name, var in master.export_option_vars.items():
+        setattr(master.export_options, name, var.get())

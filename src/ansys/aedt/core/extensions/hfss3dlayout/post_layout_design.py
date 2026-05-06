@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -70,7 +70,7 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
     split_via: bool = EXTENSION_DEFAULT_ARGUMENTS["split_via"]
     angle: float = EXTENSION_DEFAULT_ARGUMENTS["angle"]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.selections is None:
             self.selections = EXTENSION_DEFAULT_ARGUMENTS["selections"].copy()
 
@@ -78,15 +78,15 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for post-layout design operations in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=6,
             toggle_column=1,
+            use_edb=True,
         )
 
         # Initialize all widgets as None
@@ -129,12 +129,12 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._pedb = self.aedt_application.modeler.primitives.edb
         return self._pedb
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Destructor to ensure pedb instance is properly closed."""
         if hasattr(self, "_pedb") and self._pedb is not None:  # pragma: no cover
             self._pedb.close()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Create notebook for tabs
         self._widgets["notebook"] = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
@@ -252,7 +252,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         )
         self._widgets["microvia_create_button"].grid(row=3, column=0, **grid_params)
 
-    def _get_antipad_selections(self):
+    def _get_antipad_selections(self) -> None:
         """Get selections for antipad operation."""
         try:
             selected = self.aedt_application.oeditor.GetSelections()
@@ -261,7 +261,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         except Exception as e:
             messagebox.showerror("Error", f"Error getting selections: {str(e)}")
 
-    def _get_microvia_selections(self):
+    def _get_microvia_selections(self) -> None:
         """Get selections for microvia operation."""
         try:
             selected = self.aedt_application.oeditor.GetSelections()
@@ -278,7 +278,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         except Exception as e:
             messagebox.showerror("Error", f"Error getting padstack definitions: {str(e)}")
 
-    def _antipad_callback(self):
+    def _antipad_callback(self) -> None:
         """Handle antipad creation."""
         try:
             selections_text = self._widgets["antipad_selections_entry"].get(1.0, tkinter.END).strip()
@@ -306,7 +306,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         except Exception as e:
             messagebox.showerror("Error", f"Error in antipad callback: {str(e)}")
 
-    def _microvia_callback(self):
+    def _microvia_callback(self) -> None:
         """Handle microvia creation."""
         try:
             # Close the shared pedb instance when entering microvia callback
@@ -344,7 +344,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             messagebox.showerror("Error", f"Error in microvia callback: {str(e)}")
 
 
-def main(data: PostLayoutDesignExtensionData):
+def main(data: PostLayoutDesignExtensionData) -> bool:
     """Main function to run the post layout design extension."""
     if not data.selections:
         raise AEDTRuntimeError("No selections provided to the extension.")
@@ -373,7 +373,7 @@ def main(data: PostLayoutDesignExtensionData):
         raise AEDTRuntimeError("Active design is not HFSS 3D Layout Design.")
 
     try:
-        pedb = h3d.modeler.primitives.edb
+        pedb = h3d.modeler.edb
 
         if data.action == "antipad":
             if len(data.selections) != 2:
@@ -387,7 +387,8 @@ def main(data: PostLayoutDesignExtensionData):
             new_edb_path = _create_microvia(pedb, data.selections, data.signal_only, data.angle, data.split_via)
             # Open new project with micro vias
             new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
-            new_h3d.desktop_class.release_desktop(False, False)
+            if "PYTEST_CURRENT_TEST" not in os.environ:
+                new_h3d.desktop_class.release_desktop(False, False)
 
         else:
             raise AEDTRuntimeError(f"Unknown action: {data.action}")
@@ -399,9 +400,18 @@ def main(data: PostLayoutDesignExtensionData):
     return True
 
 
-def _create_line_void(h3d, owner, layer_name, path, width):
+def _create_line_void(h3d, owner, layer_name, path, width) -> None:
     """Create a line void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
+
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
 
     void_name = generate_unique_name("line_void_")
     temp = []
@@ -431,13 +441,23 @@ def _create_line_void(h3d, owner, layer_name, path, width):
     ]
     line_void_geometry.extend(temp)
     line_void_geometry.extend(["MR:=", "600mm"])
+
     args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
     h3d.oeditor.CreateLineVoid(args)
 
 
-def _create_circle_void(h3d, owner, layer_name, center_point, radius):
+def _create_circle_void(h3d, owner, layer_name, center_point, radius) -> None:
     """Create a circle void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
+
+    if owner not in h3d.modeler.geometries:
+        # Try "__", EDB could not map correctly name
+        parts = owner.rsplit("_", 1)
+        doble_underscore_owner = "__".join(parts) if len(parts) == 2 else owner
+        if doble_underscore_owner in h3d.modeler.geometries:
+            owner = doble_underscore_owner
+        else:
+            raise AEDTRuntimeError("Owner geometry not found for line void creation.")
 
     args = [
         "NAME:Contents",
@@ -470,7 +490,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     for i in pedb.layout.primitives:
         if i.primitive_type in ["rectangle", "polygon"]:
             for pos in [via_p.position, via_n.position]:
-                if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                if i.polygon_data.is_inside(pos):
                     if i.layer_name not in via_range:
                         continue
                     if i.layer_name not in prims:
@@ -481,7 +501,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     return prims
 
 
-def _create_antipad(h3d, pedb, selections, radius, race_track):  # pragma: no cover
+def _create_antipad(h3d, pedb, selections, radius, race_track) -> None:  # pragma: no cover
     """Create antipad for via pair."""
     via_p = pedb.padstacks.instances_by_name[selections[0]]
     via_n = pedb.padstacks.instances_by_name[selections[1]]

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,23 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
 
 import numpy as np
 import pytest
 
-from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
-from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-
-try:
-    check_graphics_available()
-except ImportError:
-    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
@@ -55,7 +47,7 @@ def basic_doa():
     return DirectionOfArrival(x, y, freq)
 
 
-def test_initialization_error():
+def test_initialization_error() -> None:
     x = np.array([0.0, 0.01])
     y = np.array([0.0])
     freq = 10e9
@@ -63,14 +55,14 @@ def test_initialization_error():
         DirectionOfArrival(x, y, freq)
 
 
-def test_get_scanning_vectors(basic_doa):
+def test_get_scanning_vectors(basic_doa) -> None:
     azimuths = np.array([-45, 0, 45])
     vectors = basic_doa.get_scanning_vectors(azimuths)
     assert vectors.shape == (basic_doa.elements, len(azimuths))
     assert np.iscomplexobj(vectors)
 
 
-def test_bartlett(basic_doa):
+def test_bartlett(basic_doa) -> None:
     azimuths = np.linspace(-90, 90, 181)
     scanning_vectors = basic_doa.get_scanning_vectors(azimuths)
     signal = np.random.randn(basic_doa.elements) + 1j * np.random.randn(basic_doa.elements)
@@ -80,7 +72,7 @@ def test_bartlett(basic_doa):
     assert np.iscomplexobj(output)
 
 
-def test_capon(basic_doa):
+def test_capon(basic_doa) -> None:
     azimuths = np.linspace(-90, 90, 181)
     scanning_vectors = basic_doa.get_scanning_vectors(azimuths)
     signal = np.random.randn(basic_doa.elements) + 1j * np.random.randn(basic_doa.elements)
@@ -90,7 +82,7 @@ def test_capon(basic_doa):
     assert np.isrealobj(output)
 
 
-def test_music(basic_doa):
+def test_music(basic_doa) -> None:
     azimuths = np.linspace(-90, 90, 181)
     scanning_vectors = basic_doa.get_scanning_vectors(azimuths)
     signal = np.random.randn(basic_doa.elements) + 1j * np.random.randn(basic_doa.elements)
@@ -100,13 +92,13 @@ def test_music(basic_doa):
     assert np.isrealobj(output)
 
 
-def test_invalid_doa_method(basic_doa):
+def test_invalid_doa_method(basic_doa) -> None:
     signal = np.random.randn(basic_doa.elements) + 1j * np.random.randn(basic_doa.elements)
     with pytest.raises(ValueError):
         basic_doa.plot_angle_of_arrival(signal, doa_method="InvalidMethod")
 
 
-def test_plot_angle_of_arrival(basic_doa):
+def test_plot_angle_of_arrival(basic_doa) -> None:
     signal = np.random.randn(basic_doa.elements) + 1j * np.random.randn(basic_doa.elements)
     plotter = basic_doa.plot_angle_of_arrival(signal, doa_method="Bartlett", show=False)
     assert plotter is not None

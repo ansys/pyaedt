@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import sys
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -31,6 +32,9 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -43,7 +47,7 @@ class DirectionOfArrival(PyAedtBase):
     with coordinates in meters and user-defined frequency.
     """
 
-    def __init__(self, x_position: np.array, y_position: np.array, frequency: float):
+    def __init__(self, x_position: np.array, y_position: np.array, frequency: float) -> None:
         """
         Initialize with antenna element positions in meters and signal frequency in Hertz.
 
@@ -95,7 +99,7 @@ class DirectionOfArrival(PyAedtBase):
     @pyaedt_function_handler()
     def bartlett(
         self, data: np.ndarray, scanning_vectors: np.ndarray, range_bins: int = None, cross_range_bins: int = None
-    ):
+    ) -> np.ndarray:
         """
         Estimate the direction of arrival (DoA) using the Bartlett (classical beamforming) method.
 
@@ -272,15 +276,15 @@ class DirectionOfArrival(PyAedtBase):
         self,
         signal: np.ndarray,
         doa_method: str = None,
-        field_of_view=None,
+        field_of_view: np.ndarray = None,
         quantity_format: str = None,
         title: str = "Angle of Arrival",
         output_file: str = None,
         show: bool = True,
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
-        figure=None,
-    ):
+        figure: "Figure" = None,
+    ) -> ReportPlotter:
         """Create angle of arrival plot.
 
         Parameters

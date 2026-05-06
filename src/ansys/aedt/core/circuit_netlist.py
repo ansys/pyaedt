@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,14 +51,14 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
+        Examples of input values are ``261``, ``26.1``,``2026.1``,``"2026.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
-        another instance of the ``specified_version`` is active on the
+        another instance of the ``version`` is active on the
         machine.  The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
@@ -108,33 +108,32 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
 
     >>> aedtapp = CircuitNetlist("myfile.aedt")
 
-    Create an instance of Circuit using the 2025 R1 version and
+    Create an instance of Circuit using the 2026 R1 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = CircuitNetlist(version=2025.2, project="myfile.aedt")
+    >>> aedtapp = CircuitNetlist(version=2026.1, project="myfile.aedt")
 
-    Create an instance of Circuit using the 2025 R1 student version and open
+    Create an instance of Circuit using the 2026 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = CircuitNetlist(version="2025.2", project="myfile.aedt", student_version=True)
+    >>> hfss = CircuitNetlist(version="2026.1", project="myfile.aedt", student_version=True)
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        version: str | None = None,
+        non_graphical: bool | None = False,
+        new_desktop: bool | None = False,
+        close_on_exit: bool | None = False,
+        student_version: bool | None = False,
+        machine: str | None = "",
+        port: int | None = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool | None = False,
+    ) -> None:
         AnalysisCircuitNetlist.__init__(
             self,
             project,
@@ -150,11 +149,11 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
             remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):  # pragma: no cover
+    def _init_from_design(self, *args, **kwargs) -> None:  # pragma: no cover
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(filepath="input_file")
-    def browse_log_file(self, input_file=None):  # pragma: no cover
+    @pyaedt_function_handler()
+    def browse_log_file(self, input_file: str | Path | None = None):  # pragma: no cover
         """Save the most recent log file in a new directory.
 
         Parameters

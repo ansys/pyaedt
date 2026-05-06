@@ -39,10 +39,23 @@ def aedt_script():
     try:
         if is_linux:
             import subprocessdotnet as subprocess
+
+            folder = "linx64"
         else:
             import subprocess
 
+            folder = "winx64"
+
+        # AEDT installation path
+        install_path = os.path.abspath(oDesktop.GetExeDir() + "/../")
+
         sys.path.append(r"##EXTENSION_TEMPLATES##")
+
+        # Check if the script is running using CPython interpreter from AEDT installation
+        pyaedt_path = None
+        if install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
+            pyaedt_path = os.path.join(install_path,
+                                       r"commonfiles/CPython/3_10/{0}/Release/Ansys/PyAEDT".format(folder))
 
         import pyaedt_utils
 
@@ -55,22 +68,35 @@ def aedt_script():
         base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
         script_basename = r"##PYTHON_SCRIPT##"
         extension_pyaedt_script = os.path.normpath(os.path.join(base_extensions_loc, script_basename))
+
         # Check if CPython interpreter and AEDT release match
         python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, short_version)
+
         # Check python executable
         python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
         if not python_exe_flag:
             return
+
         # Check script file
         pyaedt_script_flag = pyaedt_utils.check_file(extension_pyaedt_script, oDesktop)
         if not pyaedt_script_flag:
             return
+
         # Add environment variables
         pyaedt_utils.environment_variables(oDesktop)
+
+        # Open extension manager
+        my_env = os.environ.copy()
+
+        if pyaedt_path:
+            site_packages_path = os.path.join(install_path,
+                                              "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(
+                                                  folder))
+            my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
+
         # Run workflow
-        pyaedt_utils.set_ansys_em_environment(oDesktop)
-        my_env = dict(os.environ.copy())
-        command = [python_exe, extension_pyaedt_script]
+        error_handler = os.path.normpath(os.path.join(r"##EXTENSION_TEMPLATES##", "extension_error_handler.py"))
+        command = [python_exe, error_handler, "--script", extension_pyaedt_script]
         subprocess.Popen(command, env=my_env)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)

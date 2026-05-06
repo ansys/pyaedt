@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,31 +25,32 @@
 from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Cable(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
+    @min_aedt_version("2025.2")
     def filename(self) -> str:
         """Name of file defining the outboard component.
 
@@ -60,10 +60,12 @@ class Cable(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    @min_aedt_version("2025.2")
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
         """System Noise temperature (K) of the component.
 
@@ -73,40 +75,46 @@ class Cable(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    @min_aedt_version("2025.2")
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
-        CONSTANT_LOSS = "Constant Loss"
-        COAXIAL_CABLE = "Coaxial Cable"
+    class CableTypeOption(Enum):
+        BY_FILE = "ByFile"
+        CONSTANT_LOSS = "Constant"
+        COAXIAL_CABLE = "Coaxial"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    @min_aedt_version("2025.2")
+    def cable_type(self) -> CableTypeOption:
+        """Cable Type.
 
         Type of cable to use. Options include: By File (measured or simulated),
         Constant Loss, or Coaxial Cable.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Cable Type")
+        val = self.CableTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @cable_type.setter
+    @min_aedt_version("2025.2")
+    def cable_type(self, value: CableTypeOption) -> None:
+        self._set_property("Cable Type", f"{value.value}")
 
     @property
+    @min_aedt_version("2025.2")
     def length(self) -> float:
         """Length of cable.
 
@@ -117,11 +125,13 @@ class Cable(EmitNode):
         return float(val)
 
     @length.setter
-    def length(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def loss_per_length(self) -> float:
         """Cable loss per unit length (dB/meter).
 
@@ -131,10 +141,12 @@ class Cable(EmitNode):
         return float(val)
 
     @loss_per_length.setter
-    def loss_per_length(self, value: float):
+    @min_aedt_version("2025.2")
+    def loss_per_length(self, value: float) -> None:
         self._set_property("Loss Per Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def measurement_length(self) -> float:
         """Length of the cable used for the measurements.
 
@@ -145,11 +157,13 @@ class Cable(EmitNode):
         return float(val)
 
     @measurement_length.setter
-    def measurement_length(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def measurement_length(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Length")
         self._set_property("Measurement Length", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def resistive_loss_constant(self) -> float:
         """Coaxial cable resistive loss constant.
 
@@ -159,10 +173,12 @@ class Cable(EmitNode):
         return float(val)
 
     @resistive_loss_constant.setter
-    def resistive_loss_constant(self, value: float):
+    @min_aedt_version("2025.2")
+    def resistive_loss_constant(self, value: float) -> None:
         self._set_property("Resistive Loss Constant", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def dielectric_loss_constant(self) -> float:
         """Coaxial cable dielectric loss constant.
 
@@ -172,10 +188,12 @@ class Cable(EmitNode):
         return float(val)
 
     @dielectric_loss_constant.setter
-    def dielectric_loss_constant(self, value: float):
+    @min_aedt_version("2025.2")
+    def dielectric_loss_constant(self, value: float) -> None:
         self._set_property("Dielectric Loss Constant", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def warnings(self) -> str:
         """Warning(s) for this node."""
         val = self._get_property("Warnings")

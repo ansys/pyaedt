@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,34 +22,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Amplifier(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
+    @min_aedt_version("2025.2")
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
-        """Rename this node"""
-        self._rename(new_name)
-
-    def duplicate(self, new_name: str):
+    @min_aedt_version("2025.2")
+    def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    @min_aedt_version("2025.2")
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
     @property
-    def table_data(self):
+    @min_aedt_version("2025.2")
+    def table_data(self) -> list[tuple]:
         """Harmonic Intercept Points, Ref. Input Table.
         Table consists of 2 columns.
         Harmonic:
@@ -61,23 +60,12 @@ class Amplifier(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    @min_aedt_version("2025.2")
+    def table_data(self, value: list[tuple]) -> None:
         self._set_table_data(value)
 
     @property
-    def filename(self) -> str:
-        """Name of file defining the outboard component.
-
-        Value should be a full file path.
-        """
-        val = self._get_property("Filename")
-        return val
-
-    @filename.setter
-    def filename(self, value: str):
-        self._set_property("Filename", f"{value}")
-
-    @property
+    @min_aedt_version("2025.2")
     def noise_temperature(self) -> float:
         """System Noise temperature (K) of the component.
 
@@ -87,20 +75,24 @@ class Amplifier(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    @min_aedt_version("2025.2")
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    @min_aedt_version("2025.2")
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def gain(self) -> float:
         """Amplifier in-band gain.
 
@@ -110,10 +102,12 @@ class Amplifier(EmitNode):
         return float(val)
 
     @gain.setter
-    def gain(self, value: float):
+    @min_aedt_version("2025.2")
+    def gain(self, value: float) -> None:
         self._set_property("Gain", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def center_frequency(self) -> float:
         """Center frequency of amplifiers operational bandwidth.
 
@@ -124,11 +118,13 @@ class Amplifier(EmitNode):
         return float(val)
 
     @center_frequency.setter
-    def center_frequency(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def center_frequency(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Center Frequency", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def bandwidth(self) -> float:
         """Frequency region where the gain applies.
 
@@ -139,11 +135,13 @@ class Amplifier(EmitNode):
         return float(val)
 
     @bandwidth.setter
-    def bandwidth(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def bandwidth(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Bandwidth", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def noise_figure(self) -> float:
         """Amplifier noise figure.
 
@@ -153,10 +151,12 @@ class Amplifier(EmitNode):
         return float(val)
 
     @noise_figure.setter
-    def noise_figure(self, value: float):
+    @min_aedt_version("2025.2")
+    def noise_figure(self, value: float) -> None:
         self._set_property("Noise Figure", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def saturation_level(self) -> float:
         """Saturation level.
 
@@ -167,11 +167,13 @@ class Amplifier(EmitNode):
         return float(val)
 
     @saturation_level.setter
-    def saturation_level(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def saturation_level(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("Saturation Level", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def p1_db_point_ref_input(self) -> float:
         """Incoming signals > this value saturate the amplifier.
 
@@ -182,11 +184,13 @@ class Amplifier(EmitNode):
         return float(val)
 
     @p1_db_point_ref_input.setter
-    def p1_db_point_ref_input(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def p1_db_point_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("P1-dB Point, Ref. Input", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def ip3_ref_input(self) -> float:
         """3rd order intercept point.
 
@@ -197,11 +201,13 @@ class Amplifier(EmitNode):
         return float(val)
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value: float | str):
+    @min_aedt_version("2025.2")
+    def ip3_ref_input(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Power")
         self._set_property("IP3, Ref. Input", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def shape_factor(self) -> float:
         """Ratio defining the selectivity of the amplifier.
 
@@ -211,10 +217,12 @@ class Amplifier(EmitNode):
         return float(val)
 
     @shape_factor.setter
-    def shape_factor(self, value: float):
+    @min_aedt_version("2025.2")
+    def shape_factor(self, value: float) -> None:
         self._set_property("Shape Factor", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def reverse_isolation(self) -> float:
         """Amplifier reverse isolation.
 
@@ -224,10 +232,12 @@ class Amplifier(EmitNode):
         return float(val)
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value: float):
+    @min_aedt_version("2025.2")
+    def reverse_isolation(self, value: float) -> None:
         self._set_property("Reverse Isolation", f"{value}")
 
     @property
+    @min_aedt_version("2025.2")
     def max_intermod_order(self) -> int:
         """Maximum order of intermods to compute.
 
@@ -237,5 +247,6 @@ class Amplifier(EmitNode):
         return int(val)
 
     @max_intermod_order.setter
-    def max_intermod_order(self, value: int):
+    @min_aedt_version("2025.2")
+    def max_intermod_order(self, value: int) -> None:
         self._set_property("Max Intermod Order", f"{value}")

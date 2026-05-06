@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -55,7 +55,7 @@ class Cable(PyAedtBase):
 
     """
 
-    def __init__(self, app, json_file_name=None, working_dir=None):
+    def __init__(self, app, json_file_name: str | dict | None = None, working_dir: str | None = None) -> None:
         self._app = app
         self._odesign = app.odesign
         self._omodule = self._odesign.GetModule("CableSetup")
@@ -136,7 +136,7 @@ class Cable(PyAedtBase):
             self._init_from_json(json_file_name)
 
     @pyaedt_function_handler()
-    def create_cable(self):
+    def create_cable(self) -> bool:
         """Create a cable.
 
         Returns
@@ -258,7 +258,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update_cable_properties(self):
+    def update_cable_properties(self) -> bool:
         """Update cable properties for all cable types.
 
         Returns
@@ -332,7 +332,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update_shielding(self):
+    def update_shielding(self) -> bool:
         """Create jacket type when cable type is bundle and jacket type is braid shield.
 
         Returns
@@ -380,7 +380,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def remove_cables(self):
+    def remove_cables(self) -> bool:
         """Remove a list of cables.
 
         Returns
@@ -405,7 +405,7 @@ class Cable(PyAedtBase):
                     return False
 
     @pyaedt_function_handler()
-    def add_cable_to_bundle(self):
+    def add_cable_to_bundle(self) -> bool:
         """Add a cable to an existing cable bundle.
 
         Returns
@@ -432,7 +432,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_clock_source(self):
+    def create_clock_source(self) -> bool:
         """Create a clock source.
 
         Returns
@@ -465,7 +465,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update_clock_source(self):
+    def update_clock_source(self) -> bool:
         """Update clock source.
 
         Returns
@@ -499,7 +499,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def remove_source(self):
+    def remove_source(self) -> bool:
         """Remove source.
 
         Returns
@@ -515,7 +515,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def remove_all_sources(self):
+    def remove_all_sources(self) -> bool:
         """Remove all sources.
 
         Returns
@@ -533,7 +533,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_pwl_source(self):
+    def create_pwl_source(self) -> bool:
         """Create a clock source.
 
         Returns
@@ -560,7 +560,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_pwl_source_from_file(self):
+    def create_pwl_source_from_file(self) -> bool:
         """Create a pwl source from file.
 
         Returns
@@ -578,7 +578,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def update_pwl_source(self):
+    def update_pwl_source(self) -> bool:
         """Update pwl source.
 
         Returns
@@ -620,7 +620,7 @@ class Cable(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_cable_harness(self):
+    def create_cable_harness(self) -> bool:
         """Create cable harness.
 
         Returns

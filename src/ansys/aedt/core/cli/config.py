@@ -1,0 +1,154 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""Test configuration management for local_config.json (conftest)."""
+
+try:
+    import typer
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("typer", "all", level="module")
+    raise ImportError(msg) from e
+
+from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
+from ansys.aedt.core.cli.common import display_config
+from ansys.aedt.core.cli.common import get_tests_folder
+from ansys.aedt.core.cli.common import json_mode
+from ansys.aedt.core.cli.common import load_config
+from ansys.aedt.core.cli.common import print_output
+from ansys.aedt.core.cli.common import prompt_config_value
+from ansys.aedt.core.cli.common import save_config
+
+test_config_app = typer.Typer(help="Test configuration management (local_config.json)", invoke_without_command=True)
+
+CONFIG_DESCRIPTIONS = {
+    "desktopVersion": "AEDT version to use",
+    "NonGraphical": "Run AEDT without GUI",
+    "NewThread": "Use new thread for AEDT",
+    "skip_circuits": "Skip circuit tests",
+    "use_grpc": "Use gRPC for communication",
+    "close_desktop": "Close AEDT after tests",
+    "use_local_example_data": "Use local example data",
+    "local_example_folder": "Path to local examples",
+    "skip_modelithics": "Skip Modelithics tests",
+    "use_pyedb_grpc": "Use PyEDB with gRPC for database access",
+}
+
+
+@test_config_app.callback(invoke_without_command=True)
+def test_config_callback(
+    ctx: typer.Context,
+    show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
+) -> None:
+    """Create or modify local_config.json in the tests folder interactively."""
+    if ctx.invoked_subcommand is not None:
+        return
+
+    tests_folder = get_tests_folder()
+    config_path = tests_folder / "local_config.json"
+
+    if config_path.exists():
+        config = load_config(config_path)
+    else:
+        config = DEFAULT_TEST_CONFIG.copy()
+        save_config(config_path, config)
+
+    if json_mode:
+        print_output(data={"config_path": str(config_path), "config": config})
+        return
+
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  PyAEDT Test Configuration Manager", fg="bright_blue", bold=True)
+    typer.echo("=" * 70)
+    typer.echo("\n  Tests folder: ", nl=False)
+    typer.secho(str(tests_folder), fg="cyan")
+    typer.echo("  Config file:  ", nl=False)
+    typer.secho(str(config_path), fg="cyan")
+
+    if config_path.exists():
+        typer.echo("\n  ", nl=False)
+        typer.secho("OK", fg="green", bold=True, nl=False)
+        typer.echo(" Configuration file found")
+    else:
+        typer.echo("\n  ", nl=False)
+        typer.secho("OK", fg="green", bold=True, nl=False)
+        typer.echo(" Configuration file created with defaults")
+
+    display_config(config, "Current Test Configuration", CONFIG_DESCRIPTIONS)
+
+    if show:
+        return
+
+    typer.echo("-" * 70)
+    typer.secho("  Would you like to modify the configuration?", fg="yellow", bold=True)
+    typer.echo("-" * 70 + "\n")
+
+    modify = typer.confirm("  Modify settings?", default=False)
+    if not modify:
+        typer.echo("\n  No changes made.\n")
+        return
+
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  Interactive Configuration", fg="bright_blue", bold=True)
+    typer.echo("=" * 70)
+    typer.secho("\n  Tip: Press Enter to keep current value\n", fg="yellow")
+
+    new_config = {}
+    for i, (key, value) in enumerate(config.items(), 1):
+        typer.echo(f"\n  [{i}/{len(config)}] ", nl=False)
+        typer.secho(key, fg="bright_cyan", bold=True)
+
+        description = CONFIG_DESCRIPTIONS.get(key, "")
+        if description:
+            typer.echo("      ", nl=False)
+            typer.secho(f"  {description}", fg="blue")
+
+        if isinstance(value, bool):
+            current_display = "True" if value else "False"
+            color = "green" if value else "red"
+        elif isinstance(value, str):
+            current_display = f"'{value}'" if value else "(empty)"
+            color = "cyan" if value else "yellow"
+        else:
+            current_display = str(value)
+            color = "white"
+
+        typer.echo("      Current: ", nl=False)
+        typer.secho(current_display, fg=color)
+
+        new_value = prompt_config_value(key, value)
+        new_config[key] = new_value
+
+    typer.echo("\n" + "-" * 70)
+    typer.echo("  Saving configuration...")
+    save_config(config_path, new_config)
+
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  Configuration Updated Successfully!", fg="green", bold=True)
+    typer.echo("=" * 70)
+
+    display_config(new_config, "Updated Test Configuration", CONFIG_DESCRIPTIONS)
+    typer.secho("  Configuration saved to:", fg="bright_blue")
+    typer.secho(f"  {config_path}\n", fg="cyan")

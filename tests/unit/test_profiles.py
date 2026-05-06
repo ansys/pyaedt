@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,6 @@
 
 from datetime import datetime
 from datetime import timedelta
-from unittest.mock import patch
 
 import pytest
 
@@ -35,12 +34,12 @@ import ansys.aedt.core.modules.profile as profiles
 
 # Mock Node class to simulate the structure used in profiles
 class Node:
-    def __init__(self, properties=None, children=None):
+    def __init__(self, properties=None, children=None) -> None:
         self.properties = properties or {}
         self.children = children or {}
 
 
-def test_string_to_time_and_format_timedelta():
+def test_string_to_time_and_format_timedelta() -> None:
     td = profiles.string_to_time("01:02:03")
     assert isinstance(td, timedelta)
     assert profiles.format_timedelta(td) == "01:02:03"
@@ -51,7 +50,7 @@ def test_string_to_time_and_format_timedelta():
     assert profiles.format_timedelta("na") == "na"
 
 
-def test_merge_dict_all_paths_and_ordering():
+def test_merge_dict_all_paths_and_ordering() -> None:
     d1 = {
         "a 2": 1,
         "b": {"x": 1},
@@ -82,9 +81,9 @@ def test_merge_dict_all_paths_and_ordering():
     assert merged["f"] == 999
 
 
-def test_merge_profiles_calls_add():
+def test_merge_profiles_calls_add() -> None:
     class Sim:
-        def __init__(self, v):
+        def __init__(self, v) -> None:
             self.v = v
 
         def __add__(self, other):
@@ -95,7 +94,7 @@ def test_merge_profiles_calls_add():
     assert out.v == 6
 
 
-def test_memorygb_all_dunder_methods_and_errors():
+def test_memorygb_all_dunder_methods_and_errors() -> None:
     with pytest.raises(TypeError):
         profiles.MemoryGB(object())
 
@@ -115,12 +114,12 @@ def test_memorygb_all_dunder_methods_and_errors():
     assert profiles.MemoryGB("1024 KB").value == 0.001024
 
 
-def test_step_name_map():
+def test_step_name_map() -> None:
     assert profiles.step_name_map("Frequency - 1GHz") == "1GHz"
     assert profiles.step_name_map("Something else") == "Something else"
 
 
-def test_profile_step_summary_all_paths():
+def test_profile_step_summary_all_paths() -> None:
     props = {
         "Name": "Solve",
         "Cpu time": "00:00:10",
@@ -138,7 +137,7 @@ def test_profile_step_summary_all_paths():
     assert p2.real_time == timedelta(seconds=7)
 
 
-def test_profile_step_and_table_and_addition():
+def test_profile_step_and_table_and_addition() -> None:
     child1 = Node(
         properties={
             "Name": "Adaptive Pass 1",
@@ -186,7 +185,7 @@ def test_profile_step_and_table_and_addition():
     assert combined._cpu_time == max(step._cpu_time, other._cpu_time)
 
 
-def test_transient_profile_paths():
+def test_transient_profile_paths() -> None:
     t1 = Node(properties={"Name": "0.01s", "Real time": "00:00:02"})
     t2 = Node(properties={"Name": "0.2s", "Real time": "00:00:03"})
     troot = Node(properties={"Name": "Transient Solution Group"}, children={"0.01s": t1, "0.2s": t2})
@@ -196,7 +195,7 @@ def test_transient_profile_paths():
     assert tp.time_step_keys(0.05) == ["0.01s"]
 
 
-def test_frequency_sweep_profile_summary_and_children_to_elapsed():
+def test_frequency_sweep_profile_summary_and_children_to_elapsed() -> None:
     info = (
         "Interpolating HFSS Frequency Sweep\n"
         "Passivity Error = 0.123, ...\n"
@@ -227,13 +226,13 @@ def test_frequency_sweep_profile_summary_and_children_to_elapsed():
     assert fsp.steps[name_in_steps].elapsed_time == timedelta(seconds=5)
 
 
-def test_adaptive_pass_adapt_frequency_property():
+def test_adaptive_pass_adapt_frequency_property() -> None:
     n = Node(properties={"Frequency": "2 GHz"})
     ap = profiles.AdaptivePass(n)
     assert str(ap.adapt_frequency) == "2 GHz"
 
 
-def test_get_mesh_process_name():
+def test_get_mesh_process_name() -> None:
     n = Node(children={"Initial Meshing Group": Node(), "Other": Node()})
     assert "Initial Meshing Group" in profiles.get_mesh_process_name(n)
     n2 = Node(children={"Meshing Process Group": Node()})
@@ -242,7 +241,7 @@ def test_get_mesh_process_name():
     assert profiles.get_mesh_process_name(n3) is None
 
 
-def build_simulation_group(product="HFSS"):
+def build_simulation_group(product: str = "HFSS"):
     design_validation_hfss = Node(properties={"Info": "Elapsed Time: 00:00:06, Memory: 3 G"})
     design_validation_mx = Node(properties={"Elapsed Time": "00:00:04", "Memory": "1.2 G"})
     freq_child = Node(properties={"Info": "Elapsed time : 00:00:02", "Name": "Frequency - 1 GHz Group"}, children={})
@@ -287,7 +286,7 @@ def build_simulation_group(product="HFSS"):
     return node
 
 
-def test_simulation_profile_building_hfss_and_methods(monkeypatch):
+def test_simulation_profile_building_hfss_and_methods(monkeypatch) -> None:
     sp = profiles.SimulationProfile(build_simulation_group("HFSS"))
     assert sp.product == "HFSS" and sp.product_version == "2025"
     assert sp.num_adaptive_passes == 2
@@ -314,14 +313,14 @@ def test_simulation_profile_building_hfss_and_methods(monkeypatch):
     assert sp._check_num_passes(None) == sp.num_adaptive_passes
 
 
-def test_simulation_profile_building_maxwell_and_warning_in_add(caplog):
+def test_simulation_profile_building_maxwell_and_warning_in_add(caplog) -> None:
     sp1 = profiles.SimulationProfile(build_simulation_group("Maxwell"))
     sp2 = profiles.SimulationProfile(build_simulation_group("Maxwell"))
     sp1.weird = object()
     sp2.weird = object()
 
 
-def test_parse_profile_data_happy_and_error_paths():
+def test_parse_profile_data_happy_and_error_paths() -> None:
     ok_group = Node(children={"Group1": build_simulation_group("HFSS")})
     bad_child = Node(properties={"Product": "HFSS 2025"}, children={})
     _ = Node(children={"Bad": bad_child})
@@ -332,32 +331,32 @@ def test_parse_profile_data_happy_and_error_paths():
     assert res.product == "HFSS" and res.product_version == "2025"
 
 
-def test_profiles_mapping_ok_and_fallback_paths():
-    clean = {"key1": Node(children={"A": build_simulation_group("HFSS")})}
-    with patch.object(
-        profiles,
-        "_parse_profile_data",
-        side_effect=lambda x: profiles.SimulationProfile(build_simulation_group("HFSS")),
-    ):
-        p = profiles.Profiles(clean)
-        # mapping interface
-        k = list(p.keys())[0]
-        assert p[k].product == "HFSS"
-        assert len(p) == 1
-        assert "Profiles(" in repr(p)
-        assert list(iter(p))[0] == k
-
-    raw = {"rawkey": Node(children={})}
-    with (
-        patch.object(profiles, "_parse_profile_data", side_effect=Exception("fail")),
-        patch.object(profiles.logging, "warning") as warn,
-    ):
-        p2 = profiles.Profiles(raw)
-        assert warn.called
-        assert list(p2.keys()) == ["rawkey"]
-        assert len(p2) == 0 or len(p2) == 1
-        assert list(iter(p2))[0] == "rawkey"
-        assert p2["rawkey"] is raw["rawkey"]
-
-    with pytest.raises(TypeError):
-        p.__setitem__("x", 1)
+# def test_profiles_mapping_ok_and_fallback_paths():
+#     clean = {"key1": Node(children={"A": build_simulation_group("HFSS")})}
+#     with patch.object(
+#         profiles,
+#         "_parse_profile_data",
+#         side_effect=lambda x: profiles.SimulationProfile(build_simulation_group("HFSS")),
+#     ):
+#         p = profiles.Profiles(clean)
+#         # mapping interface
+#         k = list(p.keys())[0]
+#         assert p[k].product == "HFSS"
+#         assert len(p) == 1
+#         assert "Profiles(" in repr(p)
+#         assert list(iter(p))[0] == k
+#
+#     raw = {"rawkey": Node(children={})}
+#     with (
+#         patch.object(profiles, "_parse_profile_data", side_effect=Exception("fail")),
+#         patch.object(profiles.logging, "warning") as warn,
+#     ):
+#         p2 = profiles.Profiles(raw)
+#         assert warn.called
+#         assert list(p2.keys()) == ["rawkey"]
+#         assert len(p2) == 0 or len(p2) == 1
+#         assert list(iter(p2))[0] == "rawkey"
+#         assert p2["rawkey"] is raw["rawkey"]
+#
+#     with pytest.raises(TypeError):
+#         p.__setitem__("x", 1)

@@ -10,6 +10,7 @@ To use PyAEDT to create a report in AEDT, you can follow this general structure:
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     hfss.analyze()
     hfss.post.create_report(["db(S11)", "db(S12)"])
@@ -25,6 +26,7 @@ You can also generate reports in Matplotlib:
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     hfss.analyze()
 
@@ -45,11 +47,13 @@ To access all available category, use the ``reports_by_category`` class.
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     hfss.analyze()
     # Create a 3D far field
-    new_report = hfss.post.reports_by_category.far_field(expressions="db(RealizedGainTotal)",
-                                                         setup=hfss.nominal_adaptive)
+    new_report = hfss.post.reports_by_category.far_field(
+        expressions="db(RealizedGainTotal)", setup=hfss.nominal_adaptive
+    )
 
 
 You can plot the field plot directly in HFSS and export it to image files.
@@ -57,6 +61,7 @@ You can plot the field plot directly in HFSS and export it to image files.
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     hfss.analyze()
 
@@ -65,10 +70,9 @@ You can plot the field plot directly in HFSS and export it to image files.
     quantity_name = "ComplexMag_E"
     intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
     # Create a field plot
-    plot1 = hfss.post.create_fieldplot_cutplane(objlist=cutlist,
-                                                quantityName=quantity_name,
-                                                setup=setup_name,
-                                                intrinsics=intrinsic)
+    plot1 = hfss.post.create_fieldplot_cutplane(
+        objlist=cutlist, quantityName=quantity_name, setup=setup_name, intrinsics=intrinsic
+    )
 
 
 .. image:: ../Resources/field_plot.png
@@ -81,6 +85,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
 .. code:: python
 
     from ansys.aedt.core import Hfss
+
     hfss = Hfss()
     hfss.analyze()
     cutlist = ["Global:XY"]
@@ -89,12 +94,12 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
     intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
     hfss.logger.info("Generating the image")
     plot_obj = hfss.post.plot_field(
-            quantity="Mag_E",
-            objects_list=cutlist,
-            plot_type="CutPlane",
-            setup=setup_name,
-            intrinsics=intrinsic
-        )
+        quantity="Mag_E",
+        objects_list=cutlist,
+        plot_type="CutPlane",
+        setup=setup_name,
+        intrinsics=intrinsic,
+    )
 
 
 .. image:: ../Resources/pyvista_plot.jpg
@@ -114,6 +119,7 @@ This code creates the previous PDF report:
 
     from ansys.aedt.core.visualization.plot.pdf import AnsysReport
     import os
+
     report = AnsysReport()
     report.aedt_version = "2025R1"
     report.template_name = "AnsysTemplate"
@@ -129,15 +135,17 @@ This code creates the previous PDF report:
     report.add_page_break()
     report.add_chapter("Chapter 2")
     report.add_sub_chapter("Charts")
-    local_path = r'C:\result'
+    local_path = r"C:\result"
     report.add_section(portrait=False, page_format="a3")
-    report.add_image(os.path.join(local_path, "return_loss.jpg"), width=400, caption="S-Parameters")
+    report.add_image(
+        os.path.join(local_path, "return_loss.jpg"), width=400, caption="S-Parameters"
+    )
     report.add_section(portrait=False, page_format="a5")
     report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
     report.add_section()
     report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
     report.add_toc()
-    report.save_pdf(r'c:\temp', "report_example.pdf")
+    report.save_pdf(r"c:\temp", "report_example.pdf")
 
 
 .. image:: ../Resources/pdf_report.jpg

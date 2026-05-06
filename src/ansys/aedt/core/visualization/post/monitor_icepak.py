@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+from __future__ import annotations
 
 import re
 
@@ -91,7 +93,7 @@ quantities_type_dict = {  # pragma: no cover
 class Monitor(PyAedtBase):
     """Provides Icepak monitor methods."""
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
@@ -113,7 +115,7 @@ class Monitor(PyAedtBase):
     @pyaedt_function_handler
     def _find_point(self, position):  # pragma: no cover
         for point in self._app.oeditor.GetPoints():
-            point_pos = self._app.oeditor.GetChildObject(point).GetPropValue("Position")
+            point_pos = self._app.get_oo_property_value(self._app.oeditor, point, "Position")
             coord_pos = []
             for coord in range(3):
                 if isinstance(point_pos[2 * coord + 1], list):
@@ -134,7 +136,7 @@ class Monitor(PyAedtBase):
             return []
 
     @pyaedt_function_handler
-    def _generate_monitor_names(self, name, n):
+    def _generate_monitor_names(self, name: str, n):
         """Create a list of names for monitor objects following Icepak naming rules.
 
         Parameters
@@ -171,7 +173,7 @@ class Monitor(PyAedtBase):
             return names
 
     @pyaedt_function_handler
-    def _load_monitor_objects(self, aedtfile_monitor_dict):
+    def _load_monitor_objects(self, aedtfile_monitor_dict) -> bool:
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
             if "Faces" in monitor_prop.keys():
                 self._face_monitors[monitor_name] = FaceMonitor(
@@ -199,10 +201,9 @@ class Monitor(PyAedtBase):
                 )
             elif "Points" in monitor_prop.keys():
                 point_name = self._find_point(
-                    self._app.odesign.GetChildObject("Monitor")
-                    .GetChildObject(monitor_name)
-                    .GetPropValue("Location")
-                    .split(", ")
+                    self._app.get_oo_property_value(
+                        self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name, "Location"
+                    ).split(", ")
                 )
                 self._point_monitors[monitor_name] = PointMonitor(
                     monitor_name,
@@ -222,17 +223,17 @@ class Monitor(PyAedtBase):
         return True
 
     @pyaedt_function_handler
-    def get_icepak_monitor_object(self, monitor_name):
+    def get_icepak_monitor_object(self, monitor_name: str):
         """Get Icepak monitor object.
 
         Returns
         -------
         oEditor COM Object
         """
-        return self._app.odesign.GetChildObject("Monitor").GetChildObject(monitor_name)
+        return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), monitor_name)
 
     @property
-    def face_monitors(self):
+    def face_monitors(self) -> dict:
         """Get point monitor objects.
 
         Returns
@@ -244,7 +245,7 @@ class Monitor(PyAedtBase):
         return self._face_monitors
 
     @property
-    def point_monitors(self):
+    def point_monitors(self) -> dict:
         """Get face monitor objects.
 
         Returns
@@ -256,7 +257,7 @@ class Monitor(PyAedtBase):
         return self._point_monitors
 
     @property
-    def all_monitors(self):
+    def all_monitors(self) -> dict:
         """Get all monitor objects.
 
         Returns
@@ -271,7 +272,9 @@ class Monitor(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def assign_point_monitor(self, point_position, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor(
+        self, point_position: list | str, monitor_quantity: str = "Temperature", monitor_name: str = None
+    ) -> str | list | bool:
         """Create and assign a point monitor.
 
         Parameters
@@ -351,7 +354,9 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor_to_vertex(
+        self, vertex_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+    ) -> str | list | bool:
         """Create and assign a point monitor to a vertex.
 
         Parameters
@@ -397,7 +402,9 @@ class Monitor(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def assign_surface_monitor(self, surface_name, monitor_quantity="Temperature", monitor_name=None):
+    def assign_surface_monitor(
+        self, surface_name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+    ) -> str | list | bool:
         """Assign a surface monitor.
 
         Parameters
@@ -452,7 +459,9 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_face_monitor(self, face_id, monitor_quantity="Temperature", monitor_name=None):
+    def assign_face_monitor(
+        self, face_id: int | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+    ) -> str | list | bool:
         """Assign a face monitor.
 
         Parameters
@@ -498,7 +507,9 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_in_object(self, name, monitor_quantity="Temperature", monitor_name=None):
+    def assign_point_monitor_in_object(
+        self, name: str | list, monitor_quantity: str = "Temperature", monitor_name: str = None
+    ) -> str | list | bool:
         """Assign a point monitor in the centroid of a specific object.
 
         Parameters
@@ -533,7 +544,7 @@ class Monitor(PyAedtBase):
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
         name_sel = self._app.modeler.convert_to_selections(name, True)
-        original_monitors = list(self._app.odesign.GetChildObject("Monitor").GetChildNames())
+        original_monitors = list(self._app.get_oo_name(self._app.odesign, "Monitor"))
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         elif monitor_name in original_monitors:
@@ -563,7 +574,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete_monitor(self, monitor_name):
+    def delete_monitor(self, monitor_name: str) -> bool:
         """Delete monitor object.
 
         Parameters
@@ -592,7 +603,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_monitor_object_assignment(self, monitor):
+    def get_monitor_object_assignment(self, monitor: str | "FaceMonitor" | "PointMonitor") -> str:
         """
         Get the object that the monitor is applied to.
 
@@ -616,8 +627,8 @@ class Monitor(PyAedtBase):
         else:
             return monitor.id
 
-    def _delete_removed_monitors(self):
-        existing_monitors = self._app.odesign.GetChildObject("Monitor").GetChildNames()
+    def _delete_removed_monitors(self) -> None:
+        existing_monitors = self._app.get_oo_name(self._app.odesign, "Monitor")
         for j in [self._face_monitors, self._point_monitors]:
             for i in list(j):
                 if i not in existing_monitors:
@@ -627,7 +638,7 @@ class Monitor(PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
+    def insert_monitor_object_from_dict(self, monitor_dict: dict, mode: int = 0) -> str | bool:
         """Insert a monitor.
 
         Parameters
@@ -681,7 +692,7 @@ class Monitor(PyAedtBase):
 class ObjectMonitor(PyAedtBase):
     """Provides Icepak Monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app) -> None:
         self._name = monitor_name
         self._type = monitor_type
         self._id = monitor_id
@@ -689,7 +700,7 @@ class ObjectMonitor(PyAedtBase):
         self._app = app
 
     @property
-    def geometry_assignment(self):
+    def geometry_assignment(self) -> str:
         """
         Get the geometry assignment for the monitor object.
 
@@ -700,7 +711,7 @@ class ObjectMonitor(PyAedtBase):
         return self._app.monitor.get_monitor_object_assignment(self)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Get the name of the monitor object.
 
@@ -711,7 +722,7 @@ class ObjectMonitor(PyAedtBase):
         return self._name
 
     @property
-    def id(self):
+    def id(self) -> str | int:
         """
         Get the name, or id of geometry assignment.
 
@@ -722,7 +733,7 @@ class ObjectMonitor(PyAedtBase):
         return self._id
 
     @property
-    def properties(self):
+    def properties(self) -> dict:
         """
         Get a dictionary of properties.
 
@@ -732,7 +743,7 @@ class ObjectMonitor(PyAedtBase):
         """
         return {
             "Name": self.name,
-            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
+            "Object": self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Monitor"), self.name),
             "Type": self.type,
             "ID": self.id,
             "Location": self.location,
@@ -741,7 +752,7 @@ class ObjectMonitor(PyAedtBase):
         }
 
     @pyaedt_function_handler
-    def delete(self):
+    def delete(self) -> bool:
         """
         Delete a monitor object.
 
@@ -754,7 +765,7 @@ class ObjectMonitor(PyAedtBase):
         return True
 
     @property
-    def quantities(self):
+    def quantities(self) -> list:
         """
         Get the quantities being monitored.
 
@@ -765,7 +776,7 @@ class ObjectMonitor(PyAedtBase):
         return self._quantities
 
     @property
-    def type(self):
+    def type(self) -> str:
         """
         Get the monitor type.
 
@@ -775,8 +786,14 @@ class ObjectMonitor(PyAedtBase):
         """
         return self._type
 
-    @pyaedt_function_handler(setup_name="setup")
-    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
+    @pyaedt_function_handler()
+    def value(
+        self,
+        quantity: str | list | None = None,
+        setup: str | None = None,
+        design_variation_dict: dict | None = None,
+        si_out: bool = True,
+    ) -> dict:
         """Get a list of values obtained from the monitor object.
 
         If the simulation is steady state, the list will contain just one element.
@@ -849,11 +866,11 @@ class ObjectMonitor(PyAedtBase):
 class PointMonitor(ObjectMonitor):
     """Provides Icepak point monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
-    def location(self):
+    def location(self) -> list:
         """
         Get the monitor point location.
 
@@ -864,21 +881,20 @@ class PointMonitor(ObjectMonitor):
         """
         return [
             float(i.strip(self._app.modeler.model_units))
-            for i in self._app.odesign.GetChildObject("Monitor")
-            .GetChildObject(self._name)
-            .GetPropValue("Location")
-            .split(", ")
+            for i in self._app.get_oo_property_value(
+                self._app.get_oo_object(self._app.odesign, "Monitor"), self._name, "Location"
+            ).split(", ")
         ]
 
 
 class FaceMonitor(ObjectMonitor):
     """Provides Icepak face monitor properties and methods."""
 
-    def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, face_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property
-    def location(self):
+    def location(self) -> list:
         """
         Get the monitor location in terms of face or surface center.
 

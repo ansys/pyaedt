@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
+import shutil
 
 import pytest
 
@@ -30,21 +30,21 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
-@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_via_clustering_main_function(local_scratch):
+
+def test_via_clustering_main_function(test_tmp_dir) -> None:
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
-    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
-    new_file = Path(local_scratch.path) / "new_test_via_merging.aedb"
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
-        file_path,
-    )
+    file_path = test_tmp_dir / "test_via_merging.aedb"
+    new_file = test_tmp_dir / "new_test_via_merging.aedb"
+
+    original_file = TESTS_EXTENSIONS_PATH / "example_models" / "T45" / "test_via_merging.aedb"
+    shutil.copytree(original_file, file_path)
 
     # Create test data following the reference pattern
     data = ViaClusteringExtensionData(
@@ -70,21 +70,14 @@ def test_via_clustering_main_function(local_scratch):
     assert new_file.exists()
 
 
-@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_via_clustering_extension_ui(add_app, local_scratch):
+def test_via_clustering_extension_ui(add_app_example) -> None:
     """Test the Via Clustering extension UI components."""
-    # Copy the test model to scratch directory
-    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
-        file_path,
-    )
-
     # Create an HFSS 3D Layout application for testing
-    hfss3d = add_app(
-        file_path,
+    hfss3d = add_app_example(
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "T45",
         application=Hfss3dLayout,
-        just_open=True,
+        project="test_via_merging",
+        is_edb=True,
     )
     hfss3d.save_project()
 
@@ -109,12 +102,10 @@ def test_via_clustering_extension_ui(add_app, local_scratch):
     assert extension._ViaClusteringExtension__active_project_path is not None
     assert extension._ViaClusteringExtension__aedb_path is not None
 
-    # Clean up
-    extension.release_desktop()
-    hfss3d.close_project()
+    hfss3d.close_project(save=False)
 
 
-def test_via_clustering_exceptions():
+def test_via_clustering_exceptions() -> None:
     """Test exceptions thrown by the Via Clustering extension."""
     # Test missing AEDB path
     data = ViaClusteringExtensionData(aedb_path="", design_name="test", new_aedb_path="new_test")
@@ -136,21 +127,14 @@ def test_via_clustering_exceptions():
         main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_via_clustering_button_functions(add_app, local_scratch):
+def test_via_clustering_button_functions(add_app_example) -> None:
     """Test the button functions in the Via Clustering extension."""
     # Copy the test model to scratch directory
-    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
-        file_path,
-    )
-
-    # Create an HFSS 3D Layout application for testing
-    hfss3d = add_app(
-        file_path,
+    hfss3d = add_app_example(
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "T45",
         application=Hfss3dLayout,
-        just_open=True,
+        project="test_via_merging",
+        is_edb=True,
     )
     hfss3d.save_project()
 
@@ -171,11 +155,10 @@ def test_via_clustering_button_functions(add_app, local_scratch):
     assert merge_vias_button.winfo_exists()
 
     # Clean up
-    extension.release_desktop()
-    hfss3d.close_project()
+    hfss3d.close_project(save=False)
 
 
-def test_via_clustering_data_class():
+def test_via_clustering_data_class() -> None:
     """Test the ViaClusteringExtensionData data class."""
     # Test default initialization
     data = ViaClusteringExtensionData()
