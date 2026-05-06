@@ -823,12 +823,12 @@ class FresnelExtension(ExtensionHFSSCommon):
                     theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
                     phi_resolution = 1.0
                     phi_max = 0
-                    theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+                    theta_max = max(parametric_data["theta_by_phi"][phi_0])
                 else:
                     theta_resolution = parametric_data["theta_resolution"]
                     phi_resolution = 1.0
                     phi_max = 0
-                    theta_max = parametric_data["theta"][-1]
+                    theta_max = max(parametric_data["theta"])
             else:
                 if not parametric_data["has_phi"]:
                     self.aedt_application.logger.add_error_message("Scan phi is not defined.")
@@ -836,7 +836,7 @@ class FresnelExtension(ExtensionHFSSCommon):
                     return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
-                theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+                theta_max = max(parametric_data["theta_by_phi"][phi_0])
                 phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
                 phi_max = 360.0 - phi_resolution
 

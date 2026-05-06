@@ -7929,7 +7929,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 angles["0.0deg"].append(th)
                 var_index[(th, None)] = var
 
-            angles["0.0deg"] = list(set(angles["0.0deg"]))
+            # Removes duplicate values and sorts in ascending order
+            angles["0.0deg"] = sorted(set(angles["0.0deg"]))
             theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
 
         else:
@@ -7961,8 +7962,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if new_phi is None:
                 raise AEDTRuntimeError("No variations found. Cannot compute phi/theta sweep data.")
 
-            # Reorder Phi angles to ensure they are in ascending order
-            angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
+            # Reorder Phi angles to ensure they are in ascending order, and sort theta values per phi
+            angles = {k: sorted(set(angles[k])) for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
 
             theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
             theta_step = np.round(theta_step, 6)
