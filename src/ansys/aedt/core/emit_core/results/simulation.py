@@ -266,8 +266,7 @@ class Simulation:
         """
         self._revision._load_revision()
         if self._revision.emit_project._aedt_version >= "2027.1":
-            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(
-                self._revision.results_index))
+            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(self._revision.results_index))
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.n_to_1_limit
@@ -277,8 +276,7 @@ class Simulation:
     def n_to_1_limit(self, max_instances: int):
         self._revision._load_revision()
         if self._revision.emit_project._aedt_version >= "2027.1":
-            self._revision.emit_project._emit_com_module.SetNto1Limit(
-                self._revision.results_index, max_instances)
+            self._revision.emit_project._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
@@ -303,10 +301,10 @@ class Simulation:
         >>> sim.noise_behavior
         COHERENT
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         val = sim_node._get_property("NoiseBehavior", True)
         return self.NoiseBehaviorOption(val)
-    
+
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
         """Set the noise behavior setting for the simulation.
@@ -321,7 +319,7 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.noise_behavior = sim.NoiseBehaviorOption.INCOHERENT
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         sim_node._set_property("NoiseBehavior", value.value, True)
 
     @property
@@ -340,9 +338,9 @@ class Simulation:
         >>> sim.passive_noise
         True
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         return sim_node._get_property("PassiveNoise", True) == "true"
-    
+
     @passive_noise.setter
     def passive_noise(self, enabled: bool):
         """Set whether to include passive noise in the simulation.
@@ -357,9 +355,9 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.passive_noise = False
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         sim_node._set_property("PassiveNoise", f"{str(enabled).lower()}", True)
-        
+
     @min_aedt_version("2025.2")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
@@ -378,8 +376,11 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_emi_category_filter_enabled(category)
         else:
-            return bool(self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
-                self._revision.results_index, int(category)))
+            return bool(
+                self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
+                    self._revision.results_index, int(category)
+                )
+            )
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -397,7 +398,8 @@ class Simulation:
             engine.set_emi_category_filter_enabled(category, enabled)
         else:
             self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
-                self._revision.results_index, int(category), enabled)
+                self._revision.results_index, int(category), enabled
+            )
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")

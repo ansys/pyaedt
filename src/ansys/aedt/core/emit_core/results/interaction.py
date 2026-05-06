@@ -64,7 +64,15 @@ class Interaction:
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
             return None
-        
+
+        # N-to-1 worst instance cannot be scoped to a specific receiver channel.
+        # Catch this before the gRPC call to provide a clearer error message.
+        is_n_to_1 = len(self.domain.interferer_names) != 1 or (
+            len(self.domain.interferer_names) == 1 and self.domain.interferer_names[0] == ""
+        )
+        if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
+            raise RuntimeError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
+
         self.emit_project.results.current_revision._load_revision()
         result_data = self.emit_project._emit_com_module.GetWorstInstance(
             self.emit_project.results.current_revision.results_index,
@@ -82,12 +90,12 @@ class Interaction:
 
     def has_valid_availability(self, domain: InteractionDomain) -> bool:
         """Check if this interaction has valid availability.
-        
+
         Parameters
         ----------
         domain : InteractionDomain
             The interaction domain to check availability for.
-            
+
         Returns
         -------
         bool
@@ -108,17 +116,17 @@ class Interaction:
 
     def get_availability(self, domain: InteractionDomain) -> float:
         """Get the availability of this interaction.
-        
+
         Parameters
         ----------
         domain : InteractionDomain
             The interaction domain to get availability for.
-            
+
         Returns
         -------
         float
             The availability value for this interaction. Returns -1 if not valid.
-            
+
         Raises
         ------
         RuntimeError
@@ -128,7 +136,7 @@ class Interaction:
         if not self.has_valid_availability(domain):
             warning = self.get_availability_warning(domain)
             raise RuntimeError(f"Availability is not valid for this domain: {warning}")
-        
+
         # Call GetAvailability via COM
         self.emit_project.results.current_revision._load_revision()
         availability = self.emit_project._emit_com_module.GetAvailability(
@@ -230,7 +238,7 @@ class Interaction:
         -------
         int
             The number of instances in the domain (product of channel counts).
-        
+
         Raises
         ------
         RuntimeError
@@ -238,7 +246,7 @@ class Interaction:
         """
         if domain is None:
             domain = self.domain
-            
+
         sim = self.current_revision.get_simulation()
         status = sim.is_domain_valid(domain)
         if status != "":
@@ -255,36 +263,36 @@ class Interaction:
             domain.interferer_band_names,
             domain.interferer_channel_frequencies,
         )
-        
+
         return int(count)
 
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this interaction.
-        
+
         Returns
         -------
         InteractionDomain
             The interaction domain.
         """
         return self.domain
-    
+
     def is_valid(self) -> bool:
         """Check if this interaction is valid.
-        
+
         The associated domain must be valid and results must exist for the interaction.
-        
+
         Returns
         -------
         bool
             True if the interaction is valid, False otherwise.
         """
         return self._check_validity() == ""
-    
+
     def validate(self) -> None:
         """Validate this interaction, raising an exception if invalid.
-        
+
         The associated domain must be valid and results must exist for the interaction.
-        
+
         Raises
         ------
         ValueError
@@ -295,8 +303,10 @@ class Interaction:
             raise ValueError(error)
 
     def _check_validity(self) -> str:
-        """Check if this interaction is valid. The associated domain must be valid and results must exist for the interaction.
-        
+        """
+        Check if this interaction is valid. The associated domain must
+        be valid and results must exist for the interaction.
+
         Returns
         -------
         str
@@ -309,16 +319,15 @@ class Interaction:
         if not self._check_results_exist():
             return "Interaction is not valid. The interaction results do not exist."
         return ""
-    
 
     def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
         """Check if simulation results exist for the given domain.
-        
+
         Parameters
         ----------
         domain : InteractionDomain, optional
             The domain to check. If None, uses self.domain.
-            
+
         Returns
         -------
         bool
@@ -326,7 +335,7 @@ class Interaction:
         """
         # Use the provided domain or default to self.domain
         check_domain = domain if domain is not None else self.domain
-            
+
         self.emit_project.results.current_revision._load_revision()
         results_exist = self.emit_project._emit_com_module.GetResultsExist(
             self.emit_project.results.current_revision.results_index,
@@ -339,30 +348,29 @@ class Interaction:
         )
         results_exist = bool(results_exist)
         return results_exist
-    
+
     def _data_to_instance(self, result_data, result_type: ResultType) -> InteractionInstance:
         """Convert the raw result data from GetWorstInstance into an InteractionInstance.
-        
+
         Parameters
         ----------
         result_data : str
             The raw result data from GetWorstInstance.
         result_type : ResultType
             The type of result (EMI or DESENSE).
-        
+
         Returns
         -------
         InteractionInstance
             The converted InteractionInstance, or None if no worst case instance was found.
         """
-        
         # The COM method returns a pipe-delimited string:
         # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...|encodedValue|worstIntCat
         # Empty string means no worst instance was found.
         if not result_data:
             warnings.warn("No worst case instance found.")
             return None
-        
+
         parts = str(result_data).split("|")
         if len(parts) < 5 or not parts[0]:
             warnings.warn("No worst case instance found.")

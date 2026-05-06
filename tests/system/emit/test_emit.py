@@ -1742,7 +1742,7 @@ def test_result_categories_with_simulation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-@pytest.mark.skipif(True, reason="Licesnse session not moved yet.")
+@pytest.mark.skipif(True, reason="License session not moved yet.")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
@@ -3063,6 +3063,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 21.08
 
+
 @pytest.mark.skipif(
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
@@ -3087,11 +3088,12 @@ def test_noise_params(test_noise):
     sim.noise_behavior = Simulation.NoiseBehaviorOption.INCOHERENT
     assert sim.noise_behavior == Simulation.NoiseBehaviorOption.INCOHERENT
     sim.passive_noise = False
-    assert sim.passive_noise == False
+    assert not sim.passive_noise
 
     # interaction2 = sim.run(domain)
     # instance2 = interaction2.get_worst_instance(ResultType.EMI)
     # assert instance2.get_value(ResultType.EMI) == 3.0
+
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app) -> None:
@@ -3142,7 +3144,8 @@ def test_27_components_catalog(emit_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
 def test_terminator_table_persistence(add_app) -> None:
     """Test that terminator and amplifier table data persists across save/close/reopen.
-    Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table"""
+    Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table
+    """
     # Step 1: Create a new EMIT design
     app = add_app(application=Emit)
 

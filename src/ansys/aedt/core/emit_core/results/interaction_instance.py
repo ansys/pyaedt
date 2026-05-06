@@ -92,7 +92,7 @@ class InteractionInstance:
 
     def get_result_warning(self) -> str:
         """Get the result warning for this interaction.
-        
+
         Returns
         -------
         str
@@ -273,7 +273,7 @@ class InteractionInstance:
 
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this instance.
-        
+
         Returns
         -------
         InteractionDomain
@@ -287,6 +287,10 @@ class InteractionInstance:
         Mirrors the old C++ InteractionInstancePrivate behavior where
         DetailedResult::run() was called on demand inside getValue(PowerAtRx).
         """
+        if len(self.domain.interferer_names) > 1:
+            raise RuntimeError("Power at Rx for multiple simultaneous interferers is not available.")
+        if not self.domain.is_single_instance():
+            raise RuntimeError("Power at Rx requires a fully-specified single-instance domain.")
         try:
             power_at_rx = self.emit_project._emit_com_module.GetPowerAtRx(
                 self.emit_project.results.current_revision.results_index,
@@ -303,7 +307,7 @@ class InteractionInstance:
 
     def check_validity(self) -> None:
         """Check if this interaction instance is still valid.
-        
+
         Raises
         ------
         RuntimeError
