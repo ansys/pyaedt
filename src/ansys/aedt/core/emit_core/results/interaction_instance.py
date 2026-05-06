@@ -35,10 +35,6 @@ class InteractionInstance:
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
 
-        self.interaction_domain = None
-        self.detailed_results = None
-        self.is_valid = False
-
         self.domain = domain
 
         # Encoded values are in dB * 100
@@ -106,8 +102,8 @@ class InteractionInstance:
             # Map encoded values to warning messages (matches SimulationNode::resultMessage)
             if self._encoded_emi == -32768:
                 return "Nothing to run."
-            elif self._encoded_emi == -32760:
-                return "Radio pair disabled."
+            elif self._encoded_emi == -32755:
+                return "Self-interaction availability only at band level."
             elif self._encoded_emi == -32751:
                 return "Channel level results only available for Channel/Band pairs."
             elif self._encoded_emi == -32750:
@@ -236,7 +232,7 @@ class InteractionInstance:
             If the result_type is not EMI.
         """
         if result_type != ResultType.EMI:
-            raise ValueError("The largest problem type is only available for ResultType.EMI.")
+            raise RuntimeError("The largest problem type is only available for ResultType.EMI.")
 
         return self.get_largest_emi_problem_type()
 
@@ -286,7 +282,7 @@ class InteractionInstance:
         return self.domain
 
     def _fetch_power_at_rx(self):
-        """Lazily fetch power at Rx via the GetPowerAtRx COM/gRPC call.
+        """GetPowerAtRx COM/gRPC call.
 
         Mirrors the old C++ InteractionInstancePrivate behavior where
         DetailedResult::run() was called on demand inside getValue(PowerAtRx).
@@ -302,8 +298,8 @@ class InteractionInstance:
                 self.domain.interferer_channel_frequencies,
             )
             self._power_at_rx = float(power_at_rx)
-        except Exception:
-            pass  # stays at -200.0
+        except Exception as e:
+            raise RuntimeError(f"Unable to fetch Power at Rx: {e}") from e
 
     def check_validity(self) -> None:
         """Check if this interaction instance is still valid.

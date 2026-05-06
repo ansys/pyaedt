@@ -23,11 +23,8 @@
 # SOFTWARE.
 
 import warnings
-from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import ResultType
-from ansys.aedt.core.emit_core.nodes.generated.band import Band
-from ansys.aedt.core.emit_core.nodes.generated.radio_node import RadioNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 
@@ -79,49 +76,9 @@ class Interaction:
             self.domain.interferer_band_names,
             self.domain.interferer_channel_frequencies,
         )
-        
-        # The COM method returns a pipe-delimited string:
-        # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...|encodedValue|worstIntCat
-        # Empty string means no worst instance was found.
-        if not result_data:
-            warnings.warn("No worst case instance found.")
-            return None
-        
-        parts = str(result_data).split("|")
-        if len(parts) < 5 or not parts[0]:
-            warnings.warn("No worst case instance found.")
-            return None
 
-        # Last two fields are always encodedValue and worstIntCat
-        rx_radio, rx_band, rx_freq_str, *middle_and_tail = parts
-        worst_int_cat = int(middle_and_tail.pop())
-        encoded_value = int(middle_and_tail.pop())
-        tx_parts = middle_and_tail
-
-        worst_domain = InteractionDomain(self.emit_project)
-        worst_domain.set_receiver(rx_radio, rx_band, float(rx_freq_str), "Hz")
-
-        # Group tx_parts into (radio, band, freq) triples
-        tx_entries = list(zip(*[iter(tx_parts)] * 3))
-        if len(tx_entries) == 1:
-            tx_radio, tx_band, tx_freq_str = tx_entries[0]
-            worst_domain.set_interferer(tx_radio, tx_band, float(tx_freq_str), "Hz")
-        elif len(tx_entries) > 1:
-            tx_radios, tx_bands, tx_freq_strs = zip(*tx_entries)
-            worst_domain.set_interferers(list(tx_radios), list(tx_bands), [float(f) for f in tx_freq_strs], "Hz")
-
-        # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
-        # result type. The other is always 30201 ("not available"), matching old API behavior.
-        instance = InteractionInstance(self.emit_project, worst_domain)
-        if result_type == ResultType.EMI:
-            instance.encoded_emi = encoded_value
-            instance.largest_emi_interferer_type = worst_int_cat
-            instance.encoded_desense = 30201
-        else:
-            instance.encoded_desense = encoded_value
-            instance.encoded_emi = 30201
-        return instance
-    
+        worst_instance = self._data_to_instance(result_data, result_type)
+        return worst_instance
 
     def has_valid_availability(self, domain: InteractionDomain) -> bool:
         """Check if this interaction has valid availability.
@@ -226,17 +183,22 @@ class Interaction:
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
             raise RuntimeError("The instance domain must be fully defined.")
-        
+
         sim = self.current_revision.get_simulation()
         status = sim.is_domain_valid(domain)
         if status != "":
             raise RuntimeError(status)
+        if self.get_instance_count(domain) == 0:
+            raise RuntimeError("Radio pair disabled.")
 
-        # Call GetInstance to get the encoded result values
+        # Call GetInstance to get the encoded result values. The COM method
+        # returns a 3-element array [encodedEmi, encodedDesense, worstEmiIntCat]
+        # regardless of the resultType argument, so a single round trip is
+        # enough to populate both EMI and desense.
         self.emit_project.results.current_revision._load_revision()
         instance_values = self.emit_project._emit_com_module.GetInstance(
             self.emit_project.results.current_revision.results_index,
-            ResultType.EMI,  # Get EMI results
+            ResultType.EMI,  # legacy argument; ignored by the new backend
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -244,31 +206,15 @@ class Interaction:
             domain.interferer_band_names,
             domain.interferer_channel_frequencies,
         )
-        
+
         # Create InteractionInstance and populate with values
         instance = InteractionInstance(self.emit_project, domain)
-        
-        if instance_values and len(instance_values) > 0:
-            # The COM method returns [encodedValue, worstIntCat]
+
+        if instance_values and len(instance_values) >= 3:
             instance.encoded_emi = int(instance_values[0])
-            if len(instance_values) > 1:
-                instance.largest_emi_interferer_type = int(instance_values[1])
-            
-            # Also get desense values
-            desense_values = self.emit_project._emit_com_module.GetInstance(
-                self.emit_project.results.current_revision.results_index,
-                ResultType.DESENSE,  # Get Desense results
-                domain.receiver_name,
-                domain.receiver_band_name,
-                domain.receiver_channel_frequency,
-                domain.interferer_names,
-                domain.interferer_band_names,
-                domain.interferer_channel_frequencies,
-            )
-            
-            if desense_values and len(desense_values) > 0:
-                instance.encoded_desense = int(desense_values[0])
-        
+            instance.encoded_desense = int(instance_values[1])
+            instance.largest_emi_interferer_type = int(instance_values[2])
+
         return instance
 
     def get_instance_count(self, domain: InteractionDomain = None) -> int:
@@ -359,10 +305,9 @@ class Interaction:
         error = self.current_revision.get_simulation().is_domain_valid(self.domain)
         if error:
             return f"Interaction is not valid. The domain is invalid: {error}"
-        
-        error = self._check_results_exist()
-        if not error:
-            return f"Interaction is not valid. The interaction results do not exist: {error}"
+
+        if not self._check_results_exist():
+            return "Interaction is not valid. The interaction results do not exist."
         return ""
     
 
@@ -394,3 +339,61 @@ class Interaction:
         )
         results_exist = bool(results_exist)
         return results_exist
+    
+    def _data_to_instance(self, result_data, result_type: ResultType) -> InteractionInstance:
+        """Convert the raw result data from GetWorstInstance into an InteractionInstance.
+        
+        Parameters
+        ----------
+        result_data : str
+            The raw result data from GetWorstInstance.
+        result_type : ResultType
+            The type of result (EMI or DESENSE).
+        
+        Returns
+        -------
+        InteractionInstance
+            The converted InteractionInstance, or None if no worst case instance was found.
+        """
+        
+        # The COM method returns a pipe-delimited string:
+        # rxRadio|rxBand|rxFreq|tx1Radio|tx1Band|tx1Freq|...|encodedValue|worstIntCat
+        # Empty string means no worst instance was found.
+        if not result_data:
+            warnings.warn("No worst case instance found.")
+            return None
+        
+        parts = str(result_data).split("|")
+        if len(parts) < 5 or not parts[0]:
+            warnings.warn("No worst case instance found.")
+            return None
+
+        # Last two fields are always encodedValue and worstIntCat
+        rx_radio, rx_band, rx_freq_str, *middle_and_tail = parts
+        worst_int_cat = int(middle_and_tail.pop())
+        encoded_value = int(middle_and_tail.pop())
+        tx_parts = middle_and_tail
+
+        worst_domain = InteractionDomain(self.emit_project)
+        worst_domain.set_receiver(rx_radio, rx_band, float(rx_freq_str), "Hz")
+
+        # Group tx_parts into (radio, band, freq) triples
+        tx_entries = list(zip(*[iter(tx_parts)] * 3))
+        if len(tx_entries) == 1:
+            tx_radio, tx_band, tx_freq_str = tx_entries[0]
+            worst_domain.set_interferer(tx_radio, tx_band, float(tx_freq_str), "Hz")
+        elif len(tx_entries) > 1:
+            tx_radios, tx_bands, tx_freq_strs = zip(*tx_entries)
+            worst_domain.set_interferers(list(tx_radios), list(tx_bands), [float(f) for f in tx_freq_strs], "Hz")
+
+        # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
+        # result type. The other is always 30201 ("not available"), matching old API behavior.
+        instance = InteractionInstance(self.emit_project, worst_domain)
+        if result_type == ResultType.EMI:
+            instance.encoded_emi = encoded_value
+            instance.largest_emi_interferer_type = worst_int_cat
+            instance.encoded_desense = 30201
+        else:
+            instance.encoded_desense = encoded_value
+            instance.encoded_emi = 30201
+        return instance

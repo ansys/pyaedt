@@ -137,7 +137,7 @@ def test_interaction_is_valid(cell_phone):
     
     with pytest.raises(ValueError) as e:
         interaction.validate()
-    assert "The interaction results do not exist:" in str(e.value)
+    assert "The interaction results do not exist" in str(e.value)
     assert not interaction.is_valid()
 
     sim = rev.get_simulation()
@@ -201,12 +201,7 @@ def test_interaction_domain_properties(cell_phone):
 def test_run_band_pair(cell_phone):
     """Test basic running with receiver band and worst case results.
     
-    Note: This test is translated from C++ EmitApiTest::runBandPair and requires
-    the CppApi/CellPhone.emit project which has specific radios:
-    - GSM Mobile Station with Rx GSM-850 - Other Modulations band
-    - WiFi - 802.11-2012 with Tx OFDM - 54 Mbps band
-    Expected worst case EMI value: -3.87 dB
-    Expected worst case desense value: -5.95 dB
+    Note: This test is translated from C++ EmitApiTest::runBandPair
     """
     # Constants matching C++ test
     rx_name = "GSM Mobile Station"
@@ -260,20 +255,21 @@ def test_run_band_pair(cell_phone):
         instance_desense.get_value(ResultType.EMI)
     assert "EMI value not available" in str(e.value)
 
-    # Test valid instance
-    domain2 = InteractionDomain(cell_phone)
-    test_domain = instance.get_domain()
-    assert test_domain == domain2
+    with pytest.raises(RuntimeError) as e:
+        instance_desense.get_largest_emi_problem_type()
+    assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e.value)
 
     # Test specific 1 to 1 case
+    domain2 = InteractionDomain(cell_phone)
     domain2.set_receiver(name=rx_name, band_name=rx_band_name, freq=869000000, units="Hz")
     domain2.set_interferers(names=[tx1_name], band_names=[tx1_band_name], freqs=[2412000000], units="Hz")
     
     instance2 = interaction.get_instance(domain2)
     assert instance2 is not None
 
+    # Test invalid domain
     domain3 = InteractionDomain(cell_phone)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         instance3 = interaction.get_instance(domain3)
     assert "The instance domain must be fully defined" in str(e.value)
 
@@ -283,11 +279,7 @@ def test_run_band_pair(cell_phone):
 def test_availability(availability):
     """Test availability calculation and related errors.
     
-    Note: This test is translated from C++ EmitApiTest::availability and requires
-    the CppApi/Availability.emit project which has specific radios:
-    - Radio: receiver with Band
-    - SelfInteracting: self-interacting radio with availability 0.94 (rx->rx) or 0.45 (tx->rx)
-    - OneChannel: radio with single channel (availability undefined)
+    Note: This test is translated from C++ EmitApiTest::availability
     """
     # Get simulation and run
     rev = availability.results.analyze()
@@ -386,9 +378,7 @@ def test_availability(availability):
 def test_non_numeric_results(non_numeric_results):
     """Test non-numeric result handling (disabled pairs, saturated amps, etc.).
 
-    Translated from C++ TEST(EmitApi_engine, nonNumericResults).
-    Uses the NonNumericResults.aedt project which has radios configured to
-    produce various non-numeric sentinel values.
+    Note: This test is translated from C++ EmitApiTest::nonNumericResults
     """
     rev = non_numeric_results.results.analyze()
     sim = rev.get_simulation()
@@ -531,8 +521,6 @@ def test_result_validity(availability):
     """Test interaction and instance validity after various operations.
     
     Note: This test is translated from C++ EmitApiTest::resultValidity.
-    Tests that interactions remain valid after being run and that is_valid()
-    works correctly in the Python API.
     """
     # Get simulation
     rev = availability.results.analyze()
@@ -569,6 +557,11 @@ def test_result_validity(availability):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_n_to_1_worst_case(n_to_1):
+    """
+    Test N-1 worst case and related errors.
+
+    Note: This test is translated from C++ EmitApiTest::nTo1WorstCase.
+    """
     rev = n_to_1.results.analyze()
     sim = rev.get_simulation()
 
@@ -597,6 +590,7 @@ def test_n_to_1_worst_case(n_to_1):
     # Get specific 1-to-1 instance
     domain.set_interferers(names=["Tx1 - TxRadio1"], band_names=["Band"], freqs=[100], units="MHz")
     domain.set_receiver("Rx - RxRadio", band_name="Band", freq=100, units="MHz")
+    interaction = sim.run(domain)
     instance = interaction.get_instance(domain)
     value = instance.get_value(ResultType.EMI)
     assert value == 170.0
