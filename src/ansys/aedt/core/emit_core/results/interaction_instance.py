@@ -46,22 +46,22 @@ class InteractionInstance:
         self._largest_emi_interferer_type = -11
 
     @property
-    def encoded_emi(self) -> float:
+    def encoded_emi(self) -> int:
         """Get the encoded EMI value in dB * 100."""
         return self._encoded_emi
 
     @encoded_emi.setter
-    def encoded_emi(self, value: float) -> None:
+    def encoded_emi(self, value: int) -> None:
         """Set the encoded EMI value in dB * 100."""
         self._encoded_emi = value
 
     @property
-    def encoded_desense(self) -> float:
+    def encoded_desense(self) -> int:
         """Get the encoded desense value in dB * 100."""
         return self._encoded_desense
 
     @encoded_desense.setter
-    def encoded_desense(self, value: float) -> None:
+    def encoded_desense(self, value: int) -> None:
         """Set the encoded desense value in dB * 100."""
         self._encoded_desense = value
 
@@ -76,12 +76,12 @@ class InteractionInstance:
         self._power_at_rx = value
 
     @property
-    def largest_emi_interferer_type(self) -> float:
+    def largest_emi_interferer_type(self) -> int:
         """Get the largest EMI interferer type."""
         return self._largest_emi_interferer_type
 
     @largest_emi_interferer_type.setter
-    def largest_emi_interferer_type(self, value: float) -> None:
+    def largest_emi_interferer_type(self, value: int) -> None:
         """Set the largest EMI interferer type."""
         self._largest_emi_interferer_type = value
 
@@ -134,15 +134,21 @@ class InteractionInstance:
         """
         Check if this interaction instance has valid values.
 
+        Returns ``True`` if at least one of the encoded EMI or desense values
+        is a valid numeric result (i.e. in the range [-30000, 30000]).
+        A value of 30201 ("Result not available") means that particular result
+        type was not populated — for example, ``GetWorstInstance(DESENSE)`` sets
+        ``encoded_emi`` to 30201 while ``encoded_desense`` holds the real value.
+        In that case the instance is still considered valid.
+
         Returns
         -------
         bool
-            True if the interaction instance has valid values, False otherwise.
+            True if at least one result value is valid, False otherwise.
         """
-        if self.encoded_emi > 30000 or self.encoded_emi < -30000:
-            return False
-        else:
-            return True
+        emi_valid = -30000 <= self.encoded_emi <= 30000
+        desense_valid = -30000 <= self.encoded_desense <= 30000
+        return emi_valid or desense_valid
 
     def get_value(self, result_type: ResultType) -> float:
         """
@@ -250,7 +256,7 @@ class InteractionInstance:
         RuntimeError
             If the interaction is invalid or values are not available.
         """
-        if not self.has_valid_values():
+        if not (-30000 <= self.encoded_emi <= 30000):
             raise RuntimeError("An EMI value is not available so the largest EMI problem type is undefined.")
 
         if self.largest_emi_interferer_type == 0:

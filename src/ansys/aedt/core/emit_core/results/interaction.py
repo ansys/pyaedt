@@ -133,8 +133,8 @@ class Interaction:
             If the domain is invalid or availability cannot be calculated.
         """
         # First check if availability is valid for this domain
-        if not self.has_valid_availability(domain):
-            warning = self.get_availability_warning(domain)
+        warning = self.get_availability_warning(domain)
+        if warning:
             raise RuntimeError(f"Availability is not valid for this domain: {warning}")
 
         # Call GetAvailability via COM
@@ -192,21 +192,16 @@ class Interaction:
         if not domain.is_single_instance():
             raise RuntimeError("The instance domain must be fully defined.")
 
-        sim = self.current_revision.get_simulation()
-        status = sim.is_domain_valid(domain)
-        if status != "":
-            raise RuntimeError(status)
+        # get_instance_count validates the domain (catches bad radio/band names) and
+        # returns 0 when the radio pair is disabled at the simulation level.
         if self.get_instance_count(domain) == 0:
             raise RuntimeError("Radio pair disabled.")
 
-        # Call GetInstance to get the encoded result values. The COM method
-        # returns a 3-element array [encodedEmi, encodedDesense, worstEmiIntCat]
-        # regardless of the resultType argument, so a single round trip is
-        # enough to populate both EMI and desense.
+        # Fetch instance data. The backend always computes both EMI and desense
+        # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
         self.emit_project.results.current_revision._load_revision()
         instance_values = self.emit_project._emit_com_module.GetInstance(
             self.emit_project.results.current_revision.results_index,
-            ResultType.EMI,  # legacy argument; ignored by the new backend
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -215,9 +210,8 @@ class Interaction:
             domain.interferer_channel_frequencies,
         )
 
-        # Create InteractionInstance and populate with values
+        # Populate both EMI and desense from the single response array.
         instance = InteractionInstance(self.emit_project, domain)
-
         if instance_values and len(instance_values) >= 3:
             instance.encoded_emi = int(instance_values[0])
             instance.encoded_desense = int(instance_values[1])

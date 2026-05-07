@@ -131,20 +131,21 @@ class Simulation:
         >>> sim.run(domain)
 
         """
-        # if domain.receiver_channel_frequency > 0:
-        #     raise ValueError("The domain must not have channels specified.")
-        # if len(domain.interferer_channel_frequencies) != 0:
-        #     for freq in domain.interferer_channel_frequencies:
-        #         if freq > 0:
-        #             raise ValueError("The domain must not have channels specified.")
+        if self.aedt_version < 271:
+            if domain.receiver_channel_frequency > 0:
+                raise ValueError("The domain must not have channels specified.")
+            if len(domain.interferer_channel_frequencies) != 0:
+                for freq in domain.interferer_channel_frequencies:
+                    if freq > 0:
+                        raise ValueError("The domain must not have channels specified.")
         self._revision._load_revision()
-        if self._revision.emit_project._aedt_version < "2024.1":
+        if self.aedt_version < 241:
             if len(domain.interferer_names) == 1:
                 engine = self._revision.emit_project._emit_api.get_engine()
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
-        if self._revision.emit_project._aedt_version > "2025.1":
+        if self.aedt_version > 251:
             # check for disconnected systems and add a warning
             disconnected_radios = self._revision._get_disconnected_radios()
             if len(disconnected_radios) > 0:
@@ -153,7 +154,7 @@ class Simulation:
                     "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
                 )
                 warnings.warn(err_msg)
-        if self._revision.emit_project._aedt_version < "2027.1":
+        if self.aedt_version < 271:
             engine = self._revision.emit_project._emit_api.get_engine()
             interaction = engine.run(domain)
         else:
@@ -204,7 +205,7 @@ class Simulation:
         return valid
 
     @pyaedt_function_handler()
-    @min_aedt_version("2025.2")
+    @min_aedt_version("2027.1")
     def get_instance_count(self, domain: InteractionDomain):
         """
         Return the number of instances in the domain for the current revision.
@@ -226,7 +227,7 @@ class Simulation:
         >>> num_instances = sim.get_instance_count(domain)
         """
         self._revision._load_revision()
-        if self._revision.emit_project._aedt_version < "2027.1":
+        if self.aedt_version < 271:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_instance_count(domain)
         else:
@@ -265,7 +266,7 @@ class Simulation:
         1048576
         """
         self._revision._load_revision()
-        if self._revision.emit_project._aedt_version >= "2027.1":
+        if self.aedt_version >= 271:
             return int(self._revision.emit_project._emit_com_module.GetNto1Limit(self._revision.results_index))
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
@@ -275,7 +276,7 @@ class Simulation:
     @min_aedt_version("2025.2")
     def n_to_1_limit(self, max_instances: int):
         self._revision._load_revision()
-        if self._revision.emit_project._aedt_version >= "2027.1":
+        if self.aedt_version >= 271:
             self._revision.emit_project._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
