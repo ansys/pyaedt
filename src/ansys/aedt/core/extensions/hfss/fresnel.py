@@ -796,7 +796,13 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         theta_scan_variable = lattice_pair[0].properties["Theta"]
         phi_scan_variable = lattice_pair[0].properties["Phi"]
-
+        variable_names = self.aedt_application.variable_manager.variable_names
+        if theta_scan_variable not in variable_names:
+            self.aedt_application.logger.add_error_message(
+                "Lattice pair or primary and secondary boundaries must be parametrized."
+            )
+            self._widgets["design_validation_label_extraction"].config(text="Failed")
+            return False
         is_isotropic = self.fresnel_type.get() == "isotropic"
 
         try:
@@ -823,12 +829,12 @@ class FresnelExtension(ExtensionHFSSCommon):
                     theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
                     phi_resolution = 1.0
                     phi_max = 0
-                    theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+                    theta_max = max(parametric_data["theta_by_phi"][phi_0])
                 else:
                     theta_resolution = parametric_data["theta_resolution"]
                     phi_resolution = 1.0
                     phi_max = 0
-                    theta_max = parametric_data["theta"][-1]
+                    theta_max = max(parametric_data["theta"])
             else:
                 if not parametric_data["has_phi"]:
                     self.aedt_application.logger.add_error_message("Scan phi is not defined.")
@@ -836,7 +842,7 @@ class FresnelExtension(ExtensionHFSSCommon):
                     return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
-                theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+                theta_max = max(parametric_data["theta_by_phi"][phi_0])
                 phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
                 phi_max = 360.0 - phi_resolution
 
@@ -886,8 +892,19 @@ class FresnelExtension(ExtensionHFSSCommon):
             settings.enable_desktop_logs = True
 
         is_isotropic = self.fresnel_type.get() == "isotropic"
+
+        # Obtain variable name
+        bounds = self.aedt_application.boundaries_by_type
+        bound = "Lattice Pair" if "Lattice Pair" in bounds else "Secondary"
+        lattice_pair = bounds[bound]
+        theta_scan_variable = lattice_pair[0].properties["Theta"]
+        phi_scan_variable = lattice_pair[0].properties["Phi"]
+
         _ = self.aedt_application.get_fresnel_coefficients(
-            setup_sweep=self.active_setup_sweep, theta_name="scan_T", phi_name="scan_P", is_isotropic=is_isotropic
+            setup_sweep=self.active_setup_sweep,
+            theta_name=theta_scan_variable,
+            phi_name=phi_scan_variable,
+            is_isotropic=is_isotropic,
         )
 
         settings.enable_desktop_logs = enable_log
