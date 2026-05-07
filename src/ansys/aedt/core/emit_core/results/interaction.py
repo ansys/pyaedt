@@ -151,8 +151,7 @@ class Interaction:
         return float(availability)
 
     def get_availability_warning(self, domain: InteractionDomain) -> str:
-        """
-        Get the availability warning for this interaction.
+        """Get the availability warning for this interaction.
 
         Parameters
         ----------
@@ -183,14 +182,30 @@ class Interaction:
         return str(warning)
 
     def get_instance(self, domain: InteractionDomain) -> InteractionInstance:
-        """Get the instance at the specified index for this interaction."""
+        """Get the instance at the specified index for this interaction.
+
+        Parameters
+        ----------
+        domain : InteractionDomain
+            The interaction domain specifying the instance to retrieve. Must be fully defined
+
+        Returns
+        -------
+        InteractionInstance
+            The instance data for the specified domain.
+
+        Raises
+        ------
+        RuntimeError
+            If the domain is invalid, not fully defined, or if instance data cannot be retrieved.
+        """
         # GetInstance only supports a single interferer
         if len(domain.interferer_names) > 1:
             raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
 
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
-            raise RuntimeError("The instance domain must be fully defined.")
+            raise RuntimeError("The interaction domain must be fully defined.")
 
         # get_instance_count validates the domain (catches bad radio/band names) and
         # returns 0 when the radio pair is disabled at the simulation level.

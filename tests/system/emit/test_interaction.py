@@ -265,7 +265,7 @@ def test_run_band_pair(cell_phone):
     domain3 = InteractionDomain(cell_phone)
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(domain3)
-    assert "The instance domain must be fully defined" in str(e.value)
+    assert "The interaction domain must be fully defined" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -399,7 +399,7 @@ def test_non_numeric_results(non_numeric_results):
     inst_domain = InteractionDomain(non_numeric_results)
     with pytest.raises((RuntimeError, ValueError)) as e:
         interaction.get_instance(inst_domain)
-    assert "The instance domain must be fully defined" in str(e.value)
+    assert "The interaction domain must be fully defined" in str(e.value)
 
     # Bad receiver band name
     inst_domain.set_interferer("Self Interaction - Self Interaction", "Band", 96000000, "Hz")
