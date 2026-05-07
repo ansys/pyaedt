@@ -24,6 +24,7 @@
 import locale
 import math
 from pathlib import Path
+import re
 import secrets
 
 from ansys.aedt.core.base import PyAedtBase
@@ -497,15 +498,23 @@ class CircuitComponents(PyAedtBase):
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
+
         num_terminal = 0
-        try:
-            num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
-        except ValueError:
+        suffix = Path(input_file).suffix.lower()  # ".sxp", ".ts"
+        match = re.fullmatch(r"\.s(\d+)p", suffix)
+        if match:
+            num_terminal = int(match.group(1))
+        else:
+            # Touchstone 2.0 (.ts), read the [Number of Ports] keyword.
+            # Expected format: "[Number of Ports] N"
+            keyword_re = re.compile(r"^\[number of ports\]\s+(\d+)\s*$", re.IGNORECASE)
             with open_file(input_file, "r") as f:
                 for line in f:
-                    line = line.strip()
-                    if "[Number of Ports]" in line:
-                        num_terminal = int(line.split(" ")[-1])
+                    stripped = line.strip()
+                    keyword_match = keyword_re.match(stripped)
+                    if keyword_match:
+                        num_terminal = int(keyword_match.group(1))
+                        break
 
         port_names = []
         with open_file(input_file, "r") as f:
