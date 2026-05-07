@@ -425,6 +425,13 @@ def test_import_model(aedt_app, test_tmp_dir) -> None:
     )
     assert t1
     assert len(t1.pins) == 26
+    touch_original_3 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test_file.ts"
+    touch3 = shutil.copy2(touch_original_3, test_tmp_dir / "test_file.ts")
+    t3 = aedt_app.modeler.schematic.create_touchstone_component(
+        touch3,
+    )
+    assert t3
+    assert len(t3.pins) == 8
 
 
 def test_zoom_to_fit(aedt_app) -> None:

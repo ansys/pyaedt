@@ -497,7 +497,15 @@ class CircuitComponents(PyAedtBase):
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
+        num_terminal = 0
+        try:
+            num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
+        except ValueError:
+            with open_file(input_file, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if "[Number of Ports]" in line:
+                        num_terminal = int(line.split(" ")[-1])
 
         port_names = []
         with open_file(input_file, "r") as f:
@@ -508,6 +516,10 @@ class CircuitComponents(PyAedtBase):
                         port_names.append(line.split("=")[-1].strip().replace(" ", "_"))
                 else:
                     break
+        if not num_terminal and port_names:
+            num_terminal = len(port_names)
+        elif not num_terminal and not port_names:
+            raise Exception("Not able to identify number of ports.")
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
