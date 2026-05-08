@@ -57,8 +57,9 @@ You can watch the following video to see how to install PyAEDT:
 
 .. _pyaedt_bundled_aedt:
 
-PyAEDT bundled with AEDT (2026 R2 SP2)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT bundled with AEDT (2026 R2 service pack 2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Starting with AEDT 2026 R2 service pack 2, PyAEDT ships as part of the AEDT installation.
 This bundled PyAEDT only includes the main runtime dependencies (no optional extras).
 
