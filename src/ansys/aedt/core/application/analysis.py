@@ -2338,20 +2338,6 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oEditor.ChangeProperty
         """
-        button_list = [
-            "file",
-            "buffer_mode",
-            "logic_in",
-            "out_of_in",
-            "DataPattern",
-            "txrj",
-            "txpj",
-            "txuj",
-            "txcj",
-            "txrj",
-            "EyeMeasurementFunctions",
-        ]
-
         if not isinstance(property_names, list) or not isinstance(property_values, list):
             raise ValueError("``property_names`` and ``property_values`` must be lists.")
 
@@ -2361,8 +2347,8 @@ class Analysis(Design, PyAedtBase):
             property_types = [property_types] * len(property_names)
         elif property_types and len(property_types) != len(property_names):
             raise ValueError("``property_names`` and ``property_types`` must have the same length.")
-        else:
-            property_types = ["Value" if i not in button_list else "ButtonText" for i in property_names]
+        elif not property_types:
+            property_types = ["Value"] * len(property_names)
 
         changed_props = []
         for name, value, p_type in zip(property_names, property_values, property_types):
