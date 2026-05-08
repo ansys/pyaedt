@@ -2208,10 +2208,10 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         model: str = None,
         create_component: bool = True,
         location: list[float] = None,
-        angle: int = 0,
         symbol_path: str = "Nexxim Circuit Elements\\Nexxim_symbols:",
         symbol: str = "",
         page: int = 1,
+        angle: int = 0,
     ) -> "CircuitComponent | bool":
         """Create and place a new component based on a spice .lib file.
 
@@ -2225,8 +2225,6 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
-        angle : int, optional
-            Angle rotation in degrees. The default is ``0``.
         symbol_path : str, optional
             Path to the symbol library.
             Default value is ``"Nexxim Circuit Elements\\Nexxim_symbols:"``.
@@ -2235,6 +2233,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             Default value is an empty string which means the default symbol for spice is used.
         page: int, optional
             Schematic page number. The default value is ``1``.
+        angle : int, optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
