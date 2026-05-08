@@ -802,6 +802,7 @@ def test_change_property(m3d_app) -> None:
         property_object="LocalVariables",
         property_names=["a", "b"],
         property_values=["15mm", "25mm"],
+        property_types=["Value", "Value"],
     )
 
     assert m3d_app["a"] == "15mm"
