@@ -41,6 +41,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
@@ -2556,9 +2557,34 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
-                    for name, parameter in j["properties"].items():
-                        if new_comp_params.get(name, None) != parameter:
-                            new_comp.parameters[name] = parameter
+                    params = {
+                        i: j
+                        for i, j in j["properties"].items()
+                        if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
+                    }
+                    if params:
+                        try:
+                            values = [
+                                i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
+                                for i in list(params.values())
+                            ]
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                values,
+                            )
+                        except Exception:  # pragma: no cover
+                            self._app.logger.warning(
+                                f"Failed to set one of the properties for component {new_comp.composed_name}"
+                            )
+                            for ppn, ppv in params.items():
+                                new_comp.parameters[ppn] = (
+                                    ppv[1:-1]
+                                    if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                    else ppv
+                                )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
