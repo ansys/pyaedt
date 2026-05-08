@@ -35,10 +35,12 @@ if is_linux:
     import subprocessdotnet as subprocess
 
     folder = "linx64"
+    lib_python = "lib"
 else:
     import subprocess
 
     folder = "winx64"
+    lib_python = "Lib"
 
 # AEDT installation path
 install_path = os.path.abspath(os.path.join(oDesktop.GetExeDir(), ".."))
@@ -91,7 +93,7 @@ def main():
 
         if pyaedt_path:
             site_packages_path = os.path.join(
-                install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release", "python", "Lib", "site-packages"
+                install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release", "python", lib_python, "site-packages"
             )
             my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
 
