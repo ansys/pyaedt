@@ -2308,6 +2308,7 @@ class Analysis(Design, PyAedtBase):
         property_object: str,
         property_names: list,
         property_values: list,
+        property_types: list = None,
     ) -> bool:
         """Change multiple properties.
 
@@ -2324,6 +2325,9 @@ class Analysis(Design, PyAedtBase):
             List of property names. For example, ``["prop1", "prop2"]``.
         property_values : list
             List of property values corresponding to the property names.
+        property_types : list, optional
+            List of property types corresponding to the property names.
+            Values are  ``"Value"``, ``"ButtonText"``, ``"Hidden"``.
 
         Returns
         -------
@@ -2339,10 +2343,16 @@ class Analysis(Design, PyAedtBase):
 
         if len(property_names) != len(property_values):
             raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+        if property_types and isinstance(property_types, str):
+            property_types = [property_types] * len(property_names)
+        elif property_types and len(property_types) != len(property_names):
+            raise ValueError("``property_names`` and ``property_types`` must have the same length.")
+        elif not property_types:
+            property_types = ["Value"] * len(property_names)
 
         changed_props = []
-        for name, value in zip(property_names, property_values):
-            changed_props.append(["NAME:" + name, "Value:=", value])
+        for name, value, p_type in zip(property_names, property_values, property_types):
+            changed_props.append(["NAME:" + name, f"{p_type}:=", value])
 
         aedt_object.ChangeProperty(
             [
