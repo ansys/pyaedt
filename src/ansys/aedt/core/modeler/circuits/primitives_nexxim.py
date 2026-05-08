@@ -2208,6 +2208,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         model: str = None,
         create_component: bool = True,
         location: list[float] = None,
+        angle: int = 0,
         symbol_path: str = "Nexxim Circuit Elements\\Nexxim_symbols:",
         symbol: str = "",
         page: int = 1,
@@ -2270,7 +2271,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         if create_component:
             return self.create_component(
-                None, component_library=None, component_name=model, location=location, page=page
+                None, component_library=None, component_name=model, location=location, page=page, angle=angle
             )
         return True
 
