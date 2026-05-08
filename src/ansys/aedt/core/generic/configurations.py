@@ -2614,15 +2614,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         for i, j in j["properties"].items()
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
-                    if "model" in params:
-                        new_comp.parameters["model"] = params["model"]
-                        params.pop("model")
-                    if "buffer" in params:
-                        new_comp.parameters["buffer"] = params["buffer"]
-                        params.pop("buffer")
-                    if "buffer_mode" in params:
-                        new_comp.parameters["buffer_mode"] = params["buffer_mode"]
-                        params.pop("buffer_mode")
                     if params:
                         try:
                             values = [
@@ -2646,6 +2637,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
+                    if "buffer" in params:
+                        self._hide_circuit_ibis(params, new_comp)
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
@@ -2737,3 +2730,43 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     self.results.import_parametrics = False
 
         return data
+
+    def _hide_circuit_ibis(self, params, comp):
+        input = False
+        output = False
+        if params["buffer"] == "input":
+            input = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "output":
+            output = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "input_output":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        if params["buffer"] == "three_state":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+
+        comp._change_property("logic_in", True if input or output else False, value_name="Hidden")
+        comp._change_property("phase_delay", True if input else False, value_name="Hidden")
+        comp._change_property("UIorBPS", True if input else False, value_name="Hidden")
+        comp._change_property("UIorBPSValue", True if input else False, value_name="Hidden")
+        comp._change_property("repeat_count", True if input else False, value_name="Hidden")
+        comp._change_property("step_resp_num_ui", True if input else False, value_name="Hidden")
+        if self._app._aedt_version > "2025.2":
+            comp._change_property("DataPattern", True if input else False, value_name="Hidden")
+            comp._change_property("hold_last", True if input else False, value_name="Hidden")
+            comp._change_property("do_coding", True if input else False, value_name="Hidden")
+        else:
+            comp._change_property("BitPattern", True if input else False, value_name="Hidden")
+            comp._change_property("hold_last_bit", True if input else False, value_name="Hidden")
+            comp._change_property("do_encoding", True if input else False, value_name="Hidden")
+        comp._change_property("Disable_Tx_Jitter", True if input else False, value_name="Hidden")
+        comp._change_property("DCDFractionorTime", True if input else False, value_name="Hidden")
+        comp._change_property("dcd", True if input else False, value_name="Hidden")
+        comp._change_property("txrj", True if input else False, value_name="Hidden")
+        comp._change_property("txpj", True if input else False, value_name="Hidden")
+        comp._change_property("txuj", True if input else False, value_name="Hidden")
+        comp._change_property("txcj", True if input else False, value_name="Hidden")
