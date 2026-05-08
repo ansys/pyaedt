@@ -2733,12 +2733,12 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
 
     def _hide_circuit_ibis(self, params, comp):
         input_buffer = False
-        output_buffer = False
+        output = False
         if params["buffer"] == "input":
             input_buffer = True
             comp._change_property("buffer_mode", True, value_name="Hidden")
         if params["buffer"] == "output":
-            output_buffer = True
+            output = True
             comp._change_property("buffer_mode", True, value_name="Hidden")
         if params["buffer"] == "input_output":
             comp._change_property("buffer_mode", False, value_name="Hidden")
@@ -2749,7 +2749,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             if params.get("buffer_mode"):
                 comp._change_property("buffer_mode", params["buffer_mode"])
 
-        comp._change_property("logic_in", True if input_buffer or output_buffer else False, value_name="Hidden")
+        comp._change_property("logic_in", True if input_buffer or output else False, value_name="Hidden")
         comp._change_property("phase_delay", True if input_buffer else False, value_name="Hidden")
         comp._change_property("UIorBPS", True if input_buffer else False, value_name="Hidden")
         comp._change_property("UIorBPSValue", True if input_buffer else False, value_name="Hidden")
