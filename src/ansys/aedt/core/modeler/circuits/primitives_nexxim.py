@@ -2225,6 +2225,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
+        angle : int, optional
+            Angle rotation in degrees. The default is ``0``.
         symbol_path : str, optional
             Path to the symbol library.
             Default value is ``"Nexxim Circuit Elements\\Nexxim_symbols:"``.
