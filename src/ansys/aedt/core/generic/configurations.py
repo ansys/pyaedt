@@ -2463,6 +2463,49 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         self._app.modeler.rename_page(idx + 1, page)
                 else:
                     self._app.modeler.add_page(page)
+
+        comp_dict = {}
+        for i, j in data["instance"].items():
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
+                    if component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
+                            ami = True
+                            ami_str = "ami"
+                        else:
+                            ami = False
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        if ibis_name in comp_dict.keys():
+                            ibis = comp_dict[ibis_name]["object"]
+                        else:
+                            ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        if value["file_path"] + "" in comp_dict.keys():
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].differential_pins[j["properties"]["diff_pin_name"]].name
+                            )
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].pins[j["properties"]["pin_name"]].name
+                            )
+                        elif comp in ibis.buffers:
+                            comp_dict[ibis_name]["buffers"].append(ibis.buffers[comp].name)
+        for cv in comp_dict.values():
+            cv["object"]._app.import_model_in_aedt(pins=cv["pins"], buffers=cv["buffers"])
+
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
@@ -2479,12 +2522,17 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
-                            ami = True
+                            ami_str = "ami"
                         else:
-                            ami = False
-                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        ibis = comp_dict[ibis_name]["object"]
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
@@ -2495,7 +2543,11 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     page=j.get("page", 1),
                                 )
                             )
-                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
@@ -2562,6 +2614,15 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         for i, j in j["properties"].items()
                         if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
                     }
+                    if "model" in params:
+                        new_comp.parameters["model"] = params["model"]
+                        params.pop("model")
+                    if "buffer" in params:
+                        new_comp.parameters["buffer"] = params["buffer"]
+                        params.pop("buffer")
+                    if "buffer_mode" in params:
+                        new_comp.parameters["buffer_mode"] = params["buffer_mode"]
+                        params.pop("buffer_mode")
                     if params:
                         try:
                             values = [
