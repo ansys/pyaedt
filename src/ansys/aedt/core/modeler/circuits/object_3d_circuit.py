@@ -1204,7 +1204,7 @@ class CircuitComponent(PyAedtBase):
             model_name = self.model_name
         else:
             model_name = self.parameters.get("Model", self.model_name)
-        
+
         args = [
             f"NAME:{model_name}",
             "ModTime:=",
