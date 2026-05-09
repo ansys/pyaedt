@@ -1097,7 +1097,7 @@ class CircuitComponent(PyAedtBase):
             right sides of the symbol, respectively.
         keep_original_size : bool, optional
             Whether if keep the original size and preserve images or ignore and write a new rectangle.
-            Default is ``True`╞.
+            Default is ``True``.
 
         Returns
         -------
@@ -1122,7 +1122,12 @@ class CircuitComponent(PyAedtBase):
         >>> ts_component.change_symbol_pin_locations(pin_locations)
         """
         base_spacing = 0.00254
-        symbol_pin_name_list = self.model_data.props.get("PortNames", [])
+        is_spice = False
+        if hasattr(self.model_data, "props") and "PortNames" in self.model_data.props:
+            symbol_pin_name_list = self.model_data.props.get("PortNames", [])
+        else:
+            is_spice = True
+            symbol_pin_name_list = [pin.name for pin in self.pins]
         pin_name_str_max_length = max(len(s) for s in symbol_pin_name_list)
 
         left_pins = pin_locations["left"]
@@ -1195,8 +1200,13 @@ class CircuitComponent(PyAedtBase):
             props_display_map = ["NAME:PropDisplayMap", "PinName:=", pin_name_def]
             return ["NAME:PinDef", "Pin:=", pin_def, props_display_map]
 
+        if not is_spice:
+            model_name = self.model_name
+        else:
+            model_name = self.parameters.get("Model", self.model_name)
+        
         args = [
-            f"NAME:{self.model_name}",
+            f"NAME:{model_name}",
             "ModTime:=",
             int(time.time()),
             "Library:=",
@@ -1234,13 +1244,13 @@ class CircuitComponent(PyAedtBase):
                 ]
             )
 
-        for pin_name in self.model_data.props.get("PortNames", []):
+        for pin_name in symbol_pin_name_list:
             terminals_arg.append("TermAttributes:=")
             terminals_arg.append([pin_name, pin_name, 0 if pin_name in left_pins else 1, 0, -1, ""])
 
-        edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", self.model_name, terminals_arg]
+        edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", model_name, terminals_arg]
 
-        self._circuit_components.osymbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
+        self._circuit_components.osymbol_manager.EditSymbolAndUpdateComps(model_name, args, [], edit_context_arg)
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
 
