@@ -2582,6 +2582,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"],
                             location=j["position"],
+                            angle=j["angle"],
+                            model=j.get("model", None),
                             page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
