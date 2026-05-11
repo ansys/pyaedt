@@ -1265,7 +1265,6 @@ def test_existing_substrates(substrate_app) -> None:
     assert len(substrate_app.substrate_names) == 9
     assert len(substrate_app.substrates) == 9
     assert not substrate_app.delete_substrate("invented")
-    pass
 
 
 def test_datablock_microstrip_returns_substrate_object(aedt_app) -> None:
@@ -1351,6 +1350,7 @@ def test_datablock_coplanar_waveguide(aedt_app) -> None:
         "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
     ]
     cpw.place("tr1")
+    cpw.props["NXCPWTRL"]
     pass
 
 

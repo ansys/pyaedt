@@ -3388,8 +3388,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         """
         if name in self.substrate_names:
             self.odata_block.Remove(name)
-            for s in self._substrates:
-                if s.name == name:
-                    self._substrates.remove(s)
-            return True
+            for s in self.substrates:
+                if s == name:
+                    del self._substrates[name]
+                    return True
         return False

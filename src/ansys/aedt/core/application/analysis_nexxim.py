@@ -695,8 +695,8 @@ class SubstrateDataBlock(PyAedtBase):
         self._app.odata_block.Rename(self._name, new_name)
 
         # Update substrates dictionary
-        self._app.substrates[new_name] = self._app.substrates[self._name]
-        del self._app.substrates[self._name]
+        self._app._substrates[new_name] = self._app.substrates[self._name]
+        del self._app._substrates[self._name]
 
         self._name = new_name
 
