@@ -187,7 +187,7 @@ jobs:
   build-wheelhouse-rocky-all:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version == 'all'
     name: Build wheelhouse (Rocky Linux)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -253,7 +253,7 @@ jobs:
   build-wheelhouse-rocky-single:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
     name: Build wheelhouse (Rocky Linux)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
     steps:
