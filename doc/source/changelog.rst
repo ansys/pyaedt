@@ -9,6 +9,136 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.27.0 <https://github.com/ansys/pyaedt/releases/tag/v0.27.0>`_ - May 11, 2026
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Implement Skills marketplace for PyAEDT
+          - `#7586 <https://github.com/ansys/pyaedt/pull/7586>`_
+
+        * - Added Touschstone 2.0 support to create_touchstone_component method
+          - `#7627 <https://github.com/ansys/pyaedt/pull/7627>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Escape \"//\" in Object Oriented Scripting in AEDT and use PyAEDT methods
+          - `#7609 <https://github.com/ansys/pyaedt/pull/7609>`_
+
+        * - Fixed method export_full_wave_spice
+          - `#7613 <https://github.com/ansys/pyaedt/pull/7613>`_
+
+        * - Optimize theta_max calculation and ensure unique sorted angles in hfss.py
+          - `#7621 <https://github.com/ansys/pyaedt/pull/7621>`_
+
+        * - Disable ADPE option in settings and configuration files
+          - `#7625 <https://github.com/ansys/pyaedt/pull/7625>`_
+
+        * - Remove 'SV' from student version ID in version check
+          - `#7628 <https://github.com/ansys/pyaedt/pull/7628>`_
+
+        * - Extension manager launch pyaedt in aedt
+          - `#7630 <https://github.com/ansys/pyaedt/pull/7630>`_
+
+        * - Speedup import config
+          - `#7631 <https://github.com/ansys/pyaedt/pull/7631>`_
+
+        * - Added possibility to change_properties to pass the list of types.
+          - `#7632 <https://github.com/ansys/pyaedt/pull/7632>`_
+
+        * - Added model argument for SPICE in configuration
+          - `#7633 <https://github.com/ansys/pyaedt/pull/7633>`_
+
+        * - Rocky build
+          - `#7637 <https://github.com/ansys/pyaedt/pull/7637>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump jupyterlab from 4.5.6 to 4.5.7
+          - `#7595 <https://github.com/ansys/pyaedt/pull/7595>`_
+
+        * - Bump astral-sh/setup-uv from 8.0.0 to 8.1.0
+          - `#7596 <https://github.com/ansys/pyaedt/pull/7596>`_
+
+        * - Bump cryptography from 46.0.7 to 47.0.0
+          - `#7597 <https://github.com/ansys/pyaedt/pull/7597>`_
+
+        * - Bump ansys/actions from 10.2.12 to 10.3.0
+          - `#7598 <https://github.com/ansys/pyaedt/pull/7598>`_
+
+        * - Bump matplotlib from 3.10.8 to 3.10.9
+          - `#7599 <https://github.com/ansys/pyaedt/pull/7599>`_
+
+        * - Bump prek from 0.3.9 to 0.3.10
+          - `#7600 <https://github.com/ansys/pyaedt/pull/7600>`_
+
+        * - Bump typer from 0.24.1 to 0.25.0
+          - `#7601 <https://github.com/ansys/pyaedt/pull/7601>`_
+
+        * - Bump sphinx-gallery from 0.20.0 to 0.21.0
+          - `#7602 <https://github.com/ansys/pyaedt/pull/7602>`_
+
+        * - Bump pyedb from 0.74.0 to 0.75.0
+          - `#7617 <https://github.com/ansys/pyaedt/pull/7617>`_
+
+        * - Bump ansys-tools-visualization-interface from 0.12.1 to 0.13.1
+          - `#7618 <https://github.com/ansys/pyaedt/pull/7618>`_
+
+        * - Bump prek from 0.3.10 to 0.3.11
+          - `#7619 <https://github.com/ansys/pyaedt/pull/7619>`_
+
+        * - Bump jupyter-server from 2.17.0 to 2.18.0
+          - `#7620 <https://github.com/ansys/pyaedt/pull/7620>`_
+
+        * - Bump mistune from 3.2.0 to 3.2.1
+          - `#7626 <https://github.com/ansys/pyaedt/pull/7626>`_
+
+        * - Bump typer from 0.25.0 to 0.25.1
+          - `#7634 <https://github.com/ansys/pyaedt/pull/7634>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.26.1
+          - `#7539 <https://github.com/ansys/pyaedt/pull/7539>`_
+
+        * - Bump dev version into v1.0.dev0
+          - `#7540 <https://github.com/ansys/pyaedt/pull/7540>`_
+
+        * - Pre-commit automatic update
+          - `#7544 <https://github.com/ansys/pyaedt/pull/7544>`_
+
+        * - Update CHANGELOG for v0.26.3
+          - `#7593 <https://github.com/ansys/pyaedt/pull/7593>`_
+
+        * - Add PR content checking
+          - `#7612 <https://github.com/ansys/pyaedt/pull/7612>`_
+
+        * - Remove dependencies up boundaries and add Python 3.14
+          - `#7616 <https://github.com/ansys/pyaedt/pull/7616>`_
+
+
 `0.26.3 <https://github.com/ansys/pyaedt/releases/tag/v0.26.3>`_ - April 29, 2026
 =================================================================================
 
