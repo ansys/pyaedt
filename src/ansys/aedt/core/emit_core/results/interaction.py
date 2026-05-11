@@ -30,15 +30,11 @@ from ansys.aedt.core.emit_core.results.interaction_instance import InteractionIn
 
 
 class Interaction:
-    def __init__(self, emit_obj, domain):
+    def __init__(self, emit_obj, domain, revision):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
         self.domain = domain
-
-    @property
-    def current_revision(self):
-        """Current active Revision. Always reflects the active revision from the project."""
-        return self.emit_project.results.current_revision
+        self.revision = revision
 
     def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
         """Get the worst instance for this interaction.
@@ -73,9 +69,8 @@ class Interaction:
         if is_n_to_1 and self.domain.receiver_channel_frequency > 0:
             raise RuntimeError("Unable to retrieve N to 1 worst instance results for a specific receiver channel.")
 
-        self.emit_project.results.current_revision._load_revision()
         result_data = self.emit_project._emit_com_module.GetWorstInstance(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             result_type,
             self.domain.receiver_name,
             self.domain.receiver_band_name,
@@ -102,9 +97,9 @@ class Interaction:
             True if the interaction has valid availability, False otherwise.
         """
         # Call HasValidAvailability via COM
-        self.emit_project.results.current_revision._load_revision()
+
         has_valid = self.emit_project._emit_com_module.HasValidAvailability(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -138,9 +133,8 @@ class Interaction:
             raise RuntimeError(f"Availability is not valid for this domain: {warning}")
 
         # Call GetAvailability via COM
-        self.emit_project.results.current_revision._load_revision()
         availability = self.emit_project._emit_com_module.GetAvailability(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -169,9 +163,8 @@ class Interaction:
             If the document is invalid or domain validation fails.
         """
         # Call GetAvailabilityWarning via COM
-        self.emit_project.results.current_revision._load_revision()
         warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -214,9 +207,9 @@ class Interaction:
 
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
-        self.emit_project.results.current_revision._load_revision()
+
         instance_values = self.emit_project._emit_com_module.GetInstance(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -256,15 +249,14 @@ class Interaction:
         if domain is None:
             domain = self.domain
 
-        sim = self.current_revision.get_simulation()
+        sim = self.revision.get_simulation()
         status = sim.is_domain_valid(domain)
         if status != "":
             raise RuntimeError(status)
 
         # Call GetInstanceCount to get the count of channel combinations
-        self.emit_project.results.current_revision._load_revision()
         count = self.emit_project._emit_com_module.GetInstanceCount(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             domain.receiver_name,
             domain.receiver_band_name,
             domain.receiver_channel_frequency,
@@ -321,7 +313,7 @@ class Interaction:
         str
             Empty string if valid, error message otherwise.
         """
-        error = self.current_revision.get_simulation().is_domain_valid(self.domain)
+        error = self.revision.get_simulation().is_domain_valid(self.domain)
         if error:
             return f"Interaction is not valid. The domain is invalid: {error}"
 
@@ -344,10 +336,8 @@ class Interaction:
         """
         # Use the provided domain or default to self.domain
         check_domain = domain if domain is not None else self.domain
-
-        self.emit_project.results.current_revision._load_revision()
         results_exist = self.emit_project._emit_com_module.GetResultsExist(
-            self.emit_project.results.current_revision.results_index,
+            self.revision.results_index,
             check_domain.receiver_name,
             check_domain.receiver_band_name,
             check_domain.receiver_channel_frequency,

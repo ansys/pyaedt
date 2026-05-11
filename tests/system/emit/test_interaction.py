@@ -100,7 +100,7 @@ def test_interaction_creation(cell_phone):
     domain.set_interferers(names=[radios[1].name])
 
     # Create interaction
-    interaction = Interaction(cell_phone, domain)
+    interaction = Interaction(cell_phone, domain, rev)
 
     # Verify interaction was created
     assert interaction is not None
@@ -119,7 +119,7 @@ def test_interaction_is_valid(cell_phone):
     domain.set_receiver("GPS Receiver", band_name="L2")
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
 
-    interaction = Interaction(cell_phone, domain)
+    interaction = Interaction(cell_phone, domain, rev)
 
     # Check invalid domain
     with pytest.raises(ValueError) as e:
@@ -157,7 +157,7 @@ def test_multiple_interactions(cell_phone):
         domain.set_receiver(name=radios[0].name)
         domain.set_interferers(names=[radios[i + 1].name])
 
-        interaction = Interaction(cell_phone, domain)
+        interaction = Interaction(cell_phone, domain, rev)
         interactions.append(interaction)
 
     # Verify all interactions were created
@@ -183,7 +183,7 @@ def test_interaction_domain_properties(cell_phone):
     domain.set_receiver(name=rx_name)
     domain.set_interferers(names=[tx_name])
 
-    interaction = Interaction(cell_phone, domain)
+    interaction = Interaction(cell_phone, domain, rev)
 
     # Verify interaction domain matches what was set
     assert interaction.domain is not None

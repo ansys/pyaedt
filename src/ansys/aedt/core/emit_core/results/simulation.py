@@ -169,7 +169,7 @@ class Simulation:
                 domain.interferer_channel_frequencies,
             )
             # Create Interaction object to access results
-            interaction = Interaction(self.emit_project, domain)
+            interaction = Interaction(self.emit_project, domain, self._revision)
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
