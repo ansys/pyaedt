@@ -1350,7 +1350,8 @@ def test_datablock_coplanar_waveguide(aedt_app) -> None:
         "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
     ]
     cpw.place("tr1")
-    cpw.props["NXCPWTRL"]
+
+    aedt_app.change_property(aedt_app.oeditor, "PassedParameterTab", cpw.composed_name, "SUB", sub.name)
     pass
 
 
