@@ -65,6 +65,7 @@ class SubstrateManager(PyAedtBase):
 
         """
         self._app = app
+        self._substrates: dict[str, "SubstrateDataBlock"] = {}
 
     @property
     def names(self) -> list[str]:
@@ -96,17 +97,17 @@ class SubstrateManager(PyAedtBase):
             Dictionary mapping substrate name to :class:`SubstrateDataBlock` object.
 
         """
-        if not self._app._substrates:
+        if not self._substrates:
             props = self._app.design_properties
             if not props or "ControlBlocks" not in props or "SubstrateData" not in props["ControlBlocks"]:
-                return self._app._substrates
+                return self._substrates
             for entry in props["ControlBlocks"]["SubstrateData"]:
                 try:
                     obj = SubstrateDataBlock.from_dict(self._app, entry)
-                    self._app._substrates[obj.name] = obj
+                    self._substrates[obj.name] = obj
                 except Exception:  # pragma: no cover
                     self._app.logger.warning(f"Failed to reconstruct substrate object from: {entry}")
-        return self._app._substrates
+        return self._substrates
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
@@ -130,8 +131,8 @@ class SubstrateManager(PyAedtBase):
         """
         if name in self.names:
             self._app.odata_block.Remove(name)
-            if name in self._app._substrates:
-                del self._app._substrates[name]
+            if name in self._substrates:
+                del self._substrates[name]
             return True
         return False
 
@@ -764,7 +765,7 @@ class SubstrateDataBlock(PyAedtBase):
         # Handle name assignment and uniqueness
         if not name:
             self._name = generate_unique_name("Substrate")
-        elif name in self._app.substrates:
+        elif name in self._app.substrate._substrates:
             new_name = generate_unique_name(name)
             app.logger.warning(
                 f"Substrate data block '{name}' already exists in the design. Using '{new_name}' instead."
@@ -821,9 +822,9 @@ class SubstrateDataBlock(PyAedtBase):
             )
         self._app.odata_block.Rename(self._name, new_name)
 
-        # Update substrates dictionary
-        self._app._substrates[new_name] = self._app._substrates[self._name]
-        del self._app._substrates[self._name]
+        # Update substrates cache
+        self._app.substrate._substrates[new_name] = self._app.substrate._substrates[self._name]
+        del self._app.substrate._substrates[self._name]
 
         self._name = new_name
 
@@ -1646,7 +1647,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         try:
             self._app.odata_block.AddSubstrateDataBlock(self._build_args())
-            self._app._substrates[self.name] = self
+            self._app.substrate._substrates[self.name] = self
         except Exception as e:  # pragma: no cover
             raise AEDTRuntimeError(f"Failed to create substrate data block '{self.name}': {e}") from e
         return self
