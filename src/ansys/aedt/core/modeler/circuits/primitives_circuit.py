@@ -1111,7 +1111,7 @@ class CircuitComponents(PyAedtBase):
     def create_component(
         self,
         name: str | None = None,
-        component_library: str = "Resistors",
+        component_library: str | None = "Resistors",
         component_name: str = "RES_",
         location: list[float] = None,
         angle: int = 0,
