@@ -185,6 +185,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
         self._substrate_manager = None
+        self._substrates = {}
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
