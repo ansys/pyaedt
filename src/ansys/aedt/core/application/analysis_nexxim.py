@@ -542,7 +542,8 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
 
 class SubstrateDataBlock(PyAedtBase):
-    """Represents a substrate data block and provides the API to create it.
+    """
+    Represents a substrate data block and provides the API to create it.
 
     Use the class-level factory methods (``microstrip``, ``stripline``, ...) to
     instantiate a correctly configured object, then call :meth:`create` to push it
@@ -611,6 +612,7 @@ class SubstrateDataBlock(PyAedtBase):
     ...     roughness="",
     ... )
     >>> sub.create()
+
     """
 
     def __init__(
@@ -845,7 +847,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a microstrip substrate.
+        """
+        Create a microstrip substrate.
 
         Parameters
         ----------
@@ -871,6 +874,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [
             dielectric_height,
@@ -905,7 +909,8 @@ class SubstrateDataBlock(PyAedtBase):
         bottom_metal_material: str = "",
         bottom_metal_thickness: str = "",
     ) -> "SubstrateDataBlock":
-        """Create a stripline substrate (Type 1).
+        """
+        Create a stripline substrate (Type 1).
 
         Parameters
         ----------
@@ -934,6 +939,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent)]
         return cls(
@@ -961,7 +967,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a suspended stripline substrate (Type 2).
+        """
+        Create a suspended stripline substrate (Type 2).
 
         Parameters
         ----------
@@ -988,6 +995,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [dielectric_height, air_height, str(dielectric_constant), str(loss_tangent)]
         return cls(
@@ -1014,7 +1022,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create an offset stripline substrate (Type 3).
+        """
+        Create an offset stripline substrate (Type 3).
 
         Parameters
         ----------
@@ -1042,6 +1051,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [
             dielectric_height,
@@ -1075,7 +1085,8 @@ class SubstrateDataBlock(PyAedtBase):
         cover_metal_material: str = "",
         cover_metal_thickness: str = "",
     ) -> "SubstrateDataBlock":
-        """Create a coplanar waveguide (CPW) substrate (Type 4).
+        """
+        Create a coplanar waveguide (CPW) substrate (Type 4).
 
         Parameters
         ----------
@@ -1106,6 +1117,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), cover_height]
         return cls(
@@ -1134,7 +1146,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a grounded coplanar waveguide (GCPW) substrate (Type 5).
+        """
+        Create a grounded coplanar waveguide (GCPW) substrate (Type 5).
 
         Parameters
         ----------
@@ -1162,6 +1175,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [
             dielectric_height,
@@ -1194,7 +1208,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a slotline substrate (Type 6).
+        """
+        Create a slotline substrate (Type 6).
 
         Parameters
         ----------
@@ -1222,6 +1237,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [
             dielectric_height,
@@ -1250,7 +1266,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a rectangular waveguide substrate (Type 9).
+        """
+        Create a rectangular waveguide substrate (Type 9).
 
         Parameters
         ----------
@@ -1270,6 +1287,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [str(num_layers), "0", str(num_layers)]
         return cls(
@@ -1295,7 +1313,8 @@ class SubstrateDataBlock(PyAedtBase):
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Create a substrate reference (Type 10).
+        """
+        Create a substrate reference (Type 10).
 
         A substrate reference is a named substrate used as a reference by
         transmission-line models in the schematic.
@@ -1324,6 +1343,7 @@ class SubstrateDataBlock(PyAedtBase):
         Returns
         -------
         SubstrateDataBlock
+
         """
         dielectric = [
             dielectric_height,

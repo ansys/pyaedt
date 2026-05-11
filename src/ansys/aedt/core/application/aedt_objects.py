@@ -464,11 +464,13 @@ class AedtObjects(PyAedtBase):
 
     @property
     def odata_block(self) -> object:
-        """Return the data block module only available in Circuit designs.
+        """
+        Return the data block module only available in Circuit designs.
 
         References
         ----------
         >>> oDesign.GetModule("DataBlock")
+
         """
         if not self._odata_block and self.design_type in ["Circuit Design"]:
             self._odata_block = self.get_module("DataBlock")
