@@ -464,8 +464,7 @@ class AedtObjects(PyAedtBase):
 
     @property
     def odata_block(self) -> object:
-        """
-        Data block module only available in Circuit designs.
+        """Data block module only available in Circuit designs.
 
         References
         ----------
