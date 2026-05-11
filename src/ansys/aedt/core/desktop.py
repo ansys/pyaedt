@@ -913,6 +913,12 @@ class Desktop(PyAedtBase):
     def check_starting_mode(self) -> None:
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
+
+        # Delete SV for student version
+        aedt_version_id = (
+            self.aedt_version_id.replace("SV", "") if "SV" in (self.aedt_version_id or "") else self.aedt_version_id
+        )
+
         if is_linux:
             self.__starting_mode = "grpc"
         elif is_windows and "pythonnet" not in modules:
@@ -939,9 +945,9 @@ class Desktop(PyAedtBase):
                     f"The version specified ({self.aedt_version_id}) doesn't correspond "
                     "to the pid specified ({self.aedt_process_id})"
                 )
-        elif float(self.aedt_version_id) < 2022.2:  # pragma no cover
+        elif float(aedt_version_id) < 2022.2:  # pragma no cover
             raise Exception("Unsupported AEDT version")
-        elif float(self.aedt_version_id) == 2022.2:  # pragma no cover
+        elif float(aedt_version_id) == 2022.2:  # pragma no cover
             if self.non_graphical:
                 self.logger.disable_desktop_log()
             if self.machine and self.port:
@@ -950,7 +956,7 @@ class Desktop(PyAedtBase):
                 self.__starting_mode = "com"  # default if user doesn't specify use_grpc_api
             else:
                 self.__starting_mode = "grpc" if settings.use_grpc_api else "com"
-        elif float(self.aedt_version_id) > 2022.2:
+        elif float(aedt_version_id) > 2022.2:
             if settings.use_grpc_api is None:  # pragma no cover
                 self.__starting_mode = "grpc"  # default if user doesn't specify use_grpc_api
             else:

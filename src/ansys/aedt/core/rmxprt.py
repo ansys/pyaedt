@@ -54,9 +54,9 @@ class RMXprtModule(PyAedtBase):
 
         """
         try:
-            child_object = self._app.odesign.GetChildObject("Machine")
+            child_object = self._app.get_oo_object(self._app.odesign, "Machine")
             if self.component:
-                child_object = child_object.GetChildObject(self.component)
+                child_object = self._app.get_oo_object(child_object, self.component)
             parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False, app=self._app)
             return parent
         except Exception:

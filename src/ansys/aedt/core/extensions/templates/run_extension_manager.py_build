@@ -35,20 +35,26 @@ if is_linux:
     import subprocessdotnet as subprocess
 
     folder = "linx64"
+    lib_python = "lib"
 else:
     import subprocess
 
     folder = "winx64"
+    lib_python = "Lib"
 
 # AEDT installation path
-install_path = os.path.abspath(oDesktop.GetExeDir() + "/../")
-
-sys.path.append(r"##EXTENSION_TEMPLATES##")
+install_path = os.path.abspath(os.path.join(oDesktop.GetExeDir(), ".."))
 
 # Check if the script is running using CPython interpreter from AEDT installation
 pyaedt_path = None
 if install_path in os.path.abspath(r"##EXTENSION_TEMPLATES##"):
-    pyaedt_path = os.path.join(install_path, r"commonfiles/CPython/3_10/{0}/Release/Ansys/PyAEDT".format(folder))
+    pyaedt_path = os.path.join(install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release",
+                               "Ansys", "PyAEDT")
+
+if pyaedt_path:
+    sys.path.append(pyaedt_path)
+
+sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
 
@@ -86,7 +92,9 @@ def main():
         my_env = os.environ.copy()
 
         if pyaedt_path:
-            site_packages_path = os.path.join(install_path, "commonfiles/CPython/3_10/{0}/Release/python/Lib/site-packages".format(folder))
+            site_packages_path = os.path.join(
+                install_path, "AnsysEM", "commonfiles", "CPython", "3_10", folder, "Release", "python", lib_python, "site-packages"
+            )
             my_env["PYTHONPATH"] = os.pathsep.join([site_packages_path, pyaedt_path])
 
         if is_linux:

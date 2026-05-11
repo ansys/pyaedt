@@ -296,7 +296,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         ----------
         >>> oDesign.GetChildObject("Excitations").GetChildNames()
         """
-        return list(self.odesign.GetChildObject("Excitations").GetChildNames())
+        return list(self.get_oo_name(self.odesign, "Excitations"))
 
     @property
     def source_objects(self) -> list:
@@ -474,3 +474,66 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         setup.update()
         self._setups = tmp_setups + [setup]
         return setup
+
+    @pyaedt_function_handler()
+    def change_properties(
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_names: list,
+        property_values: list,
+        property_types: list = None,
+    ) -> bool:
+        """Change multiple properties.
+
+        Parameters
+        ----------
+        aedt_object :
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object.
+        property_names : list
+            List of property names. For example, ``["prop1", "prop2"]``.
+        property_values : list
+            List of property values corresponding to the property names.
+        property_types : list, optional
+            List of property types corresponding to the property names.
+            Values are  ``"Value"``, ``"ButtonText"``, ``"Hidden"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+        """
+        button_list = [
+            "file",
+            "buffer_mode",
+            "logic_in",
+            "out_of_in",
+            "DataPattern",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
+            "txrj",
+            "EyeMeasurementFunctions",
+        ]
+        if len(property_names) != len(property_values):
+            raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+        if property_types and isinstance(property_types, str):
+            property_types = [property_types] * len(property_names)
+        elif property_types and len(property_types) != len(property_names):
+            raise ValueError("``property_names`` and ``property_types`` must have the same length.")
+        elif not property_types:
+            property_types = ["Value" if i not in button_list else "ButtonText" for i in property_names]
+        return super().change_properties(
+            aedt_object, tab_name, property_object, property_names, property_values, property_types
+        )

@@ -319,7 +319,7 @@ class AMIConturEyeDiagram(CommonReport):
         )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
         if oo:
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
@@ -915,7 +915,7 @@ class AMIEyeDiagram(CommonReport):
             )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, self._legacy_props["plot_name"])
         if oo:
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True

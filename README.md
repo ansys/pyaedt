@@ -41,7 +41,7 @@ the API.
 
 ## Install on CPython from PyPI
 
-You can install PyAEDT on CPython 3.8 through 3.12 from PyPI with this command:
+You can install PyAEDT on CPython 3.10 through 3.14 from PyPI with this command:
 
 
 ```sh
@@ -90,6 +90,11 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.10 and versions up to Python 3.13.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2025 R1.
+- PyAEDT Version ≥ 0.27.0:
+  - Python Compatibility:
+    - Compatible with Python 3.10 and versions up to Python 3.14.
+  - AEDT Compatibility:
+    - All tests were conducted using AEDT 2026 R1.
 
 
 ## About PyAnsys

@@ -73,6 +73,26 @@ def test_read_ibis(aedt_app) -> None:
     # Add buffer
     ibis.buffers["ansys_ddr4_dq_odt"].add()
     buffer = ibis.buffers["ansys_ddr4_dq_odt"].insert(0.1016, 0.05334, 0.0)
+    assert aedt_app.change_properties(
+        aedt_app.oeditor,
+        "PassedParameterTab",
+        buffer.composed_name,
+        ["DataPattern", "phase_delay"],
+        ["prbs_no=15 prbs_seed=0 prbs_bitlength='2^15-1' prbs_invert=0", "1s"],
+    )
+    assert buffer.parameters["DataPattern"] == "prbs_no=15 prbs_seed=0 prbs_bitlength='2^15-1' prbs_invert=0"
+    assert buffer.parameters["phase_delay"] == "1s"
+    assert aedt_app.change_properties(
+        aedt_app.oeditor,
+        "PassedParameterTab",
+        buffer.composed_name,
+        ["DataPattern", "phase_delay"],
+        ["prbs_no=16 prbs_seed=0 prbs_bitlength='2^16-1' prbs_invert=0", "0s"],
+        ["ButtonText", "Value"],
+    )
+    buffer._parameters = None
+    assert buffer.parameters["DataPattern"] == "prbs_no=16 prbs_seed=0 prbs_bitlength='2^16-1' prbs_invert=0"
+    assert buffer.parameters["phase_delay"] == "0s"
     assert buffer.name == "CompInst@ansys_ddr4_dq_odt_ansys_ddr4"
 
 
