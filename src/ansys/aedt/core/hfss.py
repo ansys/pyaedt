@@ -7985,7 +7985,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             phi_step = np.round(phi_step, 6)
 
         # Write output file
-        with open(output_file, "w") as ofile:
+        with open(output_file, "w", encoding="utf-8") as ofile:
             ofile.write("# SBR native file format for Fresnel reflection / reflection-transmission table data.\n")
             ofile.write(f"# Generated from {self.project_name} project and {self.design_name} design.\n")
             ofile.write(
