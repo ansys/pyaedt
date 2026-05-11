@@ -1346,13 +1346,12 @@ def test_datablock_coplanar_waveguide(aedt_app) -> None:
     assert isinstance(sub, SubstrateDataBlock)
     assert sub.substrate_type == SubstrateType.CoplanarWaveguide
     assert sub.name == "cpw"
-    cpw = aedt_app.modeler.schematic.components_catalog.components[
+    cpw_comp = aedt_app.modeler.schematic.components_catalog.components[
         "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
     ]
-    cpw.place("tr1")
-
-    aedt_app.change_property(aedt_app.oeditor, "PassedParameterTab", cpw.composed_name, "SUB", sub.name)
-    pass
+    cpw = cpw_comp.place("tr1")
+    assert aedt_app.change_property(aedt_app.oeditor, "Component", cpw.composed_name, "Substrate", f"GCPW:{sub.name}")
+    assert cpw.parameters["SUB"] == sub.name
 
 
 def test_datablock_coplanar_waveguide_with_cover_metal(aedt_app) -> None:
