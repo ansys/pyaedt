@@ -33,8 +33,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class SubstrateManager(PyAedtBase):
-    """
-    Manages substrate data blocks for a Circuit design.
+    """Manages substrate data blocks for a Circuit design.
 
     Provides methods to add, query, and delete substrate data blocks.
     Access this object via :attr:`ansys.aedt.core.Circuit.substrate`.
@@ -56,7 +55,8 @@ class SubstrateManager(PyAedtBase):
     """
 
     def __init__(self, app) -> None:
-        """Initialize SubstrateManager.
+        """
+        Initialize SubstrateManager.
 
         Parameters
         ----------
