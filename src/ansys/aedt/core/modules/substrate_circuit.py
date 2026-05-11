@@ -33,7 +33,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class SubstrateManager:
-    """Manages substrate data blocks for a Circuit design.
+    """
+    Manages substrate data blocks for a Circuit design.
 
     Provides methods to add, query, and delete substrate data blocks.
     Access this object via :attr:`ansys.aedt.core.Circuit.substrate`.
@@ -51,14 +52,23 @@ class SubstrateManager:
     >>> cir.substrate.names
     ['MySub']
     >>> cir.substrate.delete("MySub")
+
     """
 
     def __init__(self, app) -> None:
+        """Initialize SubstrateManager.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.circuit.Circuit`
+            Circuit application instance.
+        """
         self._app = app
 
     @property
     def names(self) -> list[str]:
-        """Return the names of all substrate data blocks in the active Circuit design.
+        """
+        Return the names of all substrate data blocks in the active Circuit design.
 
         Returns
         -------
@@ -69,18 +79,21 @@ class SubstrateManager:
         --------
         >>> cir.substrate.names
         ['Sub1']
+
         """
         result = self._app.odata_block.GetAllSubstrateDataBlocks()
         return list(result) if result else []
 
     @property
     def all(self) -> dict[str, "SubstrateDataBlock"]:
-        """Get all substrates.
+        """
+        Get all substrates.
 
         Returns
         -------
         dict[str, SubstrateDataBlock]
             Dictionary mapping substrate name to :class:`SubstrateDataBlock` object.
+
         """
         if not self._app._substrates:
             props = self._app.design_properties
@@ -96,7 +109,8 @@ class SubstrateManager:
 
     @pyaedt_function_handler()
     def delete(self, name: str) -> bool:
-        """Delete a substrate data block.
+        """
+        Delete a substrate data block.
 
         Parameters
         ----------
@@ -111,6 +125,7 @@ class SubstrateManager:
         References
         ----------
         >>> oModule.Remove
+
         """
         if name in self.names:
             self._app.odata_block.Remove(name)
@@ -131,7 +146,8 @@ class SubstrateManager:
         metal_thickness: str = "0.7mil",
         name: str | None = None,
     ) -> "SubstrateDataBlock":
-        """Add a microstrip substrate data block to the circuit design.
+        """
+        Add a microstrip substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -161,6 +177,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_microstrip("10mil", 4.4, 0.02, "25mm", roughness="1pm")
+
         """
         return SubstrateDataBlock.microstrip(
             self._app,
@@ -187,7 +204,8 @@ class SubstrateManager:
         bottom_metal_material: str = "",
         bottom_metal_thickness: str = "",
     ) -> "SubstrateDataBlock":
-        """Add a stripline substrate data block to the circuit design.
+        """
+        Add a stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -220,6 +238,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_stripline("20mil", 4.4, 0.02)
+
         """
         return SubstrateDataBlock.stripline(
             self._app,
@@ -246,7 +265,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add a suspended stripline substrate data block to the circuit design.
+        """
+        Add a suspended stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -276,6 +296,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_suspended_stripline("1mm", "0.5mm", 2.2, 0.0)
+
         """
         return SubstrateDataBlock.suspended_stripline(
             self._app,
@@ -302,7 +323,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add an offset stripline substrate data block to the circuit design.
+        """
+        Add an offset stripline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -334,6 +356,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_offset_stripline("1mm", 2.2, 0.0, "25mm", "25mm")
+
         """
         return SubstrateDataBlock.offset_stripline(
             self._app,
@@ -362,7 +385,8 @@ class SubstrateManager:
         cover_metal_material: str = "",
         cover_metal_thickness: str = "",
     ) -> "SubstrateDataBlock":
-        """Add a coplanar waveguide (CPW) substrate data block to the circuit design.
+        """
+        Add a coplanar waveguide (CPW) substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -396,6 +420,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_coplanar_waveguide("1mm", 2.2, 0.0, "25mm")
+
         """
         return SubstrateDataBlock.coplanar_waveguide(
             self._app,
@@ -424,7 +449,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add a grounded coplanar waveguide (GCPW) substrate data block to the circuit design.
+        """
+        Add a grounded coplanar waveguide (GCPW) substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -456,6 +482,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_grounded_coplanar_waveguide("1mm", 2.2, 0.0, "5mm", "5mm")
+
         """
         return SubstrateDataBlock.grounded_coplanar_waveguide(
             self._app,
@@ -483,7 +510,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add a slotline substrate data block to the circuit design.
+        """
+        Add a slotline substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -515,6 +543,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_slotline("1mm", 2.2, 0.0, "5mm", "5mm")
+
         """
         return SubstrateDataBlock.slotline(
             self._app,
@@ -538,7 +567,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add a rectangular waveguide substrate data block to the circuit design.
+        """
+        Add a rectangular waveguide substrate data block to the circuit design.
 
         Parameters
         ----------
@@ -562,6 +592,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_rectangular_waveguide(num_layers=3)
+
         """
         return SubstrateDataBlock.rectangular_waveguide(
             self._app,
@@ -584,7 +615,8 @@ class SubstrateManager:
         metal_material: str = "copper",
         metal_thickness: str = "0.7mil",
     ) -> "SubstrateDataBlock":
-        """Add a substrate reference data block to the circuit design.
+        """
+        Add a substrate reference data block to the circuit design.
 
         A substrate reference is a named substrate used as a reference by
         transmission-line models in the schematic.
@@ -617,6 +649,7 @@ class SubstrateManager:
         Examples
         --------
         >>> sub = cir.substrate.add_substrate_reference("1mm", 2.2, 0.0, "25mm")
+
         """
         return SubstrateDataBlock.substrate_reference(
             self._app,
@@ -721,6 +754,7 @@ class SubstrateDataBlock(PyAedtBase):
         metal_temp_material: str = "",
         dielectric_temp_materials: list | None = None,
     ) -> None:
+        """Initialize SubstrateDataBlock."""
         self._app = app
         # Disable during construction to avoid triggering updates before the object is fully initialized
         self._auto_update = False
