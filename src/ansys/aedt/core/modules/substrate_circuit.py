@@ -32,8 +32,9 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class SubstrateManager:
-    """Manages substrate data blocks for a Circuit design.
+class SubstrateManager(PyAedtBase):
+    """
+    Manages substrate data blocks for a Circuit design.
 
     Provides methods to add, query, and delete substrate data blocks.
     Access this object via :attr:`ansys.aedt.core.Circuit.substrate`.
@@ -666,7 +667,8 @@ class SubstrateManager:
 
 
 class SubstrateDataBlock(PyAedtBase):
-    """Represents a substrate data block and provides the API to create it.
+    """
+    Represents a substrate data block and provides the API to create it.
 
     Use the class-level factory methods (``microstrip``, ``stripline``, ...) to
     instantiate a correctly configured object, then call :meth:`create` to push it
