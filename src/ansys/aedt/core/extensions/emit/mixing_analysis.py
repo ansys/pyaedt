@@ -23,12 +23,17 @@
 
 """EMIT Mixing Analysis Extension."""
 
+from collections import defaultdict
 from itertools import combinations
 import os
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
@@ -48,6 +53,8 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         self._tx_data = []  # list of (radio_name, band_name, [freq_hz, ...])
         self._rx_data = []  # list of (radio_name, band_name, [freq_hz, ...], ch_bw_hz)
         self._results = []  # list of result dicts for the table
+        self._item_to_result = {}  # treeview item id -> index into _results
+        self._group_to_rx = {}  # treeview group item id -> (rx_radio, rx_band)
         super().__init__(
             EXTENSION_TITLE,
             withdraw=withdraw,
@@ -138,9 +145,13 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         self._progress = ttk.Progressbar(content, mode="determinate")
         self._progress.pack(fill=tkinter.X, padx=6, pady=(0, 6))
 
+        # ---- PanedWindow: table (top) + plot (bottom) ----
+        paned = ttk.PanedWindow(content, orient=tkinter.VERTICAL)
+        paned.pack(fill=tkinter.BOTH, expand=True, padx=6, pady=6)
+
         # ---- Results table ----
-        table_frame = ttk.Frame(content, style="PyAEDT.TFrame")
-        table_frame.pack(fill=tkinter.BOTH, expand=True, padx=6, pady=6)
+        table_frame = ttk.Frame(paned, style="PyAEDT.TFrame")
+        paned.add(table_frame, weight=1)
 
         self._all_columns = (
             "receiver",
@@ -158,15 +169,27 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         )
         self._two_tone_columns = tuple(c for c in self._all_columns if "tx3" not in c)
 
-        self._tree = ttk.Treeview(table_frame, show="headings")
+        self._tree = ttk.Treeview(table_frame, show="tree headings", selectmode="extended")
         self._tree.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 
         scrollbar = ttk.Scrollbar(table_frame, orient=tkinter.VERTICAL, command=self._tree.yview)
         scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         self._tree.configure(yscrollcommand=scrollbar.set)
 
+        # Bind selection event for plot updates
+        self._tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+
         # Set up columns for default (two-tone) view
         self._configure_table_columns(three_tone=False)
+
+        # ---- Plot ----
+        plot_frame = ttk.Frame(paned, style="PyAEDT.TFrame")
+        paned.add(plot_frame, weight=1)
+
+        self._fig = Figure(figsize=(6, 2), dpi=100)
+        self._ax = self._fig.add_subplot(111)
+        self._canvas = FigureCanvasTkAgg(self._fig, master=plot_frame)
+        self._canvas.get_tk_widget().pack(fill=tkinter.BOTH, expand=True)
 
     # ------------------------------------------------------------------ #
     #  Table helpers
@@ -190,20 +213,194 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         """Set visible columns and headings on the treeview."""
         cols = self._all_columns if three_tone else self._two_tone_columns
         self._tree["columns"] = cols
+        # The tree column (col #0) is used for group labels
+        self._tree.column("#0", width=160, stretch=False)
+        self._tree.heading("#0", text="Receiver")
         for col in cols:
             self._tree.heading(col, text=self._COLUMN_HEADINGS[col])
             width = 130 if "freq" in col or "channel" in col else 100
             self._tree.column(col, width=width, anchor="center")
 
     def _populate_table(self) -> None:
-        """Clear and re-populate the treeview from ``self._results``."""
+        """Clear and re-populate the treeview from ``self._results``, grouped by receiver."""
         for item in self._tree.get_children():
             self._tree.delete(item)
+        self._item_to_result = {}
+        self._group_to_rx = {}
+
         three_tone = self._is_three_tone()
         cols = self._all_columns if three_tone else self._two_tone_columns
-        for row in self._results:
-            values = tuple(row.get(c, "") for c in cols)
-            self._tree.insert("", tkinter.END, values=values)
+
+        # Group results by (receiver, rx_band)
+        groups = defaultdict(list)
+        for idx, row in enumerate(self._results):
+            key = (row["receiver"], row["rx_band"])
+            groups[key].append((idx, row))
+
+        for (rx_radio, rx_band), items in groups.items():
+            group_id = self._tree.insert(
+                "",
+                tkinter.END,
+                text=f"{rx_radio} — {rx_band}",
+                open=True,
+            )
+            self._group_to_rx[group_id] = (rx_radio, rx_band)
+            for idx, row in items:
+                values = tuple(row.get(c, "") for c in cols)
+                item_id = self._tree.insert(group_id, tkinter.END, values=values)
+                self._item_to_result[item_id] = idx
+
+    # ------------------------------------------------------------------ #
+    #  Plot helpers
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def _is_contiguous_band(channels_hz, ch_bw_hz):
+        """Return True if all adjacent channels overlap.
+
+        A band is contiguous when for every consecutive pair of channels
+        ``ch[i].freq + ch_bw/2 >= ch[i+1].freq - ch_bw/2``.
+        """
+        if len(channels_hz) <= 1:
+            return True
+        half = ch_bw_hz / 2.0
+        sorted_ch = sorted(channels_hz)
+        for a, b in zip(sorted_ch, sorted_ch[1:]):
+            if a + half < b - half:
+                return False
+        return True
+
+    def _get_rx_info_for_key(self, rx_radio, rx_band):
+        """Return (channels_hz, ch_bw_hz) for a given receiver/band pair."""
+        for name, bname, channels, ch_bw in self._rx_data:
+            if name == rx_radio and bname == rx_band:
+                return channels, ch_bw
+        return [], 0.0
+
+    def _on_tree_select(self, _event=None):
+        """Handle treeview selection change and refresh the plot."""
+        self._update_plot()
+
+    def _update_plot(self):
+        """Re-draw the plot based on current treeview selection."""
+        ax = self._ax
+        ax.clear()
+
+        selected_items = set(self._tree.selection())
+        if not selected_items and not self._results:
+            self._canvas.draw_idle()
+            return
+
+        # Resolve which result indices are selected and which Rx groups are involved
+        selected_indices = set()
+        visible_rx_keys = set()
+
+        for item in selected_items:
+            # Is it a group node?
+            if item in self._group_to_rx:
+                rx_key = self._group_to_rx[item]
+                visible_rx_keys.add(rx_key)
+                # All children are selected
+                for child in self._tree.get_children(item):
+                    if child in self._item_to_result:
+                        selected_indices.add(self._item_to_result[child])
+            elif item in self._item_to_result:
+                idx = self._item_to_result[item]
+                selected_indices.add(idx)
+                row = self._results[idx]
+                visible_rx_keys.add((row["receiver"], row["rx_band"]))
+
+        if not visible_rx_keys:
+            self._canvas.draw_idle()
+            return
+
+        # Collect all intermod results that belong to visible Rx groups
+        all_indices_for_groups = set()
+        for idx, row in enumerate(self._results):
+            if (row["receiver"], row["rx_band"]) in visible_rx_keys:
+                all_indices_for_groups.add(idx)
+
+        # Determine frequency range for the x-axis (in MHz)
+        freq_min_mhz = float("inf")
+        freq_max_mhz = float("-inf")
+
+        # Gather Rx band boxes
+        rx_boxes = []  # list of (x_left_mhz, x_right_mhz, label)
+        for rx_radio, rx_band in visible_rx_keys:
+            channels_hz, ch_bw_hz = self._get_rx_info_for_key(rx_radio, rx_band)
+            if not channels_hz:
+                continue
+            half_bw = ch_bw_hz / 2.0
+            if self._is_contiguous_band(channels_hz, ch_bw_hz):
+                left = (min(channels_hz) - half_bw) * _HZ_TO_MHZ
+                right = (max(channels_hz) + half_bw) * _HZ_TO_MHZ
+                rx_boxes.append((left, right, f"{rx_radio} {rx_band}"))
+            else:
+                for ch in channels_hz:
+                    left = (ch - half_bw) * _HZ_TO_MHZ
+                    right = (ch + half_bw) * _HZ_TO_MHZ
+                    rx_boxes.append((left, right, f"{rx_radio} {rx_band}"))
+            freq_min_mhz = min(freq_min_mhz, (min(channels_hz) - half_bw) * _HZ_TO_MHZ)
+            freq_max_mhz = max(freq_max_mhz, (max(channels_hz) + half_bw) * _HZ_TO_MHZ)
+
+        # Gather intermod tones
+        intermod_tones = []  # (freq_mhz, is_selected)
+        for idx in all_indices_for_groups:
+            f_mhz = self._results[idx]["_intermod_freq_hz"] * _HZ_TO_MHZ
+            intermod_tones.append((f_mhz, idx in selected_indices))
+            freq_min_mhz = min(freq_min_mhz, f_mhz)
+            freq_max_mhz = max(freq_max_mhz, f_mhz)
+
+        # Add some padding to the x-axis
+        span = max(freq_max_mhz - freq_min_mhz, 1.0)
+        pad = span * 0.05
+        x_min = freq_min_mhz - pad
+        x_max = freq_max_mhz + pad
+
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(0, 1)
+        ax.set_xlabel("Frequency (MHz)")
+        ax.get_yaxis().set_visible(False)
+
+        # Compute minimum intermod width in data units (2 pixels)
+        fig_width_px = max(self._fig.get_figwidth() * self._fig.dpi, 1)
+        axes_width_frac = ax.get_position().width
+        data_range = x_max - x_min
+        min_tone_width = (2.0 / (fig_width_px * axes_width_frac)) * data_range
+
+        # Draw Rx channel boxes (light blue)
+        box_height = 0.4
+        box_y = 0.3
+        for left, right, label in rx_boxes:
+            ax.add_patch(
+                Rectangle(
+                    (left, box_y),
+                    right - left,
+                    box_height,
+                    facecolor="#ADD8E6",
+                    edgecolor="#4682B4",
+                    linewidth=0.8,
+                )
+            )
+
+        # Draw intermod tones — non-selected first, then selected on top
+        tone_height = 0.8
+        tone_y = 0.1
+        for f_mhz, is_selected in sorted(intermod_tones, key=lambda t: t[1]):
+            color = "#FF4444" if is_selected else "#FFB366"
+            w = max(min_tone_width, 0.0)
+            ax.add_patch(
+                Rectangle(
+                    (f_mhz - w / 2, tone_y),
+                    w,
+                    tone_height,
+                    facecolor=color,
+                    edgecolor=color,
+                    linewidth=0.5,
+                )
+            )
+
+        self._fig.tight_layout()
+        self._canvas.draw_idle()
 
     # ------------------------------------------------------------------ #
     #  Data gathering
@@ -369,6 +566,9 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                             "order": str(order),
                             "coefficients": str(coeffs),
                             "intermod_freq_mhz": f"{f_im * _HZ_TO_MHZ:.4f}",
+                            # Raw Hz values kept for plotting
+                            "_intermod_freq_hz": f_im,
+                            "_rx_channel_hz": rx_freq,
                         }
                         if three_tone:
                             row["tx3"] = txs[2][0]
