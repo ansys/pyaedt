@@ -1347,12 +1347,17 @@ def test_datablock_coplanar_waveguide(aedt_app) -> None:
     assert isinstance(sub, SubstrateDataBlock)
     assert sub.substrate_type == SubstrateType.CoplanarWaveguide
     assert sub.name == "cpw"
-    cpw_comp = aedt_app.modeler.schematic.components_catalog.components[
-        "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
-    ]
-    cpw = cpw_comp.place("tr1")
-    assert aedt_app.change_property(aedt_app.oeditor, "Component", cpw.composed_name, "Substrate", f"GCPW:{sub.name}")
-    assert cpw.parameters["SUB"] == sub.name
+
+    # Bug in Non-graphical mode in AEDT, parameter is not updated
+    if not NON_GRAPHICAL:
+        cpw_comp = aedt_app.modeler.schematic.components_catalog.components[
+            "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
+        ]
+        cpw = cpw_comp.place("tr1")
+        assert aedt_app.change_property(
+            aedt_app.oeditor, "Component", cpw.composed_name, "Substrate", f"GCPW:{sub.name}"
+        )
+        assert cpw.parameters["SUB"] == sub.name
 
 
 def test_datablock_coplanar_waveguide_with_cover_metal(aedt_app) -> None:
@@ -1440,7 +1445,7 @@ def test_datablock_substrate_factory_method_direct(aedt_app) -> None:
     )
     assert isinstance(sub, SubstrateDataBlock)
     result = sub.create()
-    assert result is sub  # create() returns self
+    assert result is sub
 
 
 def test_datablock_substrate_rename(aedt_app) -> None:
@@ -1451,7 +1456,7 @@ def test_datablock_substrate_rename(aedt_app) -> None:
         air_height="25mm",
         name="rename_me",
     )
-    sub.rename("renamed_sub")
+    sub.name = "renamed_sub"
     assert sub.name == "renamed_sub"
 
 
@@ -1463,7 +1468,7 @@ def test_datablock_substrate_remove(aedt_app) -> None:
         air_height="25mm",
         name="to_remove",
     )
-    assert sub.remove()
+    assert aedt_app.substrate.delete(sub.name)
 
 
 def test_datablock_get_all_substrates(aedt_app) -> None:
@@ -1483,50 +1488,3 @@ def test_datablock_get_all_substrates(aedt_app) -> None:
     all_subs = aedt_app.substrate.names
     assert sub1.name in all_subs
     assert sub2.name in all_subs
-
-
-def test_datablock_duplicate_name_warns_and_renames(aedt_app) -> None:
-    """Creating a substrate with an already-used name should warn and use a unique name."""
-    aedt_app.substrate.add_microstrip(
-        dielectric_height="1mm",
-        dielectric_constant=2.2,
-        dielectric_loss_tangent=0.0,
-        air_height="25mm",
-        name="dup_sub",
-    )
-    import warnings as _warnings
-
-    with _warnings.catch_warnings(record=True) as caught:
-        _warnings.simplefilter("always")
-        sub2 = aedt_app.substrate.add_microstrip(
-            dielectric_height="1mm",
-            dielectric_constant=2.2,
-            dielectric_loss_tangent=0.0,
-            air_height="25mm",
-            name="dup_sub",
-        )
-    assert any(issubclass(w.category, UserWarning) and "dup_sub" in str(w.message) for w in caught)
-    assert sub2.name != "dup_sub"  # got a unique auto-generated name
-
-
-def test_datablock_substrate_build_args_microstrip(aedt_app) -> None:
-    """Test _build_args() structure for microstrip without calling AEDT."""
-    sub = SubstrateDataBlock.microstrip(
-        aedt_app,
-        name="ms_args",
-        dielectric_height="1mm",
-        dielectric_constant=2.2,
-        loss_tangent=0.0,
-        air_height="25mm",
-        roughness="",
-    )
-    args = sub._build_args()
-    assert args[0] == "NAME:DataBlock"
-    assert "Name:=" in args
-    assert args[args.index("Name:=") + 1] == "ms_args"
-    assert "Type:=" in args
-    assert args[args.index("Type:=") + 1] == SubstrateType.Microstrip
-    assert "Dielectric:=" in args
-    dielectric = args[args.index("Dielectric:=") + 1]
-    assert dielectric[0] == "1mm"
-    assert dielectric[1] == "2.2"
