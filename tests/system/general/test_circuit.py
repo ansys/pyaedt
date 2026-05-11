@@ -29,11 +29,11 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Edb
-from ansys.aedt.core.application.analysis_nexxim import SubstrateDataBlock
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.substrate_circuit import SubstrateManager
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -1222,28 +1222,28 @@ def test_output_variables(circuit_app) -> None:
 
 
 def test_existing_substrates(substrate_app) -> None:
-    assert len(substrate_app.substrate_names) == 9
-    assert len(substrate_app.substrates) == 9
+    assert len(substrate_app.substrate.names) == 9
+    assert len(substrate_app.substrate.all) == 9
 
-    ms = substrate_app.add_substrate_microstrip(
+    ms = substrate_app.substrate.add_microstrip(
         dielectric_height="0.5mm", dielectric_constant="3.3", dielectric_loss_tangent="0.02", air_height="10mm"
     )
 
-    assert isinstance(ms, SubstrateDataBlock)
+    assert isinstance(ms, SubstrateManager)
     assert ms.substrate_type == SubstrateType.Microstrip
 
-    assert len(substrate_app.substrate_names) == 10
-    assert len(substrate_app.substrates) == 10
+    assert len(substrate_app.substrate.names) == 10
+    assert len(substrate_app.substrate.all) == 10
 
-    subs1 = substrate_app.substrates[substrate_app.substrate_names[0]]
-    subs2 = substrate_app.substrates[substrate_app.substrate_names[1]]
+    subs1 = substrate_app.substrate.all[substrate_app.substrate.names[0]]
+    subs2 = substrate_app.substrate.all[substrate_app.substrate.names[1]]
     subs1.name = "new_substrate1"
-    assert "new_substrate1" in substrate_app.substrate_names
-    assert "new_substrate1" in substrate_app.substrates
+    assert "new_substrate1" in substrate_app.substrate.names
+    assert "new_substrate1" in substrate_app.substrate.all
 
     # Same name, no operation applied
     subs1.name = "new_substrate1"
-    assert "new_substrate1" in substrate_app.substrates
+    assert "new_substrate1" in substrate_app.substrate.all
 
     # Existing name
     subs2.name = "new_substrate1"
@@ -1261,14 +1261,14 @@ def test_existing_substrates(substrate_app) -> None:
     assert subs1.update()
 
     # Remove
-    assert substrate_app.delete_substrate(subs1.name)
-    assert len(substrate_app.substrate_names) == 9
-    assert len(substrate_app.substrates) == 9
-    assert not substrate_app.delete_substrate("invented")
+    assert substrate_app.substrate.delete(subs1.name)
+    assert len(substrate_app.substrate.names) == 9
+    assert len(substrate_app.substrate.all) == 9
+    assert not substrate_app.substrate.delete("invented")
 
 
 def test_datablock_microstrip_returns_substrate_object(aedt_app) -> None:
-    sub = aedt_app.add_substrate_microstrip(
+    sub = aedt_app.substrate.add_microstrip(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1276,25 +1276,25 @@ def test_datablock_microstrip_returns_substrate_object(aedt_app) -> None:
         roughness="1pm",
         name="ms_obj",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.Microstrip
     assert sub.name == "ms_obj"
 
 
 def test_datablock_stripline(aedt_app) -> None:
-    sub = aedt_app.add_substrate_stripline(
+    sub = aedt_app.substrate.add_stripline(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         name="sl",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.Stripline
     assert sub.name == "sl"
 
 
 def test_datablock_stripline_with_bottom_metal(aedt_app) -> None:
-    sub = aedt_app.add_substrate_stripline(
+    sub = aedt_app.substrate.add_stripline(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1304,25 +1304,25 @@ def test_datablock_stripline_with_bottom_metal(aedt_app) -> None:
         bottom_metal_material="aluminum",
         bottom_metal_thickness="0.2mil",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.bottom_metal_material == "aluminum"
 
 
 def test_datablock_suspended_stripline(aedt_app) -> None:
-    sub = aedt_app.add_substrate_suspended_stripline(
+    sub = aedt_app.substrate.add_suspended_stripline(
         dielectric_height="1mm",
         air_height="0.5mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         name="ss",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.SuspendedStripline
     assert sub.name == "ss"
 
 
 def test_datablock_offset_stripline(aedt_app) -> None:
-    sub = aedt_app.add_substrate_offset_stripline(
+    sub = aedt_app.substrate.add_offset_stripline(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1330,20 +1330,20 @@ def test_datablock_offset_stripline(aedt_app) -> None:
         enclosure_height="25mm",
         name="os",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.OffsetStripline
     assert sub.name == "os"
 
 
 def test_datablock_coplanar_waveguide(aedt_app) -> None:
-    sub = aedt_app.add_substrate_coplanar_waveguide(
+    sub = aedt_app.substrate.add_coplanar_waveguide(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         cover_height="25mm",
         name="cpw",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.CoplanarWaveguide
     assert sub.name == "cpw"
     cpw_comp = aedt_app.modeler.schematic.components_catalog.components[
@@ -1355,7 +1355,7 @@ def test_datablock_coplanar_waveguide(aedt_app) -> None:
 
 
 def test_datablock_coplanar_waveguide_with_cover_metal(aedt_app) -> None:
-    sub = aedt_app.add_substrate_coplanar_waveguide(
+    sub = aedt_app.substrate.add_coplanar_waveguide(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1364,12 +1364,12 @@ def test_datablock_coplanar_waveguide_with_cover_metal(aedt_app) -> None:
         cover_metal_material="aluminum",
         cover_metal_thickness="0.2mil",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.cover_metal_material == "aluminum"
 
 
 def test_datablock_grounded_coplanar_waveguide(aedt_app) -> None:
-    sub = aedt_app.add_substrate_grounded_coplanar_waveguide(
+    sub = aedt_app.substrate.add_grounded_coplanar_waveguide(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1377,13 +1377,13 @@ def test_datablock_grounded_coplanar_waveguide(aedt_app) -> None:
         top_air_height="5mm",
         name="gcpw",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.GroundedCoplanarWaveguide
     assert sub.name == "gcpw"
 
 
 def test_datablock_slotline(aedt_app) -> None:
-    sub = aedt_app.add_substrate_slotline(
+    sub = aedt_app.substrate.add_slotline(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1391,42 +1391,42 @@ def test_datablock_slotline(aedt_app) -> None:
         top_air_height="5mm",
         name="sl6",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.Slotline
 
 
 def test_datablock_rectangular_waveguide(aedt_app) -> None:
-    sub = aedt_app.add_substrate_rectangular_waveguide(
+    sub = aedt_app.substrate.add_rectangular_waveguide(
         num_layers=3,
         name="rwg",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.RectangularWaveguide
     assert sub.name == "rwg"
 
 
 def test_datablock_rectangular_waveguide_auto_name(aedt_app) -> None:
-    sub = aedt_app.add_substrate_rectangular_waveguide(num_layers=2)
-    assert isinstance(sub, SubstrateDataBlock)
+    sub = aedt_app.substrate.add_rectangular_waveguide(num_layers=2)
+    assert isinstance(sub, SubstrateManager)
     assert sub.name
 
 
 def test_datablock_substrate_reference(aedt_app) -> None:
-    sub = aedt_app.add_substrate_reference(
+    sub = aedt_app.substrate.add_substrate_reference(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         air_height="25mm",
         name="subref",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     assert sub.substrate_type == SubstrateType.SubstrateReference
     assert sub.name == "subref"
 
 
 def test_datablock_substrate_factory_method_direct(aedt_app) -> None:
-    """Test using SubstrateDataBlock factory method and create() directly."""
-    sub = SubstrateDataBlock.microstrip(
+    """Test using SubstrateManager factory method and create() directly."""
+    sub = SubstrateManager.microstrip(
         aedt_app,
         name="ms_direct",
         dielectric_height="10mil",
@@ -1437,13 +1437,13 @@ def test_datablock_substrate_factory_method_direct(aedt_app) -> None:
         metal_material="copper",
         metal_thickness="0.7mil",
     )
-    assert isinstance(sub, SubstrateDataBlock)
+    assert isinstance(sub, SubstrateManager)
     result = sub.create()
     assert result is sub  # create() returns self
 
 
 def test_datablock_substrate_rename(aedt_app) -> None:
-    sub = aedt_app.add_substrate_microstrip(
+    sub = aedt_app.substrate.add_microstrip(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1455,7 +1455,7 @@ def test_datablock_substrate_rename(aedt_app) -> None:
 
 
 def test_datablock_substrate_remove(aedt_app) -> None:
-    sub = aedt_app.add_substrate_microstrip(
+    sub = aedt_app.substrate.add_microstrip(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1466,27 +1466,27 @@ def test_datablock_substrate_remove(aedt_app) -> None:
 
 
 def test_datablock_get_all_substrates(aedt_app) -> None:
-    sub1 = aedt_app.add_substrate_microstrip(
+    sub1 = aedt_app.substrate.add_microstrip(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         air_height="25mm",
         name="get_all_sub1",
     )
-    sub2 = aedt_app.add_substrate_stripline(
+    sub2 = aedt_app.substrate.add_stripline(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
         name="get_all_sub2",
     )
-    all_subs = aedt_app.get_substrates()
+    all_subs = aedt_app.substrate.names
     assert sub1.name in all_subs
     assert sub2.name in all_subs
 
 
 def test_datablock_duplicate_name_warns_and_renames(aedt_app) -> None:
     """Creating a substrate with an already-used name should warn and use a unique name."""
-    aedt_app.add_substrate_microstrip(
+    aedt_app.substrate.add_microstrip(
         dielectric_height="1mm",
         dielectric_constant=2.2,
         dielectric_loss_tangent=0.0,
@@ -1497,7 +1497,7 @@ def test_datablock_duplicate_name_warns_and_renames(aedt_app) -> None:
 
     with _warnings.catch_warnings(record=True) as caught:
         _warnings.simplefilter("always")
-        sub2 = aedt_app.add_substrate_microstrip(
+        sub2 = aedt_app.substrate.add_microstrip(
             dielectric_height="1mm",
             dielectric_constant=2.2,
             dielectric_loss_tangent=0.0,
@@ -1510,7 +1510,7 @@ def test_datablock_duplicate_name_warns_and_renames(aedt_app) -> None:
 
 def test_datablock_substrate_build_args_microstrip(aedt_app) -> None:
     """Test _build_args() structure for microstrip without calling AEDT."""
-    sub = SubstrateDataBlock.microstrip(
+    sub = SubstrateManager.microstrip(
         aedt_app,
         name="ms_args",
         dielectric_height="1mm",
