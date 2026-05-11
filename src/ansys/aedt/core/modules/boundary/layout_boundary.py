@@ -124,7 +124,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
 
         for el in component_definition:
-            design_childs = self._app.get_oo_object(self._app.oeditor, el).GetChildNames()
+            design_childs = self._app.get_oo_name(self._app.get_oo_object(self._app.oeditor, el))
             if self._name in design_childs:
                 child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
                 break
@@ -309,19 +309,15 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def _child_object(self):
-        cc = self._app.odesign.GetChildObject("Excitations")
+        excitations_oo = self._app.get_oo_object(self._app.odesign, "Excitations")
         child_object = None
-        if self.name in cc.GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
-        elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        if self.name in self._app.get_oo_name(excitations_oo):
+            child_object = self._app.get_oo_object(excitations_oo, self.name)
 
-        if "Boundaries" in self._app.odesign.GetChildNames():
-            cc = self._app.odesign.GetChildObject("Boundaries")
-            if self.name in cc.GetChildNames():
-                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
-            elif self.name in self._app.odesign.GetChildObject("Boundaries").GetChildNames():
-                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+        if "Boundaries" in self._app.get_oo_name(self._app.odesign):
+            boundaries_oo = self._app.get_oo_object(self._app.odesign, "Boundaries")
+            if self.name in self._app.get_oo_name(boundaries_oo):
+                child_object = self._app.get_oo_object(boundaries_oo, self.name)
 
         return child_object
 

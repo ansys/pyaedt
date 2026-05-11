@@ -198,6 +198,7 @@ jobs:
         uses: ansys/actions/doc-style@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          files: '["doc/source", ".github/plugin", ".github/skills"]'
           fail-level: 'warning'
 
   doc-build:
@@ -230,7 +231,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
         target: ['', 'all']
     steps:
       - name: Build wheelhouse and perform smoke test

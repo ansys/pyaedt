@@ -2267,9 +2267,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
-            compobj = self.oeditor.GetChildObject(name)
+            compobj = self._app.get_oo_object(self.oeditor, name)
             if compobj:
-                return list(compobj.GetChildNames())
+                return list(self._app.get_oo_name(self.oeditor, name))
         else:
             self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
         return []

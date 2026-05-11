@@ -232,7 +232,7 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         try:
-            child_object = self._primitives.oeditor.GetChildObject(self.name)
+            child_object = self._primitives._app.get_oo_object(self._primitives.oeditor, self.name)
             return BinaryTreeNode(
                 list(child_object.GetChildNames("Operations"))[0],
                 child_object,
@@ -259,8 +259,8 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         group = None
-        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            group = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, "Group")
         if group is not None:
             self._group_name = group
         return group
@@ -286,7 +286,7 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.ChangeProperty
 
         """
-        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames() and name not in list(
+        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name) and name not in list(
             list(self._primitives.oeditor.GetChildNames("Groups"))
         ):
             arg = [
@@ -345,8 +345,8 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         key = "Do Mesh Assembly"
-        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            ma = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
+        if self.is3dcomponent and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            ma = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, key)
             self._mesh_assembly = ma
             return ma
         else:
@@ -358,9 +358,9 @@ class UserDefinedComponent(PyAedtBase):
         if (
             self.is3dcomponent
             and isinstance(ma, bool)
-            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+            and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
         ):
-            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, ma)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self.name, key, ma)
             self._mesh_assembly = ma
 
     @property
@@ -415,16 +415,16 @@ class UserDefinedComponent(PyAedtBase):
             parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
             parameters = {}
             for parameter in parameters_tuple:
-                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter[0])
+                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter[0])
                 parameters[parameter[0]] = value
             self._parameters = UserDefinedComponentParameters(self, parameters)
         else:
-            props = list(self._primitives.oeditor.GetChildObject(self.name).GetPropNames())
+            props = list(self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name))
             parameters_aedt = list(set(props) - set(self._fix_udm_props))
             parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
             parameters = {}
             for parameter in parameter_name:
-                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter)
+                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter)
                 parameters[parameter] = value
             self._parameters = UserDefinedComponentParameters(self, parameters)
         return self._parameters
@@ -441,7 +441,7 @@ class UserDefinedComponent(PyAedtBase):
         if self.is3dcomponent:
             component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
         else:
-            component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+            component_parts = list(self._primitives._app.get_oo_name(self._primitives.oeditor, self.name))
 
         parts_id = [
             self._primitives.objects_by_name[part].id
@@ -467,19 +467,21 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         self._target_coordinate_system = None
-        if "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            tCS = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System")
+        if "Target Coordinate System" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            tCS = self._primitives._app.get_oo_property_value(
+                self._primitives.oeditor, self.name, "Target Coordinate System"
+            )
             self._target_coordinate_system = tCS
         return self._target_coordinate_system
 
     @target_coordinate_system.setter
     def target_coordinate_system(self, tCS: str) -> None:
-        if (
-            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-        ):
+        oo_props = self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
+        if "Target Coordinate System" in oo_props and "Target Coordinate System/Choices" in oo_props:
             tCS_options = list(
-                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
+                self._primitives._app.get_oo_property_value(
+                    self._primitives.oeditor, self.name, "Target Coordinate System/Choices"
+                )
             )
             if tCS in tCS_options:
                 pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
@@ -824,8 +826,8 @@ class UserDefinedComponent(PyAedtBase):
         str
             Path of the 3d component file.
         """
-        return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
-            "3D Component File Path"
+        return self._primitives._app.get_oo_property_value(
+            self._primitives._app.oeditor, self.definition_name, "3D Component File Path"
         )
 
     @pyaedt_function_handler()
@@ -1045,7 +1047,7 @@ class LayoutComponent(PyAedtBase):
         if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_layout)
             self._show_layout = show_layout
 
     @property
@@ -1072,7 +1074,7 @@ class LayoutComponent(PyAedtBase):
         if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, fast_transformation)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, fast_transformation)
             self._fast_transformation = fast_transformation
 
     @property
@@ -1100,7 +1102,7 @@ class LayoutComponent(PyAedtBase):
         if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_dielectric)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_dielectric)
             self._show_dielectric = show_dielectric
 
     @property
@@ -1131,7 +1133,7 @@ class LayoutComponent(PyAedtBase):
         if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, display_mode)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, display_mode)
             self._display_mode = display_mode
 
     @pyaedt_function_handler()

@@ -732,9 +732,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if freq is None:
             freq = (
                 re.compile(r"(\d+)\s*(\w+)")
-                .match(
-                    self.modeler._odesign.GetChildObject("Analysis").GetChildObject(setup).GetPropValue("Adaptive Freq")
-                )
+                .match(self.get_oo_property_value(self.get_oo_object(self.odesign, "Analysis"), setup, "Adaptive Freq"))
                 .groups()[0]
             )
         else:
@@ -1525,9 +1523,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         field_setups = []
+        em_fields_oo = self.get_oo_object(self.odesign, "EM Fields")
         for field in self.field_setup_names:
-            obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
-            type_field = obj_field.GetPropValue("Type")
+            type_field = self.get_oo_property_value(em_fields_oo, field, "Type")
             field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
 
         return field_setups
@@ -1541,7 +1539,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         List of str
         """
-        return self.odesign.GetChildObject("EM Fields").GetChildNames()
+        return self.get_oo_name(self.odesign, "EM Fields")
 
     @pyaedt_function_handler()
     def delete_all_nets(self) -> bool:

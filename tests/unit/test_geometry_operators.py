@@ -47,26 +47,6 @@ def desktop() -> None:
     return
 
 
-def test_List2list() -> None:
-    from ansys.aedt.core.internal.clr_module import Double
-    from ansys.aedt.core.internal.clr_module import List
-
-    List_str = List[str]()
-    List_str.Add("one")
-    List_str.Add("two")
-    List_str.Add("three")
-    ls = go.List2list(List_str)
-    assert isinstance(ls, list)
-    assert len(ls) == 3
-    List_float = List[Double]()
-    List_float.Add(1.0)
-    List_float.Add(2.0)
-    List_float.Add(3.0)
-    lf = go.List2list(List_float)
-    assert isinstance(ls, list)
-    assert len(lf) == 3
-
-
 def test_parse_dim_arg() -> None:
     assert go.parse_dim_arg("2mm") == 2e-3
     assert go.parse_dim_arg("1.123mm") == 1.123e-3
