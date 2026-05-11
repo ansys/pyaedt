@@ -283,9 +283,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         self._field_setups = []
+        radiation_oo = self.get_oo_object(self.odesign, "Radiation")
         for field in self.field_setup_names:
-            obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
-            type_field = obj_field.GetPropValue("Type")
+            type_field = self.get_oo_property_value(radiation_oo, field, "Type")
             if type_field == "Infinite Sphere":
                 self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
             else:
@@ -302,7 +302,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         List of str
         """
-        return self.odesign.GetChildObject("Radiation").GetChildNames()
+        return self.get_oo_name(self.odesign, "Radiation")
 
     class BoundaryType(CreateBoundaryMixin, PyAedtBase):
         """Creates and manages boundaries."""
@@ -7921,16 +7921,30 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         phi_units = "deg"
 
         if is_isotropic:
-            angles = {"0.0deg": []}
-            for var in r_te.variations:
+            variations = r_te.variations
+            variables = self.variable_manager.variables
+
+            if phi_name in variables and phi_name in r_te.active_variation:
+                # More than 1 phi sweep is simulated, take the nominal one
+                scan_p_value = variables[phi_name].numeric_value
+                active_variations = [v for v in variations if phi_name in v and v[phi_name] == scan_p_value]
+                if not active_variations:
+                    raise AEDTRuntimeError(f"Nominal {phi_name}={scan_p_value} has no results")
+            else:
+                # Only 1 phi is simulated or Phi is not parametrized in the boundary
+                active_variations = variations
+
+            theta_set = set()
+            for var in active_variations:
                 th = var[theta_name]
-                if th > theta_max:
-                    theta_max = th
-                angles["0.0deg"].append(th)
+                theta_set.add(th)
                 var_index[(th, None)] = var
 
-            angles["0.0deg"] = list(set(angles["0.0deg"]))
-            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+            # Sorted, de-duplicated theta values
+            sorted_thetas = sorted(theta_set)
+            angles = {"0.0deg": sorted_thetas}
+            theta_max = sorted_thetas[-1]
+            theta_step = sorted_thetas[1] - sorted_thetas[0]
 
         else:
             angles = {}
@@ -7961,8 +7975,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if new_phi is None:
                 raise AEDTRuntimeError("No variations found. Cannot compute phi/theta sweep data.")
 
-            # Reorder Phi angles to ensure they are in ascending order
-            angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
+            # Reorder Phi angles to ensure they are in ascending order, and sort theta values per phi
+            angles = {k: sorted(set(angles[k])) for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
 
             theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
             theta_step = np.round(theta_step, 6)

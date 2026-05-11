@@ -2487,6 +2487,7 @@ def test_get_fresnel_coefficients(fresnel):
     )
     assert output3.is_file()
 
+    fresnel.design_name = "one_port"
     output3_anisotropic = fresnel.get_fresnel_coefficients(
         setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
     )
@@ -2501,3 +2502,17 @@ def test_get_fresnel_coefficients(fresnel):
     fresnel.design_name = "three_ports"
     with pytest.raises(AEDTRuntimeError):
         fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
+
+    # Isotropic with phi sweep
+    fresnel.design_name = "one_port_theta_phi_sweep"
+    output4_isotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : LastAdaptive", theta_name="theta_scan", phi_name="phi_scan", is_isotropic=True
+    )
+    assert output4_isotropic.is_file()
+
+    # Isotropic with phi not parametrized
+    fresnel.design_name = "one_port_phi_noparametrized"
+    output4_isotropic = fresnel.get_fresnel_coefficients(
+        setup_sweep="Setup : LastAdaptive", theta_name="scan_T", phi_name="0deg", is_isotropic=True
+    )
+    assert output4_isotropic.is_file()

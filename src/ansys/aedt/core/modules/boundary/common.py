@@ -252,27 +252,27 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Nets")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                return cc.GetChildObject(self._name)
+                return self._app.get_oo_object(cc, self._name)
             for name in cc_names:
                 cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
                 cc_names = self._app.get_oo_name(cc)
                 if self._name in cc_names:
-                    return cc.GetChildObject(self._name)
+                    return self._app.get_oo_object(cc, self._name)
 
         if "Thermal" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Thermal")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                return cc.GetChildObject(self._name)
+                return self._app.get_oo_object(cc, self._name)
 
         if "Boundaries" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-            if self._name in cc.GetChildNames():
-                return cc.GetChildObject(self._name)
+            if self._name in self._app.get_oo_name(cc):
+                return self._app.get_oo_object(cc, self._name)
 
         if "Excitations" in design_childs:
             if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                return self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self._name)
+                return self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Excitations"), self._name)
             elif self._app.get_oo_name(self._app.odesign, "Excitations"):
                 for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
                     terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
@@ -281,8 +281,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
         if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
             model = self._app.get_oo_object(self._app.odesign, "Model")
-            if self._name in model.GetChildNames():
-                return model.GetChildObject(self._name)
+            if self._name in self._app.get_oo_name(model):
+                return self._app.get_oo_object(model, self._name)
 
         if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
             for port in self._app.get_oo_name(self._app.odesign, "Conductors"):

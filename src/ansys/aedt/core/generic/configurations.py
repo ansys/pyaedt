@@ -41,6 +41,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
@@ -2002,7 +2003,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             for i, v in self._app.modeler.user_defined_components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
-                    if "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames():
+                    if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
                     obj_history = v.history()
                     if obj_history:
@@ -2462,6 +2463,49 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         self._app.modeler.rename_page(idx + 1, page)
                 else:
                     self._app.modeler.add_page(page)
+
+        comp_dict = {}
+        for i, j in data["instance"].items():
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
+                    if component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
+                            ami = True
+                            ami_str = "ami"
+                        else:
+                            ami = False
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        if ibis_name in comp_dict:
+                            ibis = comp_dict[ibis_name]["object"]
+                        else:
+                            ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        if ibis_name in comp_dict:
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].differential_pins[j["properties"]["diff_pin_name"]].name
+                            )
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].pins[j["properties"]["pin_name"]].name
+                            )
+                        elif comp in ibis.buffers:
+                            comp_dict[ibis_name]["buffers"].append(ibis.buffers[comp].name)
+        for cv in comp_dict.values():
+            cv["object"]._app.import_model_in_aedt(pins=cv["pins"], buffers=cv["buffers"])
+
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
@@ -2478,12 +2522,17 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
-                            ami = True
+                            ami_str = "ami"
                         else:
-                            ami = False
-                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        ibis = comp_dict[ibis_name]["object"]
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
@@ -2494,7 +2543,11 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     page=j.get("page", 1),
                                 )
                             )
-                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
@@ -2529,6 +2582,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"],
                             location=j["position"],
+                            angle=j["angle"],
+                            model=j.get("model", None),
                             page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
@@ -2556,9 +2611,36 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
-                    for name, parameter in j["properties"].items():
-                        if new_comp_params.get(name, None) != parameter:
-                            new_comp.parameters[name] = parameter
+                    params = {
+                        i: j
+                        for i, j in j["properties"].items()
+                        if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
+                    }
+                    if params:
+                        try:
+                            values = [
+                                i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
+                                for i in list(params.values())
+                            ]
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                values,
+                            )
+                        except Exception:  # pragma: no cover
+                            self._app.logger.warning(
+                                f"Failed to set one of the properties for component {new_comp.composed_name}"
+                            )
+                            for ppn, ppv in params.items():
+                                new_comp.parameters[ppn] = (
+                                    ppv[1:-1]
+                                    if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                    else ppv
+                                )
+                    if "buffer" in params:
+                        self._hide_circuit_ibis(params, new_comp)
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
@@ -2567,7 +2649,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if (isinstance(value, list) and pin.name in value) or pin.name == value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
@@ -2590,7 +2672,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name == value:
+                            if pin.name == value or (isinstance(value, list) and pin.name in value):
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
@@ -2650,3 +2732,43 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     self.results.import_parametrics = False
 
         return data
+
+    def _hide_circuit_ibis(self, params, comp):
+        input_buffer = False
+        output = False
+        if params["buffer"] == "input":
+            input_buffer = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "output":
+            output = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "input_output":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        if params["buffer"] == "three_state":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+
+        comp._change_property("logic_in", True if input_buffer or output else False, value_name="Hidden")
+        comp._change_property("phase_delay", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPS", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPSValue", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("repeat_count", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("step_resp_num_ui", True if input_buffer else False, value_name="Hidden")
+        if self._app._aedt_version > "2025.2":
+            comp._change_property("DataPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_coding", True if input_buffer else False, value_name="Hidden")
+        else:
+            comp._change_property("BitPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last_bit", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_encoding", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("Disable_Tx_Jitter", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("DCDFractionorTime", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("dcd", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txrj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txpj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txuj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txcj", True if input_buffer else False, value_name="Hidden")
