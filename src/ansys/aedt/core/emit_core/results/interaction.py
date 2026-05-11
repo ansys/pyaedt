@@ -228,9 +228,9 @@ class Interaction:
         # Populate both EMI and desense from the single response array.
         instance = InteractionInstance(self.emit_project, domain)
         if instance_values and len(instance_values) >= 3:
-            instance.encoded_emi = int(instance_values[0])
-            instance.encoded_desense = int(instance_values[1])
-            instance.largest_emi_interferer_type = int(instance_values[2])
+            instance._encoded_emi = int(instance_values[0])
+            instance._encoded_desense = int(instance_values[1])
+            instance._largest_emi_interferer_type = int(instance_values[2])
 
         return instance
 
@@ -407,10 +407,10 @@ class Interaction:
         # result type. The other is always 30201 ("not available"), matching old API behavior.
         instance = InteractionInstance(self.emit_project, worst_domain)
         if result_type == ResultType.EMI:
-            instance.encoded_emi = encoded_value
-            instance.largest_emi_interferer_type = worst_int_cat
-            instance.encoded_desense = 30201
+            instance._encoded_emi = encoded_value
+            instance._largest_emi_interferer_type = worst_int_cat
+            instance._encoded_desense = 30201
         else:
-            instance.encoded_desense = encoded_value
-            instance.encoded_emi = 30201
+            instance._encoded_desense = encoded_value
+            instance._encoded_emi = 30201
         return instance

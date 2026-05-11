@@ -42,6 +42,7 @@ import warnings
 
 import pytest
 
+from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1460,12 +1461,29 @@ def test_interference_filtering(interference) -> None:
         [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
         [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
     ]
-    interference_filters = [
-        "TxFundamental:In-band",
-        ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
-        "TxFundamental:Out-of-band",
-        ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
-    ]
+
+    if DESKTOP_VERSION < "2027.1":
+        interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
+            "TxFundamental:Out-of-band",
+            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
+        ]
+    else:
+        interference_filters = [
+            EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
+            [
+                EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
+                EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
+                EMIInterfererType.IN_CHANNEL_BROADBAND,
+            ],
+            EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
+            [
+                EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS,
+                EMIInterfererType.OUT_OF_CHANNEL_TX_INTERMOD,
+                EMIInterfererType.OUT_OF_CHANNEL_TX_BROADBAND,
+            ],
+        ]
 
     for ind in range(4):
         expected_interference_colors = all_interference_colors[ind]
@@ -1716,19 +1734,19 @@ def test_result_categories_with_simulation(emit_app):
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
-    assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_BROADBAND
 
     # disable one category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 2.0
-    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL
 
     # disable another category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == -58.0
-    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS
 
     # disable last existing category and confirm expected exceptions and error messages
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)

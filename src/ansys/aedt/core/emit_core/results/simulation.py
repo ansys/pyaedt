@@ -544,21 +544,38 @@ class Simulation:
                                     # should just be skipped
                                     continue
                             else:
-                                tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                if self.aedt_version < 271:
+                                    tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                else:
+                                    tx_prob = instance.get_largest_emi_problem_type()
                                 power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
                                 <= rx_stop_freq + rx_channel_bandwidth / 2
                             ):
-                                rx_prob = "In-band"
+                                if self.aedt_version < 271:
+                                    rx_prob = "In-band"
+                                else:
+                                    rx_prob = 0
                             else:
-                                rx_prob = "Out-of-band"
-                            prob_filter_val = tx_prob + ":" + rx_prob
+                                if self.aedt_version < 271:
+                                    rx_prob = "Out-of-band"
+                                else:
+                                    rx_prob = 1
+                            if self.aedt_version < 271:
+                                prob_filter_val = tx_prob + ":" + rx_prob
+                            else:
+                                prob_filter_val = (rx_prob, tx_prob[1])
 
                             # Check if problem type is in filtered list of problem types to analyze
                             if use_filter:
-                                in_filters = any(prob_filter_val in sublist for sublist in filter_list)
+                                in_filters = any(
+                                    (prob_filter_val in sublist)
+                                    if isinstance(sublist, list)
+                                    else (prob_filter_val == sublist)
+                                    for sublist in filter_list
+                                )
                             else:
                                 in_filters = True
 
@@ -567,19 +584,34 @@ class Simulation:
                                 max_power = power
                                 largest_rx_prob = rx_prob
                                 prob = instance.get_largest_emi_problem_type()
-                                largest_tx_prob = prob.replace(" ", "").split(":")
+                                if self.aedt_version < 271:
+                                    # prior to 2027.1, the problem type returned as a string
+                                    # with spaces, e.g. "In-Channel: Tx Fundamental"
+                                    largest_tx_prob = prob.replace(" ", "").split(":")
+                                else:
+                                    largest_tx_prob = prob
 
                 if max_power > -200:
                     rx_powers.append(max_power)
 
-                    if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == "In-band":
-                        rx_colors.append("red")
-                    elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == "In-band":
-                        rx_colors.append("orange")
-                    elif largest_tx_prob[-1] == "TxFundamental" and not (largest_rx_prob == "In-band"):
-                        rx_colors.append("yellow")
-                    elif largest_tx_prob[-1] != "TxFundamental" and not (largest_rx_prob == "In-band"):
-                        rx_colors.append("green")
+                    if self.aedt_version < 271:
+                        if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == "In-band":
+                            rx_colors.append("red")
+                        elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == "In-band":
+                            rx_colors.append("orange")
+                        elif largest_tx_prob[-1] == "TxFundamental" and not (largest_rx_prob == "In-band"):
+                            rx_colors.append("yellow")
+                        elif largest_tx_prob[-1] != "TxFundamental" and not (largest_rx_prob == "In-band"):
+                            rx_colors.append("green")
+                    else:
+                        if largest_tx_prob[-1] == 0 and largest_rx_prob == 0:
+                            rx_colors.append("red")
+                        elif largest_tx_prob[-1] != 0 and largest_rx_prob == 0:
+                            rx_colors.append("orange")
+                        elif largest_tx_prob[-1] == 0 and largest_rx_prob != 0:
+                            rx_colors.append("yellow")
+                        elif largest_tx_prob[-1] != 0 and largest_rx_prob != 0:
+                            rx_colors.append("green")
                 else:
                     rx_powers.append("<= -200")
                     rx_colors.append("white")

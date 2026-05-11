@@ -24,6 +24,7 @@
 
 import math
 
+from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.generated.band import Band
 from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node import RxSusceptibilityProfNode
@@ -42,44 +43,12 @@ class InteractionInstance:
         self._encoded_emi = -32768
         self._encoded_desense = -32768
         self._power_at_rx = -200.0  # Power at RX in dBm
-
         self._largest_emi_interferer_type = -11
-
-    @property
-    def encoded_emi(self) -> int:
-        """Get the encoded EMI value in dB * 100."""
-        return self._encoded_emi
-
-    @encoded_emi.setter
-    def encoded_emi(self, value: int) -> None:
-        """Set the encoded EMI value in dB * 100."""
-        self._encoded_emi = value
-
-    @property
-    def encoded_desense(self) -> int:
-        """Get the encoded desense value in dB * 100."""
-        return self._encoded_desense
-
-    @encoded_desense.setter
-    def encoded_desense(self, value: int) -> None:
-        """Set the encoded desense value in dB * 100."""
-        self._encoded_desense = value
 
     @property
     def power_at_rx(self) -> float:
         """Get the power at RX value in dBm."""
         return self._power_at_rx
-
-    @power_at_rx.setter
-    def power_at_rx(self, value: float) -> None:
-        """Set the power at RX value in dBm."""
-        self._power_at_rx = value
-
-    @property
-    def largest_emi_interferer_type(self) -> int:
-        """Get the largest EMI interferer type."""
-        return self._largest_emi_interferer_type
-
 
     @property
     def current_revision(self):
@@ -138,8 +107,8 @@ class InteractionInstance:
         bool
             True if at least one result value is valid, False otherwise.
         """
-        emi_valid = -30000 <= self.encoded_emi <= 30000
-        desense_valid = -30000 <= self.encoded_desense <= 30000
+        emi_valid = -30000 <= self._encoded_emi <= 30000
+        desense_valid = -30000 <= self._encoded_desense <= 30000
         return emi_valid or desense_valid
 
     def get_value(self, result_type: ResultType) -> float:
@@ -168,13 +137,13 @@ class InteractionInstance:
         else:
             # Get encoded result based on type
             if result_type == ResultType.EMI:
-                if self.encoded_emi == 30201:
+                if self._encoded_emi == 30201:
                     raise RuntimeError("EMI value not available.")
-                encoded_result = self.encoded_emi
+                encoded_result = self._encoded_emi
             else:
-                if self.encoded_desense == 30201:
+                if self._encoded_desense == 30201:
                     raise RuntimeError("Desense and sensitivity values not available.")
-                encoded_result = self.encoded_desense
+                encoded_result = self._encoded_desense
 
             # Check for out-of-range encoded results
             if encoded_result > 30000 or encoded_result < -30000:
@@ -210,64 +179,37 @@ class InteractionInstance:
 
         return val
 
-    def get_largest_problem_type(self, result_type: ResultType) -> str:
-        """
-        Get the largest problem type for this interaction.
-
-        Parameters
-        ----------
-        result_type : ResultType
-            The result type to get the largest problem type for.
-
-        Returns
-        -------
-        str
-            The largest problem type for this interaction.
-
-        Raises
-        ------
-        ValueError
-            If the result_type is not EMI.
-        """
-        if result_type != ResultType.EMI:
-            raise RuntimeError("The largest problem type is only available for ResultType.EMI.")
-
-        return self.get_largest_emi_problem_type()
-
-    def get_largest_emi_problem_type(self) -> str:
+    def get_largest_emi_problem_type(self) -> EMIInterfererType:
         """
         Return the largest EMI problem type for this interaction.
 
         Returns
         -------
-        text: str
+        EMIInterfererType
             The largest EMI problem type for this interaction.
+            Example: IN_CHANNEL_TX_FUNDAMENTAL, OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, etc.
 
         Raises
         ------
         RuntimeError
             If the interaction is invalid or values are not available.
         """
-        if not (-30000 <= self.encoded_emi <= 30000):
+        if not (-30000 <= self._encoded_emi <= 30000):
             raise RuntimeError("An EMI value is not available so the largest EMI problem type is undefined.")
 
-        if self.largest_emi_interferer_type == 0:
-            text = "Out-of-Channel: Tx Fundamental"
-        elif self.largest_emi_interferer_type == 1:
-            text = "Out-of-Channel: Tx Harmonic/Spurious"
-        elif self.largest_emi_interferer_type == 3:
-            text = "Out-of-Channel: Intermod"
-        elif self.largest_emi_interferer_type == 7:
-            text = "In-Channel: Tx Fundamental"
-        elif self.largest_emi_interferer_type == 8:
-            text = "In-Channel: Tx Harmonic/Spurious"
-        elif self.largest_emi_interferer_type == 10:
-            text = "In-Channel: Tx Intermod"
-        elif self.largest_emi_interferer_type == 14:
-            text = "In-Channel: Broadband"
-        else:
-            text = f"Error: category {self.largest_emi_interferer_type} not found"
-        return text
+        _INTERFERER_TYPE_MAP = {
+            0: EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
+            1: EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS,
+            3: EMIInterfererType.OUT_OF_CHANNEL_TX_INTERMOD,
+            7: EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
+            8: EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
+            10: EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
+            14: EMIInterfererType.IN_CHANNEL_BROADBAND,
+        }
+        result = _INTERFERER_TYPE_MAP.get(self._largest_emi_interferer_type)
+        if result is None:
+            raise RuntimeError(f"Error: category {self._largest_emi_interferer_type} not found")
+        return result
 
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this instance.

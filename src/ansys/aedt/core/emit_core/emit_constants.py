@@ -68,6 +68,17 @@ class UnitType(MutableEnum):
     RESISTANCE = 6
 
 
+class EMIInterfererType(MutableEnum):
+    IN_CHANNEL_TX_FUNDAMENTAL = (0, 0)
+    IN_CHANNEL_TX_HARMONIC_SPURIOUS = (0, 1)
+    IN_CHANNEL_TX_INTERMOD = (0, 2)
+    IN_CHANNEL_BROADBAND = (0, 3)
+    OUT_OF_CHANNEL_TX_FUNDAMENTAL = (1, 0)
+    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = (1, 1)
+    OUT_OF_CHANNEL_TX_INTERMOD = (1, 2)
+    OUT_OF_CHANNEL_TX_BROADBAND = (1, 3)
+
+
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
     "Frequency": ["Hz", "kHz", "MHz", "GHz", "THz"],

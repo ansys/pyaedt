@@ -232,14 +232,6 @@ def test_run_band_pair(cell_phone):
         instance.get_value(ResultType.SENSITIVITY)
     assert "Desense and sensitivity values not available" in str(e.value)
 
-    with pytest.raises(RuntimeError) as e:
-        instance.get_largest_problem_type(ResultType.DESENSE)
-    assert "The largest problem type is only available for ResultType.EMI." in str(e.value)
-
-    with pytest.raises(RuntimeError) as e:
-        instance.get_largest_problem_type(ResultType.SENSITIVITY)
-    assert "The largest problem type is only available for ResultType.EMI." in str(e.value)
-
     # Now verify alternative requests for worst-case desense
     instance_desense = interaction.get_worst_instance(ResultType.DESENSE)
     value = instance_desense.get_value(ResultType.DESENSE)
