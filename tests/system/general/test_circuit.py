@@ -29,7 +29,9 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Edb
+from ansys.aedt.core.application.analysis_nexxim import SubstrateDataBlock
 from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.constants import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
@@ -39,6 +41,7 @@ from tests.conftest import NON_GRAPHICAL
 TEST_SUBFOLDER = "T21"
 
 DIFF_PROJECT = "differential_pairs_231"
+SUBSTRATES = "all_substrates"
 NETLIST1 = "netlist_small.cir"
 NETLIST2 = "Schematic1.qcv"
 TOUCHSTONE = "SSN_1.5_ssn.s6p"
@@ -63,6 +66,13 @@ def aedt_app(add_app):
 @pytest.fixture
 def circuit_app(add_app_example):
     app = add_app_example(project=DIFF_PROJECT, application=Circuit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
+def substrate_app(add_app_example):
+    app = add_app_example(project=SUBSTRATES, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -572,17 +582,6 @@ def test_netlist_data_block(aedt_app, test_tmp_dir) -> None:
     lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert aedt_app.analyze()
-
-
-def test_datablock_microstrip(aedt_app, test_tmp_dir) -> None:
-    assert aedt_app.add_substrate_microstrip(
-        name="ms",
-        dielectric_height="0.5mm",
-        dielectric_constant="3.3",
-        dielectric_loss_tangent="0.02",
-        air_height="10mm",
-        roughness="1.5um",
-    )
 
 
 def test_create_voltage_probe(aedt_app) -> None:
@@ -1203,3 +1202,313 @@ def test_output_variables(circuit_app) -> None:
             variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
         )
     assert circuit_app.remove_all_unused_definitions()
+
+
+def test_existing_substrates(substrate_app) -> None:
+    assert len(substrate_app.substrate_names) == 9
+    assert len(substrate_app.substrates) == 9
+
+    ms = substrate_app.add_substrate_microstrip(
+        dielectric_height="0.5mm", dielectric_constant="3.3", dielectric_loss_tangent="0.02", air_height="10mm"
+    )
+
+    assert isinstance(ms, SubstrateDataBlock)
+    assert ms.substrate_type == SubstrateType.Microstrip
+
+    assert len(substrate_app.substrate_names) == 10
+    assert len(substrate_app.substrates) == 10
+
+    subs1 = substrate_app.substrates[substrate_app.substrate_names[0]]
+    subs2 = substrate_app.substrates[substrate_app.substrate_names[1]]
+    subs1.name = "new_substrate1"
+    assert "new_substrate1" in substrate_app.substrate_names
+    assert "new_substrate1" in substrate_app.substrates
+
+    # Same name, no operation applied
+    subs1.name = "new_substrate1"
+    assert "new_substrate1" in substrate_app.substrates
+
+    # Existing name
+    subs2.name = "new_substrate1"
+    new_name = subs2.name
+    assert new_name != "new_substrate1"
+
+    # Modify parameter, no way to check if parameter was correctly set
+    subs1.metal_material = "aluminum"
+
+    # Disable auto_update
+    subs1.auto_update = False
+    subs1.metal_material = "copper"
+    subs1.metal_thickness = "1 mil"
+    subs1.roughness = "2pm"
+    assert subs1.update()
+
+    # Remove
+    assert substrate_app.delete_substrate(subs1.name)
+    assert len(substrate_app.substrate_names) == 9
+    assert len(substrate_app.substrates) == 9
+    assert not substrate_app.delete_substrate("invented")
+    pass
+
+
+def test_datablock_microstrip_returns_substrate_object(aedt_app) -> None:
+    sub = aedt_app.add_substrate_microstrip(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        roughness="1pm",
+        name="ms_obj",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.Microstrip
+    assert sub.name == "ms_obj"
+
+
+def test_datablock_stripline(aedt_app) -> None:
+    sub = aedt_app.add_substrate_stripline(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        name="sl",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.Stripline
+    assert sub.name == "sl"
+
+
+def test_datablock_stripline_with_bottom_metal(aedt_app) -> None:
+    sub = aedt_app.add_substrate_stripline(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        name="sl_bm",
+        metal_material="copper",
+        metal_thickness="0.7mil",
+        bottom_metal_material="aluminum",
+        bottom_metal_thickness="0.2mil",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.bottom_metal_material == "aluminum"
+
+
+def test_datablock_suspended_stripline(aedt_app) -> None:
+    sub = aedt_app.add_substrate_suspended_stripline(
+        dielectric_height="1mm",
+        air_height="0.5mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        name="ss",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.SuspendedStripline
+    assert sub.name == "ss"
+
+
+def test_datablock_offset_stripline(aedt_app) -> None:
+    sub = aedt_app.add_substrate_offset_stripline(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        enclosure_width="25mm",
+        enclosure_height="25mm",
+        name="os",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.OffsetStripline
+    assert sub.name == "os"
+
+
+def test_datablock_coplanar_waveguide(aedt_app) -> None:
+    sub = aedt_app.add_substrate_coplanar_waveguide(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        cover_height="25mm",
+        name="cpw",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.CoplanarWaveguide
+    assert sub.name == "cpw"
+    cpw = aedt_app.modeler.schematic.components_catalog.components[
+        "Distributed\\Coplanar Waveguide\\Transmission Lines:NXCPWTRL"
+    ]
+    cpw.place("tr1")
+    pass
+
+
+def test_datablock_coplanar_waveguide_with_cover_metal(aedt_app) -> None:
+    sub = aedt_app.add_substrate_coplanar_waveguide(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        cover_height="25mm",
+        name="cpw_cover",
+        cover_metal_material="aluminum",
+        cover_metal_thickness="0.2mil",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.cover_metal_material == "aluminum"
+
+
+def test_datablock_grounded_coplanar_waveguide(aedt_app) -> None:
+    sub = aedt_app.add_substrate_grounded_coplanar_waveguide(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        bottom_air_height="5mm",
+        top_air_height="5mm",
+        name="gcpw",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.GroundedCoplanarWaveguide
+    assert sub.name == "gcpw"
+
+
+def test_datablock_slotline(aedt_app) -> None:
+    sub = aedt_app.add_substrate_slotline(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        bottom_air_height="5mm",
+        top_air_height="5mm",
+        name="sl6",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.Slotline
+
+
+def test_datablock_rectangular_waveguide(aedt_app) -> None:
+    sub = aedt_app.add_substrate_rectangular_waveguide(
+        num_layers=3,
+        name="rwg",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.RectangularWaveguide
+    assert sub.name == "rwg"
+
+
+def test_datablock_rectangular_waveguide_auto_name(aedt_app) -> None:
+    sub = aedt_app.add_substrate_rectangular_waveguide(num_layers=2)
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.name
+
+
+def test_datablock_substrate_reference(aedt_app) -> None:
+    sub = aedt_app.add_substrate_reference(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        name="subref",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    assert sub.substrate_type == SubstrateType.SubstrateReference
+    assert sub.name == "subref"
+
+
+def test_datablock_substrate_factory_method_direct(aedt_app) -> None:
+    """Test using SubstrateDataBlock factory method and create() directly."""
+    sub = SubstrateDataBlock.microstrip(
+        aedt_app,
+        name="ms_direct",
+        dielectric_height="10mil",
+        dielectric_constant=4.4,
+        loss_tangent=0.02,
+        air_height="25mm",
+        roughness="1pm",
+        metal_material="copper",
+        metal_thickness="0.7mil",
+    )
+    assert isinstance(sub, SubstrateDataBlock)
+    result = sub.create()
+    assert result is sub  # create() returns self
+
+
+def test_datablock_substrate_rename(aedt_app) -> None:
+    sub = aedt_app.add_substrate_microstrip(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        name="rename_me",
+    )
+    sub.rename("renamed_sub")
+    assert sub.name == "renamed_sub"
+
+
+def test_datablock_substrate_remove(aedt_app) -> None:
+    sub = aedt_app.add_substrate_microstrip(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        name="to_remove",
+    )
+    assert sub.remove()
+
+
+def test_datablock_get_all_substrates(aedt_app) -> None:
+    sub1 = aedt_app.add_substrate_microstrip(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        name="get_all_sub1",
+    )
+    sub2 = aedt_app.add_substrate_stripline(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        name="get_all_sub2",
+    )
+    all_subs = aedt_app.get_substrates()
+    assert sub1.name in all_subs
+    assert sub2.name in all_subs
+
+
+def test_datablock_duplicate_name_warns_and_renames(aedt_app) -> None:
+    """Creating a substrate with an already-used name should warn and use a unique name."""
+    aedt_app.add_substrate_microstrip(
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        dielectric_loss_tangent=0.0,
+        air_height="25mm",
+        name="dup_sub",
+    )
+    import warnings as _warnings
+
+    with _warnings.catch_warnings(record=True) as caught:
+        _warnings.simplefilter("always")
+        sub2 = aedt_app.add_substrate_microstrip(
+            dielectric_height="1mm",
+            dielectric_constant=2.2,
+            dielectric_loss_tangent=0.0,
+            air_height="25mm",
+            name="dup_sub",
+        )
+    assert any(issubclass(w.category, UserWarning) and "dup_sub" in str(w.message) for w in caught)
+    assert sub2.name != "dup_sub"  # got a unique auto-generated name
+
+
+def test_datablock_substrate_build_args_microstrip(aedt_app) -> None:
+    """Test _build_args() structure for microstrip without calling AEDT."""
+    sub = SubstrateDataBlock.microstrip(
+        aedt_app,
+        name="ms_args",
+        dielectric_height="1mm",
+        dielectric_constant=2.2,
+        loss_tangent=0.0,
+        air_height="25mm",
+        roughness="",
+    )
+    args = sub._build_args()
+    assert args[0] == "NAME:DataBlock"
+    assert "Name:=" in args
+    assert args[args.index("Name:=") + 1] == "ms_args"
+    assert "Type:=" in args
+    assert args[args.index("Type:=") + 1] == SubstrateType.Microstrip
+    assert "Dielectric:=" in args
+    dielectric = args[args.index("Dielectric:=") + 1]
+    assert dielectric[0] == "1mm"
+    assert dielectric[1] == "2.2"

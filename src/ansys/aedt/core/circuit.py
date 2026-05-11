@@ -35,6 +35,7 @@ import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
+from ansys.aedt.core.application.analysis_nexxim import SubstrateDataBlock
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic import ibis_reader
 from ansys.aedt.core.generic.constants import Setups
@@ -183,6 +184,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
+        self._substrates = {}
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -195,6 +197,46 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return value
         except Exception:
             return from_rkm_to_aedt(value)
+
+    @property
+    def substrate_names(self) -> list[str]:
+        """Return the names of all substrate data blocks in the active Circuit design.
+
+        Returns
+        -------
+        list of str
+            Names of every substrate data block currently defined in the design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.get_substrates()
+        ['Sub1']
+        """
+        result = self.odata_block.GetAllSubstrateDataBlocks()
+        return list(result) if result else []
+
+    @property
+    def substrates(self) -> dict[str, SubstrateDataBlock]:
+        """Get all substrates.
+
+        Returns
+        -------
+        dict[str, SubstrateDataBlock]
+            Dictionary of substrates.
+        """
+        if not self._substrates:
+            props = self.design_properties
+            if not props or "ControlBlocks" not in props or "SubstrateData" not in props["ControlBlocks"]:
+                return self._substrates
+            for entry in props["ControlBlocks"]["SubstrateData"]:
+                try:
+                    obj = SubstrateDataBlock.from_dict(self, entry)
+                    self._substrates[obj.name] = obj
+                except Exception:  # pragma: no cover
+                    self.logger.warning(f"Failed to reconstruct substrate object from: {entry}")
+        return self._substrates
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:
@@ -1476,88 +1518,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_substrate_microstrip(
-        self,
-        name: str,
-        dielectric_height: str,
-        dielectric_constant: float | int,
-        dielectric_loss_tangent: float | int,
-        air_height: str,
-        roughness: str,
-        metal_material: str = "copper",
-        metal_resistivity: float | int = 1.724138,
-        metal_thickness: str = "0.7mil",
-    ) -> bool:
-        """Add a microstrip substrate data block to the circuit design.
-
-        Parameters
-        ----------
-        name : str
-            Name of the substrate data block.
-        dielectric_height : str
-            Height of the dielectric layer, including units (for example, ``"10mil"``).
-        dielectric_constant : float or int
-            Relative permittivity (epsilon-r) of the dielectric.
-        dielectric_loss_tangent : float or int
-            Loss tangent of the dielectric.
-        air_height : str
-            Height of the air region above the substrate, including units.
-        roughness : str
-            Conductor surface roughness value, including units.
-        metal_material : str, optional
-            Conductor material name. The default is ``"copper"``.
-        metal_resistivity : float or int, optional
-            Conductor resistivity value. The default is ``1.724138``.
-        metal_thickness : str, optional
-            Conductor thickness, including units. The default is ``"0.7mil"``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful.
-        """
-        oModule = self.odesign.GetModule("DataBlock")
-        oModule.AddSubstrateDataBlock(
-            [
-                "NAME:DataBlock",
-                "Name:=",
-                name,
-                "Type:=",
-                0,
-                "MetalSpecifyType:=",
-                0,
-                "DielecTempMaterial0:=",
-                "",
-                "DielecTempMaterial1:=",
-                "",
-                "DielecTempMaterial2:=",
-                "",
-                "DielecTempMaterial3:=",
-                "",
-                "DielecTempMaterial4:=",
-                "",
-                "MetalTempMaterial:=",
-                "",
-                "Dielectric:=",
-                [dielectric_height, str(dielectric_constant), str(dielectric_loss_tangent), air_height, "0", "0", "0"],
-                "DielectricRef:=",
-                [0, ""],
-                "Metalization:=",
-                [
-                    "Metal:=",
-                    [metal_material, metal_resistivity, metal_thickness],
-                    "Metal:=",
-                    ["", "", ""],
-                    "Metal:=",
-                    ["", "", ""],
-                    "Roughness:=",
-                    [roughness],
-                ],
-            ]
-        )
-        return True
-
-    @pyaedt_function_handler()
     def browse_log_file(self, input_file: str | Path | None = None) -> Path | None:
         """Save the most recent log file in a new directory.
 
@@ -2830,3 +2790,559 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return False
         self.odesign.RemoveImportData(name)
         return True
+
+    @pyaedt_function_handler()
+    def add_substrate_microstrip(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        air_height: str,
+        roughness: str = "",
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+        name: str | None = None,
+    ) -> "SubstrateDataBlock":
+        """Add a microstrip substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Height of the dielectric layer, including units (for example, ``"10mil"``).
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        air_height : str
+            Height of the air region above the substrate, including units.
+        roughness : str, optional
+            Conductor surface roughness value, including units. The default is ``""``.
+        metal_material : str, optional
+            Conductor material name. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub1 = cir.add_substrate_microstrip("10mil", 4.4, 0.02, "25mm", roughness="1pm")
+        >>> sub2 = cir.add_substrate_microstrip("10mil", 4.4, 0.02, "25mm", name="MySub")
+        """
+        return SubstrateDataBlock.microstrip(
+            self,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            air_height=air_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+            name=name,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_stripline(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+        bottom_metal_material: str = "",
+        bottom_metal_thickness: str = "",
+    ) -> "SubstrateDataBlock":
+        """Add a stripline substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Height of the dielectric layer between the conductor and the ground plane,
+            including units (for example, ``"10mil"``).
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Top conductor material name. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Top conductor thickness, including units. The default is ``"0.7mil"``.
+        bottom_metal_material : str, optional
+            Bottom conductor material name. The default is ``""``.
+        bottom_metal_thickness : str, optional
+            Bottom conductor thickness, including units. The default is ``""``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_stripline("20mil", 4.4, 0.02)
+        """
+        return SubstrateDataBlock.stripline(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+            bottom_metal_material=bottom_metal_material,
+            bottom_metal_thickness=bottom_metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_suspended_stripline(
+        self,
+        dielectric_height: str,
+        air_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add a suspended stripline substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric slab height, including units.
+        air_height : str
+            Air-gap height between the conductor and the dielectric slab, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material name. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_suspended_stripline("1mm", "0.5mm", 2.2, 0.0)
+        """
+        return SubstrateDataBlock.suspended_stripline(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            air_height=air_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_offset_stripline(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        enclosure_width: str,
+        enclosure_height: str,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add an offset stripline substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric layer height, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        enclosure_width : str
+            Enclosure width, including units.
+        enclosure_height : str
+            Enclosure height, including units.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material name. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_offset_stripline("1mm", 2.2, 0.0, "25mm", "25mm")
+        """
+        return SubstrateDataBlock.offset_stripline(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            enclosure_width=enclosure_width,
+            enclosure_height=enclosure_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_coplanar_waveguide(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        cover_height: str,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+        cover_metal_material: str = "",
+        cover_metal_thickness: str = "",
+    ) -> "SubstrateDataBlock":
+        """Add a coplanar waveguide (CPW) substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric layer height, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        cover_height : str
+            Height from the conductor to the metallic cover, including units.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Strip conductor material. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Strip conductor thickness, including units. The default is ``"0.7mil"``.
+        cover_metal_material : str, optional
+            Cover conductor material. The default is ``""``.
+        cover_metal_thickness : str, optional
+            Cover conductor thickness, including units. The default is ``""``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_coplanar_waveguide("1mm", 2.2, 0.0, "25mm")
+        """
+        return SubstrateDataBlock.coplanar_waveguide(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            cover_height=cover_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+            cover_metal_material=cover_metal_material,
+            cover_metal_thickness=cover_metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_grounded_coplanar_waveguide(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        bottom_air_height: str,
+        top_air_height: str,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add a grounded coplanar waveguide (GCPW) substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric slab height, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        bottom_air_height : str
+            Air gap below the dielectric slab, including units.
+        top_air_height : str
+            Air gap above the dielectric slab, including units.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_grounded_coplanar_waveguide("1mm", 2.2, 0.0, "5mm", "5mm")
+        """
+        return SubstrateDataBlock.grounded_coplanar_waveguide(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            bottom_air_height=bottom_air_height,
+            top_air_height=top_air_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_slotline(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        bottom_air_height: str,
+        top_air_height: str,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add a slotline substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric slab height, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        bottom_air_height : str
+            Air gap below the dielectric slab, including units.
+        top_air_height : str
+            Air gap above the dielectric slab, including units.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_slotline("1mm", 2.2, 0.0, "5mm", "5mm")
+        """
+        return SubstrateDataBlock.slotline(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            bottom_air_height=bottom_air_height,
+            top_air_height=top_air_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_rectangular_waveguide(
+        self,
+        num_layers: int,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add a rectangular waveguide substrate data block to the circuit design.
+
+        Parameters
+        ----------
+        num_layers : int
+            Number of dielectric layers in the stack.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_rectangular_waveguide(num_layers=3)
+        """
+        return SubstrateDataBlock.rectangular_waveguide(
+            self,
+            name=name,
+            num_layers=num_layers,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def add_substrate_reference(
+        self,
+        dielectric_height: str,
+        dielectric_constant: float | int,
+        dielectric_loss_tangent: float | int,
+        air_height: str,
+        roughness: str = "",
+        name: str | None = None,
+        metal_material: str = "copper",
+        metal_thickness: str = "0.7mil",
+    ) -> "SubstrateDataBlock":
+        """Add a substrate reference data block to the circuit design.
+
+        A substrate reference is a named substrate used as a reference by
+        transmission-line models in the schematic.
+
+        Parameters
+        ----------
+        dielectric_height : str
+            Dielectric layer height, including units.
+        dielectric_constant : float or int
+            Relative permittivity (epsilon-r) of the dielectric.
+        dielectric_loss_tangent : float or int
+            Loss tangent of the dielectric.
+        air_height : str
+            Air-region height, including units.
+        roughness : str, optional
+            Conductor surface roughness, including units. The default is ``""``.
+        name : str, optional
+            Name of the substrate data block. If ``None``, a unique name is generated
+            automatically. The default is ``None``.
+        metal_material : str, optional
+            Conductor material. The default is ``"copper"``.
+        metal_thickness : str, optional
+            Conductor thickness, including units. The default is ``"0.7mil"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.primitives_circuit.SubstrateDataBlock`
+            Substrate data block object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.add_substrate_reference("1mm", 2.2, 0.0, "25mm")
+        """
+        return SubstrateDataBlock.substrate_reference(
+            self,
+            name=name,
+            dielectric_height=dielectric_height,
+            dielectric_constant=dielectric_constant,
+            loss_tangent=dielectric_loss_tangent,
+            air_height=air_height,
+            roughness=roughness,
+            metal_material=metal_material,
+            metal_thickness=metal_thickness,
+        ).create()
+
+    @pyaedt_function_handler()
+    def delete_substrate(self, name: str) -> bool:
+        """Delete a substrate.
+
+        Parameters
+        ----------
+        name : str
+            Name of the substrate.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.Remove
+        """
+        if name in self.substrate_names:
+            self.odata_block.Remove(name)
+            for s in self._substrates:
+                if s.name == name:
+                    self._substrates.remove(s)
+            return True
+        return False
