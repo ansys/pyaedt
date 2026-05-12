@@ -54,7 +54,7 @@ repos:
     - id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: 4c4d32dbb88444eac57f3fad6e3b1a2d52978f64  # frozen: v0.7.1
+  rev: ad4e7598809ad98cde5aaf52d80040c7ac56e7cf  # frozen: v0.7.2
   hooks:
     - id: add-license-headers
       exclude: |
