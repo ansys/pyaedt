@@ -294,6 +294,14 @@ jobs:
         shell: bash
         run: uv python install ${PYTHON_VERSION}
 
+      - name: Expose uv-managed Python in PATH
+        env:
+          PYTHON_VERSION: ${{ github.event.inputs.python-version }}
+        shell: bash
+        run: |
+          RAW_VERSION=$(python --version 2>&1)
+          echo "RAW_VERSION=${RAW_VERSION}"
+
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
