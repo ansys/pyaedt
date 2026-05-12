@@ -232,6 +232,21 @@ However, you must set up the following environment variables:
     export ANSYSEM_ROOT261=/path/to/Ansys Inc/v261/AnsysEM
     export LD_LIBRARY_PATH=/path/to/Ansys Inc/v261/AnsysEM
 
+.. note::
+    On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
+    for session discovery lives in ``/usr/sbin/ss``, which is **not included in
+    ``$PATH`` by default for non-root users**. If PyAEDT opens a new AEDT session
+    instead of connecting to an existing one, ensure ``/usr/sbin`` is in your
+    ``$PATH``:
+
+    .. code::
+
+        export PATH=$PATH:/usr/sbin
+
+    You can add this line to your ``~/.bashrc`` or ``~/.bash_profile`` to make it
+    permanent. PyAEDT also falls back to reading ``/proc/net/unix`` directly, so
+    session detection works even when ``ss`` is not available.
+
 
 Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
