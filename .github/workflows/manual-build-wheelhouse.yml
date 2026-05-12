@@ -305,6 +305,7 @@ jobs:
           target: 'all'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
+          skip-python-setup: true
 
       - name: Import python package
         env:
