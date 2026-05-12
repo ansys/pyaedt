@@ -9,6 +9,45 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.27.1 <https://github.com/ansys/pyaedt/releases/tag/v0.27.1>`_ - May 12, 2026
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fresnel output clean
+          - `#7641 <https://github.com/ansys/pyaedt/pull/7641>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump urllib3 from 2.6.3 to 2.7.0
+          - `#7642 <https://github.com/ansys/pyaedt/pull/7642>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.27.0
+          - `#7639 <https://github.com/ansys/pyaedt/pull/7639>`_
+
+        * - Skip \`\`check-pr-template\`\` on automated changelog update PRs for release
+          - `#7640 <https://github.com/ansys/pyaedt/pull/7640>`_
+
+
 `0.27.0 <https://github.com/ansys/pyaedt/releases/tag/v0.27.0>`_ - May 11, 2026
 ===============================================================================
 
