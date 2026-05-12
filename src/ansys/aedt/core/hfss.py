@@ -7908,11 +7908,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 t_te_tm = _get_sd("t_te_tm")
                 t_te_tm_inv = _get_sd("t_te_tm_inv")
 
-        # Port impedances for scaling (only when transmission exists)
-        if not is_reflection:
-            imp_top = _get_sd(f"Zo({floquet_ports[0]}:1)")
-            imp_bot = _get_sd(f"Zo({floquet_ports[1]}:1)")
-
         # Build angular grid and a variation index to avoid repeated scans
         theta_max = 0.0
         phi_step = 0.0
