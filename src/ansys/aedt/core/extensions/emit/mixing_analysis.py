@@ -383,16 +383,14 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             )
 
         # Draw intermod tones — non-selected first, then selected on top
-        tone_height = 0.8
-        tone_y = 0.1
         for f_mhz, is_selected in sorted(intermod_tones, key=lambda t: t[1]):
             color = "#FF4444" if is_selected else "#FFB366"
             w = max(min_tone_width, 0.0)
             ax.add_patch(
                 Rectangle(
-                    (f_mhz - w / 2, tone_y),
+                    (f_mhz - w / 2, box_y),
                     w,
-                    tone_height,
+                    box_height,
                     facecolor=color,
                     edgecolor=color,
                     linewidth=0.5,
