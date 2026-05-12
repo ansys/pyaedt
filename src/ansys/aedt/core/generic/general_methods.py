@@ -32,6 +32,7 @@ import inspect
 import itertools
 import logging
 import os
+from pathlib import Path
 import platform
 import re
 import socket
@@ -710,16 +711,85 @@ def number_aware_string_key(s: str) -> tuple:
     return tuple(result)
 
 
-def _run_ss_xlp() -> dict[int, int]:
-    """Run 'ss -xlp' command on Linux to find Unix socket ports.
+def _parse_proc_net_unix(aedt_pids: set) -> dict[int, int]:
+    """Resolve AEDT Unix-socket ports via ``/proc/net/unix`` and ``/proc/<pid>/fd``.
 
-    This function executes the `ss -xlp` command to list Unix sockets and
-    extracts port numbers from AEDT socket filenames.
+    This is a fallback for systems where ``ss`` is unavailable or where
+    ``ss -xlp`` omits the PID field due to insufficient permissions (e.g.
+    RHEL 8 when AEDT runs as a different user).
+
+    Parameters
+    ----------
+    aedt_pids : set
+        Set of AEDT process IDs to resolve.  Only file descriptors belonging
+        to these PIDs are inspected, which keeps the scan fast.
 
     Returns
     -------
     dict[int, int]
-        Dictionary mapping process IDs to port numbers extracted from Unix socket names.
+        Dictionary mapping process IDs to port numbers extracted from Unix
+        socket names (e.g. ``AnsysEMUDS-50051.sock``).
+    """
+    results = {}
+    proc_net_unix = Path("/proc/net/unix")
+    if not proc_net_unix.exists():
+        return results
+
+    # Build inode → port mapping from /proc/net/unix
+    # Format: Num RefCount Protocol Flags Type St Inode Path
+    inode_to_port: dict[str, int] = {}
+    try:
+        for line in proc_net_unix.read_text().splitlines():
+            port_match = re.search(r"-(\d+)\.sock", line)
+            if not port_match:
+                continue
+            parts = line.split()
+            if len(parts) >= 7:
+                inode_to_port[parts[6]] = int(port_match.group(1))
+    except OSError as e:
+        pyaedt_logger.debug(f"Could not read {proc_net_unix}: {e}")
+        return results
+
+    if not inode_to_port:
+        return results
+
+    # Match inodes to the AEDT PIDs via /proc/<pid>/fd symlinks
+    for pid in aedt_pids:
+        fd_dir = Path(f"/proc/{pid}/fd")
+        try:
+            for fd_entry in fd_dir.iterdir():
+                try:
+                    target = fd_entry.readlink()
+                except OSError:
+                    continue
+                # target looks like "socket:[1234567]"
+                inode_match = re.match(r"socket:\[(\d+)]", str(target))
+                if inode_match:
+                    inode = inode_match.group(1)
+                    if inode in inode_to_port:
+                        results[pid] = inode_to_port[inode]
+                        break
+        except (PermissionError, FileNotFoundError):
+            continue
+
+    return results
+
+
+def _run_ss_xlp() -> dict[int, int]:
+    """Discover active AEDT Unix-socket ports on Linux.
+
+    Attempts the following strategies in order:
+
+    1. **``ss -xlp``** — fast, but requires ``iproute2`` and, on RHEL/CentOS 8,
+       only shows ``pid=`` for processes owned by the current user.
+    2. **``/proc/net/unix`` + ``/proc/<pid>/fd``** — always available on Linux
+       via ``procfs``; works regardless of socket ownership.
+
+    Returns
+    -------
+    dict[int, int]
+        Dictionary mapping process IDs to port numbers extracted from Unix
+        socket names (e.g. ``AnsysEMUDS-50051.sock``).
 
     Examples
     --------
@@ -727,34 +797,50 @@ def _run_ss_xlp() -> dict[int, int]:
     >>> _run_ss_xlp()
     {12345: 50051, 67890: 50052}
     """
-    proc = subprocess.run(
-        ["ss", "-xlp"],
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )  # nosec
-    if proc.returncode != 0:
-        raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
+    # Collect AEDT PIDs upfront so the procfs fallback can target them directly
+    aedt_targets = ["ansysedt.exe", "ansysedtsv.exe", "ansysedt", "ansysedtsv"]
+    aedt_pids: set[int] = set()
+    for target in aedt_targets:
+        for pid, _ in _get_target_processes([target]):
+            aedt_pids.add(pid)
 
-    lines = proc.stdout.splitlines()
-    results = {}
+    results: dict[int, int] = {}
 
-    for line in lines:
-        # If the line does not contain "ansysedt.exe", skip it
-        if "ansysedt.exe" not in line:
-            continue
+    # --- Strategy 1: ss -xlp ---
+    # On RHEL 8+, ss omits pid= for processes owned by other users; in that
+    # case we get port info from the socket path but no PID, so we fall through
+    # to Strategy 2 for any PID that is still unresolved.
+    ss_missing = False
+    try:
+        proc = subprocess.run(
+            ["ss", "-xlp"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )  # nosec
+        if proc.returncode == 0:
+            for line in proc.stdout.splitlines():
+                if "ansysedt" not in line.lower():
+                    continue
+                pid_match = re.search(r"pid=(\d+)", line)
+                port_match = re.search(r"-(\d+)\.sock", line)
+                if pid_match and port_match:
+                    results[int(pid_match.group(1))] = int(port_match.group(1))
+        else:
+            pyaedt_logger.debug(f"'ss -xlp' returned non-zero exit code: {proc.stderr.strip()}")
+    except FileNotFoundError:
+        pyaedt_logger.debug("'ss' command not found – falling back to /proc/net/unix")
+        ss_missing = True
+    except Exception as e:
+        pyaedt_logger.debug(f"Unexpected error running 'ss -xlp': {e}")
 
-        # Extract PID from the line (format: "pid=12345")
-        pid_match = re.search(r"pid=(\d+)", line)
-        pid = int(pid_match.group(1)) if pid_match else None
-
-        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
-        port_match = re.search(r"-(\d+)\.sock", line)
-        port = int(port_match.group(1)) if port_match else None
-
-        if pid and port:
-            results[pid] = port
+    # --- Strategy 2: /proc/net/unix + /proc/<pid>/fd ---
+    # Always run if ss was missing, OR for any AEDT PID not yet resolved.
+    unresolved = aedt_pids - results.keys()
+    if ss_missing or unresolved:
+        fallback = _parse_proc_net_unix(aedt_pids if ss_missing else unresolved)
+        results.update(fallback)
 
     return results
 
