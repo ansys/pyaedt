@@ -2639,8 +2639,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
-                    if "buffer" in params:
-                        self._hide_circuit_ibis(params, new_comp)
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
