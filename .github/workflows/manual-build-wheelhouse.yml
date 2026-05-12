@@ -70,7 +70,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -136,7 +136,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -167,7 +167,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -233,7 +233,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -295,7 +295,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@feat/allow-skipping-python-setup
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
