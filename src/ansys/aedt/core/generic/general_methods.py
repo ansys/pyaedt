@@ -810,30 +810,39 @@ def _run_ss_xlp() -> dict[int, int]:
     # On RHEL 8+, ss omits pid= for processes owned by other users; in that
     # case we get port info from the socket path but no PID, so we fall through
     # to Strategy 2 for any PID that is still unresolved.
+    # Try the full path first (/usr/sbin/ss) to handle distros where /usr/sbin
+    # is not in $PATH for non-root users (common on RHEL 8), then fall back to
+    # the bare name in case ss lives elsewhere (e.g. /bin/ss on Debian/Ubuntu).
+    ss_candidates = ["/usr/sbin/ss", "ss"]
     ss_missing = False
-    try:
-        proc = subprocess.run(
-            ["ss", "-xlp"],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )  # nosec
-        if proc.returncode == 0:
-            for line in proc.stdout.splitlines():
-                if "ansysedt" not in line.lower():
-                    continue
-                pid_match = re.search(r"pid=(\d+)", line)
-                port_match = re.search(r"-(\d+)\.sock", line)
-                if pid_match and port_match:
-                    results[int(pid_match.group(1))] = int(port_match.group(1))
-        else:
-            pyaedt_logger.debug(f"'ss -xlp' returned non-zero exit code: {proc.stderr.strip()}")
-    except FileNotFoundError:
-        pyaedt_logger.debug("'ss' command not found – falling back to /proc/net/unix")
-        ss_missing = True
-    except Exception as e:
-        pyaedt_logger.debug(f"Unexpected error running 'ss -xlp': {e}")
+    for ss_cmd in ss_candidates:
+        try:
+            proc = subprocess.run(
+                [ss_cmd, "-xlp"],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )  # nosec
+            if proc.returncode == 0:
+                for line in proc.stdout.splitlines():
+                    if "ansysedt" not in line.lower():
+                        continue
+                    pid_match = re.search(r"pid=(\d+)", line)
+                    port_match = re.search(r"-(\d+)\.sock", line)
+                    if pid_match and port_match:
+                        results[int(pid_match.group(1))] = int(port_match.group(1))
+                ss_missing = False
+                break  # ss worked – no need to try the next candidate
+            else:
+                pyaedt_logger.debug(f"'{ss_cmd} -xlp' returned non-zero exit code: {proc.stderr.strip()}")
+                ss_missing = True
+        except FileNotFoundError:
+            pyaedt_logger.debug(f"'{ss_cmd}' not found – trying next candidate")
+            ss_missing = True
+        except Exception as e:
+            pyaedt_logger.debug(f"Unexpected error running '{ss_cmd} -xlp': {e}")
+            ss_missing = True
 
     # --- Strategy 2: /proc/net/unix + /proc/<pid>/fd ---
     # Always run if ss was missing, OR for any AEDT PID not yet resolved.
