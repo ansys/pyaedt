@@ -225,27 +225,34 @@ Linux support
 ~~~~~~~~~~~~~
 
 PyAEDT works with CPython 3.10 through 3.13 on Linux in AEDT 2022 R2 and later.
-However, you must set up the following environment variables:
+However, you must set up the following environment variables before launching Python.
+Replace the version number and path with your actual AEDT installation:
 
-.. code::
+.. code:: bash
 
-    export ANSYSEM_ROOT261=/path/to/Ansys Inc/v261/AnsysEM
-    export LD_LIBRARY_PATH=/path/to/Ansys Inc/v261/AnsysEM
+    export ANSYSEM_ROOT261=/path/to/AnsysEM/v261/AnsysEM
+    export LD_LIBRARY_PATH=$ANSYSEM_ROOT261:$LD_LIBRARY_PATH
+
+The version suffix in ``ANSYSEM_ROOT<XYZ>`` must match your installed AEDT release
+(for example, ``251`` for 2025 R1, ``252`` for 2025 R2, ``261`` for 2026 R1).
+The default installation path on Linux is typically
+``/opt/AnsysEM/v<XYZ>/AnsysEM`` or ``/usr/ansys_inc/v<XYZ>/AnsysEM``.
 
 .. note::
     On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
-    for session discovery lives in ``/usr/sbin/ss``, which is **not included in
-    ``$PATH`` by default for non-root users**. If PyAEDT opens a new AEDT session
-    instead of connecting to an existing one, ensure ``/usr/sbin`` is in your
-    ``$PATH``:
+    for session discovery lives in ``/usr/sbin/ss``, which may not be included in
+    ``$PATH`` by default for non-root users. PyAEDT automatically probes
+    ``/usr/sbin/ss`` and falls back to reading ``/proc/net/unix`` directly, so
+    session detection works in most cases without any configuration changes.
+
+    If you still experience issues with PyAEDT opening a new AEDT session instead
+    of connecting to an existing one, you can add ``/usr/sbin`` to your ``$PATH``
+    permanently:
 
     .. code::
 
-        export PATH=$PATH:/usr/sbin
-
-    You can add this line to your ``~/.bashrc`` or ``~/.bash_profile`` to make it
-    permanent. PyAEDT also falls back to reading ``/proc/net/unix`` directly, so
-    session detection works even when ``ss`` is not available.
+        echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc
+        source ~/.bashrc
 
 
 Install offline from a wheelhouse
