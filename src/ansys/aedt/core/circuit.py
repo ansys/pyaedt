@@ -184,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self._substrate_manager = None
+        self._substrate_manager: SubstrateManager | None = None
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
