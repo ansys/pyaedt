@@ -171,7 +171,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                         ) from e
                     else:
                         self.logger.add_warning_message(
-                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is zero"
+                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is set to zero."
                         )
                         loss = 0
 
