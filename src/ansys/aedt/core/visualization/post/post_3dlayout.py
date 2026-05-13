@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 if TYPE_CHECKING:
@@ -157,9 +158,22 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 }
                 if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
                     self._app.post.fields_calculator.delete_expression(my_expression["name"])
-                self._app.post.fields_calculator.add_expression(my_expression, "")
 
-                loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                try:
+                    self._app.post.fields_calculator.add_expression(my_expression, "")
+                    loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                except Exception as e:  # pragma: no cover
+                    if settings.release_on_exception:
+                        raise GrpcApiError(
+                            f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`. "
+                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead "
+                            "of raising."
+                        ) from e
+                    else:
+                        self.logger.add_warning_message(
+                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is set to zero."
+                        )
+                        loss = 0
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
 
