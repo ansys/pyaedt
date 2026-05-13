@@ -1508,7 +1508,7 @@ class SubstrateDataBlock(PyAedtBase):
             Reconstructed substrate object.
 
         """
-        import re as _re
+        import re
 
         name = data.get("Name", "")
         substrate_type = SubstrateType(int(data.get("Type", 0)))
@@ -1533,7 +1533,7 @@ class SubstrateDataBlock(PyAedtBase):
             entry = str(met_list[i])
             if entry.startswith("Metal("):
                 mat_raw = entry  # e.g. "Metal('copper'"
-                mat_match = _re.search(r"Metal\('([^']*)'\s*$|Metal\('([^']*)'", mat_raw)
+                mat_match = re.search(r"Metal\('([^']*)'\s*$|Metal\('([^']*)'", mat_raw)
                 metal_mat = ""
                 if mat_match:
                     metal_mat = mat_match.group(1) or mat_match.group(2) or ""
@@ -1543,12 +1543,12 @@ class SubstrateDataBlock(PyAedtBase):
                 except ValueError:
                     res_val = res_raw
                 thick_raw = str(met_list[i + 2]) if i + 2 < len(met_list) else ""
-                thick_match = _re.search(r"'([^']*)'", thick_raw)
+                thick_match = re.search(r"'([^']*)'", thick_raw)
                 metal_thick = thick_match.group(1) if thick_match else thick_raw
                 metals.append([metal_mat, res_val, metal_thick])
                 i += 3
             elif entry.startswith("Roughness("):
-                rough_match = _re.search(r"Roughness\('([^']*)'\)", entry)
+                rough_match = re.search(r"Roughness\('([^']*)'\)", entry)
                 roughness = rough_match.group(1) if rough_match else ""
                 i += 1
             else:
