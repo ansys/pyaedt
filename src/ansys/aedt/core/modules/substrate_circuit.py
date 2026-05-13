@@ -933,11 +933,6 @@ class SubstrateDataBlock(PyAedtBase):
             self.update()
 
     @classmethod
-    def _create_and_push(cls, instance: "SubstrateDataBlock") -> "SubstrateDataBlock":
-        """Call create() on a fully-constructed instance and return it."""
-        return instance.create()
-
-    @classmethod
     def microstrip(
         cls,
         app,
@@ -980,7 +975,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), air_height, "0", "0", "0"]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.Microstrip,
@@ -988,7 +983,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def stripline(
@@ -1036,7 +1033,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent)]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.Stripline,
@@ -1046,7 +1043,9 @@ class SubstrateDataBlock(PyAedtBase):
             bottom_metal_material=bottom_metal_material,
             bottom_metal_thickness=bottom_metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def suspended_stripline(
@@ -1091,7 +1090,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, air_height, str(dielectric_constant), str(loss_tangent)]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.SuspendedStripline,
@@ -1099,7 +1098,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def offset_stripline(
@@ -1147,7 +1148,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), enclosure_width, enclosure_height]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.OffsetStripline,
@@ -1155,7 +1156,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def coplanar_waveguide(
@@ -1206,7 +1209,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), cover_height]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.CoplanarWaveguide,
@@ -1216,7 +1219,9 @@ class SubstrateDataBlock(PyAedtBase):
             cover_metal_material=cover_metal_material,
             cover_metal_thickness=cover_metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def grounded_coplanar_waveguide(
@@ -1264,7 +1269,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), bottom_air_height, top_air_height]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.GroundedCoplanarWaveguide,
@@ -1272,7 +1277,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def slotline(
@@ -1320,7 +1327,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), bottom_air_height, top_air_height]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.Slotline,
@@ -1328,7 +1335,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def rectangular_waveguide(
@@ -1364,7 +1373,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [str(num_layers), "0", str(num_layers)]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.RectangularWaveguide,
@@ -1372,7 +1381,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def substrate_reference(
@@ -1420,7 +1431,7 @@ class SubstrateDataBlock(PyAedtBase):
 
         """
         dielectric = [dielectric_height, str(dielectric_constant), str(loss_tangent), air_height, "0.0", "0.0", "0.0"]
-        return cls(
+        obj = cls(
             app,
             name=name,
             substrate_type=SubstrateType.SubstrateReference,
@@ -1428,7 +1439,9 @@ class SubstrateDataBlock(PyAedtBase):
             metal_material=metal_material,
             metal_thickness=metal_thickness,
             roughness=roughness,
-        ).create()
+        )
+        obj.create()
+        return obj
 
     @classmethod
     def from_dict(cls, app, data: dict) -> "SubstrateDataBlock":
@@ -1565,14 +1578,9 @@ class SubstrateDataBlock(PyAedtBase):
         ]
 
     @pyaedt_function_handler()
-    def create(self) -> "SubstrateDataBlock":
+    def create(self) -> None:
         """
         Push the substrate data block to the active Circuit design.
-
-        Returns
-        -------
-        SubstrateDataBlock
-            The current instance (``self``) so the call can be chained.
 
         Examples
         --------
@@ -1597,7 +1605,6 @@ class SubstrateDataBlock(PyAedtBase):
             self._app.substrate._substrates[self.name] = self
         except Exception as e:  # pragma: no cover
             raise AEDTRuntimeError(f"Failed to create substrate data block '{self.name}': {e}") from e
-        return self
 
     @pyaedt_function_handler()
     def update(self) -> bool:
