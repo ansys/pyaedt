@@ -78,6 +78,8 @@ def get_linux_terminal_command():
         return [terminal_exe, "-e"]
     elif terminal == "xterm":
         return [terminal_exe, "-e"]
+    elif terminal == "xfce4-terminal":
+        return [terminal_exe, "-e"]
     elif terminal == "gnome-terminal":
         return [terminal_exe, "--"]
     elif terminal == "lxterminal":
