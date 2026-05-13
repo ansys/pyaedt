@@ -32,11 +32,12 @@ from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDoma
 
 
 class InteractionInstance:
-    def __init__(self, emit_obj, domain: InteractionDomain):
+    def __init__(self, emit_obj, domain: InteractionDomain, revision):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
 
         self.domain = domain
+        self.revision = revision
 
         # Encoded values are in dB * 100
         # Values <-30000 or >30000 are non-numeric results
@@ -49,11 +50,6 @@ class InteractionInstance:
     def power_at_rx(self) -> float:
         """Get the power at RX value in dBm."""
         return self._power_at_rx
-
-    @property
-    def current_revision(self):
-        """Current active Revision. Always reflects the active revision from the project."""
-        return self.emit_project.results.current_revision
 
     def get_result_warning(self) -> str:
         """Get the result warning for this interaction.
@@ -89,8 +85,8 @@ class InteractionInstance:
                 return "Error in configuration."
             elif self._encoded_emi == 30200:
                 return "N to 1 results not available in Scenario Details."
-            elif self._encoded_emi == 30201:
-                return "Result not available."
+            elif self._encoded_emi == -30270:
+                return "Radio pair disabled."
             elif self._encoded_emi > 30000 or self._encoded_emi < -30000:
                 return f"Invalid encoded value: {self._encoded_emi}"
         return ""
@@ -154,12 +150,12 @@ class InteractionInstance:
             if result_type == ResultType.EMI or result_type == ResultType.DESENSE:
                 val = encoded_result / 100.0
             elif result_type == ResultType.SENSITIVITY:
-                sim = self.current_revision.get_simulation()
+                sim = self.revision.get_simulation()
                 status = sim.is_domain_valid(self.domain)
                 if status != "":
                     raise RuntimeError(status)
                 val = encoded_result / 100.0  # desense
-                rx_band: Band = self.current_revision.get_band_node(self.domain.receiver_band_name)
+                rx_band: Band = self.revision.get_band_node(self.domain.receiver_band_name)
                 if rx_band is None:
                     raise RuntimeError(f"Could not find the band {self.domain.receiver_band_name} for the receiver.")
                 rx_sus_prof: RxSusceptibilityProfNode = next(
@@ -169,7 +165,7 @@ class InteractionInstance:
                     raise RuntimeError(
                         f"Could not find RxSusceptibilityProfNode for band {self.domain.receiver_band_name}."
                     )
-                val = rx_sus_prof.receiver_sensitivity + max(val, 0)
+                val = rx_sus_prof.min_receive_signal_pwr + max(val, 0)
 
         # Round to the nearest 2 decimal places
         if val < 0:
@@ -233,7 +229,7 @@ class InteractionInstance:
             raise RuntimeError("Power at Rx requires a fully-specified single-instance domain.")
         try:
             power_at_rx = self.emit_project._emit_com_module.GetPowerAtRx(
-                self.emit_project.results.current_revision.results_index,
+                self.revision.results_index,
                 self.domain.receiver_name,
                 self.domain.receiver_band_name,
                 self.domain.receiver_channel_frequency,
