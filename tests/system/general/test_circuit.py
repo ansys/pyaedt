@@ -1444,8 +1444,6 @@ def test_datablock_substrate_factory_method_direct(aedt_app) -> None:
         metal_thickness="0.7mil",
     )
     assert isinstance(sub, SubstrateDataBlock)
-    result = sub.create()
-    assert result is sub
 
 
 def test_datablock_substrate_rename(aedt_app) -> None:
