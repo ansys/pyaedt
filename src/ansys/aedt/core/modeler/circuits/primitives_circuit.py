@@ -1002,7 +1002,7 @@ class CircuitComponents(PyAedtBase):
         ----------
         model_name : str
             Name of the Touchstone model or full path to touchstone file.
-            If full touchstone is provided then, new model will be created.
+            If full touchstone is provided and model name doesn't exist in AEDT a new model will be created.
         location : list of float, optional
             Position on the X  and Y axis.
         angle : float, optional
@@ -1037,15 +1037,23 @@ class CircuitComponents(PyAedtBase):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
+        m_name = ""
+        if Path(model_name).is_file():
+            m_name = Path(Path(model_name).name).stem
+            if "." in m_name:
+                m_name = model_name.replace(".", "_")
+            if m_name not in list(self.omodel_manager.GetNames()):
+                m_name = ""
+            else:
+                self.logger.info(f"Model {m_name} already exists. Using it for new component.")
+        model_name = (
+            m_name
+            if m_name
+            else self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
+        )
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        # id = self.create_unique_id()
-        if Path(model_name).exists():
-            model_name = self.create_model_from_touchstone(
-                str(model_name), show_bitmap=show_bitmap, image_path=image_path
-            )
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
