@@ -174,6 +174,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             "receiver",
             "rx_band",
             "rx_channel_mhz",
+            "rx_ch_bw_mhz",
             "tx1",
             "tx2",
             "tx3",
@@ -210,6 +211,12 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         self._canvas = FigureCanvasTkAgg(self._fig, master=plot_frame)
         self._canvas.get_tk_widget().pack(fill=tkinter.BOTH, expand=True)
         self._canvas.mpl_connect("motion_notify_event", self._on_hover)
+        self._canvas.mpl_connect("scroll_event", self._on_scroll)
+        self._canvas.mpl_connect("button_press_event", self._on_press)
+        self._canvas.mpl_connect("button_release_event", self._on_release)
+        self._canvas.mpl_connect("motion_notify_event", self._on_drag)
+        self._zoom_default = None  # (x_min, x_max) stored after first plot
+        self._drag_start = None  # x-data coordinate where drag began
 
     # ------------------------------------------------------------------ #
     #  Table helpers
@@ -218,6 +225,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         "receiver": "Receiver",
         "rx_band": "Rx Band",
         "rx_channel_mhz": "Rx Channel (MHz)",
+        "rx_ch_bw_mhz": "Rx Ch BW (MHz)",
         "tx1": "Tx1",
         "tx2": "Tx2",
         "tx3": "Tx3",
@@ -379,6 +387,68 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             self._hover_annotation.set_visible(False)
             self._canvas.draw_idle()
 
+    # ------------------------------------------------------------------ #
+    #  Zoom / pan helpers
+    # ------------------------------------------------------------------ #
+    def _on_scroll(self, event):
+        """Zoom in/out centred on the cursor via scroll wheel."""
+        if event.inaxes != self._ax:
+            return
+        factor = 0.8 if event.button == "up" else 1.25
+        x_min, x_max = self._ax.get_xlim()
+        x_center = event.xdata
+        new_half = (x_max - x_min) / 2.0 * factor
+        self._ax.set_xlim(x_center - new_half, x_center + new_half)
+        self._canvas.draw_idle()
+
+    def _on_press(self, event):
+        """Start a drag-zoom on left click; reset zoom on double-click."""
+        if event.inaxes != self._ax:
+            return
+        if event.dblclick:
+            if self._zoom_default:
+                self._ax.set_xlim(*self._zoom_default)
+                self._canvas.draw_idle()
+            self._drag_start = None
+            return
+        if event.button == 1:
+            self._drag_start = event.xdata
+            self._drag_rect = None
+
+    def _on_drag(self, event):
+        """Draw a selection rectangle while dragging."""
+        if self._drag_start is None or event.inaxes != self._ax or event.button != 1:
+            return
+        # Remove previous rectangle if any
+        if getattr(self, "_drag_rect", None) is not None:
+            self._drag_rect.remove()
+        x0 = min(self._drag_start, event.xdata)
+        x1 = max(self._drag_start, event.xdata)
+        y_min, y_max = self._ax.get_ylim()
+        self._drag_rect = Rectangle(
+            (x0, y_min), x1 - x0, y_max - y_min,
+            facecolor="#ccccff", alpha=0.3, edgecolor="#4444aa", linewidth=0.8,
+        )
+        self._ax.add_patch(self._drag_rect)
+        self._canvas.draw_idle()
+
+    def _on_release(self, event):
+        """Finish drag-zoom: set x-limits to the dragged region."""
+        if self._drag_start is None or event.inaxes != self._ax:
+            self._drag_start = None
+            return
+        if getattr(self, "_drag_rect", None) is not None:
+            self._drag_rect.remove()
+            self._drag_rect = None
+        x0 = min(self._drag_start, event.xdata)
+        x1 = max(self._drag_start, event.xdata)
+        self._drag_start = None
+        # Only zoom if the drag was meaningful (> 0.5% of current range)
+        cur_min, cur_max = self._ax.get_xlim()
+        if (x1 - x0) > (cur_max - cur_min) * 0.005:
+            self._ax.set_xlim(x0, x1)
+            self._canvas.draw_idle()
+
     def _update_plot(self):
         """Re-draw the plot based on current treeview selection."""
         ax = self._ax
@@ -459,6 +529,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         x_max = freq_max_mhz + pad
 
         ax.set_xlim(x_min, x_max)
+        self._zoom_default = (x_min, x_max)
         ax.set_xlabel("Frequency (MHz)")
         ax.get_yaxis().set_visible(False)
 
@@ -717,6 +788,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                             "receiver": rx_radio,
                             "rx_band": rx_band,
                             "rx_channel_mhz": f"{rx_freq * _HZ_TO_MHZ:.4f}",
+                            "rx_ch_bw_mhz": f"{ch_bw * _HZ_TO_MHZ:.4f}",
                             "tx1": txs[0][0],
                             "tx2": txs[1][0],
                             "tx1_freq_mhz": f"{txs[0][2] * _HZ_TO_MHZ:.4f}",
