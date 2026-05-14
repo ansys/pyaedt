@@ -36,6 +36,7 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+from ansys.aedt.core.emit_core.nodes.generated.tx_spectral_prof_node import TxSpectralProfNode
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 
 EXTENSION_TITLE = "EMIT Mixing Analysis"
@@ -44,17 +45,33 @@ EXTENSION_DEFAULT_ARGUMENTS = {}
 # Conversion factor from Hz to MHz
 _HZ_TO_MHZ = 1e-6
 
+# Colour palette for stacked tone segments (cycles through these)
+_TONE_COLORS = [
+    "#e6194b",
+    "#3cb44b",
+    "#ffe119",
+    "#4363d8",
+    "#f58231",
+    "#911eb4",
+    "#42d4f4",
+    "#f032e6",
+    "#bfef45",
+    "#fabed4",
+]
+
 
 class MixingAnalysisExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for intermodulation (mixing) analysis."""
 
     def __init__(self, withdraw: bool = False) -> None:
         self._revision = None
-        self._tx_data = []  # list of (radio_name, band_name, [freq_hz, ...])
-        self._rx_data = []  # list of (radio_name, band_name, [freq_hz, ...], ch_bw_hz)
+        self._tx_data = []  # [(radio_name, band_name, [freq_hz], peak_power_dbm, ch_bw_hz)]
+        self._rx_data = []  # [(radio_name, band_name, [freq_hz], ch_bw_hz)]
         self._results = []  # list of result dicts for the table
         self._item_to_result = {}  # treeview item id -> index into _results
         self._group_to_rx = {}  # treeview group item id -> (rx_radio, rx_band)
+        self._hover_annotation = None  # matplotlib annotation used for hover tooltip
+        self._tone_patches = []  # list of (Rectangle, tooltip_text) for hover
         super().__init__(
             EXTENSION_TITLE,
             withdraw=withdraw,
@@ -166,6 +183,8 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             "order",
             "coefficients",
             "intermod_freq_mhz",
+            "intermod_power_dbm",
+            "intermod_bw_mhz",
         )
         self._two_tone_columns = tuple(c for c in self._all_columns if "tx3" not in c)
 
@@ -190,6 +209,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         self._ax = self._fig.add_subplot(111)
         self._canvas = FigureCanvasTkAgg(self._fig, master=plot_frame)
         self._canvas.get_tk_widget().pack(fill=tkinter.BOTH, expand=True)
+        self._canvas.mpl_connect("motion_notify_event", self._on_hover)
 
     # ------------------------------------------------------------------ #
     #  Table helpers
@@ -207,6 +227,8 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         "order": "Order",
         "coefficients": "Coefficients",
         "intermod_freq_mhz": "Intermod Freq (MHz)",
+        "intermod_power_dbm": "IM Power (dBm)",
+        "intermod_bw_mhz": "IM BW (MHz)",
     }
 
     def _configure_table_columns(self, three_tone: bool) -> None:
@@ -280,10 +302,43 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         """Handle treeview selection change and refresh the plot."""
         self._update_plot()
 
+    def _on_hover(self, event):
+        """Show tooltip when the cursor is over an intermod tone patch."""
+        if event.inaxes != self._ax:
+            if self._hover_annotation and self._hover_annotation.get_visible():
+                self._hover_annotation.set_visible(False)
+                self._canvas.draw_idle()
+            return
+
+        for patch, tip in self._tone_patches:
+            if patch.contains_point((event.x, event.y)):
+                if self._hover_annotation is None:
+                    self._hover_annotation = self._ax.annotate(
+                        "",
+                        xy=(0, 0),
+                        xytext=(10, 10),
+                        textcoords="offset points",
+                        bbox=dict(boxstyle="round,pad=0.3", fc="#ffffcc", ec="gray", alpha=0.95),
+                        fontsize=7,
+                        ha="left",
+                        va="bottom",
+                    )
+                self._hover_annotation.xy = (event.xdata, event.ydata)
+                self._hover_annotation.set_text(tip)
+                self._hover_annotation.set_visible(True)
+                self._canvas.draw_idle()
+                return
+
+        if self._hover_annotation and self._hover_annotation.get_visible():
+            self._hover_annotation.set_visible(False)
+            self._canvas.draw_idle()
+
     def _update_plot(self):
         """Re-draw the plot based on current treeview selection."""
         ax = self._ax
         ax.clear()
+        self._tone_patches = []
+        self._hover_annotation = None
 
         selected_items = set(self._tree.selection())
         if not selected_items and not self._results:
@@ -295,11 +350,9 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
         visible_rx_keys = set()
 
         for item in selected_items:
-            # Is it a group node?
             if item in self._group_to_rx:
                 rx_key = self._group_to_rx[item]
                 visible_rx_keys.add(rx_key)
-                # All children are selected
                 for child in self._tree.get_children(item):
                     if child in self._item_to_result:
                         selected_indices.add(self._item_to_result[child])
@@ -313,18 +366,18 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             self._canvas.draw_idle()
             return
 
-        # Collect all intermod results that belong to visible Rx groups
+        # Collect all results in visible Rx groups
         all_indices_for_groups = set()
         for idx, row in enumerate(self._results):
             if (row["receiver"], row["rx_band"]) in visible_rx_keys:
                 all_indices_for_groups.add(idx)
 
-        # Determine frequency range for the x-axis (in MHz)
+        # Determine frequency range (MHz)
         freq_min_mhz = float("inf")
         freq_max_mhz = float("-inf")
 
         # Gather Rx band boxes
-        rx_boxes = []  # list of (x_left_mhz, x_right_mhz, label)
+        rx_boxes = []  # (x_left_mhz, x_right_mhz, label)
         for rx_radio, rx_band in visible_rx_keys:
             channels_hz, ch_bw_hz = self._get_rx_info_for_key(rx_radio, rx_band)
             if not channels_hz:
@@ -342,34 +395,37 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             freq_min_mhz = min(freq_min_mhz, (min(channels_hz) - half_bw) * _HZ_TO_MHZ)
             freq_max_mhz = max(freq_max_mhz, (max(channels_hz) + half_bw) * _HZ_TO_MHZ)
 
-        # Gather intermod tones
-        intermod_tones = []  # (freq_mhz, is_selected)
+        # Gather intermod tones (freq_mhz, half_bw_mhz, power_dbm, is_selected, idx)
+        raw_tones = []
         for idx in all_indices_for_groups:
-            f_mhz = self._results[idx]["_intermod_freq_hz"] * _HZ_TO_MHZ
-            intermod_tones.append((f_mhz, idx in selected_indices))
-            freq_min_mhz = min(freq_min_mhz, f_mhz)
-            freq_max_mhz = max(freq_max_mhz, f_mhz)
+            r = self._results[idx]
+            f_mhz = r["_intermod_freq_hz"] * _HZ_TO_MHZ
+            half_bw_mhz = r["_intermod_bw_hz"] * _HZ_TO_MHZ / 2.0
+            power_dbm = r["_intermod_power_dbm"]
+            raw_tones.append((f_mhz, half_bw_mhz, power_dbm, idx in selected_indices, idx))
+            freq_min_mhz = min(freq_min_mhz, f_mhz - half_bw_mhz)
+            freq_max_mhz = max(freq_max_mhz, f_mhz + half_bw_mhz)
 
-        # Add some padding to the x-axis
+        # Padding
         span = max(freq_max_mhz - freq_min_mhz, 1.0)
         pad = span * 0.05
         x_min = freq_min_mhz - pad
         x_max = freq_max_mhz + pad
 
         ax.set_xlim(x_min, x_max)
-        ax.set_ylim(0, 1)
         ax.set_xlabel("Frequency (MHz)")
         ax.get_yaxis().set_visible(False)
 
-        # Compute minimum intermod width in data units (2 pixels)
+        # Minimum width in data units (2 px)
         fig_width_px = max(self._fig.get_figwidth() * self._fig.dpi, 1)
-        axes_width_frac = ax.get_position().width
+        axes_frac = ax.get_position().width
         data_range = x_max - x_min
-        min_tone_width = (2.0 / (fig_width_px * axes_width_frac)) * data_range
+        min_half_w = (1.0 / (fig_width_px * axes_frac)) * data_range  # 1 px each side
 
-        # Draw Rx channel boxes (light blue)
         box_height = 0.4
         box_y = 0.3
+
+        # Draw Rx boxes (light blue)
         for left, right, label in rx_boxes:
             ax.add_patch(
                 Rectangle(
@@ -379,24 +435,55 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                     facecolor="#ADD8E6",
                     edgecolor="#4682B4",
                     linewidth=0.8,
+                    zorder=1,
                 )
             )
 
-        # Draw intermod tones — non-selected first, then selected on top
-        for f_mhz, is_selected in sorted(intermod_tones, key=lambda t: t[1]):
-            color = "#FF4444" if is_selected else "#FFB366"
-            w = max(min_tone_width, 0.0)
-            ax.add_patch(
-                Rectangle(
-                    (f_mhz - w / 2, box_y),
-                    w,
-                    box_height,
+        # --- Group overlapping tones into frequency bins ---
+        # Two tones overlap if their BW regions intersect.  For simplicity we
+        # bin by centre frequency rounded to a resolution that captures the
+        # minimum displayable width.
+        bin_res = max(min_half_w * 2, 1e-6)
+        bins = defaultdict(list)  # bin_key -> list of tone tuples
+        for tone in raw_tones:
+            f_mhz = tone[0]
+            bins[round(f_mhz / bin_res)].append(tone)
+
+        # Draw stacked segments per bin
+        for _key, tones_in_bin in bins.items():
+            # Sort: non-selected first so selected segments stand out
+            tones_in_bin.sort(key=lambda t: t[3])
+            n = len(tones_in_bin)
+            seg_h = box_height / max(n, 1)
+
+            # Build tooltip text listing all contributors
+            tip_lines = []
+            for f_mhz, hbw, pwr, is_sel, idx in tones_in_bin:
+                r = self._results[idx]
+                tip_lines.append(
+                    f"{r['coefficients']}  f={f_mhz:.4f} MHz  "
+                    f"P={pwr:.1f} dBm  BW={hbw * 2:.4f} MHz"
+                )
+            tooltip = "\n".join(tip_lines)
+
+            for si, (f_mhz, hbw, pwr, is_sel, idx) in enumerate(tones_in_bin):
+                hw = max(hbw, min_half_w)
+                color = _TONE_COLORS[si % len(_TONE_COLORS)]
+                y0 = box_y + si * seg_h
+                rect = Rectangle(
+                    (f_mhz - hw, y0),
+                    2 * hw,
+                    seg_h,
                     facecolor=color,
-                    edgecolor=color,
-                    linewidth=0.5,
+                    edgecolor="black",
+                    linewidth=0.4,
+                    alpha=0.85 if is_sel else 0.55,
+                    zorder=3 if is_sel else 2,
                 )
-            )
+                ax.add_patch(rect)
+                self._tone_patches.append((rect, tooltip))
 
+        ax.set_ylim(0, 1)
         self._fig.tight_layout()
         self._canvas.draw_idle()
 
@@ -431,8 +518,16 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             bands = self._revision.get_all_band_nodes(radio=radio, tx_rx_mode=TxRxMode.TX, enabled_only=True)
             for band in bands:
                 channels = self._enumerate_channels(band)
-                if channels:
-                    self._tx_data.append((radio.name, band.name, channels))
+                if not channels:
+                    continue
+                # Get peak power from the TxSpectralProfNode child of this band
+                peak_power_dbm = 0.0
+                for child in band.children:
+                    if isinstance(child, TxSpectralProfNode):
+                        peak_power_dbm = child.peak_power
+                        break
+                ch_bw = band.channel_bandwidth  # Hz
+                self._tx_data.append((radio.name, band.name, channels, peak_power_dbm, ch_bw))
 
         self._rx_data = []
         for radio in rx_radios:
@@ -480,25 +575,32 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
 
         Parameters
         ----------
-        tx_entries : list[tuple[str, str, float]]
-            Flat list of ``(radio_name, band_name, freq_hz)`` per channel.
+        tx_entries : list[tuple[str, str, float, float, float]]
+            Flat list of ``(radio_name, band_name, freq_hz, power_dbm, ch_bw_hz)``
+            per channel.
         max_order : int
             Highest intermod order to compute.
         """
         products = []
         coeffs_list = list(self._intermod_coefficients(2, max_order))
-        for (i, (r1, b1, f1)), (j, (r2, b2, f2)) in combinations(enumerate(tx_entries), 2):
+        for (i, (r1, b1, f1, p1, bw1)), (j, (r2, b2, f2, p2, bw2)) in combinations(enumerate(tx_entries), 2):
             if r1 == r2:
                 continue  # different transmitters only
             for (m, n), order in coeffs_list:
                 f_im = m * f1 + n * f2
                 if f_im > 0:
+                    # IM power: sum of |coeff| * power for each tone (dBm)
+                    im_power = abs(m) * p1 + abs(n) * p2
+                    # BW expansion: sum of |coeff| * BW for each tone
+                    im_bw = abs(m) * bw1 + abs(n) * bw2
                     products.append(
                         {
-                            "tx_radios": [(r1, b1, f1), (r2, b2, f2)],
+                            "tx_radios": [(r1, b1, f1, p1, bw1), (r2, b2, f2, p2, bw2)],
                             "coefficients": (m, n),
                             "order": order,
                             "intermod_freq_hz": f_im,
+                            "intermod_power_dbm": im_power,
+                            "intermod_bw_hz": im_bw,
                         }
                     )
         return products
@@ -508,26 +610,33 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
 
         Parameters
         ----------
-        tx_entries : list[tuple[str, str, float]]
-            Flat list of ``(radio_name, band_name, freq_hz)`` per channel.
+        tx_entries : list[tuple[str, str, float, float, float]]
+            Flat list of ``(radio_name, band_name, freq_hz, power_dbm, ch_bw_hz)``
+            per channel.
         max_order : int
             Highest intermod order to compute.
         """
         products = []
         coeffs_list = list(self._intermod_coefficients(3, max_order))
-        for (i, (r1, b1, f1)), (j, (r2, b2, f2)), (k, (r3, b3, f3)) in combinations(enumerate(tx_entries), 3):
+        for (i, (r1, b1, f1, p1, bw1)), (j, (r2, b2, f2, p2, bw2)), (k, (r3, b3, f3, p3, bw3)) in combinations(
+            enumerate(tx_entries), 3
+        ):
             radios = {r1, r2, r3}
             if len(radios) < 2:
                 continue  # need at least 2 different transmitters
             for (m, n, p), order in coeffs_list:
                 f_im = m * f1 + n * f2 + p * f3
                 if f_im > 0:
+                    im_power = abs(m) * p1 + abs(n) * p2 + abs(p) * p3
+                    im_bw = abs(m) * bw1 + abs(n) * bw2 + abs(p) * bw3
                     products.append(
                         {
-                            "tx_radios": [(r1, b1, f1), (r2, b2, f2), (r3, b3, f3)],
+                            "tx_radios": [(r1, b1, f1, p1, bw1), (r2, b2, f2, p2, bw2), (r3, b3, f3, p3, bw3)],
                             "coefficients": (m, n, p),
                             "order": order,
                             "intermod_freq_hz": f_im,
+                            "intermod_power_dbm": im_power,
+                            "intermod_bw_hz": im_bw,
                         }
                     )
         return products
@@ -544,6 +653,8 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
 
         for product in intermod_products:
             f_im = product["intermod_freq_hz"]
+            im_power = product["intermod_power_dbm"]
+            im_bw = product["intermod_bw_hz"]
             txs = product["tx_radios"]
             coeffs = product["coefficients"]
             order = product["order"]
@@ -564,8 +675,12 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                             "order": str(order),
                             "coefficients": str(coeffs),
                             "intermod_freq_mhz": f"{f_im * _HZ_TO_MHZ:.4f}",
-                            # Raw Hz values kept for plotting
+                            "intermod_power_dbm": f"{im_power:.1f}",
+                            "intermod_bw_mhz": f"{im_bw * _HZ_TO_MHZ:.4f}",
+                            # Raw values kept for plotting
                             "_intermod_freq_hz": f_im,
+                            "_intermod_power_dbm": im_power,
+                            "_intermod_bw_hz": im_bw,
                             "_rx_channel_hz": rx_freq,
                         }
                         if three_tone:
@@ -607,11 +722,11 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                 messagebox.showwarning("No Receivers", "No enabled receiver bands found in the design.")
                 return
 
-            # Build flat TX entry list: (radio_name, band_name, freq_hz)
+            # Build flat TX entry list: (radio_name, band_name, freq_hz, power_dbm, ch_bw_hz)
             tx_entries = []
-            for radio_name, band_name, channels in self._tx_data:
+            for radio_name, band_name, channels, power_dbm, ch_bw in self._tx_data:
                 for freq in channels:
-                    tx_entries.append((radio_name, band_name, freq))
+                    tx_entries.append((radio_name, band_name, freq, power_dbm, ch_bw))
 
             # Step 2: Compute intermods
             self._progress["value"] = 10
