@@ -58,6 +58,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
+from ansys.aedt.core.modules.substrate_circuit import SubstrateManager
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -183,6 +184,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
+        self._substrate_manager: SubstrateManager | None = None
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
@@ -195,6 +197,45 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return value
         except Exception:
             return from_rkm_to_aedt(value)
+
+    @property
+    def substrate_names(self) -> list[str]:
+        """Return the names of all substrate data blocks in the active Circuit design.
+
+        Returns
+        -------
+        list of str
+            Names of every substrate data block currently defined in the design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.substrate_names
+        """
+        return self.substrate.names
+
+    @property
+    def substrate(self) -> SubstrateManager:
+        """Substrate data blocks for this Circuit design.
+
+        Use this object to add, query, and delete substrate data blocks.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.substrate_circuit.SubstrateManager`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> sub = cir.substrate.add_microstrip("10mil", 4.4, 0.02, "25mm", name="MySub")
+        >>> cir.substrate.names
+        ['MySub']
+        """
+        if self._substrate_manager is None:
+            self._substrate_manager = SubstrateManager(self)
+        return self._substrate_manager
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file: str) -> bool:

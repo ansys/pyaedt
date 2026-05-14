@@ -2492,6 +2492,49 @@ class AllowedMarkers(IntEnumProps):
     Arrow = 0
 
 
+class SubstrateType(IntEnumProps):
+    """Substrate type constants for AEDT ``AddSubstrateDataBlock`` COM API.
+
+    The integer values map directly to the ``Type`` field accepted by
+    ``oModule.AddSubstrateDataBlock``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SubstrateType
+    >>> SubstrateType.Microstrip
+    0
+    >>> int(SubstrateType.Microstrip)
+    0
+    """
+
+    Microstrip = 0
+    """Microstrip — single conductor on top of a dielectric, ground below."""
+
+    Stripline = 1
+    """Stripline — conductor embedded between two dielectric layers."""
+
+    SuspendedStripline = 2
+    """Suspended stripline — conductor suspended above the ground plane with an air gap."""
+
+    OffsetStripline = 3
+    """Offset stripline — asymmetric stripline with conductor offset from centre."""
+
+    CoplanarWaveguide = 4
+    """Coplanar waveguide (CPW) — conductor and ground planes on the same surface."""
+
+    GroundedCoplanarWaveguide = 5
+    """Grounded coplanar waveguide (GCPW) — CPW with an additional ground plane below."""
+
+    Slotline = 6
+    """Slotline — narrow slot cut in a metallic plane on a dielectric substrate."""
+
+    RectangularWaveguide = 9
+    """Rectangular waveguide — hollow metallic tube with rectangular cross-section."""
+
+    SubstrateReference = 10
+    """Substrate reference — named reference substrate used by transmission-line models."""
+
+
 # ########################## Deprecated enumeration classes #############################
 
 # TODO: Remove these classes in v1.0.0.
