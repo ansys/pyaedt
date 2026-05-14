@@ -29,10 +29,11 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.generated.band import Band
 from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node import RxSusceptibilityProfNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.revision import Revision
 
 
 class InteractionInstance:
-    def __init__(self, emit_obj, domain: InteractionDomain, revision):
+    def __init__(self, emit_obj, domain: InteractionDomain, revision: Revision):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
 
