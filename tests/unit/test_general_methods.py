@@ -22,11 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from unittest.mock import patch
+
 import pytest
 
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
+from ansys.aedt.core.generic.general_methods import _parse_proc_net_unix
+from ansys.aedt.core.generic.general_methods import _run_ss_xlp
 from ansys.aedt.core.generic.general_methods import number_aware_string_key
+from ansys.aedt.core.generic.settings import is_linux
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -36,13 +41,11 @@ def desktop() -> None:
 
 
 class TestGeneralMethods:
-    def test_00_number_aware_string_key(self) -> None:
+    def test_number_aware_string_key(self) -> None:
         assert number_aware_string_key("C1") == ("C", 1)
         assert number_aware_string_key("1234asdf") == (1234, "asdf")
         assert number_aware_string_key("U100") == ("U", 100)
         assert number_aware_string_key("U100X0") == ("U", 100, "X", 0)
-
-    def test_01_number_aware_string_key(self) -> None:
         component_names = ["U10", "U2", "C1", "Y1000", "Y200"]
         expected_sort_order = ["C1", "U2", "U10", "Y200", "Y1000"]
         assert sorted(component_names, key=number_aware_string_key) == expected_sort_order
@@ -132,3 +135,76 @@ class TestGeneralMethods:
     )
     def test_invalid_versions(self, version):
         assert not _is_version_format_valid(version)
+
+    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
+    def test_run_ss_xlp_returns_dict(self):
+        result = _run_ss_xlp()
+        assert isinstance(result, dict)
+        for pid, port in result.items():
+            assert isinstance(pid, int)
+            assert isinstance(port, int)
+
+    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
+    def test_run_ss_xlp_with_real_unix_socket(self, tmp_path):
+        """Create a real Unix socket whose name matches the AnsysEMUDS pattern,
+        register it in /proc/net/unix (via the live kernel), and confirm that
+        _run_ss_xlp discovers for the current process.
+
+        The test creates a listening Unix socket at
+        ``<tmp_path>/AnsysEMUDS-59999.sock`` bound inside the current process,
+        then calls _run_ss_xlp with the current PID injected as an AEDT target.
+        Both the ``ss`` path and the ``/proc/net/unix`` fallback are exercised
+        because the kernel exposes the socket in both places.
+        """
+        import os
+        import socket as _socket
+
+        sock_path = str(tmp_path / "AnsysEMUDS-59999.sock")
+        sock = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
+        try:
+            sock.bind(sock_path)
+            sock.listen(1)
+
+            current_pid = os.getpid()
+
+            # Inject the current process as the only "AEDT" target so that
+            # _run_ss_xlp inspects our own /proc/<pid>/fd entries.
+            with patch(
+                "ansys.aedt.core.generic.general_methods._get_target_processes",
+                return_value=[(current_pid, ["/ansysedt"])],
+            ):
+                result = _run_ss_xlp()
+
+            # The socket must be discovered via ss or /proc/net/unix fallback.
+            assert current_pid in result
+            assert result[current_pid] == 59999
+        finally:
+            sock.close()
+
+    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
+    def test_parse_proc_net_unix_returns_dict(self):
+        result = _parse_proc_net_unix(set())
+        assert isinstance(result, dict)
+
+    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
+    def test_parse_proc_net_unix_with_real_unix_socket(self, tmp_path):
+        """Bind a real Unix socket whose name matches AnsysEMUDS-<port>.sock,
+        then verify that _parse_proc_net_unix resolves the current pid→port
+        by reading the live /proc/net/unix and /proc/<pid>/fd.
+        """
+        import os
+        import socket as _socket
+
+        sock_path = str(tmp_path / "AnsysEMUDS-58888.sock")
+        sock = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
+        try:
+            sock.bind(sock_path)
+            sock.listen(1)
+
+            current_pid = os.getpid()
+            result = _parse_proc_net_unix({current_pid})
+
+            assert current_pid in result
+            assert result[current_pid] == 58888
+        finally:
+            sock.close()
