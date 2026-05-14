@@ -22,14 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import math
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.nodes.generated.band import Band
 from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node import RxSusceptibilityProfNode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
-from ansys.aedt.core.emit_core.results.revision import Revision
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.emit_core.results.revision import Revision
 
 
 class InteractionInstance:
