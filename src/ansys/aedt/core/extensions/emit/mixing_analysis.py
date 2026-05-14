@@ -494,7 +494,8 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
 
         # Draw stacked segments per bin, height proportional to power
         for _key, tones_in_bin in bins.items():
-            tones_in_bin.sort(key=lambda t: t[3])  # non-selected first
+            # Sort by linear power descending so largest segments are at the bottom
+            tones_in_bin.sort(key=lambda t: 10.0 ** (t[2] / 10.0), reverse=True)
 
             # Convert dBm to linear for proportional sizing
             linear_powers = [10.0 ** (t[2] / 10.0) for t in tones_in_bin]
@@ -701,7 +702,13 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             coeffs = product["coefficients"]
             order = product["order"]
 
+            # Names of the transmitter radios contributing to this product
+            tx_radio_names = {t[0] for t in txs}
+
             for rx_radio, rx_band, rx_channels, ch_bw in self._rx_data:
+                # Skip if the receiver is also one of the contributing transmitters
+                if rx_radio in tx_radio_names:
+                    continue
                 half_bw = ch_bw / 2.0
                 for rx_freq in rx_channels:
                     checked += 1
