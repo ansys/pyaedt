@@ -32,6 +32,7 @@ from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
+from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -130,20 +131,21 @@ class Simulation:
         >>> sim.run(domain)
 
         """
-        if domain.receiver_channel_frequency > 0:
-            raise ValueError("The domain must not have channels specified.")
-        if len(domain.interferer_channel_frequencies) != 0:
-            for freq in domain.interferer_channel_frequencies:
-                if freq > 0:
-                    raise ValueError("The domain must not have channels specified.")
+        if self.aedt_version < 271:
+            if domain.receiver_channel_frequency > 0:
+                raise ValueError("The domain must not have channels specified.")
+            if len(domain.interferer_channel_frequencies) != 0:
+                for freq in domain.interferer_channel_frequencies:
+                    if freq > 0:
+                        raise ValueError("The domain must not have channels specified.")
         self._revision._load_revision()
-        if self._revision.emit_project._aedt_version < "2024.1":
+        if self.aedt_version < 241:
             if len(domain.interferer_names) == 1:
                 engine = self._revision.emit_project._emit_api.get_engine()
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
-        if self._revision.emit_project._aedt_version > "2025.1":
+        if self.aedt_version > 251:
             # check for disconnected systems and add a warning
             disconnected_radios = self._revision._get_disconnected_radios()
             if len(disconnected_radios) > 0:
@@ -152,11 +154,12 @@ class Simulation:
                     "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
                 )
                 warnings.warn(err_msg)
-        if self._revision.emit_project._aedt_version < "2027.1":
+        if self.aedt_version < 271:
             engine = self._revision.emit_project._emit_api.get_engine()
             interaction = engine.run(domain)
         else:
-            interaction = self.emit_project._emit_com_module.RunEmitDomain(
+            # Run the domain analysis via COM
+            self.emit_project._emit_com_module.RunEmitDomain(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -165,6 +168,8 @@ class Simulation:
                 domain.interferer_band_names,
                 domain.interferer_channel_frequencies,
             )
+            # Create Interaction object to access results
+            interaction = Interaction(self.emit_project, domain, self._revision)
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
@@ -200,7 +205,7 @@ class Simulation:
         return valid
 
     @pyaedt_function_handler()
-    @min_aedt_version("2025.2")
+    @min_aedt_version("2027.1")
     def get_instance_count(self, domain: InteractionDomain):
         """
         Return the number of instances in the domain for the current revision.
@@ -222,11 +227,26 @@ class Simulation:
         >>> num_instances = sim.get_instance_count(domain)
         """
         self._revision._load_revision()
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.get_instance_count(domain)
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_instance_count(domain)
+        else:
+            status = self.is_domain_valid(domain)
+            if status != "":
+                raise RuntimeError(status)
+            count = self._revision.emit_project._emit_com_module.GetInstanceCount(
+                self._revision.results_index,
+                domain.receiver_name,
+                domain.receiver_band_name,
+                domain.receiver_channel_frequency,
+                domain.interferer_names,
+                domain.interferer_band_names,
+                domain.interferer_channel_frequencies,
+            )
+            return int(count)
 
     @property
-    @min_aedt_version("2027.1")
+    @min_aedt_version("2025.2")
     def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
@@ -245,17 +265,20 @@ class Simulation:
         >>> sim.n_to_1_limit
         1048576
         """
-        if self._revision.revision_loaded:
+        self._revision._load_revision()
+        if self.aedt_version >= 271:
+            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(self._revision.results_index))
+        else:
             engine = self._revision.emit_project._emit_api.get_engine()
-            max_instances = engine.n_to_1_limit
-        else:  # pragma: no cover
-            max_instances = None
-        return max_instances
+            return engine.n_to_1_limit
 
     @n_to_1_limit.setter
     @min_aedt_version("2025.2")
     def n_to_1_limit(self, max_instances: int):
-        if self._revision.revision_loaded:
+        self._revision._load_revision()
+        if self.aedt_version >= 271:
+            self._revision.emit_project._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
+        else:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
 
@@ -279,10 +302,10 @@ class Simulation:
         >>> sim.noise_behavior
         COHERENT
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         val = sim_node._get_property("NoiseBehavior", True)
         return self.NoiseBehaviorOption(val)
-    
+
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
         """Set the noise behavior setting for the simulation.
@@ -297,7 +320,7 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.noise_behavior = sim.NoiseBehaviorOption.INCOHERENT
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         sim_node._set_property("NoiseBehavior", value.value, True)
 
     @property
@@ -316,9 +339,9 @@ class Simulation:
         >>> sim.passive_noise
         True
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         return sim_node._get_property("PassiveNoise", True) == "true"
-    
+
     @passive_noise.setter
     def passive_noise(self, enabled: bool):
         """Set whether to include passive noise in the simulation.
@@ -333,9 +356,9 @@ class Simulation:
         >>> sim = aedtapp.results.current_revision.get_simulation()
         >>> sim.passive_noise = False
         """
-        sim_node : EmitNode = self._revision.get_simulation_node()
+        sim_node: EmitNode = self._revision.get_simulation_node()
         sim_node._set_property("PassiveNoise", f"{str(enabled).lower()}", True)
-        
+
     @min_aedt_version("2025.2")
     def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
         """Get whether the EMI category filter is enabled.
@@ -350,8 +373,15 @@ class Simulation:
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
-        engine = self._revision.emit_project._emit_api.get_engine()
-        return engine.get_emi_category_filter_enabled(category)
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_emi_category_filter_enabled(category)
+        else:
+            return bool(
+                self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
+                    self._revision.results_index, int(category)
+                )
+            )
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -364,8 +394,13 @@ class Simulation:
         enabled : bool
             Whether to enable the EMI category filter.
         """
-        engine = self._revision.emit_project._emit_api.get_engine()
-        engine.set_emi_category_filter_enabled(category, enabled)
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_emi_category_filter_enabled(category, enabled)
+        else:
+            self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
+                self._revision.results_index, int(category), enabled
+            )
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -509,21 +544,38 @@ class Simulation:
                                     # should just be skipped
                                     continue
                             else:
-                                tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                if self.aedt_version < 271:
+                                    tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
+                                else:
+                                    tx_prob = instance.get_largest_emi_problem_type()
                                 power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
                                 <= rx_stop_freq + rx_channel_bandwidth / 2
                             ):
-                                rx_prob = "In-band"
+                                if self.aedt_version < 271:
+                                    rx_prob = "In-band"
+                                else:
+                                    rx_prob = 0
                             else:
-                                rx_prob = "Out-of-band"
-                            prob_filter_val = tx_prob + ":" + rx_prob
+                                if self.aedt_version < 271:
+                                    rx_prob = "Out-of-band"
+                                else:
+                                    rx_prob = 1
+                            if self.aedt_version < 271:
+                                prob_filter_val = tx_prob + ":" + rx_prob
+                            else:
+                                prob_filter_val = (rx_prob, tx_prob[1])
 
                             # Check if problem type is in filtered list of problem types to analyze
                             if use_filter:
-                                in_filters = any(prob_filter_val in sublist for sublist in filter_list)
+                                in_filters = any(
+                                    (prob_filter_val in sublist)
+                                    if isinstance(sublist, list)
+                                    else (prob_filter_val == sublist)
+                                    for sublist in filter_list
+                                )
                             else:
                                 in_filters = True
 
@@ -532,19 +584,34 @@ class Simulation:
                                 max_power = power
                                 largest_rx_prob = rx_prob
                                 prob = instance.get_largest_emi_problem_type()
-                                largest_tx_prob = prob.replace(" ", "").split(":")
+                                if self.aedt_version < 271:
+                                    # prior to 2027.1, the problem type returned as a string
+                                    # with spaces, e.g. "In-Channel: Tx Fundamental"
+                                    largest_tx_prob = prob.replace(" ", "").split(":")
+                                else:
+                                    largest_tx_prob = prob
 
                 if max_power > -200:
                     rx_powers.append(max_power)
 
-                    if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == "In-band":
-                        rx_colors.append("red")
-                    elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == "In-band":
-                        rx_colors.append("orange")
-                    elif largest_tx_prob[-1] == "TxFundamental" and not (largest_rx_prob == "In-band"):
-                        rx_colors.append("yellow")
-                    elif largest_tx_prob[-1] != "TxFundamental" and not (largest_rx_prob == "In-band"):
-                        rx_colors.append("green")
+                    if self.aedt_version < 271:
+                        if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == "In-band":
+                            rx_colors.append("red")
+                        elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == "In-band":
+                            rx_colors.append("orange")
+                        elif largest_tx_prob[-1] == "TxFundamental" and not (largest_rx_prob == "In-band"):
+                            rx_colors.append("yellow")
+                        elif largest_tx_prob[-1] != "TxFundamental" and not (largest_rx_prob == "In-band"):
+                            rx_colors.append("green")
+                    else:
+                        if largest_tx_prob[-1] == 0 and largest_rx_prob == 0:
+                            rx_colors.append("red")
+                        elif largest_tx_prob[-1] != 0 and largest_rx_prob == 0:
+                            rx_colors.append("orange")
+                        elif largest_tx_prob[-1] == 0 and largest_rx_prob != 0:
+                            rx_colors.append("yellow")
+                        elif largest_tx_prob[-1] != 0 and largest_rx_prob != 0:
+                            rx_colors.append("green")
                 else:
                     rx_powers.append("<= -200")
                     rx_colors.append("white")

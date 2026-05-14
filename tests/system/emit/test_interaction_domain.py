@@ -95,10 +95,10 @@ def test_interaction_domain(cell_phone):
     assert sim.is_domain_valid(domain) == ""
 
     # set_interferers validation warnings
-    with pytest.warns(UserWarning, match="When assigning bands you must assign one band per interferer."):
+    with pytest.raises(ValueError, match="When assigning bands you must assign one band per interferer."):
         domain.set_interferers(names=[], band_names=["band"])
 
-    with pytest.warns(UserWarning, match="When assigning channels you must assign one channel per band."):
+    with pytest.raises(ValueError, match="When assigning channels you must assign one channel per band."):
         domain.set_interferers(names=[TX1NAME], band_names=[], freqs=[50])
 
     domain.set_interferers(names=["bad tx"])

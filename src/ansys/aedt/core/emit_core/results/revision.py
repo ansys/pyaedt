@@ -369,6 +369,29 @@ class Revision:
                         bands.append(folder_child)
         return bands
 
+    def get_band_node(self, band_name: str) -> Band:
+        """
+        Get a Band node by name.
+
+        Parameters
+        ----------
+        band_name: str
+            The name of the Band node to get.
+
+        Returns
+        -------
+        band: Band
+            The Band node with the specified name, or None if no such node exists.
+        """
+        radios = self.get_all_radio_nodes()
+        for radio in radios:
+            radio: RadioNode
+            bands = self.get_all_band_nodes(radio=radio, enabled_only=False)
+            for band in bands:
+                if band.name == band_name:
+                    return band
+        return None
+
     @pyaedt_function_handler()
     def _is_receiver(self, radio: RadioNode):
         """
@@ -925,6 +948,32 @@ class Revision:
             warnings.warn("No valid radios in the project.")
             return None
         return radio_nodes
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
+    def get_radio_node(self, radio_name: str) -> RadioNode:
+        """Gets a Radio node by name.
+
+        Parameters
+        ----------
+        radio_name: str
+            The name of the Radio node to get.
+
+        Returns
+        -------
+        radio: RadioNode
+            The Radio node with the specified name, or None if no such node exists.
+        """
+        comp_nodes: EmitNode = self.get_all_component_nodes()
+        for comp in comp_nodes:
+            if isinstance(comp, RadioNode) and comp.name == radio_name:
+                return comp
+            elif isinstance(comp, EmitterNode):
+                comp: EmitterNode
+                radio = comp.get_radio()
+                if radio.name == radio_name:
+                    return radio
+        return None
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")

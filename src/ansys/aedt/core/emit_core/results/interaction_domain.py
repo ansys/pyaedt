@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
-
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 import ansys.aedt.core.generic.constants as consts
@@ -122,9 +120,7 @@ class InteractionDomain:
         self.receiver_band_name = band_name
 
         if units not in EMIT_VALID_UNITS["Freq"]:
-            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
-            warnings.warn(err_msg)
-            return None
+            raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
 
         # Convert freqs to internal units (Hz) before setting
         converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
@@ -160,9 +156,7 @@ class InteractionDomain:
         self.interferer_channel_frequencies = []
 
         if units not in EMIT_VALID_UNITS["Freq"]:
-            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
-            warnings.warn(err_msg)
-            return None
+            raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
 
         # Convert freqs to internal units (Hz) before setting
         converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
@@ -199,20 +193,15 @@ class InteractionDomain:
             freqs = []
 
         if len(band_names) > 0 and len(band_names) != len(names):
-            err_msg = "When assigning bands you must assign one band per interferer."
-            warnings.warn(err_msg)
-            return None
+            raise ValueError("When assigning bands you must assign one band per interferer.")
         if len(freqs) > 0 and len(freqs) != len(band_names):
-            err_msg = "When assigning channels you must assign one channel per band."
-            warnings.warn(err_msg)
-            return None
+            raise ValueError("When assigning channels you must assign one channel per band.")
 
         self.interferer_names = names
         self.interferer_band_names = band_names
 
         if units not in EMIT_VALID_UNITS["Freq"]:
-            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
-            warnings.warn(err_msg)
+            raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
 
         # Convert freqs to internal units (Hz) before setting
         converted_freqs = [consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"]) for freq in freqs]
@@ -236,9 +225,7 @@ class InteractionDomain:
             Receiver channel frequency in the specified units.
         """
         if units not in EMIT_VALID_UNITS["Freq"]:
-            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
-            warnings.warn(err_msg)
-            return None
+            raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
 
         # Convert freqs from internal units (Hz) to the user specified units
         converted_freq = consts.unit_converter(
@@ -263,9 +250,7 @@ class InteractionDomain:
             List of interferer channel frequencies in the specified units.
         """
         if units not in EMIT_VALID_UNITS["Freq"]:
-            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}"
-            warnings.warn(err_msg)
-            return []
+            raise ValueError(f"Unit {units} is not valid for frequency. Valid units are: {EMIT_VALID_UNITS['Freq']}")
 
         # Convert freqs from internal units (Hz) to the user specified units
         converted_freqs = [

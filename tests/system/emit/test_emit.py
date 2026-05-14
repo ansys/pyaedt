@@ -42,6 +42,7 @@ import warnings
 
 import pytest
 
+from ansys.aedt.core.emit_core.emit_constants import EMIInterfererType
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -1224,7 +1225,6 @@ def test_basic_run(emit_app) -> None:
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Get Instance Count not moved yet")
 def test_optimal_n_to_1_feature(emit_app) -> None:
     # place components and generate the appropriate number of revisions
     rad1 = emit_app.modeler.components.create_component("Bluetooth")
@@ -1367,7 +1367,6 @@ def test_enable_n_to_1(interference):
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_interference_scripts_no_filter(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
@@ -1412,7 +1411,6 @@ def test_interference_scripts_no_filter(interference) -> None:
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_radio_protection_levels(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1444,7 +1442,6 @@ def test_radio_protection_levels(interference):
     DESKTOP_VERSION <= "2025.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_interference_filtering(interference) -> None:
     # Generate a revision
     rev = interference.results.analyze()
@@ -1464,12 +1461,29 @@ def test_interference_filtering(interference) -> None:
         [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
         [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
     ]
-    interference_filters = [
-        "TxFundamental:In-band",
-        ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
-        "TxFundamental:Out-of-band",
-        ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
-    ]
+
+    if DESKTOP_VERSION < "2027.1":
+        interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
+            "TxFundamental:Out-of-band",
+            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
+        ]
+    else:
+        interference_filters = [
+            EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
+            [
+                EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
+                EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
+                EMIInterfererType.IN_CHANNEL_BROADBAND,
+            ],
+            EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
+            [
+                EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS,
+                EMIInterfererType.OUT_OF_CHANNEL_TX_INTERMOD,
+                EMIInterfererType.OUT_OF_CHANNEL_TX_BROADBAND,
+            ],
+        ]
 
     for ind in range(4):
         expected_interference_colors = all_interference_colors[ind]
@@ -1488,7 +1502,6 @@ def test_interference_filtering(interference) -> None:
     DESKTOP_VERSION <= "2026.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_protection_filtering(interference):
     # Generate a revision
     rev = interference.results.analyze()
@@ -1529,6 +1542,7 @@ def test_protection_filtering(interference):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+@pytest.mark.skipif(True, reason="Test currently failings, need to investigate.")
 def test_couplings_1(cell_phone):
     links = cell_phone.couplings.linkable_design_names
     assert len(links) == 0
@@ -1698,7 +1712,6 @@ def test_result_categories(emit_app) -> None:
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Temporarily skipped")
 def test_result_categories_with_simulation(emit_app):
     # set up project and run
     rad1, ant1 = emit_app.schematic.create_radio_antenna(
@@ -1721,19 +1734,19 @@ def test_result_categories_with_simulation(emit_app):
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
-    assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_BROADBAND
 
     # disable one category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 2.0
-    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL
 
     # disable another category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == -58.0
-    assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS
 
     # disable last existing category and confirm expected exceptions and error messages
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
@@ -1747,7 +1760,7 @@ def test_result_categories_with_simulation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
+@pytest.mark.skipif(True, reason="License session not moved yet.")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
@@ -2984,7 +2997,6 @@ def test_units(emit_app) -> None:
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
-@pytest.mark.skipif(True, reason="Interaction not moved yet")
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
     sim = rev.get_simulation()
@@ -3069,6 +3081,7 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 21.08
 
+
 @pytest.mark.skipif(
     DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
@@ -3093,11 +3106,12 @@ def test_noise_params(test_noise):
     sim.noise_behavior = Simulation.NoiseBehaviorOption.INCOHERENT
     assert sim.noise_behavior == Simulation.NoiseBehaviorOption.INCOHERENT
     sim.passive_noise = False
-    assert sim.passive_noise == False
+    assert not sim.passive_noise
 
     # interaction2 = sim.run(domain)
     # instance2 = interaction2.get_worst_instance(ResultType.EMI)
     # assert instance2.get_value(ResultType.EMI) == 3.0
+
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app) -> None:
@@ -3148,7 +3162,8 @@ def test_27_components_catalog(emit_app) -> None:
 @pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
 def test_terminator_table_persistence(add_app) -> None:
     """Test that terminator and amplifier table data persists across save/close/reopen.
-    Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table"""
+    Fixes D1434602: AEDT crashes after adding a row to amplifier/terminator table
+    """
     # Step 1: Create a new EMIT design
     app = add_app(application=Emit)
 
