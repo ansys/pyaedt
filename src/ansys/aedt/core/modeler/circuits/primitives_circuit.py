@@ -1041,7 +1041,7 @@ class CircuitComponents(PyAedtBase):
         if Path(model_name).is_file():
             m_name = Path(Path(model_name).name).stem
             if "." in m_name:
-                m_name = model_name.replace(".", "_")
+                m_name = str(model_name).replace(".", "_")
             if m_name not in list(self.omodel_manager.GetNames()):
                 m_name = ""
             else:
