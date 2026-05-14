@@ -298,6 +298,52 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                 return channels, ch_bw
         return [], 0.0
 
+    @staticmethod
+    def _coeffs_to_equation(coefficients, tx_names):
+        """Build a LaTeX equation string like ``$2 \\cdot Tx1 - 3 \\cdot Tx2$``.
+
+        Parameters
+        ----------
+        coefficients : tuple[int, ...]
+            Coefficient per tone, e.g. ``(2, -1)`` or ``(1, 1, -1)``.
+        tx_names : list[str]
+            Transmitter names corresponding to each coefficient.
+        """
+        import ast
+
+        if isinstance(coefficients, str):
+            coefficients = ast.literal_eval(coefficients)
+
+        parts = []
+        for coeff, name in zip(coefficients, tx_names):
+            if coeff == 0:
+                continue
+            abs_c = abs(coeff)
+            sign = "-" if coeff < 0 else ("+" if parts else "")
+            if abs_c == 1:
+                term = f"{name}"
+            else:
+                term = f"{abs_c} \\cdot {name}"
+            if sign == "-":
+                parts.append(f" - {term}")
+            elif sign == "+":
+                parts.append(f" + {term}")
+            else:
+                parts.append(term)
+        return "$" + "".join(parts).strip() + "$"
+
+    def _build_tone_tooltip(self, result_idx):
+        """Build a single tooltip line for the intermod at *result_idx*."""
+        r = self._results[result_idx]
+        power = r["_intermod_power_dbm"]
+        bw_mhz = r["_intermod_bw_hz"] * _HZ_TO_MHZ
+        coeffs = r["coefficients"]
+        tx_names = [r["tx1"], r["tx2"]]
+        if "tx3" in r and r["tx3"]:
+            tx_names.append(r["tx3"])
+        equation = self._coeffs_to_equation(coeffs, tx_names)
+        return f"{equation}   P = {power:.1f} dBm   BW = {bw_mhz:.4f} MHz"
+
     def _on_tree_select(self, _event=None):
         """Handle treeview selection change and refresh the plot."""
         self._update_plot()
@@ -440,38 +486,33 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
             )
 
         # --- Group overlapping tones into frequency bins ---
-        # Two tones overlap if their BW regions intersect.  For simplicity we
-        # bin by centre frequency rounded to a resolution that captures the
-        # minimum displayable width.
         bin_res = max(min_half_w * 2, 1e-6)
         bins = defaultdict(list)  # bin_key -> list of tone tuples
         for tone in raw_tones:
             f_mhz = tone[0]
             bins[round(f_mhz / bin_res)].append(tone)
 
-        # Draw stacked segments per bin
+        # Draw stacked segments per bin, height proportional to power
         for _key, tones_in_bin in bins.items():
-            # Sort: non-selected first so selected segments stand out
-            tones_in_bin.sort(key=lambda t: t[3])
-            n = len(tones_in_bin)
-            seg_h = box_height / max(n, 1)
+            tones_in_bin.sort(key=lambda t: t[3])  # non-selected first
 
-            # Build tooltip text listing all contributors
+            # Convert dBm to linear for proportional sizing
+            linear_powers = [10.0 ** (t[2] / 10.0) for t in tones_in_bin]
+            total_linear = sum(linear_powers) or 1.0
+
+            # Build LaTeX tooltip listing all contributors
             tip_lines = []
             for f_mhz, hbw, pwr, is_sel, idx in tones_in_bin:
-                r = self._results[idx]
-                tip_lines.append(
-                    f"{r['coefficients']}  f={f_mhz:.4f} MHz  "
-                    f"P={pwr:.1f} dBm  BW={hbw * 2:.4f} MHz"
-                )
+                tip_lines.append(self._build_tone_tooltip(idx))
             tooltip = "\n".join(tip_lines)
 
+            y_cursor = box_y
             for si, (f_mhz, hbw, pwr, is_sel, idx) in enumerate(tones_in_bin):
                 hw = max(hbw, min_half_w)
+                seg_h = box_height * (linear_powers[si] / total_linear)
                 color = _TONE_COLORS[si % len(_TONE_COLORS)]
-                y0 = box_y + si * seg_h
                 rect = Rectangle(
-                    (f_mhz - hw, y0),
+                    (f_mhz - hw, y_cursor),
                     2 * hw,
                     seg_h,
                     facecolor=color,
@@ -482,6 +523,7 @@ class MixingAnalysisExtension(ExtensionEMITCommon):
                 )
                 ax.add_patch(rect)
                 self._tone_patches.append((rect, tooltip))
+                y_cursor += seg_h
 
         ax.set_ylim(0, 1)
         self._fig.tight_layout()
