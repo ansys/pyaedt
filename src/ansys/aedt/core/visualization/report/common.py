@@ -753,7 +753,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ):
             eye_xunits = self.__props_with_default(self._legacy_props["eye_mask"], "xunits", "ns")
             eye_yunits = self.__props_with_default(self._legacy_props["eye_mask"], "yunits", "mV")
-            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points")
+            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points", [])
             eye_enable = self.__props_with_default(self._legacy_props["eye_mask"], "enable_limits", False)
             eye_upper = self.__props_with_default(self._legacy_props["eye_mask"], "upper_limit", 500)
             eye_lower = self.__props_with_default(self._legacy_props["eye_mask"], "lower_limit", 0.3)
