@@ -35,6 +35,34 @@ class Interaction:
         self.odesktop = self.emit_project.odesktop
         self.domain = domain
         self.revision = revision
+        self._invalidated = False
+
+    def invalidate(self) -> None:
+        """Mark this interaction as invalid due to state changes in radio pair/N-to-1 configuration."""
+        self._invalidated = True
+
+    @staticmethod
+    def _is_domain_empty(domain: InteractionDomain) -> bool:
+        """Check if the domain is empty/undefined.
+
+        Parameters
+        ----------
+        domain : InteractionDomain
+            The domain to check.
+
+        Returns
+        -------
+        bool
+            True if the domain is empty (all fields are default values), False otherwise.
+        """
+        return (
+            domain.receiver_name == ""
+            and domain.receiver_band_name == ""
+            and domain.receiver_channel_frequency == 0
+            and len(domain.interferer_names) == 0
+            and len(domain.interferer_band_names) == 0
+            and len(domain.interferer_channel_frequencies) == 0
+        )
 
     def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
         """Get the worst instance for this interaction.
@@ -219,7 +247,7 @@ class Interaction:
         )
 
         # Populate both EMI and desense from the single response array.
-        instance = InteractionInstance(self.emit_project, domain, self.revision)
+        instance = InteractionInstance(self.emit_project, domain, self.revision, self)
         if instance_values and len(instance_values) >= 3:
             instance._encoded_emi = int(instance_values[0])
             instance._encoded_desense = int(instance_values[1])
@@ -313,12 +341,22 @@ class Interaction:
         str
             Empty string if valid, error message otherwise.
         """
+        # Check if this interaction has been invalidated due to state changes
+        if self._invalidated:
+            return "Interaction not associated with current Result object."
+
+        # Check if the domain is empty/undefined
+        if self._is_domain_empty(self.domain):
+            return "Interaction not associated with current Result object."
+
+        # Validate the domain
         error = self.revision.get_simulation().is_domain_valid(self.domain)
         if error:
-            return f"Interaction is not valid. The domain is invalid: {error}"
+            return error
 
+        # Check if results exist for this domain
         if not self._check_results_exist():
-            return "Interaction is not valid. The interaction results do not exist."
+            return "The interaction results do not exist."
         return ""
 
     def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
@@ -395,7 +433,7 @@ class Interaction:
 
         # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
         # result type. The other is always 30201 ("not available"), matching old API behavior.
-        instance = InteractionInstance(self.emit_project, worst_domain, self.revision)
+        instance = InteractionInstance(self.emit_project, worst_domain, self.revision, self)
         if result_type == ResultType.EMI:
             instance._encoded_emi = encoded_value
             instance._largest_emi_interferer_type = worst_int_cat

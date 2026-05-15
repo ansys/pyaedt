@@ -34,16 +34,23 @@ from ansys.aedt.core.emit_core.nodes.generated.rx_susceptibility_prof_node impor
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.emit_core.results.interaction import Interaction
     from ansys.aedt.core.emit_core.results.revision import Revision
 
 
 class InteractionInstance:
-    def __init__(self, emit_obj, domain: InteractionDomain, revision: Revision):
+    def __init__(
+        self, emit_obj, domain: InteractionDomain, revision: Revision, parent_interaction: "Interaction | None" = None
+    ):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
 
         self.domain = domain
         self.revision = revision
+        self.parent_interaction = parent_interaction
+        """Reference to parent Interaction for invalidation tracking."""
+        self._invalidated = False
+        """Flag indicating if this instance has been invalidated due to state changes."""
 
         # Encoded values are in dB * 100
         # Values <-30000 or >30000 are non-numeric results
@@ -206,7 +213,7 @@ class InteractionInstance:
             7: EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
             8: EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
             10: EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
-            14: EMIInterfererType.IN_CHANNEL_BROADBAND,
+            14: EMIInterfererType.IN_CHANNEL_TX_BROADBAND,
         }
         result = _INTERFERER_TYPE_MAP.get(self._largest_emi_interferer_type)
         if result is None:
@@ -247,6 +254,10 @@ class InteractionInstance:
         except Exception as e:
             raise RuntimeError(f"Unable to fetch Power at Rx: {e}") from e
 
+    def invalidate(self) -> None:
+        """Mark this instance as invalid due to state changes in radio pair/N-to-1 configuration."""
+        self._invalidated = True
+
     def check_validity(self) -> None:
         """Check if this interaction instance is still valid.
 
@@ -255,6 +266,14 @@ class InteractionInstance:
         RuntimeError
             If the instance is no longer valid.
         """
+        # Check if this instance has been invalidated due to state changes
+        if self._invalidated:
+            raise RuntimeError("Instance not associated with current Result object.")
+
+        # Check if the parent interaction has been invalidated
+        if self.parent_interaction is not None and self.parent_interaction._invalidated:
+            raise RuntimeError("Instance not associated with current Result object.")
+
         # Check if the encoded values are within valid range
         if not self.has_valid_values():
             warning = self.get_result_warning()

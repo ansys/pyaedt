@@ -506,38 +506,97 @@ def test_result_validity(availability):
     """Test interaction and instance validity after various operations.
 
     Note: This test is translated from C++ EmitApiTest::resultValidity.
+    Tests the invalidation mechanism when:
+    - Interactions are created but not run
+    - Project is reloaded
+    - Project is closed
     """
-    # Get simulation
     rev = availability.results.analyze()
     sim = rev.get_simulation()
 
-    # Run and test valid interaction
+    # unrun portion of this project
+    domain2 = InteractionDomain(availability)
+    domain2.set_receiver("RF System 3 - Radio")
+    domain2.set_interferers(["RF System 2 - OneChannel"])
+    interaction2 = Interaction(availability, domain2, rev)
+
+    # interaction2 is unrun
+    assert not interaction2.is_valid()
+    with pytest.raises(ValueError) as e:
+        interaction2.validate()
+    assert "results do not exist" in str(e.value)
+
+    # new, undefined interaction and instance
+    interaction = Interaction(availability, InteractionDomain(availability), rev)
+
+    # Undefined interaction should be invalid with "Interaction not associated with current Result object"
+    assert not interaction.is_valid()
+    with pytest.raises(ValueError) as e:
+        interaction.validate()
+    assert "Interaction not associated with current Result object" in str(e.value)
+
+    # Trying to get worst instance on undefined interaction should fail
+    with pytest.raises(ValueError) as e:
+        interaction.get_worst_instance(ResultType.EMI)
+    assert "Interaction not associated with current Result object" in str(e.value)
+
+    # Trying to get instance on undefined domain should fail
+    with pytest.raises(ValueError) as e:
+        interaction.get_instance(InteractionDomain(availability))
+    assert "Interaction not associated with current Result object" in str(e.value)
+
+    # interaction and instance after run and get worst case
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
-
-    interaction.is_valid()  # Should not raise
+    assert interaction.is_valid()
 
     instance = interaction.get_worst_instance(ResultType.EMI)
-    # Instance validity is checked internally, no explicit is_valid() method needed
     assert instance is not None
+    instance.check_validity()  # Should not raise
 
-    # Create a second interaction to verify multi-interaction handling
-    domain2 = InteractionDomain(availability)
-    # Use any available radio pair
-    rev = availability.results.current_revision
-    radios = rev.get_all_radio_nodes()
+    # previously defined but unrun interaction has now been run (domain2 was same as domain)
+    # After running domain, domain2 now has results
+    if domain2.receiver_name == domain.receiver_name:
+        assert interaction2.is_valid()
 
-    domain2.set_receiver(name=radios[0].name)
-    domain2.set_interferers(names=[radios[1].name])
+    # interaction and instance after a reload of the project
+    proj_name = availability.project_name
+    availability.close_project(proj_name, save=False)
 
-    interaction2 = sim.run(domain2)
-    interaction2.is_valid()  # Should not raise
+    # After close, old interaction should be invalid
+    assert not interaction.is_valid()
+    with pytest.raises(ValueError) as e:
+        interaction.validate()
+    assert "Interaction not associated with current Result object" in str(e.value)
 
-    instance2 = interaction2.get_worst_instance(ResultType.EMI)
-    assert instance2 is not None
+    with pytest.raises(ValueError) as e:
+        instance.check_validity()
+    assert "Instance not associated with current Result object" in str(e.value)
 
-    # Original interaction should still be valid
-    interaction.is_valid()  # Should not raise
+    # interaction and instance after a second run and get worst case
+    availability = Emit(proj_name)
+    rev = availability.results.analyze()
+    sim = rev.get_simulation()
+
+    interaction = sim.run(domain)
+    assert interaction.is_valid()
+
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
+    instance.check_validity()  # Should not raise
+
+    # interaction and instance after closing project
+    availability.close_project(availability.project_name, save=False)
+
+    # After close, old interaction should be invalid
+    assert not interaction.is_valid()
+    with pytest.raises(ValueError) as e:
+        interaction.validate()
+    assert "Interaction not associated with current Result object" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        instance.check_validity()
+    assert "Instance not associated with current Result object" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")

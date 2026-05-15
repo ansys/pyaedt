@@ -170,6 +170,9 @@ class Simulation:
             )
             # Create Interaction object to access results
             interaction = Interaction(self.emit_project, domain, self._revision)
+            interaction._invalidated = False
+            # Register the interaction so it can be invalidated if state changes
+            self._revision._interactions.append(interaction)
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
@@ -401,6 +404,102 @@ class Simulation:
             self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
                 self._revision.results_index, int(category), enabled
             )
+
+    @min_aedt_version("2027.1")
+    def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
+        """Get whether a radio pair interaction is enabled.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        interferer_name : str
+            Name of the interferer radio.
+
+        Returns
+        -------
+        bool
+            ``True`` when the radio pair is enabled, ``False`` otherwise.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_radio_pair_enabled(receiver_name, interferer_name)
+        else:
+            return bool(
+                self._revision.emit_project._emit_com_module.GetRadioPairEnabled(
+                    self._revision.results_index, receiver_name, interferer_name
+                )
+            )
+
+    @min_aedt_version("2027.1")
+    def set_radio_pair_enabled(self, receiver_name: str, interferer_name: str, enabled: bool):
+        """Set whether a radio pair interaction is enabled.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        interferer_name : str
+            Name of the interferer radio.
+        enabled : bool
+            Whether to enable the radio pair interaction.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_radio_pair_enabled(receiver_name, interferer_name, enabled)
+        else:
+            self._revision.emit_project._emit_com_module.SetRadioPairEnabled(
+                self._revision.results_index, receiver_name, interferer_name, enabled
+            )
+
+        # Invalidate all interactions since the simulation state has changed
+        self._revision.invalidate_all_interactions()
+
+    @min_aedt_version("2027.1")
+    def get_receiver_n_to_1_enabled(self, receiver_name: str) -> bool:
+        """Get whether N-to-1 analysis is enabled for a specific receiver.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+
+        Returns
+        -------
+        bool
+            ``True`` when N-to-1 is enabled for the receiver, ``False`` otherwise.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            return engine.get_receiver_n_to_1_enabled(receiver_name)
+        else:
+            return bool(
+                self._revision.emit_project._emit_com_module.GetReceiverNto1Enabled(
+                    self._revision.results_index, receiver_name
+                )
+            )
+
+    @min_aedt_version("2027.1")
+    def set_receiver_n_to_1_enabled(self, receiver_name: str, enabled: bool):
+        """Set whether N-to-1 analysis is enabled for a specific receiver.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the receiver radio.
+        enabled : bool
+            Whether to enable N-to-1 analysis for the receiver.
+        """
+        if self.aedt_version < 271:
+            engine = self._revision.emit_project._emit_api.get_engine()
+            engine.set_receiver_n_to_1_enabled(receiver_name, enabled)
+        else:
+            self._revision.emit_project._emit_com_module.SetReceiverNto1Enabled(
+                self._revision.results_index, receiver_name, enabled
+            )
+
+        # Invalidate all interactions since the simulation state has changed
+        self._revision.invalidate_all_interactions()
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")

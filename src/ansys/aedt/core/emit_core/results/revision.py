@@ -143,6 +143,9 @@ class Revision:
         self.revision_loaded = False
         """``True`` if the revision is loaded and ``False`` if it is not."""
 
+        self._interactions = []
+        """Registry of all Interaction objects created for this revision."""
+
         self._load_revision()
 
     @pyaedt_function_handler()
@@ -1266,3 +1269,12 @@ class Revision:
             radios_id = self._emit_com.GetChildNodeID(self.results_index, dis_comp_id, "Radios")
             return self._emit_com.GetChildNodeNames(0, radios_id)
         return []
+
+    def invalidate_all_interactions(self) -> None:
+        """Invalidate all cached interactions for this revision.
+
+        This is called when simulation state changes (e.g., radio pair or N-to-1 enabled state changes)
+        to mark all existing Interaction objects as invalid, similar to the C++ invalidateAll() pattern.
+        """
+        for interaction in self._interactions:
+            interaction.invalidate()
