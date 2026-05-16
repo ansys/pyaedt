@@ -1748,6 +1748,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         analyze: bool | None = False,
         design_name: str | None = "LNA",
         impedance: float | None = 50,
+        transient_step: str | None = None,
+        transient_stop: str | None = None,
     ) -> None:
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1776,6 +1778,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             New schematic name. The default is ``"LNA"``.
         impedance : float, optional
             TDR single ended impedance. The default is ``50``. For differential tdr, it will be computed by PyAEDT.
+        transient_step : str, optional
+            Transient analysis step size, including units (for example ``"10ps"``). The default
+            is ``None``, which derives ``rise_time / 4`` in nanoseconds. The recommended range
+            for the step size is 2-15 ps depending on the frequency content of the model.
+        transient_stop : str, optional
+            Transient analysis stop time, including units (for example ``"35ns"``). The default
+            is ``None``, which derives ``rise_time * 1000`` in nanoseconds. The stop time should
+            be chosen based on the flight time of the signal under test.
 
         Returns
         -------
@@ -1852,7 +1862,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 p1.pins[0].connect_to_component(pin, use_wire=True)
                 p1.impedance = [f"{impedance}ohm", "0ohm"]
         setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
-        setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
+        step_value = transient_step if transient_step is not None else f"{rise_time / 4}ns"
+        stop_value = transient_stop if transient_stop is not None else f"{rise_time * 1000}ns"
+        setup.props["TransientData"] = [step_value, stop_value]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(
                 [
