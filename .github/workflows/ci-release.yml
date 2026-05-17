@@ -31,7 +31,7 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/doc-deploy-changelog@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -45,7 +45,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-vulnerabilities@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -59,7 +59,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-actions-security@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-style@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -83,7 +83,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-build@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -110,7 +110,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -168,7 +168,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: rocky-linux-8
@@ -1266,7 +1266,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-library@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -1299,7 +1299,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/release-github@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           add-artifact-attestation-notes: true
           generate-release-notes: false
@@ -1315,7 +1315,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-deploy-stable@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
