@@ -118,7 +118,7 @@ jobs:
           target: 'all'
           attest-provenance: true
           use-python-cache: false
-          whitelist-license-check: 'fpdf2'
+          whitelist-license-check: 'fpdf2,decorator'
 
       - name: Import python package
         env:
@@ -175,7 +175,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           target: 'all'
           use-python-cache: false
-          whitelist-license-check: 'fpdf2'
+          whitelist-license-check: 'fpdf2,decorator'
 
       - name: Import python package
         env:
