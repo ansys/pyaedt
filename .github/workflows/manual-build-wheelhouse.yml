@@ -70,7 +70,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-ubuntu
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -136,7 +136,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -167,7 +167,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-windows
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
+        uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
           checkout: false
           library-name: ${{ env.PACKAGE_NAME }}
@@ -188,127 +188,19 @@ jobs:
   build-wheelhouse-rocky-all:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version == 'all'
     name: Build wheelhouse (Rocky Linux)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10','3.11','3.12','3.13', '3.14']
-    container:
-      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
-    steps:
-      - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.inputs.pyaedt-branch }}
-          persist-credentials: false
-
-      - name: Install build deps
-        shell: bash
-        run: |
-          set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
-            gcc wget make bzip2-devel zlib-devel xz-devel \
-            openssl-devel libffi-devel sqlite-devel \
-            readline-devel libuuid-devel expat-devel \
-            pkgconf-pkg-config ca-certificates
-          update-ca-trust
-
-      # NOTE: The Python provided by setup-python may be build against newer GLIBC (>=2.34)
-      # than available on Rocky Linux causing Python to fail. Using uv to install Python
-      # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
-      # venv creation and wheelhouse builds work.
-      - name: Set up uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Pre-install specific Python version using uv
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
-        shell: bash
-        run: uv python install ${PYTHON_VERSION}
-
-      - name: Build wheelhouse and perform smoke test
-        id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
-        with:
-          checkout: false
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: rocky-linux-8
-          python-version: ${{ matrix.python-version }}
-          target: 'all'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2,decorator'
-
-      - name: Import python package
-        env:
-          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
-        shell: bash
-        run: |
-          ${ACTIVATE_VENV}
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      package-name: ${{ env.PACKAGE_NAME }}
+      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
+      checkout-in-build-wheelhouse: false
 
   build-wheelhouse-rocky-single:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
     name: Build wheelhouse (Rocky Linux)
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
-    steps:
-      - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.inputs.pyaedt-branch }}
-          persist-credentials: false
-
-      - name: Install build deps
-        shell: bash
-        run: |
-          set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
-            gcc wget make bzip2-devel zlib-devel xz-devel \
-            openssl-devel libffi-devel sqlite-devel \
-            readline-devel libuuid-devel expat-devel \
-            pkgconf-pkg-config ca-certificates
-          update-ca-trust
-
-      # NOTE: The Python provided by setup-python may be build against newer GLIBC (>=2.34)
-      # than available on Rocky Linux causing Python to fail. Using uv to install Python
-      # ensures a version compatible with the system GLIBC (manylinux_2_17 / 2_28), making
-      # venv creation and wheelhouse builds work.
-      - name: Set up uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Pre-install specific Python version using uv
-        env:
-          PYTHON_VERSION: ${{ github.event.inputs.python-version }}
-        shell: bash
-        run: uv python install ${PYTHON_VERSION}
-
-      - name: Build wheelhouse and perform smoke test
-        id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
-        with:
-          checkout: false
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: rocky-linux-8
-          python-version: ${{ github.event.inputs.python-version }}
-          target: 'all'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2,decorator'
-
-      - name: Import python package
-        env:
-          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
-        shell: bash
-        run: |
-          ${ACTIVATE_VENV}
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      package-name: ${{ env.PACKAGE_NAME }}
+      python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
+      checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
+      checkout-in-build-wheelhouse: false
