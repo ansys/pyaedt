@@ -40,9 +40,7 @@ jobs:
       matrix:
         python-version: ${{ fromJSON(inputs.python-versions) }}
     permissions:
-      attestations: write   # Required to create and publish build attestations (SLSA provenance)
-      contents: read        # Required to read repository content for building
-      id-token: write       # Required for OIDC token generation (for provenance signing)
+      contents: read        # Required to read repository content for checkout/build
     container:
       image: ${{ inputs.rocky-image }}
     steps:
