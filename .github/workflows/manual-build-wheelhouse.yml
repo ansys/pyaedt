@@ -190,7 +190,6 @@ jobs:
     name: Build wheelhouse (Rocky Linux)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      package-name: ${{ env.PACKAGE_NAME }}
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
       checkout-in-build-wheelhouse: false
@@ -200,7 +199,6 @@ jobs:
     name: Build wheelhouse (Rocky Linux)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      package-name: ${{ env.PACKAGE_NAME }}
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
       checkout-in-build-wheelhouse: false

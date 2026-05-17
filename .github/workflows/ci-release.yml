@@ -132,7 +132,6 @@ jobs:
     name: Build wheelhouse (Rocky Linux)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
-      package-name: ${{ env.PACKAGE_NAME }}
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
 
   unit-tests:

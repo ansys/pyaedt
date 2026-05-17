@@ -5,7 +5,8 @@ on:
     inputs:
       package-name:
         description: Python package/library name used by the build-wheelhouse action
-        required: true
+        required: false
+        default: 'PyAEDT'
         type: string
       python-versions:
         description: JSON array of Python versions for the matrix
