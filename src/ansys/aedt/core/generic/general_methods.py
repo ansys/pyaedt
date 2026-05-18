@@ -32,7 +32,6 @@ import inspect
 import itertools
 import logging
 import os
-from pathlib import Path
 import platform
 import re
 import shutil
@@ -712,85 +711,102 @@ def number_aware_string_key(s: str) -> tuple:
     return tuple(result)
 
 
-def _parse_proc_net_unix(aedt_pids: set) -> dict[int, int]:
-    """Resolve AEDT Unix-socket ports via ``/proc/net/unix`` and ``/proc/<pid>/fd``.
 
-    This is a fallback for systems where ``ss`` is unavailable or where
-    ``ss -xlp`` omits the PID field due to insufficient permissions (e.g.
-    RHEL 8 when AEDT runs as a different user).
+def _parse_ss_output(output: str) -> dict[int, int]:
+    """Parse the textual output of ``ss -lp``.
+
+    ``ss -lp`` lists every listening socket (Unix domain and TCP). PyAEDT
+    only needs the ones belonging to ``ansysedt`` / ``ansysedtsv`` and uses the
+    ``users:(("proc",pid=N,fd=M))`` trailer to recover the owning PID. The
+    port itself is encoded in two different ways depending on the row type:
+
+    1. Unix sockets, the port appears  in the socket path, ``/tmp/AnsysEMUDS-50051.sock``.
+    2. TCP listeners, the
+      port is the ``:<port>`` suffix of the ``Local Address:Port`` column, ``0.0.0.0:50051``.
 
     Parameters
     ----------
-    aedt_pids : set
-        Set of AEDT process IDs to resolve.  Only file descriptors belonging
-        to these PIDs are inspected, which keeps the scan fast.
+    output : str
+        Raw stdout text from ``ss -lp``.
 
     Returns
     -------
     dict[int, int]
-        Dictionary mapping process IDs to port numbers extracted from Unix
-        socket names (e.g. ``AnsysEMUDS-50051.sock``).
+        Mapping ``{pid: port}`` for AEDT processes detected in the output.
     """
-    results = {}
-    proc_net_unix = Path("/proc/net/unix")
-    if not proc_net_unix.exists():
-        return results
-
-    # Build inode → port mapping from /proc/net/unix
-    # Format: Num RefCount Protocol Flags Type St Inode Path
-    inode_to_port: dict[str, int] = {}
-    try:
-        for line in proc_net_unix.read_text().splitlines():
-            port_match = re.search(r"-(\d+)\.sock", line)
-            if not port_match:
-                continue
-            parts = line.split()
-            if len(parts) >= 7:
-                inode_to_port[parts[6]] = int(port_match.group(1))
-    except OSError as e:
-        pyaedt_logger.debug(f"Could not read {proc_net_unix}: {e}")
-        return results
-
-    if not inode_to_port:
-        return results
-
-    # Match inodes to the AEDT PIDs via /proc/<pid>/fd symlinks
-    for pid in aedt_pids:
-        fd_dir = Path(f"/proc/{pid}/fd")
-        try:
-            for fd_entry in fd_dir.iterdir():
-                try:
-                    target = fd_entry.readlink()
-                except OSError:
-                    continue
-                # target looks like "socket:[1234567]"
-                inode_match = re.match(r"socket:\[(\d+)]", str(target))
-                if inode_match:
-                    inode = inode_match.group(1)
-                    if inode in inode_to_port:
-                        results[pid] = inode_to_port[inode]
-                        break
-        except (PermissionError, FileNotFoundError):
+    results: dict[int, int] = {}
+    for line in output.splitlines():
+        if "ansysedt" not in line.lower():
+            continue
+        pid_match = re.search(r"pid=(\d+)", line)
+        if not pid_match:
             continue
 
+        # Unix-socket style (u_str rows): port encoded in the socket path.
+        port_match = re.search(r"-(\d+)\.sock", line)
+        if port_match:
+            results[int(pid_match.group(1))] = int(port_match.group(1))
+            continue
+
+        # TCP listening row: capture the port from the "Local Address:Port"
+        # column. We look at the column that immediately precedes the peer
+        # address (which always contains a wildcard such as ``*:*``).
+        tokens = line.split()
+        local_addr = None
+        for idx, tok in enumerate(tokens[:-1]):
+            nxt = tokens[idx + 1]
+            if (nxt.endswith(":*") or nxt.endswith(":*)")) and ":" in tok:
+                local_addr = tok
+                break
+        if not local_addr:
+            continue
+        # Handles IPv6 "[addr]:port" and IPv4 "addr:port".
+        tcp_port_match = re.search(r":(\d+)$", local_addr)
+        if tcp_port_match:
+            results[int(pid_match.group(1))] = int(tcp_port_match.group(1))
     return results
 
 
+def _run_ss(ss_cmd: str, args: list[str]) -> str | None:
+    """Run ``ss`` with the supplied arguments and return stdout on success."""
+    try:
+        proc = subprocess.run(
+            [ss_cmd, *args],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )  # nosec
+        if proc.returncode == 0:
+            return proc.stdout
+        pyaedt_logger.debug(f"'{ss_cmd} {' '.join(args)}' returned non-zero exit code: {proc.stderr.strip()}")
+    except Exception as e:  # pragma: no cover
+        pyaedt_logger.debug(f"Unexpected error running '{ss_cmd} {' '.join(args)}': {e}")
+    return None
+
+
 def _run_ss_xlp() -> dict[int, int]:
-    """Discover active AEDT Unix-socket ports on Linux.
+    """Discover active AEDT gRPC ports on Linux via ``ss -lp``.
 
-    Attempts the following strategies in order:
+    AEDT publishes its gRPC endpoint differently depending on the release:
 
-    1. **``ss -xlp``** — fast, but requires ``iproute2`` and, on RHEL/CentOS 8,
-       only shows ``pid=`` for processes owned by the current user.
-    2. **``/proc/net/unix`` + ``/proc/<pid>/fd``** — always available on Linux
-       via ``procfs``; works regardless of socket ownership.
+    * From AEDT 26R1 (with the Service Pack), AEDT uses Unix domain sockets
+      named ``AnsysEMUDS-<port>.sock``.
+    * Older AEDT releases (or AEDT without the Service Pack) listen on a
+      plain TCP port.
+
+    A single ``ss -lp`` invocation lists both kinds of listening sockets and
+    is significantly faster than walking every AEDT process with ``psutil``.
+    Callers (``is_grpc_session_active`` and ``active_sessions``) already fall
+    back to :func:`_check_psutil_connections` for any PID that this function
+    leaves unresolved, so no extra fallback is implemented here.
 
     Returns
     -------
     dict[int, int]
-        Dictionary mapping process IDs to port numbers extracted from Unix
-        socket names (e.g. ``AnsysEMUDS-50051.sock``).
+        Dictionary mapping process IDs to port numbers. PIDs that ``ss``
+        could not resolve are simply omitted from the result; the caller is
+        expected to handle them through its own psutil-based fallback.
 
     Examples
     --------
@@ -798,54 +814,23 @@ def _run_ss_xlp() -> dict[int, int]:
     >>> _run_ss_xlp()
     {12345: 50051, 67890: 50052}
     """
-    # Collect AEDT PIDs upfront so the procfs fallback can target them directly
-    aedt_targets = ["ansysedt.exe", "ansysedtsv.exe", "ansysedt", "ansysedtsv"]
-    aedt_pids: set[int] = set()
-    for target in aedt_targets:
-        for pid, _ in _get_target_processes([target]):
-            aedt_pids.add(pid)
+    # ``ss`` is a Linux-only utility. Skip everything elsewhere.
+    if not is_linux:  # pragma: no cover
+        return {}
 
-    results: dict[int, int] = {}
-
-    # Strategy 1: ss -xlp
-    # Use shutil.which() to locate ss.
-    # On RHEL 8, /usr/sbin is not in $PATH for non-root users, so we also
-    # probe /usr/sbin/ss explicitly as a fallback location.
+    # Locate ss. On RHEL 8, /usr/sbin is not in $PATH for non-root users, so
+    # we also probe /usr/sbin/ss explicitly as a fallback location.
     ss_cmd: str | None = shutil.which("ss") or shutil.which("ss", path="/usr/sbin")
-    ss_found = False
-    if ss_cmd:
-        try:
-            proc = subprocess.run(
-                [ss_cmd, "-xlp"],
-                check=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )  # nosec
-            if proc.returncode == 0:
-                ss_found = True
-                for line in proc.stdout.splitlines():
-                    if "ansysedt" not in line.lower():
-                        continue
-                    pid_match = re.search(r"pid=(\d+)", line)
-                    port_match = re.search(r"-(\d+)\.sock", line)
-                    if pid_match and port_match:
-                        results[int(pid_match.group(1))] = int(port_match.group(1))
-            else:
-                pyaedt_logger.debug(f"'{ss_cmd} -xlp' returned non-zero exit code: {proc.stderr.strip()}")
-        except Exception as e:
-            pyaedt_logger.debug(f"Unexpected error running '{ss_cmd} -xlp': {e}")
-    else:
-        pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin – falling back to /proc/net/unix")
+    if not ss_cmd:
+        pyaedt_logger.debug(
+            "'ss' not found in $PATH or /usr/sbin; callers will fall back to psutil."
+        )
+        return {}
 
-    # Fallback: /proc/net/unix + /proc/<pid>/fd
-    # Run if ss was not found, OR for any AEDT PID not yet resolved by ss.
-    unresolved = aedt_pids - results.keys()
-    if not ss_found or unresolved:
-        fallback = _parse_proc_net_unix(aedt_pids if not ss_found else unresolved)
-        results.update(fallback)
-
-    return results
+    out = _run_ss(ss_cmd, ["-lp"])
+    if out is None:
+        return {}
+    return _parse_ss_output(out)
 
 
 def _get_pids_by_name_windows(image_name: str) -> list[int]:
@@ -1194,7 +1179,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     it checks active TCP connections.
 
     The function uses multiple detection strategies:
-    1. On Linux: Checks Unix sockets using `ss -xlp`
+    1. On Linux: Checks listening sockets using ``ss -lp`` (with ``psutil`` fallback)
     2. Searches for AEDT processes
     3. Verifies TCP connections on localhost (127.0.0.1) for the specified port
 
@@ -1270,7 +1255,8 @@ def active_sessions(
     Detection Strategy (in order of execution):
         1. **Process Discovery**: Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
         2. **Command-Line Parsing**: Extracts gRPC port from ``-grpcsrv`` command-line argument.
-        3. **Unix Socket Analysis** (Linux only): Uses ``ss -xlp`` to find ports from socket files.
+        3. **Listening Socket Analysis** (Linux only): Uses ``ss -lp`` to find gRPC ports
+           from listening Unix sockets and TCP listeners.
         4. **TCP Connection Analysis**: Falls back to checking active TCP connections via psutil.
 
     Port Detection Results:
@@ -1367,8 +1353,8 @@ def active_sessions(
     # Example socket: AnsysEMUDS-50051.sock
     if is_linux and any(port == -1 for port in return_dict.values()):
         try:
-            # Run 'ss -xlp' command to get Unix socket information
-            sockets = _run_ss_xlp()  # Returns {pid: port} mapping from socket filenames
+            # Run 'ss -lp' command (with psutil fallback) to get listening port info
+            sockets = _run_ss_xlp()  # Returns {pid: port} mapping
 
             # Update return_dict with discovered ports
             for pid, port in sockets.items():

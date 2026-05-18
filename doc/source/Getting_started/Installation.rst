@@ -243,8 +243,9 @@ The default installation path on Linux is typically
     On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
     for session discovery lives in ``/usr/sbin/ss``, which may not be included in
     ``$PATH`` by default for non-root users. PyAEDT automatically probes
-    ``/usr/sbin/ss`` and falls back to reading ``/proc/net/unix`` directly, so
-    session detection works in most cases without any configuration changes.
+    ``/usr/sbin/ss`` and, if ``ss`` is still unavailable or cannot resolve every
+    AEDT process, falls back to ``psutil``,
+    so session detection works in most cases without any configuration changes.
 
     If you still experience issues with PyAEDT opening a new AEDT session instead
     of connecting to an existing one, you can add ``/usr/sbin`` to your ``$PATH``
@@ -252,7 +253,7 @@ The default installation path on Linux is typically
 
     .. code::
 
-        echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc
+        export PATH=$PATH:/usr/sbin
         source ~/.bashrc
 
 

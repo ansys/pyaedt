@@ -28,7 +28,7 @@ import pytest
 
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
-from ansys.aedt.core.generic.general_methods import _parse_proc_net_unix
+from ansys.aedt.core.generic.general_methods import _parse_ss_output
 from ansys.aedt.core.generic.general_methods import _run_ss_xlp
 from ansys.aedt.core.generic.general_methods import number_aware_string_key
 from ansys.aedt.core.generic.settings import is_linux
@@ -136,7 +136,7 @@ class TestGeneralMethods:
     def test_invalid_versions(self, version):
         assert not _is_version_format_valid(version)
 
-    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     def test_run_ss_xlp_returns_dict(self):
         result = _run_ss_xlp()
         assert isinstance(result, dict)
@@ -144,65 +144,74 @@ class TestGeneralMethods:
             assert isinstance(pid, int)
             assert isinstance(port, int)
 
-    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
-    @patch("ansys.aedt.core.generic.general_methods._get_target_processes")
-    def test_run_ss_xlp_with_real_unix_socket(self, mock_get_target_processes, tmp_path):
-        """Create a real Unix socket whose name matches the AnsysEMUDS pattern,
-        register it in /proc/net/unix (via the live kernel), and confirm that
-        _run_ss_xlp discovers for the current process.
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    @patch("ansys.aedt.core.generic.general_methods._run_ss")
+    def test_run_ss_xlp_invokes_ss_lp_and_parses_output(self, mock_run_ss):
+        """``_run_ss_xlp`` must call ``ss -lp`` and forward its output to the parser.
 
-        The test creates a listening Unix socket at
-        ``<tmp_path>/AnsysEMUDS-59999.sock`` bound inside the current process,
-        then calls _run_ss_xlp with the current PID injected as an AEDT target.
-        Both the ``ss`` path and the ``/proc/net/unix`` fallback are exercised
-        because the kernel exposes the socket in both places.
+        Mocks the ``_run_ss`` helper so the test does not depend on which AEDT
+        sessions (if any) happen to be running on the host.
         """
-        import os
-        import socket as _socket
+        mock_run_ss.return_value = (
+            "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\n"
+            "u_str LISTEN 0 128 /tmp/AnsysEMUDS-59999.sock 1234567 * 0"
+            ' users:(("ansysedt",pid=12345,fd=42))\n'
+            "tcp   LISTEN 0 4096 127.0.0.1:60000 0.0.0.0:*"
+            ' users:(("ansysedt",pid=67890,fd=43))\n'
+        )
 
-        sock_path = str(tmp_path / "AnsysEMUDS-59999.sock")
-        sock = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
-        try:
-            sock.bind(sock_path)
-            sock.listen(1)
+        result = _run_ss_xlp()
 
-            current_pid = os.getpid()
+        # ``_run_ss`` must have been called exactly once with the ``-lp`` flag.
+        assert mock_run_ss.call_count == 1
+        args, _ = mock_run_ss.call_args
+        assert args[1] == ["-lp"]
 
-            # Inject the current process as the only "AEDT" target so that
-            # _run_ss_xlp inspects our own /proc/<pid>/fd entries.
-            mock_get_target_processes.return_value = [(current_pid, ["/ansysedt"])]
-            result = _run_ss_xlp()
+        assert result == {12345: 59999, 67890: 60000}
 
-            # The socket must be discovered via ss or /proc/net/unix fallback.
-            assert current_pid in result
-            assert result[current_pid] == 59999
-        finally:
-            sock.close()
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
+    def test_run_ss_xlp_returns_empty_when_ss_missing(self, _mock_which):
+        """When ``ss`` is unavailable, ``_run_ss_xlp`` must return ``{}`` and let
+        the caller fall back to psutil."""
+        assert _run_ss_xlp() == {}
 
-    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
-    def test_parse_proc_net_unix_returns_dict(self):
-        result = _parse_proc_net_unix(set())
-        assert isinstance(result, dict)
+    def test_parse_ss_output_unix_socket(self):
+        """Unix-socket row: port comes from the ``AnsysEMUDS-<port>.sock`` path."""
+        sample = (
+            "Netid State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\n"
+            "u_str LISTEN 0      128    /tmp/AnsysEMUDS-50051.sock 1234567 * 0"
+            ' users:(("ansysedt",pid=12345,fd=42))\n'
+        )
+        result = _parse_ss_output(sample)
+        assert result == {12345: 50051}
 
-    @pytest.mark.skipif(is_linux, reason="Linux-only tests")
-    def test_parse_proc_net_unix_with_real_unix_socket(self, tmp_path):
-        """Bind a real Unix socket whose name matches AnsysEMUDS-<port>.sock,
-        then verify that _parse_proc_net_unix resolves the current pid→port
-        by reading the live /proc/net/unix and /proc/<pid>/fd.
+    def test_parse_ss_output_tcp_listener(self):
+        """TCP-listener row: port comes from the ``Local Address:Port`` column.
+
+        Covers AEDT releases that do not use Unix sockets (e.g. < 26R1 or 26R1
+        without the Service Pack).
         """
-        import os
-        import socket as _socket
+        sample = (
+            "Netid State  Recv-Q Send-Q   Local Address:Port  Peer Address:Port Process\n"
+            "tcp   LISTEN 0      4096     127.0.0.1:50051     0.0.0.0:*"
+            ' users:(("ansysedt",pid=12345,fd=42))\n'
+            "tcp   LISTEN 0      4096     [::1]:50052         [::]:*"
+            ' users:(("ansysedt",pid=67890,fd=43))\n'
+        )
+        result = _parse_ss_output(sample)
+        assert result == {12345: 50051, 67890: 50052}
 
-        sock_path = str(tmp_path / "AnsysEMUDS-58888.sock")
-        sock = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
-        try:
-            sock.bind(sock_path)
-            sock.listen(1)
+    def test_parse_ss_output_ignores_non_aedt(self):
+        sample = (
+            "tcp   LISTEN 0 128 127.0.0.1:22 0.0.0.0:*"
+            ' users:(("sshd",pid=999,fd=3))\n'
+        )
+        assert _parse_ss_output(sample) == {}
 
-            current_pid = os.getpid()
-            result = _parse_proc_net_unix({current_pid})
+    def test_run_ss_xlp_returns_empty_on_non_linux(self):
+        """``_run_ss_xlp`` must short-circuit to ``{}`` outside Linux."""
+        if is_linux:
+            pytest.skip("Behaviour only applies to non-Linux platforms.")
+        assert _run_ss_xlp() == {}
 
-            assert current_pid in result
-            assert result[current_pid] == 58888
-        finally:
-            sock.close()
