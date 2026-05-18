@@ -244,7 +244,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           target: ${{ matrix.target }}
           use-python-cache: false
-          whitelist-license-check: 'fpdf2,decorator'
+          whitelist-license-check: 'fpdf2'
 
       - name: Import python package
         env:
