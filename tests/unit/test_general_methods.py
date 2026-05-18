@@ -173,7 +173,8 @@ class TestGeneralMethods:
     @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
     def test_run_ss_xlp_returns_empty_when_ss_missing(self, _mock_which):
         """When ``ss`` is unavailable, ``_run_ss_xlp`` must return ``{}`` and let
-        the caller fall back to psutil."""
+        the caller fall back to psutil.
+        """
         assert _run_ss_xlp() == {}
 
     def test_parse_ss_output_unix_socket(self):
@@ -203,10 +204,7 @@ class TestGeneralMethods:
         assert result == {12345: 50051, 67890: 50052}
 
     def test_parse_ss_output_ignores_non_aedt(self):
-        sample = (
-            "tcp   LISTEN 0 128 127.0.0.1:22 0.0.0.0:*"
-            ' users:(("sshd",pid=999,fd=3))\n'
-        )
+        sample = 'tcp   LISTEN 0 128 127.0.0.1:22 0.0.0.0:* users:(("sshd",pid=999,fd=3))\n'
         assert _parse_ss_output(sample) == {}
 
     def test_run_ss_xlp_returns_empty_on_non_linux(self):
@@ -214,4 +212,3 @@ class TestGeneralMethods:
         if is_linux:
             pytest.skip("Behaviour only applies to non-Linux platforms.")
         assert _run_ss_xlp() == {}
-

@@ -711,7 +711,6 @@ def number_aware_string_key(s: str) -> tuple:
     return tuple(result)
 
 
-
 def _parse_ss_output(output: str) -> dict[int, int]:
     """Parse the textual output of ``ss -lp``.
 
@@ -822,9 +821,7 @@ def _run_ss_xlp() -> dict[int, int]:
     # we also probe /usr/sbin/ss explicitly as a fallback location.
     ss_cmd: str | None = shutil.which("ss") or shutil.which("ss", path="/usr/sbin")
     if not ss_cmd:
-        pyaedt_logger.debug(
-            "'ss' not found in $PATH or /usr/sbin; callers will fall back to psutil."
-        )
+        pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin; callers will fall back to psutil.")
         return {}
 
     out = _run_ss(ss_cmd, ["-lp"])
