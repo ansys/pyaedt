@@ -191,6 +191,7 @@ class TestGeneralMethods:
         """A non-zero ``ss`` exit code must produce an empty mapping."""
         mock_run.return_value = SimpleNamespace(returncode=1, stdout="", stderr="boom")
         assert _run_ss_xlp() == {}
+
     def test_parse_ss_output_unix_socket(self):
         """Unix-socket row: port comes from the ``AnsysEMUDS-<port>.sock`` path."""
         sample = (
@@ -226,4 +227,3 @@ class TestGeneralMethods:
         if is_linux:
             pytest.skip("Behaviour only applies to non-Linux platforms.")
         assert _run_ss_xlp() == {}
-
