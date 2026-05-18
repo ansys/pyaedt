@@ -219,14 +219,14 @@ wheels = [
 
 [[package]]
 name = "ansys-pythonnet"
-version = "3.1.0rc6"
+version = "3.1.0rc8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "clr-loader" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/9d/8052f80ffaeb85b33519a253b8875f6adb8aed5e713f986f83328ef1fc80/ansys_pythonnet-3.1.0rc6.tar.gz", hash = "sha256:8ae09cf7687a7b431f41f570d12bd7547e393618231d0ef877fe021d491fc945", size = 235323, upload-time = "2025-01-16T06:52:09.213Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/d4/5c5a51e69ceaf599251839fd4e8dc3d7a92463c03778ef660b27362c59c0/ansys_pythonnet-3.1.0rc8.tar.gz", hash = "sha256:cc0b73bcbbca77527ae7712e97dc17f442313a57c2e2e3f654111d31e99d5f98", size = 240682, upload-time = "2026-05-14T15:24:28.319Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/a0/3a9d2826e09fc7d345068b823d70d192a29422a733c2edfa848169b4983d/ansys_pythonnet-3.1.0rc6-py3-none-any.whl", hash = "sha256:556d67706bc293a2d990ab14176db6e812d294c81ab2eff23b230998c7dd0dcc", size = 297313, upload-time = "2025-01-16T06:52:05.035Z" },
+    { url = "https://files.pythonhosted.org/packages/05/6a/5cbbf4a0b04defc2e2eabf6ffe6677e8012bfe2dd1bf139ce43bd3eed610/ansys_pythonnet-3.1.0rc8-cp310.cp311.cp312.cp313.cp314-none-any.whl", hash = "sha256:9adf04a6b5394fb8d5084a9a086a0e37d5ac5db0caaa50e338e0ee2c3cce1549", size = 208337, upload-time = "2026-05-14T15:24:26.667Z" },
 ]
 
 [[package]]
@@ -681,14 +681,14 @@ wheels = [
 
 [[package]]
 name = "clr-loader"
-version = "0.2.10"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cffi" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/18/24/c12faf3f61614b3131b5c98d3bf0d376b49c7feaa73edca559aeb2aee080/clr_loader-0.2.10.tar.gz", hash = "sha256:81f114afbc5005bafc5efe5af1341d400e22137e275b042a8979f3feb9fc9446", size = 83605, upload-time = "2026-01-03T23:13:06.984Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/46/7eea92b6aa2d68af78e049cbecec5f757f1aad44ecdecdc16bbad7eead51/clr_loader-0.3.1.tar.gz", hash = "sha256:2e073e9aaf49d1ae2f56ecba27987ad5fb68be4bcd9dd34a5bed8f0e4e128366", size = 86805, upload-time = "2026-04-18T17:49:44.287Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/61/cf819f8e8bb4d4c74661acf2498ba8d4a296714be3478d21eaabf64f5b9b/clr_loader-0.2.10-py3-none-any.whl", hash = "sha256:ebbbf9d511a7fe95fa28a95a4e04cd195b097881dfe66158dc2c281d3536f282", size = 56483, upload-time = "2026-01-03T23:13:05.439Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/da/ec1a6e36624000b6df0dd61183c42342ee5814c073315e802cadaad04d2f/clr_loader-0.3.1-py3-none-any.whl", hash = "sha256:cbad189de20d202a7d621956b0fc38049e13c9bf7ca2923441eff725cd121aa1", size = 55730, upload-time = "2026-04-18T17:49:42.99Z" },
 ]
 
 [[package]]
