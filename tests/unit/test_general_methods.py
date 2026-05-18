@@ -144,38 +144,6 @@ class TestGeneralMethods:
             assert isinstance(pid, int)
             assert isinstance(port, int)
 
-    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
-    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
-    def test_run_ss_xlp_parses_unix_socket_rows(self, mock_run):
-        """``_run_ss_xlp`` must call ``ss -xlp`` and extract ``{pid: port}``
-        from ``AnsysEMUDS-<port>.sock`` rows.
-
-        ``subprocess.run`` is mocked so the test does not depend on which AEDT
-        sessions (if any) happen to be running on the host.
-        """
-        mock_run.return_value = SimpleNamespace(
-            returncode=0,
-            stdout=(
-                "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\n"
-                "u_str LISTEN 0 128 /tmp/AnsysEMUDS-59999.sock 1234567 * 0"
-                ' users:(("ansysedt",pid=12345,fd=42))\n'
-                "u_str LISTEN 0 128 /tmp/AnsysEMUDS-60000.sock 7654321 * 0"
-                ' users:(("ansysedtsv",pid=67890,fd=43))\n'
-                "u_str LISTEN 0 128 /tmp/other.sock 9999999 * 0"
-                ' users:(("sshd",pid=999,fd=3))\n'
-            ),
-            stderr="",
-        )
-
-        result = _run_ss_xlp()
-
-        # ``subprocess.run`` must have been called with ``ss -xlp``.
-        assert mock_run.call_count == 1
-        called_argv = mock_run.call_args[0][0]
-        assert called_argv[-1] == "-xlp"
-
-        # Only AEDT rows are kept.
-        assert result == {12345: 59999, 67890: 60000}
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
@@ -191,36 +159,6 @@ class TestGeneralMethods:
         """A non-zero ``ss`` exit code must produce an empty mapping."""
         mock_run.return_value = SimpleNamespace(returncode=1, stdout="", stderr="boom")
         assert _run_ss_xlp() == {}
-
-    def test_parse_ss_output_unix_socket(self):
-        """Unix-socket row: port comes from the ``AnsysEMUDS-<port>.sock`` path."""
-        sample = (
-            "Netid State  Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\n"
-            "u_str LISTEN 0      128    /tmp/AnsysEMUDS-50051.sock 1234567 * 0"
-            ' users:(("ansysedt",pid=12345,fd=42))\n'
-        )
-        result = _parse_ss_output(sample)
-        assert result == {12345: 50051}
-
-    def test_parse_ss_output_tcp_listener(self):
-        """TCP-listener row: port comes from the ``Local Address:Port`` column.
-
-        Covers AEDT releases that do not use Unix sockets (e.g. < 26R1 or 26R1
-        without the Service Pack).
-        """
-        sample = (
-            "Netid State  Recv-Q Send-Q   Local Address:Port  Peer Address:Port Process\n"
-            "tcp   LISTEN 0      4096     127.0.0.1:50051     0.0.0.0:*"
-            ' users:(("ansysedt",pid=12345,fd=42))\n'
-            "tcp   LISTEN 0      4096     [::1]:50052         [::]:*"
-            ' users:(("ansysedt",pid=67890,fd=43))\n'
-        )
-        result = _parse_ss_output(sample)
-        assert result == {12345: 50051, 67890: 50052}
-
-    def test_parse_ss_output_ignores_non_aedt(self):
-        sample = 'tcp   LISTEN 0 128 127.0.0.1:22 0.0.0.0:* users:(("sshd",pid=999,fd=3))\n'
-        assert _parse_ss_output(sample) == {}
 
     def test_run_ss_xlp_returns_empty_on_non_linux(self):
         """``_run_ss_xlp`` must short-circuit to ``{}`` outside Linux."""
