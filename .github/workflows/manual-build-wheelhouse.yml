@@ -196,7 +196,6 @@ jobs:
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
-      checkout-in-build-wheelhouse: false
 
   build-wheelhouse-rocky-single:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
@@ -207,4 +206,3 @@ jobs:
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
-      checkout-in-build-wheelhouse: false

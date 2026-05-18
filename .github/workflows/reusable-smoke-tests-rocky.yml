@@ -3,11 +3,6 @@ name: Reusable Rocky smoke tests
 on:
   workflow_call:
     inputs:
-      package-name:
-        description: Python package/library name used by the build-wheelhouse action
-        required: false
-        default: 'PyAEDT'
-        type: string
       python-versions:
         description: JSON array of Python versions for the matrix
         required: false
@@ -18,11 +13,6 @@ on:
         required: false
         default: ''
         type: string
-      checkout-in-build-wheelhouse:
-        description: Whether build-wheelhouse should checkout the repository
-        required: false
-        default: true
-        type: boolean
 
 permissions: {}
 
@@ -40,10 +30,9 @@ jobs:
       image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
     steps:
       - name: Checkout repository
-        if: ${{ inputs.checkout-ref != '' }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ inputs.checkout-ref }}
+          ref: ${{ inputs.checkout-ref || github.ref }}
           persist-credentials: false
 
       - name: Install build deps
@@ -77,8 +66,8 @@ jobs:
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
-          checkout: ${{ inputs.checkout-in-build-wheelhouse }}
-          library-name: ${{ inputs.package-name }}
+          checkout: false
+          library-name: PyAEDT
           operating-system: rocky-linux-8
           python-version: ${{ matrix.python-version }}
           target: 'all'
