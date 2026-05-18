@@ -714,12 +714,8 @@ def number_aware_string_key(s: str) -> tuple:
 def _run_ss_xlp() -> dict[int, int]:
     """Discover active AEDT gRPC Unix-socket ports on Linux via ``ss -xlp``.
 
-    From AEDT 26R1 (and with the Service Pack), AEDT publishes its gRPC endpoint
-    as a Unix domain socket named ``AnsysEMUDS-<port>.sock`` that ``ss -xlp``
-    can list very quickly. Older AEDT releases (or 26R1 without the Service
-    Pack) listen on plain TCP instead; this function returns an empty mapping
-    for them and the callers (``is_grpc_session_active`` and
-    ``active_sessions``) fall back to :func:`_check_psutil_connections`.
+    This function executes the `ss -xlp` command to list Unix sockets and
+    extracts port numbers from AEDT socket filenames.
 
     Returns
     -------
@@ -738,7 +734,7 @@ def _run_ss_xlp() -> dict[int, int]:
         return {}
 
     # Locate ss. On RHEL 8, /usr/sbin is not in $PATH for non-root users, so
-    # we also probe /usr/sbin/ss explicitly as a fallback location.
+    # also probe /usr/sbin/ss explicitly as a fallback location.
     ss_cmd: str | None = shutil.which("ss") or shutil.which("ss", path="/usr/sbin")
     if not ss_cmd:
         pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin; callers will fall back to psutil.")
