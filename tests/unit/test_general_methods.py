@@ -144,7 +144,6 @@ class TestGeneralMethods:
             assert isinstance(pid, int)
             assert isinstance(port, int)
 
-
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
     def test_run_ss_xlp_returns_empty_when_ss_missing(self, _mock_which):
