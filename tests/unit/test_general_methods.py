@@ -145,7 +145,8 @@ class TestGeneralMethods:
             assert isinstance(port, int)
 
     @pytest.mark.skipif(is_linux, reason="Linux-only tests")
-    def test_run_ss_xlp_with_real_unix_socket(self, tmp_path):
+    @patch("ansys.aedt.core.generic.general_methods._get_target_processes")
+    def test_run_ss_xlp_with_real_unix_socket(self, mock_get_target_processes, tmp_path):
         """Create a real Unix socket whose name matches the AnsysEMUDS pattern,
         register it in /proc/net/unix (via the live kernel), and confirm that
         _run_ss_xlp discovers for the current process.
@@ -169,11 +170,8 @@ class TestGeneralMethods:
 
             # Inject the current process as the only "AEDT" target so that
             # _run_ss_xlp inspects our own /proc/<pid>/fd entries.
-            with patch(
-                "ansys.aedt.core.generic.general_methods._get_target_processes",
-                return_value=[(current_pid, ["/ansysedt"])],
-            ):
-                result = _run_ss_xlp()
+            mock_get_target_processes.return_value = [(current_pid, ["/ansysedt"])]
+            result = _run_ss_xlp()
 
             # The socket must be discovered via ss or /proc/net/unix fallback.
             assert current_pid in result
