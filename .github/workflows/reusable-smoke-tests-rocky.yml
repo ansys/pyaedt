@@ -66,7 +66,6 @@ jobs:
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
-          attest-provenance: true
           checkout: false
           library-name: PyAEDT
           operating-system: rocky-linux-8
