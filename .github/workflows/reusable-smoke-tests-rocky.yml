@@ -14,6 +14,12 @@ on:
         default: ''
         type: string
 
+# To use this workflow from another workflow, you need to specify
+# the permissions for the GitHub token in the calling workflow.
+# Required permissions are listed below:
+# - attestations: write   # Required to create and publish build attestations
+# - contents: read        # Required to read repository content for building
+# - id-token: write       # Required for OIDC token generation
 permissions: {}
 
 jobs:
@@ -24,8 +30,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ${{ fromJSON(inputs.python-versions) }}
-    permissions:
-      contents: read        # Required to read repository content for checkout/build
     container:
       image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
     steps:
@@ -66,6 +70,7 @@ jobs:
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
+          attest-provenance: true
           checkout: false
           library-name: PyAEDT
           operating-system: rocky-linux-8
