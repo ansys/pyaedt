@@ -253,7 +253,6 @@ jobs:
 
   smoke-tests-rocky:
     name: Build wheelhouse and smoke tests (Rocky Linux)
-    needs: [analyze-changes]
     permissions:
       contents: read
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
