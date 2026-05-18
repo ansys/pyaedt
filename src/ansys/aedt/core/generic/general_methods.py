@@ -758,12 +758,17 @@ def _run_ss_xlp() -> dict[int, int]:
 
     results: dict[int, int] = {}
     for line in proc.stdout.splitlines():
-        if "ansysedt" not in line.lower():
+        if "ansysedt.exe" not in line.lower():
             continue
         pid_match = re.search(r"pid=(\d+)", line)
+        pid = int(pid_match.group(1)) if pid_match else None
+
         port_match = re.search(r"-(\d+)\.sock", line)
-        if pid_match and port_match:
-            results[int(pid_match.group(1))] = int(port_match.group(1))
+        port = int(port_match.group(1)) if port_match else None
+
+        if pid and port:
+            results[pid] = port
+
     return results
 
 
