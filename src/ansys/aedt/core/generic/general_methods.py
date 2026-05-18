@@ -1189,8 +1189,7 @@ def active_sessions(
     Detection Strategy (in order of execution):
         1. **Process Discovery**: Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
         2. **Command-Line Parsing**: Extracts gRPC port from ``-grpcsrv`` command-line argument.
-        3. **Unix Socket Analysis** (Linux only): Uses ``ss -xlp`` to find gRPC ports
-           from ``AnsysEMUDS-<port>.sock`` Unix domain sockets (AEDT 26R1 SP+).
+        3. **Unix Socket Analysis** (Linux only): Uses ``ss -xlp`` to find ports from socket files.
         4. **TCP Connection Analysis**: Falls back to checking active TCP connections via psutil.
 
     Port Detection Results:
@@ -1287,8 +1286,8 @@ def active_sessions(
     # Example socket: AnsysEMUDS-50051.sock
     if is_linux and any(port == -1 for port in return_dict.values()):
         try:
-            # Run 'ss -xlp' command (with psutil fallback) to get Unix-socket info
-            sockets = _run_ss_xlp()  # Returns {pid: port} mapping
+            # Run 'ss -xlp' command to get Unix socket information
+            sockets = _run_ss_xlp()  # Returns {pid: port} mapping from socket filenames
 
             # Update return_dict with discovered ports
             for pid, port in sockets.items():
