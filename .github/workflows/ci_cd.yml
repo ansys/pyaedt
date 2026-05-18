@@ -238,6 +238,7 @@ jobs:
         id: build-wheelhouse
         uses: ansys/actions/build-wheelhouse@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
         with:
+          attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
