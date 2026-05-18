@@ -5361,12 +5361,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.value_with_units(phi_start, units)
-        props[defs[1]] = self.value_with_units(phi_stop, units)
-        props[defs[2]] = self.value_with_units(phi_step, units)
-        props[defs[3]] = self.value_with_units(theta_start, units)
-        props[defs[4]] = self.value_with_units(theta_stop, units)
-        props[defs[5]] = self.value_with_units(theta_step, units)
+        props[defs[0]] = self.value_with_units(theta_start, units)
+        props[defs[1]] = self.value_with_units(theta_stop, units)
+        props[defs[2]] = self.value_with_units(theta_step, units)
+        props[defs[3]] = self.value_with_units(phi_start, units)
+        props[defs[4]] = self.value_with_units(phi_stop, units)
+        props[defs[5]] = self.value_with_units(phi_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
