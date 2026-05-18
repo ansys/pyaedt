@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
-from ansys.aedt.core.generic.general_methods import _parse_ss_output
 from ansys.aedt.core.generic.general_methods import _run_ss_xlp
 from ansys.aedt.core.generic.general_methods import number_aware_string_key
 from ansys.aedt.core.generic.settings import is_linux
@@ -145,28 +145,36 @@ class TestGeneralMethods:
             assert isinstance(port, int)
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
-    @patch("ansys.aedt.core.generic.general_methods._run_ss")
-    def test_run_ss_xlp_invokes_ss_lp_and_parses_output(self, mock_run_ss):
-        """``_run_ss_xlp`` must call ``ss -lp`` and forward its output to the parser.
+    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
+    def test_run_ss_xlp_parses_unix_socket_rows(self, mock_run):
+        """``_run_ss_xlp`` must call ``ss -xlp`` and extract ``{pid: port}``
+        from ``AnsysEMUDS-<port>.sock`` rows.
 
-        Mocks the ``_run_ss`` helper so the test does not depend on which AEDT
+        ``subprocess.run`` is mocked so the test does not depend on which AEDT
         sessions (if any) happen to be running on the host.
         """
-        mock_run_ss.return_value = (
-            "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\n"
-            "u_str LISTEN 0 128 /tmp/AnsysEMUDS-59999.sock 1234567 * 0"
-            ' users:(("ansysedt",pid=12345,fd=42))\n'
-            "tcp   LISTEN 0 4096 127.0.0.1:60000 0.0.0.0:*"
-            ' users:(("ansysedt",pid=67890,fd=43))\n'
+        mock_run.return_value = SimpleNamespace(
+            returncode=0,
+            stdout=(
+                "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\n"
+                "u_str LISTEN 0 128 /tmp/AnsysEMUDS-59999.sock 1234567 * 0"
+                ' users:(("ansysedt",pid=12345,fd=42))\n'
+                "u_str LISTEN 0 128 /tmp/AnsysEMUDS-60000.sock 7654321 * 0"
+                ' users:(("ansysedtsv",pid=67890,fd=43))\n'
+                "u_str LISTEN 0 128 /tmp/other.sock 9999999 * 0"
+                ' users:(("sshd",pid=999,fd=3))\n'
+            ),
+            stderr="",
         )
 
         result = _run_ss_xlp()
 
-        # ``_run_ss`` must have been called exactly once with the ``-lp`` flag.
-        assert mock_run_ss.call_count == 1
-        args, _ = mock_run_ss.call_args
-        assert args[1] == ["-lp"]
+        # ``subprocess.run`` must have been called with ``ss -xlp``.
+        assert mock_run.call_count == 1
+        called_argv = mock_run.call_args[0][0]
+        assert called_argv[-1] == "-xlp"
 
+        # Only AEDT rows are kept.
         assert result == {12345: 59999, 67890: 60000}
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
@@ -177,6 +185,12 @@ class TestGeneralMethods:
         """
         assert _run_ss_xlp() == {}
 
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
+    def test_run_ss_xlp_returns_empty_when_ss_fails(self, mock_run):
+        """A non-zero ``ss`` exit code must produce an empty mapping."""
+        mock_run.return_value = SimpleNamespace(returncode=1, stdout="", stderr="boom")
+        assert _run_ss_xlp() == {}
     def test_parse_ss_output_unix_socket(self):
         """Unix-socket row: port comes from the ``AnsysEMUDS-<port>.sock`` path."""
         sample = (
@@ -212,3 +226,4 @@ class TestGeneralMethods:
         if is_linux:
             pytest.skip("Behaviour only applies to non-Linux platforms.")
         assert _run_ss_xlp() == {}
+
