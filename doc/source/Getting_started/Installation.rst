@@ -239,6 +239,7 @@ The default installation path on Linux is typically
 ``/opt/AnsysEM/v<XYZ>/AnsysEM`` or ``/usr/ansys_inc/v<XYZ>/AnsysEM``.
 
 .. note::
+
     On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
     for session discovery lives in ``/usr/sbin/ss``, which may not be included in
     ``$PATH`` by default for non-root users. PyAEDT automatically probes
