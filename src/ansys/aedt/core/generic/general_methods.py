@@ -1279,9 +1279,9 @@ def active_sessions(
     # Student version uses different executable names (ansysedtsv vs ansysedt)
     if student_version:
         # Linux needs both variants (with and without .exe extension)
-        target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
+        target = ["ansysedtsv.exe"]
     else:
-        target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+        target = ["ansysedt.exe"]
 
     # Step 2: Normalize version format to ensure consistent version matching
     # Converts various formats ("2022.2", "222") to a standardized string
@@ -1320,6 +1320,13 @@ def active_sessions(
         except Exception as e:
             # Log but don't fail - we have other detection methods
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
+
+    connections = _check_psutil_connections(list(return_dict.keys()))
+
+    if version:
+        return_dict={ i:j for i, j in return_dict.items() if version in connections[i][0]["cmdline"]}
+
+    # if non_graphical is not None
 
     # Step 6: Fallback method - Try to find ports by checking TCP network connections
     # This works when command-line parsing and Unix socket analysis didn't find the port
