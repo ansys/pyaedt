@@ -1027,7 +1027,7 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         analyze=False,
         design_name="TDR_Single",
         time_step="2ns",
-        time_stop="10ns"
+        time_stop="10ns",
     )
     assert result
 
