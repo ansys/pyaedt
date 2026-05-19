@@ -92,6 +92,7 @@ def test_add_sweep(aedt_app) -> None:
     sweep = setup.add_sweep("Q2D_Sweep1")
     assert sweep.add_subrange("LinearCount", 0.0, 100e6, 10)
     assert sweep.add_subrange("LinearStep", 100e6, 2e9, 50e6)
+    assert sweep.add_subrange("LogScale", 100, 100e6, 10)
     assert sweep.add_subrange("LogScale", 100, 100e6, 10, clear=True)
     assert sweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
     assert sweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
