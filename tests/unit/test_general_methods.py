@@ -147,9 +147,6 @@ class TestGeneralMethods:
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
     def test_run_ss_xlp_returns_empty_when_ss_missing(self, _mock_which):
-        """When ``ss`` is unavailable, ``_run_ss_xlp`` must return ``{}`` and let
-        the caller fall back to psutil.
-        """
         assert _run_ss_xlp() == {}
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
