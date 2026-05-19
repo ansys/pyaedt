@@ -1180,8 +1180,6 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
     targets = ["ansysedt.exe", "ansysedtsv.exe"]
-    if is_linux:
-        targets.extend(["ansysedt", "ansysedtsv"])
 
     for target in targets:
         target_processes = _get_target_processes([target])
