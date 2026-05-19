@@ -1323,7 +1323,7 @@ def active_sessions(
     connections = _check_psutil_connections(list(return_dict.keys()))
 
     if version:
-        return_dict={ i:j for i, j in return_dict.items() if version in connections[i][0]["cmdline"]}
+        return_dict = {i: j for i, j in return_dict.items() if version in connections[i][0]["cmdline"]}
 
     # if non_graphical is not None
 
