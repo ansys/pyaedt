@@ -1331,7 +1331,7 @@ def active_sessions(
         if version is not None and version not in cmdline:
             continue
 
-        # Non graphical filter
+        # Non-graphical filter
         if non_graphical is not None:
             non_graphical_flag = "-ng"
             flag_present = non_graphical_flag in cmdline
