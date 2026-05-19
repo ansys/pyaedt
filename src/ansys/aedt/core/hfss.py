@@ -463,6 +463,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         iswaveport: bool = False,
         impedance: float | None = None,
         terminals_rename: bool = True,
+        specify_terminals: list = [],
     ) -> NearFieldSetup:
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = {}
@@ -473,64 +474,80 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
         boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
-            new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
-            terminals = [i for i in new_ports if i not in ports]
-            for count, terminal in enumerate(terminals, start=1):
-                props_terminal = {}
-                props_terminal["TerminalResistance"] = "50ohm"
-                props_terminal["ParentBndID"] = boundary.name
-                terminal_name = terminal
-
-                if impedance:
-                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change terminal impedance.")
-                if not renorm:
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Renorm All Terminals", "Value:=", False],
-                            ],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to change normalization.")
-                if terminals_rename:
+            if specify_terminals:
+                if isinstance(specify_terminals, int):
+                    specify_terminals = [specify_terminals]
+                for count, custom_terminal in enumerate(specify_terminals, start=1):
+                    props_custom_terminal = []
                     new_name = port_name + "_T" + str(count)
-                    terminal_name = new_name
-                    properties = [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:HfssTab",
-                            ["NAME:PropServers", "BoundarySetup:" + terminal],
-                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                        ],
-                    ]
-                    try:
-                        self.odesign.ChangeProperty(properties)
-                    except Exception:  # pragma: no cover
-                        self.logger.warning(f"Failed to rename terminal {terminal}.")
-                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                    props_custom_terminal.append("Name:" + new_name)
+                    props_custom_terminal.append("Faces:=")
+                    props_custom_terminal.append(specify_terminals)
+                    props_custom_terminal.append("ParentBndID:=")
+                    props_custom_terminal.append(port_name)
+                    props_custom_terminal.append("ImpedanceType:=")
+                    props_custom_terminal.append("Impedance")
+                    props_custom_terminal.append("TerminalResistance:=")
+                    props_custom_terminal.append(str(impedance) + "ohm")
+                    self.oboundary.AssignTerminal(props_custom_terminal)
+            else:
+                new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
+                terminals = [i for i in new_ports if i not in ports]
+                for count, terminal in enumerate(terminals, start=1):
+                    props_terminal = {}
+                    props_terminal["TerminalResistance"] = "50ohm"
+                    props_terminal["ParentBndID"] = boundary.name
+                    terminal_name = terminal
+                    if impedance:
+                        props_terminal["TerminalResistance"] = str(impedance) + "ohm"
+                        properties = [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:HfssTab",
+                                ["NAME:PropServers", "BoundarySetup:" + terminal],
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
+                                ],
+                            ],
+                        ]
+                        try:
+                            self.odesign.ChangeProperty(properties)
+                        except Exception:  # pragma: no cover
+                            self.logger.warning("Failed to change terminal impedance.")
+                    if not renorm:
+                        properties = [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:HfssTab",
+                                ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:Renorm All Terminals", "Value:=", False],
+                                ],
+                            ],
+                        ]
+                        try:
+                            self.odesign.ChangeProperty(properties)
+                        except Exception:  # pragma: no cover
+                            self.logger.warning("Failed to change normalization.")
+                    if terminals_rename:
+                        new_name = port_name + "_T" + str(count)
+                        terminal_name = new_name
+                        properties = [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:HfssTab",
+                                ["NAME:PropServers", "BoundarySetup:" + terminal],
+                                ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                            ],
+                        ]
+                        try:
+                            self.odesign.ChangeProperty(properties)
+                        except Exception:  # pragma: no cover
+                            self.logger.warning(f"Failed to rename terminal {terminal}.")
+                    bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
+                    self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -6587,6 +6604,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         hfactor: int | None = 5,
         terminals_rename: bool | None = True,
         characteristic_impedance: str | list | None = "Zpi",
+        specify_terminals: int | list[int] | None = [],
     ) -> BoundaryObject:
         """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
 
@@ -6635,6 +6653,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         characteristic_impedance : str or list, optional
             Characteristic impedance for each mode. Available options are `"Zpi"``,`"Zpv"``, `"Zvi"``, and `"Zwave"``.
             The default is ``"Zpi"``.
+        specify_terminals : list[int], optional
+            Faces ID in which wave port terminals will be created.
 
         Returns
         -------
@@ -6773,7 +6793,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             else:
                 deembed = deembed
 
-            # Draw terminal lumped port between two objects.
+            # Draw terminal wave port between two objects.
             return self._create_port_terminal(
                 faces[0],
                 reference,
@@ -6783,6 +6803,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 iswaveport=True,
                 impedance=impedance,
                 terminals_rename=terminals_rename,
+                specify_terminals=specify_terminals
             )
 
         else:  # pragma: no cover

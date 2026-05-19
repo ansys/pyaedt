@@ -174,6 +174,7 @@ def test_create_wave_port_from_sheets_terminal(aedt_app):
         renormalize=False,
         deembed=5,
         terminals_rename=False,
+        specify_terminals=8,
     )
 
     assert port.properties
