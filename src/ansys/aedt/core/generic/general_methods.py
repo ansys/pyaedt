@@ -75,6 +75,9 @@ inclusion_list = [
     "EditSources",
 ]
 
+RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
+RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[0-9.]+):(\d{1,5})\b")
+
 
 def _write_mes(mes_text) -> None:
     mes_text = str(mes_text)
@@ -730,6 +733,8 @@ def _run_ss_xlp() -> dict[int, int]:
     {12345: 50051, 67890: 50052}
     """
     # ``ss`` is a Linux-only utility. Skip everything elsewhere.
+    import grpc
+
     if not is_linux:  # pragma: no cover
         return {}
 
@@ -742,7 +747,7 @@ def _run_ss_xlp() -> dict[int, int]:
 
     try:
         proc = subprocess.run(
-            [ss_cmd, "-xlp"],
+            [ss_cmd, "-Hnlp"],
             check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -758,19 +763,29 @@ def _run_ss_xlp() -> dict[int, int]:
 
     results: dict[int, int] = {}
     for line in proc.stdout.splitlines():
-        if "ansysedt.exe" not in line:
+        if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # Extract PID from the line (format: "pid=12345")
+        tokens = line.split()
+        if len(tokens) < 4 or tokens[3] != "2048":
+            continue
+
         pid_match = re.search(r"pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
-        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
-        port_match = re.search(r"-(\d+)\.sock", line)
-        port = int(port_match.group(1)) if port_match else None
+        if not pid:
+            continue
 
-        if pid and port:
-            results[pid] = port
+        secure_line = RE_SOCK.search(line)
+        insecure_line = RE_PORT.search(line)
+
+        if secure_line:
+            port = int(secure_line.group(1))
+
+        elif insecure_line:
+            port = int(insecure_line.group(1))
+
+        results[pid] = port
 
     return results
 
