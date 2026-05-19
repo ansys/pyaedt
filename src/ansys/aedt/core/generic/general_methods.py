@@ -762,6 +762,7 @@ def _run_ss_xlp() -> dict[int, int]:
 
     results: dict[int, int] = {}
     for line in proc.stdout.splitlines():
+        port = -1
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
@@ -1271,9 +1272,6 @@ def active_sessions(
     >>> active_sessions(version="2024.1", non_graphical=True)
     {45678: 50054}
     """
-    # Initialize result dictionary: will map process ID (PID) to port number
-    return_dict = {}
-
     # Step 1: Determine target process names based on version type and operating system
     # Student version uses different executable names (ansysedtsv vs ansysedt)
     if student_version:
@@ -1320,26 +1318,34 @@ def active_sessions(
             # Log but don't fail - we have other detection methods
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
+    # Get all TCP connections for our AEDT processes
     connections = _check_psutil_connections(list(return_dict.keys()))
 
-    if version:
-        return_dict={ i:j for i, j in return_dict.items() if version in connections[i][0]["cmdline"]}
+    return_dict_filtered = {}
+    for pid, port in return_dict.items():
+        cmdline = ""
+        if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
+            cmdline = connections[pid][0]["cmdline"]
 
-    # if non_graphical is not None
+        # Version filter
+        if version is not None and version not in cmdline:
+            continue
+
+        # Non graphical filter
+        if non_graphical is not None:
+            non_graphical_flag = "-ng"
+            flag_present = non_graphical_flag in cmdline
+            if non_graphical != flag_present:
+                continue
+
+        return_dict_filtered[pid] = port
 
     # Step 6: Fallback method - Try to find ports by checking TCP network connections
-    # This works when command-line parsing and Unix socket analysis didn't find the port
-    if any(port == -1 for port in return_dict.values()):
-        # Get all TCP connections for our AEDT processes
-        connections = _check_psutil_connections(list(return_dict.keys()))
+    if any(port == -1 for port in return_dict_filtered.values()):
+        for pid in [i for i, v in return_dict_filtered.items() if v == -1]:
+            return_dict_filtered[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
 
-        # For each process with unknown port (-1), try to find it via TCP connections
-        for pid in [i for i, v in return_dict.items() if v == -1]:
-            # Check for LISTEN connections on localhost that match our filters
-            # This method also applies version and non_graphical filters
-            return_dict[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
-
-    return return_dict
+    return return_dict_filtered
 
 
 @pyaedt_function_handler()
