@@ -6803,7 +6803,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 iswaveport=True,
                 impedance=impedance,
                 terminals_rename=terminals_rename,
-                specify_terminals=specify_terminals
+                specify_terminals=specify_terminals,
             )
 
         else:  # pragma: no cover
