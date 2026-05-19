@@ -26,6 +26,7 @@ import locale
 
 import pytest
 
+from ansys.aedt.core import settings
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from tests.conftest import DESKTOP_VERSION
@@ -45,10 +46,12 @@ else:
 @pytest.fixture
 def lumped_design():
     """Fixture for creating a LumpedDesign object."""
+    settings.use_grpc_api = False
     return LumpedDesign(DESKTOP_VERSION)
 
 
 @pytest.fixture
 def distributed_design():
     """Fixture for creating a DistributedDesign object."""
+    settings.use_grpc_api = False
     return DistributedDesign(DESKTOP_VERSION)
