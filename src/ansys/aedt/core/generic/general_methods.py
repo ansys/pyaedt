@@ -737,7 +737,7 @@ def _run_ss_xlp() -> dict[int, int]:
     # also probe /usr/sbin/ss explicitly as a fallback location.
     ss_cmd: str | None = shutil.which("ss") or shutil.which("ss", path="/usr/sbin")
     if not ss_cmd:
-        pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin; callers will fall back to psutil.")
+        pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin.")
         return {}
 
     try:
@@ -758,11 +758,14 @@ def _run_ss_xlp() -> dict[int, int]:
 
     results: dict[int, int] = {}
     for line in proc.stdout.splitlines():
-        if "ansysedt.exe" not in line.lower():
+        if "ansysedt.exe" not in line:
             continue
+
+        # Extract PID from the line (format: "pid=12345")
         pid_match = re.search(r"pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
+        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
         port_match = re.search(r"-(\d+)\.sock", line)
         port = int(port_match.group(1)) if port_match else None
 
