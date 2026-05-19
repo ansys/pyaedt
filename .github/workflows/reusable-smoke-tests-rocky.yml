@@ -14,15 +14,14 @@ on:
         default: ''
         type: string
 
-permissions:
-  attestations: write   # Required to create and publish build attestations (SLSA provenance)
-  contents: read        # Required to read repository content for building
-  id-token: write       # Required for OIDC token generation (for provenance signing)
-
 jobs:
   smoke-tests-rocky:
     name: Build wheelhouse and smoke tests (Rocky Linux)
     runs-on: ubuntu-latest
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
     strategy:
       fail-fast: false
       matrix:
