@@ -1242,17 +1242,28 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=30,
     )
     assert bound
-    assert bound.azimuth_start == "1deg"
-    assert bound.azimuth_stop == "91deg"
-    assert bound.azimuth_step == "45deg"
-    assert bound.elevation_start == "2deg"
-    assert bound.elevation_stop == "92deg"
-    assert bound.elevation_step == "10deg"
+    assert bound.azimuth_start == "2deg"
+    assert bound.properties["Start Azimuth"] == "2deg"
+    assert bound.azimuth_stop == "92deg"
+    assert bound.properties["Stop Azimuth"] == "92deg"
+    assert bound.azimuth_step == "10deg"
+    assert bound.properties["Azimuth Step"] == "10deg"
+    assert bound.elevation_start == "1deg"
+    assert bound.properties["Start Elevation"] == "1deg"
+    assert bound.elevation_stop == "91deg"
+    assert bound.properties["Stop Elevation"] == "91deg"
+    assert bound.elevation_step == "45deg"
+    assert bound.properties["Elevation Step"] == "45deg"
     assert bound.slant_angle == "30deg"
+    assert bound.properties["Slant Angle"] == "30deg"
     assert bound.polarization == "Slant"
+    assert bound.properties["Polarization"] == "Slant"
+
     bound.azimuth_start = 20
     assert bound.azimuth_start == "20deg"
+    assert bound.properties["Start Azimuth"] == "20deg"
     assert bound.delete()
+
     bound = aedt_app.insert_infinite_sphere(
         definition="Az Over El",
         phi_start=1,
@@ -1264,14 +1275,16 @@ def test_create_infinite_sphere(aedt_app) -> None:
         use_slant_polarization=True,
         polarization_angle=30,
     )
-    assert bound.azimuth_start == "2deg"
+    assert bound.azimuth_start == "1deg"
+    assert bound.properties["Start Azimuth"] == "1deg"
     assert bound.delete()
+
     # Test with default "Theta-Phi" definition
     bound = aedt_app.insert_infinite_sphere(
         definition="Theta-Phi",
         phi_start=0,
         phi_stop=180,
-        phi_step=10,
+        phi_step=7,
         theta_start=-180,
         theta_stop=180,
         theta_step=10,
@@ -1279,13 +1292,20 @@ def test_create_infinite_sphere(aedt_app) -> None:
         polarization_angle=0,
     )
     assert bound
-    assert bound.theta_start == "0deg"
+    assert bound.theta_start == "-180deg"
+    assert bound.properties["Start Theta"] == "-180deg"
     assert bound.theta_stop == "180deg"
+    assert bound.properties["Stop Theta"] == "180deg"
     assert bound.theta_step == "10deg"
-    assert bound.phi_start == "-180deg"
+    assert bound.properties["Theta step"] == "10deg"
+    assert bound.phi_start == "0deg"
+    assert bound.properties["Start Phi"] == "0deg"
     assert bound.phi_stop == "180deg"
-    assert bound.phi_step == "10deg"
+    assert bound.properties["Stop Phi"] == "180deg"
+    assert bound.phi_step == "7deg"
+    assert bound.properties["Phi Step"] == "7deg"
     assert bound.polarization == "Linear"
+    assert bound.properties["Polarization"] == "Linear"
 
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
