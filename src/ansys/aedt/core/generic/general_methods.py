@@ -733,7 +733,6 @@ def _run_ss_xlp() -> dict[int, int]:
     {12345: 50051, 67890: 50052}
     """
     # ``ss`` is a Linux-only utility. Skip everything elsewhere.
-    import grpc
 
     if not is_linux:  # pragma: no cover
         return {}
