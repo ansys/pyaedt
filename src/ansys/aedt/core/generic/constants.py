@@ -26,7 +26,6 @@ from __future__ import absolute_import
 from enum import IntEnum
 from enum import auto
 import math
-from typing import Callable
 import warnings
 
 from ansys.aedt.core.generic.settings import settings
