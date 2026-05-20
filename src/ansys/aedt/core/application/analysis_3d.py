@@ -1352,7 +1352,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
             - ``0`` for script.
             - ``1`` for Parasolid.
-        layernames_map= list[str]
+        layernames_map: list[str]
             List containing custom names for the gds layers.
 
         Returns
