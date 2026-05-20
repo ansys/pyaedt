@@ -746,7 +746,7 @@ def _run_ss_xlp() -> dict[int, int]:
 
     try:
         proc = subprocess.run(
-            f"{ss_cmd} -Hnlp | grep ansysedt",
+            [ss_cmd, "-Hnlp"],
             check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
