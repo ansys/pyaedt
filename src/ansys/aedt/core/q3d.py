@@ -2599,7 +2599,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> "Object3d":
+    def create_rectangle(
+        self, origin: list, sizes: list, name: str | None = "", material: str | None = ""
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
