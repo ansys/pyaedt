@@ -28,7 +28,7 @@ import csv
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations
@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
