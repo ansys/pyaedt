@@ -29,7 +29,7 @@ import pytest
 
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
-from ansys.aedt.core.generic.general_methods import _run_ss_xlp
+from ansys.aedt.core.generic.general_methods import _run_ss
 from ansys.aedt.core.generic.general_methods import number_aware_string_key
 from ansys.aedt.core.generic.settings import is_linux
 
@@ -137,8 +137,8 @@ class TestGeneralMethods:
         assert not _is_version_format_valid(version)
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
-    def test_run_ss_xlp_returns_dict(self):
-        result = _run_ss_xlp()
+    def test_run_ss_returns_dict(self):
+        result = _run_ss()
         assert isinstance(result, dict)
         for pid, port in result.items():
             assert isinstance(pid, int)
@@ -146,18 +146,18 @@ class TestGeneralMethods:
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
-    def test_run_ss_xlp_returns_empty_when_ss_missing(self, _mock_which):
-        assert _run_ss_xlp() == {}
+    def test_run_ss_returns_empty_when_ss_missing(self, _mock_which):
+        assert _run_ss() == {}
 
     @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
     @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
-    def test_run_ss_xlp_returns_empty_when_ss_fails(self, mock_run):
+    def test_run_ss_returns_empty_when_ss_fails(self, mock_run):
         """A non-zero ``ss`` exit code must produce an empty mapping."""
         mock_run.return_value = SimpleNamespace(returncode=1, stdout="", stderr="boom")
-        assert _run_ss_xlp() == {}
+        assert _run_ss() == {}
 
-    def test_run_ss_xlp_returns_empty_on_non_linux(self):
-        """``_run_ss_xlp`` must short-circuit to ``{}`` outside Linux."""
+    def test_run_ss_returns_empty_on_non_linux(self):
+        """``_run_ss`` must short-circuit to ``{}`` outside Linux."""
         if is_linux:
             pytest.skip("Behaviour only applies to non-Linux platforms.")
-        assert _run_ss_xlp() == {}
+        assert _run_ss() == {}
