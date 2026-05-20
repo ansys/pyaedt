@@ -996,7 +996,7 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method is not working in Linux and non-graphical mode.")
 def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
-    result, _ = aedt_app.create_tdr_schematic_from_snp(
+    result = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
         tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
@@ -1004,11 +1004,10 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=True,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR",
     )
-    assert result
-    result, _ = aedt_app.create_tdr_schematic_from_snp(
+    assert isinstance(result, list)
+    result = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=[
             "A-MII-RXD1_30.SQFP28X28_208.P",
@@ -1024,10 +1023,11 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=False,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR_Single",
+        time_step="2ns",
+        time_stop="10ns",
     )
-    assert result
+    assert isinstance(result, list)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
