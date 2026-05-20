@@ -1216,11 +1216,9 @@ class Desktop(PyAedtBase):
         """
         return self.odesktop.GetProjectDirectory()
 
-
     @global_project_directory.setter
     def global_project_directory(self, value: str | Path) -> None:
         self.odesktop.SetProjectDirectory(str(value))
-
 
     @property
     def temp_directory(self) -> str:
@@ -1234,11 +1232,9 @@ class Desktop(PyAedtBase):
         """
         return self.odesktop.GetTempDirectory()
 
-
     @temp_directory.setter
     def temp_directory(self, value: str | Path) -> None:
         self.odesktop.SetTempDirectory(str(value))
-
 
     @property
     def src_dir(self) -> str:
