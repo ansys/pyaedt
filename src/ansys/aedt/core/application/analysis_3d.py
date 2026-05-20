@@ -1336,7 +1336,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
+    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1,layernames_map=[]) -> bool:
         """Import a GDSII file.
 
         Parameters
@@ -1386,7 +1386,10 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         layermap = ["NAME:LayerMap"]
         ordermap = []
         for i, k in enumerate(mapping_layers):
-            layername = "signal" + str(k)
+            if layernames_map:
+                layername = layernames_map[i]
+            else:
+                layername = "signal" + str(k)
             layermap.append(
                 [
                     "NAME:LayerMapInfo",

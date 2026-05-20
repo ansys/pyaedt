@@ -2042,7 +2042,9 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
     assert len(aedt_app.modeler.solid_names) == 3
     assert len(aedt_app.modeler.sheet_names) == 0
-    assert aedt_app.import_gds_3d(str(gds_file), {7: (0, 0), 9: (0, 0)})
+    layernames = ["one","two"]
+    assert aedt_app.import_gds_3d(str(gds_file), {7: (0, 0), 9: (0, 0)},layernames_map=layernames)
+    assert "one" in list(aedt_app.modeler.objects.values())[3].name
     assert len(aedt_app.modeler.sheet_names) == 3
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
     assert len(aedt_app.modeler.solid_names) == 6
