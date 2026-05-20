@@ -1004,7 +1004,6 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=True,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR",
     )
     assert isinstance(result, list)
@@ -1024,7 +1023,6 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         differential=False,
         rise_time=35,
         use_convolution=True,
-        analyze=False,
         design_name="TDR_Single",
         time_step="2ns",
         time_stop="10ns",

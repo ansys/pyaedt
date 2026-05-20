@@ -1732,10 +1732,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return hfss_3d_layout_model
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def create_tdr_schematic_from_snp(
         self,
         input_file: str | Hfss3dLayout | Path,
@@ -1745,7 +1741,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         differential: bool | None = True,
         rise_time: float | int = 30,
         use_convolution: bool | None = True,
-        analyze: bool | None = False,
         design_name: str | None = "LNA",
         impedance: float | None = 50,
         time_step: str | None = None,
@@ -1772,8 +1767,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is ``True``.
             If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
         impedance : float, optional
@@ -1830,8 +1823,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     if differential:
                         n_pin = [k for k in sub.pins if k.name == tx_schematic_differential_pins[i]][0]
             except IndexError:
-                self.logger.error("Failed to retrieve the pins.")
-                return False
+                raise IndexError("Failed to retrieve the pins.")
 
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
@@ -1882,10 +1874,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 ]
             )
             setup.props["OptionName"] = "Nexxim Options"
-        if analyze:
-            self.analyze()
-            for trace in tdr_probe_names:
-                self.post.create_report(trace)
         return tdr_probe_names
 
     @pyaedt_function_handler()
