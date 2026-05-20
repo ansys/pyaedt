@@ -28,7 +28,7 @@ import csv
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
-
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations
@@ -1376,14 +1376,13 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         """
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
-            self.logger.error("Method is supported only in graphical mode.")
-            return False
+            raise AEDTRuntimeError("Method is supported only in graphical mode.")
+
         if not check_if_path_exists(input_file):
-            self.logger.error("GDSII file does not exist. No layer is imported.")
-            return False
+            raise AEDTRuntimeError("GDSII file does not exist. No layer is imported.")
+
         if len(mapping_layers) == 0:
-            self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
-            return False
+            raise AEDTRuntimeError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
