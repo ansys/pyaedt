@@ -861,7 +861,7 @@ class Configurations(PyAedtBase):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 if val.get("Material", None):
                     arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 if val.get("SolveInside", None):
@@ -1356,7 +1356,7 @@ class Configurations(PyAedtBase):
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
-            if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[val.name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
             dict_out["objects"][val.name]["Model"] = val.model

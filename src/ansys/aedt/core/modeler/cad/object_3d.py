@@ -161,7 +161,7 @@ class Object3d(PyAedtBase):
             vArg1 = ["NAME:Model", "Value:=", False]
             self._primitives._change_geometry_property(vArg1, objs_to_unmodel)
         modeled = True
-        if not self.model:
+        if not self.is_model:
             vArg1 = ["NAME:Model", "Value:=", True]
             self._primitives._change_geometry_property(vArg1, self.name)
             modeled = False
@@ -837,7 +837,7 @@ class Object3d(PyAedtBase):
         """
         if self._surface_material is not None:
             return self._surface_material
-        if "Surface Material" in self.valid_properties and self.model:
+        if "Surface Material" in self.valid_properties and selfis_model:
             self._surface_material = self._oeditor.GetPropertyValue(
                 "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
@@ -939,7 +939,7 @@ class Object3d(PyAedtBase):
         """
         if self._material_name is not None:
             return self._material_name
-        if "Material" in self.valid_properties and self.model:
+        if "Material" in self.valid_properties and self.is_model:
             mat = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
@@ -956,8 +956,8 @@ class Object3d(PyAedtBase):
         elif "[" in mat or "(" in mat:
             mat_value = mat
         if mat_value is not None:
-            if not self.model:
-                self.model = True
+            if not self.is_model:
+                self.is_model = True
             vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
             self._material_name = mat_value.strip('"')
@@ -968,8 +968,8 @@ class Object3d(PyAedtBase):
     @surface_material_name.setter
     def surface_material_name(self, mat: str) -> None:
         try:
-            if not self.model:
-                self.model = True
+            if not self.is_model:
+                self.is_model = True
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
@@ -1074,7 +1074,7 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetObjectVolume
 
         """
-        if self.model and self.material_name:
+        if self.is_model and self.material_name:
             volume = self._primitives.oeditor.GetObjectVolume(self._m_name)
             units = self.object_units
             mass_density = (
@@ -1311,7 +1311,7 @@ class Object3d(PyAedtBase):
         """
         if self._solve_inside is not None:
             return self._solve_inside
-        if "Solve Inside" in self.valid_properties and self.model:
+        if "Solve Inside" in self.valid_properties and self.is_model:
             solveinside = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Solve Inside")
             if solveinside == "false" or solveinside == "False":
                 self._solve_inside = False
@@ -1322,8 +1322,8 @@ class Object3d(PyAedtBase):
 
     @solve_inside.setter
     def solve_inside(self, S: bool) -> None:
-        if not self.model:
-            self.model = True
+        if not self.is_model:
+            self.is_model = True
         vSolveInside = []
         # fS = self._to_boolean(S)
         fs = S

@@ -310,7 +310,7 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
 
 
 def test_export_results(q2d_solved) -> None:
-    exported_files = q2d_solved.export_results(analyze=False)
+    exported_files = q2d_solved.export_results()
     assert len(exported_files) > 0
 
 

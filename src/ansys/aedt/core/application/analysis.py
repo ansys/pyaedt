@@ -47,7 +47,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -693,13 +692,8 @@ class Analysis(Design, PyAedtBase):
                 return [""]
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def export_results(
         self,
-        analyze: bool = False,
         export_folder: str = None,
         matrix_name: str = "Original",
         matrix_type: str = "S",
@@ -715,8 +709,6 @@ class Analysis(Design, PyAedtBase):
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -768,8 +760,6 @@ class Analysis(Design, PyAedtBase):
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if analyze:
-            self.analyze()
         # excitations
         if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())

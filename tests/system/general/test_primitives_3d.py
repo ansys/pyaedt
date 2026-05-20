@@ -587,7 +587,7 @@ def test_create_polyline_with_crosssection(aedt_app) -> None:
 
     assert isinstance(polyline, Polyline)
     assert aedt_app.modeler[polyline.id].object_type == "Solid"
-    assert aedt_app.modeler[polyline.id].is3d
+    assert aedt_app.modeler[polyline.id].is_3d
 
 
 def test_sweep_along_path_with_single_assignment(aedt_app) -> None:
@@ -1707,7 +1707,7 @@ def test_create_torus(aedt_app) -> None:
     assert torus.id > 0
     assert torus.name.startswith("MyTorus")
     assert torus.object_type == "Solid"
-    assert torus.is3d is True
+    assert torus.is_3d is True
 
 
 def test_create_torus_exceptions(aedt_app) -> None:

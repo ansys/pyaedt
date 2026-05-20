@@ -31,14 +31,12 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
-from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
@@ -2767,18 +2765,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
-    def export_w_elements(self, analyze: bool = False, export_folder: str | Path | None = None) -> list:
+    def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
 
         Parameters
         ----------
-        analyze : bool, optional
-            Whether to analyze before export. Solutions must be present for the design.
-            The default is ``False``.
         export_folder : str or :class:`pathlib.Path`, optional
             Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
@@ -2793,8 +2784,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             export_folder = self.working_directory
         if not Path(export_folder).exists():
             Path(export_folder).mkdir()
-        if analyze:
-            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:

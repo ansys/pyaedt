@@ -693,36 +693,6 @@ CSS4_COLORS = {
 }
 
 
-def deprecate_enum(new_enum: type) -> Callable:
-    """Decorator to mark an enumeration class as deprecated.
-
-    It allows you to keep the old enumeration class in the code
-    and redirect its attributes to a new enumeration class.
-    """
-
-    def decorator(cls) -> type:
-        class Wrapper:
-            # NOTE: Required to handle correctly the documentation, name of the class and nested classes.
-            __doc__ = cls.__doc__
-            __name__ = cls.__name__
-            __qualname__ = cls.__qualname__
-
-            def __getattr__(self, name: str):
-                warnings.warn(
-                    f"{cls.__qualname__} is deprecated. Use {new_enum.__qualname__} instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return getattr(new_enum, name)
-
-            def __dir__(self):
-                return dir(new_enum)
-
-        return Wrapper()
-
-    return decorator
-
-
 class DynamicMeta(type):
     def __hash__(cls):
         return hash((cls.__module__, cls.__qualname__))
