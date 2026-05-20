@@ -761,7 +761,9 @@ def _run_ss_xlp() -> dict[int, int]:
         return {}
 
     results: dict[int, int] = {}
+    settings.logger.info("Lines")
     for line in proc.stdout.splitlines():
+        settings.logger.info(f"{line}")
         port = -1
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
