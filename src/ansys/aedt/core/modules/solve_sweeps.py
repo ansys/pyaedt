@@ -811,7 +811,6 @@ class SweepMatrix(SweepCommon):
             sweep_range["RangeStep"] = str(count) + unit
         elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
-            sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}
