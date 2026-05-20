@@ -837,7 +837,7 @@ class Object3d(PyAedtBase):
         """
         if self._surface_material is not None:
             return self._surface_material
-        if "Surface Material" in self.valid_properties and selfis_model:
+        if "Surface Material" in self.valid_properties and self.is_model:
             self._surface_material = self._oeditor.GetPropertyValue(
                 "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
