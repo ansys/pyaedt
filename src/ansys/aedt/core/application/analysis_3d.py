@@ -1337,7 +1337,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
     @pyaedt_function_handler()
     def import_gds_3d(
-        self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1, layernames_map=[]
+        self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1
     ) -> bool:
         """Import a GDSII file.
 
@@ -1346,7 +1346,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
+            The dictionary uses GDS layer numbers as keys.
+            Each value is either a tuple containing the elevation and thickness,
+             or a list consisting of that tuple along with a string representing the layer name.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
@@ -1354,8 +1356,6 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
             - ``0`` for script.
             - ``1`` for Parasolid.
-        layernames_map: list[str]
-            List containing custom names for the gds layers.
 
         Returns
         -------
@@ -1390,8 +1390,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         layermap = ["NAME:LayerMap"]
         ordermap = []
         for i, k in enumerate(mapping_layers):
-            if layernames_map:
-                layername = layernames_map[i]
+            if isinstance(mapping_layers[k], list):
+                layername = mapping_layers[k][1]
+                mapping_layers[k] = mapping_layers[k][0]
             else:
                 layername = "signal" + str(k)
             layermap.append(
