@@ -1782,8 +1782,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        list, bool
-            List of TDR probe traces when successful, `False` when failing to retrieve the pins.
+        list
+            List of TDR probe traces when successful.
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
