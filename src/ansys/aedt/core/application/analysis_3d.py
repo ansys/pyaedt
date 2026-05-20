@@ -1387,26 +1387,26 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
-        for i, k in enumerate(mapping_layers):
-            value = mapping_layers[k]
+        for layer_index, layer_number in enumerate(mapping_layers):
+            value = mapping_layers[layer_number]
             if isinstance(value, list) and len(value) == 2:
-                layername = value[1]
+                layer_name = value[1]
                 elevation, thickness = value[0]
             elif isinstance(value, tuple):
-                layername = f"signal{k}"
+                layer_name = f"signal{layer_number}"
                 elevation, thickness = value
             else:
                 raise TypeError(
-                    f"Mapping layers value for layer {k} must be a tuple (elevation, thickness) or "
+                    f"Mapping layers value for layer {layer_number} must be a tuple (elevation, thickness) or "
                     f"a list of [tuple, layer_name]."
                 )
             layermap.append(
                 [
                     "NAME:LayerMapInfo",
                     "LayerNum:=",
-                    k,
+                    layer_number,
                     "DestLayer:=",
-                    layername,
+                    layer_name,
                     "layer_type:=",
                     "signal",
                 ]
@@ -1416,11 +1416,11 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                 "entry:=",
                 [
                     "order:=",
-                    i,
+                    layer_index,
                     "layer:=",
-                    layername,
+                    layer_name,
                     "LayerNumber:=",
-                    k,
+                    layer_number,
                     "Thickness:=",
                     unit_converter(thickness, unit_system="Length", input_units=units, output_units="meter"),
                     "Elevation:=",
