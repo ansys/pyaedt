@@ -1797,7 +1797,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def source(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -1835,7 +1835,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def sink(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -2004,7 +2004,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_thin_conductor(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         material: str | None = "copper",
         thickness: float | str | int | None = 1,
         name: str | None = "",
@@ -2599,7 +2599,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> Object3d:
+    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> "Object3d":
         """Create a rectangle.
 
         Parameters
