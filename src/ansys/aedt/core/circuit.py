@@ -1745,7 +1745,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         impedance: float | None = 50,
         time_step: str | None = None,
         time_stop: str | None = None,
-    ) -> list[str] | bool:
+    ) -> list[str]:
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
         Parameters
