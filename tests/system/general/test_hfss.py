@@ -2051,6 +2051,9 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
     gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
     assert not aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
 
+    with pytest.raises(TypeError):
+        aedt_app.import_gds_3d(str(gds_file), {7: [(0, 0)]})
+
 
 def test_plane_wave(aedt_app) -> None:
     with pytest.raises(

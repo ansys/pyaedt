@@ -1346,7 +1346,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         mapping_layers : dict
             The dictionary uses GDS layer numbers as keys.
             Each value is either a tuple containing the elevation and thickness,
-             or a list consisting of that tuple along with a string representing the layer name.
+            or a list consisting of that tuple along with a string representing the layer name.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
@@ -1371,7 +1371,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> gds_path = r"C:\\temp\\gds1.gds"
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> gds_number = {7: (100, 10), 9: (110, 5)}
+        >>> gds_number = {7: (100, 10), 9: [(110, 5), "my_layer"]}
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
@@ -1388,11 +1388,18 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         layermap = ["NAME:LayerMap"]
         ordermap = []
         for i, k in enumerate(mapping_layers):
-            if isinstance(mapping_layers[k], list):
-                layername = mapping_layers[k][1]
-                mapping_layers[k] = mapping_layers[k][0]
+            value = mapping_layers[k]
+            if isinstance(value, list) and len(value) == 2:
+                layername = value[1]
+                elevation, thickness = value[0]
+            elif isinstance(value, tuple):
+                layername = f"signal{k}"
+                elevation, thickness = value
             else:
-                layername = "signal" + str(k)
+                raise TypeError(
+                    f"Mapping layers value for layer {k} must be a tuple (elevation, thickness) or "
+                    f"a list of [tuple, layer_name]."
+                )
             layermap.append(
                 [
                     "NAME:LayerMapInfo",
@@ -1404,6 +1411,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                     "signal",
                 ]
             )
+
             ordermap1 = [
                 "entry:=",
                 [
@@ -1414,9 +1422,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                     "LayerNumber:=",
                     k,
                     "Thickness:=",
-                    unit_converter(mapping_layers[k][1], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(thickness, unit_system="Length", input_units=units, output_units="meter"),
                     "Elevation:=",
-                    unit_converter(mapping_layers[k][0], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(elevation, unit_system="Length", input_units=units, output_units="meter"),
                     "Color:=",
                     "color",
                 ],
