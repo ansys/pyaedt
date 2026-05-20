@@ -769,7 +769,7 @@ def _run_ss_xlp() -> dict[int, int]:
             continue
 
         tokens = line.split()
-        if len(tokens) < 4 or tokens[3] != "2048" or tokens[3] != "4096":
+        if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
             continue
 
         pid_match = re.search(r"pid=(\d+)", line)
