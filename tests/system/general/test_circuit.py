@@ -1029,7 +1029,7 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
         time_step="2ns",
         time_stop="10ns",
     )
-    assert result
+    assert isinstance(result, list)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
