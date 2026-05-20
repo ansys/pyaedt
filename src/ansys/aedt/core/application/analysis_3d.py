@@ -1336,7 +1336,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1,layernames_map=[]) -> bool:
+    def import_gds_3d(
+        self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1, layernames_map=[]
+    ) -> bool:
         """Import a GDSII file.
 
         Parameters
