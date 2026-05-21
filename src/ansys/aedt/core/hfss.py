@@ -1738,7 +1738,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         sweep_type: str = "Discrete",
         interpolation_tol: float = 0.5,
         interpolation_max_solutions: int = 250,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a specified number of points.
 
         Parameters
@@ -1774,8 +1774,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1842,7 +1842,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 sweepdata.update()
                 self.logger.info(f"Linear count sweep {name} has been correctly created.")
                 return sweepdata
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_linear_step_sweep(
@@ -1856,7 +1856,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a specified frequency step.
 
         Parameters
@@ -1884,8 +1884,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1910,6 +1910,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             )
         if setup not in self.setup_names:
             raise AEDTRuntimeError(f"Unknown setup '{setup}'")
+
         if name is None:
             sweep_name = generate_unique_name("Sweep")
         else:
@@ -1927,7 +1928,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     save_rad_fields=save_rad_fields,
                     sweep_type=sweep_type,
                 )
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def create_single_point_sweep(

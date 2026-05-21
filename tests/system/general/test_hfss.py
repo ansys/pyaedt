@@ -338,6 +338,15 @@ def test_create_linear_count_sweep(aedt_app) -> None:
     assert "der_var" in setup3.get_derivative_variables()
     setup3.delete()
 
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_linear_count_sweep(
+            setup="invented",
+            unit="MHz",
+            start_frequency=1.1e3,
+            stop_frequency=1200.1,
+            num_of_freq_points=1234,
+        )
+
 
 def test_setup_exists(aedt_app) -> None:
     aedt_app.create_setup("MySetup", Frequency="1GHz")
@@ -398,6 +407,16 @@ def test_create_linear_step_sweep(aedt_app) -> None:
         assert (
             execinfo.args[0]
             == "Invalid value for 'sweep_type'. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+        )
+
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_linear_step_sweep(
+            setup="invented",
+            name="StepFast",
+            unit=units,
+            start_frequency=freq_start,
+            stop_frequency=freq_stop,
+            step_size=step_size,
         )
 
 
