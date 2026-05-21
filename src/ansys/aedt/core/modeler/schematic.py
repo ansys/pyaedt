@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
@@ -150,7 +151,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -171,9 +172,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
         for pstart, pend in zip(pin_starting, pin_ending):
             try:
                 start[pstart].connect_to_component(end[pend], use_wire=use_wire)
-            except Exception:
-                self.logger.error(f"Failed to connect pin {pstart} with {pend}")
-                return False
+            except Exception:  # pragma: no cover
+                raise AEDTRuntimeError(f"Failed to connect pin {pstart} with {pend}")
         return True
 
     @pyaedt_function_handler()
