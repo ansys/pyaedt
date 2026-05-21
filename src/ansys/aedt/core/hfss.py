@@ -5762,7 +5762,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5805,7 +5805,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if len(self.oboundary.GetDiffPairs()) == num_old_pairs + 1:
             return True
         else:
-            return False
+            raise AEDTRuntimeError("Failed to create differential pair.")
 
     @pyaedt_function_handler()
     def create_3d_component_array(

@@ -1534,7 +1534,9 @@ def test_set_differential_pair(diff_pairs_app) -> None:
         active=True,
         matched=False,
     )
-    assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+    with pytest.raises(AEDTRuntimeError):
+        diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+
     diff_pairs_app.set_active_design(TRANSIENT_PROJECT)
     assert diff_pairs_app.set_differential_pair(
         assignment="P2_T1",
@@ -1545,7 +1547,9 @@ def test_set_differential_pair(diff_pairs_app) -> None:
         active=True,
         matched=False,
     )
-    assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+
+    with pytest.raises(AEDTRuntimeError):
+        diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
 
 
 @pytest.mark.skipif(
