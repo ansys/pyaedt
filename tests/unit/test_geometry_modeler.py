@@ -30,6 +30,7 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
@@ -49,11 +50,8 @@ def mock_hfss_app():
 def test_project_object_failure(mock_unclassified_objects, mock_hfss_app, caplog: pytest.LogCaptureFixture) -> None:
     mock_unclassified_objects.side_effect = [[], [MagicMock()]]
     gm = GeometryModeler(mock_hfss_app)
-
-    assert not gm.project_sheet("rect", "box", 1)
-    assert any(
-        "Failed to Project Sheet. Reverting to original objects." in record.getMessage() for record in caplog.records
-    )
+    with pytest.raises(AEDTRuntimeError):
+        gm.project_sheet("rect", "box", 1)
 
 
 def test_delete_all_points_failure(mock_hfss_app, caplog: pytest.LogCaptureFixture) -> None:
