@@ -993,7 +993,8 @@ def test_heal(aedt_app) -> None:
 
 def test_cosim_simulation(aedt_app) -> None:
     assert aedt_app.edit_cosim_options()
-    assert not aedt_app.edit_cosim_options(interpolation_algorithm="auto1")
+    with pytest.raises(ValueError):
+        aedt_app.edit_cosim_options(interpolation_algorithm="auto1")
 
 
 def test_set_temperature_dependence(aedt_app) -> None:

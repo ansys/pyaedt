@@ -1759,7 +1759,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful and ``False`` if failed.
+            ``True`` if successful.
 
         References
         ----------
@@ -1783,8 +1783,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.logger.error("Wrong Interpolation Algorithm")
-            return False
+            raise ValueError(
+                f"Invalid interpolation algorithm '{interpolation_algorithm}'. "
+                f"Available options are: 'auto', 'lin', 'shadH', 'shadNH'."
+            )
         arg = ["NAME:CoSimOptions", "Override:="]
 
         if setup_override_name:
@@ -1934,7 +1936,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         try:
             self.oexcitation.SetDiffPairs(arg)
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError(" ")
         return True
 
     @pyaedt_function_handler()
