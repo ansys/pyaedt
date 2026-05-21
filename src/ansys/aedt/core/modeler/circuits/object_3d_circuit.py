@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
@@ -184,7 +185,7 @@ class CircuitPins(PyAedtBase):
         clearance_units: int = 1,
         page_port_angle: int = None,
         offset: float = 0.00254,
-    ) -> bool:
+    ) -> bool | tuple:
         """Connect schematic components.
 
         Parameters
@@ -211,7 +212,7 @@ class CircuitPins(PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -350,6 +351,8 @@ class CircuitPins(PyAedtBase):
         )
         if offset != 0:
             self._circuit_comp._circuit_components.create_wire([self.location, location], page=local_page)
+
+        ret2 = None
         for cmp in assignment:
             location = [
                 cmp.location[0] - offset * math.cos(cmp.total_angle * math.pi / 180),
@@ -366,7 +369,7 @@ class CircuitPins(PyAedtBase):
         if ret1 and ret2:
             return True, ret1, ret2
         else:
-            return False
+            raise AEDTRuntimeError("Circuit components not connected.")
 
 
 class ComponentParameters(dict):
@@ -1102,7 +1105,7 @@ class CircuitComponent(PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if pin locations were successfully changed, ``False`` otherwise.
+            ``True`` if pin locations were successfully changed.
 
         References
         ----------
@@ -1138,10 +1141,9 @@ class CircuitComponent(PyAedtBase):
 
         # Ensure the total number of pins matches the symbol pin names
         if (right_pins_length + left_pins_length) != len(symbol_pin_name_list):
-            self._circuit_components._app.logger.error(
+            raise ValueError(
                 "The number of pins in the input pin_locations does not match the number of pins in the Symbol."
             )
-            return False
 
         x_factor = int(pin_name_str_max_length / 3)
 

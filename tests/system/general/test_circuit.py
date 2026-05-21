@@ -1146,7 +1146,8 @@ def test_change_symbol_pin_location(aedt_app, test_tmp_dir) -> None:
     }
     assert ts_component.change_symbol_pin_locations(pin_locations)
     pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
-    assert not ts_component.change_symbol_pin_locations(pin_locations)
+    with pytest.raises(ValueError):
+        ts_component.change_symbol_pin_locations(pin_locations)
 
 
 def test_import_asc(aedt_app, test_tmp_dir) -> None:
