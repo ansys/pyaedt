@@ -2510,7 +2510,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` is successful.
+            ``True`` if successful.
+
 
         >>> oEditor.SetHfssExtentsVisible
 
@@ -2523,8 +2524,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         try:
             self.oeditor.SetHfssExtentsVisible(show)
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to set extent visibility: {e}") from e
 
     @pyaedt_function_handler()
     def change_options(self, color_by_net: bool | None = True) -> bool:

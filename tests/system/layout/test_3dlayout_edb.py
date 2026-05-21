@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -429,7 +430,8 @@ def test_change_options(aedt_app) -> None:
 def test_show_extent(aedt_app) -> None:
     assert aedt_app.show_extent()
     assert aedt_app.show_extent(show=False)
-    assert not aedt_app.show_extent(show=None)
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.show_extent(show=None)
 
 
 def test_change_design_settings(aedt_app) -> None:

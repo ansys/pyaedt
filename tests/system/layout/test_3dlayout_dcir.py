@@ -43,7 +43,7 @@ def dcir_example_project(add_app_example):
 
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
+@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="AEDT bug")
 def test_dcir(dcir_example_project) -> None:
     import pandas as pd
 
