@@ -135,6 +135,7 @@ jobs:
       github.event.pull_request.title != 'CHORE: Pre-commit automatic update' &&
       !startsWith(github.event.pull_request.title, 'BUILD(uv):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(actions):') &&
+      !startsWith(github.event.pull_request.title, 'BUILD(pre-commit):') &&
       !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v')
     runs-on: ubuntu-latest
     permissions:
