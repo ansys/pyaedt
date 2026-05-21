@@ -93,7 +93,8 @@ def test_export_netlist(aedt_app, add_app, test_tmp_dir) -> None:
     assert aedt_app.export_netlist_from_schematic(str(netlist_file)) == str(netlist_file)
     assert netlist_file.exists()
     netlist_file_invalid = test_tmp_dir / "export_netlist.sh"
-    assert not aedt_app.export_netlist_from_schematic(str(netlist_file_invalid))
+    with pytest.raises(ValueError):
+        aedt_app.export_netlist_from_schematic(str(netlist_file_invalid))
     m2d = add_app(design="test", application=Maxwell2d, project=aedt_app.project_name, close_projects=False)
     m2d.solution_type = SolutionsMaxwell2D.TransientZ
     m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
