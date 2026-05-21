@@ -1383,7 +1383,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             raise FileNotFoundError("GDSII file does not exist. No layer is imported.")
 
         if len(mapping_layers) == 0:
-            raise AEDTRuntimeError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
+            raise ValueError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
