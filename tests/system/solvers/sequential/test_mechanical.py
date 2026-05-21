@@ -82,7 +82,8 @@ def test_assign_load(aedt_app, add_app) -> None:
 
 
 def test_create_setup(aedt_app) -> None:
-    assert not aedt_app.assign_2way_coupling()
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.assign_2way_coupling()
     mysetup = aedt_app.create_setup()
     mysetup.props["Solver"] = "Direct"
     assert mysetup.update()

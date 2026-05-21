@@ -678,8 +678,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             if self.setups:
                 setup = self.setups[0].name
             else:
-                self.logger.error("Setup is not defined.")
-                return False
+                raise ValueError("No setup is defined in the design.")
 
         self.oanalysis.AddTwoWayCoupling(
             setup,
