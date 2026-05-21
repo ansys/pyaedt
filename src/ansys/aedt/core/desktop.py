@@ -2221,7 +2221,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def job_status(self) -> str:  # pragma: no cover
-        """Get job status from job monitor.Job monitor has to be opened.
+        """Get job status from job monitor. Job monitor has to be opened.
 
         Returns
         -------
