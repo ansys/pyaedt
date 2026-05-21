@@ -459,6 +459,11 @@ def test_create_single_point_sweep(aedt_app) -> None:
             setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
         )
 
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_single_point_sweep(
+            setup="invented", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
+
 
 def test_delete_setup(aedt_app) -> None:
     setup_name = "SetupToDelete"

@@ -1940,7 +1940,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -1965,8 +1965,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -2020,7 +2020,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     save_fields=save_fields,
                     save_rad_fields=save_rad_fields,
                 )
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def _create_native_component(
