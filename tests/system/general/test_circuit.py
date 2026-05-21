@@ -921,7 +921,6 @@ def test_create_and_change_prop_text(aedt_app) -> None:
     assert aedt_app.modeler.create_text("text test", "1000mil", "-2000mil")
 
 
-@pytest.mark.skipif(NON_GRAPHICAL, reason="Change property doesn't work in non-graphical mode.")
 @pytest.mark.skipif(is_linux and DESKTOP_VERSION == "2024.1", reason="Schematic has to be closed.")
 def test_change_text_property(aedt_app) -> None:
     _ = aedt_app.modeler.create_text("text test")
@@ -1004,7 +1003,6 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
     assert status
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method is not working in Linux and non-graphical mode.")
 def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
     result = aedt_app.create_tdr_schematic_from_snp(
@@ -1041,7 +1039,6 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     assert isinstance(result, list)
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
 
@@ -1088,7 +1085,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
     assert result
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
     ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "ansys_ddr4.ibs"
