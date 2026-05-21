@@ -214,15 +214,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         design: str | None = None,
         solution_type: str | None = None,
         setup: str | None = None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        version: str | int | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
@@ -252,7 +252,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler
-    # NOTE: Extend Mixin behaviour to handle near field setups
     def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
         if boundary_type not in (
@@ -463,7 +462,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         iswaveport: bool = False,
         impedance: float | None = None,
         terminals_rename: bool = True,
-    ) -> NearFieldSetup:
+    ) -> BoundaryObject:
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = {}
         props["Faces"] = int(assignment)
@@ -561,7 +560,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def _create_circuit_port(
         self, assignment: str | list, impedance, name: str, renorm, deemb, renorm_impedance: str = ""
-    ) -> NearFieldSetup:
+    ) -> BoundaryObject:
         edgelist = self.modeler.convert_to_selections(assignment, True)
         props = dict(
             {
@@ -6255,7 +6254,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_phase_center_per_port(self, coordinate_system: list = None) -> bool:
-        # type: (list) -> bool
         """Set phase center per port.
 
         Parameters
@@ -6267,7 +6265,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -6286,14 +6284,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         port_names = self.ports[::]
 
         if not port_names:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("No ports found in the design.")
 
         if not coordinate_system:
             coordinate_system = ["<-Port Location->"] * len(port_names)
         elif not isinstance(coordinate_system, list):
-            return False
+            raise TypeError("The 'coordinate_system' argument must be a list.")
         elif len(coordinate_system) != len(port_names):
-            return False
+            raise ValueError(
+                f"Length of 'coordinate_system' ({len(coordinate_system)}) "
+                f"must match the number of ports ({len(port_names)})."
+            )
 
         cont = 0
         arg = []
@@ -6303,8 +6304,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         try:
             self.oboundary.SetPhaseCenterPerPort(arg)
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to set phase center per port: {e}") from e
         return True
 
     @pyaedt_function_handler()

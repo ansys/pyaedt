@@ -1896,8 +1896,11 @@ def test_set_phase_center_per_port(aedt_app) -> None:
         assert not aedt_app.set_phase_center_per_port()
         assert not aedt_app.set_phase_center_per_port(["Global", "Global"])
 
-    assert not aedt_app.set_phase_center_per_port(["Global"])
-    assert not aedt_app.set_phase_center_per_port("Global")
+    with pytest.raises(ValueError):
+        aedt_app.set_phase_center_per_port(["Global"])
+
+    with pytest.raises(TypeError):
+        aedt_app.set_phase_center_per_port("Global")
 
 
 @pytest.mark.skipif(
