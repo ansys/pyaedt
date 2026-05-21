@@ -2694,7 +2694,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2708,7 +2708,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> h3d.delete_imported_data(table_name)
         """
         if name not in self.existing_analysis_sweeps:
-            self.logger.error("Data does not exist.")
-            return False
+            raise ValueError(f"Data '{name}' does not exist in the design.")
         self.odesign.RemoveImportData(name)
         return True

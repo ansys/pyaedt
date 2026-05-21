@@ -2689,7 +2689,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         sweep_columns: int | None = 0,
         total_columns: int | None = -1,
         real_columns: int | None = 1,
-    ) -> bool | str:
+    ) -> str:
         """Import a data table as a solution.
 
         Parameters
@@ -2718,7 +2718,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
         str
-            ``True`` when successful, ``False`` when failed.
+            Name of the imported sweep when successful.
 
         References
         ----------
@@ -2731,15 +2731,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         >>> cir.import_table(input_file="my_file.csv")
         """
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
-        if column_separator not in ["Space", "Tab", "Comma", "Period"]:
-            self.logger.error("Invalid column separator.")
-            return False
+        if column_separator not in columns_separator_map:
+            raise ValueError(
+                f"Invalid column separator '{column_separator}'. "
+                f"Available options are: {', '.join(columns_separator_map)}."
+            )
 
         input_path = Path(input_file).resolve()
 
         if not input_path.is_file():
-            self.logger.error("File does not exist.")
-            return False
+            raise FileNotFoundError(f"Input file '{input_path}' does not exist.")
 
         existing_sweeps = self.existing_analysis_sweeps
 
@@ -2772,8 +2773,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         new_sweep = list(set(new_sweeps) - set(existing_sweeps))
 
         if not new_sweep:  # pragma: no cover
-            self.logger.error("Data not imported.")
-            return False
+            raise AEDTRuntimeError("Data not imported.")
         return new_sweep[0]
 
     @pyaedt_function_handler()
@@ -2787,8 +2787,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        str
-            ``True`` when successful, ``False`` when failed.
+        bool
+            ``True`` when successful.
+
+        Raises
+        ------
+        ValueError
+            If the specified data name does not exist in the design.
 
         References
         ----------
@@ -2802,7 +2807,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         >>> cir.delete_imported_data(table_name)
         """
         if name not in self.existing_analysis_sweeps:
-            self.logger.error("Data does not exist.")
-            return False
+            raise ValueError(f"Data '{name}' does not exist in the design.")
         self.odesign.RemoveImportData(name)
         return True

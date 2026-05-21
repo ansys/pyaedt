@@ -1168,13 +1168,17 @@ def test_import_table(aedt_app) -> None:
     file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
-    assert not aedt_app.import_table(file_header, column_separator="dummy")
-    assert not aedt_app.import_table(file_invented)
+    with pytest.raises(ValueError):
+        aedt_app.import_table(file_header, column_separator="dummy")
+
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_table(file_invented)
 
     table = aedt_app.import_table(file_header)
     assert table in aedt_app.existing_analysis_sweeps
 
-    assert not aedt_app.delete_imported_data("invented")
+    with pytest.raises(ValueError):
+        aedt_app.delete_imported_data("invented")
 
     assert aedt_app.delete_imported_data(table)
     assert table not in aedt_app.existing_analysis_sweeps

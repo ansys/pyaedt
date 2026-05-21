@@ -493,7 +493,8 @@ def test_import_table(aedt_app) -> None:
     table = aedt_app.import_table(file_header)
     assert table in aedt_app.existing_analysis_sweeps
 
-    assert not aedt_app.delete_imported_data("invented")
+    with pytest.raises(ValueError):
+        aedt_app.delete_imported_data("invented")
 
     assert aedt_app.delete_imported_data(table)
     assert table not in aedt_app.existing_analysis_sweeps
