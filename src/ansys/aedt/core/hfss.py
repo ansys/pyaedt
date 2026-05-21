@@ -6309,7 +6309,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def parse_hdm_file(self, file_name: str | Path) -> Parser | bool:
+    def parse_hdm_file(self, file_name: str | Path) -> Parser:
         """Parse an HFSS SBR+ or Creeping Waves ``hdm`` file.
 
         Parameters
@@ -6319,11 +6319,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.hdm_parser.Parser` or bool
+        :class:`ansys.aedt.core.modules.hdm_parser.Parser`
+
         """
         if Path(file_name).exists():
             return Parser(str(file_name)).parse_message()
-        return False
+        raise FileNotFoundError(f"HDM file '{file_name}' does not exist.")
 
     @pyaedt_function_handler()
     def get_hdm_plotter(self, file_name: str | None = None) -> "HDMPlotter":
