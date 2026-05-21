@@ -683,7 +683,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         source_design_name: str,
         source_project_name: str | None = None,
         source_project_path: str | None = None,
-        port_selector: int | None = 3,
+        port_selector: int = 3,
     ) -> list:
         """Retrieve pin names.
 
@@ -725,7 +725,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.desktop_class.close_windows()
+
         tmp_oModule = oDesign.GetModule("BoundarySetup")
+
         port = None
         if port_selector == 1:
             port = "Wave Port"
@@ -733,8 +735,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             port = "Terminal"
         elif port_selector == 3:
             port = "Circuit Port"
+
         if not port:
-            return False
+            raise ValueError("Selected port is not valid.")
+
         pins = list(tmp_oModule.GetExcitationsOfType(port))
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
@@ -1199,7 +1203,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_source(self, source_type: str, name: str | None = None) -> Sources:
+    def create_source(self, source_type: str, name: str | None = None) -> "Sources":
         """Create a source in Circuit.
 
         Parameters
@@ -1229,11 +1233,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         if not name:
             name = generate_unique_name("Source")
         if name in self.source_names:
-            self.logger.warning("Source name is defined in the design.")
-            return False
+            raise ValueError(f"Source name '{name}' is already defined in the design.")
         if source_type not in SourceKeys.SourceNames:
-            self.logger.warning("Source type is not correct.")
-            return False
+            raise ValueError(
+                f"Source type '{source_type}' is not valid. Available types are: {', '.join(SourceKeys.SourceNames)}."
+            )
         if source_type == "PowerSin":
             new_source = PowerSinSource(self, name, source_type)
         elif source_type == "PowerIQ":
@@ -1256,7 +1260,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return new_source
 
     @pyaedt_function_handler()
-    def assign_voltage_sinusoidal_excitation_to_ports(self, ports: list) -> Sources:
+    def assign_voltage_sinusoidal_excitation_to_ports(self, ports: list) -> "Sources":
         """Assign a voltage sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1280,7 +1284,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_v
 
     @pyaedt_function_handler()
-    def assign_current_sinusoidal_excitation_to_ports(self, ports: list) -> Sources:
+    def assign_current_sinusoidal_excitation_to_ports(self, ports: list) -> "Sources":
         """Assign a current sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1304,7 +1308,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_i
 
     @pyaedt_function_handler()
-    def assign_power_sinusoidal_excitation_to_ports(self, ports: list) -> Sources:
+    def assign_power_sinusoidal_excitation_to_ports(self, ports: list) -> "Sources":
         """Assign a power sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1328,7 +1332,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports: list, input_file: str | Path) -> Sources:
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports: list, input_file: str | Path) -> "Sources":
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters

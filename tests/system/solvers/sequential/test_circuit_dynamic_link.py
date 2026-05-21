@@ -99,6 +99,9 @@ def test_pin_names(usb_app, add_app):
     assert len(pin_names) == 4
     assert "usb_P_pcb" in pin_names
 
+    with pytest.raises(ValueError):
+        app.get_source_pin_names(SRC_USB, SRC_PROJECT_NAME, port_selector=4)
+
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
 def test_add_subcircuits_3dlayout(circuit_app):

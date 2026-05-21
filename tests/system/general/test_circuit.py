@@ -784,6 +784,12 @@ def test_assign_sources(aedt_app, test_tmp_dir) -> None:
     c.sources["freq_pyaedt"].delete()
     assert len(c.source_objects) == 5
 
+    with pytest.raises(ValueError):
+        c.create_source(source_type="PowerSin", name=c.source_names[0])
+
+    with pytest.raises(ValueError):
+        c.create_source(source_type="Invented")
+
 
 def test_assign_excitations(aedt_app) -> None:
     c = aedt_app
