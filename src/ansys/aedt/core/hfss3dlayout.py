@@ -1423,7 +1423,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         elif cad_format == "odb++":
             method = self.oimport_export.ImportODB
         if not method:
-            return False
+            raise ValueError(
+                f"Invalid CAD format '{cad_format}'. "
+                f"Available formats are: 'gds', 'dxf', 'gerber', 'awr', 'brd', 'ipc2581', 'odb++'."
+            )
         active_project = self.project_name
         if not aedb_path:
             aedb_path = str(Path(cad_path).with_suffix(".aedb"))
@@ -1456,8 +1459,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1481,7 +1484,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1495,8 +1498,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a DXF file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1520,7 +1523,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1534,8 +1537,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a Gerber zip file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1557,7 +1560,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1570,9 +1573,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         input_file: str,
         output_dir: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
         control_file: str | None = None,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1582,19 +1585,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             Full path to the board file.
         output_dir : str, optional
             Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
         set_as_active : bool, optional
             Whether to set the board file as active. The default is ``True``.
         close_active_project : bool, optional
             Whether to close the active project after loading the board file.
             The default is ''False``.
-        control_file : str, optional
-            Path to the XML file with the stackup information. The default is ``None``, in
-            which case the stackup is not edited.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1608,8 +1611,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:  # pragma: no cover
         """Import an AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1631,7 +1634,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1645,8 +1648,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1668,7 +1671,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1682,8 +1685,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import an ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1705,7 +1708,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------

@@ -1059,6 +1059,9 @@ def test_import_gerber(aedt_app, test_tmp_dir) -> None:
     aedt_app.close_project(save=False)
     aedt_app.desktop_class.active_project(active_project)
 
+    with pytest.raises(ValueError):
+        aedt_app._import_cad(str(gerber_file), cad_format="invented")
+
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
 def test_import_gds(aedt_app, test_tmp_dir) -> None:
