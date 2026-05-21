@@ -51,6 +51,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -1670,14 +1671,14 @@ class GeometryModeler(Modeler, PyAedtBase):
             )
             if result:
                 return cs
-        return False
+        raise AEDTRuntimeError("Coordinate system not created.")
 
     @pyaedt_function_handler()
     def create_face_coordinate_system(
         self,
-        face: int | "FacePrimitive",
-        origin: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive",
-        axis_position: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive",
+        face: "int | FacePrimitive",
+        origin: "int | FacePrimitive | EdgePrimitive | VertexPrimitive",
+        axis_position: "int | FacePrimitive | EdgePrimitive | VertexPrimitive",
         axis: str = "X",
         name: str | None = None,
         offset: list | None = None,

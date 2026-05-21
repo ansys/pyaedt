@@ -164,7 +164,8 @@ def test_edit_sources(q2d_matrix) -> None:
     sources_ac = {"Circle3": ("100A", "5deg")}
     assert q2d_matrix.edit_sources(sources_cg, sources_ac)
     sources_ac = {"Circle5": "40A"}
-    assert not q2d_matrix.edit_sources(sources_cg, sources_ac)
+    with pytest.raises(ValueError):
+        q2d_matrix.edit_sources(sources_cg, sources_ac)
 
 
 def test_get_all_conductors(aedt_app) -> None:
@@ -185,11 +186,12 @@ def test_export_matrix_data(q2d_solved, test_tmp_dir) -> None:
         problem_type="CG",
         matrix_type="Maxwell, Spice, Couple",
     )
-    assert not q2d_solved.export_matrix_data(
-        file_path,
-        problem_type="RL",
-        matrix_type="Maxwell, Spice, Couple",
-    )
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(
+            file_path,
+            problem_type="RL",
+            matrix_type="Maxwell, Spice, Couple",
+        )
     assert q2d_solved.export_matrix_data(file_path, problem_type="RL", matrix_type="Maxwell, Couple")
     assert q2d_solved.export_matrix_data(file_path, problem_type="CG", setup="Setup1", sweep="Sweep1")
     assert q2d_solved.export_matrix_data(
@@ -200,20 +202,26 @@ def test_export_matrix_data(q2d_solved, test_tmp_dir) -> None:
     )
     assert q2d_solved.export_matrix_data(file_path, problem_type="CG", reduce_matrix="Test1")
     assert q2d_solved.export_matrix_data(file_path, problem_type="CG", reduce_matrix="Test3")
-    assert not q2d_solved.export_matrix_data(file_path, problem_type="CG", reduce_matrix="Test4")
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, problem_type="CG", reduce_matrix="Test4")
     assert q2d_solved.export_matrix_data(file_path, precision=16, field_width=22)
-    assert not q2d_solved.export_matrix_data(file_path, precision=16.2)
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, precision=16.2)
     assert q2d_solved.export_matrix_data(file_path, freq="3", freq_unit="Hz")
     assert q2d_solved.export_matrix_data(file_path, use_sci_notation=True)
     assert q2d_solved.export_matrix_data(file_path, use_sci_notation=False)
     assert q2d_solved.export_matrix_data(file_path, r_unit="mohm")
-    assert not q2d_solved.export_matrix_data(file_path, r_unit="A")
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, r_unit="A")
     assert q2d_solved.export_matrix_data(file_path, l_unit="nH")
-    assert not q2d_solved.export_matrix_data(file_path, l_unit="A")
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, l_unit="A")
     assert q2d_solved.export_matrix_data(file_path, c_unit="farad")
-    assert not q2d_solved.export_matrix_data(file_path, c_unit="H")
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, c_unit="H")
     assert q2d_solved.export_matrix_data(file_path, g_unit="fSie")
-    assert not q2d_solved.export_matrix_data(file_path, g_unit="A")
+    with pytest.raises(ValueError):
+        q2d_solved.export_matrix_data(file_path, g_unit="A")
 
 
 def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:

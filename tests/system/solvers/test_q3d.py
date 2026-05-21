@@ -422,13 +422,17 @@ def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
     assert q3d_solved.export_matrix_data(file_name=file_path, use_sci_notation=True)
     assert q3d_solved.export_matrix_data(file_name=file_path, use_sci_notation=False)
     assert q3d_solved.export_matrix_data(file_name=file_path, r_unit="mohm")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, r_unit="A")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, r_unit="A")
     assert q3d_solved.export_matrix_data(file_name=file_path, l_unit="nH")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, l_unit="A")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, l_unit="A")
     assert q3d_solved.export_matrix_data(file_name=file_path, c_unit="farad")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, c_unit="H")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, c_unit="H")
     assert q3d_solved.export_matrix_data(file_name=file_path, g_unit="fSie")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, g_unit="A")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, g_unit="A")
 
 
 def test_equivalent_circuit(q3d_solved2, test_tmp_dir) -> None:
