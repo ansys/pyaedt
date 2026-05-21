@@ -1863,7 +1863,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1936,12 +1936,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         try:
             self.oexcitation.SetDiffPairs(arg)
         except Exception:  # pragma: no cover
-            raise AEDTRuntimeError(" ")
+            raise AEDTRuntimeError("Failed to set differential pair.")
         return True
 
     @pyaedt_function_handler()
     def get_differential_pairs(self) -> list:
-        # type: () -> list
         """Get the list defined differential pairs.
 
         Returns
@@ -1975,7 +1974,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, input_file: str | Path) -> bool:
-        # type: (str) -> bool
         """Load differential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -2010,12 +2008,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             self.oexcitation.LoadDiffPairsFromFile(str(new_file))
             new_file.unlink()
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("Failed to load differential pairs.")
         return True
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, output_file: str) -> bool:
-        # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
         If a file with the specified name already exists, it is overwritten.
@@ -2345,8 +2342,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 )
                 self.logger.info("Source Excitation updated with Dataset.")
                 return True
-        self.logger.error("Port not found.")
-        return False
+        raise AEDTRuntimeError("Failed to edit source from file. Port not found.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_dcir_solution_data(
@@ -2372,17 +2368,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        from ansys.aedt.core.modules.solutions.SolutionData
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+
         """
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
         if category not in all_categories:
-            return False  # pragma: no cover
+            raise ValueError(
+                f"Category '{category}' is not available for element type '{show}'. "
+                f"Available categories are: {all_categories}."
+            )
         all_quantities = self.post.available_report_quantities(
             context=show, is_siwave_dc=True, quantities_category=category
         )
-        if not all_quantities:
-            self._logger.error("No expressions found.")
-            return False
+        if not all_quantities:  # pragma: no cover
+            raise AEDTRuntimeError(f"No expressions found for category '{category}' with element type '{show}'.")
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
     @pyaedt_function_handler()
@@ -2511,7 +2510,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` is successful, ``False`` if it fails.
+            ``True`` is successful.
 
         >>> oEditor.SetHfssExtentsVisible
 

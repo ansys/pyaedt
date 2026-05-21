@@ -52,6 +52,9 @@ def test_dcir(dcir_example_project) -> None:
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
+    with pytest.raises(ValueError):
+        dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "invented")
+
     assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
     assert dcir_example_project.post.create_report(
         dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
