@@ -38,7 +38,6 @@ import shutil
 import tempfile
 import time
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
@@ -2660,25 +2659,6 @@ class AvailableVariations(PyAedtBase):
                 else:
                     families.append(family_list)
         return families
-
-    @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> dict:  # pragma: no cover
-        """Retrieve variations for a given setup.
-
-        .. deprecated:: 0.22.0
-           Use :func:`nominal_variation` method instead.
-
-        Returns
-        -------
-        dict
-            Dictionary of independent nominal variations with values.
-        """
-        warnings.warn(
-            "Usage of get_independent_nominal_values is deprecated. Use nominal_variation instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
     def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:
