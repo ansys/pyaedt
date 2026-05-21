@@ -339,11 +339,14 @@ def test_edit_sources(q3d_solved) -> None:
     assert q3d_solved.edit_sources(sources_cg, sources_ac)
     assert q3d_solved.edit_sources()
     sources_cg = {"Box2": "2V"}
-    assert not q3d_solved.edit_sources(sources_cg)
+    with pytest.raises(ValueError):
+        q3d_solved.edit_sources(sources_cg)
     sources_ac = {"Box1:Source2": "2V"}
-    assert not q3d_solved.edit_sources(sources_ac)
+    with pytest.raises(ValueError):
+        q3d_solved.edit_sources(sources_ac)
     sources_dc = {"Box1:Source2": "2V"}
-    assert not q3d_solved.edit_sources(sources_dc)
+    with pytest.raises(ValueError):
+        q3d_solved.edit_sources(sources_dc)
     sources = q3d_solved.get_all_sources()
     assert sources[0] == "Box1:Source1"
     sources_dc = {"Box1:Source1": "20v"}
@@ -353,9 +356,11 @@ def test_edit_sources(q3d_solved) -> None:
     harmonic_loss = {"Box1:Source1": (real_dataset, imag_dataset)}
     assert q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
     harmonic_loss = {"invalid": (real_dataset, imag_dataset)}
-    assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+    with pytest.raises(ValueError):
+        q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
     harmonic_loss = {"Box1:Source1": real_dataset}
-    assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+    with pytest.raises(ValueError):
+        q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
 
 
 def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
@@ -364,8 +369,10 @@ def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
     assert len(sweep.frequencies) > 0
     assert sweep.basis_frequencies == []
     assert q3d_solved.export_matrix_data(file_path)
-    assert not q3d_solved.export_matrix_data(test_tmp_dir / "test.pdf")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, matrix_type="Test")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(test_tmp_dir / "test.pdf")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, matrix_type="Test")
     assert q3d_solved.export_matrix_data(
         file_name=file_path,
         problem_type="C",
@@ -377,25 +384,30 @@ def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
         matrix_type="Maxwell, Spice, Couple",
     )
     assert q3d_solved.export_matrix_data(file_name=file_path, problem_type="C")
-    assert not q3d_solved.export_matrix_data(
-        file_name=file_path,
-        problem_type="AC RL, DC RL",
-        matrix_type="Maxwell, Spice, Couple",
-    )
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(
+            file_name=file_path,
+            problem_type="AC RL, DC RL",
+            matrix_type="Maxwell, Spice, Couple",
+        )
     assert q3d_solved.export_matrix_data(file_name=file_path, problem_type="AC RL, DC RL")
     assert q3d_solved.export_matrix_data(
         file_name=file_path,
         problem_type="AC RL, DC RL",
         matrix_type="Maxwell, Couple",
     )
-    assert not q3d_solved.export_matrix_data(file_name=file_path, problem_type="AC")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, problem_type="AC")
     assert q3d_solved.export_matrix_data(file_name=file_path, setup="Setup1", sweep="LastAdaptive")
     assert q3d_solved.export_matrix_data(file_name=file_path, setup="Setup1", sweep="Last Adaptive")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, setup="Setup", sweep="LastAdaptive")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, setup="Setup1", sweep="Last Adaptive Invented")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, setup="Setup", sweep="LastAdaptive")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, setup="Setup1", sweep="Last Adaptive Invented")
     assert q3d_solved.export_matrix_data(file_name=file_path, reduce_matrix="Original")
     assert q3d_solved.export_matrix_data(file_name=file_path, reduce_matrix="JointTest")
-    assert not q3d_solved.export_matrix_data(file_name=file_path, reduce_matrix="JointTest4")
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, reduce_matrix="JointTest4")
     assert q3d_solved.export_matrix_data(file_name=file_path, setup="Setup1", sweep="LastAdaptive", freq=1)
     assert q3d_solved.export_matrix_data(
         file_name=file_path,
@@ -405,7 +417,8 @@ def test_export_matrix_data(q3d_solved, test_tmp_dir) -> None:
         freq_unit="kHz",
     )
     assert q3d_solved.export_matrix_data(file_name=file_path, precision=16, field_width=22)
-    assert not q3d_solved.export_matrix_data(file_name=file_path, precision=16.2)
+    with pytest.raises(ValueError):
+        q3d_solved.export_matrix_data(file_name=file_path, precision=16.2)
     assert q3d_solved.export_matrix_data(file_name=file_path, use_sci_notation=True)
     assert q3d_solved.export_matrix_data(file_name=file_path, use_sci_notation=False)
     assert q3d_solved.export_matrix_data(file_name=file_path, r_unit="mohm")

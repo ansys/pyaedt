@@ -362,7 +362,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         Examples
         --------
@@ -394,8 +394,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in cg.items():
                 if key not in self.excitation_names:
-                    self.logger.error("Not existing net " + key)
-                    return False
+                    raise ValueError(f"Net '{key}' does not exist in excitation names.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -424,8 +423,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in acrl.items():
                 if key not in sources:
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -456,8 +454,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in dcrl.items():
                 if key not in sources:  # pragma: no cover
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -479,13 +476,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in harmonic_loss.items():
                 if key not in sources and key not in self.get_all_sources():
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if not isinstance(vals, (tuple, list)):
-                    self.logger.error("Real and Imag part of current must be provided")
-                    return False
+                    raise ValueError("Real and Imag part of current must be provided as a tuple or list.")
                 else:
                     source_real_dataset_names.append(vals[0])
                     source_imag_dataset_names.append(vals[1])
@@ -595,11 +590,10 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if Path(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
-            self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
-            return False
+            raise ValueError("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
 
         if not self.modeler._is3d:
             if problem_type is None:
@@ -609,8 +603,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 else:
                     matrix_type_array = matrix_type.split(", ")
                     if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
-                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
-                        return False
+                        raise ValueError("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
             else:
                 problem_type_array = problem_type.split(", ")
                 if [x for x in problem_type_array if x in ["CG", "RL"]]:
@@ -623,11 +616,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                         else:
                             matrix_type_array = matrix_type.split(", ")
                             if [x for x in matrix_type_array if x == "Spice"]:
-                                self.logger.error("Spice can't be a matrix type if problem type is RL.")
-                                return False
+                                raise ValueError("Spice can't be a matrix type if problem type is RL.")
                 else:
-                    self.logger.error("Invalid problem type. Possible values are CG and RL.")
-                    return False
+                    raise ValueError("Invalid problem type. Possible values are CG and RL.")
 
         else:
             if problem_type is None:
@@ -637,8 +628,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 else:
                     matrix_type_array = matrix_type.split(", ")
                     if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
-                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
-                        return False
+                        raise ValueError("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
             else:
                 problem_type_array = problem_type.split(", ")
                 if [x for x in problem_type_array if x in ["C", "AC RL", "DC RL"]]:
@@ -651,11 +641,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                         else:
                             matrix_type_array = matrix_type.split(", ")
                             if [x for x in matrix_type_array if x == "Spice"]:
-                                self.logger.error("Spice can't be a matrix type if problem type is AC RL or DC RL.")
-                                return False
+                                raise ValueError("Spice can't be a matrix type if problem type is AC RL or DC RL.")
                 else:
-                    self.logger.error("Invalid problem type. Possible values are C, AC RL, and DC RL.")
-                    return False
+                    raise ValueError("Invalid problem type. Possible values are C, AC RL, and DC RL.")
 
         if variations is None:
             nominal_values = self.available_variations.nominal_variation(dependent_params=False)
@@ -671,15 +659,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if setup is None:
             setup = self.active_setup
         elif setup != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
-            return False
+            raise ValueError(f"Setup named: '{setup}' is invalid. Provide a valid analysis setup name.")
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is invalid. Provide a valid sweep.")
-                return False
+                raise ValueError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if reduce_matrix is None:
@@ -687,26 +673,21 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         else:
             if self.matrices:
                 if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
-                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
-                    return False
+                    raise ValueError("Matrix doesn't exist. Provide an existing matrix.")
             else:  # pragma: no cover
-                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
-                return False
+                raise ValueError("List of matrix parameters is empty. Cannot export a valid matrix.")
 
         if r_unit is None:
             r_unit = "ohm"
         else:
             if not r_unit.endswith("ohm"):
-                self.logger.error("Provide a valid unit for resistor.")
-                return False
+                raise ValueError("Provide a valid unit for resistor.")
 
         if not l_unit.endswith("H"):
-            self.logger.error("Provide a valid unit for inductor.")
-            return False
+            raise ValueError("Provide a valid unit for inductor.")
 
         if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-            self.logger.error("Provide a valid unit for capacitance.")
-            return False
+            raise ValueError("Provide a valid unit for capacitance.")
 
         if g_unit is None:
             g_unit = "mho"
@@ -724,8 +705,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 "perohm",
                 "apV",
             ]:
-                self.logger.error("Provide a valid unit for conductance.")
-                return False
+                raise ValueError("Provide a valid unit for conductance.")
 
         if freq is None:
             freq = (
@@ -744,15 +724,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             precision = 15
         else:
             if not isinstance(precision, int):
-                self.logger.error("Precision type must be integer.")
-                return False
+                raise ValueError("Precision type must be integer.")
 
         if field_width is None:
             field_width = 20
         else:
             if not isinstance(field_width, int):
-                self.logger.error("Field width type must be integer.")
-                return False
+                raise ValueError("Field width type must be integer.")
 
         if use_sci_notation is None:
             use_sci_notation = 1
@@ -764,8 +742,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
         if not self.modeler._is3d:
             if length_setting not in ["Distributed", "Lumped"]:
-                self.logger.error("Length setting is invalid.")
-                return False
+                raise ValueError("Length setting is invalid.")
             if length is None:
                 length = "1meter"
             else:
@@ -789,8 +766,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     "uin",
                     "yd",
                 ]:
-                    self.logger.error("Unit length is invalid.")
-                    return False
+                    raise ValueError("Unit length is invalid.")
             try:
                 self.odesign.ExportMatrixData(
                     str(file_name),
@@ -812,9 +788,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     use_sci_notation,
                 )
                 return True
-            except Exception:  # pragma: no cover
-                self.logger.error("Export of matrix data was unsuccessful.")
-                return False
+            except Exception as e:  # pragma: no cover
+                raise AEDTRuntimeError(f"Export of matrix data was unsuccessful: {e}") from e
         else:
             try:
                 self.odesign.ExportMatrixData(
@@ -836,9 +811,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     use_sci_notation,
                 )
                 return True
-            except Exception:  # pragma: no cover
-                self.logger.error("Export of matrix data was unsuccessful.")
-                return False
+            except Exception as e:  # pragma: no cover
+                raise AEDTRuntimeError(f"Export of matrix data was unsuccessful: {e}") from e
 
     @pyaedt_function_handler()
     def export_equivalent_circuit(
