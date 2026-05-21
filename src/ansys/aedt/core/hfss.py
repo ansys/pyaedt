@@ -7638,11 +7638,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     ) -> bool:
         """Import a data table.
 
-            The table can have multiple independent real-valued columns of data,
-            and multiple dependent real- or complex-valued columns of data.
-            The data supported is comma-delimited format (.csv).
-            The first row may contain column names. Complex data columns are inferred from the column data format.
-            In comma-delimited format, "(double, double)" denotes a complex number.
+        The table can have multiple independent real-valued columns of data,
+        and multiple dependent real- or complex-valued columns of data.
+        The data supported is comma-delimited format (.csv).
+        The first row may contain column names. Complex data columns are inferred from the column data format.
+        In comma-delimited format, "(double, double)" denotes a complex number.
 
         Parameters
         ----------

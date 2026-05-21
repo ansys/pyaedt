@@ -424,7 +424,8 @@ def test_set_variable(aedt_app) -> None:
 def test_change_options(aedt_app) -> None:
     assert aedt_app.change_options()
     assert aedt_app.change_options(color_by_net=False)
-    assert not aedt_app.change_options(color_by_net=None)
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.change_options(color_by_net=None)
 
 
 def test_show_extent(aedt_app) -> None:
@@ -492,8 +493,11 @@ def test_import_table(aedt_app) -> None:
     file_header = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
-    assert not aedt_app.import_table(file_header, column_separator="dummy")
-    assert not aedt_app.import_table(file_invented)
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_table(file_invented)
+
+    with pytest.raises(ValueError):
+        aedt_app.import_table(file_header, column_separator="dummy")
 
     table = aedt_app.import_table(file_header)
     assert table in aedt_app.existing_analysis_sweeps

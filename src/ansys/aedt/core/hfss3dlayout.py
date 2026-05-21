@@ -2542,7 +2542,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` if it fails.
+            ``True`` if successful.
 
         >>> oEditor.ChangeOptions
 
@@ -2557,8 +2557,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             oeditor = self.odesign.SetActiveEditor("Layout")
             oeditor.ChangeOptions(options)
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to change options: {e}") from e
 
     @pyaedt_function_handler()
     def export_touchstone_on_completion(self, export: bool | None = True, output_dir: str | None = None) -> bool:
@@ -2602,7 +2602,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         sweep_columns: int | None = 0,
         total_columns: int | None = -1,
         real_columns: int | None = 1,
-    ) -> bool | str:
+    ) -> str:
         """Import a data table as a solution.
 
         Parameters
@@ -2631,7 +2631,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         str
-            ``True`` when successful, ``False`` when failed.
+            Name of the imported sweep when successful.
 
         References
         ----------
@@ -2644,15 +2644,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> h3d.import_table(input_file="my_file.csv")
         """
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
-        if column_separator not in ["Space", "Tab", "Comma", "Period"]:
-            self.logger.error("Invalid column separator.")
-            return False
+        if column_separator not in columns_separator_map:
+            raise ValueError(
+                f"Invalid column separator '{column_separator}'. "
+                f"Available options are: {', '.join(columns_separator_map)}."
+            )
 
         input_path = Path(input_file).resolve()
 
         if not input_path.is_file():
-            self.logger.error("File does not exist.")
-            return False
+            raise FileNotFoundError(f"Input file '{input_path}' does not exist.")
 
         existing_sweeps = self.existing_analysis_sweeps
 
@@ -2685,8 +2686,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         new_sweep = list(set(new_sweeps) - set(existing_sweeps))
 
         if not new_sweep:  # pragma: no cover
-            self.logger.error("Data not imported.")
-            return False
+            raise AEDTRuntimeError("Data not imported.")
         return new_sweep[0]
 
     @pyaedt_function_handler()
