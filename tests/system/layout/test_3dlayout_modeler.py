@@ -470,6 +470,10 @@ def test_create_coaxial_port(aedt_app) -> None:
     port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
     assert port.props["Radial Extent Factor"] == "0.5"
+
+    with pytest.raises(ValueError):
+        aedt_app.create_coax_port(aedt_app.port_list[0], 0.5, "Top", "Lower")
+
     aedt_app.delete_port(name=port.name, remove_geometry=False)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()

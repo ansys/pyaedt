@@ -638,6 +638,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         listp = self.port_list
         if via in self.port_list:
             raise ValueError(f"Port already exists on via '{via}'.")
+
         self.oeditor.ToggleViaPin(["NAME:elements", via])
 
         listnew = self.port_list
