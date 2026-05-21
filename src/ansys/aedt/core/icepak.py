@@ -1727,7 +1727,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             if origin:
                 self.modeler.move(new_name, origin)
             return native
-        return False
+        raise AEDTRuntimeError("Fan creation failed.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
@@ -1863,7 +1863,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 if outline_polygon:
                     native.set_board_extents("Polygon", outline_polygon)
             return native
-        return False
+        raise AEDTRuntimeError("PCB creation failed.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
@@ -1878,9 +1878,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         custom_x_resolution: int | None = None,
         custom_y_resolution: int | None = None,
         power_in: float | None = 0,
-        rad: str | None = "Nothing",
         **kwargs,  # fmt: skip
-    ) -> bool:
+    ) -> NativeComponentPCB:
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
         .. note::
@@ -1909,20 +1908,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             The default is ``None``.
         power_in : float, optional
             Power in Watt.
-        rad : str, optional
-            Radiating faces. Options are:
-
-            * ``"Nothing"``
-            * ``"Low"``
-            * ``"High"``
-            * ``"Both"``
-
-            The default is ``"Nothing"``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentPCB`
+            NativeComponentObject object.
 
         References
         ----------
