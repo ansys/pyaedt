@@ -1523,7 +1523,8 @@ def test_create_3dcomponent(aedt_app, test_tmp_dir) -> None:
     input_file = test_tmp_dir / "new" / COMPONENT_3D_FILE
 
     # Folder doesn't exist. Cannot create component.
-    assert not aedt_app.modeler.create_3dcomponent(str(input_file), create_folder=False)
+    with pytest.raises(FileNotFoundError):
+        aedt_app.modeler.create_3dcomponent(str(input_file), create_folder=False)
 
     # By default, the new folder is created.
     assert aedt_app.modeler.create_3dcomponent(str(input_file))
@@ -1564,20 +1565,22 @@ def test_create_3d_component_encrypted(aedt_app, test_tmp_dir) -> None:
         password="password_test",
         hide_contents=["Solid"],
     )
-    assert not aedt_app.modeler.create_3dcomponent(
-        str(input_file),
-        coordinate_systems="Global",
-        is_encrypted=True,
-        password="password_test",
-        password_type="Invalid",
-    )
-    assert not aedt_app.modeler.create_3dcomponent(
-        str(input_file),
-        coordinate_systems="Global",
-        is_encrypted=True,
-        password="password_test",
-        component_outline="Invalid",
-    )
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_3dcomponent(
+            str(input_file),
+            coordinate_systems="Global",
+            is_encrypted=True,
+            password="password_test",
+            password_type="Invalid",
+        )
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_3dcomponent(
+            str(input_file),
+            coordinate_systems="Global",
+            is_encrypted=True,
+            password="password_test",
+            component_outline="Invalid",
+        )
 
 
 def test_create_equationbased_curve(aedt_app) -> None:
