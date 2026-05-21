@@ -600,6 +600,9 @@ def test_netlist_data_block(aedt_app, test_tmp_dir) -> None:
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert aedt_app.analyze()
 
+    with pytest.raises(FileNotFoundError):
+        aedt_app.add_netlist_datablock(test_tmp_dir / "invented.net")
+
 
 def test_create_voltage_probe(aedt_app) -> None:
     myprobe = aedt_app.modeler.schematic.create_voltage_probe(name="voltage_probe")

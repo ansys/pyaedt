@@ -1495,7 +1495,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1515,7 +1515,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             self.odesign.LoadDiffPairsFromFile(str(new_file))
             new_file.unlink()
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("Error setting the differential pair definition.")
         return True
 
     @pyaedt_function_handler()
@@ -1556,11 +1556,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if not Path(input_file).exists():
-            self.logger.error("Netlist File doesn't exists")
-            return False
+            raise FileNotFoundError(f"Input file '{input_file}' does not exist.")
         if not name:
             name = generate_unique_name("Inc")
 
@@ -1645,7 +1644,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         Examples
         --------
@@ -1659,52 +1658,48 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         >>> circ = Circuit()
         >>> circ.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         """
-        if project_connections and edb_zones_dict:
-            self.modeler.schematic_units = schematic_units
-            inc = model_inc
-            ind = 1
-            for edb_file in list(edb_zones_dict.keys()):
-                hfss3d_layout_model = self.import_edb_in_circuit(input_dir=edb_file)
-                model_position = [ind * inc, 0]
-                hfss3d_layout_model.location = model_position
-                ind += 1
-            for connection in project_connections:
-                pin1 = None
-                pin2 = None
-                model1 = next(
-                    cmp for cmp in list(self.modeler.schematic.components.values()) if connection[0][0] in cmp.name
-                )
-                if model1:
-                    try:
-                        pin1 = next(pin for pin in model1.pins if pin.name == connection[0][1])
-                    except Exception:
-                        print("failed to get pin1")
-                model2 = next(
-                    cmp for cmp in list(self.modeler.schematic.components.values()) if connection[1][0] in cmp.name
-                )
-                if model2:
-                    try:
-                        pin2 = next(pin for pin in model2.pins if pin.name == connection[1][1])
-                    except Exception:
-                        print("failed to get pin2")
-                if pin1 and pin2:
-                    pin1.connect_to_component(assignment=pin2, use_wire=False)
-            for model_name, ports in ports.items():
-                if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
-                    model = next(
-                        cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name
-                    )
-                    if model:
-                        for port_name in ports:
-                            try:
-                                model_pin = next(pin for pin in model.pins if pin.name == port_name)
-                            except StopIteration:
-                                model_pin = None
-                            if model_pin:
-                                self.modeler.schematic.create_interface_port(port_name, model_pin.location)
-            self.save_project()
-            return True
-        return False
+        self.modeler.schematic_units = schematic_units
+        inc = model_inc
+        ind = 1
+        for edb_file in list(edb_zones_dict.keys()):
+            hfss3d_layout_model = self.import_edb_in_circuit(input_dir=edb_file)
+            model_position = [ind * inc, 0]
+            hfss3d_layout_model.location = model_position
+            ind += 1
+        for connection in project_connections:
+            pin1 = None
+            pin2 = None
+            model1 = next(
+                cmp for cmp in list(self.modeler.schematic.components.values()) if connection[0][0] in cmp.name
+            )
+            if model1:
+                try:
+                    pin1 = next(pin for pin in model1.pins if pin.name == connection[0][1])
+                except Exception:
+                    print("failed to get pin1")
+            model2 = next(
+                cmp for cmp in list(self.modeler.schematic.components.values()) if connection[1][0] in cmp.name
+            )
+            if model2:
+                try:
+                    pin2 = next(pin for pin in model2.pins if pin.name == connection[1][1])
+                except Exception:
+                    print("failed to get pin2")
+            if pin1 and pin2:
+                pin1.connect_to_component(assignment=pin2, use_wire=False)
+        for model_name, ports in ports.items():
+            if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
+                model = next(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name)
+                if model:
+                    for port_name in ports:
+                        try:
+                            model_pin = next(pin for pin in model.pins if pin.name == port_name)
+                        except StopIteration:
+                            model_pin = None
+                        if model_pin:
+                            self.modeler.schematic.create_interface_port(port_name, model_pin.location)
+        self.save_project()
+        return True
 
     @pyaedt_function_handler()
     def import_edb_in_circuit(self, input_dir: str | Path) -> CircuitComponent:
