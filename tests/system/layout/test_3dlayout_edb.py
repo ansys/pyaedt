@@ -390,6 +390,9 @@ def test_differential_ports(aedt_app) -> None:
     assert aedt_app.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
     assert "test_differential" in aedt_app.port_list
 
+    with pytest.raises(ValueError):
+        aedt_app.create_differential_port(pins[0], pins[1], name=aedt_app.port_list[0])
+
 
 def test_ports_on_components_nets(aedt_app) -> None:
     component = aedt_app.modeler.components["J1"]

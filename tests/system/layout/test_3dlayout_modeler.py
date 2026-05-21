@@ -440,6 +440,19 @@ def test_create_edge_port(aedt_app) -> None:
         data_format="Voltage",
     )
     assert aedt_app.boundaries[0].properties["Magnitude"] != "1V"
+
+
+def test_create_wave_port_from_two_conductors(aedt_app) -> None:
+    aedt_app.modeler.layers.add_layer(
+        layer="Signal", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+    aedt_app.modeler.create_line("Signal", [[0, 0], [10, 0]], lw=1, name="conductor1", net="NET1")
+    aedt_app.modeler.create_line("Signal", [[0, 2], [10, 2]], lw=1, name="conductor2", net="NET2")
+
+    port = aedt_app.create_wave_port_from_two_conductors(assignment=["conductor1", "conductor2"], edge_numbers=[0, 0])
+    assert port
+    assert port.name in aedt_app.port_list
+    assert aedt_app.delete_port(port.name)
     aedt_app.boundaries[0].properties["Boundary Type"] = "PEC"
     assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name

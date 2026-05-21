@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -219,8 +220,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_launcher: str | None = "1mm",
         reference_primitive: str | None = None,
         reference_edge_number: str | int | None = 0,
-    ) -> BoundaryObject3dLayout | bool:
-        # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
+    ) -> "BoundaryObject3dLayout":
         """Create an edge port.
 
         Parameters
@@ -249,7 +249,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port objcet port when successful, ``False`` when failed.
+            Port objcet port when successful.
 
         References
         ----------
@@ -315,10 +315,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Failed to update port information.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create edge port.")
 
     @pyaedt_function_handler()
     def create_wave_port(
@@ -328,7 +328,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_horizontal_extension: float | None = 5,
         wave_vertical_extension: float | None = 3,
         wave_launcher: str | None = "1mm",
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a single-ended wave port.
 
         Parameters
@@ -347,33 +347,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout` or bool
-            Port object when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`.
+            Port objcet port when successful.
 
         References
         ----------
+        >>> oEditor.CreateEdgePort
         """
-        port_name = self.create_edge_port(
+        port_object = self.create_edge_port(
             assignment,
             edge_number,
             wave_horizontal_extension=wave_horizontal_extension,
             wave_vertical_extension=wave_vertical_extension,
             wave_launcher=wave_launcher,
         )
-        if port_name:
-            port_name["HFSS Type"] = "Wave"
-            port_name["Horizontal Extent Factor"] = str(wave_horizontal_extension)
-            if "Vertical Extent Factor" in list(port_name.props.keys()):
-                port_name["Vertical Extent Factor"] = str(wave_vertical_extension)
-            port_name["PEC Launch Width"] = str(wave_launcher)
-            return port_name
-        else:
-            return False
+        if port_object:
+            port_object["HFSS Type"] = "Wave"
+            port_object["Horizontal Extent Factor"] = str(wave_horizontal_extension)
+            if "Vertical Extent Factor" in list(port_object.props.keys()):
+                port_object["Vertical Extent Factor"] = str(wave_vertical_extension)
+            port_object["PEC Launch Width"] = str(wave_launcher)
+            return port_object
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create wave port.")
 
     @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(
         self, assignment: list | None = None, edge_numbers: list | None = None
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a wave port.
 
         Parameters
@@ -391,7 +392,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port objcet port when successful, ``False`` when failed.
+            Port objcet port when successful.
 
         References
         ----------
@@ -423,12 +424,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 if bound:
                     self._boundaries[bound.name] = bound
                     return bound
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError("Failed to update port information.")
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Failed to create wave port.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create wave port.")
 
     @pyaedt_function_handler()
     def dissolve_component(self, component: str) -> bool:
@@ -561,7 +562,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_differential_port(
         self, via_signal: str, via_reference: float, name: str, deembed: bool | None = True
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a differential port.
 
         Parameters
@@ -578,7 +579,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port Object when successful, ``False`` when failed.
+            Port Object when successful.
 
         References
         ----------
@@ -586,8 +587,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         listp = self.port_list
         if name in self.port_list:
-            self.logger.error(f"Port already existd on via {name}.")
-            return False
+            raise ValueError(f"Port '{name}' already exists in the design.")
+
         self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
 
         listnew = self.port_list
@@ -603,15 +604,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise RuntimeError(f"Failed to update port information for '{name}'.")
+        else:  # pragma: no cover
+            raise RuntimeError(f"Failed to create differential port '{name}'.")
 
     @pyaedt_function_handler()
     def create_coax_port(
         self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: str | None = "lower"
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a coax port.
 
         Parameters
@@ -628,7 +629,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port Object when successful, ``False`` when failed.
+            Port Object when successful.
 
         References
         ----------
