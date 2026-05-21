@@ -2052,7 +2052,7 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
         aedt_app.import_gds_3d(str(gds_file), {})
 
     gds_file2 = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
-    with pytest.raises(AEDTRuntimeError):
+    with pytest.raises(FileNotFoundError):
         aedt_app.import_gds_3d(str(gds_file2), {7: (100, 10), 9: (110, 5)})
 
     with pytest.raises(TypeError):
