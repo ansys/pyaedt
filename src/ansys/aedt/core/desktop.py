@@ -677,12 +677,12 @@ class Desktop(PyAedtBase):
     def __init__(
         self,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = True,
-        close_on_exit: bool | None = True,
-        student_version: bool | None = False,
+        non_graphical: bool = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool = False,
         machine: str | None = None,
-        port: int | None = 0,
+        port: int = 0,
         aedt_process_id: int | None = None,
     ) -> None:
         """Initialize desktop."""

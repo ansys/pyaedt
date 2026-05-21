@@ -43,12 +43,12 @@ log = settings.logger
 def Edb(
     edbpath: str | None = None,
     cellname: str | None = None,
-    isreadonly: bool | None = False,
+    isreadonly: bool = False,
     version: str | None = None,
-    isaedtowned: bool | None = False,
+    isaedtowned: bool = False,
     oproject: Any | None = None,
-    student_version: bool | None = False,
-    use_ppe: bool | None = False,
+    student_version: bool = False,
+    use_ppe: bool = False,
     technology_file: str | None = None,
 ) -> "EdbApp":
     """Provides the EDB application interface.

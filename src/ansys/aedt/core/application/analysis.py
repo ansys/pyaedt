@@ -668,13 +668,11 @@ class Analysis(Design, PyAedtBase):
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
         elif not setup:
-            self.logger.warning("No Setup defined.")
-            return False
+            raise ValueError("No Setup defined.")
         if not sweep and ":" in self.nominal_sweep:
             sweep = self.nominal_adaptive.split(":")[1].strip()
         elif not sweep:
-            self.logger.warning("No Sweep defined.")
-            return False
+            raise ValueError("No Sweep defined.")
         if (
             self.solution_type == "HFSS3DLayout"
             or self.solution_type == "HFSS 3D Layout Design"
@@ -1118,7 +1116,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1256,7 +1254,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1278,7 +1276,7 @@ class Analysis(Design, PyAedtBase):
                 if s.name == name:
                     self._setups.remove(s)
             return True
-        return False
+        raise ValueError(f"Setup '{name}' not found.")
 
     @pyaedt_function_handler()
     def _get_setup(self, name: str):
@@ -1357,7 +1355,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-           ``True`` when successful, ``False`` when failed.
+           ``True`` when successful.
 
         References
         ----------
@@ -1571,7 +1569,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1613,7 +1611,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if not acf_file and not configuration_name:
             raise AEDTRuntimeError("No custom ACF file or configuration name provided.")
@@ -1666,7 +1664,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         config_name = "pyaedt_config"
         source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
@@ -1784,7 +1782,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-           ``True`` when successful, ``False`` when failed.
+           ``True`` when successful.
 
         References
         ----------
@@ -1950,7 +1948,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
          bool
-           ``True`` when successful, ``False`` when failed.
+           ``True`` when successful.
         """
         import subprocess  # nosec
 
@@ -2321,7 +2319,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2386,7 +2384,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2432,8 +2430,7 @@ class Analysis(Design, PyAedtBase):
                 ]
             )
         else:
-            self.logger.error("Wrong Property Value")
-            return False
+            raise ValueError(f"Wrong property value for '{property_name}'.")
         self.logger.info(f"Property {property_name} changed correctly.")
         return True
 
@@ -2452,7 +2449,7 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
