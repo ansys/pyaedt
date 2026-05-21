@@ -214,6 +214,11 @@ def test_create_regular_polygon(aedt_app) -> None:
     assert pg2.is_conductor
     assert is_close(pg2.faces[0].area, 5.196152422706631)
 
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_regular_polygon(
+            origin=[0, 0, 0], start_point=[0, 2, 0], num_sides=1, name="MyPolygon", material="Copper"
+        )
+
 
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
 def test_plot(aedt_app, test_tmp_dir) -> None:
