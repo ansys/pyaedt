@@ -111,7 +111,7 @@ def test_set_end_time(aedt_app) -> None:
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_catalog(aedt_app) -> None:
-    comp_catalog = aedt_app.modeler.components.components_catalog
+    comp_catalog = aedt_app.schematic.schematic.components_catalog
     assert not comp_catalog["Capacitors"]
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")
@@ -241,15 +241,19 @@ def test_add_excitation_model(add_app, test_tmp_dir) -> None:
     dkp = tb.desktop_class
     maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
 
-    assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
-    assert not tb.add_excitation_model(project=tb.project_path, design="1 maxwell busbar")
-    assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
+    with pytest.raises(ValueError):
+        tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
+    with pytest.raises(ValueError):
+        tb.add_excitation_model(project=tb.project_path, design="1 maxwell busbar")
+    with pytest.raises(ValueError):
+        tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
 
     excitations = {}
     for e in maxwell_app.excitations_by_type["Winding Group"]:
         excitations[e.name] = [1, True, e.props["Type"], False]
 
-    assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+    with pytest.raises(ValueError):
+        tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
 
     excitations = {}
     for e in maxwell_app.excitations_by_type["Winding Group"]:

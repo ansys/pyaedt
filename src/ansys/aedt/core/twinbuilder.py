@@ -735,8 +735,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             project_name = "$PROJECTDIR/{}.aedt".format(project)
             maxwell_app = dkp[[project, design]]
         else:
-            self.logger.error("Invalid project name or path is provided.")
-            return False
+            raise ValueError("Invalid project name or path is provided.")
 
         if not setup:
             setup = self.setups[0]
@@ -790,14 +789,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         grid_data = ["NAME:GridData"]
         maxwell_excitations = {}
         if not maxwell_app.excitations_by_type["Winding Group"]:
-            self.logger.error("No voltage or current excitations detected in the design.")
-            return False
+            raise ValueError("No voltage or current excitations detected in the design.")
         elif excitations:
             if [
                 e for e in excitations if e not in [me.name for me in maxwell_app.excitations_by_type["Winding Group"]]
             ]:
-                self.logger.error("Excitation does not exist in Maxwell design.")
-                return False
+                raise ValueError("Excitation does not exist in Maxwell design.")
             for k in excitations.keys():
                 if (
                     not isinstance(excitations[k][0], str)
@@ -805,8 +802,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
                     or excitations[k][2].lower() not in ["current", "voltage"]
                     or not isinstance(excitations[k][3], bool)
                 ):
-                    self.logger.error("Excitation values are not correct or could have a wrong type.")
-                    return False
+                    raise ValueError("Excitation values are not correct or could have a wrong type.")
                 grid_data.append("{}:=".format(k))
                 grid_data.append(excitations[k])
         else:
