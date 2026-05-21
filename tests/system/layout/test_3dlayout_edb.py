@@ -80,6 +80,10 @@ def test_get_components(aedt_app) -> None:
     assert comp["L10"].part_type == "Inductor"
     assert comp["L10"].set_property_value("Angle", "0deg")
     assert comp["L10"].create_clearance_on_component(1e-6)
+    # Test that clearance raises on non-component primitives
+    line = aedt_app.modeler.geometries["line_209"]
+    with pytest.raises(ValueError):
+        line.create_clearance_on_component()
     assert comp["L10"].absolute_angle == 0.0
     comp["L10"].enabled = False
     assert not comp["L10"].enabled
