@@ -1472,7 +1472,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1494,7 +1494,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1516,7 +1516,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1751,15 +1751,15 @@ class GeometryModeler(Modeler, PyAedtBase):
 
             if result:
                 return cs
-        return False
+        raise AEDTRuntimeError("Failed to create face coordinate system.")
 
     @pyaedt_function_handler()
     def create_object_coordinate_system(
         self,
-        assignment: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive",
-        origin: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive" | list,
-        x_axis: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive" | list,
-        y_axis: int | "FacePrimitive" | "EdgePrimitive" | "VertexPrimitive" | list,
+        assignment: "int | FacePrimitive | EdgePrimitive | VertexPrimitive",
+        origin: "int | FacePrimitive | EdgePrimitive | VertexPrimitive | list",
+        x_axis: "int | FacePrimitive | EdgePrimitive | VertexPrimitive | list",
+        y_axis: "int | FacePrimitive | EdgePrimitive | VertexPrimitive | list",
         move_to_end: bool = True,
         reverse_x_axis: bool = False,
         reverse_y_axis: bool = False,
@@ -1811,7 +1811,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
@@ -1832,10 +1832,10 @@ class GeometryModeler(Modeler, PyAedtBase):
 
             if result:
                 return cs
-        return False
+        raise AEDTRuntimeError("Failed to create object coordinate system.")
 
     @pyaedt_function_handler()
-    def global_to_cs(self, point: list, coordinate_system: str | "CoordinateSystem") -> list:
+    def global_to_cs(self, point: list, coordinate_system: "str | CoordinateSystem") -> list:
         """Transform a point from the global coordinate system to another coordinate system.
 
         Parameters
@@ -1913,7 +1913,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1946,7 +1946,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def invert_cs(
-        self, coordinate_system: str | "CoordinateSystem", to_global: bool = False
+        self, coordinate_system: "str | CoordinateSystem", to_global: bool = False
     ) -> tuple[list, "Quaternion"]:
         """Get the inverse translation and the conjugate quaternion of the input coordinate system.
 
@@ -1989,7 +1989,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o, q
 
     @pyaedt_function_handler()
-    def reference_cs_to_global(self, coordinate_system: str | "CoordinateSystem") -> tuple[list, "Quaternion"]:
+    def reference_cs_to_global(self, coordinate_system: "str | CoordinateSystem") -> tuple[list, "Quaternion"]:
         """Get the origin and quaternion defining the coordinate system in the global coordinates.
 
         Parameters
@@ -2025,7 +2025,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return origin, quaternion
 
     @pyaedt_function_handler()
-    def duplicate_coordinate_system_to_global(self, coordinate_system: str | "CoordinateSystem") -> "CoordinateSystem":
+    def duplicate_coordinate_system_to_global(self, coordinate_system: "str | CoordinateSystem") -> "CoordinateSystem":
         """Create a duplicate coordinate system referenced to the global coordinate system.
 
         Having this coordinate system referenced to the global coordinate
@@ -2187,7 +2187,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 )
                 if result:
                     return obj_cs
-        return False
+        raise AEDTRuntimeError("Failed to reference coordinate system to global.")
 
     @pyaedt_function_handler()
     def set_objects_deformation(self, assignment: list) -> bool:
@@ -2201,7 +2201,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2210,9 +2210,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.logger.info("Enabling deformation feedback")
         try:
             self._odesign.SetObjectDeformation(["EnabledObjects:=", assignment])
-        except Exception:  # pragma: no cover
-            self.logger.error("Failed to enable the deformation dependence")
-            return False
+        except Exception as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to enable the deformation dependence: {e}") from e
         else:
             self.logger.info("Successfully enabled deformation feedback")
             return True
@@ -2238,7 +2237,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2266,14 +2265,13 @@ class GeometryModeler(Modeler, PyAedtBase):
                 vargs2.append(obj)
                 vargs2.append(var)
         if not vargs2:
-            return False
+            raise ValueError("No objects with thermal modifiers found in the assignment list.")
         else:
             vargs1.append(vargs2)
         try:
             self._odesign.SetObjectTemperature(vargs1)
-        except Exception:  # pragma: no cover
-            self.logger.error("Failed to enable the temperature dependence")
-            return False
+        except Exception as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to enable the temperature dependence: {e}") from e
         else:
             self.logger.info("Assigned Objects Temperature")
             return True
@@ -2587,7 +2585,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2778,8 +2776,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> oEditor.Split
         """
         if plane is None and not tool or plane and tool:
-            self.logger.info("One method to split the objects has to be defined.")
-            return False
+            raise ValueError("Exactly one method to split the objects has to be defined (plane or tool).")
         assignment = self.convert_to_selections(assignment)
         all_objs = [i for i in self.object_names]
         selections = []
@@ -2814,8 +2811,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                         if objs:
                             obj = objs[0]
                         else:
-                            self.logger.info("Tool must be a sheet object or a face of an object.")
-                            return False
+                            raise ValueError("Tool must be a sheet object or a face of an object.")
                     if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
                         obj_name = obj.name
                         obj = obj.faces[0]
@@ -2845,8 +2841,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                             obj = o.edges[0]
                     tool_type = "EdgeTool"
                 else:  # pragma: no cover
-                    self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
-                    return False
+                    raise ValueError("Face tool part has to be provided as a string (name) or an int (face id).")
                 planes = "Dummy"
                 tool_type = tool_type
                 tool_entity_id = obj.id
@@ -2861,8 +2856,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 ]
         else:
             if plane is None and tool or not plane:
-                self.logger.info("For 2D design types only planes can be defined.")
-                return False
+                raise ValueError("For 2D design types only planes can be defined.")
             elif plane is not None:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
@@ -2962,7 +2956,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool, list
-            List of objects created or ``True`` when successful, ``False`` when failed.
+            List of objects created or ``True`` when successful.
 
         References
         ----------
@@ -3035,7 +3029,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3287,7 +3281,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 return [self.update_object(self[o]) for o in obj]
             else:
                 return self.update_object(self[obj[0]])
-        return False
+        raise AEDTRuntimeError("Failed to sweep along normal. No new objects created.")
 
     @pyaedt_function_handler()
     def sweep_along_vector(
@@ -3373,7 +3367,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3424,7 +3418,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3484,7 +3478,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3547,8 +3541,8 @@ class GeometryModeler(Modeler, PyAedtBase):
                     if obj.name == new_obj:
                         new_objects_list.append(obj)
             return new_objects_list
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to separate bodies: {e}") from e
 
     @pyaedt_function_handler()
     def rotate(self, assignment: str | int | list | Object3d, axis, angle: float = 90.0, units: str = "deg") -> bool:
@@ -3570,7 +3564,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3610,7 +3604,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3651,7 +3645,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3716,7 +3710,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3749,7 +3743,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3771,7 +3765,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3848,10 +3842,9 @@ class GeometryModeler(Modeler, PyAedtBase):
                 arg_2 += ["TurnOnNBodyBoolean:=", True]
             self.oeditor.Unite(arg_1, arg_2)
             if selections.split(",")[0] in self.unclassified_names:  # pragma: no cover
-                self.logger.error("Error in uniting objects.")
                 self._odesign.Undo()
                 self.cleanup_objects()
-                return False
+                raise AEDTRuntimeError("Error in uniting objects.")
             elif purge:
                 self.purge_history(objs[0])
             objs_groups.append(objs[0])
@@ -3878,7 +3871,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         list
             List of names of objects cloned when successful.
 
@@ -4035,8 +4028,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             self.oeditor.Connect(vArg1)
             if unclassified_before != self.unclassified_names:  # pragma: no cover
                 self._odesign.Undo()
-                self.logger.error("Error in connection. Reverting Operation")
-                return False
+                raise AEDTRuntimeError("Error in connection. Reverting Operation.")
 
             self.cleanup_objects()
             self.logger.info("Connection Correctly created")
@@ -4046,8 +4038,8 @@ class GeometryModeler(Modeler, PyAedtBase):
             object_list = self.object_list.copy()
             objects_list_after_connection = [obj for obj in object_list if obj.name in selected_names]
             return objects_list_after_connection
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to connect objects: {e}") from e
 
     @pyaedt_function_handler()
     def chassis_subtraction(self, chassis_part: str) -> bool:
@@ -4208,7 +4200,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -4336,7 +4328,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -4391,11 +4383,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             if result:
                 return user_list
             else:  # pragma: no cover
-                self._app.logger.error("Wrong object definition. Review object list and type")
-                return False
+                raise AEDTRuntimeError("Wrong object definition. Review face list and type.")
         else:  # pragma: no cover
-            self._app.logger.error("User list object could not be created")
-            return False
+            raise AEDTRuntimeError("User list object could not be created.")
 
     @pyaedt_function_handler()
     def create_object_list(self, assignment: list, name: str | None = None) -> Lists | bool:
@@ -4430,11 +4420,9 @@ class GeometryModeler(Modeler, PyAedtBase):
             if result:
                 return user_list
             else:  # pragma: no cover
-                self._app.logger.error("Wrong object definition. Review object list and type")
-                return False
+                raise AEDTRuntimeError("Wrong object definition. Review object list and type.")
         else:  # pragma: no cover
-            self._app.logger.error("User list object could not be created")
-            return False
+            raise AEDTRuntimeError("User list object could not be created.")
 
     @pyaedt_function_handler()
     def generate_object_history(self, assignment: str | int, non_model: bool = False) -> bool:
@@ -4450,7 +4438,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -4526,8 +4514,7 @@ class GeometryModeler(Modeler, PyAedtBase):
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:  # pragma: no cover
-            self.logger.error("No edges found specified direction. Check again")
-            return False
+            raise AEDTRuntimeError("No edges found in specified direction. Check again.")
         connected = [edgelist[0]]
         tol = 1e-6
         for edge in edgelist[1:]:
@@ -4601,7 +4588,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             old_bondwire.model = False
             return new_edges[0]
         else:
-            return False
+            raise AEDTRuntimeError("Failed to create faceted bondwire from true surface.")
 
     @pyaedt_function_handler()
     def get_entitylist_id(self, name: str) -> int:
@@ -4638,7 +4625,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         """
         list2 = self.select_allfaces_fromobjects(assignment)  # find ALL faces of outer objects
@@ -4660,7 +4647,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -4788,8 +4775,8 @@ class GeometryModeler(Modeler, PyAedtBase):
                 if str(assignment) in oEdgeIDs:
                     return obj
             except Exception:
-                return False
-        return False
+                return None
+        return None
 
     @pyaedt_function_handler()
     def get_solving_volume(self) -> str:
@@ -4905,7 +4892,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5029,7 +5016,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
          bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5078,7 +5065,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5298,26 +5285,23 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
         >>> oEditor.CreateUserDefinedModel
         """
         if is_linux:  # pragma: no cover
-            self.logger.error("Discovery not supported on Linux.")
-            return False
+            raise AEDTRuntimeError("Discovery not supported on Linux.")
         version = self._app.aedt_version_id[-3:]
 
         ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
 
         if ansys_install_dir:
             if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
-                self.logger.error("Discovery installation not found.")
-                return False
+                raise AEDTRuntimeError("Discovery installation not found.")
         else:  # pragma: no cover
-            self.logger.error("Discovery version is different from AEDT version.")
-            return False
+            raise AEDTRuntimeError("Discovery version is different from AEDT version.")
 
         model = self.oeditor.CreateUserDefinedModel(
             [
@@ -5412,7 +5396,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5435,7 +5419,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
          bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5500,7 +5484,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5548,7 +5532,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5584,7 +5568,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5682,7 +5666,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5742,7 +5726,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5878,7 +5862,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5896,7 +5880,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5929,11 +5913,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         object = self.convert_to_selections(object, False)
 
         if sheet not in self.sheet_names:  # pragma: no cover
-            self.logger.error(f"{sheet} is not a valid sheet.")
-            return False
+            raise ValueError(f"'{sheet}' is not a valid sheet.")
         if object not in self.solid_names:  # pragma: no cover
-            self.logger.error(f"{object} is not a valid solid body.")
-            return False
+            raise ValueError(f"'{object}' is not a valid solid body.")
         unclassified = [i for i in self.unclassified_objects]
         self.oeditor.WrapSheet(
             ["NAME:Selections", "Selections:=", f"{sheet},{object}"],
@@ -5941,9 +5923,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         )
         is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
         if is_unclassified:  # pragma: no cover
-            self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
             self._odesign.Undo()
-            return False
+            raise AEDTRuntimeError("Failed to wrap sheet. Operation reverted.")
         if imprinted:
             self.cleanup_objects()
         return True
@@ -5979,7 +5960,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -6004,12 +5985,10 @@ class GeometryModeler(Modeler, PyAedtBase):
             )
             unclassified_new = [i for i in self.unclassified_objects if i not in unclassified]
             if unclassified_new:
-                self.logger.error("Failed to Project Sheet. Reverting to original objects.")
                 self._odesign.Undo()
-                return False
-        except Exception:
-            self.logger.error("Failed to Project Sheet.")
-            return False
+                raise AEDTRuntimeError("Failed to project sheet. Operation reverted.")
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to project sheet: {e}") from e
 
         if not keep_originals:
             self.cleanup_objects()
@@ -6112,14 +6091,12 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if not assignment:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
+            raise ValueError("Provide an object name or a list of object names as a string.")
         elif not isinstance(assignment, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
+            raise ValueError("Provide an object name or a list of object names as a string.")
         elif "," in assignment:
             assignment = assignment.strip()
             if ", " in assignment:
@@ -6128,15 +6105,13 @@ class GeometryModeler(Modeler, PyAedtBase):
                 input_objects_list_split = assignment.split(",")
             for obj in input_objects_list_split:
                 if obj not in self.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
+                    raise ValueError("Provide an object name or a list of object names that exists in current design.")
             objects_selection = ",".join(input_objects_list_split)
         else:
             objects_selection = assignment
 
         if simplify_type not in [0, 1, 2]:
-            self.logger.error("Invalid simplify type.")
-            return False
+            raise ValueError("Invalid simplify type.")
 
         selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
         healing_parameters = [
@@ -6256,14 +6231,12 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if not assignment:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
+            raise ValueError("Provide an object name or a list of object names as a string.")
         elif not isinstance(assignment, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
+            raise ValueError("Provide an object name or a list of object names as a string.")
         elif "," in assignment:
             assignment = assignment.strip()
             if ", " in assignment:
@@ -6272,19 +6245,16 @@ class GeometryModeler(Modeler, PyAedtBase):
                 input_objects_list_split = assignment.split(",")
             for obj in input_objects_list_split:
                 if obj not in self.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
+                    raise ValueError("Provide an object name or a list of object names that exists in current design.")
             objects_selection = ",".join(input_objects_list_split)
         else:
             objects_selection = assignment
 
         if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
-            self.logger.error("Invalid simplify type.")
-            return False
+            raise ValueError("Invalid simplify type.")
 
         if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
-            self.logger.error("Invalid extrusion axis.")
-            return False
+            raise ValueError("Invalid extrusion axis.")
 
         selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
         simplify_parameters = [
@@ -6313,12 +6283,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         try:
             self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
             return True
-        except Exception:  # pragma: no cover
-            self.logger.error("Simplify objects failed.")
-            return False
+        except Exception as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Simplify objects failed: {e}") from e
 
     @pyaedt_function_handler()
-    def get_face_by_id(self, assignment: int) -> FacePrimitive | bool:
+    def get_face_by_id(self, assignment: int) -> FacePrimitive | None:
         """Get the face object given its ID.
 
         Parameters
@@ -6337,7 +6306,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             face_obj = [face for face in obj[0].faces if face.id == assignment][0]
             return face_obj
         else:
-            return False
+            return None
 
     @pyaedt_function_handler()
     def create_point(self, position: list, name: str | None = None, color: str = "(143 175 143)") -> Point:
@@ -6562,7 +6531,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -6684,7 +6653,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if isinstance(assignment, int):
             return assignment in self.objects
@@ -6753,7 +6722,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -6766,7 +6735,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.oeditor.ReassignSubregion(arg, arg2)
         if self._create_object(region.name):
             return True
-        return False
+        raise AEDTRuntimeError("Reassign subregion failed.")
 
     @pyaedt_function_handler()
     def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
@@ -7466,7 +7435,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -7484,8 +7453,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             ):
                 assignment.remove(el)
         if not assignment:
-            self.logger.warning("No objects to delete")
-            return False
+            raise ValueError("No objects to delete")
         slice = min(100, len(assignment))
         num_objects = len(assignment)
         remaining = num_objects
@@ -7522,7 +7490,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -7558,7 +7526,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -9446,16 +9414,14 @@ class PrimitivesBuilder(PyAedtBase):
         if self.coordinate_systems:
             cs_flag = self._create_coordinate_system()
             if not cs_flag:  # pragma: no cover
-                self.logger.error("Wrong coordinate system is defined.")
-                return False
+                raise AEDTRuntimeError("Wrong coordinate system is defined.")
 
         cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
 
         for instance_data in self.instances:
             name = instance_data.get("Name")
             if not name:  # pragma: no cover
-                self.logger.error("``Name`` parameter is not defined.")
-                return False
+                raise AEDTRuntimeError("Wrong coordinate system is defined.")
 
             cs = instance_data.get("Coordinate System")
             if not cs:
@@ -9465,8 +9431,7 @@ class PrimitivesBuilder(PyAedtBase):
             elif (
                 instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names
             ):  # pragma: no cover
-                self.logger.error(f"Coordinate system {cs} does not exist.")
-                return False
+                raise AEDTRuntimeError(f"Coordinate system {cs} does not exist.")
 
             origin = instance_data.get("Origin")
             if not origin:

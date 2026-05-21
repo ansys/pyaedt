@@ -118,7 +118,8 @@ def test_split(aedt_app) -> None:
     assert isinstance(split, list)
     assert isinstance(split[0], str)
     obj_split = [obj for obj in aedt_app.modeler.object_list if obj.name == split[1]][0]
-    assert not aedt_app.modeler.split(assignment=obj_split)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.split(assignment=obj_split)
     box4 = aedt_app.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
     poly2 = aedt_app.modeler.create_polyline(points=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc")
     split = aedt_app.modeler.split(assignment=box4, sides="Both", tool=poly2.name)
@@ -344,7 +345,8 @@ def test_create_face_list(coaxial) -> None:
     assert coaxial.modeler.create_face_list(fl, "my_face_list") == fl2
     assert coaxial.modeler.create_face_list(fl)
     assert coaxial.modeler.create_face_list([str(fl[0])])
-    assert not coaxial.modeler.create_face_list(["outer2"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_face_list(["outer2"])
 
 
 def test_create_object_list(coaxial) -> None:
@@ -363,7 +365,8 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])
-    assert not coaxial.modeler.create_object_list(["Core2", "Core3"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_object_list(["Core2", "Core3"])
 
 
 def test_create_outer_face_list(aedt_app) -> None:
@@ -1371,7 +1374,8 @@ def test_project_sheet_failure(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
     box_0 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation_0")
 
-    assert not aedt_app.modeler.project_sheet(rect, box_0, 5, "10deg")
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.project_sheet(rect, box_0, 5, "10deg")
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
 
