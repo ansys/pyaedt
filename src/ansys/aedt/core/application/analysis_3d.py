@@ -1380,7 +1380,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             raise AEDTRuntimeError("Method is supported only in graphical mode.")
 
         if not check_if_path_exists(input_file):
-            raise AEDTRuntimeError("GDSII file does not exist. No layer is imported.")
+            raise FileNotFoundError("GDSII file does not exist. No layer is imported.")
 
         if len(mapping_layers) == 0:
             raise AEDTRuntimeError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
