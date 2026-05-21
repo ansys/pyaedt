@@ -2048,7 +2048,7 @@ def test_import_gds_3d(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
     assert len(aedt_app.modeler.solid_names) == 6
 
-    with pytest.raises(AEDTRuntimeError):
+    with pytest.raises(ValueError):
         aedt_app.import_gds_3d(str(gds_file), {})
 
     gds_file2 = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
