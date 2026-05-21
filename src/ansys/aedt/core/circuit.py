@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
@@ -1351,16 +1352,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         ----------
         >>> oDesign.UpdateSources
         """
-        if not Path(input_file).exists() or Path(input_file).suffix != ".fds":
-            self.logger.error("Introduced file is not correct. Check path and format.")
-            return False
+        input_path = Path(input_file)
+        if not input_path.exists():
+            raise FileNotFoundError(f"Input file '{input_file}' does not exist.")
+
+        if input_path.suffix != ".fds":
+            raise ValueError(f"Input file '{input_file}' must have '.fds' extension, got '{input_path.suffix}'.")
 
         if not all(elem in self.excitation_names for elem in ports):
-            self.logger.error("Defined ports do not exist")
-            return False
+            missing = [p for p in ports if p not in self.excitation_names]
+            raise ValueError(f"Ports {missing} do not exist in the design.")
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
-        source_freq.fds_filename = input_file
+        source_freq.fds_filename = str(input_file)
         for port in ports:
             self.design_excitations[port].enabled_sources.append(source_freq.name)
             self.design_excitations[port].update()
@@ -1399,7 +1403,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1473,7 +1477,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         try:
             self.odesign.SetDiffPairs(arg)
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("Error setting the differential pair definition.")
         return True
 
     @pyaedt_function_handler()

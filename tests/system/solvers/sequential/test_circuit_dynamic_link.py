@@ -142,15 +142,22 @@ def test_assign_excitations(add_app):
     app.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
-    assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source1.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
-    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    with pytest.raises(FileNotFoundError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+    filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
+    ports_list = ["Excitation_1", "Excitation_2"]
+    with pytest.raises(ValueError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_3"]
-    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    with pytest.raises(ValueError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     ports_list = ["Excitation_1"]
     assert app.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
