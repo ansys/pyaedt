@@ -5882,7 +5882,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
-    ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
+    ) -> "FfdSolutionDataExporter | FfdSolutionData":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
 
@@ -5917,7 +5917,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionDataExporter` or
-        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` or bool
+        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData`
             SolutionData object or False if frequencies could not be obtained.
 
         Examples
@@ -5979,8 +5979,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 frequencies = frequencies.tolist()
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
-            self.logger.info("Frequencies could not be obtained.")
-            return False
+            raise AEDTRuntimeError("Frequencies could not be obtained.")
         frequencies = [
             self.value_with_units(i, self.units.frequency, "Freq") if not isinstance(i, Quantity) else str(i)
             for i in frequencies
@@ -6002,7 +6001,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         elif metadata_file:
             return FfdSolutionData(input_file=metadata_file)
 
-        raise AEDTRuntimeError("Farfield solution data could not be exported.")
+        raise AEDTRuntimeError("Farfield solution data could not be exported.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_rcs_data(
@@ -6011,10 +6010,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         setup: str | None = None,
         expression: str | None = "ComplexMonostaticRCSTheta",
         variations: dict | None = None,
-        overwrite: bool | None = True,
-        link_to_hfss: bool | None = True,
+        overwrite: bool = True,
+        link_to_hfss: bool = True,
         variation_name: str | None = None,
-    ) -> "MonostaticRCSExporter | Path | bool":
+    ) -> "MonostaticRCSExporter | Path":
         """Export monostatic radar cross-section (RCS) data from HFSS.
 
         This method exports RCS simulation data into a standardized metadata format
@@ -6060,10 +6059,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path or bool
+        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path
             - If ``link_to_hfss=True``: Returns a ``MonostaticRCSExporter`` object.
             - If ``link_to_hfss=False``: Returns a ``Path`` object pointing to the metadata file.
-            - Returns ``False`` if frequencies cannot be obtained.
 
         Examples
         --------
@@ -6126,8 +6124,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
         if len(frequencies) == 0:  # pragma: no cover
-            self.logger.info("Frequencies could not be obtained.")
-            return False
+            raise AEDTRuntimeError("Frequencies could not be obtained.")
 
         frequencies = list(frequencies)
 
@@ -6149,7 +6146,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         elif metadata:
             return metadata
 
-        raise AEDTRuntimeError("Farfield solution data could not be exported.")
+        raise AEDTRuntimeError("Farfield solution data could not be exported.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold: float | None = 100000) -> bool:
