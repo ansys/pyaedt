@@ -375,7 +375,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return table_names
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation"):
+    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation") -> bool:
         """Set the HFSS auto open type.
 
         Parameters
@@ -389,7 +389,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         Examples
         --------
@@ -596,7 +596,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         nummodes: int = 1,
         deemb_distance: int = 0,
         characteristic_impedance: str = "Zpi",
-    ):
+    ) -> BoundaryObject:
         if not int_line_start or not int_line_stop:
             int_line_start = []
             int_line_stop = []
@@ -1655,7 +1655,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(
         self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS" | "SetupHFSSAuto":
+    ) -> "SetupHFSS | SetupHFSSAuto":
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -7931,7 +7931,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             theta_set = set()
             for var in active_variations:
-                th = var[theta_name]
+                th = float(var[theta_name])
                 theta_set.add(th)
                 var_index[(th, None)] = var
 
@@ -7948,17 +7948,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             phi_units = r_te.units_sweeps[phi_name]
             new_phi = None
             for var in r_te.variations:
-                theta = var[theta_name]
-                phi = var[phi_name]
+                theta = float(var[theta_name])
+                phi = float(var[phi_name])
 
                 phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
                 z = np.exp(1j * phi_plus_180)
-                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6)
+                new_phi = float(np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6))
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
                     var_index[(abs(theta), new_phi)] = var
-                    theta_fp_round = np.round(abs(theta), 6)
+                    theta_fp_round = float(np.round(abs(theta), 6))
 
                     key = f"{new_phi}{phi_units}"
                     if theta_fp_round not in angles.setdefault(key, []):
