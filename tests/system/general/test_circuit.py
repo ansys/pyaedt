@@ -1107,6 +1107,19 @@ def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
     assert result
 
 
+def test_automatic_ibis_no_component_raises(aedt_app) -> None:
+    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "ansys_ddr4.ibs"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_ibis_schematic_from_pins(
+            ibis_tx_file=str(ibis_file_o),
+            tx_buffer_name="ansys_ddr4_odt34",
+            rx_buffer_name="ansys_ddr4_odt40",
+            tx_schematic_pins=["fake_pin"],
+            rx_schematic_pins=["fake_pin"],
+            differential=False,
+        )
+
+
 def test_enforce_touchstone_passive(aedt_app, test_tmp_dir) -> None:
     aedt_app.modeler.schematic_units = "mil"
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)

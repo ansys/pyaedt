@@ -2277,8 +2277,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     and v.parameters["ModelName"] == "FieldSolver"
                 ][0]
             except Exception:
-                self.logger.error("A component has to be passed or an Sparameter present.")
-                return False
+                raise AEDTRuntimeError(
+                    "A component name must be provided or an S-parameter component must be present in the schematic."
+                )
         if rx_component_name is None:
             rx_component_name = tx_component_name
         sub = self.modeler.schematic[tx_component_name]
