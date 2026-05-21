@@ -929,11 +929,14 @@ def test_change_text_property(aedt_app) -> None:
     assert aedt_app.modeler.change_text_property(text_id, "Font", "Calibri")
     assert aedt_app.modeler.change_text_property(text_id, "DisplayRectangle", True)
     assert aedt_app.modeler.change_text_property(text_id, "Color", [255, 120, 0])
-    assert not aedt_app.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
     assert aedt_app.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
     assert aedt_app.modeler.change_text_property(text_id, "Location", [5000, 2000])
-    assert not aedt_app.modeler.change_text_property(1, "Color", [255, 120, 0])
-    assert not aedt_app.modeler.change_text_property(text_id, "Invalid", {})
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(1, "Color", [255, 120, 0])
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(text_id, "Invalid", {})
 
 
 # TODO: enable test when 'cutout_multizone_layout' method is fixed.
