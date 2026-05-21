@@ -601,6 +601,25 @@ def test_create_linear_count_sweep(aedt_app) -> None:
     )
     assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
+    with pytest.raises(AttributeError):
+        aedt_app.create_linear_count_sweep(
+            setup=setup_name,
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            num_of_freq_points=12,
+            sweep_type="Invented",
+        )
+
+    with pytest.raises(ValueError):
+        aedt_app.create_linear_count_sweep(
+            setup="invented",
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            num_of_freq_points=12,
+        )
+
 
 def test_create_linear_step_sweep(aedt_app) -> None:
     setup_name = "RF_create_linear_step"
@@ -646,8 +665,7 @@ def test_create_linear_step_sweep(aedt_app) -> None:
     assert sweep5.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
     assert sweep5.props["FreqSweepType"] == "kBroadbandFast"
 
-    # Create a linear step sweep with the incorrect sweep type.
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError):
         aedt_app.create_linear_step_sweep(
             setup=setup_name,
             unit="GHz",
@@ -655,12 +673,17 @@ def test_create_linear_step_sweep(aedt_app) -> None:
             stop_frequency=10,
             step_size=0.12,
             name="RFBoardSweep4",
-            sweep_type="Incorrect",
-            save_fields=True,
+            sweep_type="Invented",
         )
-        assert (
-            execinfo.args[0] == "Invalid value for 'sweep_type'. The value must be 'Discrete', "
-            "'Interpolating', or 'Fast'."
+
+    with pytest.raises(ValueError):
+        aedt_app.create_linear_step_sweep(
+            setup="invented",
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            step_size=0.12,
+            name="RFBoardSweep4",
         )
 
 
@@ -684,7 +707,7 @@ def test_create_single_point_sweep(aedt_app) -> None:
     )
     assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError):
         aedt_app.create_single_point_sweep(
             setup=setup_name,
             unit="GHz",
@@ -692,7 +715,15 @@ def test_create_single_point_sweep(aedt_app) -> None:
             name="RFBoardSingle",
             save_fields=False,
         )
-        assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
+
+    with pytest.raises(ValueError):
+        aedt_app.create_single_point_sweep(
+            setup="invented",
+            unit="GHz",
+            freq=[1, 2, 3, 4],
+            name="RFBoardSingle",
+            save_fields=False,
+        )
 
 
 def test_delete_setup(aedt_app) -> None:

@@ -605,9 +605,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma: no cover
-                raise RuntimeError(f"Failed to update port information for '{name}'.")
+                raise AEDTRuntimeError(f"Failed to update port information for '{name}'.")
         else:  # pragma: no cover
-            raise RuntimeError(f"Failed to create differential port '{name}'.")
+            raise AEDTRuntimeError(f"Failed to create differential port '{name}'.")
 
     @pyaedt_function_handler()
     def create_coax_port(
@@ -653,9 +653,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma: no cover
-                raise RuntimeError(f"Failed to update port information for via '{via}'.")
+                raise AEDTRuntimeError(f"Failed to update port information for via '{via}'.")
         else:  # pragma: no cover
-            raise RuntimeError(f"Failed to create coax port on via '{via}'.")
+            raise AEDTRuntimeError(f"Failed to create coax port on via '{via}'.")
 
     @pyaedt_function_handler()
     def create_pin_port(
@@ -666,7 +666,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         rotation: float | None = 0,
         top_layer: str | None = None,
         bottom_layer: str | None = None,
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a pin port.
 
         Parameters
@@ -726,8 +726,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         if bound:
             self._boundaries[bound.name] = bound
             return bound
-        else:
-            return False
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create pin port.")
 
     @pyaedt_function_handler()
     def delete_port(
@@ -1126,7 +1126,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout":
         """Create a sweep with the specified number of points.
 
         Parameters
@@ -1165,8 +1165,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
+            Sweep object if successful.
 
         References
         ----------
@@ -1201,8 +1201,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
                 sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
-                if not sweep:
-                    return False
+                if not sweep:  # pragma: no cover
+                    raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")
                 sweep.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -1214,7 +1214,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 sweep.update()
                 self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
                 return sweep
-        return False
+        raise ValueError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_linear_step_sweep(
@@ -1231,7 +1231,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout":
         """Create a sweep with the specified frequency step.
 
         Parameters
@@ -1270,8 +1270,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
+            Sweep object if successful.
 
         References
         ----------
@@ -1306,8 +1306,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
                 sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
-                if not sweep:
-                    return False
+                if not sweep:  # pragma: no cover
+                    raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")
                 sweep.change_range("LinearStep", start_frequency, stop_frequency, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -1319,7 +1319,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 sweep.update()
                 self.logger.info("Linear step sweep %s has been correctly created.", sweep_name)
                 return sweep
-        return False
+        raise ValueError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_single_point_sweep(
@@ -1330,7 +1330,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         name: str | None = None,
         save_fields: bool | None = False,
         save_rad_fields_only: bool | None = False,
-    ) -> Union["SweepHFSS", bool]:
+    ) -> "SweepHFSS":
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -1351,8 +1351,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1374,7 +1374,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             freq0 = freq
 
         if setup not in self.setup_names:
-            return False
+            raise ValueError(f"Setup '{setup}' is not found in the design.")
+
         for s in self.setups:
             if s.name == setup:
                 setupdata = s
@@ -1394,7 +1395,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
                 self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
-        return False
+        raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def _import_cad(
