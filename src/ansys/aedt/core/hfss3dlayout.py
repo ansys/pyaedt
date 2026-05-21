@@ -637,8 +637,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         listp = self.port_list
         if via in self.port_list:
-            self.logger.error(f"Port already exists on via {via}.")
-            return False
+            raise ValueError(f"Port already exists on via '{via}'.")
         self.oeditor.ToggleViaPin(["NAME:elements", via])
 
         listnew = self.port_list
@@ -652,10 +651,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise RuntimeError(f"Failed to update port information for via '{via}'.")
+        else:  # pragma: no cover
+            raise RuntimeError(f"Failed to create coax port on via '{via}'.")
 
     @pyaedt_function_handler()
     def create_pin_port(
