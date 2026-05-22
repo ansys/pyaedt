@@ -97,7 +97,7 @@ def encrypted_app(add_app_example):
 
 def create_copper_box(app, name: str = "MyBox"):
     """Create a copper box."""
-    if app.modeler[name]:
+    if name in app.modeler.object_list:
         app.modeler.delete(name)
     new_object = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
     return new_object
@@ -105,7 +105,7 @@ def create_copper_box(app, name: str = "MyBox"):
 
 def create_copper_cylinder(app, name: str = "MyCyl"):
     """Create a copper cylinder."""
-    if app.modeler[name]:
+    if name in app.modeler.object_list:
         app.modeler.delete(name)
     new_object = app.modeler.create_cylinder(
         orientation="Y", origin=[20, 20, 0], radius=5, height=20, num_sides=8, name=name, material="Copper"
@@ -115,7 +115,7 @@ def create_copper_cylinder(app, name: str = "MyCyl"):
 
 def create_rectangle(app, name: str = "MyRectangle"):
     """Create a rectangle."""
-    if app.modeler[name]:
+    if name in app.modeler.object_list:
         app.modeler.delete(name)
     plane = Plane.XY
     new_object = app.modeler.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
@@ -124,7 +124,7 @@ def create_rectangle(app, name: str = "MyRectangle"):
 
 def create_copper_torus(app, name: str = "MyTorus"):
     """Create a copper torus."""
-    if app.modeler[name]:
+    if name in app.modeler.object_list:
         app.modeler.delete(name)
     new_object = app.modeler.create_torus(
         [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material="Copper"
@@ -946,9 +946,16 @@ def test_get_model_objects(aedt_app) -> None:
 
 def test_create_rect_sheet_to_ground_with_ground_name(aedt_app) -> None:
     """Test create rectangle sheet to ground."""
-    create_copper_box(aedt_app, name="MyBox_to_gnd")
+    new = create_copper_box(aedt_app, name="MyBox_to_gnd")
 
-    ground_plane = aedt_app.modeler.create_sheet_to_ground("MyBox_to_gnd")
+    # Not ground created
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.create_sheet_to_ground(new.name)
+
+    # Create a ground plane below the box (larger and at a lower position on the Z axis)
+    aedt_app.modeler.create_rectangle(Plane.XY, [-5, -5, -2], [20, 20], name="GroundPlane_to_gnd")
+
+    ground_plane = aedt_app.modeler.create_sheet_to_ground(new.name)
 
     assert isinstance(ground_plane, Object3d)
     assert ground_plane.id > 0
