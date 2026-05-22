@@ -82,7 +82,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import WavePort
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortCommon
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters

@@ -539,7 +539,7 @@ class NearFieldSetup(FieldSetup):
         FieldSetup.__init__(self, app, component_name, props, component_type)
 
 
-class WavePort(BoundaryObject):
+class WavePortCommon(BoundaryObject):
     """Manages HFSS Wave Port boundary objects.
 
     This class provides specialized functionality for wave port
@@ -570,6 +570,21 @@ class WavePort(BoundaryObject):
         super().__init__(app, name, props, "Wave Port")
 
     @property
+    def wave_port_type(self) -> str:
+        """Wave port type.
+
+        Returns
+        -------
+        str
+            Either 'Terminal' or 'Modal". It cannot be changed.
+        """
+        value = None
+        if "Wave Port Type" in self.properties:
+            value = self.properties["Wave Port Type"]
+        return value
+
+
+    @property
     def assignment(self) -> Union[str, int]:
         """Wave port object assignment.
 
@@ -583,19 +598,6 @@ class WavePort(BoundaryObject):
             value = self.properties["Assignment"]
             if "Face_" in value:
                 value = [int(i.replace("Face_", "")) for i in value.split("(")[1].split(")")[0].split(",")][0]
-        return value
-
-    @property
-    def modes(self) -> int:
-        """Number of modes.
-
-        Returns
-        -------
-        int
-        """
-        value = None
-        if "Num Modes" in self.properties:
-            value = self.properties["Num Modes"]
         return value
 
     @property
@@ -633,7 +635,7 @@ class WavePort(BoundaryObject):
         return value
 
     @property
-    def use_deembed(self) -> bool:
+    def deembed(self) -> bool:
         """Use dembedding.
 
         Returns
@@ -646,14 +648,14 @@ class WavePort(BoundaryObject):
             value = self.properties["Deembed"]
         return value
 
-    @use_deembed.setter
-    def use_deembed(self, value: bool):
+    @deembed.setter
+    def deembed(self, value: bool):
         if not isinstance(value, bool) or self.use_deembed is None:
             raise AEDTRuntimeError("Use dembedding must be a boolean.")
         self.properties["Deembed"] = value
 
     @property
-    def deembed(self) -> Union[Quantity, None]:
+    def deembed_distance(self) -> Union[Quantity, None]:
         """Dembedding distance.
 
         Returns
@@ -666,8 +668,8 @@ class WavePort(BoundaryObject):
             value = Quantity(self.properties["Deembed Dist"])
         return value
 
-    @deembed.setter
-    def deembed(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+    @deembed_distance.setter
+    def deembed_distance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
         if value is None or value is False:
             self.use_deembed = False
         elif value is True:
@@ -679,6 +681,22 @@ class WavePort(BoundaryObject):
             if not isinstance(value, Quantity):
                 value = Quantity(self._app.value_with_units(value))
             self.properties["Deembed Dist"] = str(value)
+
+
+class WavePortModal(WavePortCommon):
+
+    @property
+    def modes(self) -> int:
+        """Number of modes.
+
+        Returns
+        -------
+        int
+        """
+        value = None
+        if "Num Modes" in self.properties:
+            value = self.properties["Num Modes"]
+        return value
 
     @property
     def renorm_all_modes(self) -> bool:
@@ -721,8 +739,8 @@ class WavePort(BoundaryObject):
             self.renorm_all_modes = True
 
         if self.renorm_impedance_type and (
-            "Renorm Impedance Type/Choices" in self.properties
-            and value not in self.properties["Renorm Impedance Type/Choices"]
+                "Renorm Impedance Type/Choices" in self.properties
+                and value not in self.properties["Renorm Impedance Type/Choices"]
         ):
             raise ValueError(
                 f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
@@ -932,6 +950,7 @@ class WavePort(BoundaryObject):
         """
         return self.props["ReporterFilter"]
 
+
     @filter_modes_reporter.setter
     def filter_modes_reporter(self, value: Union[bool, list]):
         """Set the reporter filter setting for wave port modes.
@@ -980,11 +999,11 @@ class WavePort(BoundaryObject):
 
     @pyaedt_function_handler()
     def set_analytical_alignment(
-        self,
-        u_axis_line: list,
-        analytic_reverse_v: Optional[bool] = None,
-        coordinate_system: str = "Global",
-        alignment_group: Optional[Union[int, list]] = None,
+            self,
+            u_axis_line: list,
+            analytic_reverse_v: Optional[bool] = None,
+            coordinate_system: str = "Global",
+            alignment_group: Optional[Union[int, list]] = None,
     ):
         """Set the analytical alignment property for the wave port.
 
@@ -1018,14 +1037,15 @@ class WavePort(BoundaryObject):
                 alignment_group = [0] * len(self.props["Modes"])
             elif isinstance(alignment_group, int):
                 alignment_group = [alignment_group] * len(self.props["Modes"])
-            elif not (isinstance(alignment_group, list) and all(isinstance(x, (int, float)) for x in alignment_group)):
+            elif not (isinstance(alignment_group, list) and all(
+                    isinstance(x, (int, float)) for x in alignment_group)):
                 raise ValueError("alignment_group must be a list of numbers or None.")
             if len(alignment_group) != len(self.props["Modes"]):
                 raise ValueError("alignment_group length must match the number of modes.")
             if not (
-                isinstance(u_axis_line, list)
-                and len(u_axis_line) == 2
-                and all(isinstance(pt, list) and len(pt) == 3 for pt in u_axis_line)
+                    isinstance(u_axis_line, list)
+                    and len(u_axis_line) == 2
+                    and all(isinstance(pt, list) and len(pt) == 3 for pt in u_axis_line)
             ):
                 raise ValueError("u_axis_line must be a list of two 3-element lists.")
             if not isinstance(analytic_reverse_v, bool):
@@ -1049,10 +1069,10 @@ class WavePort(BoundaryObject):
 
     @pyaedt_function_handler()
     def set_alignment_integration_line(
-        self,
-        integration_lines: Optional[list] = None,
-        coordinate_system: str = "Global",
-        alignment_groups: Optional[Union[int, list]] = None,
+            self,
+            integration_lines: Optional[list] = None,
+            coordinate_system: str = "Global",
+            alignment_groups: Optional[Union[int, list]] = None,
     ):
         """Set the integration line alignment property for the wave port modes.
 
@@ -1121,9 +1141,9 @@ class WavePort(BoundaryObject):
             # Validate each integration line format
             for i, line in enumerate(integration_lines):
                 if not (
-                    isinstance(line, list)
-                    and len(line) == 2
-                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
+                        isinstance(line, list)
+                        and len(line) == 2
+                        and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
                 ):
                     raise ValueError(
                         f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
@@ -1140,7 +1160,8 @@ class WavePort(BoundaryObject):
                 alignment_groups = [1 if i < len(integration_lines) else 0 for i in range(num_modes)]
             elif isinstance(alignment_groups, int):
                 # Single group for modes with integration lines
-                alignment_groups = [(alignment_groups if i < len(integration_lines) else 0) for i in range(num_modes)]
+                alignment_groups = [(alignment_groups if i < len(integration_lines) else 0) for i in
+                                    range(num_modes)]
             elif isinstance(alignment_groups, list):
                 # Validate alignment_groups list
                 if not all(isinstance(x, (int, float)) for x in alignment_groups):
@@ -1191,7 +1212,7 @@ class WavePort(BoundaryObject):
 
     @pyaedt_function_handler()
     def set_polarity_integration_line(
-        self, integration_lines: Optional[list] = None, coordinate_system: str = "Global"
+            self, integration_lines: Optional[list] = None, coordinate_system: str = "Global"
     ):
         """Set polarity integration lines for the wave port modes.
 
@@ -1249,18 +1270,18 @@ class WavePort(BoundaryObject):
             if len(integration_lines) > 0 and not isinstance(integration_lines[0], list):
                 integration_lines = [integration_lines]
             elif (
-                len(integration_lines) > 0
-                and len(integration_lines[0]) == 2
-                and isinstance(integration_lines[0][0], (int, float))
+                    len(integration_lines) > 0
+                    and len(integration_lines[0]) == 2
+                    and isinstance(integration_lines[0][0], (int, float))
             ):
                 integration_lines = [integration_lines]
 
             # Validate each integration line format
             for i, line in enumerate(integration_lines):
                 if not (
-                    isinstance(line, list)
-                    and len(line) == 2
-                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
+                        isinstance(line, list)
+                        and len(line) == 2
+                        and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
                 ):
                     raise ValueError(
                         f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
@@ -1306,3 +1327,26 @@ class WavePort(BoundaryObject):
         except Exception as e:
             self._app.logger.error(f"Failed to set polarity integration lines: {str(e)}")
             return False
+
+
+class WavePortTerminal(WavePortCommon):
+
+    @property
+    def renorm_all_terminals(self) -> bool:
+        """Renormalize all modes.
+
+        Returns
+        -------
+        bool
+            Whether renormalization of all modes is enabled.
+        """
+        value = None
+        if "Renorm All Modes" in self.properties:
+            value = self.properties["Renorm All Modes"]
+        return value
+
+    @renorm_all_terminals.setter
+    def renorm_all_terminals(self, value: bool):
+        if not isinstance(value, bool) or self.renorm_all_modes is None:
+            raise AEDTRuntimeError("Renorm all modes must be a boolean.")
+        self.properties["Renorm All Modes"] = value
