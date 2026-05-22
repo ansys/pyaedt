@@ -476,7 +476,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             for udc in udc_list:
                 if (
                     original_design_type != dest_design_type
-                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    and not design.modeler.user_defined_components[udc].is_3d_component
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
