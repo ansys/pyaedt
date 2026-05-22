@@ -1415,7 +1415,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If there is an error creating the report.
         """
         self._is_created = False
         if not name:
@@ -1427,8 +1432,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             and "AdaptivePass" not in self.setup
             and " : Table" not in self.setup
         ):
-            self._app.logger.error("Setup doesn't exist in this design.")
-            return False
+            raise AEDTRuntimeError("Setup doesn't exist in this design.")
+
         self._post.oreportsetup.CreateReport(
             self.plot_name,
             self.report_category,
@@ -1748,6 +1753,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution data object.
+        
+        Raises
+        ------
+        AEDTRuntimeError
+            If there is an error retrieving the solution data.
         """
         if self._is_created:
             expr = [i.name for i in self.traces]
@@ -1757,14 +1767,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         else:
             expr = [i for i in self.expressions]
         if not expr:
-            self._app.logger.warning("No Expressions Available. Check inputs")
-            return False
+            raise AEDTRuntimeError("No Expressions Available. Check inputs")
         solution_data = self._post.get_solution_data_per_variation(
             self.report_category, self.setup, self._context, self.variations, expr
         )
         if not solution_data:
-            self._app.logger.warning("No Data Available. Check inputs")
-            return False
+            raise AEDTRuntimeError("No Data Available. Check inputs")
         if self.primary_sweep:
             solution_data.primary_sweep = self.primary_sweep
         return solution_data
@@ -1773,7 +1781,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def add_limit_line_from_points(
         self, x_list: list, y_list: list, x_units: str = "", y_units: str = "", y_axis: str = "Y1"
     ) -> bool:  # pragma: no cover
-        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists.
+        
+        This method works only in graphical mode.
 
         Parameters
         ----------
@@ -1791,37 +1801,44 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+        
+        Raises
+        ------
+        AEDTRuntimeError
+            If the plot is not created or has no name.
         """
+        self.__check_plot_state()
+
         x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
         y_list = [GeometryOperators.parse_dim_arg(str(i) + y_units) for i in y_list]
-        if self.plot_name and self._is_created:
-            xvals = ["NAME:XValues"]
-            xvals.extend(x_list)
-            yvals = ["NAME:YValues"]
-            yvals.extend(y_list)
-            self._post.oreportsetup.AddCartesianLimitLine(
-                self.plot_name,
-                [
-                    "NAME:CartesianLimitLine",
-                    xvals,
-                    "XUnits:=",
-                    x_units,
-                    yvals,
-                    "YUnits:=",
-                    y_units,
-                    "YAxis:=",
-                    y_axis,
-                ],
-            )
-            return True
-        return False
+        xvals = ["NAME:XValues"]
+        xvals.extend(x_list)
+        yvals = ["NAME:YValues"]
+        yvals.extend(y_list)
+        self._post.oreportsetup.AddCartesianLimitLine(
+            self.plot_name,
+            [
+                "NAME:CartesianLimitLine",
+                xvals,
+                "XUnits:=",
+                x_units,
+                yvals,
+                "YUnits:=",
+                y_units,
+                "YAxis:=",
+                y_axis,
+            ],
+        )
+        return True
 
     @pyaedt_function_handler()
     def add_limit_line_from_equation(
         self, start_x: float, stop_x: float, step: float, equation: str = "x", units: str = "GHz", y_axis: int = 1
     ) -> bool:  # pragma: no cover
-        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists.
+        
+        This method works only in graphical mode.
 
         Parameters
         ----------
@@ -1841,27 +1858,32 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the plot is not created or has no name.
         """
-        if self.plot_name and self._is_created:
-            self._post.oreportsetup.AddCartesianLimitLineFromEquation(
-                self.plot_name,
-                [
-                    "NAME:CartesianLimitLineFromEquation",
-                    "YAxis:=",
-                    int(str(y_axis).replace("Y", "")),
-                    "Start:=",
-                    self._app.value_with_units(start_x, units),
-                    "Stop:=",
-                    self._app.value_with_units(stop_x, units),
-                    "Step:=",
-                    self._app.value_with_units(step, units),
-                    "Equation:=",
-                    equation,
-                ],
-            )
-            return True
-        return False
+        self.__check_plot_state()
+
+        self._post.oreportsetup.AddCartesianLimitLineFromEquation(
+            self.plot_name,
+            [
+                "NAME:CartesianLimitLineFromEquation",
+                "YAxis:=",
+                int(str(y_axis).replace("Y", "")),
+                "Start:=",
+                self._app.value_with_units(start_x, units),
+                "Stop:=",
+                self._app.value_with_units(stop_x, units),
+                "Step:=",
+                self._app.value_with_units(step, units),
+                "Equation:=",
+                equation,
+            ],
+        )
+        return True
 
     @pyaedt_function_handler()
     def add_note(self, text: str, x_position: float = 0.0, y_position: float = 0.0) -> bool:  # pragma: no cover
@@ -1879,31 +1901,36 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the plot is not created or has no name.
         """
+        self.__check_plot_state()
+
         note_name = generate_unique_name("Note", n=3)
-        if self.plot_name and self._is_created:
-            self._post.oreportsetup.AddNote(
-                self.plot_name,
+        self._post.oreportsetup.AddNote(
+            self.plot_name,
+            [
+                "NAME:NoteDataSource",
                 [
                     "NAME:NoteDataSource",
-                    [
-                        "NAME:NoteDataSource",
-                        "SourceName:=",
-                        note_name,
-                        "HaveDefaultPos:=",
-                        True,
-                        "DefaultXPos:=",
-                        x_position,
-                        "DefaultYPos:=",
-                        y_position,
-                        "String:=",
-                        text,
-                    ],
+                    "SourceName:=",
+                    note_name,
+                    "HaveDefaultPos:=",
+                    True,
+                    "DefaultXPos:=",
+                    x_position,
+                    "DefaultYPos:=",
+                    y_position,
+                    "String:=",
+                    text,
                 ],
-            )
-            return True
-        return False
+            ],
+        )
+        return True
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, value: str, name: str | None = None) -> str:  # pragma: no cover
@@ -1961,9 +1988,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _change_property(self, tab_name, property_name, property_val) -> bool:
-        if not self._is_created:
-            self._app.logger.error("Plot has not been created. Create it and then change the properties.")
-            return False
+        """Change a property value in the plot properties."""
+        self.__check_plot_state()
+
         arg = [
             "NAME:AllTabs",
             ["NAME:" + tab_name, ["NAME:PropServers", f"{self.plot_name}:{property_name}"], property_val],
@@ -2218,7 +2245,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the legend cannot be hidden.
         """
         try:
             oo = self._app.get_oo_object(self._post.oreportsetup, self.plot_name)
@@ -2229,9 +2261,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             legend.SetPropValue("Font/Height", font_size)
             legend.SetPropValue("Header Row Font/Height", font_size)
             return True
-        except Exception:
-            self._app.logger.error("Failed to hide legend.")
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to hide legend. Error: {str(e)}") from e
 
     @pyaedt_function_handler()
     def edit_y_axis(
@@ -2561,7 +2592,16 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        FileExistsError
+            If the input file does not exist.
+        ValueError
+            If the plot name is not provided or does not exist in the current report.
+        AEDTRuntimeError
+            If there is an error importing the traces.
         """
         if not os.path.exists(input_file):
             msg = "File does not exist."
@@ -2590,8 +2630,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             else:
                 self._post.oreportsetup.ImportIntoReport(self.plot_name, input_file)
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to import traces. Error: {str(e)}") from e
 
     @pyaedt_function_handler()
     def delete_traces(self, plot_name: str, traces_list: list) -> bool:
@@ -2607,7 +2647,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        ValueError
+            If the plot does not exist in the current project or if a trace does not exist in the selected plot.
+        AEDTRuntimeError
+            If there is an error deleting the traces.
         """
         if plot_name not in self._post.all_report_names:
             raise ValueError("Plot does not exist in current project.")
@@ -2621,8 +2668,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self._post.oreportsetup.DeleteTraces(props)
             self._initialize_tree_node()
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to delete traces. Error: {str(e)}") from e
 
     @pyaedt_function_handler()
     def add_trace_to_report(
@@ -2646,7 +2693,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If there is an error adding the trace to the report.
         """
         try:
             self._post.oreportsetup.AddTraces(
@@ -2658,8 +2710,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             )
             self._initialize_tree_node()
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to add trace to report. Error: {str(e)}") from e
 
     @pyaedt_function_handler()
     def update_trace_in_report(
@@ -2681,7 +2733,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+        
+        Raises
+        ------
+        AEDTRuntimeError
+            If there is an error updating the trace in the report.
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -2696,8 +2753,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 self._trace_info(),
             )
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to update trace in report. Error: {str(e)}") from e
         finally:
             self.expressions = expr
 
@@ -2718,30 +2775,34 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` if successful.
+
+        Raises
+        ------
+        FileExistsError
+            If the input file does not exist.
+        ValueError
+            If the value for `property_type` is invalid.
+        AEDTRuntimeError
+            If the extension of the input file is not supported.
 
         References
         ----------
         >>> oModule.ApplyReportTemplate
         """
         if not os.path.exists(input_file):  # pragma: no cover
-            msg = "File does not exist."
-            self._post.logger.error(msg)
-            return False
+            raise FileExistsError("File does not exist.")
 
         split_path = os.path.splitext(input_file)
         extension = split_path[1]
 
         supported_ext = [".rpt"]
         if extension not in supported_ext:  # pragma: no cover
-            msg = f"Extension {extension} is not supported."
-            self._post.logger.error(msg)
-            return False
+            raise AEDTRuntimeError(f"Extension {extension} is not supported.")
 
         if property_type not in ["Graphical", "Data", "All"]:  # pragma: no cover
-            msg = "Invalid value for `property_type`. The value must be 'Graphical', 'Data', or 'All'."
-            self._post.logger.error(msg)
-            return False
+            raise ValueError("Invalid value for `property_type`. The value must be 'Graphical', 'Data', or 'All'.")
+
         self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
         return True
 
@@ -2811,3 +2872,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def __props_with_default(dict_in, key, default_value=None):
         """Update dictionary value."""
         return dict_in[key] if dict_in.get(key, None) is not None else default_value
+
+    def __check_plot_state(self):
+        """Check if the plot is created and has a name."""
+        if not self._is_created or not self.plot_name:
+            raise AEDTRuntimeError("Plot has not been created. Create it for further operations.")
