@@ -1046,7 +1046,7 @@ class Configurations(PyAedtBase):
     def validate(self, config: str | dict) -> bool:
         """Validate a configuration file against the schema.
 
-        The default schema can be found in ``pyaedt/misc/config.schema.json``.
+        The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
         Parameters
         ----------
