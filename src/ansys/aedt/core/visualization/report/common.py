@@ -1753,7 +1753,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution data object.
-        
+
         Raises
         ------
         AEDTRuntimeError
@@ -1782,7 +1782,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self, x_list: list, y_list: list, x_units: str = "", y_units: str = "", y_axis: str = "Y1"
     ) -> bool:  # pragma: no cover
         """Add a Cartesian limit line from point lists.
-        
+
         This method works only in graphical mode.
 
         Parameters
@@ -1802,7 +1802,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` if successful.
-        
+
         Raises
         ------
         AEDTRuntimeError
@@ -1837,7 +1837,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self, start_x: float, stop_x: float, step: float, equation: str = "x", units: str = "GHz", y_axis: int = 1
     ) -> bool:  # pragma: no cover
         """Add a Cartesian limit line from point lists.
-        
+
         This method works only in graphical mode.
 
         Parameters
@@ -2734,7 +2734,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` if successful.
-        
+
         Raises
         ------
         AEDTRuntimeError
