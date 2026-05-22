@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,9 @@
 # SOFTWARE.
 
 from pathlib import Path
+import shutil
+
+import pytest
 
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData
@@ -33,23 +36,26 @@ TEST_SUBFOLDER = "T45"
 JSON_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / JSON_FILENAME
 
 
-def test_apply_configuration(add_app):
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=Circuit, project="circuit_configuration_test")
+    project_name = app.project_name
+    yield app
+    app.close_project(name=project_name, save=False)
+
+
+def test_apply_configuration(aedt_app, test_tmp_dir) -> None:
     """Test the successful execution of the circuit configuration file."""
-    aedtapp = add_app("circuit_configuration", application=Circuit, subfolder=TEST_SUBFOLDER)
-
-    DATA = CircuitConfigurationData(file_path=[str(JSON_FILE_PATH)])
+    file_path = shutil.copy(JSON_FILE_PATH, test_tmp_dir / JSON_FILENAME)
+    DATA = CircuitConfigurationData(file_path=[str(file_path)])
     assert main(DATA)
-    aedtapp.close_project()
 
 
-def test_export_configuration(add_app):
+def test_export_configuration(aedt_app, test_tmp_dir) -> None:
     """Test the successful execution of the circuit configuration file."""
-    aedtapp = add_app("export_circuit_configuration", application=Circuit, subfolder=TEST_SUBFOLDER)
-
-    DATA = CircuitConfigurationData(output_dir=aedtapp.toolkit_directory)
-    _ = aedtapp.modeler.schematic.create_resistor()
+    DATA = CircuitConfigurationData(output_dir=test_tmp_dir)
+    _ = aedt_app.modeler.schematic.create_resistor()
 
     assert main(DATA)
-    exported_file = Path(aedtapp.toolkit_directory) / "circuit_configuration.json"
+    exported_file = test_tmp_dir / "circuit_configuration.json"
     assert exported_file.is_file()
-    aedtapp.close_project()

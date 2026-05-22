@@ -7,6 +7,30 @@ with the use of a simple script.
 
 This script is compatible with AEDT files, as well as A3DCOMP files (including encrypted 3DComponents).
 
+.. warning::
+
+   This extension requires **AEDT 2022 R2** to be installed on the same machine alongside
+   the current AEDT release. AEDT 2022 R2 is launched automatically as a second, non-graphical
+   desktop to read project files that still use the legacy ACIS kernel. If this version is not
+   found, the extension raises an error listing all currently installed AEDT versions so you
+   know exactly what is missing.
+
+   If you need to use a different legacy version as the input kernel (for example because your
+   files were created with a specific intermediate release), you can override the default by
+   setting the ``PYAEDT_KERNEL_AEDT_VERSION`` environment variable before launching the
+   extension:
+
+   .. code-block:: bash
+
+      # Windows - Command Prompt (cmd)
+      set PYAEDT_KERNEL_AEDT_VERSION=2022.2
+
+      # Linux
+      export PYAEDT_KERNEL_AEDT_VERSION=2022.2
+
+   The value must match one of the version strings returned by the AEDT version discovery (for
+   example ``2022.2``, ``2023.1``).
+
 The following image shows the extension user interface:
 
 .. image:: ../../../_static/extensions/kernel_convert_ui.png
@@ -41,15 +65,19 @@ You can launch the extension user interface from the terminal, you can find the 
 
 .. code::
 
-   python.exe path/to/pyaedt/extensions/project/kernel_converter.py
+   python.exe path/to/pyaedt/extensions/common/kernel_converter.py
 
 Finally, this code shows how you can run the extension directly from a Python script:
 
 .. code:: python
 
-    from ansys.aedt.core.extensions.project.kernel_converter import main
+    from ansys.aedt.core.extensions.common.kernel_converter import main
 
-    main(test_args = {"password": "my_pwd",
-                    "application": "HFSS",
-                    "solution": "Modal",
-                    "file_path": "C:\my_path\file_containing_projects"})
+    main(
+        test_args={
+            "password": "my_pwd",
+            "application": "HFSS",
+            "solution": "Modal",
+            "file_path": "C:\my_path\file_containing_projects",
+        }
+    )

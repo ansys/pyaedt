@@ -7,7 +7,7 @@ Project extensions
             :link: import_nastran
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             Import a Nastran or STL file in any 3D modeler application.
 
    .. grid-item-card:: Configure Layout

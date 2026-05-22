@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,13 +21,19 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from pathlib import Path
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.field_data import FieldPlot
 
 
 class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
@@ -44,11 +50,11 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler
-    def _compute_power_loss(self, net_filter=None, layer_filter=None, solution=None):
+    def _compute_power_loss(self, net_filter=None, layer_filter=None, solution: str | None = None):
         if solution is None:
             for setup in self._app.setups:
                 if setup.solver_type == "SIwaveDCIR":
@@ -152,16 +158,29 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 }
                 if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
                     self._app.post.fields_calculator.delete_expression(my_expression["name"])
-                self._app.post.fields_calculator.add_expression(my_expression, "")
 
-                loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                try:
+                    self._app.post.fields_calculator.add_expression(my_expression, "")
+                    loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
+                except Exception as e:  # pragma: no cover
+                    if settings.release_on_exception:
+                        raise GrpcApiError(
+                            f"Failed to compute power loss for Net `{net_name}` on layer `{layer_name}`. "
+                            "Set `settings.release_on_exception = False` to fall back to a zero loss value instead "
+                            "of raising."
+                        ) from e
+                    else:
+                        self.logger.add_warning_message(
+                            f"Net `{net_name}` has no field data on layer `{layer_name}`. The loss is set to zero."
+                        )
+                        loss = 0
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
 
         return power_loss_per_layer
 
     @pyaedt_function_handler()
-    def compute_power_by_layer(self, layers=None, solution=None):
+    def compute_power_by_layer(self, layers: list = None, solution: str = None) -> dict:
         """Compute the power by layer.
 
         This applies only to SIwave DC Analysis.
@@ -190,7 +209,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_by_layers
 
     @pyaedt_function_handler()
-    def compute_power_by_net(self, nets=None, solution=None):
+    def compute_power_by_net(self, nets: list = None, solution: str = None) -> dict:
         """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
@@ -273,7 +292,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         for k, v in self._app.modeler.user_defined_components.items():
             if v.layout_component:
                 if not layers:
-                    layers = [i for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                    layers = [i for i in v.layout_component.edb_object.stackup.layers.keys()]
                 if not nets:
                     nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
                 for layer in layers:
@@ -285,8 +304,15 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup=None, nets=None, plot_on_surface=True, intrinsics=None, name=None
-    ):
+        self,
+        layers: list,
+        quantity: str,
+        setup: str = None,
+        nets: list = None,
+        plot_on_surface: bool = True,
+        intrinsics: dict | str = None,
+        name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
 
@@ -384,8 +410,15 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_nets(
-        self, nets, quantity, setup=None, layers=None, plot_on_surface=True, intrinsics=None, name=None
-    ):
+        self,
+        nets: list,
+        quantity: str,
+        setup: str = None,
+        layers: list = None,
+        plot_on_surface: bool = True,
+        intrinsics: dict | str = None,
+        name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot based on a net selections.
 
@@ -461,10 +494,16 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 plot_type = "LayerNets"
             return self._create_fieldplot(new_layers, quantity, setup, intrinsics, plot_type, name)
 
-    @pyaedt_function_handler(quantity_name="quantity", setup_name="setup")
+    @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
-    ):
+        self,
+        layers_nets: list,
+        quantity: str,
+        setup: str = None,
+        intrinsics: dict | str = None,
+        plot_on_surface: bool = True,
+        plot_name: str = None,
+    ) -> "FieldPlot":
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
 
@@ -560,7 +599,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
             for layer in layers_nets:
                 if len(layer) == 1 or "no-net" in layer[1]:
                     for v in self._app.modeler.user_defined_components.values():
-                        if layer[0] in v.layout_component.edb_object.stackup.stackup_layers:
+                        if layer[0] in v.layout_component.edb_object.stackup.layers:
                             layer.extend(list(v.layout_component.edb_object.nets.nets.keys()))
             if plot_on_surface:
                 plot_type = "LayerNetsExtFace"

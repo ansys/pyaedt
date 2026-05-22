@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -130,7 +130,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_scalar_number(x):
+    def is_scalar_number(x: object) -> bool:
         """Check if a value is a scalar number (int or float).
 
         Parameters
@@ -147,7 +147,7 @@ class MathUtils(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def fix_negative_zero(value):
+    def fix_negative_zero(value: object) -> object:
         """Fix the negative zero.
         It supports lists (and nested lists).
 

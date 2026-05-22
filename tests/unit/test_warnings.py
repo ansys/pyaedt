@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,19 +31,18 @@ import pytest
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
 from ansys.aedt.core import PYTHON_VERSION_WARNING
 from ansys.aedt.core import deprecation_warning
-from pyaedt import ALIAS_WARNING
 
 VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
+def desktop() -> None:
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
 @patch.object(warnings, "warn")
-def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypatch):
+def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypatch) -> None:
     """Test that python version warning is triggered."""
     monkeypatch.setattr(sys, "version_info", LATEST_DEPRECATED_PYTHON_VERSION)
 
@@ -53,20 +52,10 @@ def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypat
 
 
 @patch.object(warnings, "warn")
-def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch):
+def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch) -> None:
     """Test that python version warning is not triggered."""
     monkeypatch.setattr(sys, "version_info", VALID_PYTHON_VERSION)
 
     deprecation_warning()
 
     mock_warn.assert_not_called()
-
-
-def test_alias_deprecation_warning():
-    """Test that pyaedt alias warning is triggered."""
-    import importlib
-
-    import pyaedt
-
-    with pytest.warns(FutureWarning, match=ALIAS_WARNING):
-        importlib.reload(pyaedt)

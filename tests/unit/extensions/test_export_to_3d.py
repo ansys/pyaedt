@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -59,7 +59,7 @@ def mock_aedt_app_wrong_design():
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_default(mock_desktop, mock_aedt_app_3dlayout):
+def test_export_to_3d_extension_default(mock_desktop, mock_aedt_app_3dlayout) -> None:
     """Test instantiation of the Export to 3D extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -72,7 +72,7 @@ def test_export_to_3d_extension_default(mock_desktop, mock_aedt_app_3dlayout):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_export_button(mock_desktop, mock_aedt_app_3dlayout):
+def test_export_to_3d_extension_export_button(mock_desktop, mock_aedt_app_3dlayout) -> None:
     """Test the export button functionality in the Export to 3D ext."""
     mock_desktop.return_value = MagicMock()
 
@@ -94,7 +94,7 @@ def test_export_to_3d_extension_export_button(mock_desktop, mock_aedt_app_3dlayo
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_wrong_design_type(mock_desktop, mock_aedt_app_wrong_design):
+def test_export_to_3d_extension_wrong_design_type(mock_desktop, mock_aedt_app_wrong_design) -> None:
     """Test exception when wrong design type is used."""
     mock_desktop.return_value = MagicMock()
 
@@ -102,7 +102,7 @@ def test_export_to_3d_extension_wrong_design_type(mock_desktop, mock_aedt_app_wr
         ExportTo3DExtension(withdraw=True)
 
 
-def test_export_to_3d_extension_data():
+def test_export_to_3d_extension_data() -> None:
     """Test the ExportTo3DExtensionData class."""
     # Test default values
     data = ExportTo3DExtensionData()
@@ -113,7 +113,7 @@ def test_export_to_3d_extension_data():
     assert "Export to Q3D" == data.choice
 
 
-def test_main_function_no_choice():
+def test_main_function_no_choice() -> None:
     """Test main function with no choice provided."""
     data = ExportTo3DExtensionData(choice="")
 
@@ -121,7 +121,7 @@ def test_main_function_no_choice():
         main(data)
 
 
-def test_main_function_none_choice():
+def test_main_function_none_choice() -> None:
     """Test main function with None choice."""
     data = ExportTo3DExtensionData(choice=None)
 
@@ -130,7 +130,7 @@ def test_main_function_none_choice():
 
 
 @patch("ansys.aedt.core.Desktop")
-def test_main_function_wrong_design_type_in_main(mock_desktop_class):
+def test_main_function_wrong_design_type_in_main(mock_desktop_class) -> None:
     """Test main function when active design is not HFSS 3D Layout."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -153,7 +153,7 @@ def test_main_function_wrong_design_type_in_main(mock_desktop_class):
 
 @patch("ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.Hfss3dLayout")
-def test_main_function_export_to_q3d(mock_hfss3dlayout_class, mock_desktop_class):
+def test_main_function_export_to_q3d(mock_hfss3dlayout_class, mock_desktop_class) -> None:
     """Test main function for Export to Q3D choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -183,14 +183,14 @@ def test_main_function_export_to_q3d(mock_hfss3dlayout_class, mock_desktop_class
         assert result is True
         mock_setup.export_to_q3d.assert_called_once()
         mock_h3d.delete_setup.assert_called_once_with("test_setup")
-        mock_h3d.save_project.assert_called_once()
+        assert 2 == mock_h3d.save_project.call_count
         mock_q3d.assert_called_once()
 
 
 @patch("ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.Hfss3dLayout")
 @patch("ansys.aedt.core.Hfss")
-def test_main_function_export_to_hfss(mock_hfss_class, mock_hfss3dlayout_class, mock_desktop_class):
+def test_main_function_export_to_hfss(mock_hfss_class, mock_hfss3dlayout_class, mock_desktop_class) -> None:
     """Test main function for Export to HFSS choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -223,7 +223,7 @@ def test_main_function_export_to_hfss(mock_hfss_class, mock_hfss3dlayout_class, 
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
 
 
@@ -236,7 +236,7 @@ def test_main_function_export_to_maxwell(
     mock_hfss_class,
     mock_hfss3dlayout_class,
     mock_desktop_class,
-):
+) -> None:
     """Test main function for Export to Maxwell 3D choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -274,7 +274,7 @@ def test_main_function_export_to_maxwell(
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
     mock_maxwell3d_class.assert_called_once_with(project="test_project")
     mock_maxwell.copy_solid_bodies_from.assert_called_once()
@@ -291,7 +291,7 @@ def test_main_function_export_to_icepak(
     mock_hfss_class,
     mock_hfss3dlayout_class,
     mock_desktop_class,
-):
+) -> None:
     """Test main function for Export to Icepak choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -329,7 +329,7 @@ def test_main_function_export_to_icepak(
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
     mock_icepak_class.assert_called_once_with(project="test_project")
     mock_icepak.copy_solid_bodies_from.assert_called_once()

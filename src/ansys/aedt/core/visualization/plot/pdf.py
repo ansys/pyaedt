@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,14 +27,21 @@ from dataclasses import field
 import json
 import os
 
-from fpdf import FPDF
-from fpdf import FontFace
+try:
+    from fpdf import FPDF
+    from fpdf import FontFace
+except ImportError as e:  # pragma: no cover
+    from ansys.aedt.core.internal.checks import install_message
+
+    msg = install_message("fpdf", "graphics", level="module")
+    raise ImportError(msg) from e
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 
 
 @dataclass
@@ -76,7 +83,13 @@ class ReportSpec(PyAedtBase):
 
 
 class AnsysReport(FPDF, PyAedtBase):
-    def __init__(self, version="2025R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+    def __init__(
+        self,
+        version: str = "2025R1",
+        design_name: str = "design1",
+        project_name: str = "AnsysProject",
+        tempplate_json_file=None,
+    ) -> None:
         super().__init__()
         self.report_specs = ReportSpec()
         self.read_template(tempplate_json_file)
@@ -97,7 +110,7 @@ class AnsysReport(FPDF, PyAedtBase):
         )
         self.alias_nb_pages()
 
-    def read_template(self, template_file):
+    def read_template(self, template_file: str = None) -> None:
         """Reade pdf template.
 
         template_file : str
@@ -110,7 +123,7 @@ class AnsysReport(FPDF, PyAedtBase):
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
 
-    def __add_cover_page(self):
+    def __add_cover_page(self) -> None:
         self.add_page("P" if self.use_portrait else "L")
         self.set_font(self.report_specs.font.lower(), "b", self.report_specs.cover_subtitle_font_size)
         self.y += 40
@@ -141,11 +154,11 @@ class AnsysReport(FPDF, PyAedtBase):
             align="L",
         )
 
-    def header(self):
+    def header(self) -> None:
         """Header."""
         from datetime import date
 
-        def add_field(field_name, field_value):
+        def add_field(field_name, field_value) -> None:
             self.set_font(self.report_specs.font.lower(), size=self.report_specs.header_font_size)
             self.cell(
                 0,
@@ -212,7 +225,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.line(x1=self._left_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
 
     # Page footer
-    def footer(self):
+    def footer(self) -> None:
         """Footer."""
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -224,7 +237,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.cell(0, 10, self.report_specs.footer_text, 0, align="L")
         self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
 
-    def create(self, add_cover_page=True, add_new_section_after=True):
+    def create(self, add_cover_page: bool = True, add_new_section_after: bool = True) -> bool:
         """Create a new report using ``report_specs`` properties.
 
         Parameters
@@ -245,14 +258,14 @@ class AnsysReport(FPDF, PyAedtBase):
         self._left_margin = self.l_margin
         return True
 
-    def add_project_info(self, design):
+    def add_project_info(self, design) -> bool:
         """
         Add project information.
 
         Parameters
         ----------
         design : object
-            Starting application object. For example, ``hfss1= HFSS3DLayout``.
+            Starting application object. For example, ``hfss1= HFSS3DLayout()``.
 
         Returns
         -------
@@ -270,7 +283,7 @@ class AnsysReport(FPDF, PyAedtBase):
             "Maxwell 3D",
             "HFSS",
             "Icepak",
-            "Mechanical",
+            DesignType.ICEPAKFEA,
             "Maxwell 2D",
             "2D Extractor",
         ]:
@@ -279,7 +292,7 @@ class AnsysReport(FPDF, PyAedtBase):
             image_path = os.path.join(design.working_directory, "model.jpg")
             design.plot(
                 show=False,
-                export_path=image_path,
+                output_file=image_path,
                 dark_mode=False,
                 show_grid=False,
                 show_bounding=False,
@@ -297,7 +310,7 @@ class AnsysReport(FPDF, PyAedtBase):
             if os.path.exists(image_path):
                 self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
-            msg = f"The schematic has {len(design.modeler.components.components)} components."
+            msg = f"The schematic has {len(design.modeler.schematic.components)} components."
             self.add_text(msg)
 
         if design.setups:
@@ -307,7 +320,7 @@ class AnsysReport(FPDF, PyAedtBase):
         return True
 
     @property
-    def template_name(self):
+    def template_name(self) -> str:
         """Name of the template to use.
 
         It can be a full json path or a string of a json contained in ``"Images"`` folder.
@@ -319,11 +332,11 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.template_name
 
     @template_name.setter
-    def template_name(self, value):
+    def template_name(self, value: str) -> None:
         self.report_specs.template_name = value
 
     @property
-    def design_name(self):
+    def design_name(self) -> str:
         """Get/set the design name for report header.
 
         Returns
@@ -333,11 +346,11 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.design_name
 
     @design_name.setter
-    def design_name(self, value):
+    def design_name(self, value: str) -> None:
         self.report_specs.design_name = value
 
     @property
-    def project_name(self):
+    def project_name(self) -> str:
         """Get/set the project name for report header.
 
         Returns
@@ -347,11 +360,11 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.project_name
 
     @project_name.setter
-    def project_name(self, value):
+    def project_name(self, value: str) -> None:
         self.report_specs.project_name = value
 
     @property
-    def aedt_version(self):
+    def aedt_version(self) -> str:
         """Get/set the aedt version for report header.
 
         Returns
@@ -361,10 +374,10 @@ class AnsysReport(FPDF, PyAedtBase):
         return self.report_specs.ansys_version
 
     @aedt_version.setter
-    def aedt_version(self, value):
+    def aedt_version(self, value: str) -> None:
         self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=None, page_format="a4"):
+    def add_section(self, portrait: bool = None, page_format: str = "a4") -> None:
         """Add a new section to Pdf.
 
         Parameters
@@ -386,7 +399,7 @@ class AnsysReport(FPDF, PyAedtBase):
             orientation = "P" if self.use_portrait else "L"
         self.add_page(orientation=orientation, format=page_format)
 
-    def add_chapter(self, chapter_name):
+    def add_chapter(self, chapter_name: str) -> bool:
         """Add a new chapter.
 
         Parameters
@@ -412,7 +425,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.set_text_color(*self.report_specs.font_color)
         return True
 
-    def add_sub_chapter(self, chapter_name):
+    def add_sub_chapter(self, chapter_name: str) -> bool:
         """Add a new sub-chapter.
 
         Parameters
@@ -440,11 +453,11 @@ class AnsysReport(FPDF, PyAedtBase):
 
     def add_image(
         self,
-        path,
-        caption="",
-        width=0,
-        height=0,
-    ):
+        path: str,
+        caption: str = "",
+        width: int = 0,
+        height: int = 0,
+    ) -> bool:
         """Add a new image.
 
         Parameters
@@ -468,7 +481,10 @@ class AnsysReport(FPDF, PyAedtBase):
             self.__figure_idx += 1
         return True
 
-    def add_image_with_aspect_ratio(self, path, caption="", max_width=None, max_height=None):
+    @requires_graphical_dependency("pillow")
+    def add_image_with_aspect_ratio(
+        self, path: str, caption: str = "", max_width: float = None, max_height: float = None
+    ) -> bool:
         """
         Add an image to the PDF while maintaining its aspect ratio and fitting within the specified dimensions.
 
@@ -509,7 +525,7 @@ class AnsysReport(FPDF, PyAedtBase):
         # Add the image to the PDF
         return self.add_image(path, caption=caption, width=width, height=height)
 
-    def add_caption(self, content):
+    def add_caption(self, content: str) -> None:
         """Add a new caption.
 
         Parameters
@@ -532,7 +548,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
         self.set_text_color(*self.report_specs.font_color)
 
-    def add_empty_line(self, num_lines=1):
+    def add_empty_line(self, num_lines: int = 1) -> None:
         """Add a new empty line.
 
         Parameters
@@ -542,17 +558,17 @@ class AnsysReport(FPDF, PyAedtBase):
         """
         self.ln(num_lines * self.font_size)
 
-    def add_page_break(self):
+    def add_page_break(self) -> None:
         """Add a new page break line."""
         self.add_page("P" if self.use_portrait else "L")
 
     def add_table(
         self,
-        title,
-        content,
-        formatting=None,
-        col_widths=None,
-    ):
+        title: str,
+        content: list[list],
+        formatting: list = None,
+        col_widths: list = None,
+    ) -> None:
         """Add a new table from a list of data.
 
         Data shall be a list of list where every line is either a row or a column.
@@ -601,7 +617,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.add_caption(f"Table {self.__table_idx}: {title}")
         self.__table_idx += 1
 
-    def add_text(self, content, bold=False, italic=False):
+    def add_text(self, content: str, bold: bool = False, italic: bool = False) -> None:
         """Add a new text.
 
         Parameters
@@ -630,10 +646,10 @@ class AnsysReport(FPDF, PyAedtBase):
             align="L",
         )
 
-    def add_toc(self):
+    def add_toc(self) -> None:
         """Add toc."""
 
-        def p(section, **kwargs):
+        def p(section, **kwargs) -> None:
             # Inserts a paragraph
             self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
@@ -673,7 +689,7 @@ class AnsysReport(FPDF, PyAedtBase):
                 link=link,
             )
 
-    def save_pdf(self, file_path, file_name=None):
+    def save_pdf(self, file_path: str, file_name: str | None = None) -> str:
         """Save pdf.
 
         Parameters
@@ -686,8 +702,8 @@ class AnsysReport(FPDF, PyAedtBase):
         self.output(os.path.join(file_path, file_name))
         return os.path.join(file_path, file_name)
 
-    @graphics_required
-    def add_chart(self, x_values, y_values, x_caption, y_caption, title):
+    @requires_graphical_dependency("matplotlib", "pillow")
+    def add_chart(self, x_values: list, y_values: list, x_caption: str, y_caption: str, title: str) -> None:
         """Add a chart to the report using matplotlib.
 
         Parameters

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,7 @@ def mock_hfss3dlayout_app(mock_hfss_3d_layout_app):
     yield mock_hfss_3d_layout_app
 
 
-def test_export_layout_extension_default(mock_hfss3dlayout_app):
+def test_export_layout_extension_default(mock_hfss3dlayout_app) -> None:
     """Test instantiation of the Export Layout extension."""
     extension = ExportLayoutExtension(withdraw=True)
 
@@ -45,7 +45,7 @@ def test_export_layout_extension_default(mock_hfss3dlayout_app):
     extension.root.destroy()
 
 
-def test_export_layout_extension_export_button(mock_hfss3dlayout_app):
+def test_export_layout_extension_export_button(mock_hfss3dlayout_app) -> None:
     """Test the Export button in the Export Layout extension."""
     extension = ExportLayoutExtension(withdraw=True)
     extension.root.nametowidget("export").invoke()
@@ -56,7 +56,7 @@ def test_export_layout_extension_export_button(mock_hfss3dlayout_app):
     assert data.export_bom
 
 
-def test_export_layout_extension_custom_settings(mock_hfss3dlayout_app):
+def test_export_layout_extension_custom_settings(mock_hfss3dlayout_app) -> None:
     """Test the Export Layout extension with custom checkbox settings."""
     extension = ExportLayoutExtension(withdraw=True)
 
@@ -73,7 +73,7 @@ def test_export_layout_extension_custom_settings(mock_hfss3dlayout_app):
     assert data.export_bom
 
 
-def test_export_layout_extension_all_disabled(mock_hfss3dlayout_app):
+def test_export_layout_extension_all_disabled(mock_hfss3dlayout_app) -> None:
     """Test the Export Layout extension with all options disabled."""
     extension = ExportLayoutExtension(withdraw=True)
 

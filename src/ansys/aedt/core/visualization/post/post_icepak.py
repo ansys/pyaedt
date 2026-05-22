@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,8 +33,6 @@ import csv
 import os
 import re
 from typing import Literal
-from typing import Optional
-from typing import Tuple
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -62,11 +60,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler()
-    def create_field_summary(self):
+    def create_field_summary(self) -> FieldSummary:
         """
         Create field summary object.
 
@@ -77,8 +75,10 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         """
         return FieldSummary(self._app)
 
-    @pyaedt_function_handler(timestep="time_step", design_variation="variation")
-    def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, variation=None):
+    @pyaedt_function_handler()
+    def get_fans_operating_point(
+        self, export_file: str = None, setup_name: str = None, time_step: str = None, variation: str = None
+    ) -> list:
         """Get the operating point of the fans in the design.
 
         Parameters
@@ -174,10 +174,17 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
             return {i: content[i][0] for i in ["Total", "Unit"]}
         return {i: content[i][0] for i in ["Min", "Max", "Mean", "Stdev", "Unit"]}
 
-    @pyaedt_function_handler(faces_list="faces", quantity_name="quantity", design_variation="variation")
+    @pyaedt_function_handler()
     def evaluate_faces_quantity(
-        self, faces, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
-    ):
+        self,
+        faces: list,
+        quantity: str,
+        side: str = "Default",
+        setup_name: str = None,
+        variations: dict = None,
+        ref_temperature: str = "",
+        time: str = "0s",
+    ) -> dict:
         """Export the field surface output.
 
         Parameters
@@ -224,18 +231,18 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         self._app.oeditor.Delete(["NAME:Selections", "Selections:=", facelist_name])
         return out
 
-    @pyaedt_function_handler(boundary_name="boundary", quantity_name="quantity", design_variation="variations")
+    @pyaedt_function_handler()
     def evaluate_boundary_quantity(
         self,
-        boundary,
-        quantity,
-        side="Default",
-        volume=False,
-        setup_name=None,
-        variations=None,
-        ref_temperature="",
-        time="0s",
-    ):
+        boundary: str,
+        quantity: str,
+        side: str = "Default",
+        volume: bool = False,
+        setup_name: str = None,
+        variations: dict = None,
+        ref_temperature: str = "",
+        time: str = "0s",
+    ) -> dict:
         """Export the field output on a boundary.
 
         Parameters
@@ -287,11 +294,18 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
-    @pyaedt_function_handler(monitor_name="monitor", quantity_name="quantity", design_variation="variations")
+    @pyaedt_function_handler()
     @min_aedt_version("2024.1")
     def evaluate_monitor_quantity(
-        self, monitor, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
-    ):
+        self,
+        monitor: str,
+        quantity: str,
+        side: str = "Default",
+        setup_name: str = None,
+        variations: dict = None,
+        ref_temperature: str = "",
+        time: str = "0s",
+    ) -> dict:
         """Export monitor field output.
 
         Parameters
@@ -340,18 +354,18 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
-    @pyaedt_function_handler(design_variation="variations")
+    @pyaedt_function_handler()
     def evaluate_object_quantity(
         self,
-        object_name,
-        quantity_name,
-        side="Default",
-        volume=False,
-        setup_name=None,
-        variations=None,
-        ref_temperature="",
-        time="0s",
-    ):
+        object_name: str,
+        quantity_name: str,
+        side: str = "Default",
+        volume: bool = False,
+        setup_name: str = None,
+        variations: dict = None,
+        ref_temperature: str = "",
+        time: str = "0s",
+    ) -> dict:
         """Export the field output on or in an object.
 
         Parameters
@@ -407,9 +421,9 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         assignment: str,
         max_min: Literal["Max", "Min"],
         location: Literal["Surface", "Volume"],
-        setup: Optional[str] = None,
-        time: Optional[str] = None,
-    ) -> Tuple[Tuple[float, float, float], float]:
+        setup: str = None,
+        time: str = None,
+    ) -> tuple[tuple[float, float, float], float]:
         """Calculate the position and value of the temperature maximum or minimum.
 
         Parameters
@@ -436,7 +450,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})
 
     @pyaedt_function_handler()
-    def power_budget(self, units="W", temperature=22, output_type="component"):
+    def power_budget(self, units: str = "W", temperature: int = 22, output_type: str = "component") -> dict:
         """Power budget calculation.
 
         Parameters
@@ -468,11 +482,11 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         groups = list(self._app.oeditor.GetChildNames("Groups"))
         self._app.modeler.add_new_user_defined_component()
         for g in groups:
-            g1 = self._app.oeditor.GetChildObject(g)
+            g1 = self._app.get_oo_object(self._app.oeditor, g)
             if g1:
-                group_hierarchy[g] = list(g1.GetChildNames())
+                group_hierarchy[g] = list(self._app.get_oo_name(self._app.oeditor, g))
 
-        def multiplier_from_dataset(expression, valuein):
+        def multiplier_from_dataset(expression: str, valuein: float) -> float:
             multiplier = 0
             if expression in self._app.design_datasets:
                 dataset = self._app.design_datasets[expression]
@@ -501,7 +515,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
                     multiplier = start_y + (valuein - start_x) * ((end_y - start_y) / (end_x - start_x))
             return multiplier
 
-        def extract_dataset_info(boundary_obj, units_input="W", boundary="Power"):
+        def extract_dataset_info(boundary_obj: object, units_input: str = "W", boundary: str = "Power") -> tuple:
             if boundary == "Power":
                 prop = "Total Power Variation Data"
             else:

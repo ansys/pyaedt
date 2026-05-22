@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -144,8 +144,14 @@ EMIT_TO_AEDT_UNITS = {
     "Gbps": "Gbps",
 }
 
+EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
 
-def data_rate_conv(value: float, units: str, to_internal: bool = True):
+EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
+
+EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
+
+
+def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
     """Converts the data rate to (from) the internal units from the
     specified units.
 
@@ -168,24 +174,24 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
         if units == "bps":
             mult = 1.0
         elif units == "kbps":
-            mult = 1e-3
-        elif units == "Mbps":
-            mult = 1e-6
-        elif units == "Gbps":
-            mult = 1e-9
-    else:
-        if units == "bps":
-            mult = 1.0
-        elif units == "kbps":
             mult = 1e3
         elif units == "Mbps":
             mult = 1e6
         elif units == "Gbps":
             mult = 1e9
+    else:
+        if units == "bps":
+            mult = 1.0
+        elif units == "kbps":
+            mult = 1e-3
+        elif units == "Mbps":
+            mult = 1e-6
+        elif units == "Gbps":
+            mult = 1e-9
     return value * mult
 
 
-def emit_unit_type_string_to_enum(unit_string):
+def emit_unit_type_string_to_enum(unit_string: str) -> UnitType:
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
         "Power": UnitType.POWER,
         "Frequency": UnitType.FREQUENCY,
@@ -198,7 +204,7 @@ def emit_unit_type_string_to_enum(unit_string):
     return EMIT_UNIT_TYPE_STRING_TO_ENUM[unit_string]
 
 
-def emi_cat_enum_to_string(emi_cat_enum):
+def emi_cat_enum_to_string(emi_cat_enum) -> str:
     EMI_CAT_ENUM_TO_STR = {
         EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL: "In-Channel Tx Fundamental",
         EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS: "In-Channel Tx Harmonic/Spurious",

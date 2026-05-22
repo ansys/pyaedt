@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -111,7 +111,7 @@ def patched_askopenfilename(valid_csv):
         yield valid_csv
 
 
-def test_power_map_from_csv_default(mock_icepak_app):
+def test_power_map_from_csv_default(mock_icepak_app) -> None:
     """Test instantiation of the PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -123,7 +123,7 @@ def test_power_map_from_csv_default(mock_icepak_app):
 
 
 @patch("tkinter.filedialog.askopenfilename", return_value=MOCK_CSV_PATH)
-def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_icepak_app):
+def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_icepak_app) -> None:
     """Test file selection in the PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -135,7 +135,7 @@ def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_icepak_app
     extension.root.destroy()
 
 
-def test_power_map_from_csv_failure_on_file_path_checks(mock_icepak_app):
+def test_power_map_from_csv_failure_on_file_path_checks(mock_icepak_app) -> None:
     """Test failure when file path checks fail in PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -146,7 +146,7 @@ def test_power_map_from_csv_failure_on_file_path_checks(mock_icepak_app):
     extension.root.destroy()
 
 
-def test_power_map_from_csv_success(patched_askopenfilename, mock_icepak_app):
+def test_power_map_from_csv_success(patched_askopenfilename, mock_icepak_app) -> None:
     """Test successful creation of power map from CSV in PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -188,19 +188,19 @@ def test_power_map_from_csv_success(patched_askopenfilename, mock_icepak_app):
     ] == extension.data.geometric_info
 
 
-def test_extract_info_missing_source(invalid_csv_missing_source):
+def test_extract_info_missing_source(invalid_csv_missing_source) -> None:
     """Test that extract_info raises an error when the source part is missing."""
     with pytest.raises(IcepakCSVFormatError):
         extract_info(invalid_csv_missing_source)
 
 
-def test_extract_info_missing_geometry(invalid_csv_missing_geometric):
+def test_extract_info_missing_geometry(invalid_csv_missing_geometric) -> None:
     """Test that extract_info raises an error when the geometric part is missing."""
     with pytest.raises(IcepakCSVFormatError):
         extract_info(invalid_csv_missing_geometric)
 
 
-def test_extract_info_missing_unit(invalid_csv_missing_unit):
+def test_extract_info_missing_unit(invalid_csv_missing_unit) -> None:
     """Test that extract_info raises an error when the unit part is missing."""
     with pytest.raises(IcepakCSVFormatError):
         extract_info(invalid_csv_missing_unit)

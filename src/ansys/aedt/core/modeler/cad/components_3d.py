@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,18 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import os
 import re
 import secrets
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
+from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class UserDefinedComponentParameters(dict):
@@ -53,7 +61,7 @@ class UserDefinedComponentParameters(dict):
         except Exception:
             self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __init__(self, component, *args, **kw):
+    def __init__(self, component, *args, **kw) -> None:
         dict.__init__(self, *args, **kw)
         self._component = component
 
@@ -69,7 +77,7 @@ class UserDefinedComponentProps(dict):
             if not res:
                 self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
 
-    def __init__(self, user_defined_components, props):
+    def __init__(self, user_defined_components, props) -> None:
         dict.__init__(self)
         if props:
             for key, value in props.items():
@@ -112,7 +120,7 @@ class UserDefinedComponent(PyAedtBase):
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
-    def __init__(self, primitives, name=None, props=None, component_type=None):
+    def __init__(self, primitives, name: str | None = None, props=None, component_type=None) -> None:
         self._fix_udm_props = [
             "General[Name]",
             "Group",
@@ -193,7 +201,7 @@ class UserDefinedComponent(PyAedtBase):
         self._layout_component = None
 
     @property
-    def layout_component(self):
+    def layout_component(self) -> "LayoutComponent":
         """Layout component object.
 
         Returns
@@ -214,7 +222,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._layout_component
 
     @pyaedt_function_handler()
-    def history(self):
+    def history(self) -> "BinaryTreeNode":
         """Component history.
 
         Returns
@@ -224,7 +232,7 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         try:
-            child_object = self._primitives.oeditor.GetChildObject(self.name)
+            child_object = self._primitives._app.get_oo_object(self._primitives.oeditor, self.name)
             return BinaryTreeNode(
                 list(child_object.GetChildNames("Operations"))[0],
                 child_object,
@@ -236,7 +244,7 @@ class UserDefinedComponent(PyAedtBase):
             return False
 
     @property
-    def group_name(self):
+    def group_name(self) -> str:
         """Group the component belongs to.
 
         Returns
@@ -251,14 +259,14 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         group = None
-        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            group = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, "Group")
         if group is not None:
             self._group_name = group
         return group
 
     @group_name.setter
-    def group_name(self, name):
+    def group_name(self, name: str) -> str:
         """Assign component to a specific group. A new group is created if the specified group doesn't exist.
 
         Parameters
@@ -278,7 +286,7 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.ChangeProperty
 
         """
-        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames() and name not in list(
+        if "Group" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name) and name not in list(
             list(self._primitives.oeditor.GetChildNames("Groups"))
         ):
             arg = [
@@ -309,7 +317,7 @@ class UserDefinedComponent(PyAedtBase):
         self._group_name = name
 
     @property
-    def is3dcomponent(self):
+    def is3dcomponent(self) -> bool:
         """3DComponent flag.
 
         Returns
@@ -327,7 +335,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @property
-    def mesh_assembly(self):
+    def mesh_assembly(self) -> bool | None:
         """Mesh assembly flag.
 
         Returns
@@ -337,26 +345,26 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         key = "Do Mesh Assembly"
-        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            ma = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
+        if self.is3dcomponent and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            ma = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, key)
             self._mesh_assembly = ma
             return ma
         else:
             return None
 
     @mesh_assembly.setter
-    def mesh_assembly(self, ma):
+    def mesh_assembly(self, ma: bool) -> None:
         key = "Do Mesh Assembly"
         if (
             self.is3dcomponent
             and isinstance(ma, bool)
-            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+            and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
         ):
-            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, ma)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self.name, key, ma)
             self._mesh_assembly = ma
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the object.
 
         Returns
@@ -373,7 +381,7 @@ class UserDefinedComponent(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, component_name):
+    def name(self, component_name: str) -> None:
         if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
             self._primitives.oeditor.Get3DComponentDefinitionNames()
         ):
@@ -388,7 +396,7 @@ class UserDefinedComponent(PyAedtBase):
             self._logger.warning("Name %s already assigned in the design", component_name)
 
     @property
-    def parameters(self):
+    def parameters(self) -> "UserDefinedComponentParameters":
         """Component parameters.
 
         Returns
@@ -407,22 +415,22 @@ class UserDefinedComponent(PyAedtBase):
             parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
             parameters = {}
             for parameter in parameters_tuple:
-                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter[0])
+                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter[0])
                 parameters[parameter[0]] = value
             self._parameters = UserDefinedComponentParameters(self, parameters)
         else:
-            props = list(self._primitives.oeditor.GetChildObject(self.name).GetPropNames())
+            props = list(self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name))
             parameters_aedt = list(set(props) - set(self._fix_udm_props))
             parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
             parameters = {}
             for parameter in parameter_name:
-                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter)
+                value = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, parameter)
                 parameters[parameter] = value
             self._parameters = UserDefinedComponentParameters(self, parameters)
         return self._parameters
 
     @property
-    def parts(self):
+    def parts(self) -> dict[str, "Object3d"]:
         """Dictionary of objects that belong to the user-defined component.
 
         Returns
@@ -433,7 +441,7 @@ class UserDefinedComponent(PyAedtBase):
         if self.is3dcomponent:
             component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
         else:
-            component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+            component_parts = list(self._primitives._app.get_oo_name(self._primitives.oeditor, self.name))
 
         parts_id = [
             self._primitives.objects_by_name[part].id
@@ -444,7 +452,7 @@ class UserDefinedComponent(PyAedtBase):
         return parts_dict
 
     @property
-    def target_coordinate_system(self):
+    def target_coordinate_system(self) -> str | None:
         """Target coordinate system.
 
         Returns
@@ -459,19 +467,21 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         self._target_coordinate_system = None
-        if "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            tCS = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System")
+        if "Target Coordinate System" in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+            tCS = self._primitives._app.get_oo_property_value(
+                self._primitives.oeditor, self.name, "Target Coordinate System"
+            )
             self._target_coordinate_system = tCS
         return self._target_coordinate_system
 
     @target_coordinate_system.setter
-    def target_coordinate_system(self, tCS):
-        if (
-            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-        ):
+    def target_coordinate_system(self, tCS: str) -> None:
+        oo_props = self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
+        if "Target Coordinate System" in oo_props and "Target Coordinate System/Choices" in oo_props:
             tCS_options = list(
-                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
+                self._primitives._app.get_oo_property_value(
+                    self._primitives.oeditor, self.name, "Target Coordinate System/Choices"
+                )
             )
             if tCS in tCS_options:
                 pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
@@ -479,7 +489,7 @@ class UserDefinedComponent(PyAedtBase):
                 self._target_coordinate_system = tCS
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the object.
 
         The project must be saved after the operation to update the list
@@ -505,8 +515,8 @@ class UserDefinedComponent(PyAedtBase):
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
-    @pyaedt_function_handler(position="origin")
-    def duplicate_and_mirror(self, origin, vector):
+    @pyaedt_function_handler()
+    def duplicate_and_mirror(self, origin: list | object, vector: list | object) -> list:
         """Duplicate and mirror a selection.
 
         Parameters
@@ -529,8 +539,8 @@ class UserDefinedComponent(PyAedtBase):
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
-    @pyaedt_function_handler(position="origin")
-    def mirror(self, origin, vector):
+    @pyaedt_function_handler()
+    def mirror(self, origin: list | object, vector: list | object) -> "UserDefinedComponent" | bool:
         """Mirror a selection.
 
         Parameters
@@ -538,7 +548,7 @@ class UserDefinedComponent(PyAedtBase):
         origin : list, Position
             List of the ``[x, y, z]`` coordinates or
             the Application.Position object for the selection.
-        vector : float
+        vector : list, Position
             List of the ``[x1, y1, z1]`` coordinates or
             the Application.Position object for the vector.
 
@@ -560,8 +570,8 @@ class UserDefinedComponent(PyAedtBase):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", unit="units")
-    def rotate(self, axis, angle=90.0, units="deg"):
+    @pyaedt_function_handler()
+    def rotate(self, axis: "Axis", angle: float = 90.0, units: str = "deg") -> "UserDefinedComponent" | bool:
         """Rotate the selection.
 
         Parameters
@@ -594,7 +604,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move(self, vector):
+    def move(self, vector: list | object) -> "UserDefinedComponent" | bool:
         """Move component from a list.
 
         Parameters
@@ -622,8 +632,10 @@ class UserDefinedComponent(PyAedtBase):
 
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
-    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
+    @pyaedt_function_handler()
+    def duplicate_around_axis(
+        self, axis: "Axis", angle: int = 90, clones: int = 2, create_new_objects: bool = True
+    ) -> list | bool:
         """Duplicate the component around the axis.
 
         Parameters
@@ -655,8 +667,10 @@ class UserDefinedComponent(PyAedtBase):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler(nclones="clones", attach_object="attach", attachObject="attach")
-    def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
+    @pyaedt_function_handler()
+    def duplicate_along_line(
+        self, vector: list | object, clones: int = 2, attach: bool = False, **kwargs
+    ) -> list | bool:
         """Duplicate the object along a line.
 
         Parameters
@@ -688,7 +702,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def update_native(self):
+    def update_native(self) -> bool:
         """Update the Native Component in AEDT.
 
         Returns
@@ -719,7 +733,7 @@ class UserDefinedComponent(PyAedtBase):
         return True
 
     @property
-    def bounding_box(self):
+    def bounding_box(self) -> list:
         """Get bounding dimension of a user defined model.
 
         Returns
@@ -735,7 +749,7 @@ class UserDefinedComponent(PyAedtBase):
         return bb
 
     @property
-    def center(self):
+    def center(self) -> list:
         """Get center coordinates of a user defined model.
 
         Returns
@@ -791,7 +805,7 @@ class UserDefinedComponent(PyAedtBase):
         """
         return self._primitives.oeditor
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"""
          {type(self)}
          is3dcomponent: {self._is3dcomponent}   parts: {self._parts}
@@ -804,7 +818,7 @@ class UserDefinedComponent(PyAedtBase):
          """
 
     @pyaedt_function_handler()
-    def get_component_filepath(self):
+    def get_component_filepath(self) -> str:
         """Get 3d component file path.
 
         Returns
@@ -812,12 +826,12 @@ class UserDefinedComponent(PyAedtBase):
         str
             Path of the 3d component file.
         """
-        return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
-            "3D Component File Path"
+        return self._primitives._app.get_oo_property_value(
+            self._primitives._app.oeditor, self.definition_name, "3D Component File Path"
         )
 
-    @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password=None, output_file="", local_update=False):
+    @pyaedt_function_handler()
+    def update_definition(self, password: str = None, output_file: str = "", local_update: bool = False) -> bool:
         """Update 3d component definition.
 
         Parameters
@@ -854,7 +868,7 @@ class UserDefinedComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password=None):
+    def edit_definition(self, password: str = None) -> "Hfss" | bool:
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
@@ -912,7 +926,7 @@ class LayoutComponent(PyAedtBase):
 
     """
 
-    def __init__(self, component):
+    def __init__(self, component) -> None:
         self._primitives = component._primitives
         self._name = component.name
         self._component = component
@@ -930,7 +944,7 @@ class LayoutComponent(PyAedtBase):
             self._get_edb_info()
 
     @property
-    def edb_path(self):
+    def edb_path(self) -> str:
         """EDB path.
 
         Returns
@@ -942,7 +956,7 @@ class LayoutComponent(PyAedtBase):
         return self._edb_path
 
     @property
-    def edb_object(self):
+    def edb_object(self) -> Edb | bool:
         """EDB object.
 
         Returns
@@ -964,8 +978,8 @@ class LayoutComponent(PyAedtBase):
 
             app = Edb(
                 edbpath=aedb_component_path,
-                isreadonly=False,
-                edbversion=self._primitives._app._aedt_version,
+                isreadonly=True,
+                version=self._primitives._app._aedt_version,
                 student_version=self._primitives._app.student_version,
             )
 
@@ -976,7 +990,7 @@ class LayoutComponent(PyAedtBase):
         return self._edb_object
 
     @property
-    def edb_definition(self):
+    def edb_definition(self) -> str | None:
         """Edb definition.
 
         Returns
@@ -1010,7 +1024,7 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @property
-    def show_layout(self):
+    def show_layout(self) -> bool | None:
         """Show layout flag.
 
         Returns
@@ -1028,16 +1042,16 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_layout.setter
-    def show_layout(self, show_layout):
+    def show_layout(self, show_layout: bool) -> None:
         key = "Show Layout"
         if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_layout)
             self._show_layout = show_layout
 
     @property
-    def fast_transformation(self):
+    def fast_transformation(self) -> bool | None:
         """Show layout flag.
 
         Returns
@@ -1055,16 +1069,16 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @fast_transformation.setter
-    def fast_transformation(self, fast_transformation):
+    def fast_transformation(self, fast_transformation: bool) -> None:
         key = "Fast Transformation"
         if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, fast_transformation)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, fast_transformation)
             self._fast_transformation = fast_transformation
 
     @property
-    def show_dielectric(self):
+    def show_dielectric(self) -> bool | None:
         """Show dielectric flag.
 
         Returns
@@ -1083,16 +1097,16 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @show_dielectric.setter
-    def show_dielectric(self, show_dielectric):
+    def show_dielectric(self, show_dielectric: bool) -> None:
         key = "Object Attributes/ShowDielectric"
         if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_dielectric)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, show_dielectric)
             self._show_dielectric = show_dielectric
 
     @property
-    def display_mode(self):
+    def display_mode(self) -> int | None:
         """Show layout flag.
 
         Returns
@@ -1114,16 +1128,16 @@ class LayoutComponent(PyAedtBase):
             return None
 
     @display_mode.setter
-    def display_mode(self, display_mode):
+    def display_mode(self, display_mode: int) -> None:
         key = "Object Attributes/DisplayMode"
         if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, display_mode)
+            self._primitives._app.set_oo_property_value(self._primitives.oeditor, self._name, key, display_mode)
             self._display_mode = display_mode
 
     @pyaedt_function_handler()
-    def close_edb_object(self):
+    def close_edb_object(self) -> bool:
         """Close EDB object."""
         if self.edb_object:
             try:
@@ -1137,18 +1151,18 @@ class LayoutComponent(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _get_edb_info(self):
+    def _get_edb_info(self) -> bool:
         """Get EDB information."""
         if self.edb_object:
             self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
-            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.stackup_layers.keys())}
+            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.layers.keys())}
             self.objects = {key: [True, False, 60] for key in list(self.edb_object.components.instances.keys())}
             return True
         else:  # pragma: no cover
             return False
 
     @pyaedt_function_handler()
-    def update_visibility(self):
+    def update_visibility(self) -> bool:
         """Update layer visibility.
 
         Returns

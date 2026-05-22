@@ -10,7 +10,16 @@
     <br> <a href="README.md">English</a> | 中文
 </p>
 
-[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)[![PythonVersion](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml)[![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)[![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
+[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)
+[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)
+[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)
+[![PythonVersion](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml)
+[![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
+[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
+[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
+[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+[![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## PyAEDT 简介
 
@@ -18,9 +27,9 @@
 
 ## 关于 PyAEDT 的安装
 
-1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.8-3.12` 版本上:
+1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.10-3.14` 版本上:
 
-``` python
+``` bash
   pip install pyaedt
 ```
 
@@ -130,33 +139,38 @@ pip install pyaedt[all]
 ### 明确 AEDT 声明 [INFO] 并管理报错 [ERROR]
 
 ``` python
-    # 以非图形模式启动 AEDT 2022 R2
+# 以非图形模式启动 AEDT 2022 R2
 
-    from ansys.aedt.core import Desktop, Circuit
-    with Desktop(specified_version="2022.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False):
-        circuit = Circuit()
-        ...
-        # 此处的任何错误都将被 Desktop 捕获。
-        ...
+from ansys.aedt.core import Desktop, Circuit
 
-    # Desktop 将在此处自动发布。
+with Desktop(
+    version="2022.2",
+    non_graphical=False,
+    new_desktop=True,
+    close_on_exit=True,
+    student_version=False,
+):
+    circuit = Circuit()
+    ...
+    # 此处的任何错误都将被 Desktop 捕获。
+    ...
+
+# Desktop 将在此处自动发布。
 ```
 
 ### Implicit AEDT declaration and error management
 
 ``` python
-    # Launch the latest installed version of AEDT in graphical mode
+# Launch the latest installed version of AEDT in graphical mode
 
-    from ansys.aedt.core import Circuit
-    with Circuit(specified_version="2022.2",
-                 non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+from ansys.aedt.core import Circuit
 
-    # Desktop is automatically released here.
+with Circuit(version="2022.2", non_graphical=False) as circuit:
+    ...
+    # Any error here will be caught by Desktop.
+    ...
+
+# Desktop is automatically released here.
 ```
 
 ## 远程应用程序调用
@@ -166,40 +180,45 @@ pip install pyaedt[all]
 CPython 服务器：
 
 ``` python
-    # 在CPython上启动PyAEDT远程服务器
+# 在CPython上启动PyAEDT远程服务器
 
-    from ansys.aedt.core.common_rpc import pyaedt_service_manager
-    pyaedt_service_manager()
+from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+pyaedt_service_manager(host="host name")
 ```
 
 任意的 Windows 客户端：
 
 ``` python
-    from ansys.aedt.core.common_rpc import create_session
-    cl1 = create_session("server_name")
-    cl1.aedt(port=50000, non_graphical=False)
-    hfss = Hfss(machine="server_name", port=50000)
-    # 在这里编辑您的代码
+from ansys.aedt.core.common_rpc import create_session
+
+cl1 = create_session("host name")
+cl1.aedt(port=50000, non_graphical=False)
+hfss = Hfss(machine="host name", port=50000)
+# 在这里编辑您的代码
 ```
 
 ## 变量 Variables
 
 ``` python
-    from ansys.aedt.core.HFSS import HFSS
-    with HFSS as hfss:
-         hfss["dim"] = "1mm"   # design variable
-         hfss["$dim"] = "1mm"  # project variable
+from ansys.aedt.core.HFSS import HFSS
+
+with HFSS as hfss:
+    hfss["dim"] = "1mm"  # design variable
+    hfss["$dim"] = "1mm"  # project variable
 ```
 
 ## 模型 Modeler
 
 ``` python
-    # 创建BOX、分配变量和指定材料。
+# 创建BOX、分配变量和指定材料。
 
-    from ansys.aedt.core.hfss import Hfss
-    with Hfss as hfss:
-         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                 "mybox", "aluminum")
+from ansys.aedt.core.hfss import Hfss
+
+with Hfss as hfss:
+    hfss.modeler.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")
 ```
 
 ## 许可

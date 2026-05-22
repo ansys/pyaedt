@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,19 +33,34 @@ from collections import defaultdict
 import csv
 import os
 import tempfile
-import warnings
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
-try:
+if TYPE_CHECKING:
     import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to run functionalities of FieldSummary.\nInstall with \n\npip install pandas"
-    )
+else:
     pd = None
+
+
+def _import_pandas():
+    """Lazy import of pandas. Only imports when needed."""
+    global pd
+    if pd is None:
+        try:
+            import pandas as pd_module
+
+            pd = pd_module
+        except ImportError:  # pragma: no cover
+            raise ImportError(
+                "The Pandas module is required to run functionalities of FieldSummary.\n"
+                "Install with:\n\n"
+                "pip install pandas"
+            )
+    return pd
+
 
 TOTAL_QUANTITIES = [
     "HeatFlowRate",
@@ -103,23 +118,23 @@ AVAILABLE_QUANTITIES = [
 class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.calculations = []
 
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        entity,
-        geometry,
-        geometry_name,
-        quantity,
-        normal="",
-        side="Default",
-        mesh="All",
-        ref_temperature="AmbientTemp",
-        time="0s",
-    ):
+        entity: str,
+        geometry: str,
+        geometry_name: str | list[str],
+        quantity: str,
+        normal: str = "",
+        side: str = "Default",
+        mesh: str = "All",
+        ref_temperature: str = "AmbientTemp",
+        time: str = "0s",
+    ) -> bool:
         """
         Add an entry in the field summary calculation requests.
 
@@ -185,8 +200,10 @@ class FieldSummary(PyAedtBase):
         self.calculations.append(calc_args)
         return True
 
-    @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup", design_variation="variation")
-    def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output=False):
+    @pyaedt_function_handler()
+    def get_field_summary_data(
+        self, setup: str | None = None, variation: dict | None = None, intrinsics: str = "", pandas_output: bool = False
+    ):
         """
         Get  field summary output computation.
 
@@ -226,17 +243,18 @@ class FieldSummary(PyAedtBase):
                         out_dict[key].append(row[key])
             os.remove(temp_file.name)
             if pandas_output:
-                if pd is None:
-                    raise ImportError("pandas package is needed.")
-                df = pd.DataFrame.from_dict(out_dict)
+                pd_module = _import_pandas()
+                df = pd_module.DataFrame.from_dict(out_dict)
                 for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
-                        df[col] = pd.to_numeric(df[col], errors="coerce")
+                        df[col] = pd_module.to_numeric(df[col], errors="coerce")
                 return df
         return out_dict
 
-    @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")
-    def export_csv(self, output_file, setup=None, variations=None, intrinsics=""):
+    @pyaedt_function_handler()
+    def export_csv(
+        self, output_file: str, setup: str | None = None, variations: dict | None = None, intrinsics: str = ""
+    ) -> bool:
         """
         Get the field summary output computation.
 
@@ -249,7 +267,7 @@ class FieldSummary(PyAedtBase):
             default is ``None``, in which case the nominal variation is used.
         variations : dict, optional
             Dictionary containing the design variation to use for the computation.
-            The default is  ``{}``, in which case the nominal variation is used.
+            The default is ``None``, in which case the nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             which is suitable when no frequency needs to be selected.
@@ -259,10 +277,10 @@ class FieldSummary(PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if variations is None:
-            variations = {}
         if not setup:
             setup = self._app.nominal_sweep
+        if not variations and self._app.available_variations.all:
+            variations = self._app.available_variations.variations(setup, True)[0]
         dv_string = ""
         for el in variations:
             dv_string += el + "='" + variations[el] + "' "

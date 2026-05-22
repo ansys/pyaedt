@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,12 +73,12 @@ class OptimizationGoalsTable:
     and whether the goal is active or not.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_optimization_goals_dll_functions()
 
-    def _define_optimization_goals_dll_functions(self):
+    def _define_optimization_goals_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.getOptimizationGoalDefinitionRowCount.argtype = POINTER(c_int)
         self._dll.getOptimizationGoalDefinitionRowCount.restype = c_int
@@ -147,7 +147,7 @@ class OptimizationGoalsTable:
         self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
-    def row(self, row_index) -> list:
+    def row(self, row_index: int) -> list:
         """Get the values for one row of the optimization goals table.
 
         The values are returned as a list: [value1, value2, ..., value7].
@@ -172,15 +172,15 @@ class OptimizationGoalsTable:
 
     def update_row(
         self,
-        row_index,
-        lower_frequency=None,
-        upper_frequency=None,
-        goal_value=None,
-        condition=None,
-        parameter_name=None,
-        weight=None,
-        enabled=None,
-    ):
+        row_index: int,
+        lower_frequency: str = None,
+        upper_frequency: str = None,
+        goal_value: str = None,
+        condition: str = None,
+        parameter_name: str = None,
+        weight: str = None,
+        enabled: str = None,
+    ) -> None:
         """Update the row parameters for an existing row in the optimization goals table.
 
         Parameters
@@ -223,14 +223,14 @@ class OptimizationGoalsTable:
 
     def append_row(
         self,
-        lower_frequency=None,
-        upper_frequency=None,
-        goal_value=None,
-        condition=None,
-        parameter_name=None,
-        weight=None,
-        enabled=None,
-    ):
+        lower_frequency: str = None,
+        upper_frequency: str = None,
+        goal_value: str = None,
+        condition: str = None,
+        parameter_name: str = None,
+        weight: str = None,
+        enabled: str = None,
+    ) -> None:
         """Append a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.
 
@@ -264,15 +264,15 @@ class OptimizationGoalsTable:
 
     def insert_row(
         self,
-        row_index,
-        lower_frequency=None,
-        upper_frequency=None,
-        goal_value=None,
-        condition=None,
-        parameter_name=None,
-        weight=None,
-        enabled=None,
-    ):
+        row_index: int,
+        lower_frequency: str = None,
+        upper_frequency: str = None,
+        goal_value: str = None,
+        condition: str = None,
+        parameter_name: str = None,
+        weight: str = None,
+        enabled: str = None,
+    ) -> None:
         """Insert a new row of parameters to the optimization goals table,
         ensuring the total does not exceed 50 entries.
 
@@ -307,7 +307,7 @@ class OptimizationGoalsTable:
         )
         self._dll_interface.raise_error(status)
 
-    def remove_row(self, row_index):
+    def remove_row(self, row_index: int) -> None:
         """Remove a row from the optimization goals table.
 
         Parameters
@@ -318,17 +318,18 @@ class OptimizationGoalsTable:
         status = self._dll.removeOptimizationGoalDefinitionRow(row_index)
         self._dll_interface.raise_error(status)
 
-    def restore_design_goals(self):
+    def restore_design_goals(self) -> None:
         """Configure the optimization goal table according to the recommended goals for the current design."""
         status = self._dll.setDesignGoals()
         self._dll_interface.raise_error(status)
 
-    def save_goals(self, file_path) -> str:
+    def save_goals(self, file_path: str) -> str:
         """Save the optimization goals from a design's optimization goals table to a config file.
 
         Parameters
         ----------
-        file_path: The path to the config file where the goals will be saved.
+        file_path: str
+            The path to the config file where the goals will be saved.
         """
         with open(file_path, mode="w", newline="") as file:
             for row_index in range(self.row_count):
@@ -336,7 +337,7 @@ class OptimizationGoalsTable:
                 slash_separated = "/".join(row_data)
                 file.write(slash_separated + "\n")
 
-    def load_goals(self, file_path) -> str:
+    def load_goals(self, file_path: str) -> str:
         """Load optimization goals from a config file into this optimization goals table.
 
         Parameters
@@ -351,13 +352,13 @@ class OptimizationGoalsTable:
                 row = line.strip().split("/")
                 self.append_row(*row)
 
-    def adjust_goal_frequency(self, adjust_goal_frequency_string):
+    def adjust_goal_frequency(self, adjust_goal_frequency_string: str) -> None:
         """Adjust all goal frequencies in the table by the adjusting
         frequency value which can be positive or negative.
         """
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
 
-    def clear_goal_entries(self):
+    def clear_goal_entries(self) -> None:
         """Clear the goal entries from optimization goals table."""
         status = self._dll.clearGoalEntries()
         self._dll_interface.raise_error(status)

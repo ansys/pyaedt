@@ -36,6 +36,7 @@ for the variation:
     >>> profiles = this_setup.get_profile()
     >>> for key in profiles.keys():
     ...     print(f"Variation: {key.split('-')[-1]}")
+    ...
     Variation:  offset='0in'
     Variation:  offset='0.10000000000000001in'
     Variation:  offset='0.20000000000000001in'
@@ -81,7 +82,9 @@ For example
     >>> step_name = my_profile.adaptive_pass.process_steps[2]  # Select the 3rd adaptive pass.
     >>> print(step_name)
     "Adaptive Pass 3"
-    >>> adapt_data = my_profile.adaptive_pass.steps[step_name]  # Retrieve the ProfileStep instance
+    >>> adapt_data = my_profile.adaptive_pass.steps[
+    ...     step_name
+    ... ]  # Retrieve the ProfileStep instance
     >>> adapt_table = adapt_data.table(columns=["real_time", "max_memory"])
     >>> print(adapt_table.to_string(index=False))  # Pandas dataframe
     Step                real_time   max_memory

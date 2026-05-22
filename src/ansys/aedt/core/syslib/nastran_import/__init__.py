@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,8 +31,23 @@ from ansys.aedt.core.visualization.advanced.misc import preview_pyvista
 
 __all__ = ["nastran_to_stl"]
 
-# Dynamically load the compiled nastran_import module from a directory
-_nastran_import_lib = load_native_module("nastran_import_lib", settings.pyd_libraries_path / "nastran_import")
+
+USE_PY_SOURCE_FOR_DEBUG = False  # Set to True to use nastran_import_lib.py directly
+
+if USE_PY_SOURCE_FOR_DEBUG:
+    import importlib.util
+    import pathlib
+
+    # Path to nastran_import_lib.py source file
+    py_source_path = pathlib.Path(settings.pyd_libraries_path) / "nastran_import" / "nastran_import_lib.py"
+
+    spec = importlib.util.spec_from_file_location("_nastran_import_lib", py_source_path)
+    _nastran_import_lib = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(_nastran_import_lib)
+else:
+    # Dynamically load the compiled nastran_import module from a directory
+    _nastran_import_lib = load_native_module("nastran_import_lib", settings.pyd_libraries_path / "nastran_import")
+
 
 # Initialize the helpers for the nastran_import_lib module
 _nastran_import_lib.initialize_helpers(open_file, GeometryOperators, preview_pyvista)

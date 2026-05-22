@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,15 +25,15 @@
 import pytest
 
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     no_transmission_zero_msg = "This filter has no transmission zero at row 0"
     no_transmission_zero_update_msg = "This filter has no transmission zero at row 0 to update"
-    if config["desktopVersion"] > "2025.1":
+    if DESKTOP_VERSION > "2025.1":
         input_value_update_blank_msg = "It is not possible to update the table with empty values"
         input_value_append_blank_msg = "Unable to append a new row, one or more required parameters are missing"
         input_row_index_excess_err_msg = "The specified index 2 exceeds the maximum allowed index of 1"
@@ -73,7 +73,7 @@ class TestClass:
         lumped_design.transmission_zeros_bandwidth.append_row(zero="1600M", position="2")
         lumped_design.transmission_zeros_bandwidth.update_row(0, zero="1.3G", position="1")
         assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1.3G", "1")
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             lumped_design.transmission_zeros_bandwidth.update_row(0, zero="", position="2")
             assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1.3G", "2")
         else:

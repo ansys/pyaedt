@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,6 +25,11 @@
 # This contains the Desktops database.
 # When AEDT will support multiple desktops, it will be filled with additional properties and methods
 
-_desktop_sessions = {}
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.desktop import Desktop
+
+_desktop_sessions: dict[int, "Desktop"] = {}
 
 _edb_sessions = []

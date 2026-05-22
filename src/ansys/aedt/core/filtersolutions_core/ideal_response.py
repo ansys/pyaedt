@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -156,13 +156,13 @@ class IdealResponse:
     This class allows you to define and modify the ideal response parameters for the designed filter.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_response_dll_functions()
         self.graph_setup = GraphSetup()
 
-    def _define_response_dll_functions(self):
+    def _define_response_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.getIdealFrequencyResponseSize.argtype = POINTER(c_int)
         self._dll.getIdealFrequencyResponseSize.restype = c_int
@@ -287,7 +287,7 @@ class IdealResponse:
         values = [float(val) for val in array]
         return values
 
-    def transfer_function_response(self):
+    def transfer_function_response(self) -> str:
         """Get the ideal filter transfer function's parameters.
 
         Returns
@@ -322,17 +322,17 @@ class IdealResponse:
         return bool(vsg_analysis_enabled.value)
 
     @vsg_analysis_enabled.setter
-    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool):
+    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool) -> None:
         status = self._dll.setVSGAnalsyis(filter_vsg_analysis_enabled)
         self._dll_interface.raise_error(status)
 
     def frequency_response(
         self,
-        y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
-        minimum_frequency=None,
-        maximum_frequency=None,
-        vsg_analysis_enabled=False,
-    ):
+        y_axis_parameter: FrequencyResponseColumn = FrequencyResponseColumn.MAGNITUDE_DB,
+        minimum_frequency: str = None,
+        maximum_frequency: str = None,
+        vsg_analysis_enabled: bool = False,
+    ) -> tuple:
         """Get the ideal filter frequency response for the given parameters.
 
         Parameters
@@ -369,11 +369,11 @@ class IdealResponse:
 
     def time_response(
         self,
-        y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
-        minimum_time=None,
-        maximum_time=None,
-        vsg_analysis_enabled=False,
-    ):
+        y_axis_parameter: TimeResponseColumn = TimeResponseColumn.STEP_RESPONSE,
+        minimum_time: str = None,
+        maximum_time: str = None,
+        vsg_analysis_enabled: bool = False,
+    ) -> tuple:
         """Get the ideal filter time response for the given parameters.
 
         Parameters
@@ -407,10 +407,10 @@ class IdealResponse:
 
     def s_parameters(
         self,
-        y_axis_parameter=SParametersResponseColumn.S21_DB,
-        minimum_frequency=None,
-        maximum_frequency=None,
-    ):
+        y_axis_parameter: SParametersResponseColumn = SParametersResponseColumn.S21_DB,
+        minimum_frequency: str = None,
+        maximum_frequency: str = None,
+    ) -> tuple:
         """Get the ideal filter S parameters response for the given parameters.
 
         Parameters
@@ -446,9 +446,9 @@ class IdealResponse:
 
     def pole_zero_locations(
         self,
-        x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
-        y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
-    ):
+        x_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_X,
+        y_axis_parameter: PoleZerosResponseColumn = PoleZerosResponseColumn.TX_ZERO_DEN_Y,
+    ) -> tuple:
         """Get the ideal pole zero location for the given parameters.
 
         Parameters

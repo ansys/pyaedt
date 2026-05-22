@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -91,4 +91,8 @@ class PyAedtBase(DirMixin):
       once in the hierarchy.
     """
 
-    pass
+    def __repr__(self) -> str:
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
+
+    def __str__(self) -> str:
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
