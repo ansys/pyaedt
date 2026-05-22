@@ -681,7 +681,6 @@ def test_revision_generation_2024(emit_app) -> None:
     assert receivers is None
     transmitters = rev2.get_interferer_names()
     assert transmitters is None
-    radio_node = rev2.get_component_node(rad5)
     bands = rev2.get_band_names(radio_name=rad5)
     assert bands is None
     freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
