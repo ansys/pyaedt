@@ -659,9 +659,9 @@ class Revision:
         else:
             tx_radios = self.get_all_emitter_radios()
 
-        if tx_radios is None:
+        if len(tx_radios) == 0:
             raise ValueError("No interferers defined in the analysis.")
-        if rx_radios is None:
+        if len(rx_radios) == 0:
             raise ValueError("No receivers defined in the analysis.")
 
         for tx_radio in tx_radios:
@@ -827,9 +827,9 @@ class Revision:
         else:
             tx_radios = self.get_all_emitter_radios()
 
-        if tx_radios is None:
+        if len(tx_radios) == 0:
             raise ValueError("No interferers defined in the analysis.")
-        if rx_radios is None:
+        if len(rx_radios) == 0:
             raise ValueError("No receivers defined in the analysis.")
 
         if global_protection_level and global_levels is None:
