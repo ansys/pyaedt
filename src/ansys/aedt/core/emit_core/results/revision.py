@@ -478,9 +478,7 @@ class Revision:
         return transmitters
 
     @pyaedt_function_handler()
-    def get_band_names(
-        self, radio_node: RadioNode | None = None, tx_rx_mode: TxRxMode | None = None
-    ) -> list[str]:
+    def get_band_names(self, radio_node: RadioNode | None = None, tx_rx_mode: TxRxMode | None = None) -> list[str]:
         """Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
@@ -1088,7 +1086,9 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
-    def get_all_radio_nodes(self, tx_rx_mode: TxRxMode | None = None, include_emitters: bool = False) -> list[RadioNode]:
+    def get_all_radio_nodes(
+        self, tx_rx_mode: TxRxMode | None = None, include_emitters: bool = False
+    ) -> list[RadioNode]:
         """Gets all Radio nodes from this revision.
 
         Parameters
