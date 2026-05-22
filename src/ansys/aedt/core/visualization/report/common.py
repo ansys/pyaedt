@@ -1753,6 +1753,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData` or ``None``
             Solution data object.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If there is an error retrieving the solution data.
         """
         if self._is_created:
             expr = [i.name for i in self.traces]
