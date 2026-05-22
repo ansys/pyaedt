@@ -1402,7 +1402,7 @@ class Object3d(PyAedtBase):
             return False
 
     @property
-    def is_model(self) -> bool:
+    def is_model(self) -> bool | None:
         """Part model or non-model property.
 
         Returns
@@ -1424,6 +1424,8 @@ class Object3d(PyAedtBase):
                 self._model = False
             else:
                 self._model = True
+            return self._model
+        else:
             return self._model
 
     @is_model.setter
