@@ -2075,7 +2075,7 @@ def test_3dcomponent_operations(aedt_app) -> None:
     assert obj_3dcomp.group_name == "test_group1"
     obj_3dcomp.group_name = "test_group"
     assert obj_3dcomp.group_name == "test_group"
-    assert obj_3dcomp.is3dcomponent
+    assert obj_3dcomp.is_3dcomponent
     assert not obj_3dcomp.mesh_assembly
     obj_3dcomp.mesh_assembly = True
     assert obj_3dcomp.mesh_assembly
@@ -2144,7 +2144,7 @@ def test_udm_operations(aedt_app) -> None:
     assert obj_udm.group_name == "test_group1"
     obj_udm.group_name = "test_group"
     assert obj_udm.group_name == "test_group"
-    assert not obj_udm.is3dcomponent
+    assert not obj_udm.is_3dcomponent
     assert not obj_udm.mesh_assembly
     obj_udm.mesh_assembly = True
     assert not obj_udm.mesh_assembly
