@@ -483,7 +483,7 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
         pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
-            aedt_startup_timeout = 120
+            aedt_startup_timeout = settings.desktop_launch_timeout
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
             while not _is_port_occupied(port, host=m.group(1)):
