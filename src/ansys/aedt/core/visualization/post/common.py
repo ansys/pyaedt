@@ -1686,7 +1686,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id: int | None = None,
         polyline_points: int = 1001,
         math_formula: str | None = None,
-    ) -> "SolutionData":
+    ) -> "SolutionData" | None:
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1746,7 +1746,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData` or ``None``
             Solution Data object.
 
         References

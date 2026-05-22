@@ -1746,18 +1746,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self) -> "SolutionData":
+    def get_solution_data(self) -> "SolutionData" | None:
         """Get the report solution data.
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData` or ``None``
             Solution data object.
-        
-        Raises
-        ------
-        AEDTRuntimeError
-            If there is an error retrieving the solution data.
         """
         if self._is_created:
             expr = [i.name for i in self.traces]
@@ -1767,12 +1762,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         else:
             expr = [i for i in self.expressions]
         if not expr:
-            raise AEDTRuntimeError("No Expressions Available. Check inputs")
+            self._app.logger.warning("No Expressions Available. Check inputs")
+            return None
         solution_data = self._post.get_solution_data_per_variation(
             self.report_category, self.setup, self._context, self.variations, expr
         )
         if not solution_data:
-            raise AEDTRuntimeError("No Data Available. Check inputs")
+            self._app.logger.warning("No Data Available. Check inputs")
+            return None
         if self.primary_sweep:
             solution_data.primary_sweep = self.primary_sweep
         return solution_data
@@ -1782,7 +1779,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self, x_list: list, y_list: list, x_units: str = "", y_units: str = "", y_axis: str = "Y1"
     ) -> bool:  # pragma: no cover
         """Add a Cartesian limit line from point lists.
-        
+
         This method works only in graphical mode.
 
         Parameters
@@ -1802,7 +1799,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` if successful.
-        
+
         Raises
         ------
         AEDTRuntimeError
@@ -1837,7 +1834,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self, start_x: float, stop_x: float, step: float, equation: str = "x", units: str = "GHz", y_axis: int = 1
     ) -> bool:  # pragma: no cover
         """Add a Cartesian limit line from point lists.
-        
+
         This method works only in graphical mode.
 
         Parameters
@@ -2734,7 +2731,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         -------
         bool
             ``True`` if successful.
-        
+
         Raises
         ------
         AEDTRuntimeError

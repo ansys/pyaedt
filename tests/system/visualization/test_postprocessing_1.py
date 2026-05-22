@@ -604,7 +604,8 @@ def test_import_traces(aedt_app, test_tmp_dir) -> None:
     my_data = aedt_app.post.get_solution_data(expressions=trace_names, variations=families)
     output_csv = test_tmp_dir / "output.csv"
     my_data.export_data_to_csv(str(output_csv))
-    assert not new_report.import_traces(str(output_csv), plot_name)
+    with pytest.raises(AEDTRuntimeError):
+        new_report.import_traces(str(output_csv), plot_name)
 
     # test import with correct inputs from csv
     assert new_report.import_traces(csv_file_path, plot_name)
