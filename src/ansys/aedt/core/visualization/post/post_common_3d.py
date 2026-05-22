@@ -204,7 +204,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def _check_intrinsics(
         self,
         input_data: str | dict[str, str] | None,
-        input_phase: str | None = None,
         setup: str | None = None,
         return_list: bool = False,
     ) -> dict[str, str] | list[str]:
@@ -226,7 +225,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             if "Freq" in self._app.design_solutions.intrinsics:
                 intrinsics["Freq"] = input_data
                 if "Phase" in self._app.design_solutions.intrinsics:
-                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+                    intrinsics["Phase"] = "0deg"
             elif "Time" in self._app.design_solutions.intrinsics:
                 intrinsics["Time"] = input_data
         elif isinstance(input_data, dict):
@@ -239,8 +238,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                     if self._app.solution_type == "SteadyState":
                         continue
                     intrinsics["Time"] = v
-                if input_phase:
-                    intrinsics["Phase"] = input_phase
                 if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
                     intrinsics["Phase"] = "0deg"
         else:
@@ -403,7 +400,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         variations: dict[str, Any] = None,
         is_vector: bool = False,
         intrinsics: str | dict[str, str] = None,
-        phase: str = None,
         object_name: str = "AllObjects",
         object_type: str = "volume",
         adjacent_side: bool = False,
@@ -437,8 +433,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
-        phase : str, optional
-            Field phase. The default is ``None``.
         object_name : str, optional
             Name of the object. For example, ``"Box1"``.
             The default is ``"AllObjects"``.
@@ -483,7 +477,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
-        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info(f"Exporting {quantity} field. Be patient")
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -553,7 +547,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         grid_step: list[float] = None,
         is_vector: bool = False,
         intrinsics: str | dict[str, str] = None,
-        phase: str = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
         export_in_si_system: bool = True,
@@ -601,8 +594,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
-        phase : str, optional
-            Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
             The default is ``True``.
@@ -639,7 +630,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E", setup, var, path, "Cartesian", [0, 0, 0], intrinsics="8GHz")
         """
-        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
@@ -663,7 +654,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
         if is_vector:
             self.ofieldsreporter.CalcOp("Smooth")
-            if phase:
+            if "Phase:=" in intrinsics:
                 self.ofieldsreporter.EnterScalar(0)
                 self.ofieldsreporter.CalcOp("AtPhase")
                 self.ofieldsreporter.CalcOp("Mag")
@@ -736,7 +727,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         assignment: str = "AllObjects",
         objects_type: str = "Vol",
         intrinsics: str | dict[str, str] = None,
-        phase: str = None,
         sample_points_file: str = None,
         sample_points: list[list[float]] = None,
         export_with_sample_points: bool = True,
@@ -775,9 +765,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             - ``"Phase"``
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
-        phase : str, optional
-            Field phase. The default is ``None``.
-            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points : list, optional
@@ -817,7 +804,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>> # Intrinsics is provided as a string.
         >>> fld_file1 = "test_fld_hfss1.fld"
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
-        >>>                                 intrinsics="1GHz", phase="5deg")
+        >>>                                 intrinsics="1GHz"
         >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
         >>> fld_file2 = "test_fld_hfss2.fld"
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
@@ -829,7 +816,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                     )
         """
-        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, solution, return_list=True)
         self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
         if not solution:
             if not self._app.existing_analysis_sweeps:
@@ -977,7 +964,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         field_type: str = None,
         create_plot: bool = True,
     ) -> FieldPlot:
-        intrinsics = self._check_intrinsics(intrinsics, None, setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup, return_list=False)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             assignment = self._app.modeler.convert_to_selections(assignment, True)
         if not setup:
