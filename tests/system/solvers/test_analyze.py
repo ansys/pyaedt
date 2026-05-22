@@ -851,13 +851,14 @@ def test_change_property(m3d_app) -> None:
         property_value=True,
     )
 
-    assert not m3d_app.change_property(
-        aedt_object=m3d_app.odesign,
-        tab_name="LocalVariableTab",
-        property_object="LocalVariables",
-        property_name="a",
-        property_value={"test": 1},
-    )
+    with pytest.raises(ValueError):
+        m3d_app.change_property(
+            aedt_object=m3d_app.odesign,
+            tab_name="LocalVariableTab",
+            property_object="LocalVariables",
+            property_name="a",
+            property_value={"test": 1},
+        )
 
     with pytest.raises(ValueError):
         m3d_app.change_properties(

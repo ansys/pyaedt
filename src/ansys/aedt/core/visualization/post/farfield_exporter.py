@@ -28,6 +28,7 @@ import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
@@ -122,7 +123,9 @@ class FfdSolutionDataExporter(PyAedtBase):
         self.__farfield_data = None
         self.__metadata_file = ""
 
-        if self.__app.desktop_class.is_grpc_api and set_phase_center_per_port:
+        if self.__app.solution_type == SolutionsHfss.SBR and set_phase_center_per_port:
+            self.__app.logger.debug("In SBR+ phase center can not be modified.")
+        elif self.__app.desktop_class.is_grpc_api and set_phase_center_per_port:
             self.__app.set_phase_center_per_port()
         else:  # pragma: no cover
             self.__app.logger.warning("Set phase center in port location manually.")
