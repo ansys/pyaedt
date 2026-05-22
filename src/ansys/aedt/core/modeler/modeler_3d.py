@@ -1545,7 +1545,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful, else ``None``.
+            ``True`` if successful.
 
         Examples
         --------
@@ -1557,6 +1557,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
         try:
             create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]
             create_region = self._app.get_oo_object(self._app.oeditor, name + "/" + create_region_name)
-            return create_region.SetPropValue("Coordinate System", assignment)
-        except (GrpcApiError, SystemExit) as e:
+            set_value = create_region.SetPropValue("Coordinate System", assignment)
+            if set_value:
+                return set_value
+            else:
+                raise AEDTRuntimeError("Failed to change region coordinate system.")
+
+        except (GrpcApiError, SystemExit) as e:  # pragma: no cover
             raise AEDTRuntimeError(f"Failed to change region coordinate system: {e}") from e
