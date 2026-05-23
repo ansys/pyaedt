@@ -528,7 +528,7 @@ class Design(AedtObjects, PyAedtBase):
             elif boundarytype == "Network":
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             elif boundarytype == "Wave Port":
-                self._boundaries[boundary] = WavePort(self, boundary)
+                self._boundaries[boundary] = WavePortCommon(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 

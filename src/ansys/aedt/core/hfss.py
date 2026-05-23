@@ -624,53 +624,54 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         modes = {}
         i = 1
         report_filter = []
-        while i <= nummodes:
-            start = None
-            stop = None
-            line_index = i - 1
-            if (
-                len(int_line_start) > line_index
-                and len(int_line_stop) > line_index
-                and int_line_start[line_index]
-                and int_line_stop[line_index]
-            ):
-                useintline = True
-                start = [
-                    str(i) + self.modeler.model_units if type(i) in (int, float) else i
-                    for i in int_line_start[line_index]
-                ]
-                stop = [
-                    str(i) + self.modeler.model_units if type(i) in (int, float) else i
-                    for i in int_line_stop[line_index]
-                ]
-            else:
-                useintline = False
-            if useintline:
-                mode = {"ModeNum": i, "UseIntLine": useintline}
+        if nummodes > 0:
+            while i <= nummodes:
+                start = None
+                stop = None
+                line_index = i - 1
+                if (
+                    len(int_line_start) > line_index
+                    and len(int_line_stop) > line_index
+                    and int_line_start[line_index]
+                    and int_line_stop[line_index]
+                ):
+                    useintline = True
+                    start = [
+                        str(i) + self.modeler.model_units if type(i) in (int, float) else i
+                        for i in int_line_start[line_index]
+                    ]
+                    stop = [
+                        str(i) + self.modeler.model_units if type(i) in (int, float) else i
+                        for i in int_line_stop[line_index]
+                    ]
+                else:
+                    useintline = False
                 if useintline:
-                    mode["IntLine"] = dict({"Start": start, "End": stop})
-                mode["AlignmentGroup"] = 0
-                mode["CharImp"] = characteristic_impedance[line_index]
-                if renorm:
-                    mode["RenormImp"] = str(impedance) + "ohm"
-                modes["Mode" + str(i)] = mode
-            else:
-                mode = {
-                    "ModeNum": i,
-                    "UseIntLine": False,
-                    "AlignmentGroup": 0,
-                    "CharImp": characteristic_impedance[line_index],
-                }
+                    mode = {"ModeNum": i, "UseIntLine": useintline}
+                    if useintline:
+                        mode["IntLine"] = dict({"Start": start, "End": stop})
+                    mode["AlignmentGroup"] = 0
+                    mode["CharImp"] = characteristic_impedance[line_index]
+                    if renorm:
+                        mode["RenormImp"] = str(impedance) + "ohm"
+                    modes["Mode" + str(i)] = mode
+                else:
+                    mode = {
+                        "ModeNum": i,
+                        "UseIntLine": False,
+                        "AlignmentGroup": 0,
+                        "CharImp": characteristic_impedance[line_index],
+                    }
 
-                if renorm:
-                    mode["RenormImp"] = str(impedance) + "ohm"
-                modes["Mode" + str(i)] = mode
-            report_filter.append(True)
-            i += 1
-        props["Modes"] = modes
-        props["ShowReporterFilter"] = False
-        props["ReporterFilter"] = report_filter
-        props["UseAnalyticAlignment"] = False
+                    if renorm:
+                        mode["RenormImp"] = str(impedance) + "ohm"
+                    modes["Mode" + str(i)] = mode
+                report_filter.append(True)
+                i += 1
+            props["Modes"] = modes
+            props["ShowReporterFilter"] = False
+            props["ReporterFilter"] = report_filter
+            props["UseAnalyticAlignment"] = False
         return self._create_boundary(port_name, props, "Wave Port")
 
     # Boundaries

@@ -31,7 +31,9 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modeler import cad
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode, FacePrimitive
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
@@ -1350,3 +1352,37 @@ class WavePortTerminal(WavePortCommon):
         if not isinstance(value, bool) or self.renorm_all_modes is None:
             raise AEDTRuntimeError("Renorm all modes must be a boolean.")
         self.properties["Renorm All Modes"] = value
+
+    @pyaedt_function_handler()
+    def assign_terminal(
+            self,
+            faces: list | int | FacePrimitive,
+            name: str = None,
+            impedance: float = 50):
+
+        props_terminal = {}
+        if isinstance(faces, int):
+            faces = [faces]
+        elif isinstance(faces, FacePrimitive):
+            faces = [faces.id]
+        props_terminal["TerminalResistance"] = str(impedance) + "ohm"
+        props_terminal["ParentBndID"] = self.name
+        props_terminal["ImpedanceType"] = "Impedance"
+
+        if not name:
+            name = self.name + "_T"
+        for boundary in self._app.boundaries:
+            if boundary.name == name:
+                name = name + "_1"
+        props = []
+        props.append("Name:" + name)
+        props.append("Faces:=")
+        props.append(faces)
+        props.append("ParentBndID:=")
+        props.append(self.name)
+        props.append("ImpedanceType:=")
+        props.append("Impedance")
+        props.append("TerminalResistance:=")
+        props.append(str(impedance) + "ohm")
+        self._app.oboundary.AssignTerminal(props)
+
