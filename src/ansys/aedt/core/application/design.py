@@ -82,7 +82,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortCommon
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortCommon, WavePortModal, WavePortTerminal, Terminal
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
@@ -528,7 +528,14 @@ class Design(AedtObjects, PyAedtBase):
             elif boundarytype == "Network":
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             elif boundarytype == "Wave Port":
-                self._boundaries[boundary] = WavePortCommon(self, boundary)
+                temp_bound = WavePortCommon(self, boundary)
+                if "Wave Port Type" in temp_bound.properties:
+                    if temp_bound.properties["Wave Port Type"] == "Modal":
+                        self._boundaries[boundary] = WavePortModal(self, boundary)
+                    else:
+                        self._boundaries[boundary] = WavePortTerminal(self, boundary)
+                else:
+                    self._boundaries[boundary] = Terminal(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 

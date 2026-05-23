@@ -1386,3 +1386,32 @@ class WavePortTerminal(WavePortCommon):
         props.append(str(impedance) + "ohm")
         self._app.oboundary.AssignTerminal(props)
 
+        #bound = BoundaryObject(self, name, props_terminal)
+        #self._app._boundaries[name] = bound
+        #return bound
+
+    @property
+    def terminals(self):
+        terminals = []
+        for boundary in self._app.boundaries:
+            for terminal in list(self.children.keys()):
+                if boundary.name == terminal:
+                    terminals.append(boundary)
+        return terminals
+
+
+class Terminal(BoundaryObject):
+    def __init__(self, app, name, props=None):
+        """Initialize a terminal boundary object.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+            The AEDT application instance.
+        name : str
+            Name of the boundary.
+        props : dict, optional
+            Dictionary of boundary properties.
+        """
+        super().__init__(app, name, props, "Terminal")
+
