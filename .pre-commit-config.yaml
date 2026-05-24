@@ -7,7 +7,6 @@ exclude: |
       src/ansys/aedt/core/rpc/|
       src/ansys/aedt/core/sbrplus/matlab/|
       src/ansys/aedt/core/extensions/installer|
-      src/pyaedt|
       tests/system/.*/example_models/
   )
 
