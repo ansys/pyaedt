@@ -124,7 +124,7 @@ jobs:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
         token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-        use-conventional-commits: true
+        use-pull-request-title: true
         use-default-towncrier-config: true
         use-python-cache: false
 
