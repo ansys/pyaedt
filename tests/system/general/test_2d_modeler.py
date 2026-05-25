@@ -160,10 +160,10 @@ def test_create_circle(aedt_app) -> None:
         name="NonModelCirc",
         model=False,
     )
-    assert not circle4.model
+    assert not circle4.is_model
 
 
-def test_calculate_radius_2D(aedt_app) -> None:
+def test_calculate_radius_2d(aedt_app) -> None:
     aedt_app.solution_type = "MagnetostaticXY"
     circle1 = aedt_app.modeler.create_circle([0, -2, 0], 3)
     radius = aedt_app.modeler.calculate_radius_2D(circle1.name)
