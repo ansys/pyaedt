@@ -776,7 +776,7 @@ class ComponentArray(PyAedtBase):
         for component in component_names.values():
             component_object = self.__app.modeler.user_defined_components[component]
             if component_object.is_3d_component:
-                part_names = list(self.__app.modeler.user_defined_components[component].parts(component_object.name))
+                part_names = [part.name for part in component_object.parts.values()]
             else:
                 part_names = list(self.__app.get_oo_name(self.__app.modeler.oeditor, component_object.name))
 
