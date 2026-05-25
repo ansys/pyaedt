@@ -98,7 +98,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.3.13",
+  "prek==0.4.0",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
@@ -236,9 +236,6 @@ force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
-
-[tool.ruff.lint.per-file-ignores]
-"src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

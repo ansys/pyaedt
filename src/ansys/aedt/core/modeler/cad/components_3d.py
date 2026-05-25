@@ -135,7 +135,7 @@ class UserDefinedComponent(PyAedtBase):
             "Version",
         ]
         self._group_name = None
-        self._is3dcomponent = None
+        self._is_3d_component = None
         self._mesh_assembly = None
 
         if name:
@@ -317,7 +317,7 @@ class UserDefinedComponent(PyAedtBase):
         self._group_name = name
 
     @property
-    def is_3dcomponent(self) -> bool:
+    def is_3d_component(self) -> bool:
         """3DComponent flag.
 
         Returns
@@ -329,9 +329,9 @@ class UserDefinedComponent(PyAedtBase):
         definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
         for comp in definitions:
             if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
-                self._is3dcomponent = True
+                self._is_3d_component = True
                 return True
-        self._is3dcomponent = False
+        self._is_3d_component = False
         return False
 
     @property
@@ -345,7 +345,7 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         key = "Do Mesh Assembly"
-        if self.is_3dcomponent and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
+        if self.is_3d_component and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name):
             ma = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self.name, key)
             self._mesh_assembly = ma
             return ma
@@ -356,7 +356,7 @@ class UserDefinedComponent(PyAedtBase):
     def mesh_assembly(self, ma: bool) -> None:
         key = "Do Mesh Assembly"
         if (
-            self.is_3dcomponent
+            self.is_3d_component
             and isinstance(ma, bool)
             and key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self.name)
         ):
@@ -411,7 +411,7 @@ class UserDefinedComponent(PyAedtBase):
 
         """
         self._parameters = None
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
             parameters = {}
             for parameter in parameters_tuple:
@@ -438,7 +438,7 @@ class UserDefinedComponent(PyAedtBase):
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
 
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
         else:
             component_parts = list(self._primitives._app.get_oo_name(self._primitives.oeditor, self.name))
@@ -561,7 +561,7 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.Mirror
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             if self._primitives.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
@@ -594,7 +594,7 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.Rotate
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             if self._primitives.rotate(self.name, axis=axis, angle=angle, units=units):
                 return self
         else:
@@ -622,7 +622,7 @@ class UserDefinedComponent(PyAedtBase):
         ----------
         >>> oEditor.Move
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             if self._primitives.move(self.name, vector):
                 return self
         else:
@@ -659,7 +659,7 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.DuplicateAroundAxis
 
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             ret, added_objects = self._primitives.duplicate_around_axis(
                 self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
@@ -692,7 +692,7 @@ class UserDefinedComponent(PyAedtBase):
         >>> oEditor.DuplicateAlongLine
 
         """
-        if self.is_3dcomponent:
+        if self.is_3d_component:
             old_component_list = self._primitives.user_defined_component_names
             _, added_objects = self._primitives.duplicate_along_line(
                 self.name, vector, clones, attach=attach, is_3d_comp=True
@@ -808,7 +808,7 @@ class UserDefinedComponent(PyAedtBase):
     def __str__(self) -> str:
         return f"""
          {type(self)}
-         is_3dcomponent: {self._is3dcomponent}   parts: {self._parts}
+         is_3d_component: {self._is_3d_component}   parts: {self._parts}
          --- read/write properties  ----
          name: {self._m_name}
          group_name: {self._group_name}

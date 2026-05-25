@@ -484,7 +484,7 @@ class FieldsCalculator(PyAedtBase):
     def validate_expression(self, expression: dict) -> dict | bool:
         """Validate expression file against the schema.
 
-        The default schema can be found in ``pyaedt/misc/fields_calculator.schema.json``.
+        The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
         Parameters
         ----------
