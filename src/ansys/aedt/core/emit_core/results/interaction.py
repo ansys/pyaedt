@@ -36,6 +36,11 @@ class Interaction:
         self.domain = domain
         self.revision = revision
         self._invalidated = False
+        self._was_run = False  # True only after sim.run() creates this interaction
+        # Register with the project for automatic invalidation on close/reload.
+        # Mirrors C++ EmitApiPrivate::registerInteraction().
+        if hasattr(emit_obj, "_register_interaction"):
+            emit_obj._register_interaction(self)
 
     def invalidate(self) -> None:
         """Mark this interaction as invalid due to state changes in radio pair/N-to-1 configuration."""
@@ -217,16 +222,27 @@ class Interaction:
 
         Raises
         ------
+        ValueError
+            If the interaction is not valid or not associated with a result.
         RuntimeError
             If the domain is invalid, not fully defined, or if instance data cannot be retrieved.
         """
-        # GetInstance only supports a single interferer
+        # Check interaction validity
+        if self._invalidated or not self._was_run:
+            raise ValueError("Interaction not associated with current Result object.")
+
+        # GetInstance only supports a single interferer.
         if len(domain.interferer_names) > 1:
             raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
 
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
             raise RuntimeError("The interaction domain must be fully defined.")
+
+        # Validate the instance domain's radio/band names
+        domain_error = self.revision.get_simulation().is_domain_valid(domain)
+        if domain_error:
+            raise RuntimeError(domain_error)
 
         # get_instance_count validates the domain (catches bad radio/band names) and
         # returns 0 when the radio pair is disabled at the simulation level.
@@ -341,22 +357,27 @@ class Interaction:
         str
             Empty string if valid, error message otherwise.
         """
-        # Check if this interaction has been invalidated due to state changes
+        # Check if this interaction has been invalidated (e.g. project reloaded)
         if self._invalidated:
             return "Interaction not associated with current Result object."
 
-        # Check if the domain is empty/undefined
-        if self._is_domain_empty(self.domain):
+        # An interaction with an empty/undefined domain that was never run is not associated.
+        # If _was_run=True, the empty domain is intentional ("run all pairs") and is valid.
+        if not self._was_run and self._is_domain_empty(self.domain):
             return "Interaction not associated with current Result object."
 
-        # Validate the domain
-        error = self.revision.get_simulation().is_domain_valid(self.domain)
-        if error:
-            return error
+        # For directly-created interactions (not via sim.run()), validate the domain first.
+        if not self._was_run:
+            error = self.revision.get_simulation().is_domain_valid(self.domain)
+            if error:
+                return error
 
-        # Check if results exist for this domain
+        # Check if results exist for this domain.
+        if self._was_run and self._is_domain_empty(self.domain):
+            return ""
         if not self._check_results_exist():
-            return "The interaction results do not exist."
+            return "Interaction has not been run."
+
         return ""
 
     def _check_results_exist(self, domain: InteractionDomain = None) -> bool:

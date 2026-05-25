@@ -170,7 +170,7 @@ class Simulation:
             )
             # Create Interaction object to access results
             interaction = Interaction(self.emit_project, domain, self._revision)
-            interaction._invalidated = False
+            interaction._was_run = True  # marks this as a valid run result (mirrors C++ setIsValid(true))
             # Register the interaction so it can be invalidated if state changes
             self._revision._interactions.append(interaction)
         # save the project and revision

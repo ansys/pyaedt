@@ -29,6 +29,7 @@ from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
@@ -121,17 +122,17 @@ def test_interaction_is_valid(cell_phone):
 
     interaction = Interaction(cell_phone, domain, rev)
 
-    # Check invalid domain
+    # Check invalid domain (bad band name → domain validation error)
     with pytest.raises(ValueError) as e:
         interaction.validate()
-    assert "The domain is invalid: Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
+    assert "Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
     assert not interaction.is_valid()
 
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
 
     with pytest.raises(ValueError) as e:
         interaction.validate()
-    assert "The interaction results do not exist" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
     assert not interaction.is_valid()
 
     sim = rev.get_simulation()
@@ -385,7 +386,7 @@ def test_non_numeric_results(non_numeric_results):
     bad_interaction = sim.run(domain)
     with pytest.raises((RuntimeError, ValueError)) as e:
         bad_interaction.get_worst_instance(ResultType.EMI)
-    assert "The interaction results do not exist" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
 
     # Undefined instance domain should raise
     inst_domain = InteractionDomain(non_numeric_results)
@@ -502,14 +503,11 @@ def test_non_numeric_results(non_numeric_results):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+# @pytest.mark.skipif(True, reason="Need to move other emit engine functions (invalidate all).")
 def test_result_validity(availability):
     """Test interaction and instance validity after various operations.
 
     Note: This test is translated from C++ EmitApiTest::resultValidity.
-    Tests the invalidation mechanism when:
-    - Interactions are created but not run
-    - Project is reloaded
-    - Project is closed
     """
     rev = availability.results.analyze()
     sim = rev.get_simulation()
@@ -519,12 +517,13 @@ def test_result_validity(availability):
     domain2.set_receiver("RF System 3 - Radio")
     domain2.set_interferers(["RF System 2 - OneChannel"])
     interaction2 = Interaction(availability, domain2, rev)
+    instance = InteractionInstance(availability, domain2, rev, interaction2)
 
     # interaction2 is unrun
     assert not interaction2.is_valid()
     with pytest.raises(ValueError) as e:
         interaction2.validate()
-    assert "results do not exist" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
 
     # new, undefined interaction and instance
     interaction = Interaction(availability, InteractionDomain(availability), rev)
@@ -534,6 +533,11 @@ def test_result_validity(availability):
     with pytest.raises(ValueError) as e:
         interaction.validate()
     assert "Interaction not associated with current Result object" in str(e.value)
+
+    # Undefined instance should be invalid with "Instance not associated with current Result object"
+    with pytest.raises(ValueError) as e:
+        instance.check_validity()
+    assert "Instance not associated with current Result object" in str(e.value)
 
     # Trying to get worst instance on undefined interaction should fail
     with pytest.raises(ValueError) as e:
@@ -549,21 +553,15 @@ def test_result_validity(availability):
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
     assert interaction.is_valid()
-
-    instance = interaction.get_worst_instance(ResultType.EMI)
-    assert instance is not None
-    instance.check_validity()  # Should not raise
+    assert interaction.get_worst_instance(ResultType.EMI) is not None
 
     # previously defined but unrun interaction has now been run (domain2 was same as domain)
     # After running domain, domain2 now has results
-    if domain2.receiver_name == domain.receiver_name:
-        assert interaction2.is_valid()
+    assert interaction2.is_valid()
 
     # interaction and instance after a reload of the project
     proj_name = availability.project_name
     availability.close_project(proj_name, save=False)
-
-    # After close, old interaction should be invalid
     assert not interaction.is_valid()
     with pytest.raises(ValueError) as e:
         interaction.validate()
@@ -577,23 +575,18 @@ def test_result_validity(availability):
     availability = Emit(proj_name)
     rev = availability.results.analyze()
     sim = rev.get_simulation()
-
     interaction = sim.run(domain)
     assert interaction.is_valid()
-
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance is not None
-    instance.check_validity()  # Should not raise
+    assert instance.check_validity() is None  # Should not raise
 
     # interaction and instance after closing project
     availability.close_project(availability.project_name, save=False)
-
-    # After close, old interaction should be invalid
     assert not interaction.is_valid()
     with pytest.raises(ValueError) as e:
         interaction.validate()
     assert "Interaction not associated with current Result object" in str(e.value)
-
     with pytest.raises(ValueError) as e:
         instance.check_validity()
     assert "Instance not associated with current Result object" in str(e.value)

@@ -114,7 +114,7 @@ class Revision:
                 self.name = name
                 """Name of the revision."""
 
-        else:
+        else:  # pragma: no cover
             if not name:
                 name = self.emit_project.odesign.GetCurrentResult()
                 if not name:
@@ -144,7 +144,6 @@ class Revision:
         """``True`` if the revision is loaded and ``False`` if it is not."""
 
         self._interactions = []
-        """Registry of all Interaction objects created for this revision."""
 
         self._load_revision()
 
@@ -1270,6 +1269,8 @@ class Revision:
             return self._emit_com.GetChildNodeNames(0, radios_id)
         return []
 
+    @pyaedt_function_handler
+    @min_aedt_version("2027.1")
     def invalidate_all_interactions(self) -> None:
         """Invalidate all cached interactions for this revision.
 

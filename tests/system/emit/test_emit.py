@@ -1716,7 +1716,7 @@ def test_interference_filtering(interference) -> None:
             [
                 EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
                 EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
-                EMIInterfererType.IN_CHANNEL_BROADBAND,
+                EMIInterfererType.IN_CHANNEL_TX_BROADBAND,
             ],
             EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
             [
@@ -1975,7 +1975,7 @@ def test_result_categories_with_simulation(emit_app):
     # confirm the emi value when all categories are enabled
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance.get_value(ResultType.EMI) == 16.64
-    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_BROADBAND
+    assert instance.get_largest_emi_problem_type() == EMIInterfererType.IN_CHANNEL_TX_BROADBAND
 
     # disable one category and confirm the emi value changes
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)

@@ -263,16 +263,22 @@ class InteractionInstance:
 
         Raises
         ------
+        ValueError
+            If the instance is no longer associated with a result (invalidated or parent invalidated).
         RuntimeError
-            If the instance is no longer valid.
+            If the instance has invalid encoded values.
         """
-        # Check if this instance has been invalidated due to state changes
+        # Check if this instance has been invalidated due to state changes (e.g. project close/reload).
         if self._invalidated:
-            raise RuntimeError("Instance not associated with current Result object.")
+            raise ValueError("Instance not associated with current Result object.")
 
-        # Check if the parent interaction has been invalidated
+        # Check if the parent interaction has been invalidated (e.g. by close_project registry).
         if self.parent_interaction is not None and self.parent_interaction._invalidated:
-            raise RuntimeError("Instance not associated with current Result object.")
+            raise ValueError("Instance not associated with current Result object.")
+
+        # Check if the parent interaction was never run.
+        if self.parent_interaction is not None and not self.parent_interaction._was_run:
+            raise ValueError("Instance not associated with current Result object.")
 
         # Check if the encoded values are within valid range
         if not self.has_valid_values():
