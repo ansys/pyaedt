@@ -75,7 +75,7 @@ from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup, WavePortTerminal, WavePortModal, Terminal
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -255,6 +255,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     # NOTE: Extend Mixin behaviour to handle near field setups
     def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
+        if boundary_type == "Wave Port":
+            return super()._create_wave_port_boundary(name, props)
         if boundary_type not in (
             "NearFieldSphere",
             "NearFieldBox",
@@ -6774,7 +6776,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             else:
                 deembed = deembed
 
-            # Draw terminal lumped port between two objects.
+            # Draw terminal wave port between two objects.
             return self._create_port_terminal(
                 faces[0],
                 reference,

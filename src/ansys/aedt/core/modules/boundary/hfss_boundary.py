@@ -1343,15 +1343,15 @@ class WavePortTerminal(WavePortCommon):
             Whether renormalization of all modes is enabled.
         """
         value = None
-        if "Renorm All Modes" in self.properties:
-            value = self.properties["Renorm All Modes"]
+        if "Renorm All Terminals" in self.properties:
+            value = self.properties["Renorm All Terminals"]
         return value
 
     @renorm_all_terminals.setter
     def renorm_all_terminals(self, value: bool):
-        if not isinstance(value, bool) or self.renorm_all_modes is None:
+        if not isinstance(value, bool) or self.renorm_all_terminals is None:
             raise AEDTRuntimeError("Renorm all modes must be a boolean.")
-        self.properties["Renorm All Modes"] = value
+        self.properties["Renorm All Terminals"] = value
 
     @pyaedt_function_handler()
     def assign_terminal(
@@ -1368,27 +1368,14 @@ class WavePortTerminal(WavePortCommon):
         props_terminal["TerminalResistance"] = str(impedance) + "ohm"
         props_terminal["ParentBndID"] = self.name
         props_terminal["ImpedanceType"] = "Impedance"
+        props_terminal["Faces"] = faces
 
         if not name:
             name = self.name + "_T"
         for boundary in self._app.boundaries:
             if boundary.name == name:
                 name = name + "_1"
-        props = []
-        props.append("Name:" + name)
-        props.append("Faces:=")
-        props.append(faces)
-        props.append("ParentBndID:=")
-        props.append(self.name)
-        props.append("ImpedanceType:=")
-        props.append("Impedance")
-        props.append("TerminalResistance:=")
-        props.append(str(impedance) + "ohm")
-        self._app.oboundary.AssignTerminal(props)
-
-        #bound = BoundaryObject(self, name, props_terminal)
-        #self._app._boundaries[name] = bound
-        #return bound
+        return self._app._create_wave_port_boundary(name, props_terminal)
 
     @property
     def terminals(self):
@@ -1415,3 +1402,225 @@ class Terminal(BoundaryObject):
         """
         super().__init__(app, name, props, "Terminal")
 
+    @property
+    def renorm_impedance_type(self) -> str:
+        """Get the renormalization impedance type
+
+        Returns
+        -------
+        str
+            The type of renormalization impedance.
+        """
+        value = None
+        if "Renorm Impedance Type" in self.properties:
+            value = self.properties["Renorm Impedance Type"]
+        return value
+
+    @renorm_impedance_type.setter
+    def renorm_impedance_type(self, value: str):
+        # Activate renorm all modes
+        for bound in self._app.boundaries:
+            if bound.name == self.props["ParentBndID"]:
+                parent_port = bound
+        if not parent_port.renorm_all_terminals:
+            parent_port.renorm_all_terminals = True
+
+        if self.renorm_impedance_type and (
+                "Renorm Impedance Type/Choices" in self.properties
+                and value not in self.properties["Renorm Impedance Type/Choices"]
+        ):
+            raise ValueError(
+                f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
+            )
+        self.properties["Renorm Impedance Type"] = value
+
+    @property
+    def renorm_impedance(self) -> Union[Quantity, None]:
+        """Get the renormalization impedance value.
+
+        Returns
+        -------
+        Quantity
+            The renormalization impedance value.
+        """
+        value = None
+        if "Renorm Imped" in self.properties:
+            value = Quantity(self.properties["Renorm Imped"])
+        return value
+
+    @renorm_impedance.setter
+    def renorm_impedance(self, value: Optional[Union[Quantity, float, int, str]]):
+        if self.renorm_impedance_type != "Impedance":
+            raise ValueError("Renorm Impedance can be set only if Renorm Impedance Type is 'Impedance'.")
+
+        if not isinstance(value, Quantity):
+            value = Quantity(self._app.value_with_units(value, units_system="Resistance"))
+
+        if value.unit not in AEDT_UNITS["Resistance"]:
+            raise ValueError("Renorm Impedance must have resistance units.")
+        self.properties["Renorm Imped"] = str(value)
+
+    @property
+    def rlc_type(self) -> str:
+        """Get the RLC type property.
+
+        Returns
+        -------
+        str
+            RLC type.
+        """
+        value = None
+        if "RLC Type" in self.properties:
+            value = self.properties["RLC Type"]
+        return value
+
+    @rlc_type.setter
+    def rlc_type(self, value):
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("RLC Type can be set only if Renorm Impedance Type is 'RLC'.")
+        allowed_types = ["Serial", "Parallel"]
+        if value not in allowed_types:
+            raise ValueError(f"RLC Type must be one of {allowed_types}.")
+        self.properties["RLC Type"] = value
+
+    @property
+    def use_resistance(self) -> bool:
+        """Use resistance.
+
+        Returns
+        -------
+        bool
+            Use resistance.
+        """
+        # This property can not be disabled
+        value = None
+        if "Use Resistance" in self.properties:
+            value = self.properties["Use Resistance"]
+        return value
+
+    @property
+    def resistance(self) -> Quantity:
+        """Resistance value.
+
+        Returns
+        -------
+        Quantity or None
+            Resistance value.
+        """
+        value = None
+        if self.use_resistance:
+            value = Quantity(self.properties["Resistance Value"])
+        return value
+
+    @resistance.setter
+    def resistance(self, value: Optional[Union[Quantity, float, int, str]]):
+        if self.renorm_impedance_type == "RLC":
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Resistance"))
+            if value.unit not in AEDT_UNITS["Resistance"]:
+                raise ValueError("Renorm Impedance must have resistance units.")
+            self.properties["Resistance Value"] = str(value)
+
+    @property
+    def use_inductance(self) -> bool:
+        """Use inductance.
+
+        Returns
+        -------
+        bool
+            Use inductance.
+        """
+        value = None
+        if "Use Inductance" in self.properties:
+            value = self.properties["Use Inductance"]
+        return value
+
+    @use_inductance.setter
+    def use_inductance(self, value: bool):
+        if not isinstance(value, bool):
+            raise AEDTRuntimeError("Use inductance must be a boolean.")
+        self.properties["Use Inductance"] = value
+
+    @property
+    def inductance(self) -> Quantity:
+        """Inductance value.
+
+        Returns
+        -------
+        Quantity or None
+            Inductance value.
+        """
+        value = None
+        if self.use_inductance:
+            value = Quantity(self.properties["Use Inductance"])
+        return value
+
+    @inductance.setter
+    def inductance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+        if value is None or value is False:
+            self.use_inductance = False
+        elif value is True:
+            self.use_inductance = True
+            self.properties["Inductance value"] = str("0.0nH")
+        else:
+            if not self.use_inductance:
+                self.use_inductance = True
+
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Inductance"))
+            if value.unit not in AEDT_UNITS["Inductance"]:
+                raise ValueError("Inductance must have inductance units.")
+
+            self.properties["Inductance value"] = str(value)
+
+    @property
+    def use_capacitance(self) -> bool:
+        """Use capacitance.
+
+        Returns
+        -------
+        bool
+            Use capacitance.
+        """
+        value = None
+        if "Use Capacitance" in self.properties:
+            value = self.properties["Use Capacitance"]
+        return value
+
+    @use_capacitance.setter
+    def use_capacitance(self, value: bool):
+        if not isinstance(value, bool):
+            raise AEDTRuntimeError("Use capacitance must be a boolean.")
+        self.properties["Use Capacitance"] = value
+
+    @property
+    def capacitance(self) -> Quantity:
+        """Capacitance value.
+
+        Returns
+        -------
+        Quantity or None
+            Capacitance value.
+        """
+        value = None
+        if self.use_capacitance:
+            value = Quantity(self.properties["Use Capacitance"])
+        return value
+
+    @capacitance.setter
+    def capacitance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+        if value is None or value is False:
+            self.use_capacitance = False
+        elif value is True:
+            self.use_capacitance = True
+            self.properties["Capacitance value"] = str("0.0nF")
+        else:
+            if not self.use_capacitance:
+                self.use_capacitance = True
+
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Capacitance"))
+            if value.unit not in AEDT_UNITS["Capacitance"]:
+                raise ValueError("Capacitance must have inductance units.")
+
+            self.properties["Capacitance value"] = str(value)

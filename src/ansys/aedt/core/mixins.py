@@ -26,7 +26,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortCommon, WavePortModal, WavePortTerminal
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortModal, WavePortTerminal, Terminal
 
 
 class CreateBoundaryMixin:
@@ -70,7 +70,7 @@ class CreateBoundaryMixin:
 
         """
         try:
-            bound = WavePortTerminal(self, name, props)
+            bound = BoundaryObject(self, name, props, boundary_type)
             if not bound.create():
                 raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
@@ -79,3 +79,22 @@ class CreateBoundaryMixin:
             return bound
         except GrpcApiError as e:
             raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
+
+    @pyaedt_function_handler
+    def _create_wave_port_boundary(self, name: str, props) -> WavePortModal | WavePortTerminal | Terminal:
+        try:
+            if "NumModes" in props:
+                if props["NumModes"] == 0:
+                    bound = WavePortTerminal(self, name, props)
+                else:
+                    bound = WavePortModal(self, name, props)
+            else:
+                bound = Terminal(self, name, props)
+            if not bound.create():
+                raise AEDTRuntimeError(f"Failed to create Wave Port Boundary {name}")
+
+            self._boundaries[bound.name] = bound
+            self.logger.info(f"Wave Port Boundary {name} has been created.")
+            return bound
+        except GrpcApiError as e:
+            raise AEDTRuntimeError(f"Failed to create Wave Port Boundary {name}") from e

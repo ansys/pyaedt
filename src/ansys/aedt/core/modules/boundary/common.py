@@ -529,6 +529,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignLumpedPort(self._get_args())
         elif bound_type == "Wave Port":
             self._app.oboundary.AssignWavePort(self._get_args())
+        elif bound_type == "Terminal":
+            self._app.oboundary.AssignTerminal(self._get_args())
         elif bound_type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif bound_type == "AutoIdentify":
