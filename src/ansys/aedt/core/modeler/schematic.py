@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
@@ -150,7 +151,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -171,9 +172,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
         for pstart, pend in zip(pin_starting, pin_ending):
             try:
                 start[pstart].connect_to_component(end[pend], use_wire=use_wire)
-            except Exception:
-                self.logger.error(f"Failed to connect pin {pstart} with {pend}")
-                return False
+            except Exception:  # pragma: no cover
+                raise AEDTRuntimeError(f"Failed to connect pin {pstart} with {pend}")
         return True
 
     @pyaedt_function_handler()
@@ -285,7 +285,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
             "Y:=",
             y_origin,
             "Size:=",
-            12,
+            text_size,
             "Angle:=",
             0,
             "Text:=",
@@ -345,8 +345,8 @@ class ModelerCircuit(Modeler, PyAedtBase):
                 self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
                 self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
             return text_out
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to create text: {e}") from e
 
     @pyaedt_function_handler()
     def change_text_property(self, assignment: str, name: str, value) -> bool:
@@ -373,12 +373,10 @@ class ModelerCircuit(Modeler, PyAedtBase):
         """
         graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
         if assignment not in graphics_id:
-            self.logger.error("Invalid id.")
-            return False
+            raise ValueError(f"Invalid id '{assignment}'.")
         if isinstance(value, list) and len(value) == 3:
             if not isinstance(value[0], int) or not isinstance(value[1], int) or not isinstance(value[2], int):
-                self.logger.error("Invalid RGB values for color")
-                return False
+                raise ValueError("Invalid RGB values for color. All values must be integers.")
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -436,8 +434,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
                 ]
             )
         else:
-            self.logger.error("Wrong Property Value")
-            return False
+            raise ValueError(f"Wrong property value for '{name}'.")
         self.logger.debug(f"Property {name} Changed correctly.")
         return True
 
@@ -563,7 +560,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             self._page_names = []
             self._pages = 0
             return True
-        return False
+        raise ValueError(f"Page '{page}' not found in the schematic.")
 
     @property
     def edb(self) -> "Edb":
@@ -631,12 +628,10 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         """
         # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
         if is_linux and self._app.desktop_class.non_graphical:
-            self.logger.error("Move is not supported in non-graphical mode on Linux.")
-            return False
+            raise AEDTRuntimeError("Move is not supported in non-graphical mode on Linux.")
         sels = self._get_components_selections(assignment)
         if not sels:
-            self.logger.error("No Component Found.")
-            return False
+            raise ValueError("No component found for the given assignment.")
         if units:
             x_location = AEDT_UNITS["Length"][units] * float(offset[0])
             y_location = AEDT_UNITS["Length"][units] * float(offset[1])
@@ -681,8 +676,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         """
         sels = self._get_components_selections(assignment)
         if not sels:
-            self.logger.error("No Component Found.")
-            return False
+            raise ValueError("No component found for the given assignment.")
 
         self.oeditor.Rotate(
             ["NAME:Selections", "Selections:=", sels],
@@ -713,15 +707,6 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
         self.logger.info("ModelerTwinBuilder class has been initialized!")
-
-    @property
-    def components(self) -> TwinBuilderComponents:
-        """
-        .. deprecated:: 0.4.13
-           Use :func:`TwinBuilder.modeler.schematic` instead.
-
-        """
-        return self._components
 
     @property
     def schematic(self) -> TwinBuilderComponents:

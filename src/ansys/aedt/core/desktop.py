@@ -60,7 +60,6 @@ from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_grpc_session_active
@@ -678,12 +677,12 @@ class Desktop(PyAedtBase):
     def __init__(
         self,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = True,
-        close_on_exit: bool | None = True,
-        student_version: bool | None = False,
+        non_graphical: bool = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool = False,
         machine: str | None = None,
-        port: int | None = 0,
+        port: int = 0,
         aedt_process_id: int | None = None,
     ) -> None:
         """Initialize desktop."""
@@ -1825,11 +1824,6 @@ class Desktop(PyAedtBase):
         return result
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="close_on_exit",
-        message="The ``close_on_exit`` argument will be removed in future versions. "
-        "Use ``close_desktop`` method to close the desktop.",
-    )
     def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
         """Release AEDT.
 
@@ -1856,13 +1850,6 @@ class Desktop(PyAedtBase):
         >>> desktop.release_desktop(close_projects=False)  # doctest: +SKIP
 
         """
-        if close_on_exit:
-            warnings.warn(
-                "The `close_on_exit` argument will be removed in future versions. "
-                "Use `close_desktop` method to close the desktop.",
-                DeprecationWarning,
-            )
-
         return self.__release_and_close_desktop(close_projects, close_on_exit)
 
     def close_desktop(self) -> bool:
@@ -2234,7 +2221,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def job_status(self) -> str:  # pragma: no cover
-        """Get job status from job monitor.Job monitor has to be opened.
+        """Get job status from job monitor. Job monitor has to be opened.
 
         Returns
         -------

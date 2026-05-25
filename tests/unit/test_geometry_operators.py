@@ -527,6 +527,8 @@ def test_wg() -> None:
     assert len(wg_calc.get_waveguide_dimensions("WR-75", "in")) == 3
     for f in range(1, 200):
         assert isinstance(wg_calc.find_waveguide(f), str)
+    with pytest.raises(ValueError):
+        wg_calc.get_waveguide_dimensions("invented", "in")
 
 
 def test_is_vector_equal() -> None:

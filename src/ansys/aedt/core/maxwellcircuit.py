@@ -31,6 +31,7 @@ from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwell
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
@@ -113,14 +114,14 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         design: str | None = None,
         version: str | None = None,
         solution_type: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
         machine: str | None = "",
-        port: int | None = 0,
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
@@ -212,7 +213,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_netlist_from_schematic(self, output_file: str | Path) -> str | bool:
+    def export_netlist_from_schematic(self, output_file: str | Path) -> str:
         """Create netlist from schematic circuit.
 
         Parameters
@@ -223,7 +224,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         Returns
         -------
         str
-            Netlist file path when successful, ``False`` when failed.
+            Netlist file path when successful.
 
         Examples
         --------
@@ -246,14 +247,13 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         >>> v.pins[0].connect_to_component(gnd.pins[0], use_wire=True)
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
         Export circuit netlist.
-        >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
+        >>> circ.export_netlist_from_schematic(output_file=r"C:\\Users\\netlist.sph")
         >>> circ.desktop_class.close_desktop()
         """
         if Path(output_file).suffix != ".sph":
-            self.logger.error("Invalid file extension. It must be ``.sph``.")
-            return False
+            raise ValueError("Invalid file extension. It must be ``.sph``.")
         try:
             self.odesign.ExportNetlist("", str(output_file))
             return output_file
-        except Exception:
-            return False
+        except Exception:  # pragma: no cover
+            raise AEDTRuntimeError("Unable to export netlist.")

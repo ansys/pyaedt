@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
 from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
@@ -296,7 +297,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         y: str = "0.0",
         z: str = "0.0",
         rotation: str = "0.0",
-    ) -> ComponentsSubCircuit3DLayout | bool:
+    ) -> ComponentsSubCircuit3DLayout:
         """Merge a design into another.
 
         Parameters
@@ -330,7 +331,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             except Exception:
                 self.logger.debug(f"Couldn't get component name from component {i}")
         if not comp_name:
-            return False
+            raise AEDTRuntimeError(f"Failed to merge design '{des_name}'. Component not found after paste.")
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
         self.components_3d[comp_name] = comp
         comp.is_3d_placement = True
@@ -654,8 +655,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.oeditor.Unite(vArg1)
             return self.cleanup_objects()
         else:
-            self.logger.error("Input list must contain at least two elements.")
-            return False
+            raise ValueError("Input list must contain at least two elements.")
 
     @pyaedt_function_handler()
     def intersect(self, assignment: str | list) -> bool:
@@ -685,8 +685,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.oeditor.Intersect(vArg1)
             return self.cleanup_objects()
         else:
-            self.logger.error("Input list must contain at least two elements.")
-            return False
+            raise ValueError("Input list must contain at least two elements.")
 
     @pyaedt_function_handler()
     def duplicate(self, assignment: str | list, count: int, vector: list) -> tuple:
@@ -772,7 +771,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -795,9 +794,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)
-        except Exception:
-            self.logger.error("Failed to enable the temperature dependence.")
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to enable the temperature dependence: {e}") from e
         else:
             self.logger.info("Assigned Objects Temperature")
             return True
@@ -1293,5 +1291,4 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.logger.info("Geometry check succeed")
             return True
         except Exception:
-            self.logger.error("Geometry check Failed.")
-            return False
+            raise AEDTRuntimeError("Geometry check Failed.")

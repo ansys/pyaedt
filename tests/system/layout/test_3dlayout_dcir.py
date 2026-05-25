@@ -43,7 +43,7 @@ def dcir_example_project(add_app_example):
 
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
+@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="AEDT bug")
 def test_dcir(dcir_example_project) -> None:
     import pandas as pd
 
@@ -52,6 +52,9 @@ def test_dcir(dcir_example_project) -> None:
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
     assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
+    with pytest.raises(ValueError):
+        dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "invented")
+
     assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
     assert dcir_example_project.post.create_report(
         dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],

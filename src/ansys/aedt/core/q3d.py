@@ -31,14 +31,12 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
-from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
@@ -132,14 +130,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
@@ -364,7 +362,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         Examples
         --------
@@ -396,8 +394,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in cg.items():
                 if key not in self.excitation_names:
-                    self.logger.error("Not existing net " + key)
-                    return False
+                    raise ValueError(f"Net '{key}' does not exist in excitation names.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -426,8 +423,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in acrl.items():
                 if key not in sources:
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -458,8 +454,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in dcrl.items():
                 if key not in sources:  # pragma: no cover
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if isinstance(vals, str):
@@ -481,13 +476,11 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             for key, vals in harmonic_loss.items():
                 if key not in sources and key not in self.get_all_sources():
-                    self.logger.error("Not existing source " + key)
-                    return False
+                    raise ValueError(f"Source '{key}' does not exist.")
 
                 source_list.append(key)
                 if not isinstance(vals, (tuple, list)):
-                    self.logger.error("Real and Imag part of current must be provided")
-                    return False
+                    raise ValueError("Real and Imag part of current must be provided as a tuple or list.")
                 else:
                     source_real_dataset_names.append(vals[0])
                     source_imag_dataset_names.append(vals[1])
@@ -597,11 +590,10 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
         """
         if Path(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
-            self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
-            return False
+            raise ValueError("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
 
         if not self.modeler._is3d:
             if problem_type is None:
@@ -611,8 +603,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 else:
                     matrix_type_array = matrix_type.split(", ")
                     if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
-                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
-                        return False
+                        raise ValueError("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
             else:
                 problem_type_array = problem_type.split(", ")
                 if [x for x in problem_type_array if x in ["CG", "RL"]]:
@@ -625,11 +616,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                         else:
                             matrix_type_array = matrix_type.split(", ")
                             if [x for x in matrix_type_array if x == "Spice"]:
-                                self.logger.error("Spice can't be a matrix type if problem type is RL.")
-                                return False
+                                raise ValueError("Spice can't be a matrix type if problem type is RL.")
                 else:
-                    self.logger.error("Invalid problem type. Possible values are CG and RL.")
-                    return False
+                    raise ValueError("Invalid problem type. Possible values are CG and RL.")
 
         else:
             if problem_type is None:
@@ -639,8 +628,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 else:
                     matrix_type_array = matrix_type.split(", ")
                     if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
-                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
-                        return False
+                        raise ValueError("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
             else:
                 problem_type_array = problem_type.split(", ")
                 if [x for x in problem_type_array if x in ["C", "AC RL", "DC RL"]]:
@@ -653,11 +641,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                         else:
                             matrix_type_array = matrix_type.split(", ")
                             if [x for x in matrix_type_array if x == "Spice"]:
-                                self.logger.error("Spice can't be a matrix type if problem type is AC RL or DC RL.")
-                                return False
+                                raise ValueError("Spice can't be a matrix type if problem type is AC RL or DC RL.")
                 else:
-                    self.logger.error("Invalid problem type. Possible values are C, AC RL, and DC RL.")
-                    return False
+                    raise ValueError("Invalid problem type. Possible values are C, AC RL, and DC RL.")
 
         if variations is None:
             nominal_values = self.available_variations.nominal_variation(dependent_params=False)
@@ -673,15 +659,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if setup is None:
             setup = self.active_setup
         elif setup != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
-            return False
+            raise ValueError(f"Setup named: '{setup}' is invalid. Provide a valid analysis setup name.")
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is invalid. Provide a valid sweep.")
-                return False
+                raise ValueError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if reduce_matrix is None:
@@ -689,26 +673,21 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         else:
             if self.matrices:
                 if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
-                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
-                    return False
+                    raise ValueError("Matrix doesn't exist. Provide an existing matrix.")
             else:  # pragma: no cover
-                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
-                return False
+                raise ValueError("List of matrix parameters is empty. Cannot export a valid matrix.")
 
         if r_unit is None:
             r_unit = "ohm"
         else:
             if not r_unit.endswith("ohm"):
-                self.logger.error("Provide a valid unit for resistor.")
-                return False
+                raise ValueError("Provide a valid unit for resistor.")
 
         if not l_unit.endswith("H"):
-            self.logger.error("Provide a valid unit for inductor.")
-            return False
+            raise ValueError("Provide a valid unit for inductor.")
 
         if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-            self.logger.error("Provide a valid unit for capacitance.")
-            return False
+            raise ValueError("Provide a valid unit for capacitance.")
 
         if g_unit is None:
             g_unit = "mho"
@@ -726,8 +705,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 "perohm",
                 "apV",
             ]:
-                self.logger.error("Provide a valid unit for conductance.")
-                return False
+                raise ValueError("Provide a valid unit for conductance.")
 
         if freq is None:
             freq = (
@@ -746,15 +724,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             precision = 15
         else:
             if not isinstance(precision, int):
-                self.logger.error("Precision type must be integer.")
-                return False
+                raise ValueError("Precision type must be integer.")
 
         if field_width is None:
             field_width = 20
         else:
             if not isinstance(field_width, int):
-                self.logger.error("Field width type must be integer.")
-                return False
+                raise ValueError("Field width type must be integer.")
 
         if use_sci_notation is None:
             use_sci_notation = 1
@@ -766,8 +742,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
         if not self.modeler._is3d:
             if length_setting not in ["Distributed", "Lumped"]:
-                self.logger.error("Length setting is invalid.")
-                return False
+                raise ValueError("Length setting is invalid.")
             if length is None:
                 length = "1meter"
             else:
@@ -791,8 +766,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     "uin",
                     "yd",
                 ]:
-                    self.logger.error("Unit length is invalid.")
-                    return False
+                    raise ValueError("Unit length is invalid.")
             try:
                 self.odesign.ExportMatrixData(
                     str(file_name),
@@ -814,9 +788,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     use_sci_notation,
                 )
                 return True
-            except Exception:  # pragma: no cover
-                self.logger.error("Export of matrix data was unsuccessful.")
-                return False
+            except Exception as e:  # pragma: no cover
+                raise AEDTRuntimeError(f"Export of matrix data was unsuccessful: {e}") from e
         else:
             try:
                 self.odesign.ExportMatrixData(
@@ -838,9 +811,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     use_sci_notation,
                 )
                 return True
-            except Exception:  # pragma: no cover
-                self.logger.error("Export of matrix data was unsuccessful.")
-                return False
+            except Exception as e:  # pragma: no cover
+                raise AEDTRuntimeError(f"Export of matrix data was unsuccessful: {e}") from e
 
     @pyaedt_function_handler()
     def export_equivalent_circuit(
@@ -1402,14 +1374,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         self.is3d = True
         QExtractor.__init__(
@@ -1799,7 +1771,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def source(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -1837,7 +1809,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def sink(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -2006,7 +1978,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_thin_conductor(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         material: str | None = "copper",
         thickness: float | str | int | None = 1,
         name: str | None = "",
@@ -2569,14 +2541,14 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         self.is3d = False
         QExtractor.__init__(
@@ -2601,7 +2573,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> Object3d:
+    def create_rectangle(
+        self, origin: list, sizes: list, name: str | None = "", material: str | None = ""
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -2767,18 +2741,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
-    def export_w_elements(self, analyze: bool = False, export_folder: str | Path | None = None) -> list:
+    def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
 
         Parameters
         ----------
-        analyze : bool, optional
-            Whether to analyze before export. Solutions must be present for the design.
-            The default is ``False``.
         export_folder : str or :class:`pathlib.Path`, optional
             Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
@@ -2793,8 +2760,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             export_folder = self.working_directory
         if not Path(export_folder).exists():
             Path(export_folder).mkdir()
-        if analyze:
-            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:

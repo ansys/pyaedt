@@ -971,10 +971,12 @@ def test_objects_segmentation(m3d_app) -> None:
         / segmentation_thickness
     )
     assert len(sheets[0][cylinder.name]) == segments_number - 1
-    assert not m3d_app.modeler.objects_segmentation(cylinder.name)
-    assert not m3d_app.modeler.objects_segmentation(
-        cylinder.name, segmentation_thickness=segmentation_thickness, segments=segments_number
-    )
+    with pytest.raises(ValueError):
+        m3d_app.modeler.objects_segmentation(cylinder.name)
+    with pytest.raises(ValueError):
+        m3d_app.modeler.objects_segmentation(
+            cylinder.name, segmentation_thickness=segmentation_thickness, segments=segments_number
+        )
 
     cylinder = m3d_app.modeler.create_cylinder(Axis.Z, [3, 0, 0], 5, 10, 0, "cyl")
     segments_number = 10

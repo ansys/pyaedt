@@ -324,7 +324,7 @@ class StandardWaveguide(PyAedtBase):
         return self.wg.keys()
 
     @pyaedt_function_handler()
-    def get_waveguide_dimensions(self, name: str, units: str = "mm") -> list | bool:
+    def get_waveguide_dimensions(self, name: str, units: str = "mm") -> list:
         """Strip line calculator.
 
         Parameters
@@ -345,7 +345,7 @@ class StandardWaveguide(PyAedtBase):
                 wg_dim.append(constants.unit_converter(dbl, "Length", "in", units))
             return wg_dim
         else:
-            return False
+            raise ValueError("Waveguide dimension not found.")
 
     @pyaedt_function_handler()
     def find_waveguide(self, freq: float, units: str = "GHz") -> str | None:  # pragma: no cover

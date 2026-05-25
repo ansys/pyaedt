@@ -38,7 +38,6 @@ import math
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -161,7 +160,7 @@ class Object3d(PyAedtBase):
             vArg1 = ["NAME:Model", "Value:=", False]
             self._primitives._change_geometry_property(vArg1, objs_to_unmodel)
         modeled = True
-        if not self.model:
+        if not self.is_model:
             vArg1 = ["NAME:Model", "Value:=", True]
             self._primitives._change_geometry_property(vArg1, self.name)
             modeled = False
@@ -837,7 +836,7 @@ class Object3d(PyAedtBase):
         """
         if self._surface_material is not None:
             return self._surface_material
-        if "Surface Material" in self.valid_properties and self.model:
+        if "Surface Material" in self.valid_properties and self.is_model:
             self._surface_material = self._oeditor.GetPropertyValue(
                 "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
@@ -939,7 +938,7 @@ class Object3d(PyAedtBase):
         """
         if self._material_name is not None:
             return self._material_name
-        if "Material" in self.valid_properties and self.model:
+        if "Material" in self.valid_properties and self.is_model:
             mat = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
@@ -956,8 +955,8 @@ class Object3d(PyAedtBase):
         elif "[" in mat or "(" in mat:
             mat_value = mat
         if mat_value is not None:
-            if not self.model:
-                self.model = True
+            if not self.is_model:
+                self.is_model = True
             vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
             self._material_name = mat_value.strip('"')
@@ -968,8 +967,8 @@ class Object3d(PyAedtBase):
     @surface_material_name.setter
     def surface_material_name(self, mat: str) -> None:
         try:
-            if not self.model:
-                self.model = True
+            if not self.is_model:
+                self.is_model = True
             self._surface_material = mat
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
@@ -1026,25 +1025,6 @@ class Object3d(PyAedtBase):
         return self._object_type
 
     @property
-    def is3d(self) -> bool:
-        """Check if the object is a 3D solid object.
-
-        This method determines whether the current object represents a
-        three-dimensional solid geometry by checking its object type.
-
-        .. deprecated::
-           Use :func:`is_3d` property instead.
-
-        Returns
-        -------
-        bool
-            ``True`` if the object is a 3D solid, ``False`` otherwise.
-        """
-        warnings.warn("`is3d` is deprecated. Use `is_3d` property instead.", DeprecationWarning)
-        res = self.is_3d
-        return res
-
-    @property
     def is_3d(self) -> bool:
         """Check if the object is a 3D solid object.
 
@@ -1074,7 +1054,7 @@ class Object3d(PyAedtBase):
         >>> oEditor.GetObjectVolume
 
         """
-        if self.model and self.material_name:
+        if self.is_model and self.material_name:
             volume = self._primitives.oeditor.GetObjectVolume(self._m_name)
             units = self.object_units
             mass_density = (
@@ -1311,7 +1291,7 @@ class Object3d(PyAedtBase):
         """
         if self._solve_inside is not None:
             return self._solve_inside
-        if "Solve Inside" in self.valid_properties and self.model:
+        if "Solve Inside" in self.valid_properties and self.is_model:
             solveinside = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Solve Inside")
             if solveinside == "false" or solveinside == "False":
                 self._solve_inside = False
@@ -1322,8 +1302,8 @@ class Object3d(PyAedtBase):
 
     @solve_inside.setter
     def solve_inside(self, S: bool) -> None:
-        if not self.model:
-            self.model = True
+        if not self.is_model:
+            self.is_model = True
         vSolveInside = []
         # fS = self._to_boolean(S)
         fs = S
@@ -1422,7 +1402,7 @@ class Object3d(PyAedtBase):
             return False
 
     @property
-    def is_model(self) -> bool:
+    def is_model(self) -> bool | None:
         """Part model or non-model property.
 
         Returns
@@ -1445,6 +1425,8 @@ class Object3d(PyAedtBase):
             else:
                 self._model = True
             return self._model
+        else:
+            return self._model
 
     @is_model.setter
     def is_model(self, fModel: bool) -> None:
@@ -1452,31 +1434,6 @@ class Object3d(PyAedtBase):
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
         self._model = fModel
-
-    @property
-    def model(self) -> bool:
-        """Part model or non-model property.
-
-        .. deprecated::
-           Use :func:`is_model` property instead.
-
-        Returns
-        -------
-        bool
-            ``True`` when model, ``False`` otherwise.
-
-        References
-        ----------
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        warnings.warn("`model` is deprecated. Use `is_model` property instead.", DeprecationWarning)
-        return self.is_model
-
-    @model.setter
-    def model(self, fModel: bool) -> None:
-        self.is_model = fModel
 
     @pyaedt_function_handler()
     def unite(self, assignment: list[str] | list[Object3d]) -> Object3d:

@@ -126,8 +126,8 @@ def test_create_region(aedt_app) -> None:
     assert region.object_type == "Sheet"
     assert region.solve_inside
 
-    region = aedt_app.modeler.create_region([100, 100, 100, 100, 100, 100])
-    assert not region
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_region([100, 100, 100, 100, 100, 100])
 
 
 def test_create_region_Z(axisymmetrical_app) -> None:
@@ -149,6 +149,9 @@ def test_create_region_Z(axisymmetrical_app) -> None:
     axisymmetrical_app.modeler["Region"].delete()
     assert axisymmetrical_app.modeler.create_region("10mm", False)
     axisymmetrical_app.modeler["Region"].delete()
+
+    with pytest.raises(ValueError):
+        axisymmetrical_app.modeler.create_region([100, 50, 20, 10])
 
 
 def test_assign_material_ceramic(aedt_app) -> None:

@@ -334,6 +334,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         if identify_setup(self.props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @property
@@ -374,7 +375,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points: int = 1001,
         math_formula: str = None,
         sweep: str = None,
-    ) -> "SolutionData":
+    ) -> "SolutionData" | None:
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1720,7 +1721,7 @@ class SetupCircuit(CommonSetup):
         polyline_points: int = 1001,
         math_formula: str = None,
         sweep: str = None,
-    ) -> "SolutionData":
+    ) -> "SolutionData" | None:
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1771,7 +1772,7 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData` or ``None``
             Solution Data object.
 
         References
@@ -1988,6 +1989,7 @@ class Setup3DLayout(CommonSetup):
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         if identify_setup(props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @property

@@ -265,8 +265,7 @@ class Object3DLayout(PyAedtBase):
             bool
         """
         if self.prim_type != "component":
-            self.logger.error("Clearance applies only to components.")
-            return False
+            raise ValueError("Clearance applies only to components.")
         bbox = self.bounding_box
         start_points = [bbox[0] - extra_soldermask_clearance, bbox[1] - extra_soldermask_clearance]
 

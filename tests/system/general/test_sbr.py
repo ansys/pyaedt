@@ -305,6 +305,10 @@ def test_read_hdm(aedt_sbr, test_tmp_dir):
     plotter.plot_rays(str(bounce2_path))
     assert bounce2_path.exists()
 
+    with pytest.raises(FileNotFoundError):
+        hdm_invented = test_tmp_dir / "invented.hdm"
+        aedt_sbr.parse_hdm_file(str(hdm_invented))
+
 
 def test_boundary_perfect_e(aedt_sbr) -> None:
     b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])

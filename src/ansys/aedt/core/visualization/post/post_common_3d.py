@@ -1707,10 +1707,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         for el in obj_list:
             object3d = self._app.modeler[el]
             if on_surfaces:
-                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
+                if not object3d.is_3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
                     mesh_list += [i.id for i in object3d.faces]
             else:
-                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
+                if not object3d.is_3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
                     mesh_list.append(el)
         if on_surfaces:
             plot = self.create_fieldplot_surface(mesh_list, "Mesh", setup, intrinsics)

@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -160,15 +161,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
         ic_mode: bool | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3DLayout.__init__(
             self,
@@ -219,8 +220,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_launcher: str | None = "1mm",
         reference_primitive: str | None = None,
         reference_edge_number: str | int | None = 0,
-    ) -> BoundaryObject3dLayout | bool:
-        # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
+    ) -> "BoundaryObject3dLayout":
         """Create an edge port.
 
         Parameters
@@ -249,7 +249,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port objcet port when successful, ``False`` when failed.
+            Port objcet port when successful.
 
         References
         ----------
@@ -315,10 +315,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Failed to update port information.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create edge port.")
 
     @pyaedt_function_handler()
     def create_wave_port(
@@ -328,7 +328,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_horizontal_extension: float | None = 5,
         wave_vertical_extension: float | None = 3,
         wave_launcher: str | None = "1mm",
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a single-ended wave port.
 
         Parameters
@@ -347,33 +347,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout` or bool
-            Port object when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`.
+            Port objcet port when successful.
 
         References
         ----------
+        >>> oEditor.CreateEdgePort
         """
-        port_name = self.create_edge_port(
+        port_object = self.create_edge_port(
             assignment,
             edge_number,
             wave_horizontal_extension=wave_horizontal_extension,
             wave_vertical_extension=wave_vertical_extension,
             wave_launcher=wave_launcher,
         )
-        if port_name:
-            port_name["HFSS Type"] = "Wave"
-            port_name["Horizontal Extent Factor"] = str(wave_horizontal_extension)
-            if "Vertical Extent Factor" in list(port_name.props.keys()):
-                port_name["Vertical Extent Factor"] = str(wave_vertical_extension)
-            port_name["PEC Launch Width"] = str(wave_launcher)
-            return port_name
-        else:
-            return False
+        if port_object:
+            port_object["HFSS Type"] = "Wave"
+            port_object["Horizontal Extent Factor"] = str(wave_horizontal_extension)
+            if "Vertical Extent Factor" in list(port_object.props.keys()):
+                port_object["Vertical Extent Factor"] = str(wave_vertical_extension)
+            port_object["PEC Launch Width"] = str(wave_launcher)
+            return port_object
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create wave port.")
 
     @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(
         self, assignment: list | None = None, edge_numbers: list | None = None
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a wave port.
 
         Parameters
@@ -391,7 +392,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port objcet port when successful, ``False`` when failed.
+            Port objcet port when successful.
 
         References
         ----------
@@ -423,12 +424,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 if bound:
                     self._boundaries[bound.name] = bound
                     return bound
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError("Failed to update port information.")
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Failed to create wave port.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create wave port.")
 
     @pyaedt_function_handler()
     def dissolve_component(self, component: str) -> bool:
@@ -561,7 +562,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_differential_port(
         self, via_signal: str, via_reference: float, name: str, deembed: bool | None = True
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a differential port.
 
         Parameters
@@ -578,7 +579,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port Object when successful, ``False`` when failed.
+            Port Object when successful.
 
         References
         ----------
@@ -586,8 +587,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         listp = self.port_list
         if name in self.port_list:
-            self.logger.error(f"Port already existd on via {name}.")
-            return False
+            raise ValueError(f"Port '{name}' already exists in the design.")
+
         self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
 
         listnew = self.port_list
@@ -603,15 +604,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise AEDTRuntimeError(f"Failed to update port information for '{name}'.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to create differential port '{name}'.")
 
     @pyaedt_function_handler()
     def create_coax_port(
         self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: str | None = "lower"
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a coax port.
 
         Parameters
@@ -628,7 +629,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
-            Port Object when successful, ``False`` when failed.
+            Port Object when successful.
 
         References
         ----------
@@ -636,8 +637,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         listp = self.port_list
         if via in self.port_list:
-            self.logger.error(f"Port already exists on via {via}.")
-            return False
+            raise ValueError(f"Port already exists on via '{via}'.")
+
         self.oeditor.ToggleViaPin(["NAME:elements", via])
 
         listnew = self.port_list
@@ -651,10 +652,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             if bound:
                 self._boundaries[bound.name] = bound
                 return bound
-            else:
-                return False
-        else:
-            return False
+            else:  # pragma: no cover
+                raise AEDTRuntimeError(f"Failed to update port information for via '{via}'.")
+        else:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to create coax port on via '{via}'.")
 
     @pyaedt_function_handler()
     def create_pin_port(
@@ -665,7 +666,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         rotation: float | None = 0,
         top_layer: str | None = None,
         bottom_layer: str | None = None,
-    ) -> BoundaryObject3dLayout | bool:
+    ) -> "BoundaryObject3dLayout":
         """Create a pin port.
 
         Parameters
@@ -725,8 +726,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         if bound:
             self._boundaries[bound.name] = bound
             return bound
-        else:
-            return False
+        else:  # pragma: no cover
+            raise AEDTRuntimeError("Failed to create pin port.")
 
     @pyaedt_function_handler()
     def delete_port(
@@ -1125,7 +1126,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout":
         """Create a sweep with the specified number of points.
 
         Parameters
@@ -1164,8 +1165,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
+            Sweep object if successful.
 
         References
         ----------
@@ -1200,8 +1201,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
                 sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
-                if not sweep:
-                    return False
+                if not sweep:  # pragma: no cover
+                    raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")
                 sweep.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -1213,7 +1214,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 sweep.update()
                 self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
                 return sweep
-        return False
+        raise ValueError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_linear_step_sweep(
@@ -1230,7 +1231,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: float | None = 0.5,
         interpolation_max_solutions: int | None = 250,
         use_q3d_for_dc: bool | None = False,
-    ) -> Union["SweepHFSS3DLayout", bool]:
+    ) -> "SweepHFSS3DLayout":
         """Create a sweep with the specified frequency step.
 
         Parameters
@@ -1269,8 +1270,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
+            Sweep object if successful.
 
         References
         ----------
@@ -1305,8 +1306,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
                 sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
-                if not sweep:
-                    return False
+                if not sweep:  # pragma: no cover
+                    raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")
                 sweep.change_range("LinearStep", start_frequency, stop_frequency, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -1318,7 +1319,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 sweep.update()
                 self.logger.info("Linear step sweep %s has been correctly created.", sweep_name)
                 return sweep
-        return False
+        raise ValueError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_single_point_sweep(
@@ -1329,7 +1330,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         name: str | None = None,
         save_fields: bool | None = False,
         save_rad_fields_only: bool | None = False,
-    ) -> Union["SweepHFSS", bool]:
+    ) -> "SweepHFSS":
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -1350,8 +1351,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1373,7 +1374,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             freq0 = freq
 
         if setup not in self.setup_names:
-            return False
+            raise ValueError(f"Setup '{setup}' is not found in the design.")
+
         for s in self.setups:
             if s.name == setup:
                 setupdata = s
@@ -1393,7 +1395,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                         sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
                 self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
-        return False
+        raise AEDTRuntimeError(f"Failed to add sweep '{sweep_name}' to setup '{setup}'.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def _import_cad(
@@ -1421,7 +1423,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         elif cad_format == "odb++":
             method = self.oimport_export.ImportODB
         if not method:
-            return False
+            raise ValueError(
+                f"Invalid CAD format '{cad_format}'. "
+                f"Available formats are: 'gds', 'dxf', 'gerber', 'awr', 'brd', 'ipc2581', 'odb++'."
+            )
         active_project = self.project_name
         if not aedb_path:
             aedb_path = str(Path(cad_path).with_suffix(".aedb"))
@@ -1454,8 +1459,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1479,7 +1484,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1493,8 +1498,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a DXF file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1518,7 +1523,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1532,8 +1537,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import a Gerber zip file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1555,7 +1560,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1568,9 +1573,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         input_file: str,
         output_dir: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
         control_file: str | None = None,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1580,19 +1585,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             Full path to the board file.
         output_dir : str, optional
             Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
         set_as_active : bool, optional
             Whether to set the board file as active. The default is ``True``.
         close_active_project : bool, optional
             Whether to close the active project after loading the board file.
             The default is ''False``.
-        control_file : str, optional
-            Path to the XML file with the stackup information. The default is ``None``, in
-            which case the stackup is not edited.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1606,8 +1611,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:  # pragma: no cover
         """Import an AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1629,7 +1634,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1643,8 +1648,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1666,7 +1671,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1680,8 +1685,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         input_file: str,
         output_dir: str | None = None,
         control_file: str | None = None,
-        set_as_active: bool | None = True,
-        close_active_project: bool | None = False,
+        set_as_active: bool = True,
+        close_active_project: bool = False,
     ) -> bool:
         """Import an ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1703,7 +1708,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1754,7 +1759,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful and ``False`` if failed.
+            ``True`` if successful.
 
         References
         ----------
@@ -1778,8 +1783,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         """
         if interpolation_algorithm not in ["auto", "lin", "shadH", "shadNH"]:
-            self.logger.error("Wrong Interpolation Algorithm")
-            return False
+            raise ValueError(
+                f"Invalid interpolation algorithm '{interpolation_algorithm}'. "
+                f"Available options are: 'auto', 'lin', 'shadH', 'shadNH'."
+            )
         arg = ["NAME:CoSimOptions", "Override:="]
 
         if setup_override_name:
@@ -1856,7 +1863,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1929,12 +1936,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         try:
             self.oexcitation.SetDiffPairs(arg)
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("Failed to set differential pair.")
         return True
 
     @pyaedt_function_handler()
     def get_differential_pairs(self) -> list:
-        # type: () -> list
         """Get the list defined differential pairs.
 
         Returns
@@ -1968,7 +1974,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, input_file: str | Path) -> bool:
-        # type: (str) -> bool
         """Load differential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -2003,12 +2008,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             self.oexcitation.LoadDiffPairsFromFile(str(new_file))
             new_file.unlink()
         except Exception:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("Failed to load differential pairs.")
         return True
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, output_file: str) -> bool:
-        # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
         If a file with the specified name already exists, it is overwritten.
@@ -2338,8 +2342,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 )
                 self.logger.info("Source Excitation updated with Dataset.")
                 return True
-        self.logger.error("Port not found.")
-        return False
+        raise AEDTRuntimeError("Failed to edit source from file. Port not found.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_dcir_solution_data(
@@ -2365,17 +2368,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        from ansys.aedt.core.modules.solutions.SolutionData
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+
         """
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
         if category not in all_categories:
-            return False  # pragma: no cover
+            raise ValueError(
+                f"Category '{category}' is not available for element type '{show}'. "
+                f"Available categories are: {all_categories}."
+            )
         all_quantities = self.post.available_report_quantities(
             context=show, is_siwave_dc=True, quantities_category=category
         )
-        if not all_quantities:
-            self._logger.error("No expressions found.")
-            return False
+        if not all_quantities:  # pragma: no cover
+            raise AEDTRuntimeError(f"No expressions found for category '{category}' with element type '{show}'.")
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
     @pyaedt_function_handler()
@@ -2504,7 +2510,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` is successful, ``False`` if it fails.
+            ``True`` if successful.
+
 
         >>> oEditor.SetHfssExtentsVisible
 
@@ -2517,8 +2524,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         try:
             self.oeditor.SetHfssExtentsVisible(show)
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to set extent visibility: {e}") from e
 
     @pyaedt_function_handler()
     def change_options(self, color_by_net: bool | None = True) -> bool:
@@ -2535,7 +2542,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful, ``False`` if it fails.
+            ``True`` if successful.
 
         >>> oEditor.ChangeOptions
 
@@ -2550,8 +2557,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             oeditor = self.odesign.SetActiveEditor("Layout")
             oeditor.ChangeOptions(options)
             return True
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to change options: {e}") from e
 
     @pyaedt_function_handler()
     def export_touchstone_on_completion(self, export: bool | None = True, output_dir: str | None = None) -> bool:
@@ -2595,7 +2602,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         sweep_columns: int | None = 0,
         total_columns: int | None = -1,
         real_columns: int | None = 1,
-    ) -> bool | str:
+    ) -> str:
         """Import a data table as a solution.
 
         Parameters
@@ -2624,7 +2631,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         str
-            ``True`` when successful, ``False`` when failed.
+            Name of the imported sweep when successful.
 
         References
         ----------
@@ -2637,15 +2644,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> h3d.import_table(input_file="my_file.csv")
         """
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
-        if column_separator not in ["Space", "Tab", "Comma", "Period"]:
-            self.logger.error("Invalid column separator.")
-            return False
+        if column_separator not in columns_separator_map:
+            raise ValueError(
+                f"Invalid column separator '{column_separator}'. "
+                f"Available options are: {', '.join(columns_separator_map)}."
+            )
 
         input_path = Path(input_file).resolve()
 
         if not input_path.is_file():
-            self.logger.error("File does not exist.")
-            return False
+            raise FileNotFoundError(f"Input file '{input_path}' does not exist.")
 
         existing_sweeps = self.existing_analysis_sweeps
 
@@ -2678,8 +2686,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         new_sweep = list(set(new_sweeps) - set(existing_sweeps))
 
         if not new_sweep:  # pragma: no cover
-            self.logger.error("Data not imported.")
-            return False
+            raise AEDTRuntimeError("Data not imported.")
         return new_sweep[0]
 
     @pyaedt_function_handler()
@@ -2694,7 +2701,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -2708,7 +2715,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> h3d.delete_imported_data(table_name)
         """
         if name not in self.existing_analysis_sweeps:
-            self.logger.error("Data does not exist.")
-            return False
+            raise ValueError(f"Data '{name}' does not exist in the design.")
         self.odesign.RemoveImportData(name)
         return True

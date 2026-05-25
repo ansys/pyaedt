@@ -440,6 +440,19 @@ def test_create_edge_port(aedt_app) -> None:
         data_format="Voltage",
     )
     assert aedt_app.boundaries[0].properties["Magnitude"] != "1V"
+
+
+def test_create_wave_port_from_two_conductors(aedt_app) -> None:
+    aedt_app.modeler.layers.add_layer(
+        layer="Signal", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+    aedt_app.modeler.create_line("Signal", [[0, 0], [10, 0]], lw=1, name="conductor1", net="NET1")
+    aedt_app.modeler.create_line("Signal", [[0, 2], [10, 2]], lw=1, name="conductor2", net="NET2")
+
+    port = aedt_app.create_wave_port_from_two_conductors(assignment=["conductor1", "conductor2"], edge_numbers=[0, 0])
+    assert port
+    assert port.name in aedt_app.port_list
+    assert aedt_app.delete_port(port.name)
     aedt_app.boundaries[0].properties["Boundary Type"] = "PEC"
     assert aedt_app.boundaries[0].properties["Boundary Type"] == "PEC"
     assert list(aedt_app.oboundary.GetAllBoundariesList())[0] == aedt_app.boundaries[0].name
@@ -457,6 +470,10 @@ def test_create_coaxial_port(aedt_app) -> None:
     port = aedt_app.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
     assert port.props["Radial Extent Factor"] == "0.5"
+
+    with pytest.raises(ValueError):
+        aedt_app.create_coax_port(aedt_app.port_list[0], 0.5, "Top", "Lower")
+
     aedt_app.delete_port(name=port.name, remove_geometry=False)
     assert len(aedt_app.port_list) == 0
     aedt_app.odesign.Undo()
@@ -584,6 +601,25 @@ def test_create_linear_count_sweep(aedt_app) -> None:
     )
     assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
+    with pytest.raises(AttributeError):
+        aedt_app.create_linear_count_sweep(
+            setup=setup_name,
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            num_of_freq_points=12,
+            sweep_type="Invented",
+        )
+
+    with pytest.raises(ValueError):
+        aedt_app.create_linear_count_sweep(
+            setup="invented",
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            num_of_freq_points=12,
+        )
+
 
 def test_create_linear_step_sweep(aedt_app) -> None:
     setup_name = "RF_create_linear_step"
@@ -629,8 +665,7 @@ def test_create_linear_step_sweep(aedt_app) -> None:
     assert sweep5.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
     assert sweep5.props["FreqSweepType"] == "kBroadbandFast"
 
-    # Create a linear step sweep with the incorrect sweep type.
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError):
         aedt_app.create_linear_step_sweep(
             setup=setup_name,
             unit="GHz",
@@ -638,12 +673,17 @@ def test_create_linear_step_sweep(aedt_app) -> None:
             stop_frequency=10,
             step_size=0.12,
             name="RFBoardSweep4",
-            sweep_type="Incorrect",
-            save_fields=True,
+            sweep_type="Invented",
         )
-        assert (
-            execinfo.args[0] == "Invalid value for 'sweep_type'. The value must be 'Discrete', "
-            "'Interpolating', or 'Fast'."
+
+    with pytest.raises(ValueError):
+        aedt_app.create_linear_step_sweep(
+            setup="invented",
+            unit="GHz",
+            start_frequency=1,
+            stop_frequency=10,
+            step_size=0.12,
+            name="RFBoardSweep4",
         )
 
 
@@ -667,7 +707,7 @@ def test_create_single_point_sweep(aedt_app) -> None:
     )
     assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError):
         aedt_app.create_single_point_sweep(
             setup=setup_name,
             unit="GHz",
@@ -675,7 +715,15 @@ def test_create_single_point_sweep(aedt_app) -> None:
             name="RFBoardSingle",
             save_fields=False,
         )
-        assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
+
+    with pytest.raises(ValueError):
+        aedt_app.create_single_point_sweep(
+            setup="invented",
+            unit="GHz",
+            freq=[1, 2, 3, 4],
+            name="RFBoardSingle",
+            save_fields=False,
+        )
 
 
 def test_delete_setup(aedt_app) -> None:
@@ -945,7 +993,8 @@ def test_heal(aedt_app) -> None:
 
 def test_cosim_simulation(aedt_app) -> None:
     assert aedt_app.edit_cosim_options()
-    assert not aedt_app.edit_cosim_options(interpolation_algorithm="auto1")
+    with pytest.raises(ValueError):
+        aedt_app.edit_cosim_options(interpolation_algorithm="auto1")
 
 
 def test_set_temperature_dependence(aedt_app) -> None:
@@ -1010,6 +1059,9 @@ def test_import_gerber(aedt_app, test_tmp_dir) -> None:
     assert aedt_app.modeler.polygons
     aedt_app.close_project(save=False)
     aedt_app.desktop_class.active_project(active_project)
+
+    with pytest.raises(ValueError):
+        aedt_app._import_cad(str(gerber_file), cad_format="invented")
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")

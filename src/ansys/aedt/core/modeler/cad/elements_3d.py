@@ -60,7 +60,7 @@ class ModifiablePrimitive(PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -73,11 +73,10 @@ class ModifiablePrimitive(PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
-                return False
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:FilletParameters"]
@@ -117,7 +116,7 @@ class ModifiablePrimitive(PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -130,11 +129,10 @@ class ModifiablePrimitive(PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
-                return False
+                raise AEDTRuntimeError("chamfer is possible only on Vertex in 2D Designs ")
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
@@ -182,13 +180,12 @@ class ModifiablePrimitive(PyAedtBase):
             )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
-            return False
+            raise AEDTRuntimeError("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
+
         self._object3d._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d.odesign.Undo()
-            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
-            return False
+            raise AEDTRuntimeError("Operation Failed generating Unclassified object. Check and retry")
         return True
 
 
@@ -431,13 +428,13 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0.5)]
 
     @property
-    def length(self) -> float | bool:
+    def length(self) -> float:
         """Length of the edge.
 
         Returns
         -------
-        float or bool
-            Edge length in model units when edge has two vertices, ``False`` otherwise.
+        float
+            Edge length in model units when edge has two vertices.
 
         References
         ----------
@@ -447,7 +444,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         try:
             return float(self.oeditor.GetEdgeLength(self.id))
         except Exception:
-            return False
+            raise AEDTRuntimeError(f"Failed to calculate edge length: {self.id}")
 
     @pyaedt_function_handler()
     def create_object(self, non_model: bool = False) -> "Object3d":
@@ -480,15 +477,14 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
         >>> oEditor.MoveEdges
         """
         if self._object3d.object_type == "Solid":
-            self._object3d.logger.error("Edge Movement applies only to 2D objects.")
-            return False
+            raise AEDTRuntimeError("Edge Movement applies only to 2D objects.")
         return self._object3d._primitives.move_edge(self, offset)
 
     @pyaedt_function_handler()
@@ -518,7 +514,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
                 raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
@@ -574,11 +570,11 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
-                return False
+                raise AEDTRuntimeError("chamfer is possible only on Vertex in 2D Designs ")
+
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
@@ -626,13 +622,12 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
-            return False
+            raise AEDTRuntimeError("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
+
         self._object3d._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d.odesign.Undo()
-            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
-            return False
+            raise AEDTRuntimeError("Operation Failed generating Unclassified object. Check and retry")
         return True
 
 
@@ -758,13 +753,13 @@ class FacePrimitive(PyAedtBase):
         return self._id
 
     @property
-    def center_from_aedt(self) -> list[float] | bool:
+    def center_from_aedt(self) -> list[float]:
         """Face center for a planar face in model units.
 
         Returns
         -------
-        list or bool
-            Center position in ``[x, y, z]`` coordinates for the planar face, ``False`` otherwise.
+        list
+            Center position in ``[x, y, z]`` coordinates for the planar face.
 
         References
         ----------
@@ -774,8 +769,7 @@ class FacePrimitive(PyAedtBase):
         try:
             c = self.oeditor.GetFaceCenter(self.id)
         except Exception:
-            self.logger.warning("Non-planar face does not provide a face center.")
-            return False
+            raise AEDTRuntimeError("Non-planar face does not provide a face center.")
         center = [float(i) for i in c]
         return center
 

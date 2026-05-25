@@ -564,8 +564,7 @@ class ComponentArray(PyAedtBase):
         """
         info = read_csv(input_file)
         if not info:
-            self.logger.error("Data from CSV file is not loaded.")
-            return False
+            raise AEDTRuntimeError(f"Failed to parse array information from CSV file: {input_file}")
 
         components = {}
         array_matrix = []

@@ -322,7 +322,6 @@ class Primitives2D(GeometryModeler, PyAedtBase):
             Additional keyword arguments may be passed when creating the primitive to set properties. See
             ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
-
         Returns
         -------
         ansys.aedt.core.modeler.cad.object_3d.Object3d
@@ -343,8 +342,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
         n_sides = int(num_sides)
         if n_sides < 3:
-            self.logger.error("Number of sides must be an integer >= 3.")
-            return False
+            raise ValueError("Number of sides must be an integer >= 3.")
 
         arg_1 = [
             "NAME:RegularPolygonParameters",
@@ -421,15 +419,13 @@ class Primitives2D(GeometryModeler, PyAedtBase):
             if not isinstance(pad_value, list):
                 pad_value = [pad_value] * 4
             if len(pad_value) != 4:
-                self.logger.error("Wrong padding list provided. Four values have to be provided.")
-                return False
+                raise ValueError("Wrong padding list provided. Four values have to be provided.")
             pad_value = [pad_value[0], pad_value[2], pad_value[1], pad_value[3], 0, 0]
         else:
             if not isinstance(pad_value, list):
                 pad_value = [pad_value] * 3
             if len(pad_value) != 3:
-                self.logger.error("Wrong padding list provided. Three values have to be provided for RZ geometry.")
-                return False
+                raise ValueError("Wrong padding list provided. Three values have to be provided for RZ geometry.")
             pad_value = [pad_value[0], 0, 0, 0, pad_value[1], pad_value[2]]
 
         return self._create_region(pad_value, pad_type, name, region_type="Region")

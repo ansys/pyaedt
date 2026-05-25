@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
@@ -117,7 +118,8 @@ def test_split(aedt_app) -> None:
     assert isinstance(split, list)
     assert isinstance(split[0], str)
     obj_split = [obj for obj in aedt_app.modeler.object_list if obj.name == split[1]][0]
-    assert not aedt_app.modeler.split(assignment=obj_split)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.split(assignment=obj_split)
     box4 = aedt_app.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
     poly2 = aedt_app.modeler.create_polyline(points=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc")
     split = aedt_app.modeler.split(assignment=box4, sides="Both", tool=poly2.name)
@@ -343,7 +345,8 @@ def test_create_face_list(coaxial) -> None:
     assert coaxial.modeler.create_face_list(fl, "my_face_list") == fl2
     assert coaxial.modeler.create_face_list(fl)
     assert coaxial.modeler.create_face_list([str(fl[0])])
-    assert not coaxial.modeler.create_face_list(["outer2"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_face_list(["outer2"])
 
 
 def test_create_object_list(coaxial) -> None:
@@ -362,7 +365,8 @@ def test_create_object_list(coaxial) -> None:
     assert coaxial.modeler.user_lists[-1].rename("new_list")
     assert coaxial.modeler.user_lists[-1].delete()
     assert coaxial.modeler.create_object_list(["Core", "outer"])
-    assert not coaxial.modeler.create_object_list(["Core2", "Core3"])
+    with pytest.raises(AEDTRuntimeError):
+        coaxial.modeler.create_object_list(["Core2", "Core3"])
 
 
 def test_create_outer_face_list(aedt_app) -> None:
@@ -1117,25 +1121,28 @@ def test_region_property(aedt_app) -> None:
 
 def test_region_property_failing(aedt_app) -> None:
     aedt_app.modeler.create_air_region()
-    assert not aedt_app.modeler.change_region_coordinate_system(assignment="NoCS")
-    assert not aedt_app.modeler.change_region_padding(
-        "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
-    )
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.change_region_coordinate_system(assignment="NoCS")
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_region_padding(
+            "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
+        )
     with pytest.raises(Exception, match="Check ``axes`` input."):
         aedt_app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
     with pytest.raises(Exception, match="Check ``padding_type`` input."):
         aedt_app.modeler.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
-    assert not aedt_app.modeler.change_region_padding(
-        ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
-        padding_type=[
-            "Absolute Position",
-            "Percentage Offset",
-            "Absolute Position",
-            "Absolute Position",
-            "Absolute Position",
-            "Absolute Position",
-        ],
-    )
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.change_region_padding(
+            ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
+            padding_type=[
+                "Absolute Position",
+                "Percentage Offset",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+            ],
+        )
 
 
 def test_sweep_along_normal(coaxial) -> None:
@@ -1211,12 +1218,18 @@ def test_create_conical_rings(aedt_app) -> None:
     assert isinstance(rings2, list)
     rings3 = aedt_app.modeler.create_conical_rings("Y", position, 20, 10, 20, 1)
     assert isinstance(rings3, list)
-    assert not aedt_app.modeler.create_conical_rings("Y", position, 10, 20, 20, 1)
-    assert not aedt_app.modeler.create_conical_rings("Z", position, -20, 10, 20, 1)
-    assert not aedt_app.modeler.create_conical_rings("Z", position, 20, -10, 20, 1)
-    assert not aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
-    assert not aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
-    assert not aedt_app.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Y", position, 10, 20, 20, 1)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Z", position, -20, 10, 20, 1)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Z", position, 20, -10, 20, 1)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)
 
 
 def test_get_group_bounding_box_with_non_existing_group_name(aedt_app) -> None:
@@ -1361,7 +1374,8 @@ def test_project_sheet_failure(aedt_app) -> None:
     rect = aedt_app.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
     box_0 = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation_0")
 
-    assert not aedt_app.modeler.project_sheet(rect, box_0, 5, "10deg")
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.modeler.project_sheet(rect, box_0, 5, "10deg")
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
 

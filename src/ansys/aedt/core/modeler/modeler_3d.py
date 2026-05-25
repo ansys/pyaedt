@@ -39,6 +39,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import install_message
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -179,11 +180,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
             name = self._app.design_name.replace(" ", "_")
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
-            self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
-            return False
+            raise ValueError(
+                f"Invalid password_type '{password_type}'. Must be 'UserSuppliedPassword' or 'InternalPassword'."
+            )
         if component_outline not in ["BoundingBox", "None"]:
-            self.logger.error("Component outline must be 'BoundingBox' or 'None'")
-            return False
+            raise ValueError(f"Invalid component_outline '{component_outline}'. Must be 'BoundingBox' or 'None'.")
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         if not edit_password:
@@ -397,8 +398,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                 input_path.parent.mkdir(parents=True, exist_ok=True)
                 self.logger.warning(f"Created folder '{input_path.parent}'")
             else:
-                self.logger.warning("Unable to create 3D Component: '" + input_file + "'")
-                return False
+                raise FileNotFoundError(f"Unable to create 3D Component: folder '{input_path.parent}' does not exist.")
         self.oeditor.Create3DComponent(arg, arg2, input_file, arg3)
         return True
 
@@ -649,7 +649,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,
         name: str = None,
-    ) -> tuple["Object3d", "Object3d"]:
+    ) -> tuple[Object3d, int | Object3d | list, int | Object3d | list] | None:
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
         Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
@@ -818,6 +818,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             self.model_units = original_model_units
             return wgbox, p1, p2
         else:
+            self.logger.warning("Waveguide model not available.")
             return None
 
     @pyaedt_function_handler()
@@ -879,23 +880,17 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
         """
         if bottom_radius <= top_radius:
-            self.logger.error("the ``bottom_radius`` argument must must be bigger than ``top_radius``.")
-            return False
+            raise ValueError("The 'bottom_radius' argument must be bigger than 'top_radius'.")
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The 'bottom_radius' argument must be greater than 0.")
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            self.logger.error("The ``top_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The 'top_radius' argument must be greater than 0.")
         if isinstance(cone_height, (int, float)) and cone_height <= 0:
-            self.logger.error("The ``cone_height`` argument must be greater than 0.")
-            return False
+            raise ValueError("The 'cone_height' argument must be greater than 0.")
         if isinstance(ring_height, (int, float)) and ring_height <= 0:
-            self.logger.error("The ``ring_height`` argument must be greater than 0.")
-            return False
+            raise ValueError("The 'ring_height' argument must be greater than 0.")
         if len(origin) != 3:
-            self.logger.error("The ``origin`` argument must be a valid three-element list.")
-            return False
+            raise ValueError("The 'origin' argument must be a valid three-element list.")
 
         if not name:
             name = generate_unique_name("ring_cone")
@@ -1359,7 +1354,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         segments: int = None,
         apply_mesh_sheets: bool = False,
         mesh_sheets: int = 2,
-    ) -> dict | tuple | bool:
+    ) -> dict | tuple:
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
@@ -1393,14 +1388,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
             :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` class.
             If mesh sheets are not applied the method returns only the dictionary of
             segments that the object has been divided into.
-            ``False`` is returned if the method fails.
         """
         if not segmentation_thickness and not segments:
-            self.logger.error("Provide at least one option to segment the objects in the list.")
-            return False
+            raise ValueError("Provide at least one option to segment the objects in the list.")
         elif segmentation_thickness and segments:
-            self.logger.error("Only one segmentation option can be selected.")
-            return False
+            raise ValueError("Only one segmentation option can be selected.")
 
         assignment = self.convert_to_selections(assignment, True)
 
@@ -1470,7 +1462,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful, else ``None``.
+            ``True`` if successful.
 
         Examples
         --------
@@ -1508,7 +1500,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             region = self._app.get_oo_object(self._app.oeditor, region_name)
             if not region:
                 self.logger.error(f"{region} does not exist.")
-                return False
+                raise ValueError(f"Region '{region}' does not exist.")
             create_region_name = region.GetChildNames()[0]
             self.oeditor.ChangeProperty(
                 list(
@@ -1533,11 +1525,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
 
             if validation_errors:
                 message = ",".join(validation_errors)
-                self.logger.error(f"Settings update failed. {message}")
-                return False
+                raise AEDTRuntimeError(f"Settings update failed. {message}")
             return True
-        except (GrpcApiError, SystemExit):
-            return False
+        except (GrpcApiError, SystemExit) as e:
+            raise AEDTRuntimeError(f"Failed to change region padding: {e}") from e
 
     @pyaedt_function_handler()
     def change_region_coordinate_system(self, assignment: str = "Global", name: str = "Region") -> bool:
@@ -1554,7 +1545,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` if successful, else ``None``.
+            ``True`` if successful.
 
         Examples
         --------
@@ -1566,6 +1557,11 @@ class Modeler3D(Primitives3D, PyAedtBase):
         try:
             create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]
             create_region = self._app.get_oo_object(self._app.oeditor, name + "/" + create_region_name)
-            return create_region.SetPropValue("Coordinate System", assignment)
-        except (GrpcApiError, SystemExit):
-            return False
+            set_value = create_region.SetPropValue("Coordinate System", assignment)
+            if set_value:
+                return set_value
+            else:
+                raise AEDTRuntimeError("Failed to change region coordinate system.")
+
+        except (GrpcApiError, SystemExit) as e:  # pragma: no cover
+            raise AEDTRuntimeError(f"Failed to change region coordinate system: {e}") from e

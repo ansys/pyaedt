@@ -214,15 +214,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         design: str | None = None,
         solution_type: str | None = None,
         setup: str | None = None,
-        version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        version: str | int | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
@@ -252,7 +252,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler
-    # NOTE: Extend Mixin behaviour to handle near field setups
     def _create_boundary(self, name: str, props, boundary_type) -> "NearFieldSetup | BoundaryObject":
         # No-near field cases
         if boundary_type not in (
@@ -376,7 +375,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return table_names
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation"):
+    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation") -> bool:
         """Set the HFSS auto open type.
 
         Parameters
@@ -390,7 +389,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         Examples
         --------
@@ -463,7 +462,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         iswaveport: bool = False,
         impedance: float | None = None,
         terminals_rename: bool = True,
-    ) -> NearFieldSetup:
+    ) -> BoundaryObject:
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = {}
         props["Faces"] = int(assignment)
@@ -561,7 +560,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def _create_circuit_port(
         self, assignment: str | list, impedance, name: str, renorm, deemb, renorm_impedance: str = ""
-    ) -> NearFieldSetup:
+    ) -> BoundaryObject:
         edgelist = self.modeler.convert_to_selections(assignment, True)
         props = dict(
             {
@@ -597,7 +596,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         nummodes: int = 1,
         deemb_distance: int = 0,
         characteristic_impedance: str = "Zpi",
-    ):
+    ) -> BoundaryObject:
         if not int_line_start or not int_line_stop:
             int_line_start = []
             int_line_stop = []
@@ -1656,7 +1655,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_setup(
         self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
-    ) -> "SetupHFSS" | "SetupHFSSAuto":
+    ) -> "SetupHFSS | SetupHFSSAuto":
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1738,7 +1737,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         sweep_type: str = "Discrete",
         interpolation_tol: float = 0.5,
         interpolation_max_solutions: int = 250,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a specified number of points.
 
         Parameters
@@ -1774,8 +1773,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1842,7 +1841,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 sweepdata.update()
                 self.logger.info(f"Linear count sweep {name} has been correctly created.")
                 return sweepdata
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")
 
     @pyaedt_function_handler()
     def create_linear_step_sweep(
@@ -1856,7 +1855,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a specified frequency step.
 
         Parameters
@@ -1884,8 +1883,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -1910,6 +1909,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             )
         if setup not in self.setup_names:
             raise AEDTRuntimeError(f"Unknown setup '{setup}'")
+
         if name is None:
             sweep_name = generate_unique_name("Sweep")
         else:
@@ -1927,7 +1927,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     save_rad_fields=save_rad_fields,
                     sweep_type=sweep_type,
                 )
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def create_single_point_sweep(
@@ -1939,7 +1939,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
-    ) -> "SweepHFSS" | bool:
+    ) -> "SweepHFSS":
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -1964,8 +1964,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
-            Sweep object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
+            Sweep object if successful.
 
         References
         ----------
@@ -2019,7 +2019,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     save_fields=save_fields,
                     save_rad_fields=save_rad_fields,
                 )
-        return False
+        raise AEDTRuntimeError(f"Setup '{setup}' is not found in the design.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def _create_native_component(
@@ -5761,7 +5761,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -5804,7 +5804,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if len(self.oboundary.GetDiffPairs()) == num_old_pairs + 1:
             return True
         else:
-            return False
+            raise AEDTRuntimeError("Failed to create differential pair.")
 
     @pyaedt_function_handler()
     def create_3d_component_array(
@@ -5881,7 +5881,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         link_to_hfss: bool | None = True,
         export_touchstone: bool | None = True,
         set_phase_center_per_port: bool | None = True,
-    ) -> "FfdSolutionDataExporter | FfdSolutionData | bool":
+    ) -> "FfdSolutionDataExporter | FfdSolutionData":
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the ``FfdSolutionDataExporter`` object.
 
@@ -5916,7 +5916,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionDataExporter` or
-        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` or bool
+        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData`
             SolutionData object or False if frequencies could not be obtained.
 
         Examples
@@ -5978,8 +5978,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 frequencies = frequencies.tolist()
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
-            self.logger.info("Frequencies could not be obtained.")
-            return False
+            raise AEDTRuntimeError("Frequencies could not be obtained.")
         frequencies = [
             self.value_with_units(i, self.units.frequency, "Freq") if not isinstance(i, Quantity) else str(i)
             for i in frequencies
@@ -6001,7 +6000,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         elif metadata_file:
             return FfdSolutionData(input_file=metadata_file)
 
-        raise AEDTRuntimeError("Farfield solution data could not be exported.")
+        raise AEDTRuntimeError("Farfield solution data could not be exported.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_rcs_data(
@@ -6010,10 +6009,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         setup: str | None = None,
         expression: str | None = "ComplexMonostaticRCSTheta",
         variations: dict | None = None,
-        overwrite: bool | None = True,
-        link_to_hfss: bool | None = True,
+        overwrite: bool = True,
+        link_to_hfss: bool = True,
         variation_name: str | None = None,
-    ) -> "MonostaticRCSExporter | Path | bool":
+    ) -> "MonostaticRCSExporter | Path":
         """Export monostatic radar cross-section (RCS) data from HFSS.
 
         This method exports RCS simulation data into a standardized metadata format
@@ -6059,10 +6058,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path or bool
+        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path
             - If ``link_to_hfss=True``: Returns a ``MonostaticRCSExporter`` object.
             - If ``link_to_hfss=False``: Returns a ``Path`` object pointing to the metadata file.
-            - Returns ``False`` if frequencies cannot be obtained.
 
         Examples
         --------
@@ -6125,8 +6123,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
         if len(frequencies) == 0:  # pragma: no cover
-            self.logger.info("Frequencies could not be obtained.")
-            return False
+            raise AEDTRuntimeError("Frequencies could not be obtained.")
 
         frequencies = list(frequencies)
 
@@ -6148,7 +6145,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         elif metadata:
             return metadata
 
-        raise AEDTRuntimeError("Farfield solution data could not be exported.")
+        raise AEDTRuntimeError("Farfield solution data could not be exported.")  # pragma: no cover
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold: float | None = 100000) -> bool:
@@ -6257,7 +6254,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_phase_center_per_port(self, coordinate_system: list = None) -> bool:
-        # type: (list) -> bool
         """Set phase center per port.
 
         Parameters
@@ -6269,7 +6265,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -6288,14 +6284,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         port_names = self.ports[::]
 
         if not port_names:  # pragma: no cover
-            return False
+            raise AEDTRuntimeError("No ports found in the design.")
 
         if not coordinate_system:
             coordinate_system = ["<-Port Location->"] * len(port_names)
         elif not isinstance(coordinate_system, list):
-            return False
+            raise TypeError("The 'coordinate_system' argument must be a list.")
         elif len(coordinate_system) != len(port_names):
-            return False
+            raise ValueError(
+                f"Length of 'coordinate_system' ({len(coordinate_system)}) "
+                f"must match the number of ports ({len(port_names)})."
+            )
 
         cont = 0
         arg = []
@@ -6305,12 +6304,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         try:
             self.oboundary.SetPhaseCenterPerPort(arg)
-        except Exception:
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to set phase center per port: {e}") from e
         return True
 
     @pyaedt_function_handler()
-    def parse_hdm_file(self, file_name: str | Path) -> Parser | bool:
+    def parse_hdm_file(self, file_name: str | Path) -> Parser:
         """Parse an HFSS SBR+ or Creeping Waves ``hdm`` file.
 
         Parameters
@@ -6320,11 +6319,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.hdm_parser.Parser` or bool
+        :class:`ansys.aedt.core.modules.hdm_parser.Parser`
+
         """
         if Path(file_name).exists():
             return Parser(str(file_name)).parse_message()
-        return False
+        raise FileNotFoundError(f"HDM file '{file_name}' does not exist.")
 
     @pyaedt_function_handler()
     def get_hdm_plotter(self, file_name: str | None = None) -> "HDMPlotter":
@@ -7638,11 +7638,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     ) -> bool:
         """Import a data table.
 
-            The table can have multiple independent real-valued columns of data,
-            and multiple dependent real- or complex-valued columns of data.
-            The data supported is comma-delimited format (.csv).
-            The first row may contain column names. Complex data columns are inferred from the column data format.
-            In comma-delimited format, "(double, double)" denotes a complex number.
+        The table can have multiple independent real-valued columns of data,
+        and multiple dependent real- or complex-valued columns of data.
+        The data supported is comma-delimited format (.csv).
+        The first row may contain column names. Complex data columns are inferred from the column data format.
+        In comma-delimited format, "(double, double)" denotes a complex number.
 
         Parameters
         ----------
@@ -7931,7 +7931,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             theta_set = set()
             for var in active_variations:
-                th = var[theta_name]
+                th = float(var[theta_name])
                 theta_set.add(th)
                 var_index[(th, None)] = var
 
@@ -7948,17 +7948,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             phi_units = r_te.units_sweeps[phi_name]
             new_phi = None
             for var in r_te.variations:
-                theta = var[theta_name]
-                phi = var[phi_name]
+                theta = float(var[theta_name])
+                phi = float(var[phi_name])
 
                 phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
                 z = np.exp(1j * phi_plus_180)
-                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6)
+                new_phi = float(np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6))
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
                     var_index[(abs(theta), new_phi)] = var
-                    theta_fp_round = np.round(abs(theta), 6)
+                    theta_fp_round = float(np.round(abs(theta), 6))
 
                     key = f"{new_phi}{phi_units}"
                     if theta_fp_round not in angles.setdefault(key, []):

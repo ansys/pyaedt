@@ -600,6 +600,9 @@ def test_netlist_data_block(aedt_app, test_tmp_dir) -> None:
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert aedt_app.analyze()
 
+    with pytest.raises(FileNotFoundError):
+        aedt_app.add_netlist_datablock(test_tmp_dir / "invented.net")
+
 
 def test_create_voltage_probe(aedt_app) -> None:
     myprobe = aedt_app.modeler.schematic.create_voltage_probe(name="voltage_probe")
@@ -784,6 +787,12 @@ def test_assign_sources(aedt_app, test_tmp_dir) -> None:
     c.sources["freq_pyaedt"].delete()
     assert len(c.source_objects) == 5
 
+    with pytest.raises(ValueError):
+        c.create_source(source_type="PowerSin", name=c.source_names[0])
+
+    with pytest.raises(ValueError):
+        c.create_source(source_type="Invented")
+
 
 def test_assign_excitations(aedt_app) -> None:
     c = aedt_app
@@ -912,7 +921,6 @@ def test_create_and_change_prop_text(aedt_app) -> None:
     assert aedt_app.modeler.create_text("text test", "1000mil", "-2000mil")
 
 
-@pytest.mark.skipif(NON_GRAPHICAL, reason="Change property doesn't work in non-graphical mode.")
 @pytest.mark.skipif(is_linux and DESKTOP_VERSION == "2024.1", reason="Schematic has to be closed.")
 def test_change_text_property(aedt_app) -> None:
     _ = aedt_app.modeler.create_text("text test")
@@ -920,11 +928,14 @@ def test_change_text_property(aedt_app) -> None:
     assert aedt_app.modeler.change_text_property(text_id, "Font", "Calibri")
     assert aedt_app.modeler.change_text_property(text_id, "DisplayRectangle", True)
     assert aedt_app.modeler.change_text_property(text_id, "Color", [255, 120, 0])
-    assert not aedt_app.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
     assert aedt_app.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
     assert aedt_app.modeler.change_text_property(text_id, "Location", [5000, 2000])
-    assert not aedt_app.modeler.change_text_property(1, "Color", [255, 120, 0])
-    assert not aedt_app.modeler.change_text_property(text_id, "Invalid", {})
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(1, "Color", [255, 120, 0])
+    with pytest.raises(ValueError):
+        aedt_app.modeler.change_text_property(text_id, "Invalid", {})
 
 
 # TODO: enable test when 'cutout_multizone_layout' method is fixed.
@@ -988,12 +999,10 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
         auto_assign_diff_pairs=True,
         separation=".",
         pattern=["component", "pin", "net"],
-        analyze=False,
     )
     assert status
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method is not working in Linux and non-graphical mode.")
 def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
     result = aedt_app.create_tdr_schematic_from_snp(
@@ -1030,7 +1039,6 @@ def test_automatic_tdr(aedt_app, test_tmp_dir) -> None:
     assert isinstance(result, list)
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
 
@@ -1054,7 +1062,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result
@@ -1073,13 +1080,11 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI_Differential",
     )
     assert result
 
 
-@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
     ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "ansys_ddr4.ibs"
@@ -1096,10 +1101,22 @@ def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result
+
+
+def test_automatic_ibis_no_component_raises(aedt_app) -> None:
+    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "ansys_ddr4.ibs"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_ibis_schematic_from_pins(
+            ibis_tx_file=str(ibis_file_o),
+            tx_buffer_name="ansys_ddr4_odt34",
+            rx_buffer_name="ansys_ddr4_odt40",
+            tx_schematic_pins=["fake_pin"],
+            rx_schematic_pins=["fake_pin"],
+            differential=False,
+        )
 
 
 def test_enforce_touchstone_passive(aedt_app, test_tmp_dir) -> None:
@@ -1129,7 +1146,8 @@ def test_change_symbol_pin_location(aedt_app, test_tmp_dir) -> None:
     }
     assert ts_component.change_symbol_pin_locations(pin_locations)
     pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
-    assert not ts_component.change_symbol_pin_locations(pin_locations)
+    with pytest.raises(ValueError):
+        ts_component.change_symbol_pin_locations(pin_locations)
 
 
 def test_import_asc(aedt_app, test_tmp_dir) -> None:
@@ -1150,13 +1168,17 @@ def test_import_table(aedt_app) -> None:
     file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
-    assert not aedt_app.import_table(file_header, column_separator="dummy")
-    assert not aedt_app.import_table(file_invented)
+    with pytest.raises(ValueError):
+        aedt_app.import_table(file_header, column_separator="dummy")
+
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_table(file_invented)
 
     table = aedt_app.import_table(file_header)
     assert table in aedt_app.existing_analysis_sweeps
 
-    assert not aedt_app.delete_imported_data("invented")
+    with pytest.raises(ValueError):
+        aedt_app.delete_imported_data("invented")
 
     assert aedt_app.delete_imported_data(table)
     assert table not in aedt_app.existing_analysis_sweeps

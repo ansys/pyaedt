@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -79,6 +80,10 @@ def test_get_components(aedt_app) -> None:
     assert comp["L10"].part_type == "Inductor"
     assert comp["L10"].set_property_value("Angle", "0deg")
     assert comp["L10"].create_clearance_on_component(1e-6)
+    # Test that clearance raises on non-component primitives
+    line = aedt_app.modeler.geometries["line_209"]
+    with pytest.raises(ValueError):
+        line.create_clearance_on_component()
     assert comp["L10"].absolute_angle == 0.0
     comp["L10"].enabled = False
     assert not comp["L10"].enabled
@@ -390,6 +395,9 @@ def test_differential_ports(aedt_app) -> None:
     assert aedt_app.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
     assert "test_differential" in aedt_app.port_list
 
+    with pytest.raises(ValueError):
+        aedt_app.create_differential_port(pins[0], pins[1], name=aedt_app.port_list[0])
+
 
 def test_ports_on_components_nets(aedt_app) -> None:
     component = aedt_app.modeler.components["J1"]
@@ -420,13 +428,15 @@ def test_set_variable(aedt_app) -> None:
 def test_change_options(aedt_app) -> None:
     assert aedt_app.change_options()
     assert aedt_app.change_options(color_by_net=False)
-    assert not aedt_app.change_options(color_by_net=None)
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.change_options(color_by_net=None)
 
 
 def test_show_extent(aedt_app) -> None:
     assert aedt_app.show_extent()
     assert aedt_app.show_extent(show=False)
-    assert not aedt_app.show_extent(show=None)
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.show_extent(show=None)
 
 
 def test_change_design_settings(aedt_app) -> None:
@@ -487,13 +497,17 @@ def test_import_table(aedt_app) -> None:
     file_header = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
-    assert not aedt_app.import_table(file_header, column_separator="dummy")
-    assert not aedt_app.import_table(file_invented)
+    with pytest.raises(FileNotFoundError):
+        aedt_app.import_table(file_invented)
+
+    with pytest.raises(ValueError):
+        aedt_app.import_table(file_header, column_separator="dummy")
 
     table = aedt_app.import_table(file_header)
     assert table in aedt_app.existing_analysis_sweeps
 
-    assert not aedt_app.delete_imported_data("invented")
+    with pytest.raises(ValueError):
+        aedt_app.delete_imported_data("invented")
 
     assert aedt_app.delete_imported_data(table)
     assert table not in aedt_app.existing_analysis_sweeps

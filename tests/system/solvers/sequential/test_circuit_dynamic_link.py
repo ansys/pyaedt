@@ -99,6 +99,9 @@ def test_pin_names(usb_app, add_app):
     assert len(pin_names) == 4
     assert "usb_P_pcb" in pin_names
 
+    with pytest.raises(ValueError):
+        app.get_source_pin_names(SRC_USB, SRC_PROJECT_NAME, port_selector=4)
+
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
 def test_add_subcircuits_3dlayout(circuit_app):
@@ -139,15 +142,22 @@ def test_assign_excitations(add_app):
     app.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
-    assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source1.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
-    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    with pytest.raises(FileNotFoundError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+    filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
+    ports_list = ["Excitation_1", "Excitation_2"]
+    with pytest.raises(ValueError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_3"]
-    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+    with pytest.raises(ValueError):
+        app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
     ports_list = ["Excitation_1"]
     assert app.assign_voltage_sinusoidal_excitation_to_ports(ports_list)

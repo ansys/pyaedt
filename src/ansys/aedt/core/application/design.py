@@ -1405,7 +1405,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name: str = None) -> Profiles:
+    def get_profile(self, name: str = None) -> Profiles | None:
         """Get profile information.
 
         Parameters
@@ -1457,7 +1457,7 @@ class Design(AedtObjects, PyAedtBase):
                 return None
         else:  # pragma: no cover
             self.logger.error("Profile can not be obtained.")
-            return False
+            return None
 
     @pyaedt_function_handler()
     def get_oo_name(self, aedt_object: object, object_name: str = None) -> list[str]:
@@ -2583,9 +2583,6 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def release_desktop(self, close_projects: bool = True, close_desktop: bool = True) -> bool:
         """Release AEDT.
-
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
 
         Parameters
         ----------

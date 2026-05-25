@@ -131,14 +131,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
@@ -678,8 +678,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             if self.setups:
                 setup = self.setups[0].name
             else:
-                self.logger.error("Setup is not defined.")
-                return False
+                raise ValueError("No setup is defined in the design.")
 
         self.oanalysis.AddTwoWayCoupling(
             setup,

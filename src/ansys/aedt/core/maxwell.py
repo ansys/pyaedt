@@ -1331,7 +1331,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         parallel_branches: int | None = 1,
         phase: float | None = 0,
         name: str | None = None,
-    ) -> BoundaryObject | bool:
+    ) -> BoundaryObject:
         """Assign a winding to a Maxwell design.
 
         Parameters
@@ -1365,7 +1365,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
-            ``False`` when failed.
 
         References
         ----------
@@ -1411,7 +1410,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             if coil_names:
                 self.add_winding_coils(bound.name, coil_names)
             return bound
-        return False
+        raise AEDTRuntimeError("Assigning winding failed.")
 
     @pyaedt_function_handler()
     def add_winding_coils(self, assignment: str, coils: list) -> bool:
@@ -2823,14 +2822,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         """Initialize the ``Maxwell`` class."""
         self.is3d = True
@@ -3019,7 +3018,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -3070,9 +3069,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             boundary = self._create_boundary(bound_name, props, bound_type)
             if boundary:
                 return True
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Current density terminal could not be assigned.")
+
         except GrpcApiError as e:
             raise AEDTRuntimeError("Current density terminal could not be assigned.") from e
-        return False
 
     @pyaedt_function_handler()
     def get_conduction_paths(self) -> dict:
@@ -3120,7 +3121,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         reverse_slave: bool | None = False,
         same_as_master: bool | None = True,
         bound_name: str | None = None,
-    ) -> tuple[BoundaryObject, BoundaryObject] | bool:
+    ) -> tuple[BoundaryObject, BoundaryObject]:
         """Assign dependent and independent boundary conditions to two faces of the same object.
 
         Parameters
@@ -3151,7 +3152,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Master and slave objects. If the method fails to execute it returns ``False``.
+            Master and slave objects.
 
         References
         ----------
@@ -3226,9 +3227,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
                 slave = self._create_boundary(bound_name_s, slave_props, "Dependent")
                 if slave:
                     return master, slave
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError("Slave boundary could not be created.")
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Master boundary could not be created.")
         except GrpcApiError as e:
             raise AEDTRuntimeError("Slave boundary could not be created.") from e
-        return False
 
     @pyaedt_function_handler()
     def assign_flux_tangential(self, assignment: list, flux_name: str | None = None) -> BoundaryObject | bool:
@@ -3891,14 +3895,14 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         solution_type: str | None = None,
         setup: str | None = None,
         version: str | None = None,
-        non_graphical: bool | None = False,
-        new_desktop: bool | None = False,
-        close_on_exit: bool | None = False,
-        student_version: bool | None = False,
-        machine: str | None = "",
-        port: int | None = 0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id: int | None = None,
-        remove_lock: bool | None = False,
+        remove_lock: bool = False,
     ) -> None:
         self.is3d = False
         FieldAnalysis3D.__init__(
@@ -4118,7 +4122,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         reverse_slave: bool | None = False,
         same_as_master: bool | None = True,
         boundary: str | None = None,
-    ) -> tuple[BoundaryObject, BoundaryObject] | bool:
+    ) -> tuple[BoundaryObject, BoundaryObject]:
         """Assign dependent and independent boundary conditions to two edges of the same object.
 
         Parameters
@@ -4141,7 +4145,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Master and slave objects. If the method fails to execute it returns ``False``.
+            Master and slave objects..
 
         References
         ----------
@@ -4184,9 +4188,12 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
                 slave = self._create_boundary(bound_name_s, slave_props, "Dependent")
                 if slave:
                     return master, slave
+                else:  # pragma: no cover
+                    raise AEDTRuntimeError("Slave boundary could not be created.")
+            else:  # pragma: no cover
+                raise AEDTRuntimeError("Master boundary could not be created.")
         except GrpcApiError as e:
             raise AEDTRuntimeError("Slave boundary could not be created.") from e
-        return False
 
     @pyaedt_function_handler()
     def assign_end_connection(

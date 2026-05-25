@@ -157,6 +157,7 @@ class SweepHFSS(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         if identify_setup(self.props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @property
@@ -440,6 +441,7 @@ class SweepHFSS3DLayout(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.combined_name)
         if identify_setup(self.props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
@@ -692,6 +694,7 @@ class SweepMatrix(SweepCommon):
             `True` if solutions are available.
         """
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+
         return True if sol.get_solution_data() else False
 
     @property
@@ -925,6 +928,7 @@ class SweepMaxwellEC(SweepCommon):
         )
         if identify_setup(self.props):
             sol.domain = "Time"
+
         return True if sol.get_solution_data() else False
 
     @property

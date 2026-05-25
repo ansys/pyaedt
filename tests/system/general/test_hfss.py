@@ -338,6 +338,15 @@ def test_create_linear_count_sweep(aedt_app) -> None:
     assert "der_var" in setup3.get_derivative_variables()
     setup3.delete()
 
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_linear_count_sweep(
+            setup="invented",
+            unit="MHz",
+            start_frequency=1.1e3,
+            stop_frequency=1200.1,
+            num_of_freq_points=1234,
+        )
+
 
 def test_setup_exists(aedt_app) -> None:
     aedt_app.create_setup("MySetup", Frequency="1GHz")
@@ -400,6 +409,16 @@ def test_create_linear_step_sweep(aedt_app) -> None:
             == "Invalid value for 'sweep_type'. The value must be 'Discrete', 'Interpolating', or 'Fast'."
         )
 
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_linear_step_sweep(
+            setup="invented",
+            name="StepFast",
+            unit=units,
+            start_frequency=freq_start,
+            stop_frequency=freq_stop,
+            step_size=step_size,
+        )
+
 
 def test_create_single_point_sweep(aedt_app) -> None:
     setup = aedt_app.create_setup("MySetup", Frequency="1GHz", BasisOrder=2)
@@ -438,6 +457,11 @@ def test_create_single_point_sweep(aedt_app) -> None:
     with pytest.raises(AttributeError):
         aedt_app.create_single_point_sweep(
             setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
+
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_single_point_sweep(
+            setup="invented", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
         )
 
 
@@ -1510,7 +1534,9 @@ def test_set_differential_pair(diff_pairs_app) -> None:
         active=True,
         matched=False,
     )
-    assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+    with pytest.raises(AEDTRuntimeError):
+        diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+
     diff_pairs_app.set_active_design(TRANSIENT_PROJECT)
     assert diff_pairs_app.set_differential_pair(
         assignment="P2_T1",
@@ -1521,7 +1547,9 @@ def test_set_differential_pair(diff_pairs_app) -> None:
         active=True,
         matched=False,
     )
-    assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
+
+    with pytest.raises(AEDTRuntimeError):
+        diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
 
 
 @pytest.mark.skipif(
@@ -1868,8 +1896,11 @@ def test_set_phase_center_per_port(aedt_app) -> None:
         assert not aedt_app.set_phase_center_per_port()
         assert not aedt_app.set_phase_center_per_port(["Global", "Global"])
 
-    assert not aedt_app.set_phase_center_per_port(["Global"])
-    assert not aedt_app.set_phase_center_per_port("Global")
+    with pytest.raises(ValueError):
+        aedt_app.set_phase_center_per_port(["Global"])
+
+    with pytest.raises(TypeError):
+        aedt_app.set_phase_center_per_port("Global")
 
 
 @pytest.mark.skipif(
