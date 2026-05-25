@@ -645,7 +645,6 @@ class FieldsCalculator(PyAedtBase):
         variations: dict = None,
         output_file: str = None,
         intrinsics: dict = None,
-        phase: str = None,
         sample_points: list = None,
         export_with_sample_points: bool = True,
         reference_coordinate_system: str = "Global",
@@ -709,9 +708,6 @@ class FieldsCalculator(PyAedtBase):
             - ``"Phase"``
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
-        phase : str, optional
-            Field phase. The default is ``None``.
-            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
         sample_points : str, list
             Name of the file with sample points or list of the sample points.
         export_with_sample_points : bool, optional
@@ -770,7 +766,6 @@ class FieldsCalculator(PyAedtBase):
                 assignment=assignment,
                 objects_type=objects_type,
                 intrinsics=intrinsics,
-                phase=phase,
                 sample_points_file=sample_points_file,
                 sample_points=sample_points,
                 export_with_sample_points=export_with_sample_points,
@@ -794,7 +789,6 @@ class FieldsCalculator(PyAedtBase):
                 grid_step=grid_step,
                 is_vector=is_vector,
                 intrinsics=intrinsics,
-                phase=phase,
                 export_with_sample_points=export_with_sample_points,
                 reference_coordinate_system=reference_coordinate_system,
                 export_in_si_system=export_in_si_system,

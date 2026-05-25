@@ -715,15 +715,6 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
         self.logger.info("ModelerTwinBuilder class has been initialized!")
 
     @property
-    def components(self) -> TwinBuilderComponents:
-        """
-        .. deprecated:: 0.4.13
-           Use :func:`TwinBuilder.modeler.schematic` instead.
-
-        """
-        return self._components
-
-    @property
     def schematic(self) -> TwinBuilderComponents:
         """Schematic Object.
 

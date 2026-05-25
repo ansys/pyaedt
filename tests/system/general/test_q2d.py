@@ -310,7 +310,7 @@ def test_export_equivalent_circuit(q2d_solved, test_tmp_dir) -> None:
 
 
 def test_export_results(q2d_solved) -> None:
-    exported_files = q2d_solved.export_results(analyze=False)
+    exported_files = q2d_solved.export_results()
     assert len(exported_files) > 0
 
 
@@ -324,7 +324,7 @@ def test_import_dxf(aedt_app) -> None:
 
 def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
+    files = q2d_solved_sweep_app.export_w_elements(export_folder)
     assert len(files) == 3
     for file in files:
         ext = Path(file).suffix
@@ -334,14 +334,14 @@ def test_export_w_elements_from_sweep(q2d_solved_sweep_app, test_tmp_dir) -> Non
 
 def test_export_w_elements_from_nominal(q2d_solved_nominal_app, test_tmp_dir) -> None:
     export_folder = test_tmp_dir / "export_folder"
-    files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
+    files = q2d_solved_nominal_app.export_w_elements(export_folder)
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix
         assert ext == ".sp"
         assert Path(file).is_file()
 
-    files = q2d_solved_nominal_app.export_w_elements(False)
+    files = q2d_solved_nominal_app.export_w_elements()
     assert len(files) == 1
     for file in files:
         ext = Path(file).suffix

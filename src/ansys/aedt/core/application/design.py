@@ -2584,9 +2584,6 @@ class Design(AedtObjects, PyAedtBase):
     def release_desktop(self, close_projects: bool = True, close_desktop: bool = True) -> bool:
         """Release AEDT.
 
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
-
         Parameters
         ----------
         close_projects : bool, optional
