@@ -327,8 +327,7 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
         quantity="Mag_E",
         output_file=fld_file2,
         assignment="Box1",
-        intrinsics={"frequency": solve_freq},
-        phase="30deg",
+        intrinsics={"frequency": solve_freq, "phase": "30deg"},
     )
     assert fld_file2.exists()
     fld_file2 = test_tmp_dir / "test_fld_hfss5.fld"
