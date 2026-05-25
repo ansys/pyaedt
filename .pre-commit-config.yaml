@@ -13,7 +13,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 5e2fb545eba1ea9dc051f6f962d52fe8f76a9794  # frozen: v0.15.13
+  rev: 0c7b6c989466a93942def1f84baf36ddfcd60c83  # frozen: v0.15.14
   hooks:
     - id: ruff-check
     - id: ruff-format
@@ -34,12 +34,12 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
+  rev: 943377262562a12b57292fc98fabd7dbf81451fe  # frozen: 0.37.2
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: fda77690955e9b63c6687d8806bafd56a526e45f  # frozen: 1.20.0
+  rev: dda8db18cfc68df532abf33b185ecd12d5b7b326  # frozen: 1.20.0
   hooks:
     - id: blacken-docs
       additional_dependencies: [black==26.5.1]
