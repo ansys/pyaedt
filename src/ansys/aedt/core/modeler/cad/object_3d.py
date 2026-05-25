@@ -154,7 +154,7 @@ class Object3d(PyAedtBase):
 
         """
         objs_to_unmodel = [
-            val.name for i, val in self._primitives.objects.items() if val.model and val.name != self.name
+            val.name for i, val in self._primitives.objects.items() if val.is_model and val.name != self.name
         ]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
@@ -1402,7 +1402,7 @@ class Object3d(PyAedtBase):
             return False
 
     @property
-    def is_model(self) -> bool:
+    def is_model(self) -> bool | None:
         """Part model or non-model property.
 
         Returns
@@ -1418,13 +1418,14 @@ class Object3d(PyAedtBase):
         """
         if self._model is not None:
             return self._model
+
         if "Model" in self.valid_properties:
             mod = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Model")
             if mod == "false" or mod == "False":
                 self._model = False
             else:
                 self._model = True
-            return self._model
+        return self._model
 
     @is_model.setter
     def is_model(self, fModel: bool) -> None:

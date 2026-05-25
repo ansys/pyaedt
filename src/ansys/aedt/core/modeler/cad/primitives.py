@@ -4597,7 +4597,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         )
         if status:
             self.move(new_edges[0], move_vector)
-            old_bondwire.model = False
+            old_bondwire.is_model = False
             return new_edges[0]
         else:
             return False
@@ -9432,7 +9432,7 @@ class PrimitivesBuilder(PyAedtBase):
         return self._app.logger
 
     @pyaedt_function_handler()
-    def create(self) -> list:
+    def create(self) -> list | bool:
         """Create instances of defined primitives.
 
         Returns

@@ -71,7 +71,7 @@ def test_create_rectangle(aedt_app) -> None:
         color=test_color,
     )
     assert rect1.solve_inside
-    assert rect1.model
+    assert rect1.is_model
     assert rect1.material_name == "vacuum"
     assert rect2.color == test_color
     assert is_close(rect1.faces[0].area, 3.0 * 8.0)
@@ -80,7 +80,7 @@ def test_create_rectangle(aedt_app) -> None:
     assert sorted(list_of_pos) == [[0.0, -2.0, -2.0], [0.0, 6.0, -2.0], [3.0, -2.0, -2.0], [3.0, 6.0, -2.0]]
 
     assert rect2.solve_inside
-    assert rect2.model
+    assert rect2.is_model
     assert rect2.material_name == "copper"
     assert is_close(rect2.faces[0].area, 3.0 * 10.0)
 
@@ -137,12 +137,12 @@ def test_create_circle(aedt_app) -> None:
         display_wireframe=True,
     )
     assert circle1.solve_inside
-    assert circle1.model
+    assert circle1.is_model
     assert circle1.material_name == "vacuum"
     assert is_close(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
     assert circle2.solve_inside
-    assert circle2.model
+    assert circle2.is_model
     assert circle2.material_name == "copper"
     assert is_close(circle1.faces[0].area, math.pi * 3.0 * 3.0)
     circle3 = aedt_app.modeler.create_circle(
@@ -186,12 +186,12 @@ def test_create_ellipse(aedt_app) -> None:
         origin=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
     )
     assert ellipse1.solve_inside
-    assert ellipse1.model
+    assert ellipse1.is_model
     assert ellipse1.material_name == "vacuum"
     assert is_close(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
     assert ellipse2.solve_inside
-    assert ellipse2.model
+    assert ellipse2.is_model
     assert ellipse2.material_name == "copper"
     assert is_close(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
@@ -203,13 +203,13 @@ def test_create_regular_polygon(aedt_app) -> None:
         origin=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", material="Copper"
     )
     assert pg1.solve_inside
-    assert pg1.model
+    assert pg1.is_model
     assert pg1.material_name == "vacuum"
     assert not pg1.is_conductor
     assert is_close(pg1.faces[0].area, 10.392304845413264)
 
     assert pg2.solve_inside
-    assert pg2.model
+    assert pg2.is_model
     assert pg2.material_name == "copper"
     assert pg2.is_conductor
     assert is_close(pg2.faces[0].area, 5.196152422706631)
