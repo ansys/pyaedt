@@ -158,7 +158,7 @@ def test_create_circle(aedt_app) -> None:
         radius=2.2,
         num_sides=6,
         name="NonModelCirc",
-        non_model=False,
+        non_model=True,
     )
     assert not circle4.is_model
 
