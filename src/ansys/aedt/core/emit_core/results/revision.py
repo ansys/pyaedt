@@ -1124,7 +1124,7 @@ class Revision:
 
         if len(radio_nodes) == 0:
             warnings.warn("No valid radios in the project.")
-            return None
+            return []
         return radio_nodes
 
     @pyaedt_function_handler
