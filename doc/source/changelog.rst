@@ -9,6 +9,83 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.0.0 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0>`_ - May 26, 2026
+=============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve auto complete experience with type hint
+          - `#7700 <https://github.com/ansys/pyaedt/pull/7700>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 3d representation for arrays
+          - `#7686 <https://github.com/ansys/pyaedt/pull/7686>`_
+
+        * - Remove deprecated functions/args
+          - `#7691 <https://github.com/ansys/pyaedt/pull/7691>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add Substrate documentation
+          - `#7698 <https://github.com/ansys/pyaedt/pull/7698>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.2.12 to 10.3.2
+          - `#7692 <https://github.com/ansys/pyaedt/pull/7692>`_
+
+        * - Bump prek from 0.3.13 to 0.4.0
+          - `#7693 <https://github.com/ansys/pyaedt/pull/7693>`_
+
+        * - Bump black from 26.3.1 to 26.5.1
+          - `#7694 <https://github.com/ansys/pyaedt/pull/7694>`_
+
+        * - Bump requests from 2.34.1 to 2.34.2
+          - `#7695 <https://github.com/ansys/pyaedt/pull/7695>`_
+
+        * - Bump ansys-tools-visualization-interface from 0.13.1 to 0.13.3
+          - `#7696 <https://github.com/ansys/pyaedt/pull/7696>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.28.0
+          - `#7688 <https://github.com/ansys/pyaedt/pull/7688>`_
+
+        * - Cleanup CI, cfg file and doc strings
+          - `#7689 <https://github.com/ansys/pyaedt/pull/7689>`_
+
+        * - Delete deprecations
+          - `#7690 <https://github.com/ansys/pyaedt/pull/7690>`_
+
+
 `0.28.0 <https://github.com/ansys/pyaedt/releases/tag/v0.28.0>`_ - May 22, 2026
 ===============================================================================
 
