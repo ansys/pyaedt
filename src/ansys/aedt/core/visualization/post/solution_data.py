@@ -25,7 +25,6 @@
 import math
 import os
 from typing import TYPE_CHECKING
-import warnings
 
 import numpy as np
 
@@ -623,30 +622,6 @@ class SolutionData(PyAedtBase):
         elif formula.lower() == "phaserad":
             sol = sol * np.pi / 180
         return x_axis, sol
-
-    @pyaedt_function_handler()
-    def data_real(self, expression: str = None, convert_to_SI: bool = False) -> list:
-        """Retrieve the real part of the data for an expression.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, None
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the real data for the expression.
-        """
-        warnings.warn("Method `data_real` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def is_real_only(self, expression: str = None) -> bool:

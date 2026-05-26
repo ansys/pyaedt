@@ -238,8 +238,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                victim_node = self._revision.get_component_node(self._victim)
                 victim_bands = self._revision.get_band_names(
-                    radio_name=self._victim,
+                    radio_node=victim_node,
                     tx_rx_mode=TxRxMode.RX,
                 )
             else:
@@ -275,8 +276,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                aggressor_node = self._revision.get_component_node(self._aggressor)
                 aggressor_bands = self._revision.get_band_names(
-                    radio_name=self._aggressor,
+                    radio_node=aggressor_node,
                     tx_rx_mode=TxRxMode.TX,
                 )
             else:

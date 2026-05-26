@@ -861,7 +861,7 @@ class Configurations(PyAedtBase):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 if val.get("Material", None):
                     arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 if val.get("SolveInside", None):
@@ -1356,10 +1356,10 @@ class Configurations(PyAedtBase):
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
-            if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[val.name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1689,7 +1689,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
             dict_out["objects"][val.name]["Material"] = val.material_name
             dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1906,7 +1906,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self._app.modeler.refresh()
         self._app.modeler.delete(
             list(
-                set([id for id, obj in self._app.modeler.objects.items() if obj.model])
+                set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
                 - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
             )
         )

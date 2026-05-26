@@ -700,9 +700,11 @@ def parse_excitation_file(
 
     try:
         import pandas
-    except ImportError:  # pragma: no cover
-        pyaedt_logger.error("Pandas is not available. Install it.")
-        return False
+    except ImportError as e:  # pragma: no cover
+        from ansys.aedt.core.internal.checks import install_message
+
+        msg = install_message("pandas", "all", level="module")
+        raise ImportError(msg) from e
 
     input_file = Path(input_file)
     df = read_csv_pandas(input_file, encoding=encoding)

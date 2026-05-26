@@ -121,7 +121,7 @@ def test_create_region(aedt_app) -> None:
     #
     region = aedt_app.modeler.create_region([100, 100, 100, 100])
     assert region.solve_inside
-    assert region.model
+    assert region.is_model
     assert region.display_wireframe
     assert region.object_type == "Sheet"
     assert region.solve_inside
