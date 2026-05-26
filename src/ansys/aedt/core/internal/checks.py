@@ -27,6 +27,7 @@
 from functools import wraps
 import warnings
 
+from ansys.aedt.core.generic.general_methods import _F
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # NOTE: This should be updated for any modifications in pyaedt's graphics install target.
@@ -93,7 +94,7 @@ def min_aedt_version(min_version: str) -> callable:
             if desktop_class is not None:
                 return desktop_class.odesktop
 
-    def aedt_version_decorator(method: callable) -> callable:
+    def aedt_version_decorator(method: _F) -> _F:
         """Decorator to check AEDT version compatibility for a method."""
 
         @wraps(method)
@@ -115,7 +116,7 @@ def min_aedt_version(min_version: str) -> callable:
             else:
                 return method(self, *args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return aedt_version_decorator
 
@@ -199,14 +200,14 @@ def requires_graphical_dependency(*dependencies: str) -> callable:
         If any of the required dependencies are not available.
     """
 
-    def decorator(method: callable) -> callable:
+    def decorator(method: _F) -> _F:
         @wraps(method)
         def wrapper(*args, **kwargs):
             for dep in dependencies:
                 check_dependency_available(dep, warning=False)
             return method(*args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
