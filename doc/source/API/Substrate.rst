@@ -4,15 +4,14 @@ This section describes the Circuit substrate modules, which provide classes and 
 to manage substrate data blocks in Circuit designs.
 
 A substrate data block defines the physical and electrical properties of a transmission-line
-substrate (microstrip, stripline, CPW, ...) and is referenced by distributed circuit
+substrate (microstrip, stripline, CPW) and is referenced by distributed circuit
 elements inside an AEDT Circuit design.
 
-SubstrateManager
-~~~~~~~~~~~~~~~~
+Substrate manager
+~~~~~~~~~~~~~~~~~
 
-The :class:`SubstrateManager` is the main entry point, accessible through
-:attr:`ansys.aedt.core.Circuit.substrate`. Use it to add, query, and delete substrate
-data blocks in the active Circuit design.
+The :class:`SubstrateManager` is the main entry point, accessible through substrate property in Circuit class.
+Use it to add, query, and delete substrate data blocks in the active Circuit design.
 
 .. currentmodule:: ansys.aedt.core.modules.substrate_circuit
 
@@ -45,8 +44,8 @@ data blocks in the active Circuit design.
     app.substrate.delete("MySub")
 
 
-SubstrateDataBlock
-~~~~~~~~~~~~~~~~~~
+Substrate data block
+~~~~~~~~~~~~~~~~~~~~
 
 The :class:`SubstrateDataBlock` represents a single substrate definition. Each instance
 exposes read and write properties for the substrate geometry and material parameters
