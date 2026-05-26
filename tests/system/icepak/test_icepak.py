@@ -522,7 +522,7 @@ def test_assign_mesh_operation(usb_ipk_app) -> None:
     assert test
     assert test.delete()
     b = usb_ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    b.model = False
+    b.is_model = False
     test = usb_ipk_app.mesh.assign_mesh_region([b.name])
     assert test
     assert test.delete()

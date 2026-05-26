@@ -843,14 +843,14 @@ class Layer3D(PyAedtBase):
 
         if self._layer_type == "ground":
             if not is_void:
-                if polygon.aedt_object.is3d:
+                if polygon.aedt_object.is_3d:
                     self._app.modeler[self._name].subtract(polygon.aedt_object, True)
                     polygon.aedt_object.material_name = self.filling_material_name
                 else:
                     self._app.modeler[self._name].subtract(polygon.aedt_object, False)
                     return True
         elif is_void:
-            if polygon.aedt_object.is3d:
+            if polygon.aedt_object.is_3d:
                 self._app.modeler.subtract(self._obj_3d, polygon.aedt_object, True)
                 polygon.aedt_object.material_name = self.filling_material_name
             else:

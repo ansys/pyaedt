@@ -303,7 +303,10 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
     assert len(exported_files) > 0
     fld_file1 = test_tmp_dir / "test_fld_hfss1.fld"
     assert hfss_app.post.export_field_file(
-        quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
+        quantity="Mag_E",
+        output_file=fld_file1,
+        assignment="Box1",
+        intrinsics={"frequency": solve_freq, "phase": "5deg"},
     )
     assert fld_file1.exists()
     fld_file2 = test_tmp_dir / "test_fld_hfss2.fld"
@@ -324,8 +327,7 @@ def test_hfss_export_results(hfss_app, test_tmp_dir) -> None:
         quantity="Mag_E",
         output_file=fld_file2,
         assignment="Box1",
-        intrinsics={"frequency": solve_freq},
-        phase="30deg",
+        intrinsics={"frequency": solve_freq, "phase": "30deg"},
     )
     assert fld_file2.exists()
     fld_file2 = test_tmp_dir / "test_fld_hfss5.fld"

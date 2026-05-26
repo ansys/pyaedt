@@ -774,7 +774,7 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     radios_rx = rev.get_receiver_names()
     assert radios_rx[0] == "Bluetooth"
     assert radios_rx[1] == "Bluetooth 2"
-    bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=mode_rx)
+    bands_rx = rev.get_band_names(radio_node=rev.get_component_node(radios_rx[0]), tx_rx_mode=mode_rx)
     assert bands_rx[0] == "Rx - Base Data Rate"
     assert bands_rx[1] == "Rx - Enhanced Data Rate"
     rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
@@ -791,7 +791,7 @@ def test_manual_revision_access_test_getters(emit_app) -> None:
     assert rx_frequencies[1] == 2403000000.0
 
     # Test set_sampling
-    bands_rx = rev.get_band_names(radio_name=radios_rx[1], tx_rx_mode=mode_rx)
+    bands_rx = rev.get_band_names(radio_node=rev.get_component_node(radios_rx[1]), tx_rx_mode=mode_rx)
     rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
     assert len(rx_frequencies) == 20
 
@@ -888,7 +888,7 @@ def test_radio_band_getters(emit_app) -> None:
     assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
     # Get the Bands
-    bands = rev.get_band_names(radio_name=radios[0], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[0]), tx_rx_mode=TxRxMode.RX)
     assert bands == ["Band"]
 
     # Get the Freqs
@@ -904,35 +904,35 @@ def test_radio_band_getters(emit_app) -> None:
     assert exception_raised
 
     # Get WiFi 2012 Rx Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.RX)
     assert len(bands) == 16
 
     # Get WiFi 2012 Tx Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.TX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.TX)
     assert len(bands) == 16
 
     # Get WiFi 2012 All Bands
-    bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.BOTH)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]), tx_rx_mode=TxRxMode.BOTH)
     assert len(bands) == 32
 
     # Get WiFi 2012 All Bands (default args)
-    bands = rev.get_band_names(radio_name=radios[2])
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[2]))
     assert len(bands) == 32
 
     # Get WiFi 6 All Bands (default args)
-    bands = rev.get_band_names(radio_name=radios[3])
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]))
     assert len(bands) == 192
 
     # Get WiFi 6 Rx Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.RX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.RX)
     assert len(bands) == 192
 
     # Get WiFi 6 Tx Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.TX)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.TX)
     assert len(bands) == 192
 
     # Get WiFi 6 All Bands
-    bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.BOTH)
+    bands = rev.get_band_names(radio_node=rev.get_component_node(radios[3]), tx_rx_mode=TxRxMode.BOTH)
     assert len(bands) == 192
 
     # Add an emitter
@@ -1137,8 +1137,8 @@ def test_basic_run(emit_app) -> None:
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION < "2024.1",
-    reason="Skipped on versions earlier than 2024.1",
+    DESKTOP_VERSION < "2025.2",
+    reason="Skipped on versions earlier than 2025.2",
 )
 def test_optimal_n_to_1_feature(emit_app) -> None:
     # place components and generate the appropriate number of revisions
@@ -1158,7 +1158,8 @@ def test_optimal_n_to_1_feature(emit_app) -> None:
     rev = emit_app.results.analyze()
     assert len(emit_app.results.revisions) == 1
     radios_rx = rev.get_receiver_names()
-    bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+    rx_node = rev.get_component_node(radios_rx[0])
+    bands_rx = rev.get_band_names(rx_node, tx_rx_mode=TxRxMode.RX)
     radios_tx = rev.get_interferer_names()
     domain = emit_app.results.interaction_domain()
     domain.set_receiver(radios_rx[0], bands_rx[0])
@@ -2595,7 +2596,7 @@ def test_emitters_radios(emit_app) -> None:
         emit_app.schematic.delete_component(comp.name)
 
     emitter_radio_nodes = rev.get_all_emitter_radios()
-    assert emitter_radio_nodes is None
+    assert emitter_radio_nodes == []
 
     emitter_name = "Test Emitter"
     emitter_node: EmitterNode = emit_app.schematic.create_component(
@@ -2652,14 +2653,6 @@ def test_emitters_radios(emit_app) -> None:
     # rename a node
     band.name = "Test"
     assert band.name == "Test"
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-
-        band._rename("Test 2")
-        if w:
-            assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
-    assert band.name == "Test 2"
 
     # Add a Band
     radio_node.add_band()

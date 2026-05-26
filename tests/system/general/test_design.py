@@ -168,7 +168,7 @@ def test_libs(aedt_app) -> None:
 def test_set_objects_temperature_deformation(coaxial) -> None:
     assert coaxial.modeler.set_objects_deformation(["inner"])
     ambient_temp = 22
-    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].model]
+    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].is_model]
     assert coaxial.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
 
 

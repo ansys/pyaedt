@@ -988,7 +988,6 @@ def test_automatic_lna(aedt_app, test_tmp_dir) -> None:
         auto_assign_diff_pairs=True,
         separation=".",
         pattern=["component", "pin", "net"],
-        analyze=False,
     )
     assert status
 
@@ -1054,7 +1053,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result
@@ -1073,7 +1071,6 @@ def test_automatic_ami(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI_Differential",
     )
     assert result
@@ -1096,7 +1093,6 @@ def test_automatic_ibis(aedt_app, test_tmp_dir) -> None:
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
         unit_interval="31.25ps",
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
     )
     assert result
