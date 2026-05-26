@@ -49,7 +49,7 @@ Substrate data block
 
 The :class:`SubstrateDataBlock` represents a single substrate definition. Each instance
 exposes read and write properties for the substrate geometry and material parameters
-(height, permittivity, loss tangent, conductor thickness, ...) as well as a
+(height, permittivity, loss tangent, conductor thickness) as well as a
 :meth:`~SubstrateDataBlock.update` method to push changes back to AEDT.
 
 .. currentmodule:: ansys.aedt.core.modules.substrate_circuit
