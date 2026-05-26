@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "1.0.0rc2"
+__version__ = "1.0.0"
 version = __version__
 
 # isort: off
