@@ -24,14 +24,8 @@ jobs:
     name: Documentation build
     runs-on: ubuntu-latest
     steps:
-      - name: Install quarto
-        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2.2.0
-        with:
-          tinytex: true
-          version: 1.8.25
-
       - name: Documentation build
-        uses: ansys/actions/doc-build@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/doc-build@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -39,7 +33,8 @@ jobs:
           use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
-          needs-quarto: false
+          needs-quarto: true
+          optional-dependencies-name: 'all'
           group-dependencies-name: 'doc'
 
   upload-dev-doc:
@@ -50,7 +45,7 @@ jobs:
       contents: write   # Required to commit and push development documentation to gh-pages branch
     steps:
       - name: Upload development documentation
-        uses: ansys/actions/doc-deploy-dev@de753211965a233968fb2cda376da99376b1b9e5 # v10.2.11
+        uses: ansys/actions/doc-deploy-dev@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}

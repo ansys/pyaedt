@@ -31,14 +31,12 @@ from typing import TYPE_CHECKING
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
-from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
@@ -732,9 +730,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         if freq is None:
             freq = (
                 re.compile(r"(\d+)\s*(\w+)")
-                .match(
-                    self.modeler._odesign.GetChildObject("Analysis").GetChildObject(setup).GetPropValue("Adaptive Freq")
-                )
+                .match(self.get_oo_property_value(self.get_oo_object(self.odesign, "Analysis"), setup, "Adaptive Freq"))
                 .groups()[0]
             )
         else:
@@ -1525,9 +1521,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         field_setups = []
+        em_fields_oo = self.get_oo_object(self.odesign, "EM Fields")
         for field in self.field_setup_names:
-            obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
-            type_field = obj_field.GetPropValue("Type")
+            type_field = self.get_oo_property_value(em_fields_oo, field, "Type")
             field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
 
         return field_setups
@@ -1541,7 +1537,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         -------
         List of str
         """
-        return self.odesign.GetChildObject("EM Fields").GetChildNames()
+        return self.get_oo_name(self.odesign, "EM Fields")
 
     @pyaedt_function_handler()
     def delete_all_nets(self) -> bool:
@@ -1801,7 +1797,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def source(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -1839,7 +1835,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def sink(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         direction: int | None = 0,
         name: str | None = None,
         net_name: str | None = None,
@@ -2008,7 +2004,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_thin_conductor(
         self,
-        assignment: str | int | list | Object3d | None = None,
+        assignment: "str | int | list | Object3d | None" = None,
         material: str | None = "copper",
         thickness: float | str | int | None = 1,
         name: str | None = "",
@@ -2603,7 +2599,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> Object3d:
+    def create_rectangle(
+        self, origin: list, sizes: list, name: str | None = "", material: str | None = ""
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -2769,18 +2767,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
-    def export_w_elements(self, analyze: bool = False, export_folder: str | Path | None = None) -> list:
+    def export_w_elements(self, export_folder: str | Path | None = None) -> list:
         """Export all W-elements to files.
 
         Parameters
         ----------
-        analyze : bool, optional
-            Whether to analyze before export. Solutions must be present for the design.
-            The default is ``False``.
         export_folder : str or :class:`pathlib.Path`, optional
             Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
@@ -2795,8 +2786,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             export_folder = self.working_directory
         if not Path(export_folder).exists():
             Path(export_folder).mkdir()
-        if analyze:
-            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:

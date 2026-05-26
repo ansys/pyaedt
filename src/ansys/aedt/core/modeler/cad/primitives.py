@@ -417,11 +417,12 @@ class GeometryModeler(Modeler, PyAedtBase):
                 props = {}
                 local_names = [i.name for i in self._coordinate_systems]
                 if cs_name not in local_names:
-                    if self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Relative":
+                    cs_type = self._app.get_oo_property_value(self.oeditor, cs_name, "Type")
+                    if cs_type == "Relative":
                         self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
-                    elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Face":
+                    elif cs_type == "Face":
                         self._coordinate_systems.append(FaceCoordinateSystem(self, props, cs_name))
-                    elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Object":
+                    elif cs_type == "Object":
                         self._coordinate_systems.append(ObjectCoordinateSystem(self, props, cs_name))
             return self._coordinate_systems
         if not self._coordinate_systems:
@@ -868,7 +869,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def _get_commands(self, name: str):
         try:
-            return self.oeditor.GetChildObject(name).GetChildNames()
+            return self._app.get_oo_name(self.oeditor, name)
         except Exception:
             return []
 
@@ -1128,7 +1129,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             List of added objects.
         """
         added_objects = []
-        objs = self.oeditor.GetChildNames()
+        objs = self._app.get_oo_name(self.oeditor)
         for obj_name in objs:
             if obj_name not in self._object_names_to_ids:
                 try:
@@ -1400,7 +1401,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         try:
             return {
-                plane_name: self.oeditor.GetChildObject(plane_name)
+                plane_name: self._app.get_oo_object(self.oeditor, plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
         except TypeError:
@@ -2566,9 +2567,9 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> oModule.GetBoundaries
         """
         if self._app.design_type == "Icepak":
-            return list(self._app.odesign.GetChildObject("Thermal").GetChildNames())
+            return list(self._app.get_oo_name(self._app.odesign, "Thermal"))
         else:
-            return list(self._app.odesign.GetChildObject("Boundaries").GetChildNames())
+            return list(self._app.get_oo_name(self._app.odesign, "Boundaries"))
 
     @pyaedt_function_handler()
     def set_object_model_state(self, assignment: list, model: bool = True) -> bool:
@@ -4596,7 +4597,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         )
         if status:
             self.move(new_edges[0], move_vector)
-            old_bondwire.model = False
+            old_bondwire.is_model = False
             return new_edges[0]
         else:
             return False
@@ -4714,7 +4715,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         faces = []
-        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
+        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.is_model]
         for sheet_name in assignment:
             sheet = self[sheet_name]  # get the sheet object
             _, cloned = self.clone(sheet)
@@ -8894,7 +8895,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         list_objs = []
         for id, obj in self.objects.items():
-            if obj.model == model:
+            if obj.is_model == model:
                 list_objs.append(obj.name)
         return list_objs
 
@@ -9026,7 +9027,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         self._planes = {}
         try:
             self._planes = {
-                plane_name: self.oeditor.GetChildObject(plane_name)
+                plane_name: self._app.get_oo_object(self.oeditor, plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
         except (TypeError, AttributeError):
@@ -9431,7 +9432,7 @@ class PrimitivesBuilder(PyAedtBase):
         return self._app.logger
 
     @pyaedt_function_handler()
-    def create(self) -> list:
+    def create(self) -> list | bool:
         """Create instances of defined primitives.
 
         Returns

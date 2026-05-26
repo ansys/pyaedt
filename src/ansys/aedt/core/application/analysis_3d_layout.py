@@ -30,18 +30,28 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
     from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
-from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
-from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
-from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
-from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
-from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+    from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+    from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+    from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS
+    from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+    from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+
+    PostProcessorType = (
+        PostProcessorIcepak
+        | PostProcessorCircuit
+        | PostProcessor3DLayout
+        | PostProcessorMaxwell
+        | PostProcessorHFSS
+        | PostProcessor3D
+    )
 
 
 class FieldAnalysis3DLayout(Analysis, PyAedtBase):
@@ -156,14 +166,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     @property
     def post(
         self,
-    ) -> (
-        PostProcessorIcepak
-        | PostProcessorCircuit
-        | PostProcessor3DLayout
-        | PostProcessorMaxwell
-        | PostProcessorHFSS
-        | PostProcessor3D
-    ):
+    ) -> "PostProcessorType":
         """PostProcessor.
 
         Returns
@@ -316,6 +319,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
         name = self.generate_unique_setup_name(name)
+        if setup_type == 62 and not self.ic_mode:
+            raise AEDTRuntimeError("RaptorX is supported only in 'IC' mode.")
         setup = Setup3DLayout(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()

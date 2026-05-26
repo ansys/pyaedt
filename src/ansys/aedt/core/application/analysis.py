@@ -38,7 +38,6 @@ import shutil
 import tempfile
 import time
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
@@ -47,7 +46,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -492,10 +490,7 @@ class Analysis(Design, PyAedtBase):
         -------
         list of str
         """
-        try:
-            solution_list = list(self._app.oreportsetup.GetChildObject("Profile").GetChildNames())
-        except Exception:
-            solution_list = []
+        solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
         return [i for i in solution_list if i not in self.setup_names]
 
     @property
@@ -696,13 +691,8 @@ class Analysis(Design, PyAedtBase):
                 return [""]
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def export_results(
         self,
-        analyze: bool = False,
         export_folder: str = None,
         matrix_name: str = "Original",
         matrix_type: str = "S",
@@ -718,8 +708,6 @@ class Analysis(Design, PyAedtBase):
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -771,8 +759,6 @@ class Analysis(Design, PyAedtBase):
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if analyze:
-            self.analyze()
         # excitations
         if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
@@ -1850,7 +1836,7 @@ class Analysis(Design, PyAedtBase):
             except Exception:  # pragma: no cover
                 self.logger.error("Error in Solving Setup %s", name)
                 result = False
-        elif name in self.ooptimetrics.GetChildNames():
+        elif name in self.get_oo_name(self.ooptimetrics):
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name, blocking)
@@ -2061,18 +2047,18 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        cluster_name: str,
-        aedt_full_exe_path: str = None,
+        cluster_name: str | None = None,
+        aedt_full_exe_path: str | None = None,
         nodes: int = 1,
         cores: int = 32,
         wait_for_license: bool = True,
         setting_file: str = None,
-    ) -> str:  # pragma: no cover
+    ) -> int:
         """Submit a job to be solved on a cluster.
 
         Parameters
         ----------
-        cluster_name : str
+        cluster_name : str, optional
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
             Full path to the AEDT executable file. The default is ``None``, in which
@@ -2084,11 +2070,12 @@ class Analysis(Design, PyAedtBase):
         wait_for_license : bool, optional
              Whether to wait for the license to be validated. The default is ``True``.
         setting_file : str, optional
-            Name of the file to use as a template. The default value is ``None``.
+            Job settings file. The file has the "*.areg" format.
+            The default value is ``None`` in which case a default template will be used.
 
         Returns
         -------
-        str
+        int
             ID of the job.
 
         References
@@ -2096,7 +2083,13 @@ class Analysis(Design, PyAedtBase):
         >>> oDesktop.SubmitJob
         """
         return self.desktop_class.submit_job(
-            self.project_file, cluster_name, aedt_full_exe_path, nodes, cores, wait_for_license, setting_file
+            project_file=self.project_file,
+            cluster_name=cluster_name,
+            aedt_full_exe_path=aedt_full_exe_path,
+            nodes=nodes,
+            cores=cores,
+            wait_for_license=wait_for_license,
+            setting_file=setting_file,
         )
 
     @pyaedt_function_handler()
@@ -2304,6 +2297,7 @@ class Analysis(Design, PyAedtBase):
         property_object: str,
         property_names: list,
         property_values: list,
+        property_types: list = None,
     ) -> bool:
         """Change multiple properties.
 
@@ -2320,6 +2314,9 @@ class Analysis(Design, PyAedtBase):
             List of property names. For example, ``["prop1", "prop2"]``.
         property_values : list
             List of property values corresponding to the property names.
+        property_types : list, optional
+            List of property types corresponding to the property names.
+            Values are  ``"Value"``, ``"ButtonText"``, ``"Hidden"``.
 
         Returns
         -------
@@ -2335,10 +2332,16 @@ class Analysis(Design, PyAedtBase):
 
         if len(property_names) != len(property_values):
             raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+        if property_types and isinstance(property_types, str):
+            property_types = [property_types] * len(property_names)
+        elif property_types and len(property_types) != len(property_names):
+            raise ValueError("``property_names`` and ``property_types`` must have the same length.")
+        elif not property_types:
+            property_types = ["Value"] * len(property_names)
 
         changed_props = []
-        for name, value in zip(property_names, property_values):
-            changed_props.append(["NAME:" + name, "Value:=", value])
+        for name, value, p_type in zip(property_names, property_values, property_types):
+            changed_props.append(["NAME:" + name, f"{p_type}:=", value])
 
         aedt_object.ChangeProperty(
             [
@@ -2658,25 +2661,6 @@ class AvailableVariations(PyAedtBase):
         return families
 
     @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> dict:  # pragma: no cover
-        """Retrieve variations for a given setup.
-
-        .. deprecated:: 0.22.0
-           Use :func:`nominal_variation` method instead.
-
-        Returns
-        -------
-        dict
-            Dictionary of independent nominal variations with values.
-        """
-        warnings.warn(
-            "Usage of get_independent_nominal_values is deprecated. Use nominal_variation instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.nominal_variation(dependent_params=False)
-
-    @pyaedt_function_handler()
     def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:
         """Retrieve variations for a given setup.
 
@@ -2723,7 +2707,10 @@ class AvailableVariations(PyAedtBase):
         ----------
         >>> oModule.GetAvailableVariations
         """
-        return self._app.osolution.GetAvailableVariations(setup_sweep)
+        variations = []
+        if self._app.osolution:
+            variations = self._app.osolution.GetAvailableVariations(setup_sweep)
+        return variations
 
     @pyaedt_function_handler()
     def __variable_names(self):

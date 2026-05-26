@@ -24,6 +24,7 @@
 import locale
 import math
 from pathlib import Path
+import re
 import secrets
 
 from ansys.aedt.core.base import PyAedtBase
@@ -497,7 +498,23 @@ class CircuitComponents(PyAedtBase):
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
+
+        num_terminal = 0
+        suffix = Path(input_file).suffix.lower()  # ".sxp", ".ts"
+        match = re.fullmatch(r"\.s(\d+)p", suffix)
+        if match:
+            num_terminal = int(match.group(1))
+        else:
+            # Touchstone 2.0 (.ts), read the [Number of Ports] keyword.
+            # Expected format: "[Number of Ports] N"
+            keyword_re = re.compile(r"^\[number of ports\]\s+(\d+)\s*$", re.IGNORECASE)
+            with open_file(input_file, "r") as f:
+                for line in f:
+                    stripped = line.strip()
+                    keyword_match = keyword_re.match(stripped)
+                    if keyword_match:
+                        num_terminal = int(keyword_match.group(1))
+                        break
 
         port_names = []
         with open_file(input_file, "r") as f:
@@ -508,6 +525,10 @@ class CircuitComponents(PyAedtBase):
                         port_names.append(line.split("=")[-1].strip().replace(" ", "_"))
                 else:
                     break
+        if not num_terminal and port_names:
+            num_terminal = len(port_names)
+        elif not num_terminal and not port_names:
+            raise Exception("Not able to identify number of ports.")
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
@@ -981,7 +1002,7 @@ class CircuitComponents(PyAedtBase):
         ----------
         model_name : str
             Name of the Touchstone model or full path to touchstone file.
-            If full touchstone is provided then, new model will be created.
+            If full touchstone is provided and model name doesn't exist in AEDT a new model will be created.
         location : list of float, optional
             Position on the X  and Y axis.
         angle : float, optional
@@ -1016,15 +1037,23 @@ class CircuitComponents(PyAedtBase):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
+        m_name = ""
+        if Path(model_name).is_file():
+            m_name = Path(Path(model_name).name).stem
+            if "." in m_name:
+                m_name = str(model_name).replace(".", "_")
+            if m_name not in list(self.omodel_manager.GetNames()):
+                m_name = ""
+            else:
+                self.logger.info(f"Model {m_name} already exists. Using it for new component.")
+        model_name = (
+            m_name
+            if m_name
+            else self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap, image_path=image_path)
+        )
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        # id = self.create_unique_id()
-        if Path(model_name).exists():
-            model_name = self.create_model_from_touchstone(
-                str(model_name), show_bitmap=show_bitmap, image_path=image_path
-            )
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
@@ -1090,7 +1119,7 @@ class CircuitComponents(PyAedtBase):
     def create_component(
         self,
         name: str | None = None,
-        component_library: str = "Resistors",
+        component_library: str | None = "Resistors",
         component_name: str = "RES_",
         location: list[float] = None,
         angle: int = 0,
@@ -1385,7 +1414,7 @@ class CircuitComponents(PyAedtBase):
                         o.schematic_id = int(name[1].split(":")[0])
                         objID = int(o.schematic_id)
                     else:
-                        o.id = int(name[1])
+                        o.id = int(name[1]) if is_number(name[1]) else name[1]
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
 

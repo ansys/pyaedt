@@ -2112,16 +2112,18 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         for edb_object in _edb_sessions:
             if edb_object.edbpath == aedb_component_path:
                 is_edb_open = True
-                # Extract and map parameters
-                for param in edb_object.design_variables:
-                    parameters[param] = [param + "_" + name, edb_object.design_variables[param].value_string]
-                    if parameter_mapping:
-                        self._app[param + "_" + name] = edb_object.design_variables[param].value_string
+
                 # Get coordinate systems
                 component_cs = []
                 for comp_name, comp in edb_object.components.instances.items():
                     for p_name in comp.pins:
                         component_cs.append(f"{comp_name}_{p_name}")
+
+                # Extract and map parameters
+                for param in edb_object.design_variables:
+                    parameters[param] = [param + "_" + name, str(edb_object.design_variables[param].value)]
+                    if parameter_mapping:
+                        self._app[param + "_" + name] = str(edb_object.design_variables[param].value)
                 break
 
         if not is_edb_open:
@@ -2132,20 +2134,20 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 student_version=self._app.student_version,
             )
 
-            # Extract and map parameters
-            parameters = {}
-            for param in component_obj.design_variables:
-                parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
-                if parameter_mapping:
-                    self._app[param + "_" + name] = component_obj.design_variables[param].value_string
-
             # Get coordinate systems
             component_cs = []
             for comp_name, comp in component_obj.components.instances.items():
                 for p_name in comp.pins:
                     component_cs.append(f"{comp_name}_{p_name}")
 
-            component_obj.close()
+            # Extract and map parameters
+            parameters = {}
+            for param in component_obj.design_variables:
+                parameters[param] = [param + "_" + name, str(component_obj.design_variables[param].value)]
+                if parameter_mapping:
+                    self._app[param + "_" + name] = str(component_obj.design_variables[param].value)
+
+            component_obj.close(False)
 
         arg_1 = [
             "NAME:InsertNativeComponentData",
@@ -2265,9 +2267,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
-            compobj = self.oeditor.GetChildObject(name)
+            compobj = self._app.get_oo_object(self.oeditor, name)
             if compobj:
-                return list(compobj.GetChildNames())
+                return list(self._app.get_oo_name(self.oeditor, name))
         else:
             self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
         return []

@@ -33,16 +33,24 @@ from ansys.aedt.core.desktop import TransportMode
 from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
 from ansys.aedt.core.desktop import _find_free_port
-from ansys.aedt.core.desktop import _is_port_occupied
+from ansys.aedt.core.desktop import _get_design_display_name
 from ansys.aedt.core.desktop import _ServerArgs
+from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture(scope="module", autouse=True)
 def mock_desktop():
-    """Fixture used to mock the creation of a Desktop instance."""
-    with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
+    """Fixture used to mock the creation of a Desktop instance.
+
+    Patching __del__ is necessary to avoid side effects associated to the logic of
+    releasing and closing the desktop.
+    """
+    with (
+        patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None),
+        patch("ansys.aedt.core.desktop.Desktop.__del__", lambda x: None),
+    ):
         yield
 
 
@@ -116,6 +124,48 @@ def test_desktop_odesktop_setter() -> None:
     desktop.odesktop = aedt_app
 
     assert desktop.odesktop == aedt_app
+
+
+@pytest.mark.parametrize(
+    ("design_type", "raw_name", "design_name", "expected"),
+    [
+        ("HFSS", "Design1", None, "Design1"),
+        ("HFSS 3D Layout Design", "Layout;Ignored", "Layout1", "Layout1"),
+        ("Circuit Design", "Circuit;Design1", None, "Design1"),
+        ("Twin Builder", "Twin Builder;Design2", None, "Design2"),
+        ("Circuit Design", "Design1", None, "Design1"),
+    ],
+)
+def test_get_design_display_name(design_type, raw_name, design_name, expected) -> None:
+    design = MagicMock()
+    design.GetDesignType.return_value = design_type
+    design.GetName.return_value = raw_name
+    if design_name is not None:
+        design.GetDesignName.return_value = design_name
+
+    assert _get_design_display_name(design) == expected
+
+
+def test_desktop_active_project_name() -> None:
+    desktop = Desktop()
+    project = MagicMock()
+    project.GetName.return_value = "Project1"
+    desktop.active_project = MagicMock(return_value=project)
+
+    assert desktop.active_project_name == "Project1"
+
+
+def test_desktop_active_design_name() -> None:
+    desktop = Desktop()
+    project = MagicMock()
+    design = MagicMock()
+    design.GetDesignType.return_value = "Circuit Design"
+    design.GetName.return_value = "Circuit Design;Design1"
+    desktop.active_project = MagicMock(return_value=project)
+    desktop.design_list = MagicMock(return_value=["Design1"])
+    desktop.active_design = MagicMock(return_value=design)
+
+    assert desktop.active_design_name == "Design1"
 
 
 def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings) -> None:
@@ -212,6 +262,7 @@ def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch) -> No
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", "dummy_path")
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.MTLS)
@@ -224,6 +275,7 @@ def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch) -
     """Test the string representation of _ServerArgs for Insecure mode."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)

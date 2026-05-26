@@ -127,11 +127,12 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANS_NODEPCHECK",
     "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE",
     "AnsysSendMsg",
+    "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE",
 ]
 
-DEFAULT_GRPC_LOCAL = True
-DEFAULT_GRPC_SECURE_MODE = True
-DEFAULT_GRPC_LISTEN_ALL = False
+DEFAULT_GRPC_LOCAL: bool = True
+DEFAULT_GRPC_SECURE_MODE: bool = True
+DEFAULT_GRPC_LISTEN_ALL: bool = False
 
 
 def generate_log_filename() -> str:
@@ -203,6 +204,7 @@ class Settings(PyAedtBase):
             "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
             "AnsysSendMsg": "1",
             "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_F544773_SSFIT_AUTO_SELECTION_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
@@ -528,11 +530,18 @@ class Settings(PyAedtBase):
         """Whether to use LSF Scheduler.
 
         This attribute is valid only on Linux systems running LSF Scheduler.
+        When setting this property to ``True``, some gRPC properties are updated to align with the change.
         """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
     def use_lsf_scheduler(self, value: bool) -> None:
+        if value:
+            self.__grpc_local = False
+
+            # Enable insecure mode when no certificates are defined
+            if not os.environ.get("ANSYS_GRPC_CERTIFICATES"):  # pragma: no cover
+                self.__grpc_secure_mode = False
         self.__use_lsf_scheduler = value
 
     @property

@@ -41,9 +41,9 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -54,8 +54,6 @@ from ansys.aedt.core.modules.design_xploration import SetupOpti
 from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-from ansys.aedt.core.modules.mesh_icepak import SubRegion
 
 
 def _find_datasets(d, out_list) -> None:
@@ -863,7 +861,7 @@ class Configurations(PyAedtBase):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 if val.get("Material", None):
                     arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 if val.get("SolveInside", None):
@@ -1048,7 +1046,7 @@ class Configurations(PyAedtBase):
     def validate(self, config: str | dict) -> bool:
         """Validate a configuration file against the schema.
 
-        The default schema can be found in ``pyaedt/misc/config.schema.json``.
+        The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
         Parameters
         ----------
@@ -1358,10 +1356,10 @@ class Configurations(PyAedtBase):
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
-            if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[val.name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1642,6 +1640,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name: str, props):
+        from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        from ansys.aedt.core.modules.mesh_icepak import SubRegion
+
         if name == "Settings":
             if not self.options.skip_import_if_exists:
                 for el in props:
@@ -1688,7 +1689,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
             dict_out["objects"][val.name]["Material"] = val.material_name
             dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1905,7 +1906,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self._app.modeler.refresh()
         self._app.modeler.delete(
             list(
-                set([id for id, obj in self._app.modeler.objects.items() if obj.model])
+                set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
                 - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
             )
         )
@@ -2002,7 +2003,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             for i, v in self._app.modeler.user_defined_components.items():
                 cs_name = None
                 if v.definition_name == instance_name:
-                    if "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames():
+                    if "Target Coordinate System" in self._app.get_oo_properties(self._app.oeditor, i):
                         cs_name = v.target_coordinate_system
                     obj_history = v.history()
                     if obj_history:
@@ -2020,6 +2021,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler
     def _update_native_components(self, native_name, native_dict) -> bool:
+        from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
@@ -2460,6 +2463,49 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         self._app.modeler.rename_page(idx + 1, page)
                 else:
                     self._app.modeler.add_page(page)
+
+        comp_dict = {}
+        for i, j in data["instance"].items():
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
+                    if component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
+                            ami = True
+                            ami_str = "ami"
+                        else:
+                            ami = False
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        if ibis_name in comp_dict:
+                            ibis = comp_dict[ibis_name]["object"]
+                        else:
+                            ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        if ibis_name in comp_dict:
+                            comp_dict[ibis_name] = {"object": ibis, "pins": [], "buffers": []}
+                        comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].differential_pins[j["properties"]["diff_pin_name"]].name
+                            )
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
+                            comp_dict[ibis_name]["pins"].append(
+                                ibis.components[comp].pins[j["properties"]["pin_name"]].name
+                            )
+                        elif comp in ibis.buffers:
+                            comp_dict[ibis_name]["buffers"].append(ibis.buffers[comp].name)
+        for cv in comp_dict.values():
+            cv["object"]._app.import_model_in_aedt(pins=cv["pins"], buffers=cv["buffers"])
+
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
@@ -2476,12 +2522,17 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
-                            ami = True
+                            ami_str = "ami"
                         else:
-                            ami = False
-                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
+                            ami_str = "ibs"
+                        ibis_name = value["file_path"] + ami_str
+                        ibis = comp_dict[ibis_name]["object"]
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
+                        if (
+                            "diff_pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"]["diff_pin_name"] in ibis.components[comp].differential_pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
@@ -2492,7 +2543,11 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     page=j.get("page", 1),
                                 )
                             )
-                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
+                        elif (
+                            "pin_name" in j["properties"]
+                            and comp in ibis.components
+                            and j["properties"].get("pin_name") in ibis.components[comp].pins
+                        ):
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
@@ -2527,6 +2582,8 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"],
                             location=j["position"],
+                            angle=j["angle"],
+                            model=j.get("model", None),
                             page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
@@ -2554,9 +2611,34 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
-                    for name, parameter in j["properties"].items():
-                        if new_comp_params.get(name, None) != parameter:
-                            new_comp.parameters[name] = parameter
+                    params = {
+                        i: j
+                        for i, j in j["properties"].items()
+                        if i in new_comp_params and j != new_comp_params and j != f'"{new_comp_params}"'
+                    }
+                    if params:
+                        try:
+                            values = [
+                                i[1:-1] if isinstance(i, str) and i.startswith('"') and is_number(i[1:-1]) else i
+                                for i in list(params.values())
+                            ]
+                            self._app.change_properties(
+                                self._app.oeditor,
+                                "PassedParameterTab",
+                                new_comp.composed_name,
+                                list(params.keys()),
+                                values,
+                            )
+                        except Exception:  # pragma: no cover
+                            self._app.logger.warning(
+                                f"Failed to set one of the properties for component {new_comp.composed_name}"
+                            )
+                            for ppn, ppv in params.items():
+                                new_comp.parameters[ppn] = (
+                                    ppv[1:-1]
+                                    if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
+                                    else ppv
+                                )
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
@@ -2565,7 +2647,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if (isinstance(value, list) and pin.name in value) or pin.name == value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
@@ -2588,7 +2670,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name == value:
+                            if pin.name == value or (isinstance(value, list) and pin.name in value):
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),

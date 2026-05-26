@@ -40,8 +40,9 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
@@ -475,7 +476,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             for udc in udc_list:
                 if (
                     original_design_type != dest_design_type
-                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    and not design.modeler.user_defined_components[udc].is_3d_component
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
@@ -1145,7 +1146,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    @graphics_required
+    @requires_graphical_dependency("pyvista")
     @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment: str = None) -> dict:
         """Identify all touching components and group in a dictionary.
@@ -1180,7 +1181,6 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         nets = {}
         inputs = []
         for cad in plt_obj.objects:
-            # if (self.modeler[cad.name].is_conductor):
             filedata = pv.read(cad.path)
             cad._cached_polydata = filedata
             inputs.append(cad)
@@ -1345,7 +1345,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
+            The dictionary uses GDS layer numbers as keys.
+            Each value is either a tuple containing the elevation and thickness,
+            or a list consisting of that tuple along with a string representing the layer name.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
@@ -1357,7 +1359,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful.
 
         References
         ----------
@@ -1370,48 +1372,59 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> gds_path = r"C:\\temp\\gds1.gds"
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> gds_number = {7: (100, 10), 9: (110, 5)}
+        >>> gds_number = {7: (100, 10), 9: [(110, 5), "my_layer"]}
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
-            self.logger.error("Method is supported only in graphical mode.")
-            return False
+            raise AEDTRuntimeError("Method is supported only in graphical mode.")
+
         if not check_if_path_exists(input_file):
-            self.logger.error("GDSII file does not exist. No layer is imported.")
-            return False
+            raise FileNotFoundError("GDSII file does not exist. No layer is imported.")
+
         if len(mapping_layers) == 0:
-            self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
-            return False
+            raise ValueError("Dictionary for GDSII layer numbers is empty. No layer is imported.")
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
-        for i, k in enumerate(mapping_layers):
-            layername = "signal" + str(k)
+        for layer_index, layer_number in enumerate(mapping_layers):
+            value = mapping_layers[layer_number]
+            if isinstance(value, list) and len(value) == 2:
+                layer_name = value[1]
+                elevation, thickness = value[0]
+            elif isinstance(value, tuple):
+                layer_name = f"signal{layer_number}"
+                elevation, thickness = value
+            else:
+                raise TypeError(
+                    f"Mapping layers value for layer {layer_number} must be a tuple (elevation, thickness) or "
+                    f"a list of [tuple, layer_name]."
+                )
             layermap.append(
                 [
                     "NAME:LayerMapInfo",
                     "LayerNum:=",
-                    k,
+                    layer_number,
                     "DestLayer:=",
-                    layername,
+                    layer_name,
                     "layer_type:=",
                     "signal",
                 ]
             )
+
             ordermap1 = [
                 "entry:=",
                 [
                     "order:=",
-                    i,
+                    layer_index,
                     "layer:=",
-                    layername,
+                    layer_name,
                     "LayerNumber:=",
-                    k,
+                    layer_number,
                     "Thickness:=",
-                    unit_converter(mapping_layers[k][1], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(thickness, unit_system="Length", input_units=units, output_units="meter"),
                     "Elevation:=",
-                    unit_converter(mapping_layers[k][0], unit_system="Length", input_units=units, output_units="meter"),
+                    unit_converter(elevation, unit_system="Length", input_units=units, output_units="meter"),
                     "Color:=",
                     "color",
                 ],

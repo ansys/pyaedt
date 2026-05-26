@@ -283,9 +283,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         self._field_setups = []
+        radiation_oo = self.get_oo_object(self.odesign, "Radiation")
         for field in self.field_setup_names:
-            obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
-            type_field = obj_field.GetPropValue("Type")
+            type_field = self.get_oo_property_value(radiation_oo, field, "Type")
             if type_field == "Infinite Sphere":
                 self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
             else:
@@ -302,7 +302,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         List of str
         """
-        return self.odesign.GetChildObject("Radiation").GetChildNames()
+        return self.get_oo_name(self.odesign, "Radiation")
 
     class BoundaryType(CreateBoundaryMixin, PyAedtBase):
         """Creates and manages boundaries."""
@@ -4201,12 +4201,52 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                         phase = "0deg"
                     else:
                         phase = vals[1]
-                if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                if isinstance(vals, (list, tuple)) and len(vals) >= 3:
                     terminated = vals[2]
                 else:
                     terminated = False
                 if not use_incident_voltage and self.solution_type == "Terminal":
-                    setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+                    if not terminated:
+                        setting.append(
+                            ["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase]
+                        )
+                    else:
+                        if isinstance(vals, (list, tuple)) and len(vals) == 5:
+                            resistance = vals[3]
+                            reactance = vals[4]
+                            setting.append(
+                                [
+                                    "Name:=",
+                                    key,
+                                    "Terminated:=",
+                                    terminated,
+                                    "Magnitude:=",
+                                    power,
+                                    "Phase:=",
+                                    phase,
+                                    "Resistance:=",
+                                    resistance,
+                                    "Reactance:=",
+                                    reactance,
+                                ]
+                            )
+                        else:
+                            setting.append(
+                                [
+                                    "Name:=",
+                                    key,
+                                    "Terminated:=",
+                                    terminated,
+                                    "Magnitude:=",
+                                    power,
+                                    "Phase:=",
+                                    phase,
+                                    "Resistance:=",
+                                    "50ohm",
+                                    "Reactance:=",
+                                    "0ohm",
+                                ]
+                            )
                 else:
                     setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
             argument = []
@@ -5321,12 +5361,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.value_with_units(phi_start, units)
-        props[defs[1]] = self.value_with_units(phi_stop, units)
-        props[defs[2]] = self.value_with_units(phi_step, units)
-        props[defs[3]] = self.value_with_units(theta_start, units)
-        props[defs[4]] = self.value_with_units(theta_stop, units)
-        props[defs[5]] = self.value_with_units(theta_step, units)
+        props[defs[0]] = self.value_with_units(theta_start, units)
+        props[defs[1]] = self.value_with_units(theta_stop, units)
+        props[defs[2]] = self.value_with_units(theta_step, units)
+        props[defs[3]] = self.value_with_units(phi_start, units)
+        props[defs[4]] = self.value_with_units(phi_stop, units)
+        props[defs[5]] = self.value_with_units(phi_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -7736,8 +7776,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not is_reflection:
             top, bot = floquet_ports[0], floquet_ports[1]
             # renormalization factors for transfer coefficients
-            _create_var("renorm_t", f"sqrt(re(Zo({bot}:1))/re(Zo({top}:1)))")
-            _create_var("renorm_t_inv", f"sqrt(re(Zo({top}:1))/re(Zo({bot}:1)))")
+            _create_var("renorm_t", f"if(re(Zo({top}:1))>0,sqrt(re(Zo({bot}:1))/re(Zo({top}:1))),0)")
+            _create_var("renorm_t_inv", f"if(re(Zo({bot}:1))>0,sqrt(re(Zo({top}:1))/re(Zo({bot}:1))),0)")
             # Co-pol transmission
             _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
             _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
@@ -7868,58 +7908,70 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 t_te_tm = _get_sd("t_te_tm")
                 t_te_tm_inv = _get_sd("t_te_tm_inv")
 
-        # Port impedances for scaling (only when transmission exists)
-        if not is_reflection:
-            imp_top = _get_sd(f"Zo({floquet_ports[0]}:1)")
-            imp_bot = _get_sd(f"Zo({floquet_ports[1]}:1)")
-
         # Build angular grid and a variation index to avoid repeated scans
         theta_max = 0.0
         phi_step = 0.0
         var_index = {}
-        is_360_defined = False
         theta_units = r_te.units_sweeps[theta_name]
         phi_units = "deg"
 
         if is_isotropic:
-            angles = {"0.0deg": []}
-            for var in r_te.variations:
+            variations = r_te.variations
+            variables = self.variable_manager.variables
+
+            if phi_name in variables and phi_name in r_te.active_variation:
+                # More than 1 phi sweep is simulated, take the nominal one
+                scan_p_value = variables[phi_name].numeric_value
+                active_variations = [v for v in variations if phi_name in v and v[phi_name] == scan_p_value]
+                if not active_variations:
+                    raise AEDTRuntimeError(f"Nominal {phi_name}={scan_p_value} has no results")
+            else:
+                # Only 1 phi is simulated or Phi is not parametrized in the boundary
+                active_variations = variations
+
+            theta_set = set()
+            for var in active_variations:
                 th = var[theta_name]
-                if th > theta_max:
-                    theta_max = th
-                angles["0.0deg"].append(th)
+                theta_set.add(th)
                 var_index[(th, None)] = var
 
-            angles["0.0deg"] = list(set(angles["0.0deg"]))
-            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+            # Sorted, de-duplicated theta values
+            sorted_thetas = sorted(theta_set)
+            angles = {"0.0deg": sorted_thetas}
+            theta_max = sorted_thetas[-1]
+            theta_step = sorted_thetas[1] - sorted_thetas[0]
 
         else:
             angles = {}
             phi_values = []
             theta_units = r_te.units_sweeps[theta_name]
             phi_units = r_te.units_sweeps[phi_name]
+            new_phi = None
             for var in r_te.variations:
-                phi = var[phi_name]
                 theta = var[theta_name]
+                phi = var[phi_name]
 
-                phase_shift = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
-                z = np.exp(1j * phase_shift)
-                new_phi = np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0)
+                phi_plus_180 = np.radians(phi) + np.pi * (1 if theta >= 0 else 0)
+                z = np.exp(1j * phi_plus_180)
+                new_phi = np.round(np.mod(np.angle(z, deg=True) + (360 if np.angle(z) < 0 else 0), 360), 6)
 
                 if new_phi >= 0:
                     phi_values.append(new_phi)
                     var_index[(abs(theta), new_phi)] = var
+                    theta_fp_round = np.round(abs(theta), 6)
 
                     key = f"{new_phi}{phi_units}"
-                    angles.setdefault(key, []).append(abs(theta))
-                    if theta_max < theta <= 90.0:
-                        theta_max = theta
+                    if theta_fp_round not in angles.setdefault(key, []):
+                        angles[key].append(theta_fp_round)
 
-            if 360.0 in phi_values:
-                is_360_defined = True
+                    if theta_max < theta_fp_round <= 90.0:
+                        theta_max = theta_fp_round
 
-            # Reorder Phi angles to ensure they are in ascending order
-            angles = {k: angles[k] for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
+            if new_phi is None:
+                raise AEDTRuntimeError("No variations found. Cannot compute phi/theta sweep data.")
+
+            # Reorder Phi angles to ensure they are in ascending order, and sort theta values per phi
+            angles = {k: sorted(set(angles[k])) for k in sorted(angles.keys(), key=lambda x: Quantity(x).value)}
 
             theta_step = abs(angles[f"{new_phi}{phi_units}"][1] - angles[f"{new_phi}{phi_units}"][0])
             theta_step = np.round(theta_step, 6)
@@ -7928,7 +7980,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             phi_step = np.round(phi_step, 6)
 
         # Write output file
-        with open(output_file, "w") as ofile:
+        with open(output_file, "w", encoding="utf-8") as ofile:
             ofile.write("# SBR native file format for Fresnel reflection / reflection-transmission table data.\n")
             ofile.write(f"# Generated from {self.project_name} project and {self.design_name} design.\n")
             ofile.write(
@@ -7963,8 +8015,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if not is_isotropic:
                 ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
                 nb_phi_points = len(angles.keys())
-                if is_360_defined:
-                    nb_phi_points -= 1
                 ofile.write(f"{nb_phi_points}\n")
                 ofile.write(f"# phi_step is {phi_step} {phi_units}.\n")
 
@@ -8015,23 +8065,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                         for i in range(len(frequencies)):
                             ofile.write(f"{re_r_te[i]:.5e}\t{im_r_te[i]:.5e}\t{re_r_tm[i]:.5e}\t{im_r_tm[i]:.5e}\n")
                     else:
-                        # Impedance scaling factor (computed once for this theta)
-                        imp_top.active_variation = v
-                        imp_bot.active_variation = v
-                        imp1_real = imp_top.get_expression_data(formula="real")[1]
-                        imp2_real = imp_bot.get_expression_data(formula="real")[1]
-
-                        factor = [math.sqrt(b / a) for a, b in zip(imp1_real, imp2_real)]
-
                         # T TE
                         t_te.active_variation = v
-                        re_t_te = [a * b for a, b in zip(t_te.get_expression_data(formula="real")[1], factor)]
-                        im_t_te = [a * b for a, b in zip(t_te.get_expression_data(formula="imag")[1], factor)]
+                        re_t_te = t_te.get_expression_data(formula="real")[1]
+                        im_t_te = t_te.get_expression_data(formula="imag")[1]
 
                         # T TM
                         t_tm.active_variation = v
-                        re_t_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="real")[1], factor)]
-                        im_t_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="imag")[1], factor)]
+                        re_t_tm = t_tm.get_expression_data(formula="real")[1]
+                        im_t_tm = t_tm.get_expression_data(formula="imag")[1]
 
                         for i in range(len(frequencies)):
                             ofile.write(
@@ -8090,38 +8132,29 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
                                     f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
-                                    # Duplicate phi 0 for the 360 case
+                                if phi_q.value == 0.0:
                                     write_360.append(output_str)
                                 ofile.write(output_str)
                         else:
-                            # Impedance scaling factor (computed once per (theta, phi))
-                            imp_top.active_variation = var_index[vkey]
-                            imp_bot.active_variation = var_index[vkey]
-                            imp1_real = imp_top.get_expression_data(formula="real")[1]
-                            imp2_real = imp_bot.get_expression_data(formula="real")[1]
-
-                            factor = [math.sqrt(b / a) for a, b in zip(imp2_real, imp1_real)]
-
                             # T TE TE
                             t_te.active_variation = var_index[vkey]
-                            re_t_te_te = [a * b for a, b in zip(t_te.get_expression_data(formula="real")[1], factor)]
-                            im_t_te_te = [a * b for a, b in zip(t_te.get_expression_data(formula="imag")[1], factor)]
+                            re_t_te_te = t_te.get_expression_data(formula="real")[1]
+                            im_t_te_te = t_te.get_expression_data(formula="imag")[1]
 
                             # T TM TM
                             t_tm.active_variation = var_index[vkey]
-                            re_t_tm_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="real")[1], factor)]
-                            im_t_tm_tm = [a * b for a, b in zip(t_tm.get_expression_data(formula="imag")[1], factor)]
+                            re_t_tm_tm = t_tm.get_expression_data(formula="real")[1]
+                            im_t_tm_tm = t_tm.get_expression_data(formula="imag")[1]
 
                             # T TM TE
                             t_tm_te.active_variation = var_index[vkey]
-                            re_t_tm_te = [a * b for a, b in zip(t_tm_te.get_expression_data(formula="real")[1], factor)]
-                            im_t_tm_te = [a * b for a, b in zip(t_tm_te.get_expression_data(formula="imag")[1], factor)]
+                            re_t_tm_te = t_tm_te.get_expression_data(formula="real")[1]
+                            im_t_tm_te = t_tm_te.get_expression_data(formula="imag")[1]
 
                             # T TE TM
                             t_te_tm.active_variation = var_index[vkey]
-                            re_t_te_tm = [a * b for a, b in zip(t_te_tm.get_expression_data(formula="real")[1], factor)]
-                            im_t_te_tm = [a * b for a, b in zip(t_te_tm.get_expression_data(formula="imag")[1], factor)]
+                            re_t_te_tm = t_te_tm.get_expression_data(formula="real")[1]
+                            im_t_te_tm = t_te_tm.get_expression_data(formula="imag")[1]
 
                             for i in range(len(frequencies)):
                                 output_str = (
@@ -8134,8 +8167,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
-                                    # Duplicate phi 0 for the 360 case
+                                if phi_q.value == 0.0:
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
@@ -8163,48 +8195,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                             re_r_te_tm = r_te_tm_inv.get_expression_data(formula="real")[1]
                             im_r_te_tm = r_te_tm_inv.get_expression_data(formula="imag")[1]
 
-                            # Impedance scaling factor for inverse part (mirrors original direction)
-                            imp_top.active_variation = var_index[vkey]
-                            imp_bot.active_variation = var_index[vkey]
-                            imp1_real = imp_top.get_expression_data(formula="real")[1]
-                            imp2_real = imp_bot.get_expression_data(formula="real")[1]
-                            factor = [math.sqrt(a / b) for a, b in zip(imp1_real, imp2_real)]
-
                             # T TE TE (inverse)
                             t_te_inv.active_variation = var_index[vkey]
-                            re_t_te_te = [
-                                a * b for a, b in zip(t_te_inv.get_expression_data(formula="real")[1], factor)
-                            ]
-                            im_t_te_te = [
-                                a * b for a, b in zip(t_te_inv.get_expression_data(formula="imag")[1], factor)
-                            ]
+                            re_t_te_te = t_te_inv.get_expression_data(formula="real")[1]
+                            im_t_te_te = t_te_inv.get_expression_data(formula="imag")[1]
 
                             # T TM TM (inverse)
                             t_tm_inv.active_variation = var_index[vkey]
-                            re_t_tm_tm = [
-                                a * b for a, b in zip(t_tm_inv.get_expression_data(formula="real")[1], factor)
-                            ]
-                            im_t_tm_tm = [
-                                a * b for a, b in zip(t_tm_inv.get_expression_data(formula="imag")[1], factor)
-                            ]
+                            re_t_tm_tm = t_tm_inv.get_expression_data(formula="real")[1]
+                            im_t_tm_tm = t_tm_inv.get_expression_data(formula="imag")[1]
 
                             # T TM TE (inverse)
                             t_tm_te_inv.active_variation = var_index[vkey]
-                            re_t_tm_te = [
-                                a * b for a, b in zip(t_tm_te_inv.get_expression_data(formula="real")[1], factor)
-                            ]
-                            im_t_tm_te = [
-                                a * b for a, b in zip(t_tm_te_inv.get_expression_data(formula="imag")[1], factor)
-                            ]
+                            re_t_tm_te = t_tm_te_inv.get_expression_data(formula="real")[1]
+                            im_t_tm_te = t_tm_te_inv.get_expression_data(formula="imag")[1]
 
                             # T TE TM (inverse)
                             t_te_tm_inv.active_variation = var_index[vkey]
-                            re_t_te_tm = [
-                                a * b for a, b in zip(t_te_tm_inv.get_expression_data(formula="real")[1], factor)
-                            ]
-                            im_t_te_tm = [
-                                a * b for a, b in zip(t_te_tm_inv.get_expression_data(formula="imag")[1], factor)
-                            ]
+                            re_t_te_tm = t_te_tm_inv.get_expression_data(formula="real")[1]
+                            im_t_te_tm = t_te_tm_inv.get_expression_data(formula="imag")[1]
 
                             for i in range(len(frequencies)):
                                 output_str = (
@@ -8217,14 +8226,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0 and not is_360_defined:
+                                if phi_q.value == 0.0:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
 
-                if not is_360_defined:
-                    for phi_360_str in write_360:
-                        ofile.write(phi_360_str)
+                for phi_360_str in write_360:
+                    ofile.write(phi_360_str)
 
         if len(frequencies) > 1:
             freq_step = frequencies[1] - frequencies[0]

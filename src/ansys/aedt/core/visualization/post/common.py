@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -55,6 +55,7 @@ from ansys.aedt.core.visualization.report import netlist as report_netlist
 from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
     from ansys.aedt.core.visualization.report.emi import EMIReceiver
     from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
     from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
@@ -65,7 +66,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
     from ansys.aedt.core.visualization.report.standard import Spectral
     from ansys.aedt.core.visualization.report.standard import Standard
-
 
 TEMPLATES_BY_NAME = {
     "Standard": report_standard.Standard,
@@ -612,17 +612,19 @@ class PostProcessorCommon(PyAedtBase):
             skip_plot = True
         if names and not skip_plot:
             for name in names:
-                obj = self._app.get_oo_object(self.oreportsetup, name)
+                new_name = re.sub(r"(?<!\\)/", r"\\/", name.replace("\\", "\\\\"))
+                obj = self._app.get_oo_object(self.oreportsetup, new_name)
                 report_type = obj.GetPropValue("Report Type")
-                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj.GetChildNames()):
+                obj_child_names = self._app.get_oo_name(obj)
+                if report_type == "Standard" and any("Bit Error Rate" in i for i in obj_child_names):
                     report_type = "AMI Contour"
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
-                traces = obj.GetChildNames()
+                traces = self._app.get_oo_name(obj)
                 solution = None
                 for trc_name in traces:
-                    trc_obj = obj.GetChildObject(trc_name)
                     try:
-                        solution = trc_obj.GetPropValue("Solution")
+                        new_trace_name = re.sub(r"(?<!\\)/", r"\\/", trc_name.replace("\\", "\\\\"))
+                        solution = self._app.get_oo_property_value(obj, new_trace_name, "Solution")
                         break
                     except Exception:  # nosec
                         pass
@@ -796,7 +798,7 @@ class PostProcessorCommon(PyAedtBase):
             self.oreportsetup.RenameReport(plot_name, new_name)
             for plot in self.plots:
                 if plot.plot_name == plot_name:
-                    plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
+                    plot.plot_name = self._app.get_oo_property_value(self.oreportsetup, new_name, "Name")
             return True
         except Exception:
             return False
@@ -1675,15 +1677,15 @@ class PostProcessorCommon(PyAedtBase):
     def get_solution_data(
         self,
         expressions: str | list = None,
-        setup_sweep_name: str = None,
-        domain: str = None,
-        variations: dict = None,
-        primary_sweep_variable: str = None,
-        report_category: str = None,
-        context: str | dict = None,
-        subdesign_id: int = None,
+        setup_sweep_name: str | None = None,
+        domain: str | None = None,
+        variations: dict | None = None,
+        primary_sweep_variable: str | None = None,
+        report_category: str | None = None,
+        context: str | dict | None = None,
+        subdesign_id: int | None = None,
         polyline_points: int = 1001,
-        math_formula: str = None,
+        math_formula: str | None = None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
@@ -1856,6 +1858,9 @@ class PostProcessorCommon(PyAedtBase):
             Dictionary containing report settings.
         solution_name : str, optional
             Setup name to use.
+        name: str, optional
+            Report name. The default is ``None``, in which case the
+            default name is used.
         matplotlib : bool, optional
             Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
         show : bool, optional
@@ -2007,8 +2012,9 @@ class PostProcessorCommon(PyAedtBase):
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
+    @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> "ReportPlotter":
         """Create a Matplotlib plot from a report.
 
         Parameters

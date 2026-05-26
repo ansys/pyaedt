@@ -1047,7 +1047,7 @@ class Design(AedtObjects, PyAedtBase):
             Full absolute path for the ``temp`` directory.
 
         """
-        return self.odesktop.GetTempDirectory()
+        return self.desktop_class.temp_directory
 
     @property
     def toolkit_directory(self) -> str:
@@ -1270,15 +1270,20 @@ class Design(AedtObjects, PyAedtBase):
             ):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
-                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    directory_name = p.parent
+                    # If file is inside the installation directory
+                    if directory_name.is_relative_to(Path(self.desktop_class.aedt_install_dir)):
+                        directory_name = Path(self.desktop_class.global_project_directory)
+                    save_to_file = available_file_name(directory_name / f"{p.stem}.aedt")
                     if str(p.stem) in self.desktop_class.project_list:
-                        save_to_file = available_file_name(p.parent / f"{generate_unique_name(str(p.stem))}.aedt")
+                        save_to_file = available_file_name(directory_name / f"{generate_unique_name(str(p.stem))}.aedt")
                     self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
                     proj_name = save_to_file.stem
                     self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
+
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     if ".def" in proj_name:
                         project = str(Path(proj_name).parent)[:-5] + ".aedt"
@@ -2579,9 +2584,6 @@ class Design(AedtObjects, PyAedtBase):
     def release_desktop(self, close_projects: bool = True, close_desktop: bool = True) -> bool:
         """Release AEDT.
 
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
-
         Parameters
         ----------
         close_projects : bool, optional
@@ -2929,6 +2931,11 @@ class Design(AedtObjects, PyAedtBase):
         zlist = []
         vlist = []
 
+        # Only Maxwell and Icepak enable design datasets
+        if not is_project_dataset and self.design_type not in ["Maxwell 3D", "Icepak"]:
+            self.logger.warning("Only Maxwell and Icepak enable design datasets. Setting is_project_dataset=True")
+            is_project_dataset = True
+
         if file_extension == "xlsx":
             self.logger.warning("You need pandas and openpyxl library installed for reading excel files")
             lines = read_xlsx(path)
@@ -2973,12 +2980,12 @@ class Design(AedtObjects, PyAedtBase):
         if not name:
             name = path.stem
 
-        is_project_dataset = False
-        if name.startswith("$"):
-            name = name[1:]
-            is_project_dataset = True
+        if not is_project_dataset and name.startswith("$"):
+            name = name.removeprefix("$")
+            self.logger.warning("Design dataset names don't have the $ prefix. Removing $ from dataset name. ")
 
-        if self.design_type not in ["Maxwell 3D", "Icepak"]:
+        if name.startswith("$"):
+            name = name.removeprefix("$")
             is_project_dataset = True
 
         return self.create_dataset(
@@ -4347,7 +4354,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesktop.SetTempDirectory()
         """
         path = Path(path)
-        self.odesktop.SetTempDirectory(str(path))
+        self.desktop_class.temp_directory = path
         return True
 
     @pyaedt_function_handler()

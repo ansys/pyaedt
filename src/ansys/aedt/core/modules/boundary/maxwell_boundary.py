@@ -237,12 +237,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @property
     def _child_object(self):
-        cc = self._app.odesign.GetChildObject("Parameters")
+        cc = self._app.get_oo_object(self._app.odesign, "Parameters")
         child_object = None
-        if self._name in cc.GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
-        elif self._name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
+        if self._name in self._app.get_oo_name(self._app.odesign, "Parameters"):
+            child_object = self._app.get_oo_object(cc, self._name)
 
         return child_object
 
@@ -449,14 +447,16 @@ class MaxwellMatrix(MaxwellParameters):
         """
         if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             self.__reduced_matrices = []
-            parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
-            child_names = parent_object.GetChildNames()
+            parent_object = self._app.get_oo_object(self._app.get_oo_object(self._app.odesign, "Parameters"), self.name)
+            child_names = self._app.get_oo_name(parent_object)
             for r in child_names:
-                reduced_matrix_object = parent_object.GetChildObject(r)
-                reduced_operations = reduced_matrix_object.GetChildNames()
+                reduced_matrix_object = self._app.get_oo_object(parent_object, r)
+                reduced_operations = self._app.get_oo_name(reduced_matrix_object)
                 operation_object = []
                 for operation_name in reduced_operations:
-                    sources = reduced_matrix_object.GetChildObject(operation_name).GetPropValue("Source").split(", ")
+                    sources = self._app.get_oo_property_value(reduced_matrix_object, operation_name, "Source").split(
+                        ", "
+                    )
                     operation_object.append(MaxwellReducedMatrixOperation(self.name, r, operation_name, sources))
                 self.__reduced_matrices.append(MaxwellReducedMatrix(self._app, self, r, operation_object))
         return self.__reduced_matrices

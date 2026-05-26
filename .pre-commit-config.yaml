@@ -1,21 +1,19 @@
+# NOTE: if the 'autoupdate_commit_msg' is changed, the changes must be adapted in label.yml
 ci:
   autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
-  autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
-  autoupdate_schedule: weekly
 
 exclude: |
   (?x)(
       src/ansys/aedt/core/rpc/|
       src/ansys/aedt/core/sbrplus/matlab/|
       src/ansys/aedt/core/extensions/installer|
-      src/pyaedt|
       tests/system/.*/example_models/
   )
 
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: aca6d4c8045a504e2812ea4bedff1d0a09e437bc  # frozen: v0.15.8
+  rev: 5e2fb545eba1ea9dc051f6f962d52fe8f76a9794  # frozen: v0.15.13
   hooks:
     - id: ruff-check
     - id: ruff-format
@@ -36,15 +34,15 @@ repos:
 
 # Validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: ed81924a8b1cecdaa570b072528fa80c9c4d6ccd  # frozen: 0.37.1
+  rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: dda8db18cfc68df532abf33b185ecd12d5b7b326  # frozen: 1.20.0
+  rev: fda77690955e9b63c6687d8806bafd56a526e45f  # frozen: 1.20.0
   hooks:
     - id: blacken-docs
-      additional_dependencies: [black==25.1.0]
+      additional_dependencies: [black==26.5.1]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
@@ -53,7 +51,7 @@ repos:
     - id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: 680b297da7584a07eb7c92b6b4e9baf88ece3e0e  # frozen: v0.6.0
+  rev: ad4e7598809ad98cde5aaf52d80040c7ac56e7cf  # frozen: v0.7.2
   hooks:
     - id: add-license-headers
       exclude: |

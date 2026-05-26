@@ -31,6 +31,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 from matplotlib.colors import BoundaryNorm
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -237,8 +238,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                victim_node = self._revision.get_component_node(self._victim)
                 victim_bands = self._revision.get_band_names(
-                    radio_name=self._victim,
+                    radio_node=victim_node,
                     tx_rx_mode=TxRxMode.RX,
                 )
             else:
@@ -274,8 +276,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         try:
             self._emi = []
             if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
+                aggressor_node = self._revision.get_component_node(self._aggressor)
                 aggressor_bands = self._revision.get_band_names(
-                    radio_name=self._aggressor,
+                    radio_node=aggressor_node,
                     tx_rx_mode=TxRxMode.TX,
                 )
             else:
@@ -474,9 +477,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             # Data spans all three ranges (normal case)
             colors = ["green", "yellow", "red"]
             boundaries = [min_val - 0.01, yellow_threshold + 1e-10, red_threshold + 1e-10, max_val + 0.01]
-
-        # Create colormap and normalization
-        from matplotlib.colors import ListedColormap
 
         cmap = ListedColormap(colors)
         norm = BoundaryNorm(boundaries, cmap.N)

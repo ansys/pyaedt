@@ -39,6 +39,8 @@ from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2026.1
 
+module_file_path = __file__
+
 
 class AedtVersions(PyAedtBase):
     """Class to get the AEDT versions on the system.
@@ -53,6 +55,48 @@ class AedtVersions(PyAedtBase):
         self._current_version = None
         self._current_student_version = None
         self._latest_version = None
+        # NOTE: Attributes related the logic of using the PyAEDT bundled in AEDT
+        self._is_pyaedt_in_edt = None
+        self._pyaedt_edt_version = None
+
+    def is_pyaedt_in_edt(self, test_script_dir=None):
+
+        if test_script_dir is None:
+            script_dir = Path(module_file_path).resolve().parent
+        else:
+            script_dir = Path(test_script_dir).resolve().parent
+            self._is_pyaedt_in_edt = None
+            self._pyaedt_edt_version = None
+
+        if self._is_pyaedt_in_edt is None:
+            self._is_pyaedt_in_edt = False
+            self._pyaedt_edt_version = ""
+
+            aedt_env_var_prefix = "ANSYSEM_ROOT"
+            version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
+
+            for version_env_var in version_list:
+                product_dir = os.getenv(version_env_var)
+                parent_dir = os.path.join(product_dir, "..")
+                _script_dir = Path(script_dir).resolve()
+
+                _parent_dir = Path(parent_dir).resolve()
+                if _script_dir.is_relative_to(_parent_dir) or _script_dir.is_relative_to(product_dir):
+                    self._is_pyaedt_in_edt = True
+                    current_version_id = version_env_var.replace(aedt_env_var_prefix, "")
+                    version = int(current_version_id[0:2])
+                    release = int(current_version_id[2])
+                    self._pyaedt_edt_version = f"20{version}.{release}"
+                    break
+
+        return self._is_pyaedt_in_edt
+
+    @property
+    def pyaedt_edt_version(self):
+        if self._pyaedt_edt_version is None:
+            self.is_pyaedt_in_edt()
+
+        return self._pyaedt_edt_version
 
     @property
     def list_installed_ansysem(self) -> list:
@@ -63,11 +107,6 @@ class AedtVersions(PyAedtBase):
         if self._list_installed_ansysem is None:
             version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
             version_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
-            if not version_list:
-                warnings.warn(
-                    "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx`` or"
-                    "``AWP_ROOTxxx``."
-                )
 
             version_pattern = re.compile(r"^(AWP_ROOT)\d{3}$")
             version_awp_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
@@ -77,6 +116,11 @@ class AedtVersions(PyAedtBase):
                     ansys_em = Path(os.environ[version_awp]) / "AnsysEM"
                     if ansys_em.exists():
                         version_list.append(str(version_awp))
+            if not version_list:
+                warnings.warn(
+                    "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx`` or"
+                    "``AWP_ROOTxxx``."
+                )
 
             self._list_installed_ansysem = version_list
         return self._list_installed_ansysem

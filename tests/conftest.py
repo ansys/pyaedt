@@ -71,7 +71,7 @@ DEFAULT_CONFIG = {
     "local_example_folder": None,
     "skip_circuits": False,
     "skip_modelithics": True,
-    "use_pyedb_grpc": False,
+    "use_pyedb_grpc": True,
 }
 
 local_path = Path(__file__).parent
@@ -242,8 +242,8 @@ def desktop(tmp_path_factory, request):
 
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
 
-    desktop_app.odesktop.SetTempDirectory(str(base))
-    desktop_app.odesktop.SetProjectDirectory(str(base))
+    desktop_app.temp_directory = base
+    desktop_app.global_project_directory = base
 
     desktop_app.disable_autosave()
     yield desktop_app

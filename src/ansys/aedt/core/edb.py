@@ -26,9 +26,12 @@
 from typing import TYPE_CHECKING
 from typing import Any
 
+# NOTE: Do not perform pyedb imports out of TYPECHECKING or the methods below to avoid conda issues.
+# Currently pyedb isn't part of conda and importing it at the top level of this module leads to
+# errors when importing ansys.aedt.core
 if TYPE_CHECKING:
-    from pyedb import Siwave
-from pyedb import Edb as EdbApp
+    from pyedb.generic.design_types import Edb as EdbApp
+    from pyedb.generic.design_types import Siwave
 
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -115,6 +118,8 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
+    from pyedb.generic.design_types import Edb as EdbApp
+
     if version is not None:
         # Clear global state before initialization
         settings.aedt_version = None
@@ -127,7 +132,7 @@ def Edb(
             settings.aedt_version = aedt_versions.current_version
 
     if settings.pyedb_use_grpc is None:
-        if settings.aedt_version > "2026.1":  # pragma: no cover
+        if settings.aedt_version >= "2026.1":  # pragma: no cover
             settings.logger.info("No EDB gRPC setting provided. Enabling gRPC for EDB.")
             settings.pyedb_use_grpc = True
         else:
@@ -156,7 +161,7 @@ def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
     """Siwave Class."""
-    from pyedb.siwave import Siwave as app
+    from pyedb.generic.design_types import Siwave as app
 
     return app(
         specified_version=specified_version,

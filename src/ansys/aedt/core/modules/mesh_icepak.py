@@ -282,7 +282,7 @@ class CommonRegion(PyAedtBase):
         if isinstance(self, Region):
             # use native apis instead of history() for performance reasons
             for o, oo in self._app.modeler.objects_by_name.items():
-                child_names = self._app.oeditor.GetChildObject(o).GetChildNames()
+                child_names = self._app.get_oo_name(self._app.oeditor, o)
                 if child_names and child_names[0].startswith("CreateRegion"):
                     return oo
             return None
@@ -661,7 +661,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             cc = self._app.get_oo_object(self._app.odesign, "Mesh")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+                child_object = self._app.get_oo_object(cc, self._name)
         return child_object
 
     @abstractmethod
@@ -918,17 +918,17 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
+            mesh_oo = self._app.get_oo_object(self._app.odesign, "Mesh")
+            if self.name in self._app.get_oo_name(self._app.odesign, "Mesh"):
                 # try to update name, APIs lacking an easy method before 242
                 if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
                     parts = []
                     subparts = []
-                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                        subparts = (
-                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
-                        )
+                    region_props = self._app.get_oo_properties(mesh_oo, self.name)
+                    if "Parts" in region_props:
+                        parts = self._app.get_oo_property_value(mesh_oo, self.name, "Parts")
+                    if "Submodels" in region_props:
+                        subparts = self._app.get_oo_property_value(mesh_oo, self.name, "Submodels")
                     if not isinstance(parts, list):
                         parts = [parts]
                     if not isinstance(subparts, list):
@@ -950,9 +950,7 @@ class MeshRegion(MeshRegionCommon):
                         if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
                             self._assignment.name = sr
                 else:
-                    self._assignment.name = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
-                    )
+                    self._assignment.name = self._app.get_oo_property_value(mesh_oo, self.name, "Assignment")
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment
@@ -1269,14 +1267,14 @@ class IcepakMesh(PyAedtBase):
             obj_3d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
             ]
             obj_2d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and not o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(not p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and not o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
             ]
             if obj_3d:
                 level_3d = {

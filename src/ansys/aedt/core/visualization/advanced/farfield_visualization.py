@@ -40,6 +40,8 @@ if TYPE_CHECKING:
     from pyvista import Plotter
     from pyvista import UnstructuredGrid
 
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -49,9 +51,8 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
-from ansys.aedt.core.internal.checks import graphics_required
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
+from ansys.aedt.core.internal.checks import is_notebook
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
 
@@ -805,7 +806,7 @@ class FfdSolutionData(PyAedtBase):
         polar: bool = True,
         max_theta: int = 180,
         show: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a contour plot of a specified quantity in Matplotlib.
 
         Parameters
@@ -855,6 +856,8 @@ class FfdSolutionData(PyAedtBase):
         >>> data.plot_contour()
 
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if not title:
             title = quantity
 
@@ -908,7 +911,7 @@ class FfdSolutionData(PyAedtBase):
         show: bool = True,
         is_polar: bool = False,
         show_legend: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a 2D plot of a specified quantity in Matplotlib.
 
         Parameters
@@ -959,6 +962,8 @@ class FfdSolutionData(PyAedtBase):
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if isinstance(output_file, Path):
             output_file = str(output_file)
         data = self.combine_farfield(phi, theta)
@@ -1025,7 +1030,7 @@ class FfdSolutionData(PyAedtBase):
         quantity_format: str = "dB10",
         output_file: str = None,
         show: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a 3D chart of a specified quantity in Matplotlib.
 
         Parameters
@@ -1066,6 +1071,8 @@ class FfdSolutionData(PyAedtBase):
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
             raise Exception("Far field quantity is not available.")
@@ -1097,7 +1104,7 @@ class FfdSolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    @graphics_required
+    @requires_graphical_dependency("pyvista")
     def plot_3d(
         self,
         quantity: str = "RealizedGain",
@@ -1427,11 +1434,13 @@ class FfdSolutionData(PyAedtBase):
         if self.__is_array:
             non_array_geometry = model_info.copy()
             components_info = self.__component_objects
-            array_dimension = self.__array_dimension
             first_value = next(iter(model_info.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
             cell_info = self.__cell_position
+            cell_centers = [cell[1] for cell_row in cell_info for cell in cell_row if cell]
+            x_center = 0.5 * (min(cell[0] for cell in cell_centers) + max(cell[0] for cell in cell_centers))
+            y_center = 0.5 * (min(cell[1] for cell in cell_centers) + max(cell[1] for cell in cell_centers))
 
             for cell_row in cell_info:
                 for cell_col in cell_row:
@@ -1457,15 +1466,10 @@ class FfdSolutionData(PyAedtBase):
 
                     model_pv.generate_geometry_mesh()
                     comp_meshes = []
-                    row, col = cell_col[3]
-
-                    # Perpendicular lattice vector
-                    if self.__lattice_vector[0] != 0:
-                        pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
-                    else:
-                        pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
+                    cell_position = cell_col[1]
+                    pos_x = cell_position[0] - x_center
+                    pos_y = cell_position[1] - y_center
+                    pos_z = cell_position[2] + component_info[0][2]
 
                     for obj in model_pv.objects:
                         mesh = obj._cached_polydata
@@ -1481,7 +1485,7 @@ class FfdSolutionData(PyAedtBase):
                             translated_mesh.rotate_z(rotation, inplace=True)
 
                         # Translate the mesh to its position
-                        translated_mesh.translate([pos_x / sf, pos_y / sf, component_info[0][2] / sf], inplace=True)
+                        translated_mesh.translate([pos_x / sf, pos_y / sf, pos_z / sf], inplace=True)
 
                         comp_meshes.append([translated_mesh, color_cad, obj.opacity])
 

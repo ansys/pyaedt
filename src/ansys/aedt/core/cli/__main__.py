@@ -22,14 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ctypes
-import os
+from ansys.aedt.core.cli import app
 
-from ansys.aedt.core.generic.general_methods import is_linux
-from tests.conftest import DESKTOP_VERSION
-
-reduced_version = DESKTOP_VERSION[2:6].replace(".", "")
-base_path = os.environ[f"ANSYSEM_ROOT{reduced_version}"]
-if is_linux:
-    ctypes.cdll.LoadLibrary(os.path.join(base_path, "common", "mono", "Linux64", "lib", "libmonosgen-2.0.so.1"))
-    ctypes.cdll.LoadLibrary(os.path.join(base_path, "libEDBCWrapper.so"))
+if __name__ == "__main__":
+    app()
