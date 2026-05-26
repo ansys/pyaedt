@@ -119,7 +119,7 @@ jobs:
       pull-requests: write  # Required to update PR with changelog information
     runs-on: ubuntu-latest
     steps:
-    - uses: ansys/actions/doc-changelog@12ca08fd7f0caa52076cca15c5621482646f8560 # v10.3.1
+    - uses: ansys/actions/doc-changelog@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
       with:
         bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
