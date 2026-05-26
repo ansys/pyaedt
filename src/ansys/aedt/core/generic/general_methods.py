@@ -26,8 +26,8 @@ from __future__ import annotations
 
 import datetime
 import difflib
-import functools
 from functools import update_wrapper
+from functools import wraps
 import inspect
 import itertools
 import logging
@@ -41,6 +41,8 @@ import sys
 import time
 import traceback
 from typing import TYPE_CHECKING
+from typing import Callable
+from typing import TypeVar
 
 if TYPE_CHECKING:
     from numpy import array
@@ -56,6 +58,8 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 system = platform.system()
 is_linux = system == "Linux"
@@ -287,8 +291,8 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
             If ``False``, a DeprecationWarning is issued.
     """
 
-    def decorator(func):
-        @functools.wraps(func)
+    def decorator(func: _F) -> _F:
+        @wraps(func)
         def wrapper(*args, **kwargs):
             sig = inspect.signature(func)
             try:
@@ -312,16 +316,27 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
 
             return func(*args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
 
-def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
-    """Provide an exception handler, logging mechanism, and argument converter for client-server communications.
+def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) -> _F:
+    """Decorator that provides exception handling, execution logging, and deprecated kwargs management.
 
-    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
-    and displays errors.
+    On successful execution, the decorated function returns its normal return value.
+
+    On exception, the behavior depends on ``settings.enable_error_handler``:
+
+    - If ``True``: the exception is caught, logged, and ``False`` is returned
+      (or ``None`` when the exception originates from ``__init__``).
+      If ``settings.release_on_exception`` is also ``True``, all active desktop
+      sessions are released before re-raising.
+    - If ``False``: the exception is re-raised directly to the caller.
+
+    ``**deprecated_kwargs`` maps old argument names to their replacements.
+    A ``DeprecationWarning`` is emitted when a deprecated argument is used,
+    and a ``TypeError`` is raised if both the old and new name are supplied.
 
     """
     if callable(direct_func):
