@@ -37,10 +37,6 @@ class Interaction:
         self.revision = revision
         self._invalidated = False
         self._was_run = False  # True only after sim.run() creates this interaction
-        # Register with the project for automatic invalidation on close/reload.
-        # Mirrors C++ EmitApiPrivate::registerInteraction().
-        if hasattr(emit_obj, "_register_interaction"):
-            emit_obj._register_interaction(self)
 
     def invalidate(self) -> None:
         """Mark this interaction as invalid due to state changes in radio pair/N-to-1 configuration."""
