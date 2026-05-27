@@ -298,6 +298,20 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
+    "announcement": (
+        '<div id="pyaedt-release-banner" class="pyaedt-release-banner" '
+        'role="region" aria-label="PyAEDT 1.0 announcement">'
+        '<span class="pyaedt-release-banner__emoji" '
+        'aria-hidden="true">🎉</span>'
+        '<span class="pyaedt-release-banner__text">'
+        "<strong>PyAEDT 1.0 is here.</strong> "
+        'See the <a href="/version/stable/release_1_0.html">migration guide</a> '
+        'and <a href="/version/stable/changelog.html">full release notes</a>.'
+        "</span>"
+        '<span class="pyaedt-release-banner__emoji" '
+        'aria-hidden="true">🚀</span>'
+        "</div>"
+    ),
 }
 
 

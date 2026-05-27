@@ -4,30 +4,84 @@
     flex: 0 0 30%;
     max-width: 30%;
 }
+
 .col-xl-7 {
     flex: 0 0 53.33333%;
     max-width: 53.33333%;
-  }
+}
 
 .bd-toc {
     padding-top: 5em;
 }
 
 
-nav.bd-links ul li.toctree-l1 > a {
-  font-size: .90rem;
+nav.bd-links ul li.toctree-l1>a {
+    font-size: .90rem;
 }
 
-nav.bd-links ul li.toctree-l2 > a {
+nav.bd-links ul li.toctree-l2>a {
     font-size: .85rem;
     text-indent: 1px;
 }
-nav.bd-links ul li.toctree-l3 > a {
+
+nav.bd-links ul li.toctree-l3>a {
     font-size: .85rem;
     text-indent: 2px;
 }
 
-nav.bd-links ul li.toctree-l4 > a {
+nav.bd-links ul li.toctree-l4>a {
     font-size: .8rem;
     text-indent: 3px;
+}
+
+.bd-header-announcement {
+    background: linear-gradient(90deg, #0b1f33 0%, #0f6d8c 52%, #12a3a8 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 10px 24px rgba(11, 31, 51, 0.16);
+}
+
+.pyaedt-release-banner {
+    width: min(1200px, calc(100vw - 2rem));
+    margin: 0 auto;
+    padding: 0.8rem 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+}
+
+.pyaedt-release-banner__emoji {
+    font-size: 1.1rem;
+}
+
+.pyaedt-release-banner__text strong {
+    font-weight: 700;
+}
+
+.pyaedt-release-banner a {
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.pyaedt-release-banner a:hover,
+.pyaedt-release-banner a:focus-visible {
+    color: #d9f8ff;
+}
+
+@media (max-width: 767px) {
+    .pyaedt-release-banner {
+        width: calc(100vw - 1.5rem);
+        grid-template-columns: auto 1fr auto;
+        gap: 0.55rem;
+        font-size: 0.9rem;
+    }
+
+    .pyaedt-release-banner__emoji:last-of-type {
+        display: none;
+    }
 }

@@ -7,40 +7,12 @@ PyAEDT documentation  |version|
 `Issues <https://github.com/ansys/pyaedt/issues>`_ |
 `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_
 
-.. raw:: html
-
-        <div id="pyaedt-1-banner" class="alert alert-warning alert-dismissible" role="alert" style="margin: 1rem 0 1.5rem;">
-            <strong>PyAEDT 1.0 is now available.</strong>
-            This major release includes finalized 1.0 updates, migration guidance, and breaking changes to review before upgrading.
-            <a class="alert-link" href="release_1_0.html">Migration guide</a>
-            <span>|</span>
-            <a class="alert-link" href="changelog.html">Full release notes</a>
-            <button type="button" class="btn-close" aria-label="Dismiss" onclick="(function(){const banner=document.getElementById('pyaedt-1-banner'); if(banner){banner.remove();} try {localStorage.setItem('pyaedt-1-banner-dismissed','true');} catch (e) {}})();"></button>
-        </div>
-        <script>
-            (function() {
-                try {
-                    if (localStorage.getItem('pyaedt-1-banner-dismissed') === 'true') {
-                        const banner = document.getElementById('pyaedt-1-banner');
-                        if (banner) {
-                            banner.remove();
-                        }
-                    }
-                } catch (e) {}
-            })();
-        </script>
-
 .. figure:: _static/logo.png
     :align: center
     :width: 640px
 
 PyAEDT is a Python client library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
-
-.. important:: PyAEDT 1.0 is now available
-    PyAEDT 1.0 has been released and includes the completed major-version updates for the project.
-    Review the :ref:`release_1_0` to understand the migration and breaking changes, and see the
-    :doc:`full release notes <changelog>` for the complete list of updates included in version 1.0.
 
 .. note::
     Also consider viewing the `PyEDB documentation <https://edb.docs.pyansys.com/version/stable/>`_.
