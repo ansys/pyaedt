@@ -302,11 +302,11 @@ html_theme_options = {
         '<div id="pyaedt-release-banner" class="pyaedt-release-banner" '
         'role="region" aria-label="PyAEDT 1.0 announcement">'
         '<span class="pyaedt-release-banner__text">'
-        "🎉 <strong>PyAEDT 1.0 is here.</strong> See the "
+        "<strong>PyAEDT 1.0 is here.</strong> See the "
         '<a href="https://aedt.docs.pyansys.com/version/stable/release_1_0.html">'
         "migration guide</a> and "
         '<a href="https://aedt.docs.pyansys.com/version/stable/changelog.html">'
-        "full release notes</a>. 🚀"
+        "full release notes</a>"
         "</span>"
         "</div>"
     ),
