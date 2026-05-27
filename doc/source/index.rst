@@ -7,6 +7,15 @@ PyAEDT documentation  |version|
 `Issues <https://github.com/ansys/pyaedt/issues>`_ |
 `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_
 
+.. grid:: 1
+
+    .. grid-item-card:: PyAEDT 1.0 is now available
+
+        **PyAEDT 1.0 has been officially released.**
+        This major release includes the finalized 1.0 updates, migration guidance, and breaking changes you should review before upgrading.
+
+        See the :ref:`release_1_0` and the :doc:`full release notes <changelog>`.
+
 .. figure:: _static/logo.png
     :align: center
     :width: 640px
@@ -14,9 +23,10 @@ PyAEDT documentation  |version|
 PyAEDT is a Python client library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
 
-.. note:: Expected breaking changes with version `1.0`
-   If you want to know more about the breaking changes expected
-   in the incoming version `1.0`, see the :ref:`release_1_0`.
+.. important:: PyAEDT 1.0 is now available
+    PyAEDT 1.0 has been released and includes the completed major-version updates for the project.
+    Review the :ref:`release_1_0` to understand the migration and breaking changes, and see the
+    :doc:`full release notes <changelog>` for the complete list of updates included in version 1.0.
 
 .. note::
     Also consider viewing the `PyEDB documentation <https://edb.docs.pyansys.com/version/stable/>`_.
