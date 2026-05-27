@@ -34,6 +34,7 @@ from ansys.aedt.core.emit_core.nodes.generated import Band
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.results.interaction import Interaction
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
+from ansys.aedt.core.emit_core.results.license_session import LicenseSession
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -521,8 +522,8 @@ class Simulation:
     def get_license_session(self):
         """Get a license session.
 
-        A license session can be started with checkout(), and ended with check in().
-        The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
+        For AEDT 2027.1+, creating the returned object checks out a solver license immediately.
+        The `with` keyword is recommended and will check the license back in on scope exit.
 
         Avoids having to wait for license check in and checkout when doing many runs.
 
@@ -533,6 +534,9 @@ class Simulation:
             domain = InteractionDomain(aedtapp)
             sim.run(domain)
         """
+        if self.aedt_version >= 271:
+            return LicenseSession(self._revision.emit_project._emit_com_module, self._revision.results_index)
+
         engine = self._revision.emit_project._emit_api.get_engine()
         return engine.license_session()
 

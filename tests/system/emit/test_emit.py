@@ -2001,7 +2001,6 @@ def test_result_categories_with_simulation(emit_app):
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
-@pytest.mark.skipif(True, reason="License session not moved yet.")
 def test_license_session(interference):
     # Generate a revision
     results = interference.results
@@ -2018,27 +2017,25 @@ def test_license_session(interference):
     # Do a run to ensure the license log exists
     do_run()
 
-    # Find the license log for this process
+    # Find the most recent ansyscl license log.
+    # For 2027.1+, checkout/check in can occur in the EMIT subprocess, so
+    # filtering by this Python process id is not reliable.
     appdata_local_path = tempfile.gettempdir()
-    pid = os.getpid()
     dot_ansys_directory = Path(appdata_local_path) / ".ansys"
 
-    license_file_path = ""
+    license_logs = []
     for file in dot_ansys_directory.iterdir():
+        if not file.is_file():
+            continue
         filename_pieces = file.name.split(".")
-        # Since machine names can contain periods, there may be over five splits here
-        # We only care about the first split and last three splits
+        # Since machine names can contain periods, there may be over five splits here.
+        # We only care about ansyscl.*.*.log shape and that the sequence id is numeric.
         if len(filename_pieces) >= 5:
-            if (
-                filename_pieces[0] == "ansyscl"
-                and filename_pieces[-3] == str(pid)
-                and filename_pieces[-2].isnumeric()
-                and filename_pieces[-1] == "log"
-            ):
-                license_file_path = dot_ansys_directory / file.name
-                break
+            if filename_pieces[0] == "ansyscl" and filename_pieces[-2].isnumeric() and filename_pieces[-1] == "log":
+                license_logs.append(file)
 
-    assert license_file_path != ""
+    assert len(license_logs) > 0
+    license_file_path = max(license_logs, key=lambda path: path.stat().st_mtime)
 
     def count_license_actions(license_path):
         # Count checkout/checkins in most recent license connection
