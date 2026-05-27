@@ -7,14 +7,28 @@ PyAEDT documentation  |version|
 `Issues <https://github.com/ansys/pyaedt/issues>`_ |
 `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_
 
-.. grid:: 1
+.. raw:: html
 
-    .. grid-item-card:: PyAEDT 1.0 is now available
-
-        **PyAEDT 1.0 has been officially released.**
-        This major release includes the finalized 1.0 updates, migration guidance, and breaking changes you should review before upgrading.
-
-        See the :ref:`release_1_0` and the :doc:`full release notes <changelog>`.
+        <div id="pyaedt-1-banner" class="alert alert-warning alert-dismissible" role="alert" style="margin: 1rem 0 1.5rem;">
+            <strong>PyAEDT 1.0 is now available.</strong>
+            This major release includes finalized 1.0 updates, migration guidance, and breaking changes to review before upgrading.
+            <a class="alert-link" href="release_1_0.html">Migration guide</a>
+            <span>|</span>
+            <a class="alert-link" href="changelog.html">Full release notes</a>
+            <button type="button" class="btn-close" aria-label="Dismiss" onclick="(function(){const banner=document.getElementById('pyaedt-1-banner'); if(banner){banner.remove();} try {localStorage.setItem('pyaedt-1-banner-dismissed','true');} catch (e) {}})();"></button>
+        </div>
+        <script>
+            (function() {
+                try {
+                    if (localStorage.getItem('pyaedt-1-banner-dismissed') === 'true') {
+                        const banner = document.getElementById('pyaedt-1-banner');
+                        if (banner) {
+                            banner.remove();
+                        }
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
 .. figure:: _static/logo.png
     :align: center
