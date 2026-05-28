@@ -123,6 +123,8 @@ class Results:
                     self.current_revision = None
             for rev in self.revisions:
                 if revision_name in rev.name:
+                    if self.aedt_version >= 271:
+                        rev.invalidate_all_interactions()
                     self.revisions.remove(rev)
                     break
         else:
@@ -172,6 +174,8 @@ class Results:
         None
         """
         for rev in self.revisions:
+            if self.aedt_version >= 271:
+                rev.invalidate_all_interactions()
             rev.revision_loaded = False
 
     @pyaedt_function_handler()

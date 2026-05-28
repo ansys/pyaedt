@@ -37,10 +37,13 @@ class Interaction:
         self.revision = revision
         self._invalidated = False
         self._was_run = False  # True only after sim.run() creates this interaction
+        self._instances = []
 
     def invalidate(self) -> None:
         """Mark this interaction as invalid due to state changes in radio pair/N-to-1 configuration."""
         self._invalidated = True
+        for instance in self._instances:
+            instance.invalidate()
 
     @staticmethod
     def _is_domain_empty(domain: InteractionDomain) -> bool:
@@ -223,8 +226,8 @@ class Interaction:
         RuntimeError
             If the domain is invalid, not fully defined, or if instance data cannot be retrieved.
         """
-        # Check interaction validity
-        if self._invalidated or not self._was_run:
+        # Association validity: explicit invalidation and undefined unrun handles.
+        if self._invalidated or (self._is_domain_empty(self.domain) and not self._was_run):
             raise ValueError("Interaction not associated with current Result object.")
 
         # GetInstance only supports a single interferer.
@@ -242,7 +245,7 @@ class Interaction:
 
         # get_instance_count validates the domain (catches bad radio/band names) and
         # returns 0 when the radio pair is disabled at the simulation level.
-        if self.get_instance_count(domain) == 0:
+        if self.revision.get_simulation().get_instance_count(domain) == 0:
             raise RuntimeError("Radio pair disabled.")
 
         # Fetch instance data. The backend always computes both EMI and desense
@@ -260,52 +263,13 @@ class Interaction:
 
         # Populate both EMI and desense from the single response array.
         instance = InteractionInstance(self.emit_project, domain, self.revision, self)
+        self._instances.append(instance)
         if instance_values and len(instance_values) >= 3:
             instance._encoded_emi = int(instance_values[0])
             instance._encoded_desense = int(instance_values[1])
             instance._largest_emi_interferer_type = int(instance_values[2])
 
         return instance
-
-    def get_instance_count(self, domain: InteractionDomain = None) -> int:
-        """Get the number of instances (channel combinations) for this interaction domain.
-
-        Parameters
-        ----------
-        domain : InteractionDomain, optional
-            The interaction domain to count instances for.
-            If not provided, uses the interaction's own domain.
-
-        Returns
-        -------
-        int
-            The number of instances in the domain (product of channel counts).
-
-        Raises
-        ------
-        RuntimeError
-            If the domain is invalid.
-        """
-        if domain is None:
-            domain = self.domain
-
-        sim = self.revision.get_simulation()
-        status = sim.is_domain_valid(domain)
-        if status != "":
-            raise RuntimeError(status)
-
-        # Call GetInstanceCount to get the count of channel combinations
-        count = self.emit_project._emit_com_module.GetInstanceCount(
-            self.revision.results_index,
-            domain.receiver_name,
-            domain.receiver_band_name,
-            domain.receiver_channel_frequency,
-            domain.interferer_names,
-            domain.interferer_band_names,
-            domain.interferer_channel_frequencies,
-        )
-
-        return int(count)
 
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this interaction.
@@ -353,28 +317,21 @@ class Interaction:
         str
             Empty string if valid, error message otherwise.
         """
-        # Check if this interaction has been invalidated (e.g. project reloaded)
+        # Check if interaction has been invalidated due to state changes
         if self._invalidated:
             return "Interaction not associated with current Result object."
 
-        # An interaction with an empty/undefined domain that was never run is not associated.
-        # If _was_run=True, the empty domain is intentional ("run all pairs") and is valid.
-        if not self._was_run and self._is_domain_empty(self.domain):
-            return "Interaction not associated with current Result object."
+        # Empty domain is only valid if produced by run(all pairs).
+        if self._is_domain_empty(self.domain):
+            return "" if self._was_run else "Interaction not associated with current Result object."
 
-        # For directly-created interactions (not via sim.run()), validate the domain first.
-        if not self._was_run:
-            error = self.revision.get_simulation().is_domain_valid(self.domain)
-            if error:
-                return error
+        # For defined domains, first validate domain names and structure.
+        error = self.revision.get_simulation().is_domain_valid(self.domain)
+        if error:
+            return error
 
-        # Check if results exist for this domain.
-        if self._was_run and self._is_domain_empty(self.domain):
-            return ""
-        if not self._check_results_exist():
-            return "Interaction has not been run."
-
-        return ""
+        # Domain is associated, but no data exists yet.
+        return "" if self._check_results_exist() else "Interaction has not been run."
 
     def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
         """Check if simulation results exist for the given domain.
@@ -451,6 +408,7 @@ class Interaction:
         # For both 1-to-1 and N-to-1, a worst-case instance only carries the requested
         # result type. The other is always 30201 ("not available"), matching old API behavior.
         instance = InteractionInstance(self.emit_project, worst_domain, self.revision, self)
+        self._instances.append(instance)
         if result_type == ResultType.EMI:
             instance._encoded_emi = encoded_value
             instance._largest_emi_interferer_type = worst_int_cat

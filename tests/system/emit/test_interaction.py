@@ -373,13 +373,13 @@ def test_non_numeric_results(non_numeric_results):
 
     # Verify total instance count
     interaction = sim.run(domain)
-    count = interaction.get_instance_count(domain)
+    count = sim.get_instance_count(domain)
     assert count == 859
 
     # Self Interaction -> Low Susc Rx: disabled pair, getInstanceCount == 0
     domain.set_interferers(names=["Self Interaction - Self Interaction"])
     domain.set_receiver("Low Susc Rx - Low Susc Rx")
-    count = interaction.get_instance_count(domain)
+    count = sim.get_instance_count(domain)
     assert count == 0
 
     # Run a new interaction on this domain — get_worst_instance should fail
@@ -504,7 +504,7 @@ def test_non_numeric_results(non_numeric_results):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 # @pytest.mark.skipif(True, reason="Need to move other emit engine functions (invalidate all).")
-def test_result_validity(availability):
+def test_result_validity(availability, add_app_example):
     """Test interaction and instance validity after various operations.
 
     Note: This test is translated from C++ EmitApiTest::resultValidity.
@@ -517,7 +517,7 @@ def test_result_validity(availability):
     domain2.set_receiver("RF System 3 - Radio")
     domain2.set_interferers(["RF System 2 - OneChannel"])
     interaction2 = Interaction(availability, domain2, rev)
-    instance = InteractionInstance(availability, domain2, rev, interaction2)
+    undefined_instance = InteractionInstance(availability, InteractionDomain(availability), rev)
 
     # interaction2 is unrun
     assert not interaction2.is_valid()
@@ -528,7 +528,7 @@ def test_result_validity(availability):
     # new, undefined interaction and instance
     interaction = Interaction(availability, InteractionDomain(availability), rev)
 
-    # Undefined interaction should be invalid with "Interaction not associated with current Result object"
+    # Undefined interaction should be invalid
     assert not interaction.is_valid()
     with pytest.raises(ValueError) as e:
         interaction.validate()
@@ -536,7 +536,7 @@ def test_result_validity(availability):
 
     # Undefined instance should be invalid with "Instance not associated with current Result object"
     with pytest.raises(ValueError) as e:
-        instance.check_validity()
+        undefined_instance.check_validity()
     assert "Instance not associated with current Result object" in str(e.value)
 
     # Trying to get worst instance on undefined interaction should fail
@@ -553,7 +553,8 @@ def test_result_validity(availability):
     domain = InteractionDomain(availability)
     interaction = sim.run(domain)
     assert interaction.is_valid()
-    assert interaction.get_worst_instance(ResultType.EMI) is not None
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
 
     # previously defined but unrun interaction has now been run (domain2 was same as domain)
     # After running domain, domain2 now has results
@@ -572,7 +573,7 @@ def test_result_validity(availability):
     assert "Instance not associated with current Result object" in str(e.value)
 
     # interaction and instance after a second run and get worst case
-    availability = Emit(proj_name)
+    availability = add_app_example(project="Availability", application=Emit, subfolder=TEST_SUBFOLDER)
     rev = availability.results.analyze()
     sim = rev.get_simulation()
     interaction = sim.run(domain)
@@ -652,3 +653,81 @@ def test_n_to_1_worst_case(n_to_1):
     with pytest.raises(ValueError) as e:
         domain.set_interferers(names=[], band_names=[], freqs=[23], units="Hz")
     assert "When assigning channels you must assign one channel per band" in str(e.value)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_n_to_1_limit(cell_phone):
+    """Test get/set N-to-1 limit and verify instance count changes accordingly.
+
+    Note: This test is translated from C++ EmitApiTest::nTo1Limit
+    """
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # Get initial N-to-1 limit value and verify it's set to 1
+    limit = sim.n_to_1_limit
+    assert limit == 1
+
+    # Get instance count for empty domain (all bands, all channels)
+    domain = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain)
+    assert count == 17080
+
+    # Change N-to-1 limit to 2^15
+    sim.n_to_1_limit = int(2**15)
+    assert sim.n_to_1_limit == int(2**15)
+    count = sim.get_instance_count(domain)
+    assert count == 134665
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_instance_count(cell_phone):
+    """Test instance count queries for various domain configurations."""
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    # N-to-1
+    sim.n_to_1_limit = -1
+    domain = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain)
+    assert count == 134665
+
+    # 1-1 count
+    sim.n_to_1_limit = 1
+    count = sim.get_instance_count(domain)
+    assert count == 17080
+
+    # Count equivalence
+    interaction = sim.run(domain)
+    domain2 = InteractionDomain(cell_phone)
+    count = sim.get_instance_count(domain2)
+    assert count == 17080
+    # Verify domains are equivalent
+    assert domain.receiver_name == domain2.receiver_name
+    assert domain.receiver_band_name == domain2.receiver_band_name
+    assert domain.receiver_channel_frequency == domain2.receiver_channel_frequency
+    assert domain.interferer_names == domain2.interferer_names
+    assert domain.interferer_band_names == domain2.interferer_band_names
+    assert domain.interferer_channel_frequencies == domain2.interferer_channel_frequencies
+
+    # Completeness check
+    assert interaction._check_results_exist()
+
+    # Instance Count
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance is not None
+    domain3 = instance.domain
+    count = sim.get_instance_count(domain3)
+    assert count == 1
+
+    # Instance count equivalence
+    instance = interaction.get_instance(domain3)
+    assert instance is not None
+    domain4 = instance.domain
+    # Verify domains are equivalent
+    assert domain3.receiver_name == domain4.receiver_name
+    assert domain3.receiver_band_name == domain4.receiver_band_name
+    assert domain3.receiver_channel_frequency == domain4.receiver_channel_frequency
+    assert domain3.interferer_names == domain4.interferer_names
+    assert domain3.interferer_band_names == domain4.interferer_band_names
+    assert domain3.interferer_channel_frequencies == domain4.interferer_channel_frequencies

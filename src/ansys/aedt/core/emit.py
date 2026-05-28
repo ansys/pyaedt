@@ -185,6 +185,28 @@ class Emit(Design, PyAedtBase):
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
+    def _invalidate_all_cached_interactions(self) -> None:
+        """Invalidate all cached interactions across loaded EMIT revisions."""
+        if not self.results:
+            return
+        for rev in self.results.revisions:
+            if hasattr(rev, "invalidate_all_interactions"):
+                rev.invalidate_all_interactions()
+
+    @pyaedt_function_handler()
+    def load_project(
+        self, file_name: str, design: str | None = None, close_active: bool = False, set_active: bool = False
+    ) -> bool:
+        """Load project and invalidate existing interaction handles first."""
+        self._invalidate_all_cached_interactions()
+        return super().load_project(file_name, design=design, close_active=close_active, set_active=set_active)
+
+    @pyaedt_function_handler()
+    def close_project(self, name: str = None, save: bool = True) -> bool:
+        """Close project and invalidate existing interaction handles first."""
+        self._invalidate_all_cached_interactions()
+        return super().close_project(name=name, save=save)
+
     @property
     def modeler(self) -> ModelerEmit:
         """Modeler.

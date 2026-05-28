@@ -151,13 +151,12 @@ def test_instance_check_validity_with_invalid_values(emit_app):
     instance = InteractionInstance(emit_app, domain, emit_app.results.current_revision)
 
     # Instance starts with _encoded_emi = -32768 (Nothing to run)
-    # check_validity() should raise RuntimeError
-    with pytest.raises(RuntimeError) as exc_info:
+    # check_validity() should raise ValueError
+    with pytest.raises(ValueError) as e:
         instance.check_validity()
 
     # Verify the error message contains both prefix and warning
-    assert "InteractionInstance has invalid values" in str(exc_info.value)
-    assert "Nothing to run" in str(exc_info.value)
+    assert "Instance not associated with current Result object." in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")

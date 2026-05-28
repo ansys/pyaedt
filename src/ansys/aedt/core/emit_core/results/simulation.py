@@ -286,6 +286,9 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
 
+        # Match legacy behavior: any N-to-1 limit change invalidates existing interactions.
+        self._revision.invalidate_all_interactions()
+
     class NoiseBehaviorOption(Enum):
         COHERENT = "Coherent"
         INCOHERENT = "Incoherent"
