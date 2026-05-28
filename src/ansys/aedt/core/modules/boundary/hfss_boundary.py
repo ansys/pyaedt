@@ -652,7 +652,7 @@ class WavePortCommon(BoundaryObject):
 
     @deembed.setter
     def deembed(self, value: bool):
-        if not isinstance(value, bool) or self.use_deembed is None:
+        if not isinstance(value, bool) or self.deembed is None:
             raise AEDTRuntimeError("Use dembedding must be a boolean.")
         self.properties["Deembed"] = value
 
@@ -666,20 +666,20 @@ class WavePortCommon(BoundaryObject):
             Whether de-embedding is enabled.
         """
         value = None
-        if self.use_deembed:
+        if self.deembed:
             value = Quantity(self.properties["Deembed Dist"])
         return value
 
     @deembed_distance.setter
     def deembed_distance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
         if value is None or value is False:
-            self.use_deembed = False
+            self.deembed = False
         elif value is True:
-            self.use_deembed = True
+            self.deembed = True
             self.properties["Deembed Dist"] = str("0.0mm")
         else:
-            if not self.use_deembed:
-                self.use_deembed = True
+            if not self.deembed:
+                self.deembed = True
             if not isinstance(value, Quantity):
                 value = Quantity(self._app.value_with_units(value))
             self.properties["Deembed Dist"] = str(value)
@@ -1420,7 +1420,7 @@ class Terminal(BoundaryObject):
     def renorm_impedance_type(self, value: str):
         # Activate renorm all modes
         for bound in self._app.boundaries:
-            if bound.name == self.props["ParentBndID"]:
+            if bound.name == self.props["ParentBndID"] or bound.props["ID"] == self.props["ParentBndID"]:
                 parent_port = bound
         if not parent_port.renorm_all_terminals:
             parent_port.renorm_all_terminals = True
@@ -1444,8 +1444,8 @@ class Terminal(BoundaryObject):
             The renormalization impedance value.
         """
         value = None
-        if "Renorm Imped" in self.properties:
-            value = Quantity(self.properties["Renorm Imped"])
+        if "Terminal Renormalizing Impedance" in self.properties:
+            value = Quantity(self.properties["Terminal Renormalizing Impedance"])
         return value
 
     @renorm_impedance.setter
