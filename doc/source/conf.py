@@ -298,6 +298,11 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
+    "whatsnew": {
+        "whatsnew_file_name": "../changelog.d/whatsnew.yml",
+        "changelog_file_name": "changelog.rst",
+        "sidebar_pages": ["changelog", "index"],
+    },
     "announcement": (
         '<div id="pyaedt-release-banner" class="pyaedt-release-banner" '
         'role="region" aria-label="PyAEDT 1.0 announcement">'
