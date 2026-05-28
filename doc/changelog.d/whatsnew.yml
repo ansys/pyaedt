@@ -1,5 +1,5 @@
 fragments:
-  - title: PyAEDT 1.0 migration and release highlights
+  - title: PyAEDT 1.0 release highlights
     version: 1.0.0
     content: |
       PyAEDT 1.0 is the first major release of the library and includes the
@@ -17,8 +17,8 @@ fragments:
           from ansys.aedt.core import Circuit
 
       This release also finalizes the removal of deprecated arguments and
-      continues the PEP 8-aligned module renames introduced during the 1.0
-      release candidate cycle.
+      introduces breaking changes to the API. If you are using previous versions
+      of PyAEDT, you may need to update your code to be compatible with 1.0.
 
       For migration details, see the `PyAEDT 1.0 migration guide
       <https://aedt.docs.pyansys.com/version/stable/release_1_0.html>`_.
