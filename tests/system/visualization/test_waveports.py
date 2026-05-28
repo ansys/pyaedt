@@ -1,8 +1,28 @@
-from ansys.aedt.core import Hfss
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortTerminal, WavePortModal, Terminal
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import pytest
-from tests import TESTS_VISUALIZATION_PATH
 
 PORT_EXAMPLE = "port_example"
 TEST_SUBFOLDER = "T51"
@@ -13,6 +33,7 @@ def port_example(add_app_example):
     app = add_app_example(project=PORT_EXAMPLE, subfolder=TEST_SUBFOLDER, solution_type="Terminal")
     yield app
     app.close_project(app.project_name, save=False)
+
 
 @pytest.mark.avoid_ansys_load
 def test_wave_port_terminal(port_example) -> None:
@@ -31,7 +52,7 @@ def test_wave_port_terminal(port_example) -> None:
     assert not wport_term.deembed
     assert wport_term.terminals
     assert wport_term.assignment
-    terminal = wport_term.assign_terminal(faces=9818,impedance=25,name="Terminal2")
+    terminal = wport_term.assign_terminal(faces=9818, impedance=25, name="Terminal2")
     assert terminal.type == "Terminal"
 
 
@@ -57,6 +78,7 @@ def test_wave_port_modal(port_example) -> None:
     assert float(wport_modal.deembed_distance) == 1
     assert wport_modal.assignment
 
+
 @pytest.mark.avoid_ansys_load
 def test_terminal(port_example) -> None:
     app = port_example
@@ -72,4 +94,3 @@ def test_terminal(port_example) -> None:
     assert terminal.rlc_type == "Serial"
     terminal.rlc_type = "Parallel"
     assert terminal.rlc_type == "Parallel"
-
