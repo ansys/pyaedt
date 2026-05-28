@@ -26,7 +26,9 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortModal, WavePortTerminal, Terminal
+from ansys.aedt.core.modules.boundary.hfss_boundary import Terminal
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortModal
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortTerminal
 
 
 class CreateBoundaryMixin:
