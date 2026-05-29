@@ -119,7 +119,10 @@ class Results:
             if revision_name in self.design.GetKeptResultNames():
                 self.design.DeleteKeptResult(revision_name)
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                    self.emit_project._emit_api.close()
+                    if self.aedt_version < 271:
+                        self.emit_project._emit_api.close()
+                    else:
+                        self.emit_project.close()
                     self.current_revision = None
             for rev in self.revisions:
                 if revision_name in rev.name:
@@ -131,7 +134,10 @@ class Results:
             if revision_name in self.design.GetResultList():
                 self.design.DeleteResult(revision_name)
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                    self.emit_project._emit_api.close()
+                    if self.aedt_version < 271:
+                        self.emit_project._emit_api.close()
+                    else:
+                        self.emit_project.close()
                     self.current_revision = None
                 for rev in self.revisions:
                     if revision_name in rev.name:

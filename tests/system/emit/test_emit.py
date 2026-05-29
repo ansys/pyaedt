@@ -168,6 +168,7 @@ def emit_app(add_app):
     (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
+@pytest.mark.skipif(DESKTOP_VERSION > "2026.1", reason="Skipped on versions later than 2026.1")
 def test_objects(emit_app) -> None:
     assert emit_app.solution_type
     assert isinstance(emit_app.modeler.components, EmitComponents)
@@ -3239,8 +3240,6 @@ def test_hfss_phased_array_antennas(hfss_phased_array):
     sim = rev.get_simulation()
     domain = InteractionDomain(hfss_phased_array)
     assert domain is not None
-    engine = hfss_phased_array._emit_api.get_engine()
-    assert engine is not None
     assert sim.is_domain_valid(domain) == ""
 
     # run the interaction

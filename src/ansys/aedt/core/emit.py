@@ -169,7 +169,7 @@ class Emit(Design, PyAedtBase):
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
         self._schematic = EmitSchematic(self)
-        if self._aedt_version > "2023.1":
+        if self._aedt_version > "2023.1" and self._aedt_version < "2027.1":
             # the next 2 lines of code are needed to point
             # the EMIT object to the correct EmiApiPython
             # module for the current AEDT version
@@ -181,6 +181,9 @@ class Emit(Design, PyAedtBase):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+        elif self._aedt_version >= "2027.1":
+            self.results = Results(self)
+            """''Result'' object for the selected design."""
 
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)

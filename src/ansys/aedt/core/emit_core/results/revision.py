@@ -159,7 +159,15 @@ class Revision:
         if self.revision_loaded:
             return
         self.parent_results._unload_revisions()
-        self.emit_project._emit_api.load_project(self.path)
+        # For the current revision (results_index=0), it's already loaded, so skip load_project
+        if self.results_index == 0:
+            self.revision_loaded = True
+            return
+        # For kept revisions (results_index != 0), load the project from disk
+        if self.aedt_version < 271:
+            self.emit_project._emit_api.load_project(self.path)
+        else:
+            self.emit_project.load_project(self.path)
         self.revision_loaded = True
 
     @staticmethod
