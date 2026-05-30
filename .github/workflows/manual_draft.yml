@@ -136,7 +136,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -196,7 +196,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -260,7 +260,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -330,7 +330,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-general-tests
           files: ./coverage.xml
@@ -398,7 +398,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -477,7 +477,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -543,7 +543,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -608,7 +608,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -672,7 +672,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
@@ -735,7 +735,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
