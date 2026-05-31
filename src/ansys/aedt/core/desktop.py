@@ -60,7 +60,6 @@ from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_grpc_session_active
@@ -483,7 +482,7 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
         pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
-            aedt_startup_timeout = 120
+            aedt_startup_timeout = settings.desktop_launch_timeout
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
             while not _is_port_occupied(port, host=m.group(1)):
@@ -913,6 +912,12 @@ class Desktop(PyAedtBase):
     def check_starting_mode(self) -> None:
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
+
+        # Delete SV for student version
+        aedt_version_id = (
+            self.aedt_version_id.replace("SV", "") if "SV" in (self.aedt_version_id or "") else self.aedt_version_id
+        )
+
         if is_linux:
             self.__starting_mode = "grpc"
         elif is_windows and "pythonnet" not in modules:
@@ -939,9 +944,9 @@ class Desktop(PyAedtBase):
                     f"The version specified ({self.aedt_version_id}) doesn't correspond "
                     "to the pid specified ({self.aedt_process_id})"
                 )
-        elif float(self.aedt_version_id) < 2022.2:  # pragma no cover
+        elif float(aedt_version_id) < 2022.2:  # pragma no cover
             raise Exception("Unsupported AEDT version")
-        elif float(self.aedt_version_id) == 2022.2:  # pragma no cover
+        elif float(aedt_version_id) == 2022.2:  # pragma no cover
             if self.non_graphical:
                 self.logger.disable_desktop_log()
             if self.machine and self.port:
@@ -950,7 +955,7 @@ class Desktop(PyAedtBase):
                 self.__starting_mode = "com"  # default if user doesn't specify use_grpc_api
             else:
                 self.__starting_mode = "grpc" if settings.use_grpc_api else "com"
-        elif float(self.aedt_version_id) > 2022.2:
+        elif float(aedt_version_id) > 2022.2:
             if settings.use_grpc_api is None:  # pragma no cover
                 self.__starting_mode = "grpc"  # default if user doesn't specify use_grpc_api
             else:
@@ -1197,6 +1202,38 @@ class Desktop(PyAedtBase):
 
         """
         return self.odesktop.GetPersonalLibDirectory()
+
+    @property
+    def global_project_directory(self) -> str:
+        """AEDT project directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``ProjectDirectory`` directory.
+
+        """
+        return self.odesktop.GetProjectDirectory()
+
+    @global_project_directory.setter
+    def global_project_directory(self, value: str | Path) -> None:
+        self.odesktop.SetProjectDirectory(str(value))
+
+    @property
+    def temp_directory(self) -> str:
+        """AEDT temp directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``TempDirectory`` directory.
+
+        """
+        return self.odesktop.GetTempDirectory()
+
+    @temp_directory.setter
+    def temp_directory(self, value: str | Path) -> None:
+        self.odesktop.SetTempDirectory(str(value))
 
     @property
     def src_dir(self) -> str:
@@ -1787,11 +1824,6 @@ class Desktop(PyAedtBase):
         return result
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="close_on_exit",
-        message="The ``close_on_exit`` argument will be removed in future versions. "
-        "Use ``close_desktop`` method to close the desktop.",
-    )
     def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
         """Release AEDT.
 
@@ -1818,13 +1850,6 @@ class Desktop(PyAedtBase):
         >>> desktop.release_desktop(close_projects=False)  # doctest: +SKIP
 
         """
-        if close_on_exit:
-            warnings.warn(
-                "The `close_on_exit` argument will be removed in future versions. "
-                "Use `close_desktop` method to close the desktop.",
-                DeprecationWarning,
-            )
-
         return self.__release_and_close_desktop(close_projects, close_on_exit)
 
     def close_desktop(self) -> bool:
@@ -2196,7 +2221,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def job_status(self) -> str:  # pragma: no cover
-        """Get job status from job monitor.Job monitor has to be opened.
+        """Get job status from job monitor. Job monitor has to be opened.
 
         Returns
         -------

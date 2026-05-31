@@ -474,3 +474,124 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         setup.update()
         self._setups = tmp_setups + [setup]
         return setup
+
+    @pyaedt_function_handler()
+    def change_properties(
+        self,
+        aedt_object: object,
+        tab_name: str,
+        property_object: str,
+        property_names: list,
+        property_values: list,
+        property_types: list = None,
+    ) -> bool:
+        """Change multiple properties.
+
+        Parameters
+        ----------
+        aedt_object :
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object.
+        property_names : list
+            List of property names. For example, ``["prop1", "prop2"]``.
+        property_values : list
+            List of property values corresponding to the property names.
+        property_types : list, optional
+            List of property types corresponding to the property names.
+            Values are  ``"Value"``, ``"ButtonText"``, ``"Hidden"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+        """
+        button_list = [
+            "file",
+            "buffer_mode",
+            "logic_in",
+            "out_of_in",
+            "DataPattern",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
+            "txrj",
+            "EyeMeasurementFunctions",
+        ]
+        if len(property_names) != len(property_values):
+            raise ValueError("``property_names`` and ``property_values`` must have the same length.")
+        if property_types and isinstance(property_types, str):
+            property_types = [property_types] * len(property_names)
+        elif property_types and len(property_types) != len(property_names):
+            raise ValueError("``property_names`` and ``property_types`` must have the same length.")
+        elif not property_types:
+            property_types = ["Value" if i not in button_list else "ButtonText" for i in property_names]
+        comp = [i for i in self.modeler.schematic.components.values() if i.composed_name == property_object][0]
+
+        if "buffer" in property_names:
+            comp.parameters["buffer"] = property_values[property_names.index("buffer")]
+        new_names = []
+        new_vals = []
+        new_types = []
+        for k, i, j in zip(property_names, property_values, property_types):
+            if k == "buffer":
+                continue
+            elif k == "buffer_mode":
+                comp.parameters["buffer_mode"] = i
+            else:
+                new_names.append(k)
+                new_vals.append(i)
+                new_types.append(j)
+
+        results = super().change_properties(aedt_object, tab_name, property_object, new_names, new_vals, new_types)
+        if results and "buffer" in property_names:
+            params = {i: k for i, k in zip(property_names, property_values)}
+            self._hide_circuit_ibis(params, comp)
+        return results
+
+    def _hide_circuit_ibis(self, params, comp):
+        input_buffer = False
+        output = False
+        if params["buffer"] == "input":
+            input_buffer = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "output":
+            output = True
+            comp._change_property("buffer_mode", True, value_name="Hidden")
+        if params["buffer"] == "input_output":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        if params["buffer"] == "three_state":
+            comp._change_property("buffer_mode", False, value_name="Hidden")
+            if params.get("buffer_mode"):
+                comp._change_property("buffer_mode", params["buffer_mode"])
+        comp._change_property("logic_in", True if input_buffer or output else False, value_name="Hidden")
+        comp._change_property("phase_delay", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPS", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("UIorBPSValue", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("repeat_count", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("step_resp_num_ui", True if input_buffer else False, value_name="Hidden")
+        if self._aedt_version > "2025.2":
+            comp._change_property("DataPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_coding", True if input_buffer else False, value_name="Hidden")
+        else:
+            comp._change_property("BitPattern", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("hold_last_bit", True if input_buffer else False, value_name="Hidden")
+            comp._change_property("do_encoding", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("Disable_Tx_Jitter", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("DCDFractionorTime", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("dcd", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txrj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txpj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txuj", True if input_buffer else False, value_name="Hidden")
+        comp._change_property("txcj", True if input_buffer else False, value_name="Hidden")

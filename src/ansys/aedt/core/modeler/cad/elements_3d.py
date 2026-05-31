@@ -73,7 +73,7 @@ class ModifiablePrimitive(PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
                 self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
@@ -130,7 +130,7 @@ class ModifiablePrimitive(PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
                 self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
@@ -518,7 +518,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
                 raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
@@ -574,7 +574,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         if isinstance(self, VertexPrimitive):
             vertex_id_list = [self.id]
         else:
-            if self._object3d.is3d:
+            if self._object3d.is_3d:
                 edge_id_list = [self.id]
             else:
                 self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")

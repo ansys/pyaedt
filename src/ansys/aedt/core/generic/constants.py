@@ -26,7 +26,6 @@ from __future__ import absolute_import
 from enum import IntEnum
 from enum import auto
 import math
-from typing import Callable
 import warnings
 
 from ansys.aedt.core.generic.settings import settings
@@ -691,36 +690,6 @@ CSS4_COLORS = {
     "cadetblue": "#5F9EA0",
     "plum": "#DDA0DD",
 }
-
-
-def deprecate_enum(new_enum: type) -> Callable:
-    """Decorator to mark an enumeration class as deprecated.
-
-    It allows you to keep the old enumeration class in the code
-    and redirect its attributes to a new enumeration class.
-    """
-
-    def decorator(cls) -> type:
-        class Wrapper:
-            # NOTE: Required to handle correctly the documentation, name of the class and nested classes.
-            __doc__ = cls.__doc__
-            __name__ = cls.__name__
-            __qualname__ = cls.__qualname__
-
-            def __getattr__(self, name: str):
-                warnings.warn(
-                    f"{cls.__qualname__} is deprecated. Use {new_enum.__qualname__} instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return getattr(new_enum, name)
-
-            def __dir__(self):
-                return dir(new_enum)
-
-        return Wrapper()
-
-    return decorator
 
 
 class DynamicMeta(type):
@@ -2492,116 +2461,44 @@ class AllowedMarkers(IntEnumProps):
     Arrow = 0
 
 
-# ########################## Deprecated enumeration classes #############################
+class SubstrateType(IntEnumProps):
+    """Substrate type constants for AEDT ``AddSubstrateDataBlock`` COM API.
 
-# TODO: Remove these classes in v1.0.0.
+    The integer values map directly to the ``Type`` field accepted by
+    ``oModule.AddSubstrateDataBlock``.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SubstrateType
+    >>> SubstrateType.Microstrip
+    0
+    >>> int(SubstrateType.Microstrip)
+    0
+    """
 
-@deprecate_enum(InfiniteSphereType)
-class INFINITE_SPHERE_TYPE:
-    """Deprecated: Use `InfiniteSphereType` instead."""
+    Microstrip = 0
+    """Microstrip — single conductor on top of a dielectric, ground below."""
 
+    Stripline = 1
+    """Stripline — conductor embedded between two dielectric layers."""
 
-@deprecate_enum(Fillet)
-class FILLET:
-    """Deprecated: Use `Fillet` instead."""
+    SuspendedStripline = 2
+    """Suspended stripline — conductor suspended above the ground plane with an air gap."""
 
+    OffsetStripline = 3
+    """Offset stripline — asymmetric stripline with conductor offset from centre."""
 
-@deprecate_enum(Axis)
-class AXIS:
-    """Deprecated: Use `Axis` instead."""
+    CoplanarWaveguide = 4
+    """Coplanar waveguide (CPW) — conductor and ground planes on the same surface."""
 
+    GroundedCoplanarWaveguide = 5
+    """Grounded coplanar waveguide (GCPW) — CPW with an additional ground plane below."""
 
-@deprecate_enum(Plane)
-class PLANE:
-    """Deprecated: Use `Plane` instead."""
+    Slotline = 6
+    """Slotline — narrow slot cut in a metallic plane on a dielectric substrate."""
 
+    RectangularWaveguide = 9
+    """Rectangular waveguide — hollow metallic tube with rectangular cross-section."""
 
-@deprecate_enum(Gravity)
-class GRAVITY:
-    """Deprecated: Use `Gravity` instead."""
-
-
-@deprecate_enum(View)
-class VIEW:
-    """Deprecated: Use `View` instead."""
-
-
-@deprecate_enum(GlobalCS)
-class GLOBALCS:
-    """Deprecated: Use `GlobalCS` instead."""
-
-
-@deprecate_enum(MatrixOperationsQ3D)
-class MATRIXOPERATIONSQ3D:
-    """Deprecated: Use `MatricOperationsQ3D` instead."""
-
-
-@deprecate_enum(MatrixOperationsQ2D)
-class MATRIXOPERATIONSQ2D:
-    """Deprecated: Use `MatricOperationsQ2D` instead."""
-
-
-class CATEGORIESQ3D:
-    """Deprecated: Use `PlotCategoriesQ3D` or `PlotCategoriesQ2D` instead."""
-
-    @deprecate_enum(PlotCategoriesQ2D)
-    class Q2D:
-        """Deprecated: Use `PlotCategoriesQ2D` instead."""
-
-    @deprecate_enum(PlotCategoriesQ3D)
-    class Q3D:
-        """Deprecated: Use `PlotCategoriesQ3D` instead."""
-
-
-@deprecate_enum(CSMode)
-class CSMODE:
-    """Deprecated: Use `CSMode` instead."""
-
-
-@deprecate_enum(SegmentType)
-class SEGMENTTYPE:
-    """Deprecated: Use `SegmentType` instead."""
-
-
-@deprecate_enum(CrossSection)
-class CROSSSECTION:
-    """Deprecated: Use `CrossSection` instead."""
-
-
-@deprecate_enum(SweepDraft)
-class SWEEPDRAFT:
-    """Deprecated: Use `SweepDraft` instead."""
-
-
-class SOLUTIONS:
-    """Deprecated."""
-
-    @deprecate_enum(SolutionsHfss)
-    class Hfss:
-        """Deprecated: Use `SolutionsHfss` instead."""
-
-    @deprecate_enum(SolutionsMaxwell3D)
-    class Maxwell3d:
-        """Deprecated: Use `SolutionsMaxwell3d` instead."""
-
-    @deprecate_enum(SolutionsMaxwell2D)
-    class Maxwell2d:
-        """Deprecated: Use `SolutionsMaxwell2d` instead."""
-
-    @deprecate_enum(SolutionsIcepak)
-    class Icepak:
-        """Deprecated: Use `SolutionsIcepak` instead."""
-
-    @deprecate_enum(SolutionsCircuit)
-    class Circuit:
-        """Deprecated: Use `SolutionsCircuit` instead."""
-
-    @deprecate_enum(SolutionsMechanical)
-    class Mechanical:
-        """Deprecated: Use `SolutionsMechanical` instead."""
-
-
-@deprecate_enum(Setups)
-class SETUPS:
-    """Deprecated: Use `Setups` instead."""
+    SubstrateReference = 10
+    """Substrate reference — named reference substrate used by transmission-line models."""

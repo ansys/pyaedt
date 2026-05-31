@@ -31,7 +31,7 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/doc-deploy-changelog@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -45,7 +45,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-vulnerabilities@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -59,7 +59,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-actions-security@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-style@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -83,7 +83,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-build@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -110,7 +110,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -130,60 +130,13 @@ jobs:
 
   build-wheelhouse-rocky:
     name: Build wheelhouse (Rocky Linux)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     permissions:
-      contents: read   # Required to read repository content for building
-    container:
-      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
-    steps:
-      - name: Install build deps
-        shell: bash
-        run: |
-          set -eux
-          dnf -y update
-          dnf groupinstall -y "Development Tools"
-          dnf -y install \
-            gcc make wget tar xz bzip2 \
-            bzip2-devel zlib-devel xz-devel \
-            openssl-devel libffi-devel sqlite-devel \
-            readline-devel tk-devel \
-            libuuid-devel expat-devel \
-            pkgconf-pkg-config ca-certificates
-          update-ca-trust
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
-        with:
-          enable-cache: false
-          prune-cache: true
-      - name: Pre-install explicit Python version using uv
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
-        shell: bash
-        run: uv python install "$PYTHON_VERSION"
-
-      - name: Build wheelhouse and perform smoke test
-        id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: rocky-linux-8
-          python-version: ${{ matrix.python-version }}
-          target: 'all'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2'
-
-      - name: Import python package
-        env:
-          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
-        shell: bash
-        run: |
-          ${ACTIVATE_VENV}
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
 
   unit-tests:
     name: Unit tests
@@ -228,7 +181,7 @@ jobs:
           xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -280,7 +233,7 @@ jobs:
           pytest ${PYTEST_ARGUMENTS} tests/integration
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -347,7 +300,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -413,7 +366,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -483,7 +436,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -550,7 +503,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -622,7 +575,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -690,7 +643,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -757,7 +710,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-icepak-tests-windows
           files: ./coverage.xml
@@ -823,7 +776,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-icepak-tests-linux
           files: ./coverage.xml
@@ -890,7 +843,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-layout-tests-windows
           files: ./coverage.xml
@@ -956,7 +909,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-layout-tests-linux
           files: ./coverage.xml
@@ -1027,7 +980,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -1094,7 +1047,7 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -1162,7 +1115,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
@@ -1230,7 +1183,7 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
@@ -1266,7 +1219,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-library@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -1299,7 +1252,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/release-github@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           add-artifact-attestation-notes: true
           generate-release-notes: false
@@ -1315,7 +1268,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-deploy-stable@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}

@@ -80,8 +80,11 @@ Requirements
 
 **Specific for the Extraction Workflow:**
 
-* Design variables ``scan_T`` (theta) and ``scan_P`` (phi) assigned to Lattice Pairs
+* Design variables for theta and phi scan angles should be defined and assigned to Lattice Pairs
+* Theta scan step should be a divisor of 90 degrees
+* Phi scan step (if exists) should be a divisor of 180 degrees
 * Both spatial and frequency sampling distributions should be uniform
+* Isotropic Extraction procedure uses the current value of the phi scan angle
 
 Command line usage
 ------------------

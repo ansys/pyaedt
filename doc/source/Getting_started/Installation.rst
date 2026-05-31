@@ -12,6 +12,8 @@ In addition to the runtime dependencies listed in the installation information, 
 requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Version is also supported.
 
 
+.. _install-from-pyaedt-installer:
+
 Install from PyAEDT installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following Python script automatically installs PyAEDT from AEDT,
@@ -52,6 +54,34 @@ You can watch the following video to see how to install PyAEDT:
 
   <iframe width="560" height="315" src="https://www.youtube.com/embed/c-zl8iMjP4M?si=zpdREiZhzODW-kW1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
+
+.. _pyaedt_bundled_aedt:
+
+PyAEDT bundled with AEDT (2026 R2 service pack 2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting with AEDT 2026 R2 service pack 2, PyAEDT ships as part of the AEDT installation.
+This bundled PyAEDT only includes the main runtime dependencies (no optional extras).
+
+If you need to update PyAEDT or install extra dependencies, install PyAEDT into your own
+virtual environment as described in the other sections of this page (for example,
+:ref:`Install on CPython from PyPI <install-on-cpython-from-pypi>`), or use the
+:ref:`PyAEDT installer script <install-from-pyaedt-installer>`.
+
+In addition, the **Extension Manager** can be installed using the bundled PyAEDT directly
+from the PyAEDT Console in AEDT by running:
+
+.. code:: python
+
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_extension_manager
+
+    add_extension_manager("YourPersonalLibPath")
+
+Replace ``"YourPersonalLibPath"`` with the full path of your ``PersonalLib`` (or ``syslib``)
+as configured in AEDT.
+
+
+.. _extension_manager:
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
@@ -140,6 +170,8 @@ There are several available options:
   :alt: PyAEDT version manager
 
 
+.. _install-on-cpython-from-pypi:
+
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT on CPython from PyPI:
@@ -193,12 +225,36 @@ Linux support
 ~~~~~~~~~~~~~
 
 PyAEDT works with CPython 3.10 through 3.13 on Linux in AEDT 2022 R2 and later.
-However, you must set up the following environment variables:
+However, you must set up the following environment variables before launching Python.
+Replace the version number and path with your actual AEDT installation:
 
-.. code::
+.. code:: bash
 
-    export ANSYSEM_ROOT261=/path/to/Ansys Inc/v261/AnsysEM
-    export LD_LIBRARY_PATH=/path/to/Ansys Inc/v261/AnsysEM
+    export ANSYSEM_ROOT261=/path/to/AnsysEM/v261/AnsysEM
+    export LD_LIBRARY_PATH=$ANSYSEM_ROOT261:$LD_LIBRARY_PATH
+
+The version suffix in ``ANSYSEM_ROOT<XYZ>`` must match your installed AEDT release
+(for example, ``251`` for 2025 R1, ``252`` for 2025 R2, ``261`` for 2026 R1).
+The default installation path on Linux is typically
+``/opt/AnsysEM/v<XYZ>/AnsysEM`` or ``/usr/ansys_inc/v<XYZ>/AnsysEM``.
+
+.. note::
+
+    On some Linux distributions (such as RHEL/CentOS 8), the ``ss`` utility used
+    for session discovery lives in ``/usr/sbin/ss``, which may not be included in
+    ``$PATH`` by default for non-root users. PyAEDT automatically probes
+    ``/usr/sbin/ss`` and, if ``ss`` is still unavailable or cannot resolve every
+    AEDT process, falls back to ``psutil``,
+    so session detection works in most cases without any configuration changes.
+
+    If you still experience issues with PyAEDT opening a new AEDT session instead
+    of connecting to an existing one, you can add ``/usr/sbin`` to your ``$PATH``
+    permanently:
+
+    .. code::
+
+        export PATH=$PATH:/usr/sbin
+        source ~/.bashrc
 
 
 Install offline from a wheelhouse
@@ -247,6 +303,7 @@ You can use `uv` to install PyAEDT into your own virtual environment. The
 steps below show how to create a virtual environment, activate it, install `uv`, and then
 install PyAEDT. Examples are provided for Windows (PowerShell) and Linux (bash).
 
+
 Create and activate a virtual environment (Windows - PowerShell)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code:: powershell
@@ -257,8 +314,9 @@ Create and activate a virtual environment (Windows - PowerShell)
     pip install uv
     uv pip install pyaedt[all]
 
+
 Create and activate a virtual environment (Linux)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code:: bash
 
     python3 -m venv ~/pyaedt_venv
@@ -269,6 +327,7 @@ Create and activate a virtual environment (Linux)
 
 .. note::
   Virtual environments should be created with `venv` and not directly with `uv` to avoid potential issues.
+
 
 Installing from a wheelhouse using uv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -286,6 +345,7 @@ Example (Linux):
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> uv
     uv pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> pyaedt[all]
+
 
 After installation
 ~~~~~~~~~~~~~~~~~~

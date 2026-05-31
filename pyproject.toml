@@ -54,7 +54,7 @@ dotnet = [
 # NOTE: Any modification to graphics should be extended in internal checks (decorators)
 graphics = [
     "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.48",
+    "pyvista[io]>=0.38.0,<0.49",
     "matplotlib>=3.5.0",
     "vtk>=9.0,<9.7",
     "fpdf2",
@@ -69,7 +69,7 @@ all = [
     "openpyxl>=3.1.0",
     "osmnx>=2.0.0",
     "pandas>=1.1.0",
-    "pyvista[io]>=0.38.0,<0.48",
+    "pyvista[io]>=0.38.0,<0.49",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
@@ -98,7 +98,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.3.10",
+  "prek==0.4.1",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
@@ -236,9 +236,6 @@ force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
-
-[tool.ruff.lint.per-file-ignores]
-"src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

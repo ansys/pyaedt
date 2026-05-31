@@ -103,7 +103,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-vulnerabilities@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
@@ -118,7 +118,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+      - uses: ansys/actions/check-actions-security@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -133,7 +133,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/check-pr-title@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -195,7 +195,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-style@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: '["doc/source", ".github/plugin", ".github/skills"]'
@@ -207,7 +207,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/doc-build@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -236,7 +236,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
@@ -254,10 +254,19 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+  smoke-tests-rocky:
+    name: Build wheelhouse and smoke tests (Rocky Linux)
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
 
   unit-tests:
     name: Unit tests
-    needs: [smoke-tests, analyze-changes]
+    needs: [smoke-tests, smoke-tests-rocky, analyze-changes]
     if: needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -1362,7 +1371,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@73fa84c704bb6691f254cfe4d4b928c338b0d4da # v10.3.0
+        uses: ansys/actions/build-library@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
