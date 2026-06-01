@@ -80,7 +80,7 @@ inclusion_list = [
 ]
 
 RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
-RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[0-9.]+):(\d{1,5})\b")
+RE_INSECURE_PORT = re.compile(r"(?:\*|\[::\]|\[::ffff:[0-9.]+\]|(?!0\.0\.0\.0)[0-9.]+):(\d{1,5})\b")
 
 
 def _write_mes(mes_text) -> None:
@@ -776,19 +776,11 @@ def _run_ss() -> dict[int, int]:
 
     results: dict[int, int] = {}
     for line in proc.stdout.splitlines():
-        port = -1
         # Only process lines that belong to AEDT gRPC sockets.
         # Skip lines that don't mention the AEDT executable or belong to the
         # standalone API process ("apip-standalone"), which uses a different
         # communication channel
         if "ansysedt.exe" not in line or "apip-standalone" in line:
-            continue
-
-        # The fourth column of `ss -Hnlp` output is the "Recv-Q + Send-Q" field.
-        # AEDT gRPC sockets consistently show 2048 or 4096 here, other socket
-        # types are ignored to avoid false positives.
-        tokens = line.split()
-        if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
             continue
 
         # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
@@ -799,21 +791,23 @@ def _run_ss() -> dict[int, int]:
             continue
 
         # Try the secure gRPC socket path first (RE_SOCK), then fall back to the
-        # plain TCP port pattern (RE_PORT).  One of the two should always match
-        # for a valid AEDT gRPC listener.
+        # insecure TCP port pattern (RE_INSECURE_PORT).
 
         secure_line = RE_SOCK.search(line)
-        insecure_line = RE_PORT.search(line)
+        insecure_line = RE_INSECURE_PORT.search(line)
 
         if secure_line:
+            # Secure (Unix domain socket), the socket filename already uniquely identifies AEDT gRPC.
             port = int(secure_line.group(1))
+            # Secure always takes priority: overwrite any previous insecure entry.
+            results[pid] = port
 
         elif insecure_line:
+            # For TCP (insecure)
             port = int(insecure_line.group(1))
-
-        # Associate the discovered port with its owning PID.
-        # A port value of -1 means parsing failed, callers should handle that.
-        results[pid] = port
+            # Only store insecure if we don't already have a secure entry for this PID.
+            if pid not in results:
+                results[pid] = port
 
     return results
 
