@@ -783,7 +783,7 @@ def _run_ss() -> dict[int, int]:
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # Lines with "0.0.0.0:*" as peer address are not gRPC insecure sockets.
+        # Lines with "0.0.0.0:*" as peer address are not valid.
         if "0.0.0.0:*" in line:
             continue
 
