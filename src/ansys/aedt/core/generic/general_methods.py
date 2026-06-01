@@ -80,9 +80,7 @@ inclusion_list = [
 ]
 
 RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
-RE_INSECURE_PORT = re.compile(
-    r"(?:\*|\[::\]|\[::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\]|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})\b"
-)
+RE_PORT = re.compile(r"(?:\*|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|(?!0\.0\.0\.0\b)[0-9.]+):(\d{1,5})\b")
 
 
 def _write_mes(mes_text) -> None:
@@ -797,10 +795,10 @@ def _run_ss() -> dict[int, int]:
             continue
 
         # Try the secure gRPC socket path first (RE_SOCK), then fall back to the
-        # insecure TCP port pattern (RE_INSECURE_PORT).
+        # insecure TCP port pattern (RE_PORT).
 
         secure_line = RE_SOCK.search(line)
-        insecure_line = RE_INSECURE_PORT.search(line)
+        insecure_line = RE_PORT.search(line)
 
         if secure_line:
             # Secure (Unix domain socket), the socket filename already uniquely identifies AEDT gRPC.
