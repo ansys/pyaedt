@@ -80,7 +80,9 @@ inclusion_list = [
 ]
 
 RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
-RE_INSECURE_PORT = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})\b")
+RE_INSECURE_PORT = re.compile(
+    r"(?:\*|\[::\]|\[::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\]|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})\b"
+)
 
 
 def _write_mes(mes_text) -> None:
