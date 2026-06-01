@@ -783,6 +783,10 @@ def _run_ss() -> dict[int, int]:
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
+        # Lines with "0.0.0.0:*" as peer address are not gRPC insecure sockets.
+        if "0.0.0.0:*" in line:
+            continue
+
         # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
         pid_match = re.search(r"pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
