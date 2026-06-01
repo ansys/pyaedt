@@ -809,15 +809,11 @@ def _run_ss() -> dict[int, int]:
             results[pid] = port
 
         elif insecure_line:
-            # Find all IP:port matches and skip 0.0.0.0 (peer address column).
-            for match in RE_INSECURE_PORT.finditer(line):
-                if match.group(1) == "0.0.0.0":
-                    continue
-                port = int(match.group(2))
-                # Only store insecure if we don't already have a secure entry for this PID.
-                if pid not in results:
-                    results[pid] = port
-                break
+            # For TCP (insecure) - lines with 0.0.0.0:* are already filtered above.
+            port = int(insecure_line.group(1))
+            # Only store insecure if we don't already have a secure entry for this PID.
+            if pid not in results:
+                results[pid] = port
 
     return results
 
