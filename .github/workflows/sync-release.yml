@@ -286,7 +286,7 @@ jobs:
   system-tests-solvers-windows:
     name: Test solvers (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -334,7 +334,7 @@ jobs:
   system-tests-solvers-linux:
     name: Test solvers (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -381,7 +381,7 @@ jobs:
   system-tests-general-windows:
     name: Test general (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -431,7 +431,7 @@ jobs:
   system-tests-general-linux:
     name: Test general (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -480,7 +480,7 @@ jobs:
   system-tests-visualization-windows:
     name: Test visualization (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     env:
       MPLBACKEND: "Agg"
@@ -532,7 +532,7 @@ jobs:
   system-tests-visualization-linux:
     name: Test visualization (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -582,7 +582,7 @@ jobs:
   system-tests-icepak-windows:
     name: Test icepak (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -630,7 +630,7 @@ jobs:
   system-tests-icepak-linux:
     name: Test icepak (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -677,7 +677,7 @@ jobs:
   system-tests-layout-windows:
     name: Test layout (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -725,7 +725,7 @@ jobs:
   system-tests-layout-linux:
     name: Test layout (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -772,7 +772,7 @@ jobs:
   system-tests-extensions-windows:
     name: Test extensions (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -822,7 +822,7 @@ jobs:
   system-tests-extensions-linux:
     name: Test extensions (linux)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Linux, pyaedt]
     env:
       ANSYSEM_ROOT261: "/usr/ansys_inc/v261/AnsysEM"
@@ -871,7 +871,7 @@ jobs:
   system-tests-filter-windows:
     name: Test filter solutions (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
@@ -919,7 +919,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     needs: [integration-tests]
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && vars.RUN_SYSTEM_TESTS == 'true'
     runs-on: [self-hosted, Windows, pyaedt]
     steps:
       - name: Install Git and checkout project
