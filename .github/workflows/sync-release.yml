@@ -126,11 +126,22 @@ jobs:
           BRANCH="auto/sync-main-to-release-2.0"
           EXISTING=$(gh pr list --head "$BRANCH" --base release/2.0 --json number --jq '.[0].number')
           if [ -z "$EXISTING" ]; then
+            BODY="## Description
+          Automated weekly sync of \`main\` into \`release/2.0\`. No conflicts detected.
+
+          ## Issue linked
+          N/A - automated sync.
+
+          ## Checklist
+          - [x] I have tested my changes locally.
+          - [x] I have followed the coding style guidelines of this project.
+          - [x] I have reviewed my changes before submitting this pull request."
+
             gh pr create \
               --head "$BRANCH" \
               --base release/2.0 \
               --title "CHORE: sync main into release/2.0" \
-              --body "Automated weekly sync of \`main\` into \`release/2.0\`. No conflicts detected."
+              --body "$BODY"
           else
             echo "PR #$EXISTING already exists, skipping creation."
           fi
