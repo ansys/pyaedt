@@ -262,7 +262,7 @@ def test_create_circle(aedt_app) -> None:
     n1.radius = 5
     assert n1.radius == "5"
     n1.center = [10, 10]
-    assert n1.center == ["10 ", "10"] or n1.center == ["10", "10"]
+    assert n1.center == ["10", "10"]
 
 
 def test_create_create_rectangle(aedt_app) -> None:
@@ -285,9 +285,9 @@ def test_create_create_rectangle(aedt_app) -> None:
     assert not n2.width
     assert not n2.center
     n2.point_a = ["10", "10"]
-    assert n2.point_a == ["10 ", "10"] or n2.point_a == ["10", "10"]
+    assert n2.point_a == ["10", "10"]
     n2.point_b = ["20", "20"]
-    assert n2.point_b == ["20 ", "20"] or n2.point_b == ["20", "20"]
+    assert n2.point_b == ["20", "20"]
 
     n2.two_point_description = False
     assert n2.height
@@ -300,7 +300,7 @@ def test_create_create_rectangle(aedt_app) -> None:
 
     assert n2.center
     n2.center = ["150mm", "150mm"]
-    assert n2.center == ["150 ", "150"] or n2.center == ["150", "150"]
+    assert n2.center == ["150", "150"]
 
 
 def test_subtract(aedt_app) -> None:
