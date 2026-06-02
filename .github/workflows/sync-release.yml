@@ -15,6 +15,7 @@ env:
   TESTS_VERSION: '3.10'
   PACKAGE_NAME: 'PyAEDT'
   ON_CI: True
+  PYAEDT_DOC_BUILD_CHEATSHEET: False
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
 
@@ -87,8 +88,8 @@ jobs:
       needs.check-conflicts.outputs.has_conflicts == 'false'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # Push sync branch
+      pull-requests: write # Create PR
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -152,7 +153,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: read # Read PR title
     steps:
       - name: Check the title of the pull request
         uses: ansys/actions/check-pr-title@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
@@ -226,9 +227,9 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ${{ matrix.os }}
     permissions:
-      attestations: write
+      attestations: write # Attest build provenance
       contents: read
-      id-token: write
+      id-token: write # Sign attestations
     strategy:
       fail-fast: false
       matrix:
