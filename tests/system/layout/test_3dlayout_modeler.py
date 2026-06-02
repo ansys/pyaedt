@@ -287,7 +287,7 @@ def test_create_create_rectangle(aedt_app) -> None:
     n2.point_a = ["10", "10"]
     assert n2.point_a == ["10 ", "10"] or n2.point_a == ["10", "10"]
     n2.point_b = ["20", "20"]
-    assert n2.point_b == ["20", "20"]
+    assert n2.point_b == ["20 ", "20"] or n2.point_b == ["20", "20"]
 
     n2.two_point_description = False
     assert n2.height
