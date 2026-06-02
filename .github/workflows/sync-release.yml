@@ -1,4 +1,4 @@
-name: Sync main → release/2.0
+name: Sync main to release/2.0
 
 on:
   schedule:
@@ -28,7 +28,7 @@ jobs:
 
   # Sync jobs: only on schedule / workflow_dispatch
   check-conflicts:
-    name: "Check merge conflicts (main → release/2.0)"
+    name: "Check merge conflicts (main to release/2.0)"
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
@@ -52,6 +52,9 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
+          # Keep release/2.0 version of __init__.py to avoid version conflicts
+          git config merge.ours.driver true
+          echo 'src/ansys/aedt/core/__init__.py merge=ours' >> .gitattributes
           if git merge --no-commit --no-ff origin/main; then
             echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
             git merge --abort 2>/dev/null || true
@@ -59,6 +62,8 @@ jobs:
             echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
             git merge --abort 2>/dev/null || true
           fi
+          # Clean up temporary .gitattributes change
+          git checkout -- .gitattributes 2>/dev/null || true
 
   report-conflicts:
     name: "Report merge conflicts"
@@ -75,7 +80,7 @@ jobs:
           exit 1
 
   create-sync-pr:
-    name: "Create sync PR (main → release/2.0)"
+    name: "Create sync PR (main to release/2.0)"
     needs: check-conflicts
     if: |
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
@@ -90,21 +95,33 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
       - name: Create or update sync branch
+        id: sync
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
+          # Keep release/2.0 version of __init__.py to avoid version conflicts
+          git config merge.ours.driver true
           git fetch origin main release/2.0
           BRANCH="auto/sync-main-to-release-2.0"
           git checkout -b "$BRANCH" origin/release/2.0
-          git merge --no-ff origin/main -m "chore: sync main into release/2.0"
-          git push origin "$BRANCH" --force
+          echo 'src/ansys/aedt/core/__init__.py merge=ours' >> .gitattributes
+          MERGE_OUTPUT=$(git merge --no-ff origin/main -m "chore: sync main into release/2.0" 2>&1) || true
+          if echo "$MERGE_OUTPUT" | grep -q "Already up to date"; then
+            echo "up_to_date=true" >> "$GITHUB_OUTPUT"
+            echo "Branches are already up to date. Skipping."
+          else
+            echo "up_to_date=false" >> "$GITHUB_OUTPUT"
+            git checkout -- .gitattributes 2>/dev/null || true
+            git push origin "$BRANCH" --force
+          fi
 
       - name: Open PR (skip if already exists)
+        if: steps.sync.outputs.up_to_date != 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
         run: |
           BRANCH="auto/sync-main-to-release-2.0"
           EXISTING=$(gh pr list --head "$BRANCH" --base release/2.0 --json number --jq '.[0].number')
@@ -113,8 +130,7 @@ jobs:
               --head "$BRANCH" \
               --base release/2.0 \
               --title "CHORE: sync main into release/2.0" \
-              --body "Automated weekly sync of \`main\` into \`release/2.0\`. No conflicts detected." \
-              --label "maintenance"
+              --body "Automated weekly sync of \`main\` into \`release/2.0\`. No conflicts detected."
           else
             echo "PR #$EXISTING already exists, skipping creation."
           fi
