@@ -277,6 +277,31 @@ def test_create_create_rectangle(aedt_app) -> None:
     n2 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
     assert n2.name == "myrectangle"
 
+    n2.corner_radius = "2mm"
+    assert n2.corner_radius == "2mm"
+
+    n2.two_point_description = True
+    assert not n2.height
+    assert not n2.width
+    assert not n2.center
+    n2.point_a = ["10", "10"]
+    assert n2.point_a == ["10 ", "10"] or n2.point_a == ["10", "10"]
+    n2.point_b = ["20", "20"]
+    assert n2.point_b == ["20", "20"]
+
+    n2.two_point_description = False
+    assert n2.height
+    n2.height = 200
+    assert n2.height == "200"
+
+    assert n2.width
+    n2.width = "100mm"
+    assert n2.width == "100mm"
+
+    assert n2.center
+    n2.center = ["150mm", "150mm"]
+    assert n2.center == ["150mm", "150mm"]
+
 
 def test_subtract(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
