@@ -1581,7 +1581,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @start_cap_type.setter
     def start_cap_type(self, value) -> None:
-        vMaterial = ["NAME:StartCap Type", "Value:=", value]
+        vMaterial = ["NAME:StartCapType", "Value:=", value]
         self.change_property(vMaterial)
 
     @property
@@ -1601,7 +1601,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @end_cap_type.setter
     def end_cap_type(self, value) -> None:
-        vMaterial = ["NAME:EndCap Type", "Value:=", value]
+        vMaterial = ["NAME:EndCapType", "Value:=", value]
         self.change_property(vMaterial)
 
     @property

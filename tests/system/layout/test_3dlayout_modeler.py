@@ -414,6 +414,23 @@ def test_create_line(aedt_app) -> None:
     assert line.set_property_value("Pt0", "10mm ,10mm")
     assert line.get_property_value("Pt0") == "10 ,10"
 
+    line.bend_type = "Round"
+    assert line.bend_type == "Round"
+
+    line.start_cap_type = "Round"
+    assert line.start_cap_type == "Round"
+
+    line.end_cap_type = "Extended"
+    assert line.end_cap_type == "Extended"
+
+    line.width = "2mm"
+    assert line.width == "2mm"
+
+    center = line.center_line
+    center["Pt0"] = ["0", "0"]
+    line.center_line = center
+    assert line.center_line == center
+
 
 def test_create_edge_port(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
