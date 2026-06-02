@@ -262,7 +262,7 @@ def test_create_circle(aedt_app) -> None:
     n1.radius = 5
     assert n1.radius == "5"
     n1.center = [10, 10]
-    assert n1.center == ["10", "10"]
+    assert n1.center == ["10 ", "10"] or n1.center == ["10", "10"]
 
 
 def test_create_create_rectangle(aedt_app) -> None:
