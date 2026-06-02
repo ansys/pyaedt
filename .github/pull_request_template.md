@@ -5,7 +5,7 @@
 Trailers must be placed at the end of the description, separated from the
 rest of the text by a blank line. Available trailers for automatic labeling:
 
-  Application: hfss, circuit, maxwell, icepak, q3d, q2d, emit, mechanical, twin-builder
+  Application: hfss, circuit, maxwell, icepak, q3d, q2d, emit, mechanical, twin-builder, hfss3dlayout
                (comma-separated values allowed)
   AEDT-Version: 24.1, 24.2, 25.1, 25.2, 26.1
                 (comma-separated values allowed)

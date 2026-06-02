@@ -80,6 +80,10 @@
   description: Related to the Twin Builder application
   color: 0369a1
 
+- name: HFSS 3D Layout
+  description: Related to the HFSS 3D Layout application
+  color: 0369a1
+
 # AEDT versions
 
 - name: AEDT 24.1
