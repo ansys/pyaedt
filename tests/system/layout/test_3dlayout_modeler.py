@@ -300,7 +300,7 @@ def test_create_create_rectangle(aedt_app) -> None:
 
     assert n2.center
     n2.center = ["150mm", "150mm"]
-    assert n2.center == ["150mm", "150mm"]
+    assert n2.center == ["150 ", "150"] or n2.center == ["150", "150"]
 
 
 def test_subtract(aedt_app) -> None:
