@@ -122,7 +122,7 @@ runs:
               emit)          add_label "EMIT" ;;
               mechanical)    add_label "Mechanical" ;;
               twin-builder)  add_label "Twin Builder" ;;
-              hfss3dlayout)  add_label "HFSS3DLayout" ;;
+              hfss3dlayout)  add_label "HFSS 3D Layout" ;;
               *) echo "::warning::Unknown Application value: '${APP}'" ;;
             esac
           done <<< "$(split_and_normalize "$LINE")"
