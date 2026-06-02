@@ -1,0 +1,164 @@
+name: Label PR from trailers
+
+description: |
+  Parses trailers from the PR description and commit messages,
+  then adds the corresponding labels to the pull request.
+
+  Supported trailers:
+    Application:   hfss, circuit, maxwell, icepak, q3d, q2d, emit, mechanical,
+                   twin-builder  (comma-separated values allowed)
+    AEDT-Version:  24.1, 24.2, 25.1, 25.2, 26.1  (comma-separated values allowed)
+    Platform:      windows, linux, rocky  (comma-separated values allowed)
+    Deprecation:   <scope>   -> adds label "deprecation"
+    Breaking-Change: <scope> -> adds label "breaking-change"
+
+inputs:
+  github-token:
+    description: GitHub token with pull request write permission
+    required: true
+  pr-number:
+    description: Pull request number
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Parse trailers and apply labels
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      run: |
+        set -uo pipefail
+
+        # ---------- Fetch PR ----------
+
+        PR_BODY=$(gh pr view "$PR_NUMBER" --repo ansys/pyaedt --json body \
+          --jq '.body // ""')
+
+        EXISTING_LABELS=$(gh pr view "$PR_NUMBER" --repo ansys/pyaedt --json labels \
+          --jq '[.labels[].name] | join("\n")')
+
+        # ---------- Parse trailers with git interpret-trailers ----------
+
+        # Extract the content of the first level-2 "## <Title>" section.
+        # Everything from the line after the heading up to (but not including) the next
+        # "## " heading is kept; the rest of the body is discarded.
+        # If no such section exists the function outputs nothing (safe default).
+        extract_first_section() {
+          awk '/^## /{if(in_sec)exit; in_sec=1; next} in_sec{print}' || true
+        }
+
+        PR_TRAILERS=$(printf '%s\n' "$PR_BODY" \
+          | extract_first_section \
+          | git interpret-trailers --parse 2>/dev/null || true)
+
+        # Extract the content of the commits associated with the PR.
+        # Each commit is processed individually so that every commit's trailer
+        # block is properly detected. The @base64 filter in jq encodes each
+        # body as a single line, so "read -r" receives one complete body per iteration.
+        # NOTE: git interpret-trailers requires a blank line before the trailer block.
+        # messageBody contains only the body so when the body consists solely of
+        # trailers there is no preceding blank line and git would produce no output.
+        # Prepending "\n" fixes that case; when the body already contains descriptive
+        # text before the trailers the extra blank line is harmless.
+        COMMIT_TRAILERS=$(gh pr view "$PR_NUMBER" --repo ansys/pyaedt --json commits \
+          --jq '.commits[].messageBody // "" | @base64' \
+          | while IFS= read -r b64; do
+              body=$(printf '%s' "$b64" | base64 -d)
+              printf '\n%s' "$body" | git interpret-trailers --parse 2>/dev/null || true
+            done)
+
+        ALL_TRAILERS=$(printf '%s\n%s' "$PR_TRAILERS" "$COMMIT_TRAILERS")
+
+        # ---------- Helpers ----------
+
+        # Extract all values for a given trailer key (case-insensitive).
+        get_trailer() {
+          printf '%s' "$ALL_TRAILERS" \
+            | grep -i "^${1}:[[:space:]]*" \
+            | sed "s/^[^:]*:[[:space:]]*//" \
+            | tr -d '\r' || true
+        }
+
+        # Add a label to the PR.
+        add_label() {
+          local label="$1"
+          if echo "$EXISTING_LABELS" | grep -qxF "$label"; then
+            echo "Label already present, skipping: '${label}'"
+            return 0
+          fi
+          echo "Adding label: '${label}'"
+          gh pr edit "$PR_NUMBER" --add-label "$label" --repo ansys/pyaedt > /dev/null \
+            || echo "::warning:: Could not add label '${label}' (does it exist in the repo?)"
+          # Update in-memory label list to prevent duplicates within the same run
+          EXISTING_LABELS="${EXISTING_LABELS}"$'\n'"${label}"
+        }
+
+        # Split a comma/semicolon-separated string, trim whitespace, lowercase
+        split_and_normalize() {
+          echo "$1" \
+            | tr ',;' '\n' \
+            | sed 's/^[[:space:]]*//' \
+            | sed 's/[[:space:]]*$//' \
+            | tr '[:upper:]' '[:lower:]' \
+            | grep -v '^$' || true
+        }
+
+        # ---------- Trailers ----------
+
+        # Add application labels based on "Application" trailer
+        while IFS= read -r LINE; do
+          [ -z "$LINE" ] && continue
+          while IFS= read -r APP; do
+            [ -z "$APP" ] && continue
+            case "$APP" in
+              hfss)          add_label "HFSS" ;;
+              circuit)       add_label "Circuit" ;;
+              maxwell)       add_label "Maxwell" ;;
+              icepak)        add_label "Icepak" ;;
+              q3d)           add_label "Q3D" ;;
+              q2d)           add_label "Q2D" ;;
+              emit)          add_label "EMIT" ;;
+              mechanical)    add_label "Mechanical" ;;
+              twin-builder)  add_label "Twin Builder" ;;
+              *) echo "::warning::Unknown Application value: '${APP}'" ;;
+            esac
+          done <<< "$(split_and_normalize "$LINE")"
+        done <<< "$(get_trailer "Application")"
+
+        # Add AEDT version labels based on "AEDT-Version" trailer
+        while IFS= read -r LINE; do
+          [ -z "$LINE" ] && continue
+          while IFS= read -r VER; do
+            [ -z "$VER" ] && continue
+            case "$VER" in
+              24.1|24.2|25.1|25.2|26.1) add_label "AEDT $VER" ;;
+              *) echo "::warning::Unknown AEDT-Version value: '${VER}'" ;;
+            esac
+          done <<< "$(split_and_normalize "$LINE")"
+        done <<< "$(get_trailer "AEDT-Version")"
+
+        # Add platform labels based on "Platform" trailer
+        while IFS= read -r LINE; do
+          [ -z "$LINE" ] && continue
+          while IFS= read -r PLATFORM; do
+            [ -z "$PLATFORM" ] && continue
+            case "$PLATFORM" in
+              windows) add_label "windows" ;;
+              linux)   add_label "linux" ;;
+              rocky)   add_label "rocky" ;;
+              *) echo "::warning::Unknown Platform value: '${PLATFORM}'" ;;
+            esac
+          done <<< "$(split_and_normalize "$LINE")"
+        done <<< "$(get_trailer "Platform")"
+
+        # Add API related labels based on "Deprecation" / "Breaking-Change" trailers
+        DEP=$(get_trailer "Deprecation")
+        if [ -n "$DEP" ]; then
+          add_label "deprecation"
+        fi
+        BREAKING=$(get_trailer "Breaking-Change")
+        if [ -n "$BREAKING" ]; then
+          add_label "breaking-change"
+        fi
