@@ -259,6 +259,10 @@ def test_create_circle(aedt_app) -> None:
     )
     n1 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle")
     assert n1.name == "mycircle"
+    n1.radius = 5
+    assert n1.radius == "5"
+    n1.center = [10, 10]
+    assert n1.center == ["10", "10"]
 
 
 def test_create_create_rectangle(aedt_app) -> None:

@@ -1345,7 +1345,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 
     @center.setter
     def center(self, position) -> None:
-        vMaterial = ["NAME:Center", "Value:=", position]
+        vMaterial = ["NAME:Center", "X:=", position[0], "Y:=", position[1]]
         self.change_property(vMaterial)
 
     @property
