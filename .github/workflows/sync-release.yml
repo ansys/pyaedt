@@ -66,6 +66,7 @@ jobs:
           # Clean up temporary .gitattributes change
           git checkout -- .gitattributes 2>/dev/null || true
 
+
   report-conflicts:
     name: "Report merge conflicts"
     needs: check-conflicts
@@ -79,6 +80,7 @@ jobs:
         run: |
           echo "::error::Merge conflicts detected between main and release/2.0. Manual intervention required."
           exit 1
+
 
   create-sync-pr:
     name: "Create sync PR (main to release/2.0)"
@@ -146,6 +148,7 @@ jobs:
           else
             echo "PR #$EXISTING already exists, skipping creation."
           fi
+
 
   # CI jobs: run on PRs toward release/2.0
   pr-title:
