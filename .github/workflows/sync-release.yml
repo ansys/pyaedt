@@ -157,6 +157,31 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
 
+  breaking-change-check:
+    name: Check breaking change info
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Verify breaking change information
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          # Skip for automated sync PRs
+          if echo "$PR_TITLE" | grep -qi "sync main into release"; then
+            echo "Automated sync PR detected, skipping breaking change check."
+            exit 0
+          fi
+          # Check for breaking change indicators
+          if echo "$PR_TITLE" | grep -q '!:' || echo "$PR_LABELS" | grep -qi 'breaking'; then
+            echo "Breaking change information found."
+          else
+            echo "::error::PRs targeting release/2.0 must indicate breaking changes. Add '!' to the PR title (e.g., 'FEAT!: ...') or apply a 'breaking-change' label."
+            exit 1
+          fi
+
   vulnerabilities:
     name: "Vulnerabilities"
     if: github.event_name == 'pull_request'
