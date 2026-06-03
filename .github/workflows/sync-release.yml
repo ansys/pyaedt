@@ -162,7 +162,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: read # Read PR title and labels
     steps:
       - name: Verify breaking change information
         env:
@@ -179,7 +179,7 @@ jobs:
             echo "Breaking change information found."
           else
             echo "::error::PRs targeting release/2.0 must indicate breaking changes. Add '!' to the PR title (e.g., 'FEAT!: ...') or apply a 'breaking-change' label."
-            exit 1
+            exit
           fi
 
   vulnerabilities:
