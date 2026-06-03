@@ -774,18 +774,20 @@ def _run_ss() -> dict[int, int]:
         pyaedt_logger.debug(f"'{ss_cmd} -Hnlp' returned non-zero exit code: {proc.stderr.strip()}")
         return {}
 
+    # Final mapping of PID - gRPC port discovered from socket info.
     results: dict[int, int] = {}
-    results_pid = {}
+    # Intermediate grouping: PID - list of raw ss output lines for that PID.
+    results_pid: dict[int, list[str]] = {}
+
+    # Step 1: Group ss output lines by AEDT process PID
     for line in proc.stdout.splitlines():
-        port = -1
-        # Only process lines that belong to AEDT gRPC sockets.
+        # Only process lines that belong to AEDT gRPC.
         # Skip lines that don't mention the AEDT executable or belong to the
-        # standalone API process ("apip-standalone"), which uses a different
-        # communication channel
+        # standalone API process ("apip-standalone").
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
+        # Extract the PID from the line: "ansysedt.exe",pid=NNNN
         pid_match = re.search(r"['\"]?ansysedt\.exe['\"]?\s*,\s*pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
@@ -797,43 +799,63 @@ def _run_ss() -> dict[int, int]:
         else:
             results_pid[pid].append(line)
 
+    # Step 2: Try to resolve port from secure Unix socket path (RE_SOCK)
     for pid, lines in results_pid.items():
         for line in lines:
-            # Try the secure gRPC socket path first (RE_SOCK)
             secure_line = RE_SOCK.search(line)
             if secure_line:
                 port = int(secure_line.group(1))
                 results[pid] = port
                 break
 
+    # Remove already-resolved PIDs from the pending set.
     results_pid = {i: j for i, j in results_pid.items() if i not in results}
 
     if not results_pid:
         return results
 
-    for pid in results_pid:
-        p = psutil.Process(pid)
-        cmdline = p.cmdline()
+    # Step 3: Fallback, inspect process command line for -grpcsrv flag.
+    for pid in list(results_pid):
+        try:
+            p = psutil.Process(pid)
+            cmdline = p.cmdline()
+        except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess, psutil.AccessDenied):
+            # Handle various exceptions that can occur during process inspection:
+            #
+            # AttributeError: Raised if conn.laddr is None (connection without local address)
+            #                 This can happen for some connection types
+            #
+            # KeyError: Raised if expected attributes are missing from the connection object
+            #           Rare, but possible with certain process states
+            #
+            # psutil.ZombieProcess: Process has terminated but hasn't been cleaned up by parent
+            #                       Common on Linux when processes exit but remain in process table
+            #
+            # psutil.NoSuchProcess: Process terminated between when we got the PID and now
+            #                       This is a race condition that can occur in fast process lifecycles
+            #
+            # psutil.AccessDenied: Current user does not have permission to access process information
+            continue
 
         if "-grpcsrv" in cmdline:
-            port = cmdline[cmdline.index("-grpcsrv") + 1].split(":")
-            if len(port) == 1:
-                results[pid] = int(port[0])
-            else:
-                results[pid] = int(port[1])
+            # The -grpcsrv argument value can be "port" or "host:port".
+            port_parts = cmdline[cmdline.index("-grpcsrv") + 1].split(":")
+            if len(port_parts) == 1:
+                results[pid] = int(port_parts[0])
+            elif len(port_parts) >= 1:
+                results[pid] = int(port_parts[1])
 
+    # Remove already-resolved PIDs from the pending set.
     results_pid = {i: j for i, j in results_pid.items() if i not in results}
 
     if not results_pid:
         return results
 
-    # Between 50051-50100
+    # Step 4: Last resort, match TCP port in the standard gRPC range.
     for pid, lines in results_pid.items():
         for line in lines:
-            # then fall back to the
-            # plain TCP port pattern (RE_PORT).  One of the two should always match
-            # for a valid AEDT gRPC listener.
-
+            # Fall back to the plain TCP port pattern (RE_PORT).
+            # Only accept ports within the known AEDT gRPC range (50051-50100).
             insecure_line = RE_PORT.search(line)
             if insecure_line:
                 port = int(insecure_line.group(1))
@@ -841,6 +863,7 @@ def _run_ss() -> dict[int, int]:
                     results[pid] = port
                     break
 
+    # Remove already-resolved PIDs from the pending set.
     results_pid = {i: j for i, j in results_pid.items() if i not in results}
 
     if results_pid:
