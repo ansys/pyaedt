@@ -260,10 +260,22 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+
+  smoke-tests-rocky:
+    name: Build wheelhouse and smoke tests (Rocky Linux)
+    if: github.event_name == 'pull_request'
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
+    with:
+      python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+
   unit-tests:
     name: Unit tests
     if: github.event_name == 'pull_request'
-    needs: [smoke-tests]
+    needs: [smoke-tests, smoke-tests-rocky]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
