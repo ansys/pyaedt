@@ -1227,31 +1227,12 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is available.")
     """
     pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
+
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
         return _is_port_occupied(port, machine)
-    if is_linux:
-        try:
-            sockets = _run_ss()
-            if port in sockets.values():
-                return True
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    targets = ["ansysedt.exe", "ansysedtsv.exe"]
-
-    for target in targets:
-        target_processes = _get_target_processes([target])
-
-        # Initialize all found AEDT processes with unknown port (-1)
-        # Port will be determined later through socket/connection analysis
-        return_dict = {pid: -1 for pid, _ in target_processes}
-
-        connections = _check_psutil_connections(list(return_dict.keys()))
-        for pid in return_dict.keys():
-            if _check_connection_grpc_port(connections, pid, None, None) == port:
-                return True
-    return False
+    return True if port in active_sessions().values() else False
 
 
 @pyaedt_function_handler()
