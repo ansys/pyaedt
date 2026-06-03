@@ -786,7 +786,7 @@ def _run_ss() -> dict[int, int]:
             continue
 
         # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
-        pid_match = re.search(r"'ansysedt.exe',pid=(\d+)", line)
+        pid_match = re.search(r"['\"]?ansysedt\.exe['\"]?\s*,\s*pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
         if not pid:
