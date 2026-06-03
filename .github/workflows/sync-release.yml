@@ -101,8 +101,12 @@ jobs:
           git fetch origin main release/2.0
           BRANCH="auto/sync-main-to-release-2.0"
           git checkout -b "$BRANCH" origin/release/2.0
-          MERGE_OUTPUT=$(git merge --no-ff origin/main -m "chore: sync main into release/2.0" 2>&1) || true
-          if echo "$MERGE_OUTPUT" | grep -q "Already up to date"; then
+          MERGE_OUTPUT=$(git merge --no-ff origin/main -m "chore: sync main into release/2.0" 2>&1)
+          MERGE_EXIT=$?
+          if [ $MERGE_EXIT -ne 0 ]; then
+            echo "::error::Merge failed unexpectedly. Output: $MERGE_OUTPUT"
+            exit 1
+          elif echo "$MERGE_OUTPUT" | grep -q "Already up to date"; then
             echo "up_to_date=true" >> "$GITHUB_OUTPUT"
             echo "Branches are already up to date. Skipping."
           else
