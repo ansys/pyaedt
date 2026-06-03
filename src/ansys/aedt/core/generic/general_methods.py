@@ -1261,7 +1261,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
 @pyaedt_function_handler()
 def active_sessions(
     version: str = None,
-    student_version: bool = False,
+    student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
@@ -1286,7 +1286,6 @@ def active_sessions(
         AEDT version to check. The default is ``None``, in which case all versions are checked.
         When specifying a version, you can use a three-digit format like ``"222"`` or a
         five-digit format like ``"2022.2"``.
-
     student_version : bool, optional
         Whether to search for student version sessions (ansysedtsv). The default is ``False``.
         When ``True``, searches for ``ansysedtsv.exe`` or ``ansysedtsv`` processes.
@@ -1476,7 +1475,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data: list | "array", function: str = None):  # pragma: no cover
+def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
