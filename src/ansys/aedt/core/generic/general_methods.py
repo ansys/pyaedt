@@ -811,30 +811,6 @@ def _run_ss() -> dict[int, int]:
     if not results_pid:
         return results
 
-    for pid, lines in results_pid.items():
-        for line in lines:
-            # The fourth column of `ss -Hnlp` output is the "Recv-Q + Send-Q" field.
-            # AEDT gRPC sockets consistently show 2048 or 4096 here, other socket
-            # types are ignored to avoid false positives.
-            tokens = line.split()
-            if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
-                continue
-
-            # then fall back to the
-            # plain TCP port pattern (RE_PORT).  One of the two should always match
-            # for a valid AEDT gRPC listener.
-
-            insecure_line = RE_PORT.search(line)
-            if insecure_line:
-                port = int(insecure_line.group(1))
-                results[pid] = port
-                break
-
-    results_pid = {i: j for i, j in results_pid.items() if i not in results}
-
-    if not results_pid:
-        return results
-
     for pid in results_pid:
         p = psutil.Process(pid)
         cmdline = p.cmdline()
