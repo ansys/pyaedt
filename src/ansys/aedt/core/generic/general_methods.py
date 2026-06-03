@@ -839,8 +839,8 @@ def _run_ss() -> dict[int, int]:
         p = psutil.Process(pid)
         cmdline = p.cmdline()
 
-        if "--grpcsrv" in cmdline:
-            port = cmdline[cmdline.index("--grpcsrv") + 1].split(":")
+        if "-grpcsrv" in cmdline:
+            port = cmdline[cmdline.index("-grpcsrv") + 1].split(":")
             if len(port) == 1:
                 results[pid] = int(port[0])
             else:
