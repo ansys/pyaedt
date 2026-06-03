@@ -1,6 +1,9 @@
 # NOTE: if the 'autoupdate_commit_msg' is changed, the changes must be adapted in label.yml
 ci:
   autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
+  # Auto update set to quarterly in order to mainly leverage dependabot for pre-commit hook
+  # and avoid closing PRs every weeks.
+  autoupdate_schedule: quarterly
 
 exclude: |
   (?x)(
@@ -13,7 +16,7 @@ exclude: |
 repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 5e2fb545eba1ea9dc051f6f962d52fe8f76a9794  # frozen: v0.15.13
+  rev: 0c7b6c989466a93942def1f84baf36ddfcd60c83  # frozen: v0.15.14
   hooks:
     - id: ruff-check
     - id: ruff-format
