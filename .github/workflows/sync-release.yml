@@ -42,7 +42,7 @@ jobs:
         with:
           ref: release/2.0
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fetch main
