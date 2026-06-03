@@ -775,6 +775,7 @@ def _run_ss() -> dict[int, int]:
         return {}
 
     results: dict[int, int] = {}
+    results_pid = {}
     for line in proc.stdout.splitlines():
         port = -1
         # Only process lines that belong to AEDT gRPC sockets.
@@ -784,36 +785,62 @@ def _run_ss() -> dict[int, int]:
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # The fourth column of `ss -Hnlp` output is the "Recv-Q + Send-Q" field.
-        # AEDT gRPC sockets consistently show 2048 or 4096 here, other socket
-        # types are ignored to avoid false positives.
-        tokens = line.split()
-        if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
-            continue
-
         # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
-        pid_match = re.search(r"pid=(\d+)", line)
+        pid_match = re.search(r"'ansysedt.exe',pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
         if not pid:
             continue
 
-        # Try the secure gRPC socket path first (RE_SOCK), then fall back to the
-        # plain TCP port pattern (RE_PORT).  One of the two should always match
-        # for a valid AEDT gRPC listener.
+        if pid not in results_pid:
+            results_pid[pid] = [line]
+        else:
+            results_pid[pid].append(line)
 
-        secure_line = RE_SOCK.search(line)
-        insecure_line = RE_PORT.search(line)
+    for pid, lines in results_pid.items():
+        for line in lines:
+            # Try the secure gRPC socket path first (RE_SOCK)
+            secure_line = RE_SOCK.search(line)
+            if secure_line:
+                port = int(secure_line.group(1))
+                results[pid] = port
+                break
 
-        if secure_line:
-            port = int(secure_line.group(1))
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
 
-        elif insecure_line:
-            port = int(insecure_line.group(1))
+    if not results_pid:
+        return results
 
-        # Associate the discovered port with its owning PID.
-        # A port value of -1 means parsing failed, callers should handle that.
-        results[pid] = port
+    for pid, lines in results_pid.items():
+        for line in lines:
+            # The fourth column of `ss -Hnlp` output is the "Recv-Q + Send-Q" field.
+            # AEDT gRPC sockets consistently show 2048 or 4096 here, other socket
+            # types are ignored to avoid false positives.
+            tokens = line.split()
+            if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
+                continue
+
+            # then fall back to the
+            # plain TCP port pattern (RE_PORT).  One of the two should always match
+            # for a valid AEDT gRPC listener.
+
+            insecure_line = RE_PORT.search(line)
+            if insecure_line:
+                port = int(insecure_line.group(1))
+                results[pid] = port
+                break
+
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if not results_pid:
+        return results
+
+    # If channel size not found, check the command line
+    connections = _check_psutil_connections(list(results_pid.keys()))
+
+    for pid in results_pid:
+        if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
+            pass
 
     return results
 
