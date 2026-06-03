@@ -53,18 +53,11 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
-          # Keep release/2.0 version of __init__.py to avoid version conflicts
-          git config merge.ours.driver true
-          echo 'src/ansys/aedt/core/__init__.py merge=ours' >> .gitattributes
           if git merge --no-commit --no-ff origin/main; then
             echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
-            git merge --abort 2>/dev/null || true
           else
             echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
-            git merge --abort 2>/dev/null || true
           fi
-          # Clean up temporary .gitattributes change
-          git checkout -- .gitattributes 2>/dev/null || true
 
 
   report-conflicts:
@@ -105,19 +98,15 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
-          # Keep release/2.0 version of __init__.py to avoid version conflicts
-          git config merge.ours.driver true
           git fetch origin main release/2.0
           BRANCH="auto/sync-main-to-release-2.0"
           git checkout -b "$BRANCH" origin/release/2.0
-          echo 'src/ansys/aedt/core/__init__.py merge=ours' >> .gitattributes
           MERGE_OUTPUT=$(git merge --no-ff origin/main -m "chore: sync main into release/2.0" 2>&1) || true
           if echo "$MERGE_OUTPUT" | grep -q "Already up to date"; then
             echo "up_to_date=true" >> "$GITHUB_OUTPUT"
             echo "Branches are already up to date. Skipping."
           else
             echo "up_to_date=false" >> "$GITHUB_OUTPUT"
-            git checkout -- .gitattributes 2>/dev/null || true
             git push origin "$BRANCH" --force
           fi
 
