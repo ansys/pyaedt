@@ -835,12 +835,40 @@ def _run_ss() -> dict[int, int]:
     if not results_pid:
         return results
 
-    # If channel size not found, check the command line
-    connections = _check_psutil_connections(list(results_pid.keys()))
-
     for pid in results_pid:
-        if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
-            pass
+        p = psutil.Process(pid)
+        cmdline = p.cmdline()
+
+        if "--grpcsrv" in cmdline:
+            port = cmdline[cmdline.index("--grpcsrv") + 1].split(":")
+            if len(port) == 1:
+                results[pid] = int(port[0])
+            else:
+                results[pid] = int(port[1])
+
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if not results_pid:
+        return results
+
+    # Between 50051-50100
+    for pid, lines in results_pid.items():
+        for line in lines:
+            # then fall back to the
+            # plain TCP port pattern (RE_PORT).  One of the two should always match
+            # for a valid AEDT gRPC listener.
+
+            insecure_line = RE_PORT.search(line)
+            if insecure_line:
+                port = int(insecure_line.group(1))
+                if 50051 <= port <= 50100:
+                    results[pid] = port
+                    break
+
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if results_pid:
+        pyaedt_logger.debug(f"Unable to determine gRPC ports for PIDs: {list(results_pid.keys())}")
 
     return results
 
