@@ -298,11 +298,6 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
-    "whatsnew": {
-        "whatsnew_file_name": "../changelog.d/whatsnew.yml",
-        "changelog_file_name": "changelog.rst",
-        "sidebar_pages": ["changelog", "index"],
-    },
 }
 
 
