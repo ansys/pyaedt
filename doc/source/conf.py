@@ -248,13 +248,6 @@ inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="
 
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
-rst_prolog = """
-.. container:: pyaedt-release-banner
-
-    **PyAEDT 1.0**: review the :doc:`release notes </changelog>`
-    and :doc:`1.0 breaking changes </release_1_0>`.
-"""
-
 # The master toctree document.
 master_doc = "index"
 
@@ -310,6 +303,40 @@ html_theme_options = {
 
 def is_enabled_env_var(name, default="true"):
     return os.getenv(name, default).strip().lower() not in {"0", "false", "no", "off"}
+
+
+def get_release_banner():
+    if not is_enabled_env_var("PYAEDT_DOC_SHOW_RELEASE_BANNER"):
+        return ""
+
+    return """
+.. container:: pyaedt-release-banner
+
+    .. container:: pyaedt-release-banner__eyebrow
+
+        PyAEDT 1.0
+
+    .. container:: pyaedt-release-banner__content
+
+        .. container:: pyaedt-release-banner__title
+
+            Start with the 1.0 highlights.
+
+        .. container:: pyaedt-release-banner__body
+
+            Review the :doc:`release notes </changelog>` and the
+            :doc:`1.0 breaking changes </release_1_0>` before starting
+            a new workflow.
+
+        .. container:: pyaedt-release-banner__actions
+
+            :doc:`Release notes </changelog>`
+
+            :doc:`1.0 breaking changes </release_1_0>`
+"""
+
+
+rst_prolog = get_release_banner()
 
 
 if is_enabled_env_var("PYAEDT_DOC_BUILD_CHEATSHEET"):

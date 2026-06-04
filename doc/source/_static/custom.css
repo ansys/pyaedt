@@ -1,52 +1,196 @@
 @import "../ansys-sphinx-theme.css";
 
 .pyaedt-release-banner {
-    margin: 0 0 1rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #d7e3f4;
-    border-left: 3px solid #0070ad;
-    border-radius: 0.375rem;
-    background: #f5f9fd;
-    font-size: 0.92rem;
-    line-height: 1.35;
+    --release-banner-accent: #0070ad;
+    --release-banner-accent-soft: rgba(0, 112, 173, 0.12);
+    --release-banner-background: linear-gradient(135deg, rgba(0, 112, 173, 0.08), rgba(255, 255, 255, 0) 60%), #f7fbff;
+    --release-banner-border: rgba(0, 112, 173, 0.18);
+    --release-banner-shadow: 0 14px 30px rgba(0, 40, 85, 0.08);
+    --release-banner-text: #183b56;
+    --release-banner-muted: #36556f;
+    --release-banner-action-background: rgba(255, 255, 255, 0.78);
+    --release-banner-action-border: rgba(0, 112, 173, 0.2);
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--release-banner-border);
+    border-radius: 1rem;
+    background: var(--release-banner-background);
+    box-shadow: var(--release-banner-shadow);
+    color: var(--release-banner-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow: hidden;
+    position: relative;
 }
 
-.pyaedt-release-banner p {
+.pyaedt-release-banner::before,
+.pyaedt-release-banner::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.pyaedt-release-banner::before {
+    width: 10rem;
+    height: 10rem;
+    top: -5.5rem;
+    right: -4rem;
+    background: radial-gradient(circle, rgba(0, 112, 173, 0.18) 0%, rgba(0, 112, 173, 0) 72%);
+}
+
+.pyaedt-release-banner::after {
+    width: 8rem;
+    height: 8rem;
+    bottom: -4.5rem;
+    left: -2.5rem;
+    background: radial-gradient(circle, rgba(127, 180, 212, 0.2) 0%, rgba(127, 180, 212, 0) 70%);
+}
+
+.pyaedt-release-banner>* {
+    position: relative;
+    z-index: 1;
+}
+
+.pyaedt-release-banner.docutils.container {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.pyaedt-release-banner__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin: 0;
+    padding: 0.28rem 0.68rem;
+    border-radius: 999px;
+    background: var(--release-banner-accent-soft);
+    color: var(--release-banner-accent);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.pyaedt-release-banner__content {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.pyaedt-release-banner__title {
+    margin: 0;
+    color: var(--release-banner-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.pyaedt-release-banner__body,
+.pyaedt-release-banner__body p {
+    margin: 0;
+    color: var(--release-banner-muted);
+}
+
+.pyaedt-release-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.pyaedt-release-banner__actions p {
     margin: 0;
 }
 
 .pyaedt-release-banner a {
+    color: var(--release-banner-accent);
+}
+
+.pyaedt-release-banner__actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--release-banner-action-border);
+    border-radius: 999px;
+    background: var(--release-banner-action-background);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
     font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.pyaedt-release-banner__actions a:hover,
+.pyaedt-release-banner__actions a:focus-visible {
+    border-color: rgba(0, 112, 173, 0.35);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 0 0 0.18rem rgba(0, 112, 173, 0.12);
+}
+
+html[data-theme="dark"] .pyaedt-release-banner {
+    --release-banner-accent: #6bc2eb;
+    --release-banner-accent-soft: rgba(107, 194, 235, 0.16);
+    --release-banner-background: linear-gradient(135deg, rgba(107, 194, 235, 0.16), rgba(18, 27, 36, 0) 58%), #101c27;
+    --release-banner-border: rgba(107, 194, 235, 0.24);
+    --release-banner-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+    --release-banner-text: #e8f3fb;
+    --release-banner-muted: #bfd4e3;
+    --release-banner-action-background: rgba(11, 25, 37, 0.62);
+    --release-banner-action-border: rgba(107, 194, 235, 0.24);
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .pyaedt-release-banner {
+        --release-banner-accent: #6bc2eb;
+        --release-banner-accent-soft: rgba(107, 194, 235, 0.16);
+        --release-banner-background: linear-gradient(135deg, rgba(107, 194, 235, 0.16), rgba(18, 27, 36, 0) 58%), #101c27;
+        --release-banner-border: rgba(107, 194, 235, 0.24);
+        --release-banner-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+        --release-banner-text: #e8f3fb;
+        --release-banner-muted: #bfd4e3;
+        --release-banner-action-background: rgba(11, 25, 37, 0.62);
+        --release-banner-action-border: rgba(107, 194, 235, 0.24);
+    }
+}
+
+@media (max-width: 767px) {
+    .pyaedt-release-banner {
+        padding: 0.95rem;
+    }
+
+    .pyaedt-release-banner__title {
+        font-size: 1rem;
+    }
 }
 
 .col-md-3 {
     flex: 0 0 30%;
     max-width: 30%;
 }
+
 .col-xl-7 {
     flex: 0 0 53.33333%;
     max-width: 53.33333%;
-  }
+}
 
 .bd-toc {
     padding-top: 5em;
 }
 
 
-nav.bd-links ul li.toctree-l1 > a {
-  font-size: .90rem;
+nav.bd-links ul li.toctree-l1>a {
+    font-size: .90rem;
 }
 
-nav.bd-links ul li.toctree-l2 > a {
+nav.bd-links ul li.toctree-l2>a {
     font-size: .85rem;
     text-indent: 1px;
 }
-nav.bd-links ul li.toctree-l3 > a {
+
+nav.bd-links ul li.toctree-l3>a {
     font-size: .85rem;
     text-indent: 2px;
 }
 
-nav.bd-links ul li.toctree-l4 > a {
+nav.bd-links ul li.toctree-l4>a {
     font-size: .8rem;
     text-indent: 3px;
 }
