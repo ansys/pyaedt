@@ -99,7 +99,7 @@ class Object3DLayout(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_property_value(self, name: str, value: str):
+    def set_property_value(self, name: str, value: str) -> bool:
         """Set a property value.
 
         Parameters
@@ -119,14 +119,14 @@ class Object3DLayout(PyAedtBase):
         >>> oEditor.ChangeProperty
         """
         if "Pt" in name:
-            coordinates = value.split(",")
+            coordinates = [value_split.strip() for value_split in value.split(",")]
             vProp = ["NAME:" + name, "X:=", coordinates[0], "Y:=", coordinates[1]]
         else:
             vProp = ["NAME:" + name, "Value:=", value]
         return self.change_property(vProp)
 
     @property
-    def angle(self) -> str:
+    def angle(self) -> str | None:
         """Get/Set the circle radius.
 
         Returns
@@ -297,7 +297,7 @@ class Object3DLayout(PyAedtBase):
         return True
 
     @property
-    def location(self) -> list[float]:
+    def location(self) -> list[float] | None:
         """Retrieve/Set the absolute location in model units.
 
         Location is computed with combination of 3d Layout location and model center.
@@ -329,7 +329,8 @@ class Object3DLayout(PyAedtBase):
             loc_y = round(unit_converter(loc_y, output_units=self._primitives.model_units), 9)
             return [loc_x, loc_y]
         elif self.prim_type in ["pin", "via"]:
-            location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
+            location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location")
+            location = [location_split.strip() for location_split in location.split(",")]
             locs = []
             for i in location:
                 try:
@@ -1341,11 +1342,11 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
         """
         cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
         if cent:
-            return cent.split(",")
+            return [cent_split.strip() for cent_split in cent.split(",")]
 
     @center.setter
     def center(self, position) -> None:
-        vMaterial = ["NAME:Center", "Value:=", position]
+        vMaterial = ["NAME:Center", "X:=", position[0], "Y:=", position[1]]
         self.change_property(vMaterial)
 
     @property
@@ -1435,7 +1436,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         if not self.two_point_description:
             cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
             if cent:
-                return cent.split(",")
+                return [cent_split.strip() for cent_split in cent.split(",")]
 
     @center.setter
     def center(self, value) -> None:
@@ -1503,7 +1504,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         if self.two_point_description:
             pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt A")
             if pa:
-                return pa.split(",")
+                return [p_split.strip() for p_split in pa.split(",")]
 
     @point_a.setter
     def point_a(self, value) -> None:
@@ -1527,7 +1528,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
         if self.two_point_description:
             pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt B")
             if pa:
-                return pa.split(",")
+                return [p_split.strip() for p_split in pa.split(",")]
 
     @point_b.setter
     def point_b(self, value) -> None:
@@ -1581,7 +1582,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @start_cap_type.setter
     def start_cap_type(self, value) -> None:
-        vMaterial = ["NAME:StartCap Type", "Value:=", value]
+        vMaterial = ["NAME:StartCapType", "Value:=", value]
         self.change_property(vMaterial)
 
     @property
@@ -1601,7 +1602,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
 
     @end_cap_type.setter
     def end_cap_type(self, value) -> None:
-        vMaterial = ["NAME:EndCap Type", "Value:=", value]
+        vMaterial = ["NAME:EndCapType", "Value:=", value]
         self.change_property(vMaterial)
 
     @property

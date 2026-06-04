@@ -774,46 +774,100 @@ def _run_ss() -> dict[int, int]:
         pyaedt_logger.debug(f"'{ss_cmd} -Hnlp' returned non-zero exit code: {proc.stderr.strip()}")
         return {}
 
+    # Final mapping of PID - gRPC port discovered from socket info.
     results: dict[int, int] = {}
+    # Intermediate grouping: PID - list of raw ss output lines for that PID.
+    results_pid: dict[int, list[str]] = {}
+
+    # Step 1: Group ss output lines by AEDT process PID
     for line in proc.stdout.splitlines():
-        port = -1
-        # Only process lines that belong to AEDT gRPC sockets.
+        # Only process lines that belong to AEDT gRPC.
         # Skip lines that don't mention the AEDT executable or belong to the
-        # standalone API process ("apip-standalone"), which uses a different
-        # communication channel
+        # standalone API process ("apip-standalone").
         if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # The fourth column of `ss -Hnlp` output is the "Recv-Q + Send-Q" field.
-        # AEDT gRPC sockets consistently show 2048 or 4096 here, other socket
-        # types are ignored to avoid false positives.
-        tokens = line.split()
-        if len(tokens) < 4 or (tokens[3] != "2048" and tokens[3] != "4096"):
-            continue
-
-        # Extract the PID from the trailing "users:((...,pid=NNNN,...))" section.
-        pid_match = re.search(r"pid=(\d+)", line)
+        # Extract the PID from the line: "ansysedt.exe",pid=NNNN
+        pid_match = re.search(r"['\"]?ansysedt\.exe['\"]?\s*,\s*pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
         if not pid:
             continue
 
-        # Try the secure gRPC socket path first (RE_SOCK), then fall back to the
-        # plain TCP port pattern (RE_PORT).  One of the two should always match
-        # for a valid AEDT gRPC listener.
+        if pid not in results_pid:
+            results_pid[pid] = [line]
+        else:
+            results_pid[pid].append(line)
 
-        secure_line = RE_SOCK.search(line)
-        insecure_line = RE_PORT.search(line)
+    # Step 2: Try to resolve port from secure Unix socket path (RE_SOCK)
+    for pid, lines in results_pid.items():
+        for line in lines:
+            secure_line = RE_SOCK.search(line)
+            if secure_line:
+                port = int(secure_line.group(1))
+                results[pid] = port
+                break
 
-        if secure_line:
-            port = int(secure_line.group(1))
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
 
-        elif insecure_line:
-            port = int(insecure_line.group(1))
+    if not results_pid:
+        return results
 
-        # Associate the discovered port with its owning PID.
-        # A port value of -1 means parsing failed, callers should handle that.
-        results[pid] = port
+    # Step 3: Fallback, inspect process command line for -grpcsrv flag.
+    for pid in list(results_pid):
+        try:
+            p = psutil.Process(pid)
+            cmdline = p.cmdline()
+        except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess, psutil.AccessDenied):
+            # Handle various exceptions that can occur during process inspection:
+            #
+            # AttributeError: Raised if conn.laddr is None (connection without local address)
+            #                 This can happen for some connection types
+            #
+            # KeyError: Raised if expected attributes are missing from the connection object
+            #           Rare, but possible with certain process states
+            #
+            # psutil.ZombieProcess: Process has terminated but hasn't been cleaned up by parent
+            #                       Common on Linux when processes exit but remain in process table
+            #
+            # psutil.NoSuchProcess: Process terminated between when we got the PID and now
+            #                       This is a race condition that can occur in fast process lifecycles
+            #
+            # psutil.AccessDenied: Current user does not have permission to access process information
+            continue
+
+        if "-grpcsrv" in cmdline:
+            # The -grpcsrv argument value can be "port" or "host:port".
+            port_parts = cmdline[cmdline.index("-grpcsrv") + 1].split(":")
+            if len(port_parts) == 1:
+                results[pid] = int(port_parts[0])
+            elif len(port_parts) >= 1:
+                results[pid] = int(port_parts[1])
+
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if not results_pid:
+        return results
+
+    # Step 4: Last resort, match TCP port in the standard gRPC range.
+    for pid, lines in results_pid.items():
+        for line in lines:
+            # Fall back to the plain TCP port pattern (RE_PORT).
+            # Only accept ports within the known AEDT gRPC range (50051-50100).
+            insecure_line = RE_PORT.search(line)
+            if insecure_line:
+                port = int(insecure_line.group(1))
+                if 50051 <= port <= 50100:
+                    results[pid] = port
+                    break
+
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if results_pid:
+        pyaedt_logger.debug(f"Unable to determine gRPC ports for PIDs: {list(results_pid.keys())}")
 
     return results
 
@@ -1196,37 +1250,18 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is available.")
     """
     pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
+
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
         return _is_port_occupied(port, machine)
-    if is_linux:
-        try:
-            sockets = _run_ss()
-            if port in sockets.values():
-                return True
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    targets = ["ansysedt.exe", "ansysedtsv.exe"]
-
-    for target in targets:
-        target_processes = _get_target_processes([target])
-
-        # Initialize all found AEDT processes with unknown port (-1)
-        # Port will be determined later through socket/connection analysis
-        return_dict = {pid: -1 for pid, _ in target_processes}
-
-        connections = _check_psutil_connections(list(return_dict.keys()))
-        for pid in return_dict.keys():
-            if _check_connection_grpc_port(connections, pid, None, None) == port:
-                return True
-    return False
+    return True if port in active_sessions().values() else False
 
 
 @pyaedt_function_handler()
 def active_sessions(
     version: str = None,
-    student_version: bool = False,
+    student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
@@ -1251,7 +1286,6 @@ def active_sessions(
         AEDT version to check. The default is ``None``, in which case all versions are checked.
         When specifying a version, you can use a three-digit format like ``"222"`` or a
         five-digit format like ``"2022.2"``.
-
     student_version : bool, optional
         Whether to search for student version sessions (ansysedtsv). The default is ``False``.
         When ``True``, searches for ``ansysedtsv.exe`` or ``ansysedtsv`` processes.
@@ -1441,7 +1475,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data: list | "array", function: str = None):  # pragma: no cover
+def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
