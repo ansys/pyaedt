@@ -179,7 +179,7 @@ jobs:
             echo "Breaking change information found."
           else
             echo "::error::PRs targeting release/2.0 must indicate breaking changes. Add '!' to the PR title (e.g., 'FEAT!: ...') or the 'Breaking-Change:' trailer, or apply a 'breaking-change' label."
-            exit
+            exit 1
           fi
 
   vulnerabilities:
