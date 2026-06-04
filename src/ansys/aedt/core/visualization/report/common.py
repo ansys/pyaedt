@@ -442,6 +442,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expressions
         self._is_created = False
         self.siwave_dc_category = 0
+        self._display_families_type = None
+        self._display_families_options = {}
         self._traces = []
         self._initialize_tree_node()
 
@@ -1318,6 +1320,74 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return arg
 
     @property
+    def display_families_type(self) -> str:
+        """Display families type for reports with X and Y components.
+
+        Options are ``"DisplayHistogram"``, ``"DisplayStatistics"``,
+        and ``"CumulativeDistribute"``.
+
+        Returns
+        -------
+        str
+            Display families type or ``None`` if not set.
+        """
+        return self._display_families_type
+
+    @display_families_type.setter
+    def display_families_type(self, value: str) -> None:
+        valid = ["DisplayHistogram", "DisplayStatistics", "CumulativeDistribute"]
+        if value is not None and value not in valid:
+            raise ValueError(f"Invalid display_families_type '{value}'. Valid options: {valid}")
+        self._display_families_type = value
+
+    @property
+    def display_families_options(self) -> dict:
+        """Options for the display families type.
+
+        For ``"DisplayHistogram"``: ``{"val_to_sample_at": "31GHz", "num_bins": 10}``
+        For ``"DisplayStatistics"``: ``{"functions": ["Min", "Max", "Avg", ...]}``
+        For ``"CumulativeDistribute"``: no options needed (empty dict).
+
+        Returns
+        -------
+        dict
+            Display families options.
+        """
+        return self._display_families_options
+
+    @display_families_options.setter
+    def display_families_options(self, value: dict) -> None:
+        self._display_families_options = value if value else {}
+
+    def _display_families_arg(self):
+        """Build the display families argument for CreateReport.
+
+        Returns
+        -------
+        list
+            Display families argument list, or empty list if not applicable.
+        """
+        if not self._display_families_type:
+            return []
+        # Only applicable when report uses X Component and Y Component
+        if self.report_type not in ["Rectangular Plot", "Radiation Pattern", "Data Table"]:
+            return []
+        arg = ["DisplayFamiliesType:=", self._display_families_type]
+        if self._display_families_type == "DisplayHistogram":
+            val = self._display_families_options.get("val_to_sample_at", "")
+            num_bins = self._display_families_options.get("num_bins", 10)
+            arg.append("ValToSampleAt:=")
+            arg.append(val)
+            arg.append("NumBins:=")
+            arg.append(num_bins)
+        elif self._display_families_type == "DisplayStatistics":
+            functions = self._display_families_options.get("functions", [])
+            func_list = ["NAME:functions"] + functions
+            arg.append(func_list)
+        # CumulativeDistribute has no extra options
+        return arg
+
+    @property
     def domain(self) -> str:
         """Plot domain.
 
@@ -1437,6 +1507,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self._context,
             self._convert_dict_to_report_sel(self.variations),
             self._trace_info(),
+            *([self._display_families_arg()] if self._display_families_arg() else []),
         )
         self._post.plots.append(self)
         self._is_created = True
