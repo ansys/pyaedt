@@ -248,6 +248,13 @@ inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="
 
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
+rst_prolog = """
+.. container:: pyaedt-release-banner
+
+    **PyAEDT 1.0**: review the :doc:`release notes </changelog>`
+    and :doc:`1.0 breaking changes </release_1_0>`.
+"""
+
 # The master toctree document.
 master_doc = "index"
 

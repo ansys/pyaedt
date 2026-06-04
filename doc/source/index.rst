@@ -65,3 +65,4 @@ enabling straightforward and efficient automation in your workflow.
     API/index
     Examples <https://examples.aedt.docs.pyansys.com/>
     changelog
+    release_1_0
