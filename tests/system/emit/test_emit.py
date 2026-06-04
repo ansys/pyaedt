@@ -1457,7 +1457,6 @@ def test_receiver_n_to_1_enabled(interference):
 def test_analysis_enabled(n_to_1):
     """Test enabling/disabling radio pairs and receiver N-to-1 analysis.
 
-    Translates C++ EmitApiTest::AnalysisEnabled test.
     """
     # Generate a revision
     rev = n_to_1.results.analyze()
@@ -1535,7 +1534,6 @@ def test_analysis_enabled(n_to_1):
 def test_categories(cell_phone):
     """Test EMI category filter enable/disable functionality.
 
-    Translates C++ EmitApiTest::categories test.
     Validates that filtering EMI categories progressively reduces worst-case EMI value
     and eventually results in no valid values when all categories are filtered.
     """

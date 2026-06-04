@@ -319,7 +319,7 @@ class Interaction:
         """
         # Check if interaction has been invalidated due to state changes
         if self._invalidated:
-            return "Interaction not associated with current Result object."
+            return "No results for this interaction."
 
         # Empty domain is only valid if produced by run(all pairs).
         if self._is_domain_empty(self.domain):
@@ -333,7 +333,7 @@ class Interaction:
         # Domain is associated, but no data exists yet.
         return "" if self._check_results_exist() else "Interaction has not been run."
 
-    def _check_results_exist(self, domain: InteractionDomain = None) -> bool:
+    def _check_results_exist(self, domain: InteractionDomain | None= None) -> bool:
         """Check if simulation results exist for the given domain.
 
         Parameters

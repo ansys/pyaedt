@@ -1283,7 +1283,7 @@ class Revision:
         """Invalidate all cached interactions for this revision.
 
         This is called when simulation state changes (e.g., radio pair or N-to-1 enabled state changes)
-        to mark all existing Interaction objects as invalid, similar to the C++ invalidateAll() pattern.
+        to mark all existing Interaction objects as invalid.
         """
         for interaction in self._interactions:
             interaction.invalidate()
