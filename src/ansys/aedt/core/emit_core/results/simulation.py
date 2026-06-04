@@ -206,6 +206,110 @@ class Simulation:
 
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
+    def export_scenario_matrix(self, file_path: str) -> None:
+        """Export the Scenario Matrix results to a CSV file.
+
+        Every solved radio tuple in the current revision (rows = victims,
+        columns = each individual aggressor plus the leftmost ``N to 1``
+        multi-aggressor cell) is written to ``file_path``. The file is
+        overwritten if it exists. The CSV is preceded by a ``#``-prefixed
+        header that captures the current state of the eight Result
+        Categorization filter toggles.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the output CSV file.
+
+        Examples
+        --------
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.export_scenario_matrix("scenario_matrix.csv")
+        """
+        self._revision._load_revision()
+        self.emit_project._emit_com_module.ExportEmitResults(
+            self._revision.results_index,
+            "ScenarioMatrix",
+            file_path,
+            [],  # rxRadios
+            [],  # rxBands
+            [],  # rxFreqs
+            [],  # intRadiosPerTuple
+            [],  # intBandsPerTuple
+            [],  # intFreqsPerTuple
+            False,
+        )
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2027.1")
+    def export_selection(
+        self,
+        domain: InteractionDomain,
+        file_path: str,
+        continue_if_partial: bool = False,
+    ) -> None:
+        """Export the results for a Scenario Details selection to a CSV file.
+
+        The supplied ``domain`` describes one or more (victim, aggressors)
+        radio tuples. If every tuple resolves to the top-level "All" / "All"
+        receiver/aggressor pair, this falls through to a Scenario Matrix
+        export per spec.
+
+        Parameters
+        ----------
+        domain : :class:`InteractionDomain`
+            Selection to export. The domain's receiver name is the victim
+            and its interferer names are the aggressors.
+        file_path : str
+            Full path to the output CSV file. Overwritten if it exists.
+        continue_if_partial : bool, optional
+            When ``False`` (default), this method raises
+            :class:`RuntimeError` if any tuple in the selection has not
+            been simulated. When ``True``, the export proceeds with
+            whatever simulated rows are available.
+
+        Raises
+        ------
+        RuntimeError
+            When the selection is only partially simulated and
+            ``continue_if_partial`` is ``False``.
+
+        Examples
+        --------
+        >>> domain = InteractionDomain(aedtapp)
+        >>> sim = aedtapp.results.current_revision.get_simulation()
+        >>> sim.export_selection(domain, "selection.csv")
+        """
+        self._revision._load_revision()
+        rx_radios = [domain.receiver_name]
+        rx_bands = [domain.receiver_band_name]
+        rx_freqs = [float(domain.receiver_channel_frequency)]
+        # Aggressor lists are ";"-delimited per tuple.
+        int_radios = [";".join(domain.interferer_names)]
+        int_bands = [";".join(domain.interferer_band_names)]
+        int_freqs = [";".join(str(f) for f in domain.interferer_channel_frequencies)]
+        partial = self.emit_project._emit_com_module.ExportEmitResults(
+            self._revision.results_index,
+            "Selection",
+            file_path,
+            rx_radios,
+            rx_bands,
+            rx_freqs,
+            int_radios,
+            int_bands,
+            int_freqs,
+            continue_if_partial,
+        )
+        # Skip the error if specified via continue_if_partial, 
+        # but raise it otherwise since the user likely expects the export to be complete
+        if not continue_if_partial and partial:
+            raise RuntimeError(
+                "Selection only partially simulated. Re-run the simulation "
+                "or call export_selection(..., continue_if_partial=True)."
+            )
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.2")
     def get_instance_count(self, domain: InteractionDomain):
         """
         Return the number of instances in the domain for the current revision.

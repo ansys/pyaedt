@@ -165,7 +165,7 @@ class InteractionDomain:
     @pyaedt_function_handler()
     @min_aedt_version("2027.1")
     def set_interferers(
-        self, names: list[str], band_names: list[str] = None, freqs: list[float] = None, units: str = "Hz"
+        self, names: list[str], band_names: list[str] = [], freqs: list[float] = [], units: str = "Hz"
     ):
         """
         Set multiple interferer radio names, band names, and channel frequencies.
@@ -187,11 +187,6 @@ class InteractionDomain:
         None
 
         """
-        if band_names is None:
-            band_names = []
-        if freqs is None:
-            freqs = []
-
         if len(band_names) > 0 and len(band_names) != len(names):
             raise ValueError("When assigning bands you must assign one band per interferer.")
         if len(freqs) > 0 and len(freqs) != len(band_names):
