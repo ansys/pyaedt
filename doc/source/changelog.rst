@@ -15,22 +15,6 @@ This document contains the release notes for the project.
 .. tab-set::
 
 
-  .. tab-item:: Breaking
-
-    .. list-table::
-        :header-rows: 0
-        :widths: auto
-
-        * - Update pre-commit ci config and ruff hook
-          - `#7723 <https://github.com/ansys/pyaedt/pull/7723>`_
-
-        * - Update doc dependencies
-          - `#7727 <https://github.com/ansys/pyaedt/pull/7727>`_
-
-        * - Update most CI jobs to use python 3.14
-          - `#7729 <https://github.com/ansys/pyaedt/pull/7729>`_
-
-
   .. tab-item:: Fixed
 
     .. list-table::
@@ -81,6 +65,9 @@ This document contains the release notes for the project.
         * - Bump aiohttp from 3.13.4 to 3.14.0
           - `#7731 <https://github.com/ansys/pyaedt/pull/7731>`_
 
+        * - Update doc dependencies
+          - `#7727 <https://github.com/ansys/pyaedt/pull/7727>`_
+
 
   .. tab-item:: Maintenance
 
@@ -100,6 +87,11 @@ This document contains the release notes for the project.
         * - Fix linux rocky grpc issue
           - `#7728 <https://github.com/ansys/pyaedt/pull/7728>`_
 
+        * - Update pre-commit ci config and ruff hook
+          - `#7723 <https://github.com/ansys/pyaedt/pull/7723>`_
+
+        * - Update most CI jobs to use python 3.14
+          - `#7729 <https://github.com/ansys/pyaedt/pull/7729>`_
 
 `1.0.0 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0>`_ - May 26, 2026
 =============================================================================
