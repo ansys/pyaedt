@@ -65,6 +65,7 @@ ALLOWED_LOG_SETTINGS = [
     "enable_global_log_file",
     "enable_local_log_file",
     "enable_logger",
+    "enable_monitor_in_aedt",
     "enable_screen_logs",
     "global_log_file_name",
     "global_log_file_size",
