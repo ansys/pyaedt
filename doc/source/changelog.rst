@@ -9,6 +9,98 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.0.1 <https://github.com/ansys/pyaedt/releases/tag/v1.0.1>`_ - June 04, 2026
+==============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Breaking
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pre-commit ci config and ruff hook
+          - `#7723 <https://github.com/ansys/pyaedt/pull/7723>`_
+
+        * - Update doc dependencies
+          - `#7727 <https://github.com/ansys/pyaedt/pull/7727>`_
+
+        * - Update most CI jobs to use python 3.14
+          - `#7729 <https://github.com/ansys/pyaedt/pull/7729>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Wrong Line setter in HFSS 3D Layout
+          - `#7724 <https://github.com/ansys/pyaedt/pull/7724>`_
+
+        * - Export touchstone on completion bug
+          - `#7726 <https://github.com/ansys/pyaedt/pull/7726>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6848 <https://github.com/ansys/pyaedt/pull/6848>`_
+
+        * - Update README badges
+          - `#7710 <https://github.com/ansys/pyaedt/pull/7710>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump codecov/codecov-action from 6.0.0 to 6.0.1
+          - `#7704 <https://github.com/ansys/pyaedt/pull/7704>`_
+
+        * - Bump prek from 0.4.0 to 0.4.1
+          - `#7705 <https://github.com/ansys/pyaedt/pull/7705>`_
+
+        * - Bump ansys-sphinx-theme from 1.8.1 to 1.8.2
+          - `#7706 <https://github.com/ansys/pyaedt/pull/7706>`_
+
+        * - Bump pyedb from 0.75.0 to 0.76.0
+          - `#7707 <https://github.com/ansys/pyaedt/pull/7707>`_
+
+        * - Bump vtk from 9.6.1 to 9.6.2
+          - `#7708 <https://github.com/ansys/pyaedt/pull/7708>`_
+
+        * - Bump aiohttp from 3.13.4 to 3.14.0
+          - `#7731 <https://github.com/ansys/pyaedt/pull/7731>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactor label logic to use inner logic
+          - `#7666 <https://github.com/ansys/pyaedt/pull/7666>`_
+
+        * - Update CHANGELOG for v1.0.0
+          - `#7701 <https://github.com/ansys/pyaedt/pull/7701>`_
+
+        * - Bump version into 1.1.dev0
+          - `#7709 <https://github.com/ansys/pyaedt/pull/7709>`_
+
+        * - Fix linux rocky grpc issue
+          - `#7728 <https://github.com/ansys/pyaedt/pull/7728>`_
+
+
 `1.0.0 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0>`_ - May 26, 2026
 =============================================================================
 
