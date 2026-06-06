@@ -65,6 +65,7 @@ ALLOWED_LOG_SETTINGS = [
     "enable_global_log_file",
     "enable_local_log_file",
     "enable_logger",
+    "enable_monitor_in_aedt",
     "enable_screen_logs",
     "global_log_file_name",
     "global_log_file_size",
@@ -243,6 +244,7 @@ class Settings(PyAedtBase):
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
         self.__pyedb_use_grpc: bool | None = None
+        self.__enable_monitor_in_aedt: bool = False
         self._update_settings()
 
     def _update_settings(self) -> None:
@@ -256,6 +258,17 @@ class Settings(PyAedtBase):
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## gRPC properties ##########################
+
+    @property
+    def enable_monitor_in_aedt(self) -> bool:
+        """Enable monitor in AEDT application during its launch.
+        Default is ``False`` to guarantee back compatibility.
+        """
+        return self.__enable_monitor_in_aedt
+
+    @enable_monitor_in_aedt.setter
+    def enable_monitor_in_aedt(self, value: bool) -> None:
+        self.__enable_monitor_in_aedt = value
 
     @property
     def pyedb_use_grpc(self) -> bool | None:
