@@ -1334,7 +1334,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._display_families_type
 
     @display_families_type.setter
-    def display_families_type(self, value: str) -> None:
+    def display_families_type(self, value: str | None) -> None:
         valid = ["DisplayHistogram", "DisplayStatistics", "CumulativeDistribute"]
         if value is not None and value not in valid:
             raise ValueError(f"Invalid display_families_type '{value}'. Valid options: {valid}")
