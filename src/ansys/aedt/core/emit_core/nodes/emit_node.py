@@ -367,7 +367,7 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
-"""Set the value of a given property.
+        """Set the value of a given property.
 
         Parameters
         ----------
