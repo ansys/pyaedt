@@ -346,6 +346,8 @@ def launch_aedt(
         command[-1] = str(port)
     if non_graphical:
         command.append("-ng")
+    if settings.enable_monitor_in_aedt:
+        command.append("-monitor")
     if settings.wait_for_license:
         command.append("-waitforlicense")
     if settings.aedt_log_file:
@@ -451,6 +453,8 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
             command.append(f"-q {settings.lsf_queue}")
         if non_graphical:
             command.append("-ng")
+        if settings.enable_monitor_in_aedt:
+            command.append("-monitor")
         if settings.wait_for_license:
             command.append("-waitforlicense")
         if settings.aedt_log_file:

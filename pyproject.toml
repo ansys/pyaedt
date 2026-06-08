@@ -27,8 +27,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
-    # Additional specific classifiers
-    "Operating System :: OS Independent",
 ]
 
 dependencies = [
@@ -98,7 +96,7 @@ examples = [
 
 [dependency-groups]
 dev = [
-  "prek==0.4.1",
+  "prek==0.4.3",
   { include-group = "doc" },
   { include-group = "tests" },
 ]
