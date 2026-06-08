@@ -81,7 +81,7 @@ jobs:
           contains(github.event.pull_request.title, 'extensions')
         run: gh pr edit "$PR_NUMBER" --add-label "extensions" --repo ansys/pyaedt
 
-      - name: Label extension
+      - name: Label examples
         if: contains(github.event.pull_request.title, 'pyaedt-examples')
         run: gh pr edit "$PR_NUMBER" --add-label "examples" --repo ansys/pyaedt
 
