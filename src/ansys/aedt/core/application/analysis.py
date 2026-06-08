@@ -1586,6 +1586,7 @@ class Analysis(Design, PyAedtBase):
                 cores=cores,
                 tasks=tasks,
                 revert_to_initial_mesh=revert_to_initial_mesh,
+                blocking=blocking,
             )
         else:
             return self.analyze_setup(
@@ -1914,6 +1915,7 @@ class Analysis(Design, PyAedtBase):
         tasks: int = 1,
         setup: str = None,
         revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
     ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
 
@@ -1946,6 +1948,9 @@ class Analysis(Design, PyAedtBase):
             The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
             Whether to revert to the initial mesh before solving. The default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1989,7 +1994,7 @@ class Analysis(Design, PyAedtBase):
             "-BatchSolve",
             "-machinelist",
             f"list={machine}:{tasks}:{cores}:90%:1",
-            "-Monitor",
+            "-monitor",
         ]
         if is_linux and settings.use_lsf_scheduler and tasks == -1:
             options.append("-distributed")
@@ -2030,7 +2035,7 @@ class Analysis(Design, PyAedtBase):
             subprocess.Popen(command)  # nosec
             self.logger.info("Batch job finished.")
 
-        if machine == "localhost":
+        if machine == "localhost" and blocking:
             while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open_file(queue_file, "r") as f:
