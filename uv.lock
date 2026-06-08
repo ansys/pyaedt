@@ -3733,7 +3733,7 @@ wheels = [
 
 [[package]]
 name = "pyedb"
-version = "0.76.0"
+version = "0.77.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansys-edb-core" },
@@ -3744,9 +3744,9 @@ dependencies = [
     { name = "toml" },
     { name = "xmltodict" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f5/6b/564d2e0f1bee683cdc27ee57980ec85ec5d655e70e5be0dbe59c24162d46/pyedb-0.76.0.tar.gz", hash = "sha256:b50fa50d2af9e195f0586319b5a159e98da8b9a54fda35842cc9ebe82b6c2106", size = 837727, upload-time = "2026-05-24T14:32:41.557Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/5b/c6f912d4916f7156dff7010764fea6fbbbf08c89ea457e2f5fc6c8aa6f32/pyedb-0.77.0.tar.gz", hash = "sha256:b65301170a8669a9fe89f5ac528e4c6884f6c5a65d154fc45f28494bb7823a32", size = 844835, upload-time = "2026-06-06T07:35:33.585Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/41/74596dd0687d21847f5937a6d399ff7ca11f971cd7f207a763967e722eed/pyedb-0.76.0-py3-none-any.whl", hash = "sha256:a88b0828edac5e2e40ca3544aff6256893d8b036037bcb9324917eda0e9f6122", size = 1141176, upload-time = "2026-05-24T14:32:39.097Z" },
+    { url = "https://files.pythonhosted.org/packages/35/e7/010f6f594228c1d18600445e169bee89c7a4b14e25fc2b62828444e80d0c/pyedb-0.77.0-py3-none-any.whl", hash = "sha256:2484fda1a453a4c429ae5f530e6212ddb9c0f61d53bb64755c42a430b8eb7e79", size = 1147553, upload-time = "2026-06-06T07:35:31.704Z" },
 ]
 
 [[package]]
