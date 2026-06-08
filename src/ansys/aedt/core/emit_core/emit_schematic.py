@@ -214,3 +214,53 @@ class EmitSchematic:
         except Exception as e:
             self.emit_project.logger.error(f"Failed to delete component '{name}': {e}")
             raise AEDTRuntimeError(f"Failed to delete component '{name}': {e}")
+
+    @pyaedt_function_handler
+    def compare_components(self, component_1: EmitNode, component_2: EmitNode):
+        """Compare two components in the schematic.
+
+        Parameters
+        ----------
+        component_1 : EmitNode
+            The first component.
+        component_2 : EmitNode
+            The second component.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the modified properties.
+
+        Raises
+        ------
+        RuntimeError
+            If the comparison fails.
+        """
+        modified_properties = {}
+
+        component_1_keys = set(component_1.__dict__.keys())
+        component_2_keys = set(component_2.__dict__.keys()) 
+
+        try:
+            for key in component_1_keys & component_2_keys:
+                value_1 = getattr(component_1, key)
+                value_2 = getattr(component_2, key)
+                if value_1 != value_2:
+                        modified_properties[key] = {
+                        "from": {
+                            "component": component_2.name,
+                            "value": value_2
+                        },
+                        "to": {
+                            "component": component_1.name,
+                            "value": value_1
+                        }
+                }
+
+        except Exception as e:
+            self.emit_project.logger.error(
+                f"Failed to compare components '{component_1.name}' and '{component_2.name}': {e}"
+            )
+            raise RuntimeError(f"Failed to compare components '{component_1.name}' and '{component_2.name}': {e}")
+
+        return modified_properties

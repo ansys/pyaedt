@@ -3216,3 +3216,24 @@ def test_terminator_table_persistence(add_app) -> None:
 
     app2.close_project(app2.project_name, save=False)
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2025 R2.")
+def test_compare_components(emit_app) -> None:
+    if not hasattr(emit_app.schematic, "compare_components"):
+        pytest.skip("compare_components is not available in this build.")
+
+    radio_1: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio1")
+    radio_2: RadioNode = emit_app.schematic.create_component("New Radio", "CompareRadio2")
+    radio_1._valid = False
+    differences = emit_app.schematic.compare_components(radio_1, radio_2)
+    assert isinstance(differences, dict)
+    assert "_node_id" in differences
+    assert differences["_node_id"]["from"]["component"] == radio_2.name
+    assert differences["_node_id"]["to"]["component"] == radio_1.name
+    assert differences["_node_id"]["from"]["value"] == radio_2._node_id
+    assert differences["_node_id"]["to"]["value"] == radio_1._node_id
+    assert "_valid" in differences
+    assert differences["_valid"]["from"]["value"] is True
+    assert differences["_valid"]["to"]["value"] is False
+
+    same_node_differences = emit_app.schematic.compare_components(radio_1, radio_1)
+    assert same_node_differences == {}
