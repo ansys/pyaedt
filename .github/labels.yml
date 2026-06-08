@@ -129,3 +129,12 @@
 - name: breaking-change
   description: Introduces a breaking change to the public API
   color: 9f1239
+
+# Label to be used when manually updating the release/2.0 branch with maintenance
+# changes that do not contain breaking changes. Example of such scenario:
+# wrong information in the release notes that needs to be fixed after the release.
+# See https://github.com/ansys/pyaedt/pull/7740 for more information.
+
+- name: release-maintenance
+  description: Related to maintenance of the release branch
+  color: f78c37
