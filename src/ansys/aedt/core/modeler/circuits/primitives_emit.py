@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import warnings
 from __future__ import annotations
 
 from collections import defaultdict
@@ -32,7 +33,6 @@ import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
-import warnings
 
 class EmitComponents(PyAedtBase):
     """EmitComponents class.
@@ -178,7 +178,7 @@ class EmitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitComponent:
         """Create a new component from a library.
-        
+
         .. deprecated:: 0.25.2
             Use create_component method from emit_schematic.py instead.
 
@@ -203,8 +203,10 @@ class EmitComponents(PyAedtBase):
         >>> oEditor.CreateComponent
         """
         warnings.warn(
-            "This method is deprecated as of version 0.25.2. Use the create_component method from emit_schematic.py instead.",
-              DeprecationWarning
+            "This method is deprecated as of version 0.25.2. "
+            "Use the create_component method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
 
         # Pass an empty string to allow name to be automatically assigned.
@@ -256,8 +258,10 @@ class EmitComponents(PyAedtBase):
         >>> oEditor.CreateComponent
         """
         warnings.warn(
-            "This method is deprecated as of version 0.25.2. Use the create_radio_antenna method from emit_schematic.py instead.",
-              DeprecationWarning
+            "This method is deprecated as of version 0.25.2. "
+            "Use the create_radio_antenna method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
 
         # Pass an empty string to allow name to be automatically assigned.
@@ -401,7 +405,11 @@ class EmitComponent(PyAedtBase):
         EmitComponent
             An instance of the new component.
         """
-        warnings.warn("This method is deprecated in 0.25.2. Use the create_component method from emit_schematic.py instead.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the create_component method from emit_schematic.py instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
         prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
@@ -449,9 +457,10 @@ class EmitComponent(PyAedtBase):
 
         """
         warnings.warn(
-            "This method is deprecated in 0.25.2. " \
+            "This method is deprecated in 0.25.2. " 
             "Use the connect_components method from emit_schematic.py instead.",
-              DeprecationWarning
+              DeprecationWarning,
+              stacklevel=2
         )
         if isinstance(component, EmitComponent):
             self.oeditor.PlaceComponent(self.name, component.name)
@@ -557,7 +566,12 @@ class EmitComponent(PyAedtBase):
         >>> oDesign.GetComponentNodeNames
         >>> oDesign.GetComponentNodeProperties
         """
-        warnings.warn("This method is deprecated in 0.25.2. Use the properties method from emit_node.py instead.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.25.2. "
+            "Use the properties method from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         nodes = sorted(self.odesign.GetComponentNodeNames(self.name))
         root_node = nodes[0]
         node_name = root_node
@@ -645,9 +659,9 @@ class EmitComponent(PyAedtBase):
     @pyaedt_function_handler()
     def get_type(self) -> str:
         """Get the property ``Type`` of a component.
-        
+
         .. deprecated:: 0.25.2
-            This method is deprecated in 0.25.2. 
+            This method is deprecated in 0.25.2.
             Use the properties method from emit_node.py instead to get the "Type" property.
 
         Parameters
@@ -660,9 +674,10 @@ class EmitComponent(PyAedtBase):
             Type property of self.
         """
         warnings.warn(
-            "This method is deprecated in 0.25.2. " \
+            "This method is deprecated in 0.25.2. "
             "Use the properties method from emit_node.py instead to get the 'Type' property.",
-              DeprecationWarning
+              DeprecationWarning,
+              stacklevel=2
         )
         properties = self.get_node_properties()
 
@@ -778,9 +793,10 @@ class EmitRadioComponent(EmitComponent):
             ``True`` if it is an emitter, ``False`` otherwise.
         """
         warnings.warn(
-            "This method is deprecated in 0.25.2. " \
+            "This method is deprecated in 0.25.2. "
             "Use the properties method from emit_node.py instead to check if the 'IsEmitter' property is 'true'.",
-              DeprecationWarning
+              DeprecationWarning,
+                stacklevel=2
         )
         properties = self.get_node_properties()
 
@@ -803,7 +819,11 @@ class EmitRadioComponent(EmitComponent):
         List
             List of the band nodes in the radio.
         """
-        warnings.warn("This method is deprecated in 0.25.2. Use the get_all_band_nodes method from revision.py instead.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the get_all_band_nodes method from revision.py instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 
@@ -821,7 +841,11 @@ class EmitRadioComponent(EmitComponent):
         -------
         band_node : Instance of the band node.
         """
-        warnings.warn("This method is deprecated in 0.25.2. Use the get_band_node method from revision.py instead.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.25.2. Use the get_band_node method from revision.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+    )
         band_nodes = self.bands()
         for node in band_nodes:
             if band_name == node.props["Name"]:
@@ -845,7 +869,7 @@ class EmitRadioComponent(EmitComponent):
         Float
             Start frequency of the band node.
         """
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning)
+        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
@@ -867,7 +891,7 @@ class EmitRadioComponent(EmitComponent):
         Float
             Stop frequency of the band node.
         """
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning)
+        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
@@ -907,7 +931,7 @@ class EmitRadioComponent(EmitComponent):
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
 
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning)
+        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
 
@@ -955,7 +979,7 @@ class EmitRadioComponent(EmitComponent):
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning)   
+        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         # convert to Hz
@@ -1114,7 +1138,11 @@ class EmitComponentPropNode(PyAedtBase):
         Dict
             Dictionary of all the properties for this node.
         """
-        warnings.warn("This method is deprecated in 0.25.2. Use the props_to_dict method from emit_node.py instead.", DeprecationWarning)
+        warnings.warn(
+            "This property is deprecated in 0.25.2. Use the props_to_dict method from emit_node.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+ )
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=", 1) for p in prop_list)
         return props
@@ -1137,9 +1165,10 @@ class EmitComponentPropNode(PyAedtBase):
             ``False`` if the node is disabled.
         """
         warnings.warn(
-            "This method is deprecated in 0.25.2. " \
+            "This property is deprecated in 0.25.2. "
             "Use the properties method from emit_node.py instead to check if the 'Enabled' property is 'true'.",
-            DeprecationWarning
+            DeprecationWarning,
+            stacklevel=2,
         )
         return self.props["Enabled"] == "true"
 
