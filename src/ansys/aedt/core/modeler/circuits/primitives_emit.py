@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
 from __future__ import annotations
 
 from collections import defaultdict
+import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
