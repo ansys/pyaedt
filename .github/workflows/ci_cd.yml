@@ -258,6 +258,7 @@ jobs:
 
   smoke-tests-rocky:
     name: Build wheelhouse and smoke tests (Rocky Linux)
+    needs: [block-pyansys-ci-bot]
     permissions:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
