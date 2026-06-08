@@ -29,6 +29,7 @@ import re
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DisplayFamiliesType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -1323,8 +1324,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def display_families_type(self) -> str:
         """Display families type for reports with X and Y components.
 
-        Options are ``"DisplayHistogram"``, ``"DisplayStatistics"``,
-        and ``"CumulativeDistribute"``.
+        Options are ``DisplayFamiliesType.Histogram``, ``DisplayFamiliesType.Statistics``,
+        and ``DisplayFamiliesType.Cumulative``.
 
         Returns
         -------
@@ -1335,18 +1336,32 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @display_families_type.setter
     def display_families_type(self, value: str | None) -> None:
-        valid = ["DisplayHistogram", "DisplayStatistics", "CumulativeDistribute"]
+        valid = [
+            DisplayFamiliesType.Histogram,
+            DisplayFamiliesType.Statistics,
+            DisplayFamiliesType.Cumulative,
+        ]
         if value is not None and value not in valid:
             raise ValueError(f"Invalid display_families_type '{value}'. Valid options: {valid}")
         self._display_families_type = value
+        if value == DisplayFamiliesType.Histogram:
+            self._display_families_options.setdefault("val_to_sample_at", "")
+            self._display_families_options.setdefault("num_bins", 10)
+        elif value == DisplayFamiliesType.Statistics:
+            self._display_families_options.setdefault("functions", [])
+        else:
+            self._display_families_options = {}
 
     @property
     def display_families_options(self) -> dict:
         """Options for the display families type.
 
-        For ``"DisplayHistogram"``: ``{"val_to_sample_at": "31GHz", "num_bins": 10}``
-        For ``"DisplayStatistics"``: ``{"functions": ["Min", "Max", "Avg", ...]}``
-        For ``"CumulativeDistribute"``: no options needed (empty dict).
+        Default values are populated automatically when ``display_families_type``
+        is set:
+
+        - ``DisplayFamiliesType.Histogram``: ``{"val_to_sample_at": "", "num_bins": 10}``
+        - ``DisplayFamiliesType.Statistics``: ``{"functions": []}``
+        - ``DisplayFamiliesType.Cumulative``: no options needed (empty dict).
 
         Returns
         -------
@@ -1373,15 +1388,15 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         if self.report_type not in ["Rectangular Plot", "Radiation Pattern", "Data Table"]:
             return []
         arg = ["DisplayFamiliesType:=", self._display_families_type]
-        if self._display_families_type == "DisplayHistogram":
-            val = self._display_families_options.get("val_to_sample_at", "")
-            num_bins = self._display_families_options.get("num_bins", 10)
+        if self._display_families_type == DisplayFamiliesType.Histogram:
+            val = self._display_families_options["val_to_sample_at"]
+            num_bins = self._display_families_options["num_bins"]
             arg.append("ValToSampleAt:=")
             arg.append(val)
             arg.append("NumBins:=")
             arg.append(num_bins)
-        elif self._display_families_type == "DisplayStatistics":
-            functions = self._display_families_options.get("functions", [])
+        elif self._display_families_type == DisplayFamiliesType.Statistics:
+            functions = self._display_families_options["functions"]
             func_list = ["NAME:functions"] + functions
             arg.append(func_list)
         # CumulativeDistribute has no extra options

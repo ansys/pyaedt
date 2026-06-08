@@ -208,21 +208,23 @@ def test_circuit_create_report(circuit_test) -> None:
 
 
 def test_circuit_create_report_display_families_type(circuit_test) -> None:
+    from ansys.aedt.core.generic.constants import DisplayFamiliesType
+
     # Test DisplayHistogram
     report = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
-    report.display_families_type = "DisplayHistogram"
+    report.display_families_type = DisplayFamiliesType.Histogram
     report.display_families_options = {"val_to_sample_at": "5GHz", "num_bins": 10}
     assert report.create()
 
     # Test DisplayStatistics
     report2 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
-    report2.display_families_type = "DisplayStatistics"
+    report2.display_families_type = DisplayFamiliesType.Statistics
     report2.display_families_options = {"functions": ["Min", "Max", "Avg", "Mean", "Variance", "StdDev", "Sum"]}
     assert report2.create()
 
     # Test CumulativeDistribute
     report3 = circuit_test.post.reports_by_category.standard(["dB(S(Port1, Port1))"], "LNA")
-    report3.display_families_type = "CumulativeDistribute"
+    report3.display_families_type = DisplayFamiliesType.Cumulative
     assert report3.create()
 
     # Test invalid value raises ValueError
