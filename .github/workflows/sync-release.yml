@@ -174,6 +174,13 @@ jobs:
             echo "Automated sync PR detected, skipping breaking change check."
             exit 0
           fi
+
+          # Skip for manual changes related to the release/2.0 maintenance
+          if echo "$PR_LABELS" | grep -qi "release-maintenance"; then
+            echo "Label 'release-maintenance' detected, skipping breaking change check."
+            exit 0
+          fi
+
           # Check for breaking change indicators
           if echo "$PR_TITLE" | grep -q '!:' || echo "$PR_LABELS" | grep -qi 'breaking'; then
             echo "Breaking change information found."
@@ -338,6 +345,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-unit-tests
+          files: ./coverage.xml
+          flags: unit_tests
+        if: ${{ always() }}
+
   integration-tests:
     name: Integration tests
     if: github.event_name == 'pull_request'
@@ -380,6 +394,13 @@ jobs:
         with:
           name: pytest-integration
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-integration-tests
+          files: ./coverage.xml
+          flags: integration_tests
         if: ${{ always() }}
 
 # =================================================================================================
@@ -442,6 +463,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-solvers-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_solvers
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -499,6 +527,13 @@ jobs:
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-solvers-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_solvers
         if: ${{ always() }}
 
 # =================================================================================================
@@ -564,6 +599,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-general-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_general
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -624,6 +666,13 @@ jobs:
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-general-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_general
         if: ${{ always() }}
 
 # =================================================================================================
@@ -691,6 +740,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-visualization-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_visualization
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -754,6 +810,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-visualization-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_visualization
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -814,6 +877,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-icepak-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_icepak
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -871,6 +941,13 @@ jobs:
         with:
           name: pytest-icepak-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-icepak-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_icepak
         if: ${{ always() }}
 
 # =================================================================================================
@@ -933,6 +1010,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-layout-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_layout
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -990,6 +1074,13 @@ jobs:
         with:
           name: pytest-layout-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-layout-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_layout
         if: ${{ always() }}
 
 # =================================================================================================
@@ -1055,6 +1146,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-extensions-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_extensions
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -1117,6 +1215,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-extensions-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_extensions
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -1177,6 +1282,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-filter-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_filter
+        if: ${{ always() }}
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -1235,5 +1347,12 @@ jobs:
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
+
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          name: codecov-system-emit-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_emit
         if: ${{ always() }}
 
