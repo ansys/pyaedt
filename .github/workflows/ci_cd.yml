@@ -221,6 +221,25 @@ jobs:
           optional-dependencies-name: 'all'
           group-dependencies-name: 'doc'
 
+  doc-deploy-pr:
+    name: Deploy PR documentation
+    if: contains(github.event.pull_request.labels.*.name, 'deploy-pr-doc')
+    needs: doc-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to update files on the gh-pages branch
+      pull-requests: write # Needed to create deployment comments on PRs
+    steps:
+      - uses: ansys/actions/doc-deploy-pr@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          doc-artifact-name: documentation-ubuntu-latest-html
+          maximum-pr-doc-deployments: 3
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
