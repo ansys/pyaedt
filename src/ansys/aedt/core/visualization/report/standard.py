@@ -831,6 +831,7 @@ class Spectral(CommonReport, PyAedtBase):
             self._context,
             self._convert_dict_to_report_sel(self.variations),
             self._trace_info(),
+            *([self._display_families_arg()] if self._display_families_arg() else []),
         )
         self._post.plots.append(self)
         self._is_created = True
