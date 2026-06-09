@@ -1309,6 +1309,20 @@ class SymbolStyle(metaclass=DynamicMeta):
     )
 
 
+class DisplayFamiliesType(metaclass=DynamicMeta):
+    """Display families type enum class."""
+
+    (
+        Histogram,
+        Statistics,
+        Cumulative,
+    ) = (
+        "DisplayHistogram",
+        "DisplayStatistics",
+        "CumulativeDistribute",
+    )
+
+
 class IntEnumProps(IntEnum):
     def __repr__(self) -> str:
         return str(self.value)
