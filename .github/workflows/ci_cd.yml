@@ -1011,8 +1011,7 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
-            system-tests-emit-windows,
-            doc-build]
+            system-tests-emit-windows]
     runs-on: ubuntu-latest
     if: |
       always() &&
