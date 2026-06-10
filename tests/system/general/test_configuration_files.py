@@ -31,6 +31,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from tests import TESTS_GENERAL_PATH
+from tests.conftest import DESKTOP_VERSION
 
 TEST_FIELD = "Potter_Horn"
 IPK_NAME = "Icepak_test"
@@ -220,6 +221,7 @@ def test_circuit(circuit_app, test_tmp_dir) -> None:
     assert circuit_app.configurations.export_config(str(export_json))
 
 
+@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_circuit_import_config(add_app_example, test_tmp_dir) -> None:
     app = add_app_example(application=Circuit, project=AMI_PROJECT, subfolder="T01")
     path = app.configurations.export_config()
