@@ -102,5 +102,23 @@ app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")
 app.add_typer(test_config_app, name="test-config")
 
+# Load plugin entry points
+try:
+    import importlib.metadata
+
+    entry_points = importlib.metadata.entry_points()
+    plugin_group = entry_points.select(group="pyaedt.cli")
+
+    for ep in plugin_group:
+        try:
+            plugin_app = ep.load()
+            app.add_typer(plugin_app, name=ep.name)
+        except Exception:
+            # Silently skip plugins that fail to load
+            pass
+except Exception:
+    # If entry point loading fails, just continue without plugins
+    pass
+
 if __name__ == "__main__":
     app()
