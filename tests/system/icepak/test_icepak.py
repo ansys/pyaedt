@@ -44,7 +44,8 @@ from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_ICEPAK_PATH
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
+from tests.conftest import USE_GRPC
 
 TEST_SUBFOLDER = "icepak"
 BOARD_3DL = "FilterBoard_H3DL"
@@ -904,7 +905,7 @@ def test_delete_monitors(board_ipk_app) -> None:
     assert not board_ipk_app.monitor.delete_monitor("Test")
 
 
-@pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
+@pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir) -> None:
     cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
@@ -1068,7 +1069,7 @@ def test_assign_stationary_wall(ipk_app) -> None:
     )
 
 
-@pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
+@pytest.mark.skipif(DESKTOP_VERSION < "2023.1" and USE_GRPC, reason="Not working in 2022.2 gRPC")
 def test_native_components_history(ipk_app) -> None:
     fan = ipk_app.create_fan("test_fan")
     ipk_app.modeler.user_defined_components[fan.name].move([1, 2, 3])
@@ -1659,7 +1660,7 @@ def test_design_settings(ipk_app) -> None:
     d["AmbGaugePressure"] = 5
     assert d["AmbGaugePressure"] == "5n_per_meter_sq"
 
-    if config["desktopVersion"] < "2027.1":
+    if DESKTOP_VERSION < "2027.1":
         d["GravityVec"] = 1
         assert d["GravityVec"] == "Global::Y"
         assert d["GravityDir"] == "Positive"
