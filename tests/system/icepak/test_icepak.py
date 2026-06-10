@@ -1673,9 +1673,9 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityVec"] == "Global::Y"
     else:
         assert d["GravityVec"] == "Global"
-        assert isinstance(["XComponent"], str)
-        assert isinstance(["YComponent"], str)
-        assert isinstance(["ZComponent"], str)
+        assert isinstance(d["XComponent"], str)
+        assert isinstance(d["YComponent"], str)
+        assert isinstance(d["ZComponent"], str)
         d["XComponent"] = "1m_per_s2"
         d["YComponent"] = "2m_per_s2"
         d["ZComponent"] = "3m_per_s2"
