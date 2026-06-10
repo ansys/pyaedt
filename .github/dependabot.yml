@@ -13,6 +13,7 @@ updates:
         - "*"  # Include all dependencies in cooldown
       exclude:
         - "ansys-sphinx-theme"
+        - "ansys-tools-common"
         - "ansys-tools-visualization-interface"
         - "ansys-pythonnet"
         - "pyedb"
