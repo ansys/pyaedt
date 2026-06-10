@@ -10,6 +10,10 @@
   description: Improvements or additions to documentation
   color: 0677ba
 
+- name: deploy-pr-doc
+  description: Deploy pull request documentation
+  color: 00ff00
+
 - name: enhancement
   description: New features or code improvements
   color: FFD827
