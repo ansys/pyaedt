@@ -24,8 +24,6 @@
 
 """PyAEDT CLI based on typer."""
 
-import logging
-
 try:
     import typer
 except ImportError as e:  # pragma: no cover
@@ -42,8 +40,6 @@ from ansys.aedt.core.cli.export import export_app
 from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.project import project_app
 from ansys.aedt.core.cli.script import run_script
-
-logger = logging.getLogger("Global")
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -118,9 +114,9 @@ try:
             plugin_app = ep.load()
             app.add_typer(plugin_app, name=ep.name)
         except Exception as exc:
-            logger.debug("Skipping CLI plugin '%s' because it failed to load: %s", ep.name, exc)
+            typer.secho(f"Skipping CLI plugin '{ep.name}' because it failed to load: {exc}", fg="yellow")
 except Exception as exc:
-    logger.debug("Skipping CLI plugin discovery because entry-point loading failed: %s", exc)
+    typer.secho(f"Skipping CLI plugin discovery because entry-point loading failed: {exc}", fg="yellow")
 
 if __name__ == "__main__":
     app()
