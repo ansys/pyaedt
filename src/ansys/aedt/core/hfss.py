@@ -8021,7 +8021,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             ofile.write("# Frequency domain\n")
             if len(frequencies) > 1:
                 ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
-                ofile.write(f"MultiFreq {frequencies[0]} {frequencies[1]} {len(frequencies) - 1}\n")
+                ofile.write(f"MultiFreq {frequencies[0]} {frequencies[-1]} {len(frequencies) - 1}\n")
             else:
                 freq = frequencies[0]
                 ofile.write(f"# Frequency-independent dataset. Simulated at {freq} {frequency_units}.\n")
