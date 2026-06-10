@@ -1658,17 +1658,30 @@ def test_design_settings(ipk_app) -> None:
     assert d["AmbTemp"] == "5kel"
     d["AmbGaugePressure"] = 5
     assert d["AmbGaugePressure"] == "5n_per_meter_sq"
-    d["GravityVec"] = 1
-    assert d["GravityVec"] == "Global::Y"
-    assert d["GravityDir"] == "Positive"
-    d["GravityVec"] = 4
-    assert d["GravityVec"] == "Global::Y"
-    assert d["GravityDir"] == "Negative"
-    d["GravityVec"] = "+X"
-    assert d["GravityVec"] == "Global::X"
-    assert d["GravityDir"] == "Positive"
-    d["GravityVec"] = "Global::Y"
-    assert d["GravityVec"] == "Global::Y"
+
+    if config["desktopVersion"] < "2027.1":
+        d["GravityVec"] = 1
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = 4
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Negative"
+        d["GravityVec"] = "+X"
+        assert d["GravityVec"] == "Global::X"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = "Global::Y"
+        assert d["GravityVec"] == "Global::Y"
+    else:
+        assert d["GravityVec"] == "Global"
+        assert isinstance(["XComponent"], str)
+        assert isinstance(["YComponent"], str)
+        assert isinstance(["ZComponent"], str)
+        d["XComponent"] = "1m_per_s2"
+        d["YComponent"] = "2m_per_s2"
+        d["ZComponent"] = "3m_per_s2"
+        assert d["XComponent"] == "1m_per_s2"
+        assert d["YComponent"] == "2m_per_s2"
+        assert d["ZComponent"] == "3m_per_s2"
 
 
 def test_restart_solution(ipk_app) -> None:
