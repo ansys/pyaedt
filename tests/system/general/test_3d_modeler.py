@@ -346,6 +346,7 @@ def test_create_face_list(coaxial) -> None:
     assert not coaxial.modeler.create_face_list(["outer2"])
 
 
+@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_create_object_list(coaxial) -> None:
     o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
     fl1 = coaxial.modeler.create_object_list([o2.name], "my_object_list")
