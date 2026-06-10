@@ -93,6 +93,9 @@ def test_flatten_3d_components(aedt_app) -> None:
         input_file=str(aedt_app.toolkit_directory / file_name), coordinate_system="CS2", auxiliary_parameters=True
     )
 
+    # Save the project to refresh the properties of the inserted 3D Component
+    aedt_app.save_project()
+
     aedt_app.logger.clear_messages("", "")
     aedt_app.insert_design("test_52")
     cs2 = aedt_app.modeler.create_coordinate_system(name="CS2")
