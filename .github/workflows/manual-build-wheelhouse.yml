@@ -76,7 +76,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all dotnet'
+          target: 'all, dotnet'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -107,7 +107,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all dotnet'
+          target: 'all, dotnet'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -142,7 +142,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all dotnet'
+          target: 'all, dotnet'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -173,7 +173,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all dotnet'
+          target: 'all, dotnet'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
