@@ -78,6 +78,10 @@ all = [
     "fpdf2",
     "rpyc>=6.0.0",
 ]
+all-dotnet = [
+    "pyaedt[all]",
+    "pyaedt[dotnet]",
+]
 examples = [
     "imageio>=2.34.0",
     "matplotlib>=3.5.0",

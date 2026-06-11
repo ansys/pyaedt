@@ -39,6 +39,13 @@ on:
            - '3.12'
            - '3.13'
            - '3.14'
+      target:
+         description: "Package extras to build"
+         default: 'all'
+         type: choice
+         options:
+           - 'all'
+           - 'all-dotnet'
 
 env:
   PACKAGE_NAME: 'PyAEDT'
@@ -76,7 +83,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -107,7 +114,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -142,7 +149,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -173,7 +180,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -195,6 +202,7 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      target: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
   build-wheelhouse-rocky-single:
@@ -205,4 +213,5 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
+      target: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
