@@ -138,7 +138,7 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
-      target: '["all", "all-dotnet"]'
+      extras: '["all", "all-dotnet"]'
 
   unit-tests:
     name: Unit tests

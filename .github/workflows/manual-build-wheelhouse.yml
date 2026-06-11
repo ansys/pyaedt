@@ -202,7 +202,7 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
-      target: ${{ format('["{0}"]', github.event.inputs.target) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.extras) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
   build-wheelhouse-rocky-single:
@@ -213,5 +213,5 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
-      target: ${{ format('["{0}"]', github.event.inputs.target) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.extras) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
