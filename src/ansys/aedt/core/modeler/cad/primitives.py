@@ -4597,7 +4597,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         )
         if status:
             self.move(new_edges[0], move_vector)
-            old_bondwire.model = False
+            old_bondwire.is_model = False
             return new_edges[0]
         else:
             return False
@@ -4715,7 +4715,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         faces = []
-        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
+        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.is_model]
         for sheet_name in assignment:
             sheet = self[sheet_name]  # get the sheet object
             _, cloned = self.clone(sheet)
@@ -8895,7 +8895,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         """
         list_objs = []
         for id, obj in self.objects.items():
-            if obj.model == model:
+            if obj.is_model == model:
                 list_objs.append(obj.name)
         return list_objs
 
@@ -9432,7 +9432,7 @@ class PrimitivesBuilder(PyAedtBase):
         return self._app.logger
 
     @pyaedt_function_handler()
-    def create(self) -> list:
+    def create(self) -> list | bool:
         """Create instances of defined primitives.
 
         Returns

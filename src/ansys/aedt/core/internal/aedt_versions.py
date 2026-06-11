@@ -107,11 +107,6 @@ class AedtVersions(PyAedtBase):
         if self._list_installed_ansysem is None:
             version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
             version_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
-            if not version_list:
-                warnings.warn(
-                    "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx`` or"
-                    "``AWP_ROOTxxx``."
-                )
 
             version_pattern = re.compile(r"^(AWP_ROOT)\d{3}$")
             version_awp_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
@@ -121,6 +116,11 @@ class AedtVersions(PyAedtBase):
                     ansys_em = Path(os.environ[version_awp]) / "AnsysEM"
                     if ansys_em.exists():
                         version_list.append(str(version_awp))
+            if not version_list:
+                warnings.warn(
+                    "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx`` or"
+                    "``AWP_ROOTxxx``."
+                )
 
             self._list_installed_ansysem = version_list
         return self._list_installed_ansysem

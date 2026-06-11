@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 
+from unittest.mock import patch
+
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
@@ -62,3 +64,17 @@ def test_dcir(dcir_example_project) -> None:
     assert dcir_example_project.post.compute_power_by_net()
     assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
     assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
+
+
+@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="WAITING BUG FIX")
+@patch(
+    "ansys.aedt.core.visualization.post.fields_calculator.FieldsCalculator.add_expression",
+    side_effect=RuntimeError("Dummy exception"),
+)
+def test_dcir_power_loss_fallback_to_zero(mock_add_expression, dcir_example_project) -> None:
+    """Test fallback to zero."""
+    result = dcir_example_project.post.compute_power_by_layer()
+
+    assert result is not None
+    assert all(entry == 0.0 for entry in result.values())

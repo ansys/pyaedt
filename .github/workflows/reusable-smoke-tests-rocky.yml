@@ -1,0 +1,91 @@
+name: Reusable Rocky smoke tests
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: JSON array of Python versions for the matrix
+        required: false
+        default: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+        type: string
+      checkout-ref:
+        description: Optional git ref to checkout before building
+        required: false
+        default: ''
+        type: string
+
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
+
+jobs:
+  smoke-tests-rocky:
+    name: Build wheelhouse and smoke tests (Rocky Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJSON(inputs.python-versions) }}
+    container:
+      image: rockylinux/rockylinux:8@sha256:f5529992e67440c1a4ae7788244d4381c6909159a88eacd95b7523ae47ced82e
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.checkout-ref || github.ref }}
+          persist-credentials: false
+
+      - name: Install build deps
+        shell: bash
+        run: |
+          set -eux
+          dnf -y update
+          dnf groupinstall -y "Development Tools"
+          dnf -y install \
+            gcc make wget tar xz bzip2 \
+            bzip2-devel zlib-devel xz-devel \
+            openssl-devel libffi-devel sqlite-devel \
+            readline-devel tk-devel \
+            libuuid-devel expat-devel \
+            pkgconf-pkg-config ca-certificates
+          update-ca-trust
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Pre-install explicit Python version using uv
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        shell: bash
+        run: uv python install "$PYTHON_VERSION" --default
+
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse-rocky
+        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          attest-provenance: true
+          checkout: false
+          library-name: PyAEDT
+          operating-system: rocky-linux-8
+          python-version: ${{ matrix.python-version }}
+          target: 'all'
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+          skip-python-setup: true
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse-rocky.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+

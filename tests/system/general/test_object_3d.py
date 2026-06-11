@@ -161,7 +161,7 @@ def test_face_edge_vertex(aedt_app) -> None:
     circle = aedt_app.modeler.create_circle("Z", [0, 0, 0], 2)
     assert len(circle.faces) == 1
     circle2 = aedt_app.modeler.create_circle("Z", [0, 0, 0], 2, non_model=True)
-    assert not circle2.model
+    assert not circle2.is_model
 
 
 def test_face_primitive(aedt_app) -> None:
@@ -239,7 +239,7 @@ def test_object_clone_and_get_properties(aedt_app) -> None:
     assert new_object.name != initial_object.name
     assert new_object.material_name == initial_object.material_name
     assert new_object.solve_inside == initial_object.solve_inside
-    assert new_object.model == initial_object.model
+    assert new_object.is_model == initial_object.is_model
     assert new_object.display_wireframe == initial_object.display_wireframe
     assert new_object.material_appearance == initial_object.material_appearance
     assert new_object.part_coordinate_system == initial_object.part_coordinate_system
@@ -484,7 +484,7 @@ def test_mass(aedt_app) -> None:
     assert box2.mass == 0.0
     new_material.mass_density = 1
     assert is_close(box2.mass, 1000.0)
-    box2.model = False
+    box2.is_model = False
     assert box2.mass == 0.0
     rec = aedt_app.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
     assert rec.mass == 0.0

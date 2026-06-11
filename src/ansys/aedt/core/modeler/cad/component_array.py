@@ -774,16 +774,21 @@ class ComponentArray(PyAedtBase):
         component_info = {}
         component_names = self.component_names
         for component in component_names.values():
-            parts = self.__app.modeler.user_defined_components[component].parts
-            for part_name in parts.values():
+            component_object = self.__app.modeler.user_defined_components[component]
+            if component_object.is_3d_component:
+                part_names = [part.name for part in component_object.parts.values()]
+            else:
+                part_names = list(self.__app.get_oo_name(self.__app.modeler.oeditor, component_object.name))
+
+            for part_name in part_names:
                 if component not in component_info:
-                    center = self.__app.modeler.user_defined_components[component].center
+                    center = component_object.center
                     scaled_center = [
                         float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
                     ]
-                    component_info[component] = (scaled_center, str(part_name))
+                    component_info[component] = (scaled_center, part_name)
                 else:
-                    component_info[component] = component_info[component] + (str(part_name),)
+                    component_info[component] = component_info[component] + (part_name,)
 
         return component_info
 

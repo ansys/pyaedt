@@ -1434,11 +1434,13 @@ class FfdSolutionData(PyAedtBase):
         if self.__is_array:
             non_array_geometry = model_info.copy()
             components_info = self.__component_objects
-            array_dimension = self.__array_dimension
             first_value = next(iter(model_info.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
             cell_info = self.__cell_position
+            cell_centers = [cell[1] for cell_row in cell_info for cell in cell_row if cell]
+            x_center = 0.5 * (min(cell[0] for cell in cell_centers) + max(cell[0] for cell in cell_centers))
+            y_center = 0.5 * (min(cell[1] for cell in cell_centers) + max(cell[1] for cell in cell_centers))
 
             for cell_row in cell_info:
                 for cell_col in cell_row:
@@ -1464,15 +1466,10 @@ class FfdSolutionData(PyAedtBase):
 
                     model_pv.generate_geometry_mesh()
                     comp_meshes = []
-                    row, col = cell_col[3]
-
-                    # Perpendicular lattice vector
-                    if self.__lattice_vector[0] != 0:
-                        pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
-                    else:
-                        pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
+                    cell_position = cell_col[1]
+                    pos_x = cell_position[0] - x_center
+                    pos_y = cell_position[1] - y_center
+                    pos_z = cell_position[2] + component_info[0][2]
 
                     for obj in model_pv.objects:
                         mesh = obj._cached_polydata
@@ -1488,7 +1485,7 @@ class FfdSolutionData(PyAedtBase):
                             translated_mesh.rotate_z(rotation, inplace=True)
 
                         # Translate the mesh to its position
-                        translated_mesh.translate([pos_x / sf, pos_y / sf, component_info[0][2] / sf], inplace=True)
+                        translated_mesh.translate([pos_x / sf, pos_y / sf, pos_z / sf], inplace=True)
 
                         comp_meshes.append([translated_mesh, color_cad, obj.opacity])
 

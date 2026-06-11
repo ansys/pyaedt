@@ -1181,10 +1181,8 @@ class ModelPlotter(CommonPlotter):
                 self.text = []
 
             def __call__(self, state):
-                try:
-                    self.plot.button_widgets = [self.plot.button_widgets[0]]
-                except Exception:
-                    self.plot.button_widgets = []
+                while len(self.plot.button_widgets) > 1:
+                    self.plot.button_widgets.pop(-1)
                 self.id += 1
                 k = 0
                 startpos = self.startpos

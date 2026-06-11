@@ -60,7 +60,6 @@ from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_grpc_session_active
@@ -347,6 +346,8 @@ def launch_aedt(
         command[-1] = str(port)
     if non_graphical:
         command.append("-ng")
+    if settings.enable_monitor_in_aedt:
+        command.append("-monitor")
     if settings.wait_for_license:
         command.append("-waitforlicense")
     if settings.aedt_log_file:
@@ -452,6 +453,8 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
             command.append(f"-q {settings.lsf_queue}")
         if non_graphical:
             command.append("-ng")
+        if settings.enable_monitor_in_aedt:
+            command.append("-monitor")
         if settings.wait_for_license:
             command.append("-waitforlicense")
         if settings.aedt_log_file:
@@ -483,7 +486,7 @@ def launch_aedt_in_lsf(non_graphical: bool, port: int, host: str | None = None):
         pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
-            aedt_startup_timeout = 120
+            aedt_startup_timeout = settings.desktop_launch_timeout
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
             while not _is_port_occupied(port, host=m.group(1)):
@@ -1205,6 +1208,38 @@ class Desktop(PyAedtBase):
         return self.odesktop.GetPersonalLibDirectory()
 
     @property
+    def global_project_directory(self) -> str:
+        """AEDT project directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``ProjectDirectory`` directory.
+
+        """
+        return self.odesktop.GetProjectDirectory()
+
+    @global_project_directory.setter
+    def global_project_directory(self, value: str | Path) -> None:
+        self.odesktop.SetProjectDirectory(str(value))
+
+    @property
+    def temp_directory(self) -> str:
+        """AEDT temp directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``TempDirectory`` directory.
+
+        """
+        return self.odesktop.GetTempDirectory()
+
+    @temp_directory.setter
+    def temp_directory(self, value: str | Path) -> None:
+        self.odesktop.SetTempDirectory(str(value))
+
+    @property
     def src_dir(self) -> str:
         """Python source directory.
 
@@ -1793,11 +1828,6 @@ class Desktop(PyAedtBase):
         return result
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="close_on_exit",
-        message="The ``close_on_exit`` argument will be removed in future versions. "
-        "Use ``close_desktop`` method to close the desktop.",
-    )
     def release_desktop(self, close_projects: bool | None = True, close_on_exit: bool | None = True) -> bool:
         """Release AEDT.
 
@@ -1824,13 +1854,6 @@ class Desktop(PyAedtBase):
         >>> desktop.release_desktop(close_projects=False)  # doctest: +SKIP
 
         """
-        if close_on_exit:
-            warnings.warn(
-                "The `close_on_exit` argument will be removed in future versions. "
-                "Use `close_desktop` method to close the desktop.",
-                DeprecationWarning,
-            )
-
         return self.__release_and_close_desktop(close_projects, close_on_exit)
 
     def close_desktop(self) -> bool:
@@ -2202,7 +2225,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def job_status(self) -> str:  # pragma: no cover
-        """Get job status from job monitor.Job monitor has to be opened.
+        """Get job status from job monitor. Job monitor has to be opened.
 
         Returns
         -------

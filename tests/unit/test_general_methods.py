@@ -22,11 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from types import SimpleNamespace
+from unittest.mock import patch
+
 import pytest
 
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
+from ansys.aedt.core.generic.general_methods import _run_ss
 from ansys.aedt.core.generic.general_methods import number_aware_string_key
+from ansys.aedt.core.generic.settings import is_linux
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -36,13 +41,11 @@ def desktop() -> None:
 
 
 class TestGeneralMethods:
-    def test_00_number_aware_string_key(self) -> None:
+    def test_number_aware_string_key(self) -> None:
         assert number_aware_string_key("C1") == ("C", 1)
         assert number_aware_string_key("1234asdf") == (1234, "asdf")
         assert number_aware_string_key("U100") == ("U", 100)
         assert number_aware_string_key("U100X0") == ("U", 100, "X", 0)
-
-    def test_01_number_aware_string_key(self) -> None:
         component_names = ["U10", "U2", "C1", "Y1000", "Y200"]
         expected_sort_order = ["C1", "U2", "U10", "Y200", "Y1000"]
         assert sorted(component_names, key=number_aware_string_key) == expected_sort_order
@@ -132,3 +135,29 @@ class TestGeneralMethods:
     )
     def test_invalid_versions(self, version):
         assert not _is_version_format_valid(version)
+
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    def test_run_ss_returns_dict(self):
+        result = _run_ss()
+        assert isinstance(result, dict)
+        for pid, port in result.items():
+            assert isinstance(pid, int)
+            assert isinstance(port, int)
+
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    @patch("ansys.aedt.core.generic.general_methods.shutil.which", return_value=None)
+    def test_run_ss_returns_empty_when_ss_missing(self, _mock_which):
+        assert _run_ss() == {}
+
+    @pytest.mark.skipif(not is_linux, reason="Linux-only tests")
+    @patch("ansys.aedt.core.generic.general_methods.subprocess.run")
+    def test_run_ss_returns_empty_when_ss_fails(self, mock_run):
+        """A non-zero ``ss`` exit code must produce an empty mapping."""
+        mock_run.return_value = SimpleNamespace(returncode=1, stdout="", stderr="boom")
+        assert _run_ss() == {}
+
+    def test_run_ss_returns_empty_on_non_linux(self):
+        """``_run_ss`` must short-circuit to ``{}`` outside Linux."""
+        if is_linux:
+            pytest.skip("Behaviour only applies to non-Linux platforms.")
+        assert _run_ss() == {}

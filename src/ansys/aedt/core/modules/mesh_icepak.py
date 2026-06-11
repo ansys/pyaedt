@@ -1267,14 +1267,14 @@ class IcepakMesh(PyAedtBase):
             obj_3d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is_3d for p in o.parts.values()))
             ]
             obj_2d = [
                 o
                 for o in objects
-                if (isinstance(o, Object3d) and not o.is3d)
-                or (isinstance(o, UserDefinedComponent) and any(not p.is3d for p in o.parts.values()))
+                if (isinstance(o, Object3d) and not o.is_3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is_3d for p in o.parts.values()))
             ]
             if obj_3d:
                 level_3d = {

@@ -861,7 +861,7 @@ class Configurations(PyAedtBase):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 if val.get("Material", None):
                     arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 if val.get("SolveInside", None):
@@ -1046,7 +1046,7 @@ class Configurations(PyAedtBase):
     def validate(self, config: str | dict) -> bool:
         """Validate a configuration file against the schema.
 
-        The default schema can be found in ``pyaedt/misc/config.schema.json``.
+        The default schema can be found in ``src/ansys/aedt/core/misc/config.schema.json``.
 
         Parameters
         ----------
@@ -1356,10 +1356,10 @@ class Configurations(PyAedtBase):
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
-            if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+            if self._app.modeler[val.name].is_3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1689,7 +1689,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
             dict_out["objects"][val.name]["Material"] = val.material_name
             dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
-            dict_out["objects"][val.name]["Model"] = val.model
+            dict_out["objects"][val.name]["Model"] = val.is_model
             dict_out["objects"][val.name]["Group"] = val.group_name
             dict_out["objects"][val.name]["Transparency"] = val.transparency
             dict_out["objects"][val.name]["Color"] = val.color
@@ -1906,7 +1906,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self._app.modeler.refresh()
         self._app.modeler.delete(
             list(
-                set([id for id, obj in self._app.modeler.objects.items() if obj.model])
+                set([id for id, obj in self._app.modeler.objects.items() if obj.is_model])
                 - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
             )
         )
@@ -2639,8 +2639,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     if isinstance(ppv, str) and ppv.startswith('"') and is_number(ppv[1:-1])
                                     else ppv
                                 )
-                    if "buffer" in params:
-                        self._hide_circuit_ibis(params, new_comp)
 
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
@@ -2732,43 +2730,3 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     self.results.import_parametrics = False
 
         return data
-
-    def _hide_circuit_ibis(self, params, comp):
-        input_buffer = False
-        output = False
-        if params["buffer"] == "input":
-            input_buffer = True
-            comp._change_property("buffer_mode", True, value_name="Hidden")
-        if params["buffer"] == "output":
-            output = True
-            comp._change_property("buffer_mode", True, value_name="Hidden")
-        if params["buffer"] == "input_output":
-            comp._change_property("buffer_mode", False, value_name="Hidden")
-            if params.get("buffer_mode"):
-                comp._change_property("buffer_mode", params["buffer_mode"])
-        if params["buffer"] == "three_state":
-            comp._change_property("buffer_mode", False, value_name="Hidden")
-            if params.get("buffer_mode"):
-                comp._change_property("buffer_mode", params["buffer_mode"])
-
-        comp._change_property("logic_in", True if input_buffer or output else False, value_name="Hidden")
-        comp._change_property("phase_delay", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("UIorBPS", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("UIorBPSValue", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("repeat_count", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("step_resp_num_ui", True if input_buffer else False, value_name="Hidden")
-        if self._app._aedt_version > "2025.2":
-            comp._change_property("DataPattern", True if input_buffer else False, value_name="Hidden")
-            comp._change_property("hold_last", True if input_buffer else False, value_name="Hidden")
-            comp._change_property("do_coding", True if input_buffer else False, value_name="Hidden")
-        else:
-            comp._change_property("BitPattern", True if input_buffer else False, value_name="Hidden")
-            comp._change_property("hold_last_bit", True if input_buffer else False, value_name="Hidden")
-            comp._change_property("do_encoding", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("Disable_Tx_Jitter", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("DCDFractionorTime", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("dcd", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("txrj", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("txpj", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("txuj", True if input_buffer else False, value_name="Hidden")
-        comp._change_property("txcj", True if input_buffer else False, value_name="Hidden")

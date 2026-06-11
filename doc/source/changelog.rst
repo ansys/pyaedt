@@ -9,6 +9,342 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.0.1 <https://github.com/ansys/pyaedt/releases/tag/v1.0.1>`_ - June 04, 2026
+==============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Wrong Line setter in HFSS 3D Layout
+          - `#7724 <https://github.com/ansys/pyaedt/pull/7724>`_
+
+        * - Export touchstone on completion bug
+          - `#7726 <https://github.com/ansys/pyaedt/pull/7726>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6848 <https://github.com/ansys/pyaedt/pull/6848>`_
+
+        * - Update README badges
+          - `#7710 <https://github.com/ansys/pyaedt/pull/7710>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump codecov/codecov-action from 6.0.0 to 6.0.1
+          - `#7704 <https://github.com/ansys/pyaedt/pull/7704>`_
+
+        * - Bump prek from 0.4.0 to 0.4.1
+          - `#7705 <https://github.com/ansys/pyaedt/pull/7705>`_
+
+        * - Bump ansys-sphinx-theme from 1.8.1 to 1.8.2
+          - `#7706 <https://github.com/ansys/pyaedt/pull/7706>`_
+
+        * - Bump pyedb from 0.75.0 to 0.76.0
+          - `#7707 <https://github.com/ansys/pyaedt/pull/7707>`_
+
+        * - Bump vtk from 9.6.1 to 9.6.2
+          - `#7708 <https://github.com/ansys/pyaedt/pull/7708>`_
+
+        * - Bump aiohttp from 3.13.4 to 3.14.0
+          - `#7731 <https://github.com/ansys/pyaedt/pull/7731>`_
+
+        * - Update doc dependencies
+          - `#7727 <https://github.com/ansys/pyaedt/pull/7727>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactor label logic to use inner logic
+          - `#7666 <https://github.com/ansys/pyaedt/pull/7666>`_
+
+        * - Update CHANGELOG for v1.0.0
+          - `#7701 <https://github.com/ansys/pyaedt/pull/7701>`_
+
+        * - Bump version into 1.1.dev0
+          - `#7709 <https://github.com/ansys/pyaedt/pull/7709>`_
+
+        * - Fix linux rocky grpc issue
+          - `#7728 <https://github.com/ansys/pyaedt/pull/7728>`_
+
+        * - Update pre-commit ci config and ruff hook
+          - `#7723 <https://github.com/ansys/pyaedt/pull/7723>`_
+
+        * - Update most CI jobs to use python 3.14
+          - `#7729 <https://github.com/ansys/pyaedt/pull/7729>`_
+
+`1.0.0 <https://github.com/ansys/pyaedt/releases/tag/v1.0.0>`_ - May 26, 2026
+=============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve auto complete experience with type hint
+          - `#7700 <https://github.com/ansys/pyaedt/pull/7700>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 3d representation for arrays
+          - `#7686 <https://github.com/ansys/pyaedt/pull/7686>`_
+
+        * - Remove deprecated functions/args
+          - `#7691 <https://github.com/ansys/pyaedt/pull/7691>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add Substrate documentation
+          - `#7698 <https://github.com/ansys/pyaedt/pull/7698>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.2.12 to 10.3.2
+          - `#7692 <https://github.com/ansys/pyaedt/pull/7692>`_
+
+        * - Bump prek from 0.3.13 to 0.4.0
+          - `#7693 <https://github.com/ansys/pyaedt/pull/7693>`_
+
+        * - Bump black from 26.3.1 to 26.5.1
+          - `#7694 <https://github.com/ansys/pyaedt/pull/7694>`_
+
+        * - Bump requests from 2.34.1 to 2.34.2
+          - `#7695 <https://github.com/ansys/pyaedt/pull/7695>`_
+
+        * - Bump ansys-tools-visualization-interface from 0.13.1 to 0.13.3
+          - `#7696 <https://github.com/ansys/pyaedt/pull/7696>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.28.0
+          - `#7688 <https://github.com/ansys/pyaedt/pull/7688>`_
+
+        * - Cleanup CI, cfg file and doc strings
+          - `#7689 <https://github.com/ansys/pyaedt/pull/7689>`_
+
+        * - Delete deprecations
+          - `#7690 <https://github.com/ansys/pyaedt/pull/7690>`_
+
+
+`0.28.0 <https://github.com/ansys/pyaedt/releases/tag/v0.28.0>`_ - May 22, 2026
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add substrate datablock for microstrip
+          - `#7606 <https://github.com/ansys/pyaedt/pull/7606>`_
+
+        * - Expose transient step and stop in create_tdr_schematic_from_snp
+          - `#7665 <https://github.com/ansys/pyaedt/pull/7665>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Compute_power_by_layer
+          - `#7604 <https://github.com/ansys/pyaedt/pull/7604>`_
+
+        * - Precommit after changes in hffs.py
+          - `#7644 <https://github.com/ansys/pyaedt/pull/7644>`_
+
+        * - Enhance Unix socket port discovery for AEDT processes
+          - `#7645 <https://github.com/ansys/pyaedt/pull/7645>`_
+
+        * - Improve change_properties method to support automatic hide of parameters.
+          - `#7646 <https://github.com/ansys/pyaedt/pull/7646>`_
+
+        * - Add xfce4-terminal for xfce desktops
+          - `#7647 <https://github.com/ansys/pyaedt/pull/7647>`_
+
+        * - Improved method create_touchstone_component to reuse model if exits
+          - `#7650 <https://github.com/ansys/pyaedt/pull/7650>`_
+
+        * - Fixed the nonetype error in eye points when pass fail was given false for statistical contour eye
+          - `#7652 <https://github.com/ansys/pyaedt/pull/7652>`_
+
+        * - Installation version warning
+          - `#7661 <https://github.com/ansys/pyaedt/pull/7661>`_
+
+        * - Correct order of azimuth and elevation properties in hfss.py and update related tests
+          - `#7662 <https://github.com/ansys/pyaedt/pull/7662>`_
+
+        * - Remove redundant RangeCount assignment and add LogScale subrange
+          - `#7664 <https://github.com/ansys/pyaedt/pull/7664>`_
+
+        * - Specify layernames in import_gds_3d
+          - `#7671 <https://github.com/ansys/pyaedt/pull/7671>`_
+
+        * - Use desktop launch timeout setting for AEDT startup
+          - `#7687 <https://github.com/ansys/pyaedt/pull/7687>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump actions/labeler from 6.0.1 to 6.1.0
+          - `#7653 <https://github.com/ansys/pyaedt/pull/7653>`_
+
+        * - Update pyvista[io] requirement from <0.48,>=0.38.0 to >=0.38.0,<0.49
+          - `#7654 <https://github.com/ansys/pyaedt/pull/7654>`_
+
+        * - Bump ansys/actions from 10.2.12 to 10.3.1
+          - `#7655 <https://github.com/ansys/pyaedt/pull/7655>`_
+
+        * - Bump prek from 0.3.11 to 0.3.13
+          - `#7656 <https://github.com/ansys/pyaedt/pull/7656>`_
+
+        * - Bump ansys-pythonnet from 3.1.0rc6 to 3.1.0rc8
+          - `#7657 <https://github.com/ansys/pyaedt/pull/7657>`_
+
+        * - Bump pydantic from 2.13.3 to 2.13.4
+          - `#7658 <https://github.com/ansys/pyaedt/pull/7658>`_
+
+        * - Bump scikit-rf from 1.11.0 to 1.12.0
+          - `#7659 <https://github.com/ansys/pyaedt/pull/7659>`_
+
+        * - Bump idna from 3.11 to 3.15
+          - `#7670 <https://github.com/ansys/pyaedt/pull/7670>`_
+
+        * - Bump blacken-docs from 1.20.0 to 1.20.0
+          - `#7675 <https://github.com/ansys/pyaedt/pull/7675>`_
+
+        * - Bump black from 25.1.0 to 26.3.1
+          - `#7676 <https://github.com/ansys/pyaedt/pull/7676>`_
+
+        * - Bump check-jsonschema from 0.37.2 to 0.37.2
+          - `#7677 <https://github.com/ansys/pyaedt/pull/7677>`_
+
+        * - Bump cryptography from 47.0.0 to 48.0.0
+          - `#7678 <https://github.com/ansys/pyaedt/pull/7678>`_
+
+        * - Bump ansys-sphinx-theme from 1.7.2 to 1.8.0
+          - `#7680 <https://github.com/ansys/pyaedt/pull/7680>`_
+
+        * - Bump requests from 2.33.1 to 2.34.1
+          - `#7681 <https://github.com/ansys/pyaedt/pull/7681>`_
+
+        * - Bump ansys-sphinx-theme to fix cheatsheet
+          - `#7684 <https://github.com/ansys/pyaedt/pull/7684>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Pre-commit automatic update
+          - `#7611 <https://github.com/ansys/pyaedt/pull/7611>`_, `#7663 <https://github.com/ansys/pyaedt/pull/7663>`_
+
+        * - Update CHANGELOG for v0.27.1
+          - `#7643 <https://github.com/ansys/pyaedt/pull/7643>`_
+
+        * - Extend labels with trailers related ones
+          - `#7667 <https://github.com/ansys/pyaedt/pull/7667>`_
+
+        * - Enable dependabot updates on pre-commit
+          - `#7673 <https://github.com/ansys/pyaedt/pull/7673>`_
+
+        * - Extend check PR job with precommit updates
+          - `#7683 <https://github.com/ansys/pyaedt/pull/7683>`_
+
+
+`0.27.1 <https://github.com/ansys/pyaedt/releases/tag/v0.27.1>`_ - May 12, 2026
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fresnel output clean
+          - `#7641 <https://github.com/ansys/pyaedt/pull/7641>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump urllib3 from 2.6.3 to 2.7.0
+          - `#7642 <https://github.com/ansys/pyaedt/pull/7642>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.27.0
+          - `#7639 <https://github.com/ansys/pyaedt/pull/7639>`_
+
+        * - Skip \`\`check-pr-template\`\` on automated changelog update PRs for release
+          - `#7640 <https://github.com/ansys/pyaedt/pull/7640>`_
+
+
 `0.27.0 <https://github.com/ansys/pyaedt/releases/tag/v0.27.0>`_ - May 11, 2026
 ===============================================================================
 

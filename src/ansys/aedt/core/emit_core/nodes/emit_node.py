@@ -511,33 +511,6 @@ class EmitNode:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     @min_aedt_version("2025.2")
-    def _rename(self, requested_name: str) -> str:
-        """Renames the node/component.
-
-        .. deprecated: 0.21.3
-            Use name property instead
-
-        Parameters
-        ----------
-        requested_name : str
-            New name for the node/component.
-
-        Returns
-        -------
-        str
-            New name of the node/component.
-
-        Raises
-        ------
-        ValueError
-            If the node is read-only and cannot be renamed.
-        """
-        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
-        self.name = requested_name
-
-        return self.name
-
-    @min_aedt_version("2025.2")
     def _duplicate(self: T, new_name: str = "") -> T:
         """Duplicate component using oEditor's Copy/Paste.
         New component is placed under existing components in the schematic window.

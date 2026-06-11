@@ -38,7 +38,6 @@ import shutil
 import tempfile
 import time
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
@@ -47,7 +46,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Gravity
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -693,13 +691,8 @@ class Analysis(Design, PyAedtBase):
                 return [""]
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="analyze",
-        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
-    )
     def export_results(
         self,
-        analyze: bool = False,
         export_folder: str = None,
         matrix_name: str = "Original",
         matrix_type: str = "S",
@@ -715,8 +708,6 @@ class Analysis(Design, PyAedtBase):
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -768,8 +759,6 @@ class Analysis(Design, PyAedtBase):
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if analyze:
-            self.analyze()
         # excitations
         if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
@@ -1597,6 +1586,7 @@ class Analysis(Design, PyAedtBase):
                 cores=cores,
                 tasks=tasks,
                 revert_to_initial_mesh=revert_to_initial_mesh,
+                blocking=blocking,
             )
         else:
             return self.analyze_setup(
@@ -1925,6 +1915,7 @@ class Analysis(Design, PyAedtBase):
         tasks: int = 1,
         setup: str = None,
         revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
     ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
 
@@ -1957,6 +1948,9 @@ class Analysis(Design, PyAedtBase):
             The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
             Whether to revert to the initial mesh before solving. The default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -2000,7 +1994,7 @@ class Analysis(Design, PyAedtBase):
             "-BatchSolve",
             "-machinelist",
             f"list={machine}:{tasks}:{cores}:90%:1",
-            "-Monitor",
+            "-monitor",
         ]
         if is_linux and settings.use_lsf_scheduler and tasks == -1:
             options.append("-distributed")
@@ -2041,7 +2035,7 @@ class Analysis(Design, PyAedtBase):
             subprocess.Popen(command)  # nosec
             self.logger.info("Batch job finished.")
 
-        if machine == "localhost":
+        if machine == "localhost" and blocking:
             while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open_file(queue_file, "r") as f:
@@ -2670,25 +2664,6 @@ class AvailableVariations(PyAedtBase):
                 else:
                     families.append(family_list)
         return families
-
-    @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> dict:  # pragma: no cover
-        """Retrieve variations for a given setup.
-
-        .. deprecated:: 0.22.0
-           Use :func:`nominal_variation` method instead.
-
-        Returns
-        -------
-        dict
-            Dictionary of independent nominal variations with values.
-        """
-        warnings.warn(
-            "Usage of get_independent_nominal_values is deprecated. Use nominal_variation instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
     def nominal_variation(self, dependent_params: bool = True, expressions: bool = False) -> dict:

@@ -88,6 +88,7 @@ class AedtObjects(PyAedtBase):
         self._opadstack_manager = None
         self._oradfield = None
         self._onetwork_data_explorer = None
+        self._odata_block = None
         self.__aedtunits = AedtUnits(self)
 
     @property
@@ -460,3 +461,17 @@ class AedtObjects(PyAedtBase):
         if not self._onetwork_data_explorer:
             self._onetwork_data_explorer = self._odesktop.GetTool("NdExplorer")
         return self._onetwork_data_explorer
+
+    @property
+    def odata_block(self) -> object:
+        """
+        Data block module only available in Circuit designs.
+
+        References
+        ----------
+        >>> oDesign.GetModule("DataBlock")
+
+        """
+        if not self._odata_block and self.design_type in ["Circuit Design"]:
+            self._odata_block = self.get_module("DataBlock")
+        return self._odata_block

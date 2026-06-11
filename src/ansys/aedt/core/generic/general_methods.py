@@ -26,20 +26,23 @@ from __future__ import annotations
 
 import datetime
 import difflib
-import functools
 from functools import update_wrapper
+from functools import wraps
 import inspect
 import itertools
 import logging
 import os
 import platform
 import re
+import shutil
 import socket
 import subprocess  # nosec
 import sys
 import time
 import traceback
 from typing import TYPE_CHECKING
+from typing import Callable
+from typing import TypeVar
 
 if TYPE_CHECKING:
     from numpy import array
@@ -55,6 +58,8 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 system = platform.system()
 is_linux = system == "Linux"
@@ -73,6 +78,9 @@ inclusion_list = [
     "ImportGerber",
     "EditSources",
 ]
+
+RE_SOCK = re.compile(r"\b(\d{1,5})\.sock\b")
+RE_PORT = re.compile(r"(?:\*|0\.0\.0\.0|\[::\]|\[::ffff:[0-9.]+\]|127\.0\.0\.1|[0-9.]+):(\d{1,5})\b")
 
 
 def _write_mes(mes_text) -> None:
@@ -283,8 +291,8 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
             If ``False``, a DeprecationWarning is issued.
     """
 
-    def decorator(func):
-        @functools.wraps(func)
+    def decorator(func: _F) -> _F:
+        @wraps(func)
         def wrapper(*args, **kwargs):
             sig = inspect.signature(func)
             try:
@@ -308,16 +316,27 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
 
             return func(*args, **kwargs)
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
 
-def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
-    """Provide an exception handler, logging mechanism, and argument converter for client-server communications.
+def pyaedt_function_handler(direct_func: _F | None = None, **deprecated_kwargs) -> _F:
+    """Decorator that provides exception handling, execution logging, and deprecated kwargs management.
 
-    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
-    and displays errors.
+    On successful execution, the decorated function returns its normal return value.
+
+    On exception, the behavior depends on ``settings.enable_error_handler``:
+
+    - If ``True``: the exception is caught, logged, and ``False`` is returned
+      (or ``None`` when the exception originates from ``__init__``).
+      If ``settings.release_on_exception`` is also ``True``, all active desktop
+      sessions are released before re-raising.
+    - If ``False``: the exception is re-raised directly to the caller.
+
+    ``**deprecated_kwargs`` maps old argument names to their replacements.
+    A ``DeprecationWarning`` is emitted when a deprecated argument is used,
+    and a ``TypeError`` is raised if both the old and new name are supplied.
 
     """
     if callable(direct_func):
@@ -710,51 +729,145 @@ def number_aware_string_key(s: str) -> tuple:
     return tuple(result)
 
 
-def _run_ss_xlp() -> dict[int, int]:
-    """Run 'ss -xlp' command on Linux to find Unix socket ports.
+def _run_ss() -> dict[int, int]:
+    """Discover active AEDT gRPC Unix ports on Linux.
 
-    This function executes the `ss -xlp` command to list Unix sockets and
-    extracts port numbers from AEDT socket filenames.
+    This function executes the `ss -Hnlp` command to list Unix gRPC processes and
+    extracts port numbers from AEDT filenames.
 
     Returns
     -------
     dict[int, int]
-        Dictionary mapping process IDs to port numbers extracted from Unix socket names.
+        Mapping ``{pid: port}`` parsed from ``ss -Hnlp``. Empty if ``ss`` is
+        unavailable, if the command fails, or if no AEDT Unix sockets exist.
 
     Examples
     --------
-    >>> from ansys.aedt.core.generic.general_methods import _run_ss_xlp
-    >>> _run_ss_xlp()
+    >>> from ansys.aedt.core.generic.general_methods import _run_ss
+    >>> _run_ss()
     {12345: 50051, 67890: 50052}
     """
-    proc = subprocess.run(
-        ["ss", "-xlp"],
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )  # nosec
+    # ``ss`` is a Linux-only utility. Skip everything elsewhere.
+    if not is_linux:  # pragma: no cover
+        return {}
+
+    # Locate ss. On RHEL 8, /usr/sbin is not in $PATH for non-root users, so
+    # also probe /usr/sbin/ss explicitly as a fallback location.
+    ss_cmd: str | None = shutil.which("ss") or shutil.which("ss", path="/usr/sbin")
+    if not ss_cmd:
+        pyaedt_logger.debug("'ss' not found in $PATH or /usr/sbin.")
+        return {}
+
+    try:
+        proc = subprocess.run(
+            [ss_cmd, "-Hnlp"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )  # nosec
+    except Exception as e:  # pragma: no cover - defensive
+        pyaedt_logger.debug(f"Unexpected error running '{ss_cmd} -Hnlp': {e}")
+        return {}
+
     if proc.returncode != 0:
-        raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
+        pyaedt_logger.debug(f"'{ss_cmd} -Hnlp' returned non-zero exit code: {proc.stderr.strip()}")
+        return {}
 
-    lines = proc.stdout.splitlines()
-    results = {}
+    # Final mapping of PID - gRPC port discovered from socket info.
+    results: dict[int, int] = {}
+    # Intermediate grouping: PID - list of raw ss output lines for that PID.
+    results_pid: dict[int, list[str]] = {}
 
-    for line in lines:
-        # If the line does not contain "ansysedt.exe", skip it
-        if "ansysedt.exe" not in line:
+    # Step 1: Group ss output lines by AEDT process PID
+    for line in proc.stdout.splitlines():
+        # Only process lines that belong to AEDT gRPC.
+        # Skip lines that don't mention the AEDT executable or belong to the
+        # standalone API process ("apip-standalone").
+        if "ansysedt.exe" not in line or "apip-standalone" in line:
             continue
 
-        # Extract PID from the line (format: "pid=12345")
-        pid_match = re.search(r"pid=(\d+)", line)
+        # Extract the PID from the line: "ansysedt.exe",pid=NNNN
+        pid_match = re.search(r"['\"]?ansysedt\.exe['\"]?\s*,\s*pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
-        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
-        port_match = re.search(r"-(\d+)\.sock", line)
-        port = int(port_match.group(1)) if port_match else None
+        if not pid:
+            continue
 
-        if pid and port:
-            results[pid] = port
+        if pid not in results_pid:
+            results_pid[pid] = [line]
+        else:
+            results_pid[pid].append(line)
+
+    # Step 2: Try to resolve port from secure Unix socket path (RE_SOCK)
+    for pid, lines in results_pid.items():
+        for line in lines:
+            secure_line = RE_SOCK.search(line)
+            if secure_line:
+                port = int(secure_line.group(1))
+                results[pid] = port
+                break
+
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if not results_pid:
+        return results
+
+    # Step 3: Fallback, inspect process command line for -grpcsrv flag.
+    for pid in list(results_pid):
+        try:
+            p = psutil.Process(pid)
+            cmdline = p.cmdline()
+        except (AttributeError, KeyError, psutil.ZombieProcess, psutil.NoSuchProcess, psutil.AccessDenied):
+            # Handle various exceptions that can occur during process inspection:
+            #
+            # AttributeError: Raised if conn.laddr is None (connection without local address)
+            #                 This can happen for some connection types
+            #
+            # KeyError: Raised if expected attributes are missing from the connection object
+            #           Rare, but possible with certain process states
+            #
+            # psutil.ZombieProcess: Process has terminated but hasn't been cleaned up by parent
+            #                       Common on Linux when processes exit but remain in process table
+            #
+            # psutil.NoSuchProcess: Process terminated between when we got the PID and now
+            #                       This is a race condition that can occur in fast process lifecycles
+            #
+            # psutil.AccessDenied: Current user does not have permission to access process information
+            continue
+
+        if "-grpcsrv" in cmdline:
+            # The -grpcsrv argument value can be "port" or "host:port".
+            port_parts = cmdline[cmdline.index("-grpcsrv") + 1].split(":")
+            if len(port_parts) == 1:
+                results[pid] = int(port_parts[0])
+            elif len(port_parts) >= 1:
+                results[pid] = int(port_parts[1])
+
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if not results_pid:
+        return results
+
+    # Step 4: Last resort, match TCP port in the standard gRPC range.
+    for pid, lines in results_pid.items():
+        for line in lines:
+            # Fall back to the plain TCP port pattern (RE_PORT).
+            # Only accept ports within the known AEDT gRPC range (50051-50100).
+            insecure_line = RE_PORT.search(line)
+            if insecure_line:
+                port = int(insecure_line.group(1))
+                if 50051 <= port <= 50100:
+                    results[pid] = port
+                    break
+
+    # Remove already-resolved PIDs from the pending set.
+    results_pid = {i: j for i, j in results_pid.items() if i not in results}
+
+    if results_pid:
+        pyaedt_logger.debug(f"Unable to determine gRPC ports for PIDs: {list(results_pid.keys())}")
 
     return results
 
@@ -1105,7 +1218,7 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     it checks active TCP connections.
 
     The function uses multiple detection strategies:
-    1. On Linux: Checks Unix sockets using `ss -xlp`
+    1. On Linux: Checks Unix listeners using ``ss -Hnlp`` (with ``psutil`` fallback)
     2. Searches for AEDT processes
     3. Verifies TCP connections on localhost (127.0.0.1) for the specified port
 
@@ -1137,39 +1250,18 @@ def is_grpc_session_active(port: int, machine: str | None = None) -> bool:
     ...     print("Port 50051 is available.")
     """
     pyaedt_logger.debug(f"Checking if gRPC session is active on port: {port}")
+
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if machine and machine not in ["localhost", "127.0.0.1", "::ffff:127.0.0.1", socket.gethostname()]:
         return _is_port_occupied(port, machine)
-    if is_linux:
-        try:
-            sockets = _run_ss_xlp()
-            if port in sockets.values():
-                return True
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    targets = ["ansysedt.exe", "ansysedtsv.exe"]
-    if is_linux:
-        targets.extend(["ansysedt", "ansysedtsv"])
-
-    for target in targets:
-        target_processes = _get_target_processes([target])
-
-        # Initialize all found AEDT processes with unknown port (-1)
-        # Port will be determined later through socket/connection analysis
-        return_dict = {pid: -1 for pid, _ in target_processes}
-
-        connections = _check_psutil_connections(list(return_dict.keys()))
-        for pid in return_dict.keys():
-            if _check_connection_grpc_port(connections, pid, None, None) == port:
-                return True
-    return False
+    return True if port in active_sessions().values() else False
 
 
 @pyaedt_function_handler()
 def active_sessions(
     version: str = None,
-    student_version: bool = False,
+    student_version: bool | None = False,
     non_graphical: bool | None = None,
 ) -> dict[int, int]:
     """Get information for active AEDT sessions.
@@ -1181,7 +1273,7 @@ def active_sessions(
     Detection Strategy (in order of execution):
         1. **Process Discovery**: Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
         2. **Command-Line Parsing**: Extracts gRPC port from ``-grpcsrv`` command-line argument.
-        3. **Unix Socket Analysis** (Linux only): Uses ``ss -xlp`` to find ports from socket files.
+        3. **Unix gRPC Analysis** (Linux only): Uses ``ss -Hnlp`` to find ports from socket files.
         4. **TCP Connection Analysis**: Falls back to checking active TCP connections via psutil.
 
     Port Detection Results:
@@ -1194,7 +1286,6 @@ def active_sessions(
         AEDT version to check. The default is ``None``, in which case all versions are checked.
         When specifying a version, you can use a three-digit format like ``"222"`` or a
         five-digit format like ``"2022.2"``.
-
     student_version : bool, optional
         Whether to search for student version sessions (ansysedtsv). The default is ``False``.
         When ``True``, searches for ``ansysedtsv.exe`` or ``ansysedtsv`` processes.
@@ -1241,16 +1332,13 @@ def active_sessions(
     >>> active_sessions(version="2024.1", non_graphical=True)
     {45678: 50054}
     """
-    # Initialize result dictionary: will map process ID (PID) to port number
-    return_dict = {}
-
     # Step 1: Determine target process names based on version type and operating system
     # Student version uses different executable names (ansysedtsv vs ansysedt)
     if student_version:
         # Linux needs both variants (with and without .exe extension)
-        target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
+        target = ["ansysedtsv.exe"]
     else:
-        target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+        target = ["ansysedt.exe"]
 
     # Step 2: Normalize version format to ensure consistent version matching
     # Converts various formats ("2022.2", "222") to a standardized string
@@ -1278,8 +1366,8 @@ def active_sessions(
     # Example socket: AnsysEMUDS-50051.sock
     if is_linux and any(port == -1 for port in return_dict.values()):
         try:
-            # Run 'ss -xlp' command to get Unix socket information
-            sockets = _run_ss_xlp()  # Returns {pid: port} mapping from socket filenames
+            # Run 'ss -Hnlp' command to get Unix socket information
+            sockets = _run_ss()  # Returns {pid: port} mapping from socket filenames
 
             # Update return_dict with discovered ports
             for pid, port in sockets.items():
@@ -1290,19 +1378,34 @@ def active_sessions(
             # Log but don't fail - we have other detection methods
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
+    # Get all TCP connections for our AEDT processes
+    connections = _check_psutil_connections(list(return_dict.keys()))
+
+    return_dict_filtered = {}
+    for pid, port in return_dict.items():
+        cmdline = ""
+        if pid in connections and len(connections[pid]) > 0 and "cmdline" in connections[pid][0]:
+            cmdline = connections[pid][0]["cmdline"]
+
+        # Version filter
+        if version is not None and version not in cmdline:
+            continue
+
+        # Non-graphical filter
+        if non_graphical is not None:
+            non_graphical_flag = "-ng"
+            flag_present = non_graphical_flag in cmdline
+            if non_graphical != flag_present:
+                continue
+
+        return_dict_filtered[pid] = port
+
     # Step 6: Fallback method - Try to find ports by checking TCP network connections
-    # This works when command-line parsing and Unix socket analysis didn't find the port
-    if any(port == -1 for port in return_dict.values()):
-        # Get all TCP connections for our AEDT processes
-        connections = _check_psutil_connections(list(return_dict.keys()))
+    if any(port == -1 for port in return_dict_filtered.values()):
+        for pid in [i for i, v in return_dict_filtered.items() if v == -1]:
+            return_dict_filtered[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
 
-        # For each process with unknown port (-1), try to find it via TCP connections
-        for pid in [i for i, v in return_dict.items() if v == -1]:
-            # Check for LISTEN connections on localhost that match our filters
-            # This method also applies version and non_graphical filters
-            return_dict[pid] = _check_connection_grpc_port(connections, pid, version, non_graphical)
-
-    return return_dict
+    return return_dict_filtered
 
 
 @pyaedt_function_handler()
@@ -1372,7 +1475,7 @@ def grpc_active_sessions(
 
 
 @pyaedt_function_handler()
-def conversion_function(data: list | "array", function: str = None):  # pragma: no cover
+def conversion_function(data: "list | array", function: str = None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
     The available functions are:
