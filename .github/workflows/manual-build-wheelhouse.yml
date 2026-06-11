@@ -202,16 +202,18 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
-      extras: ${{ format('["{0}"]', github.event.inputs.extras) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
   build-wheelhouse-rocky-single:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
     name: Build wheelhouse (Rocky Linux)
     permissions:
-      contents: read
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
-      extras: ${{ format('["{0}"]', github.event.inputs.extras) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
