@@ -75,7 +75,7 @@ jobs:
           library-name: PyAEDT
           operating-system: rocky-linux-8
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: 'all dotnet'
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
           skip-python-setup: true

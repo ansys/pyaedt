@@ -115,7 +115,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: 'all dotnet'
           attest-provenance: true
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
