@@ -3499,6 +3499,27 @@ all = [
     { name = "tables", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "typer" },
 ]
+all-dotnet = [
+    { name = "ansys-pythonnet" },
+    { name = "ansys-tools-visualization-interface" },
+    { name = "cffi", marker = "sys_platform == 'linux'" },
+    { name = "fast-simplification" },
+    { name = "fpdf2" },
+    { name = "ipython" },
+    { name = "jupyterlab" },
+    { name = "matplotlib" },
+    { name = "openpyxl" },
+    { name = "osmnx" },
+    { name = "pandas" },
+    { name = "pyvista", extra = ["io"] },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "requests" },
+    { name = "rpyc" },
+    { name = "scikit-rf" },
+    { name = "tables", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "tables", version = "3.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "typer" },
+]
 dotnet = [
     { name = "ansys-pythonnet" },
     { name = "cffi", marker = "sys_platform == 'linux'" },
@@ -3608,6 +3629,8 @@ requires-dist = [
     { name = "pillow", marker = "extra == 'graphics'" },
     { name = "plotly", marker = "extra == 'examples'", specifier = ">=6.0" },
     { name = "psutil", specifier = ">=6.0.0" },
+    { name = "pyaedt", extras = ["all"], marker = "extra == 'all-dotnet'" },
+    { name = "pyaedt", extras = ["dotnet"], marker = "extra == 'all-dotnet'" },
     { name = "pyaedt", extras = ["jupyter"], marker = "extra == 'all'" },
     { name = "pydantic", specifier = ">=2.6.4" },
     { name = "pyedb", specifier = ">=0.75.0" },
@@ -3628,7 +3651,7 @@ requires-dist = [
     { name = "typer", marker = "extra == 'all'", specifier = ">=0.20.0" },
     { name = "vtk", marker = "extra == 'graphics'", specifier = ">=9.0,<9.7" },
 ]
-provides-extras = ["dotnet", "graphics", "jupyter", "all", "examples"]
+provides-extras = ["dotnet", "graphics", "jupyter", "all", "all-dotnet", "examples"]
 
 [package.metadata.requires-dev]
 dev = [
