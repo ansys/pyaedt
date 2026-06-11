@@ -70,15 +70,15 @@ jobs:
         id: build-wheelhouse-rocky
         uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
-          attest-provenance: true
-          checkout: false
-          library-name: PyAEDT
-          operating-system: rocky-linux-8
-          python-version: ${{ matrix.python-version }}
-          target: 'all, dotnet'
-          use-python-cache: false
-          whitelist-license-check: 'fpdf2'
-          skip-python-setup: true
+         attest-provenance: false
+         checkout: false
+         library-name: PyAEDT
+         operating-system: rocky-linux-8
+         python-version: ${{ matrix.python-version }}
+         target: 'all, dotnet'
+         use-python-cache: false
+         whitelist-license-check: 'fpdf2'
+         skip-python-setup: true
 
       - name: Import python package
         env:
