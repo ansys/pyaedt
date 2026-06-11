@@ -3481,7 +3481,7 @@ tests = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ansys-pythonnet", marker = "extra == 'dotnet'", specifier = ">=3.1.0rc3" },
+    { name = "ansys-pythonnet", marker = "extra == 'dotnet'", specifier = ">=3.1.0rc6" },
     { name = "ansys-tools-common" },
     { name = "ansys-tools-visualization-interface", marker = "extra == 'all'" },
     { name = "ansys-tools-visualization-interface", marker = "extra == 'graphics'" },
