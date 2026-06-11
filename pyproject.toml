@@ -185,27 +185,22 @@ ignore = [
     "D419", # empty-docstring
 
     # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-    "N801", # invalid-class-name
     "N802", # invalid-function-name
     "N803", # invalid-argument-name
     "N806", # non-lowercase-variable-in-function
     "N813", # camelcase-imported-as-lowercase
     "N815", # mixed-case-variable-in-class-scope
     "N816", # mixed-case-variable-in-global-scope
-    "N817", # camelcase-imported-as-acronym
-    "N818", # error-suffix-on-exception-name
     "N999", # invalid-module-name
 
     # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "PTH100", # os-path-abspath
-    "PTH101", # os-chmod
     "PTH102", # os-mkdir
     "PTH103", # os-makedirs
     "PTH104", # os-rename
     "PTH106", # os-rmdir
     "PTH107", # os-remove
     "PTH108", # os-unlink
-    "PTH109", # os-getcwd
     "PTH110", # os-path-exists
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
@@ -231,9 +226,6 @@ convention = "numpy"
 force-sort-within-sections = true
 known-first-party = ["doc", "src/ansys/aedt/core", "tests"]
 force-single-line = true
-
-[tool.ruff.lint.mccabe]
-max-complexity = 10
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

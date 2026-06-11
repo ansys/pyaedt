@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
-class TR_Switch(EmitNode):
+class TR_Switch(EmitNode):  # noqa: N801
     def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True

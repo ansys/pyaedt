@@ -7,9 +7,7 @@ ci:
 
 exclude: |
   (?x)(
-      src/ansys/aedt/core/rpc/|
       src/ansys/aedt/core/sbrplus/matlab/|
-      src/ansys/aedt/core/extensions/installer|
       tests/system/.*/example_models/
   )
 

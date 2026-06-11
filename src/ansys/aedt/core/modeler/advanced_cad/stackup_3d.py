@@ -519,7 +519,6 @@ class Layer3D(PyAedtBase):
     def thickness_value(self) -> float | str:
         """Thickness value.
 
-
         Returns
         -------
         float, str
