@@ -317,3 +317,15 @@ package management:
 
     # Now you can use uv for package management
     uv pip install pyaedt
+
+
+Ansys developer ecosystem resources
+-----------------------------------
+
+Ansys has an extensive developer ecosystem where you can find assistance for a variety of issues.
+
+- `Developer Portal <https://developer.ansys.com/>`: Blog posts, documentation, and guide
+  - `Developer Forum <https://discuss.ansys.com/>`: Scripting and usage support for PyAnsys and other Ansys developer tools
+- `Ansys Innovation Space <https://innovationspace.ansys.com/>`: Product support forum and training materials
+- `GitHub <https://github.com/ansys/pyaedt>`: Development support, bug reporting, feature requests, and more.
+- `Ansys Learning Hub <https://learninghub.ansys.com/>`: Training, courses and learning plans
