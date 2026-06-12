@@ -174,7 +174,15 @@ There are several available options:
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT on CPython from PyPI:
+
+.. note::
+   These instructions assume you are familiar
+   with ``pip``, ``conda``, and the command line. If they are new to you, you should consider reading
+   the `Python Packaging User Guide Tutorial on pip <https://packaging.python.org/en/latest/tutorials/installing-packages/>`
+   and `Getting started with conda <https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-python>`.
+   before proceeding.
+
+You can install PyAEDT on CPython from PyPI.
 
 .. code:: bash
 
@@ -298,6 +306,10 @@ Finally, in the Python console, run the following commands:
 
 Using uv to manage virtual environments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+  `uv` is an extremely fast Python package and project manager, written in Rust. If you aren't familiar with `uv` you can read more about it here: `Introduction to uv <https://docs.astral.sh/uv/>`.
+
 The project and the PyAEDT installer support using the `uv` tool to manage
 package installation and speed up installs.
 `uv` can be used inside a virtual environment to perform pip installs, to
