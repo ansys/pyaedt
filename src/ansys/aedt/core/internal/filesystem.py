@@ -82,7 +82,7 @@ class Scratch(PyAedtBase):
         if self._cleaned:
             try:
                 self.path.mkdir(parents=True, exist_ok=True)
-                os.chmod(self.path, permission)
+                self.path.chmod(permission)
             except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
                 print(fnf_error)
 
