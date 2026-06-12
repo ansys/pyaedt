@@ -19,3 +19,9 @@ script = "../common/points_cloud.py"
 optional = true
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
+
+[CsvToDataset]
+icon = "images/large/harmonics.png"
+name = "Excitations setup for Harmonic Loss in Q3D"
+script = "harmonic_loss.py"
+template = "run_pyaedt_toolkit_script"
