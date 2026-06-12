@@ -740,6 +740,7 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
+
 class ExtensionQ3DCommon(ExtensionCommon):
     """Common methods for Q3D Extractor extensions."""
 
