@@ -9,6 +9,114 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`1.1.0 <https://github.com/ansys/pyaedt/releases/tag/v1.1.0>`_ - June 12, 2026
+==============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Breaking
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add doc new branching system
+          - `#7764 <https://github.com/ansys/pyaedt/pull/7764>`_
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add Family type to create report
+          - `#7734 <https://github.com/ansys/pyaedt/pull/7734>`_
+
+        * - Added monitor flag in launch_aedt and launch_aedt_in_lsf
+          - `#7741 <https://github.com/ansys/pyaedt/pull/7741>`_
+
+        * - Support for loading cli plugins
+          - `#7757 <https://github.com/ansys/pyaedt/pull/7757>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Max freq value in RTTBL
+          - `#7758 <https://github.com/ansys/pyaedt/pull/7758>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix changelog breaking changes
+          - `#7737 <https://github.com/ansys/pyaedt/pull/7737>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump prek from 0.4.1 to 0.4.3
+          - `#7742 <https://github.com/ansys/pyaedt/pull/7742>`_
+
+        * - Bump typer from 0.25.1 to 0.26.3
+          - `#7743 <https://github.com/ansys/pyaedt/pull/7743>`_
+
+        * - Bump ruff-pre-commit from v0.15.14 to 0.15.15
+          - `#7745 <https://github.com/ansys/pyaedt/pull/7745>`_
+
+        * - Bump grpcio from 1.80.0 to 1.81.0
+          - `#7746 <https://github.com/ansys/pyaedt/pull/7746>`_
+
+        * - Bump pyedb from 0.76.0 to 0.77.0
+          - `#7747 <https://github.com/ansys/pyaedt/pull/7747>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add workflow for syncing main branch to release/2.0
+          - `#7711 <https://github.com/ansys/pyaedt/pull/7711>`_
+
+        * - Update CHANGELOG for v1.0.1
+          - `#7732 <https://github.com/ansys/pyaedt/pull/7732>`_
+
+        * - Add missing codecov upload in release/2.0 sync
+          - `#7739 <https://github.com/ansys/pyaedt/pull/7739>`_
+
+        * - Fix sync release breaking changes check
+          - `#7744 <https://github.com/ansys/pyaedt/pull/7744>`_
+
+        * - Add deploy PR documentation
+          - `#7748 <https://github.com/ansys/pyaedt/pull/7748>`_
+
+        * - Update numpy in uv lockfile
+          - `#7755 <https://github.com/ansys/pyaedt/pull/7755>`_
+
+        * - Rerun sync-release on labeled/unlabeled events
+          - `#7756 <https://github.com/ansys/pyaedt/pull/7756>`_
+
+        * - Update ruff rules and unignore some rules
+          - `#7762 <https://github.com/ansys/pyaedt/pull/7762>`_
+
+        * - Dotnet wheelhouse
+          - `#7763 <https://github.com/ansys/pyaedt/pull/7763>`_
+
+
 `1.0.1 <https://github.com/ansys/pyaedt/releases/tag/v1.0.1>`_ - June 04, 2026
 ==============================================================================
 
