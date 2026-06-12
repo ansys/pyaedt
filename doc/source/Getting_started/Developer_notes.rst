@@ -202,12 +202,17 @@ Overview
 PyAEDT uses three core branches with different purposes:
 
 - **main**:
+
   - Primary integration branch for ongoing **non-breaking** development.
   - Feature/fix branches for backward-compatible work should branch from ``main``.
+
 - **release/1.0**:
+
   - Stable maintenance branch for the ``1.0.x`` patch series.
   - Patch releases for 1.0 are created from this branch.
+
 - **release/2.0**:
+
   - Integration branch for **breaking changes** planned for 2.0.
   - Any branch introducing breaking behavior must branch from ``release/2.0``.
 
@@ -226,9 +231,12 @@ Examples
 ~~~~~~~~
 
 - Bug fix that keeps API compatibility:
-  - branch from ``main``, PR to ``main``.
+
+  - Branch from ``main``, PR to ``main``.
+
 - API rename/removal:
-  - branch from ``release/2.0``, PR to ``release/2.0``.
+
+  - Branch from ``release/2.0``, PR to ``release/2.0``.
 
 Notes
 ~~~~~
