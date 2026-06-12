@@ -2420,7 +2420,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     def import_config(self, config_file: str, *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
-
         Parameters
         ----------
         config_file : str

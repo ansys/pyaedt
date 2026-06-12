@@ -998,7 +998,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         default_surface: str | None = "Steel-oxidised-surface",
         export_monitor: bool | None = False,
         export_sherlock: bool | None = False,
-        export_directory: str | None = os.getcwd(),
+        export_directory: str | None = Path.cwd(),
         gauge_pressure: int | None = 0,
         radiation_temperature: int | None = 20,
         ignore_unclassified_objects: bool | None = False,
