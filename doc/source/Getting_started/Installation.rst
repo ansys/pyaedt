@@ -283,6 +283,11 @@ For example, on Windows with Python 3.10, install PyAEDT and all its dependencie
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[all]
 
+
+.. note::
+  If you need dotnet dependencies, replace ``pyaedt[all]`` with ``pyaedt[all-dotnet]``. This is needed to use PyEDB before AEDT 2026R1.
+
+
 Finally, in the Python console, run the following commands:
 
 .. code::

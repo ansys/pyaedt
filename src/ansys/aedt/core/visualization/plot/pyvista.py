@@ -72,23 +72,6 @@ def get_structured_mesh(theta: list, phi: list, ff_data: np.ndarray) -> pv.Struc
     return ff_mesh
 
 
-# def is_notebook() -> bool:
-#     """Check if pyaedt is running in Jupyter or not.
-
-#     Returns
-#     -------
-#     bool
-#     """
-#     try:
-#         shell = get_ipython().__class__.__name__
-#         if shell == "ZMQInteractiveShell":
-#             return True  # Jupyter notebook or qtconsole
-#         else:
-#             return False
-#     except NameError:
-#         return False  # Probably standard Python interpreter
-
-
 def is_float(istring: str) -> float:
     """Convert a string to a float.
 
