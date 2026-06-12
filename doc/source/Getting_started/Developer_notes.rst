@@ -240,19 +240,26 @@ Branching schema
 
 The diagram below summarizes how branches are used and how work should flow.
 
-.. code-block:: text
+.. only:: html
 
-   main
-    |\
-    | \  non-breaking features/fixes: feature/*, fix/* (non-breaking work) ----PR----> main
-    |  \
-    |   \  release/1.0
-    |   /  stable maintenance for 1.0.x: patch releases
-    |  /
-    | /
-   release/2.0
-    breaking changes for 2.0: breaking/* (breaking work) ----PR----> release/2.0
+  .. image:: ../Resources/diagrams/output/branching_schema_dark.png
+     :align: center
+     :class: only-dark
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
+
+  .. image:: ../Resources/diagrams/output/branching_schema_light.png
+     :align: center
+     :class: only-light
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/branching_schema_light.png
+     :align: center
+     :alt: PyAEDT branching schema and release 2.0 sync workflow
 
 CI/CD automation:
-   - An automated workflow regularly syncs ``main`` -> ``release/2.0``.
-   - If merge conflicts occur, they must be resolved manually.
+   - A workflow checks whether ``main`` can be merged into ``release/2.0`` on a weekly schedule.
+   - Anyone can also trigger the workflow manually to verify whether the merge can be performed cleanly.
+   - If there is no conflict, the workflow automatically creates a pull request targeting ``release/2.0``.
+   - If there is a conflict, the conflict must be resolved manually and the pull request must also be created manually.
