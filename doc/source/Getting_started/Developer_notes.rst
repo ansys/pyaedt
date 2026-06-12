@@ -188,3 +188,71 @@ Use the "Update branch" button if available on your pull request page.
 .. note::
 
    Always verify that your tests still pass and coverage remains adequate after updating your branch.
+
+Branching strategy since PyAEDT 1.0
+-----------------------------------
+
+This section describes the new branching model used starting from the ``1.0``.
+All developers contributing to PyAEDT are expected to be familiar with this branching strategy before creating branches or opening pull requests.
+Using the correct base branch is required to keep release stable.
+
+Overview
+~~~~~~~~
+
+PyAEDT uses three core branches with different purposes:
+
+- **main**:
+  - Primary integration branch for ongoing **non-breaking** development.
+  - Feature/fix branches for backward-compatible work should branch from ``main``.
+- **release/1.0**:
+  - Stable maintenance branch for the ``1.0.x`` patch series.
+  - Patch releases for 1.0 are created from this branch.
+- **release/2.0**:
+  - Integration branch for **breaking changes** planned for 2.0.
+  - Any branch introducing breaking behavior must branch from ``release/2.0``.
+
+Overview
+~~~~~~~~
+
+1. Determine whether the change is breaking.
+2. Create your feature branch from the correct base branch:
+
+   - Non-breaking: from ``main``
+   - Breaking: from ``release/2.0``
+
+3. Open a pull request targeting the same base branch.
+
+Examples
+~~~~~~~~
+
+- Bug fix that keeps API compatibility:
+  - branch from ``main``, PR to ``main``.
+- API rename/removal:
+  - branch from ``release/2.0``, PR to ``release/2.0``.
+
+Notes
+~~~~~
+
+When in doubt, open a draft PR and request maintainers' guidance before implementation is finalized.
+
+Branching schema
+~~~~~~~~~~~~~~~~
+
+The diagram below summarizes how branches are used and how work should flow.
+
+.. code-block:: text
+
+   main
+    |\
+    | \  non-breaking features/fixes: feature/*, fix/* (non-breaking work) ----PR----> main
+    |  \
+    |   \  release/1.0
+    |   /  stable maintenance for 1.0.x: patch releases
+    |  /
+    | /
+   release/2.0
+    breaking changes for 2.0: breaking/* (breaking work) ----PR----> release/2.0
+
+CI/CD automation:
+   - An automated workflow regularly syncs ``main`` -> ``release/2.0``.
+   - If merge conflicts occur, they must be resolved manually.
