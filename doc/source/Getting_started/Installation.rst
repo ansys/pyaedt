@@ -178,7 +178,7 @@ Install on CPython from PyPI
 .. note::
    These instructions assume you are familiar
    with ``pip``, ``conda``, and the command line. If they are new to you, you should consider reading
-   the `Python Packaging User Guide Tutorial on pip <https://packaging.python.org/en/latest/tutorials/installing-packages/>` 
+   the `Python Packaging User Guide Tutorial on pip <https://packaging.python.org/en/latest/tutorials/installing-packages/>`
    and `Getting started with conda <https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-python>`.
    before proceeding.
 
