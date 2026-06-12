@@ -30,10 +30,13 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+
 import pandas as pd
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon, ExtensionCommonData, ExtensionQ3DCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
+from ansys.aedt.core.extensions.misc import ExtensionQ3DCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -47,10 +50,7 @@ VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
-EXTENSION_DEFAULT_ARGUMENTS = {
-    "csv_path": "",
-    "threshold": 0.0
-}
+EXTENSION_DEFAULT_ARGUMENTS = {"csv_path": "", "threshold": 0.0}
 EXTENSION_TITLE = "Excitations setup for Harmonic Loss in Q3D"
 
 result = None
@@ -119,7 +119,6 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
 
     def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
-
         # Browse file entry - CSV file path
         browse_file_label = ttk.Label(self.root, text="Browse CSV File:", width=20, style="PyAEDT.TLabel")
         browse_file_label.grid(row=0, column=0, pady=10)
@@ -141,7 +140,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         def callback(extension: HarmonicLossExtension) -> None:
             data = ExtensionData(
                 csv_path=browse_file_entry.get("1.0", tk.END).strip(),
-                threshold=float(threshold_entry.get("1.0", tk.END).strip() or 0.0)
+                threshold=float(threshold_entry.get("1.0", tk.END).strip() or 0.0),
             )
             extension.data = data
             self.root.destroy()
@@ -172,6 +171,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
             self.root, text="Requirements", command=self.show_pictures_popup, style="PyAEDT.TButton"
         )
         info_button.grid(row=2, column=1, padx=15, pady=10)
+
 
 def main(extension_args) -> bool:
     csv_path = extension_args.get("csv_path", EXTENSION_DEFAULT_ARGUMENTS["csv_path"])
