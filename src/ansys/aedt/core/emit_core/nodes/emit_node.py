@@ -322,8 +322,7 @@ class EmitNode:
         return child_nodes
 
     @staticmethod
-    def _parse_property_value(prop: str, val: str | list[str], isTable: bool = False) -> str | list[str] | list[float]:
-        """Parse a raw property value returned from EmitCom."""
+    def _parse_property_value(prop: str, val: str | list[str], isTable: bool = False) -> str | list[str] | list[float] | list[tuple[str, ...]]:
         if isinstance(val, list):
             raw_val = val
         else:
@@ -348,7 +347,6 @@ class EmitNode:
 
     @staticmethod
     def _format_property_value(prop: str, value) -> str:
-        """Format a Python value for SetEmitNodeProperties."""
         if isinstance(value, bool):
             return str(value).lower()
         if prop in _FLOAT_LIST_PROPERTIES:
@@ -399,8 +397,9 @@ class EmitNode:
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
         except Exception:
-            raise ValueError(self._emit_obj.logger.aedt_messages.error_level[-1])
-
+             errors = self._emit_obj.logger.aedt_messages.error_level
+             msg = errors[-1] if errors else "Failed to get node properties."
+             raise ValueError(str(msg))
         props_dict = self.props_to_dict(props)
 
         if property_names is not None:
@@ -512,9 +511,8 @@ class EmitNode:
             pass
 
     def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
-        error_text = None
-        if len(self._emit_obj.logger.messages.error_level) > 0:
-            error_text = str(self._emit_obj.logger.aedt_messages.error_level[-1])
+        aedt_errors = self._emit_obj.logger.aedt_messages.error_level
+        error_text = str(aedt_errors[-1]) if aedt_errors else None        
         if not error_text:
             props_desc = ", ".join(f'"{key}"' for key in prop_keys)
             return (
@@ -531,19 +529,7 @@ class EmitNode:
         return error_text
 
     @min_aedt_version("2025.2")
-    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
-        """Fetch the value of a given property.
-
-        Parameters
-        ----------
-        prop : str
-            Name of the property.
-
-        Returns
-        -------
-        str, or list
-            Property value.
-        """
+    def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str] | list[float] | list[tuple[str, ...]]:
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
