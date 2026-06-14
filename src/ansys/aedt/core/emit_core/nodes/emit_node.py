@@ -36,10 +36,19 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 # Type variable to be used in methods that might receive a subclass of EmitNode
 T = TypeVar("T", bound="EmitNode")
+
+_FLOAT_LIST_PROPERTIES = (
+    "Position",
+    "Relative Position",
+    "Orientation",
+    "Relative Orientation",
+    "Frequency Domain",
+)
 
 
 class EmitNode:
@@ -79,10 +88,8 @@ class EmitNode:
         """
         result = {}
         for prop in props:
-            split_prop = prop.split("=")
-            if split_prop[1].find("|") != -1:
-                result[split_prop[0]] = split_prop[1].split("|")
-            result[split_prop[0]] = split_prop[1]
+            key, _, val = prop.partition("=")
+            result[key] = val
         return result
 
     @property
@@ -314,6 +321,215 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
+    @staticmethod
+    def _parse_property_value(prop: str, val: str | list[str], isTable: bool = False) -> str | list[str] | list[float]:
+        """Parse a raw property value returned from EmitCom."""
+        if isinstance(val, list):
+            raw_val = val
+        else:
+            raw_val = val
+
+        if prop in _FLOAT_LIST_PROPERTIES:
+            if isinstance(raw_val, list):
+                return [float(x) for x in raw_val]
+            return [float(x) for x in raw_val.split()]
+
+        if isTable:
+            rows = raw_val.split(";") if isinstance(raw_val, str) else raw_val
+            if isinstance(rows, str):
+                rows = rows.split(";")
+            return [tuple(row.split("|")) for row in rows if row]
+
+        if isinstance(raw_val, list):
+            return raw_val
+        if "|" in raw_val:
+            return raw_val.split("|")
+        return raw_val
+
+    @staticmethod
+    def _format_property_value(prop: str, value) -> str:
+        """Format a Python value for SetEmitNodeProperties."""
+        if isinstance(value, bool):
+            return str(value).lower()
+        if prop in _FLOAT_LIST_PROPERTIES:
+            if isinstance(value, list):
+                return " ".join(str(x) for x in value)
+            if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, list):
+                    return " ".join(str(x) for x in parsed)
+        if isinstance(value, list):
+            return "|".join(str(x) for x in value)
+        return str(value)
+
+    @min_aedt_version("2025.2")
+    @pyaedt_function_handler()
+    def get_properties(
+        self,
+        property_names: list[str] | None = None,
+        skipChecks: bool = True,
+        raw: bool = True,
+    ) -> dict[str, str | list[str] | list[float]]:
+        """Get node properties in a single EmitCom call.
+
+        This method is equivalent to ``GetEmitNodeProperties`` and is intended for
+        production scripts that need to read multiple properties efficiently.
+
+        Parameters
+        ----------
+        property_names : list[str], optional
+            Property names to return. When ``None``, all properties are returned.
+        skipChecks : bool, optional
+            Whether to skip property visibility checks. The default is ``True``.
+        raw : bool, optional
+            When ``True``, return string values as returned by EmitCom.
+            When ``False``, parse values such as position and orientation into
+            lists of floats. The default is ``True``.
+
+        Returns
+        -------
+        dict
+            Dictionary of property names and values.
+
+        Raises
+        ------
+        ValueError
+            If a requested property is not found or not available.
+        """
+        try:
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
+        except Exception:
+            raise ValueError(self._emit_obj.logger.aedt_messages.error_level[-1])
+
+        props_dict = self.props_to_dict(props)
+
+        if property_names is not None:
+            missing = [name for name in property_names if name not in props_dict]
+            if missing:
+                raise ValueError(
+                    f"Properties not found or not available for {self._node_type} configuration: "
+                    f"{', '.join(missing)}"
+                )
+            props_dict = {name: props_dict[name] for name in property_names}
+
+        if raw:
+            return props_dict
+
+        return {name: self._parse_property_value(name, value) for name, value in props_dict.items()}
+
+    @min_aedt_version("2025.2")
+    @pyaedt_function_handler()
+    def set_properties(
+        self,
+        properties: dict[str, str | bool | float | list] | list[str],
+        skipChecks: bool = False,
+    ) -> None:
+        """Set multiple node properties in a single EmitCom call.
+
+        This method is equivalent to ``SetEmitNodeProperties`` and is intended for
+        production scripts that need to write multiple properties efficiently.
+
+        When setting multiple properties, changes are applied before visibility
+        validation so that one property can expose another. For example,
+        ``['Position Defined=true', 'Position=1 1 1']`` is valid because the first
+        property makes the second visible. If validation fails after applying the
+        changes, the previous values are restored.
+
+        Parameters
+        ----------
+        properties : dict or list[str]
+            Properties to set. Either a dictionary of property names and values or
+            a list of ``'name=value'`` strings as used by EmitCom.
+        skipChecks : bool, optional
+            When ``True``, skip validation after applying property changes.
+            The default is ``False``.
+
+        Raises
+        ------
+        TypeError
+            If ``properties`` is not a dictionary or list of strings.
+        ValueError
+            If property assignment fails.
+        """
+        prop_strings, prop_keys = self._normalize_properties_input(properties)
+        if not prop_strings:
+            return
+
+        original_values = self._get_raw_property_values(prop_keys)
+        use_deferred_validation = not skipChecks and len(prop_strings) > 1
+
+        try:
+            if use_deferred_validation:
+                self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, prop_strings, True)
+                self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, False)
+            else:
+                self._oRevisionData.SetEmitNodeProperties(
+                    self._result_id, self._node_id, prop_strings, skipChecks
+                )
+        except Exception:
+            if use_deferred_validation:
+                self._restore_property_values(original_values)
+            raise ValueError(self._format_set_properties_error(prop_strings, prop_keys))
+
+    def _normalize_properties_input(
+        self, properties: dict[str, str | bool | float | list] | list[str]
+    ) -> tuple[list[str], list[str]]:
+        if isinstance(properties, dict):
+            prop_dict = properties
+        elif isinstance(properties, list):
+            prop_dict = {}
+            for item in properties:
+                if not isinstance(item, str) or "=" not in item:
+                    raise TypeError(
+                        "When properties is a list, each item must be a 'name=value' string."
+                    )
+                key, value = item.split("=", 1)
+                prop_dict[key.strip()] = value.strip()
+        else:
+            raise TypeError("properties must be a dict or list of 'name=value' strings.")
+
+        prop_strings = []
+        prop_keys = []
+        for key, value in prop_dict.items():
+            prop_keys.append(key)
+            prop_strings.append(f"{key}={self._format_property_value(key, value)}")
+        return prop_strings, prop_keys
+
+    def _get_raw_property_values(self, property_names: list[str]) -> dict[str, str]:
+        if not property_names:
+            return {}
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
+        props_dict = self.props_to_dict(props)
+        return {name: props_dict[name] for name in property_names if name in props_dict}
+
+    def _restore_property_values(self, original_values: dict[str, str]) -> None:
+        if not original_values:
+            return
+        rollback_strings = [f"{key}={value}" for key, value in original_values.items()]
+        try:
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, rollback_strings, True)
+        except Exception:
+            pass
+
+    def _format_set_properties_error(self, prop_strings: list[str], prop_keys: list[str]) -> str:
+        error_text = None
+        if len(self._emit_obj.logger.messages.error_level) > 0:
+            error_text = str(self._emit_obj.logger.aedt_messages.error_level[-1])
+        if not error_text:
+            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
+            return (
+                f"Failed setting properties on {self._node_type} node "
+                f'"{self.name}" ({props_desc})'
+            )
+
+        matching_keys = [key for key in prop_keys if key in error_text]
+        if len(prop_keys) > 1 and not matching_keys:
+            props_desc = ", ".join(f'"{key}"' for key in prop_keys)
+            return f"{error_text} (while setting {props_desc})"
+        if len(prop_keys) == 1 and prop_keys[0] not in error_text:
+            return f'{error_text} (property "{prop_keys[0]}")'
+        return error_text
+
     @min_aedt_version("2025.2")
     def _get_property(self, prop: str, skipChecks: bool = False, isTable: bool = False) -> str | list[str]:
         """Fetch the value of a given property.
@@ -337,29 +553,7 @@ class EmitNode:
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
-
-            # Convert position and orientation properties to list of floats
-            convert_to_float = [
-                "Position",
-                "Relative Position",
-                "Orientation",
-                "Relative Orientation",
-                "Frequency Domain",
-            ]
-            if prop in convert_to_float:
-                return [float(x) for x in val.split()]
-
-            if isTable:
-                # Node Prop tables
-                # Data formatted using compact string serialization
-                # with ';' separating rows and '|' separating columns
-                rows = val.split(";")
-                table = [tuple(row.split("|")) for row in rows if row]
-                return table
-            elif val.find("|") != -1:
-                return val.split("|")
-            else:
-                return val
+            return self._parse_property_value(prop, val, isTable)
         except ValueError:
             raise
         except Exception:
@@ -367,32 +561,15 @@ class EmitNode:
 
     @min_aedt_version("2025.2")
     def _set_property(self, prop, value, skipChecks: bool = False):
-        convert_from_float = [
-            "Position",
-            "Relative Position",
-            "Orientation",
-            "Relative Orientation",
-            "Frequency Domain",
-        ]
-        if prop in convert_from_float:
-            if isinstance(value, list):
-                value = " ".join(str(x) for x in value)
-            elif isinstance(value, str) and value.startswith("[") and value.endswith("]"):
-                parsed = ast.literal_eval(value)
-                if isinstance(parsed, list):
-                    value = " ".join(str(x) for x in parsed)
+        formatted_value = self._format_property_value(prop, value)
         try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
+            self._oRevisionData.SetEmitNodeProperties(
+                self._result_id, self._node_id, [f"{prop}={formatted_value}"], skipChecks
+            )
         except Exception:
-            error_text = None
-            if len(self._emit_obj.logger.messages.error_level) > 0:
-                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
-            else:
-                error_text = (
-                    f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
-                    f'{self.properties["Type"]} node "{self.name}"'
-                )
-            raise ValueError(error_text)
+            raise ValueError(
+                self._format_set_properties_error([f"{prop}={formatted_value}"], [prop])
+            )
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:

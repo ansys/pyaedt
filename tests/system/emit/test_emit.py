@@ -2950,6 +2950,33 @@ def test_exceptions_bad_values(emit_app) -> None:
         print(f"Invalid child type: {e}")
 
 
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+def test_emit_node_get_set_properties(emit_app) -> None:
+    _, antenna = emit_app.schematic.create_radio_antenna("Bluetooth", "PropsRadio", "PropsAnt")
+    antenna = cast(AntennaNode, antenna)
+
+    antenna.set_properties(["Position Defined=true", "Position=1 1 1"])
+    props = antenna.get_properties(["Position Defined", "Position"])
+    assert props["Position Defined"] == "true"
+    assert props["Position"] == "1 1 1"
+
+    antenna.set_properties({"Position": [2.0, 2.0, 2.0]})
+    parsed = antenna.get_properties(["Position"], raw=False)
+    assert parsed["Position"] == [2.0, 2.0, 2.0]
+
+    assert antenna.get_properties() == antenna.properties
+
+    with pytest.raises(ValueError):
+        antenna.get_properties(["Not A Property"])
+
+    with pytest.raises(ValueError) as exc_info:
+        antenna.set_properties({"Bad Prop": "Bad Val"})
+    assert "Bad Prop" in str(exc_info.value)
+
+    emit_app.schematic.delete_component("PropsRadio")
+    emit_app.schematic.delete_component("PropsAnt")
+
+
 @pytest.mark.skipif(DESKTOP_VERSION <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
 def test_units(emit_app) -> None:
     new_radio = emit_app.schematic.create_component("New Radio")
