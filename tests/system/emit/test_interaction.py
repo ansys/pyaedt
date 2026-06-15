@@ -114,6 +114,7 @@ def test_interaction_is_valid(cell_phone):
     """Test that is_valid() uses domain parameters."""
     # Get radios
     rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
 
     # Create interaction with a valid domain
     domain = InteractionDomain(cell_phone)
@@ -121,24 +122,20 @@ def test_interaction_is_valid(cell_phone):
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
 
     interaction = Interaction(cell_phone, domain, rev)
-
-    # Check invalid domain (bad band name → domain validation error)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         interaction.validate()
     assert "Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
     assert not interaction.is_valid()
 
     domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
-
-    with pytest.raises(ValueError) as e:
+    # Check invalid domain (bad band name → domain validation error)
+    with pytest.raises(RuntimeError) as e:
         interaction.validate()
     assert "Interaction has not been run" in str(e.value)
     assert not interaction.is_valid()
 
-    sim = rev.get_simulation()
-    sim.run(domain)
-
-    assert interaction.is_valid()
+    interaction2 = sim.run(domain)
+    assert interaction2.is_valid()
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
@@ -194,11 +191,7 @@ def test_interaction_domain_properties(cell_phone):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_run_band_pair(cell_phone):
-    """Test basic running with receiver band and worst case results.
-
-    Note: This test is translated from C++ EmitApiTest::runBandPair
-    """
-    # Constants matching C++ test
+    """Test basic running with receiver band and worst case results."""
     rx_name = "GSM Mobile Station"
     rx_band_name = "Rx GSM-850 - Other Modulations"
     tx1_name = "WiFi - 802.11-2012"
@@ -215,7 +208,7 @@ def test_run_band_pair(cell_phone):
 
     interaction = sim.run(domain)
     assert interaction is not None
-    assert interaction._check_results_exist()
+    assert interaction.is_valid()
 
     # Get worst case EMI
     instance = interaction.get_worst_instance(ResultType.EMI)
@@ -263,10 +256,7 @@ def test_run_band_pair(cell_phone):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_availability(availability):
-    """Test availability calculation and related errors.
-
-    Note: This test is translated from C++ EmitApiTest::availability
-    """
+    """Test availability calculation and related errors."""
     # Get simulation and run
     rev = availability.results.analyze()
     sim = rev.get_simulation()
@@ -302,7 +292,7 @@ def test_availability(availability):
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
-    assert warning == "Radio pair disabled."
+    assert "Radio pair disabled" in warning
 
     with pytest.raises(RuntimeError) as e:
         interaction.get_availability(domain)
@@ -362,10 +352,7 @@ def test_availability(availability):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_non_numeric_results(non_numeric_results):
-    """Test non-numeric result handling (disabled pairs, saturated amps, etc.).
-
-    Note: This test is translated from C++ EmitApiTest::nonNumericResults
-    """
+    """Test non-numeric result handling (disabled pairs, saturated amps, etc.)."""
     rev = non_numeric_results.results.analyze()
     sim = rev.get_simulation()
 
@@ -386,7 +373,7 @@ def test_non_numeric_results(non_numeric_results):
     bad_interaction = sim.run(domain)
     with pytest.raises((RuntimeError, ValueError)) as e:
         bad_interaction.get_worst_instance(ResultType.EMI)
-    assert "Interaction has not been run" in str(e.value)
+    assert "Radio pair disabled" in str(e.value)
 
     # Undefined instance domain should raise
     inst_domain = InteractionDomain(non_numeric_results)
@@ -499,16 +486,13 @@ def test_non_numeric_results(non_numeric_results):
     inst_domain.set_interferers(names=["RF System - Null"])
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
-    assert "The interaction domain must be fully defined" in str(e.value)
+    assert "No channels are enabled in this radio" in str(e.value)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 # @pytest.mark.skipif(True, reason="Need to move other emit engine functions (invalidate all).")
 def test_result_validity(availability, add_app_example):
-    """Test interaction and instance validity after various operations.
-
-    Note: This test is translated from C++ EmitApiTest::resultValidity.
-    """
+    """Test interaction and instance validity after various operations."""
     rev = availability.results.analyze()
     sim = rev.get_simulation()
 
@@ -521,7 +505,7 @@ def test_result_validity(availability, add_app_example):
 
     # interaction2 is unrun
     assert not interaction2.is_valid()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         interaction2.validate()
     assert "Interaction has not been run" in str(e.value)
 
@@ -530,24 +514,24 @@ def test_result_validity(availability, add_app_example):
 
     # Undefined interaction should be invalid
     assert not interaction.is_valid()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         interaction.validate()
-    assert "Interaction not associated with current Result object" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
 
-    # Undefined instance should be invalid with "Instance not associated with current Result object"
-    with pytest.raises(ValueError) as e:
-        undefined_instance.check_validity()
-    assert "Instance not associated with current Result object" in str(e.value)
+    # Undefined instance should be invalid
+    with pytest.raises(RuntimeError) as e:
+        undefined_instance.validate()
+    assert "Instance domain is not single instance" in str(e.value)
 
     # Trying to get worst instance on undefined interaction should fail
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         interaction.get_worst_instance(ResultType.EMI)
-    assert "Interaction not associated with current Result object" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
 
     # Trying to get instance on undefined domain should fail
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         interaction.get_instance(InteractionDomain(availability))
-    assert "Interaction not associated with current Result object" in str(e.value)
+    assert "Interaction has not been run" in str(e.value)
 
     # interaction and instance after run and get worst case
     domain = InteractionDomain(availability)
@@ -556,23 +540,9 @@ def test_result_validity(availability, add_app_example):
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance is not None
 
-    # previously defined but unrun interaction has now been run (domain2 was same as domain)
-    # After running domain, domain2 now has results
-    assert interaction2.is_valid()
-
     # interaction and instance after a reload of the project
     proj_name = availability.project_name
     availability.close_project(proj_name, save=False)
-    assert not interaction.is_valid()
-    with pytest.raises(ValueError) as e:
-        interaction.validate()
-    assert "Interaction not associated with current Result object" in str(e.value)
-
-    with pytest.raises(ValueError) as e:
-        instance.check_validity()
-    assert "Instance not associated with current Result object" in str(e.value)
-
-    # interaction and instance after a second run and get worst case
     availability = add_app_example(project="Availability", application=Emit, subfolder=TEST_SUBFOLDER)
     rev = availability.results.analyze()
     sim = rev.get_simulation()
@@ -580,26 +550,12 @@ def test_result_validity(availability, add_app_example):
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)
     assert instance is not None
-    assert instance.check_validity() is None  # Should not raise
-
-    # interaction and instance after closing project
-    availability.close_project(availability.project_name, save=False)
-    assert not interaction.is_valid()
-    with pytest.raises(ValueError) as e:
-        interaction.validate()
-    assert "Interaction not associated with current Result object" in str(e.value)
-    with pytest.raises(ValueError) as e:
-        instance.check_validity()
-    assert "Instance not associated with current Result object" in str(e.value)
+    assert instance.validate() is None  # Should not raise
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_n_to_1_worst_case(n_to_1):
-    """
-    Test N-1 worst case and related errors.
-
-    Note: This test is translated from C++ EmitApiTest::nTo1WorstCase.
-    """
+    """Test N-1 worst case and related errors."""
     rev = n_to_1.results.analyze()
     sim = rev.get_simulation()
 
@@ -657,10 +613,7 @@ def test_n_to_1_worst_case(n_to_1):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_n_to_1_limit(cell_phone):
-    """Test get/set N-to-1 limit and verify instance count changes accordingly.
-
-    Note: This test is translated from C++ EmitApiTest::nTo1Limit
-    """
+    """Test get/set N-to-1 limit and verify instance count changes accordingly."""
     rev = cell_phone.results.analyze()
     sim = rev.get_simulation()
 
@@ -711,7 +664,7 @@ def test_instance_count(cell_phone):
     assert domain.interferer_channel_frequencies == domain2.interferer_channel_frequencies
 
     # Completeness check
-    assert interaction._check_results_exist()
+    assert interaction.is_valid()
 
     # Instance Count
     instance = interaction.get_worst_instance(ResultType.EMI)

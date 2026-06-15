@@ -1455,9 +1455,7 @@ def test_receiver_n_to_1_enabled(interference):
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_analysis_enabled(n_to_1):
-    """Test enabling/disabling radio pairs and receiver N-to-1 analysis.
-
-    """
+    """Test enabling/disabling radio pairs and receiver N-to-1 analysis."""
     # Generate a revision
     rev = n_to_1.results.analyze()
     sim = rev.get_simulation()
@@ -1486,41 +1484,44 @@ def test_analysis_enabled(n_to_1):
     # Run again with disabled radio pair should not produce results
     interaction2 = sim.run(domain)
     assert not interaction2.is_valid()
+    # Verify the error is about the interaction not being run (no results were produced)
+    with pytest.raises(RuntimeError) as e:
+        interaction2.get_worst_instance(ResultType.EMI)
+    assert "Radio pair disabled" in str(e.value)
 
     # Re-enable the radio pair
     sim.set_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3", True)
     assert sim.get_radio_pair_enabled("Rx - RxRadio", "Tx3 - TxRadio3") is True
 
+    # Create domain for N-to-1 analysis (no specific interferers)
+    domain.set_interferers([])
+
     # Test N-to-1 enabled state
     assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
 
-    # Create domain for N-to-1 analysis (no specific interferers)
-    domain_n_to_1 = InteractionDomain(n_to_1)
-    domain_n_to_1.set_receiver("Rx - RxRadio")
-
     # Run N-to-1 interaction
-    interaction_n_to_1 = sim.run(domain_n_to_1)
+    interaction_n_to_1 = sim.run(domain)
     assert interaction_n_to_1.is_valid()
     instance_n_to_1 = interaction_n_to_1.get_worst_instance(ResultType.EMI)
     assert instance_n_to_1 is not None
     emi_n_to_1 = instance_n_to_1.get_value(ResultType.EMI)
     assert emi_n_to_1 == 179.54
+    assert sim.get_instance_count(domain) == 4
 
     # Disable N-to-1 for the receiver
     sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
     assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
 
-    # After disabling N-to-1, the interaction should become invalid
-    # THIS SHOULD BE   EXPECT_ERROR(interaction.checkValidity(), *_nTo1ProjectApi,
-    # EmitStatus::UserError, "Interaction not associated with current Result object.");
-    assert not interaction_n_to_1.is_valid()
+    # Interaction should still be valid but reflect only the 1-to-1 results
+    assert interaction_n_to_1.is_valid()
+    assert sim.get_instance_count(domain) == 3
 
     # Run again with N-to-1 disabled should produce 1-to-1 only results
-    interaction_n_to_1_disabled = sim.run(domain_n_to_1)
+    interaction_n_to_1_disabled = sim.run(domain)
     assert interaction_n_to_1_disabled.is_valid()
-    instance_1_to_1_only = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
-    emi_1_to_1_only = instance_1_to_1_only.get_value(ResultType.EMI)
-    assert emi_1_to_1_only == 170.0
+    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
+    emi = instance.get_value(ResultType.EMI)
+    assert emi == 170.0
 
     # Re-enable N-to-1 for the receiver
     sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
@@ -1590,7 +1591,7 @@ def test_categories(cell_phone):
     instance = interaction.get_worst_instance(ResultType.EMI)
 
     # Verify no valid values remain
-    assert not instance.has_valid_values(), "Instance should have no valid values after filtering all sources"
+    assert not instance.has_valid_values()
 
     # Verify error when getting value
     with pytest.raises(Exception) as excinfo:

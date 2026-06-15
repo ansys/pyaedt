@@ -79,6 +79,19 @@ class EMIInterfererType(MutableEnum):
     OUT_OF_CHANNEL_TX_BROADBAND = (1, 3)
 
 
+# Maps raw interference category integers from gRPC GetLargestEmiProblemType to EMIInterfererType enums
+EMI_CATEGORY_TO_INTERFERER_TYPE = {
+    0: EMIInterfererType.OUT_OF_CHANNEL_TX_FUNDAMENTAL,
+    1: EMIInterfererType.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS,
+    3: EMIInterfererType.OUT_OF_CHANNEL_TX_INTERMOD,
+    7: EMIInterfererType.IN_CHANNEL_TX_FUNDAMENTAL,
+    8: EMIInterfererType.IN_CHANNEL_TX_HARMONIC_SPURIOUS,
+    10: EMIInterfererType.IN_CHANNEL_TX_INTERMOD,
+    14: EMIInterfererType.IN_CHANNEL_TX_BROADBAND,
+}
+"""Maps raw EMI interference category integers to EMIInterfererType enums."""
+
+
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
     "Frequency": ["Hz", "kHz", "MHz", "GHz", "THz"],

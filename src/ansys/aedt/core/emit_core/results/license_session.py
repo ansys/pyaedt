@@ -30,9 +30,9 @@ class LicenseSession:
         self._emit_com_module = emit_com_module
         self._result_index = result_index
         self._active = False
-        self.checkout()
+        self.check_out()
 
-    def checkout(self) -> None:
+    def check_out(self) -> None:
         """Check out a solver license and start a session."""
         if self._active:
             return
@@ -45,10 +45,6 @@ class LicenseSession:
             return
         self._emit_com_module.CheckinLicenseSession(self._result_index)
         self._active = False
-
-    def close(self) -> None:
-        """End the current license session."""
-        self.check_in()
 
     def __enter__(self):
         return self

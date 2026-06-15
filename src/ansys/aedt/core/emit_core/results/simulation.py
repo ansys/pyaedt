@@ -78,6 +78,9 @@ class Simulation:
         self.results_index = revision.results_index
         """Revision results index."""
 
+        self._emit_com_module = revision.emit_project._emit_com_module
+        """COM module."""
+
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
     def get_interaction(self, domain: InteractionDomain):
@@ -171,9 +174,7 @@ class Simulation:
             )
             # Create Interaction object to access results
             interaction = Interaction(self.emit_project, domain, self._revision)
-            interaction._was_run = True  # marks this as a valid run result (mirrors C++ setIsValid(true))
-            # Register the interaction so it can be invalidated if state changes
-            self._revision._interactions.append(interaction)
+
         # save the project and revision
         self._revision.emit_project.save_project()
         return interaction
@@ -238,7 +239,7 @@ class Simulation:
             status = self.is_domain_valid(domain)
             if status != "":
                 raise RuntimeError(status)
-            count = self._revision.emit_project._emit_com_module.GetInstanceCount(
+            count = self._emit_com_module.GetInstanceCount(
                 self._revision.results_index,
                 domain.receiver_name,
                 domain.receiver_band_name,
@@ -271,7 +272,7 @@ class Simulation:
         """
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            return int(self._revision.emit_project._emit_com_module.GetNto1Limit(self._revision.results_index))
+            return int(self._emit_com_module.GetNto1Limit(self._revision.results_index))
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.n_to_1_limit
@@ -281,13 +282,10 @@ class Simulation:
     def n_to_1_limit(self, max_instances: int):
         self._revision._load_revision()
         if self.aedt_version >= 271:
-            self._revision.emit_project._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
+            self._emit_com_module.SetNto1Limit(self._revision.results_index, max_instances)
         else:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances
-
-        # Match legacy behavior: any N-to-1 limit change invalidates existing interactions.
-        self._revision.invalidate_all_interactions()
 
     class NoiseBehaviorOption(Enum):
         COHERENT = "Coherent"
@@ -384,11 +382,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_emi_category_filter_enabled(category)
         else:
-            return bool(
-                self._revision.emit_project._emit_com_module.GetEmiCategoryFilterEnabled(
-                    self._revision.results_index, int(category)
-                )
-            )
+            return bool(self._emit_com_module.GetEmiCategoryFilterEnabled(self._revision.results_index, int(category)))
 
     @min_aedt_version("2025.2")
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
@@ -405,9 +399,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_emi_category_filter_enabled(category, enabled)
         else:
-            self._revision.emit_project._emit_com_module.SetEmiCategoryFilterEnabled(
-                self._revision.results_index, int(category), enabled
-            )
+            self._emit_com_module.SetEmiCategoryFilterEnabled(self._revision.results_index, int(category), enabled)
 
     @min_aedt_version("2027.1")
     def get_radio_pair_enabled(self, receiver_name: str, interferer_name: str) -> bool:
@@ -430,9 +422,7 @@ class Simulation:
             return engine.get_radio_pair_enabled(receiver_name, interferer_name)
         else:
             return bool(
-                self._revision.emit_project._emit_com_module.GetRadioPairEnabled(
-                    self._revision.results_index, receiver_name, interferer_name
-                )
+                self._emit_com_module.GetRadioPairEnabled(self._revision.results_index, receiver_name, interferer_name)
             )
 
     @min_aedt_version("2027.1")
@@ -452,12 +442,12 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_radio_pair_enabled(receiver_name, interferer_name, enabled)
         else:
-            self._revision.emit_project._emit_com_module.SetRadioPairEnabled(
+            self._emit_com_module.SetRadioPairEnabled(
                 self._revision.results_index, receiver_name, interferer_name, enabled
             )
 
         # Invalidate all interactions since the simulation state has changed
-        self._revision.invalidate_all_interactions()
+        self._revision._invalidate_all_interactions()
 
     @min_aedt_version("2027.1")
     def get_receiver_n_to_1_enabled(self, receiver_name: str) -> bool:
@@ -477,11 +467,7 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             return engine.get_receiver_n_to_1_enabled(receiver_name)
         else:
-            return bool(
-                self._revision.emit_project._emit_com_module.GetReceiverNto1Enabled(
-                    self._revision.results_index, receiver_name
-                )
-            )
+            return bool(self._emit_com_module.GetReceiverNto1Enabled(self._revision.results_index, receiver_name))
 
     @min_aedt_version("2027.1")
     def set_receiver_n_to_1_enabled(self, receiver_name: str, enabled: bool):
@@ -498,12 +484,10 @@ class Simulation:
             engine = self._revision.emit_project._emit_api.get_engine()
             engine.set_receiver_n_to_1_enabled(receiver_name, enabled)
         else:
-            self._revision.emit_project._emit_com_module.SetReceiverNto1Enabled(
-                self._revision.results_index, receiver_name, enabled
-            )
+            self._emit_com_module.SetReceiverNto1Enabled(self._revision.results_index, receiver_name, enabled)
 
         # Invalidate all interactions since the simulation state has changed
-        self._revision.invalidate_all_interactions()
+        self._revision._invalidate_all_interactions()
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
@@ -538,7 +522,7 @@ class Simulation:
             sim.run(domain)
         """
         if self.aedt_version >= 271:
-            return LicenseSession(self._revision.emit_project._emit_com_module, self._revision.results_index)
+            return LicenseSession(self._emit_com_module, self._revision.results_index)
 
         engine = self._revision.emit_project._emit_api.get_engine()
         return engine.license_session()

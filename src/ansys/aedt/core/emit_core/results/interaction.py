@@ -27,6 +27,8 @@ import warnings
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.interaction_instance import InteractionInstance
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Interaction:
@@ -35,39 +37,10 @@ class Interaction:
         self.odesktop = self.emit_project.odesktop
         self.domain = domain
         self.revision = revision
-        self._invalidated = False
-        self._was_run = False  # True only after sim.run() creates this interaction
         self._instances = []
 
-    def invalidate(self) -> None:
-        """Mark this interaction as invalid due to state changes in radio pair/N-to-1 configuration."""
-        self._invalidated = True
-        for instance in self._instances:
-            instance.invalidate()
-
-    @staticmethod
-    def _is_domain_empty(domain: InteractionDomain) -> bool:
-        """Check if the domain is empty/undefined.
-
-        Parameters
-        ----------
-        domain : InteractionDomain
-            The domain to check.
-
-        Returns
-        -------
-        bool
-            True if the domain is empty (all fields are default values), False otherwise.
-        """
-        return (
-            domain.receiver_name == ""
-            and domain.receiver_band_name == ""
-            and domain.receiver_channel_frequency == 0
-            and len(domain.interferer_names) == 0
-            and len(domain.interferer_band_names) == 0
-            and len(domain.interferer_channel_frequencies) == 0
-        )
-
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_worst_instance(self, result_type: ResultType) -> InteractionInstance:
         """Get the worst instance for this interaction.
 
@@ -86,8 +59,9 @@ class Interaction:
         RuntimeError
             If the worst case instance cannot be retrieved.
         """
-        # Validate the interaction before proceeding
-        self.validate()
+        error = self._check_validity()
+        if error:
+            raise RuntimeError("Interaction is not valid: " + error)
 
         if result_type == ResultType.POWER_AT_RX:
             warnings.warn("Worst case instances are not available for Power At Rx.")
@@ -115,6 +89,8 @@ class Interaction:
         worst_instance = self._data_to_instance(result_data, result_type)
         return worst_instance
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def has_valid_availability(self, domain: InteractionDomain) -> bool:
         """Check if this interaction has valid availability.
 
@@ -128,8 +104,11 @@ class Interaction:
         bool
             True if the interaction has valid availability, False otherwise.
         """
-        # Call HasValidAvailability via COM
+        error = self._check_validity(domain)
+        if error:
+            return False
 
+        # Call HasValidAvailability via COM
         has_valid = self.emit_project._emit_com_module.HasValidAvailability(
             self.revision.results_index,
             domain.receiver_name,
@@ -141,6 +120,8 @@ class Interaction:
         )
         return bool(has_valid)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_availability(self, domain: InteractionDomain) -> float:
         """Get the availability of this interaction.
 
@@ -157,8 +138,13 @@ class Interaction:
         Raises
         ------
         RuntimeError
-            If the domain is invalid or availability cannot be calculated.
+            If the interaction is not longer valid (domain invalid or results are incomplete).
+            or availability cannot be calculated.
         """
+        error = self._check_validity(domain)
+        if error:
+            raise RuntimeError("Interaction is not valid: " + error)
+
         # First check if availability is valid for this domain
         warning = self.get_availability_warning(domain)
         if warning:
@@ -176,6 +162,8 @@ class Interaction:
         )
         return float(availability)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_availability_warning(self, domain: InteractionDomain) -> str:
         """Get the availability warning for this interaction.
 
@@ -187,13 +175,12 @@ class Interaction:
         Returns
         -------
         str
-            The availability warning message, or empty string if no warning.
-
-        Raises
-        ------
-        RuntimeError
-            If the document is invalid or domain validation fails.
+            The availability warning message, or empty string if no warning
         """
+        error = self._check_validity(domain)
+        if error:
+            return str(error)
+
         # Call GetAvailabilityWarning via COM
         warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
             self.revision.results_index,
@@ -206,6 +193,8 @@ class Interaction:
         )
         return str(warning)
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_instance(self, domain: InteractionDomain) -> InteractionInstance:
         """Get the instance at the specified index for this interaction.
 
@@ -221,18 +210,12 @@ class Interaction:
 
         Raises
         ------
-        ValueError
-            If the interaction is not valid or not associated with a result.
         RuntimeError
-            If the domain is invalid, not fully defined, or if instance data cannot be retrieved.
+            If the interaction is not longer valid (domain invalid or results are incomplete).
         """
-        # Association validity: explicit invalidation and undefined unrun handles.
-        if self._invalidated or (self._is_domain_empty(self.domain) and not self._was_run):
-            raise ValueError("Interaction not associated with current Result object.")
-
-        # GetInstance only supports a single interferer.
-        if len(domain.interferer_names) > 1:
-            raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
+        error = self._check_validity(domain)
+        if error:
+            raise RuntimeError("Interaction is not valid: " + error)
 
         # Validate the domain can return a single instance
         if not domain.is_single_instance():
@@ -247,6 +230,12 @@ class Interaction:
         # returns 0 when the radio pair is disabled at the simulation level.
         if self.revision.get_simulation().get_instance_count(domain) == 0:
             raise RuntimeError("Radio pair disabled.")
+
+        if not domain.is_single_instance():
+            raise RuntimeError("The instance domain must be fully defined")
+
+        if len(domain.interferer_names) > 1:
+            raise RuntimeError("Instance data for multiple simultaneous interferers not available.")
 
         # Fetch instance data. The backend always computes both EMI and desense
         # in a single pass and returns [encodedEmi, encodedDesense, worstEmiIntCat].
@@ -271,6 +260,8 @@ class Interaction:
 
         return instance
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def get_domain(self) -> InteractionDomain:
         """Get the interaction domain for this interaction.
 
@@ -281,6 +272,8 @@ class Interaction:
         """
         return self.domain
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def is_valid(self) -> bool:
         """Check if this interaction is valid.
 
@@ -293,6 +286,8 @@ class Interaction:
         """
         return self._check_validity() == ""
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def validate(self) -> None:
         """Validate this interaction, raising an exception if invalid.
 
@@ -300,66 +295,45 @@ class Interaction:
 
         Raises
         ------
-        ValueError
+        RuntimeError
             If the interaction is not valid, with details on why.
         """
         error = self._check_validity()
         if error:
-            raise ValueError(error)
+            raise RuntimeError(error)
 
-    def _check_validity(self) -> str:
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
+    def _check_validity(self, domain: InteractionDomain = None) -> str:
         """
         Check if this interaction is valid. The associated domain must
-        be valid and results must exist for the interaction.
+        be valid and results must be complete for the interaction.
 
         Returns
         -------
         str
             Empty string if valid, error message otherwise.
         """
-        # Check if interaction has been invalidated due to state changes
-        if self._invalidated:
-            return "No results for this interaction."
+        if domain is None:
+            domain = self.domain
 
-        # Empty domain is only valid if produced by run(all pairs).
-        if self._is_domain_empty(self.domain):
-            return "" if self._was_run else "Interaction not associated with current Result object."
-
-        # For defined domains, first validate domain names and structure.
-        error = self.revision.get_simulation().is_domain_valid(self.domain)
-        if error:
-            return error
-
-        # Domain is associated, but no data exists yet.
-        return "" if self._check_results_exist() else "Interaction has not been run."
-
-    def _check_results_exist(self, domain: InteractionDomain | None= None) -> bool:
-        """Check if simulation results exist for the given domain.
-
-        Parameters
-        ----------
-        domain : InteractionDomain, optional
-            The domain to check. If None, uses self.domain.
-
-        Returns
-        -------
-        bool
-            True if results exist for the domain, False otherwise.
-        """
-        # Use the provided domain or default to self.domain
-        check_domain = domain if domain is not None else self.domain
-        results_exist = self.emit_project._emit_com_module.GetResultsExist(
+        # CheckInteractionValidity handles all checks: domain validity, results existence,
+        # and N-to-1 completeness (stale results after state change).
+        error = self.emit_project._emit_com_module.CheckInteractionValidity(
             self.revision.results_index,
-            check_domain.receiver_name,
-            check_domain.receiver_band_name,
-            check_domain.receiver_channel_frequency,
-            check_domain.interferer_names,
-            check_domain.interferer_band_names,
-            check_domain.interferer_channel_frequencies,
+            domain.receiver_name,
+            domain.receiver_band_name,
+            domain.receiver_channel_frequency,
+            domain.interferer_names,
+            domain.interferer_band_names,
+            domain.interferer_channel_frequencies,
         )
-        results_exist = bool(results_exist)
-        return results_exist
+        if error:
+            return str(error)
+        return ""
 
+    @min_aedt_version("2027.1")
+    @pyaedt_function_handler()
     def _data_to_instance(self, result_data, result_type: ResultType) -> InteractionInstance:
         """Convert the raw result data from GetWorstInstance into an InteractionInstance.
 
@@ -416,4 +390,5 @@ class Interaction:
         else:
             instance._encoded_desense = encoded_value
             instance._encoded_emi = 30201
+            instance._largest_emi_interferer_type = None
         return instance
