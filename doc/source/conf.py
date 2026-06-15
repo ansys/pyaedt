@@ -5,6 +5,7 @@ import datetime
 from importlib import import_module
 import os
 import pathlib
+from pathlib import Path
 from pprint import pformat
 import shutil
 import sys
@@ -84,7 +85,7 @@ def directory_size(directory_path):
     for path, _, files in os.walk(directory_path):
         for f in files:
             fp = os.path.join(path, f)
-            res += os.stat(fp).st_size
+            res += Path.stat(fp).st_size
     # Convert in megabytes
     res /= 1e6
     return res
