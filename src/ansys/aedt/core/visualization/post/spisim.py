@@ -817,10 +817,14 @@ class Trace(DataSet):
         return len(self.wave)
 
 
-class SpiSimRawException(Exception):
+class SpiSimRawError(Exception):
     """Custom class for exception handling."""
 
     ...
+
+
+# Backward-compatible alias
+SpiSimRawException = SpiSimRawError
 
 
 class SpiSimRawRead(PyAedtBase):

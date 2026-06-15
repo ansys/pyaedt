@@ -473,7 +473,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     def __assign_matrix_electric_solvers(self, args: MatrixElectric) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``Electrostatic``,``DC Conduction`` and ``AC Conduction``.
 
-
         Parameters
         ----------
         args : MatrixElectric
@@ -500,7 +499,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __assign_matrix_ac_magnetic(self, args: MatrixACMagnetic) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``AC Magnetic``.
-
 
         Parameters
         ----------
@@ -531,7 +529,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __assign_matrix_ac_magnetic_aphi(self, args: MatrixACMagneticAPhi) -> MaxwellParameters:
         """Assign a matrix to the source selection for``AC Magnetic APhi``.
-
 
         Parameters
         ----------
@@ -571,7 +568,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __assign_matrix_magnetostatic(self, args: MatrixMagnetostatic) -> MaxwellParameters:
         """Assign a matrix to the source selection for ``Magnetostatic``.
-
 
         Parameters
         ----------
