@@ -122,7 +122,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         # Browse file entry - CSV file path
         browse_file_label = ttk.Label(self.root, text="Browse CSV File:", width=20, style="PyAEDT.TLabel")
         browse_file_label.grid(row=0, column=0, pady=10)
-        browse_file_entry = tk.Text(self.root, width=40, height=1)
+        browse_file_entry = tk.Text(self.root, width=40, height=1, name="browse_file_entry")
         browse_file_entry.grid(row=0, column=1, pady=15, padx=10)
         browse_file_entry.configure(
             background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
@@ -131,7 +131,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         # Threshold entry
         threshold_label = ttk.Label(self.root, text="Current Threshold:", width=20, style="PyAEDT.TLabel")
         threshold_label.grid(row=1, column=0, padx=15, pady=10)
-        threshold_entry = tk.Text(self.root, width=40, height=1)
+        threshold_entry = tk.Text(self.root, width=40, height=1, name="threshold_entry")
         threshold_entry.grid(row=1, column=1, pady=15, padx=10)
         threshold_entry.configure(
             background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font

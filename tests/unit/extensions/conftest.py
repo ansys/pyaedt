@@ -112,3 +112,12 @@ def mock_emit_app():
         mock_property.return_value = mock_instance
 
         yield mock_instance
+
+@pytest.fixture
+def mock_q3d_app():
+    """Fixture to mock Q3D application."""
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
+        mock_instance = MagicMock()
+        mock_instance.design_type = "Q3D Extractor"
+        mock_property.return_value = mock_instance
+        yield mock_instance
