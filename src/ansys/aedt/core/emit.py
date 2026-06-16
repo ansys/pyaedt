@@ -188,18 +188,6 @@ class Emit(Design, PyAedtBase):
     def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def load_project(
-        self, file_name: str, design: str | None = None, close_active: bool = False, set_active: bool = False
-    ) -> bool:
-        """Load project and invalidate existing interaction handles first."""
-        return super().load_project(file_name, design=design, close_active=close_active, set_active=set_active)
-
-    @pyaedt_function_handler()
-    def close_project(self, name: str = None, save: bool = True) -> bool:
-        """Close project and invalidate existing interaction handles first."""
-        return super().close_project(name=name, save=save)
-
     @property
     def modeler(self) -> ModelerEmit:
         """Modeler.
