@@ -22,19 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import tkinter as tk
 
-import pytest
+from pathlib import Path
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import pandas as pd
+import pytest
 
+from ansys.aedt.core.extensions.q3d import harmonic_loss
 from ansys.aedt.core.extensions.q3d.harmonic_loss import EXTENSION_TITLE
-from ansys.aedt.core.extensions.q3d.harmonic_loss import HarmonicLossExtension
 from ansys.aedt.core.extensions.q3d.harmonic_loss import ExtensionData
+from ansys.aedt.core.extensions.q3d.harmonic_loss import HarmonicLossExtension
 from ansys.aedt.core.extensions.q3d.harmonic_loss import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from unittest.mock import patch, MagicMock
-from ansys.aedt.core.extensions.q3d import harmonic_loss
-from pathlib import Path
 
 
 def test_extension_default() -> None:
@@ -49,6 +50,7 @@ def test_extension_default() -> None:
 
     extension.root.destroy()
 
+
 def test_csv_file_path_entry(tmp_path) -> None:
     """Test the entries method of ExtensionData."""
     data = ExtensionData(csv_path=str(tmp_path / "entries.csv"), threshold=0.01)
@@ -57,13 +59,18 @@ def test_csv_file_path_entry(tmp_path) -> None:
     assert data.csv_path == str(tmp_path / "entries.csv")
     assert data.threshold == 0.01
 
+
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.ansys.aedt.core.Desktop")
 def test_no_project(mock_desktop_cls, mock_q3d_app):
     mock_desktop = mock_desktop_cls.return_value
     mock_desktop.active_project.return_value = None
 
-    with pytest.raises(AEDTRuntimeError, match="No active project found. Please open or create a project before running this extension."):
+    with pytest.raises(
+        AEDTRuntimeError,
+        match="No active project found. Please open or create a project before running this extension.",
+    ):
         main({"csv_path": "", "threshold": 0.0})
+
 
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.ansys.aedt.core.Desktop")
 def test_q3d_design(mock_desktop_cls, mock_q3d_app):
@@ -75,6 +82,7 @@ def test_q3d_design(mock_desktop_cls, mock_q3d_app):
     mock_design.GetDesignType.return_value = "Q3D Extractor"
 
     assert mock_q3d_app.design_type == mock_design.GetDesignType.return_value
+
 
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.get_pyaedt_app")
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.ansys.aedt.core.Desktop")
@@ -93,6 +101,7 @@ def test_no_sources(mock_desktop_cls, mock_get_pyaedt_app, mock_q3d_app):
 
     with pytest.raises(AEDTRuntimeError, match="No sources in the active design."):
         main({"csv_path": "dummy.csv", "threshold": 0.0})
+
 
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.get_pyaedt_app")
 @patch("ansys.aedt.core.extensions.q3d.harmonic_loss.ansys.aedt.core.Desktop")
@@ -131,8 +140,10 @@ def test_edit_sources(mock_desktop_cls, mock_get_pyaedt_app, mock_q3d_app, tmp_p
     mock_desktop.active_design.return_value = mock_design
     mock_get_pyaedt_app.return_value = mock_q3d_app
 
-    with (patch.object(harmonic_loss.pd, "read_csv", return_value=input_df),
-          patch.object(pd.DataFrame, "to_csv", autospec=True) as to_csv_mock):
+    with (
+        patch.object(harmonic_loss.pd, "read_csv", return_value=input_df),
+        patch.object(pd.DataFrame, "to_csv", autospec=True) as to_csv_mock,
+    ):
         assert harmonic_loss.main({"csv_path": "dummy.csv", "threshold": 0.5})
 
     assert to_csv_mock.call_count == 5

@@ -113,6 +113,7 @@ def mock_emit_app():
 
         yield mock_instance
 
+
 @pytest.fixture
 def mock_q3d_app():
     """Fixture to mock Q3D application."""
