@@ -161,9 +161,9 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         )
         browse_button.grid(row=0, column=2, pady=10, padx=15)
 
-        # Filter button and generate dataset
+        # Filter button, generate dataset and edit sources
         filter_button = ttk.Button(
-            self.root, text="Filter", command=lambda: callback(self), style="PyAEDT.TButton", name="create_button"
+            self.root, text="Edit Sources", command=lambda: callback(self), style="PyAEDT.TButton", name="create_button"
         )
         filter_button.grid(row=1, column=2, padx=15, pady=10)
 
@@ -173,10 +173,7 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
         info_button.grid(row=2, column=1, padx=15, pady=10)
 
 
-def main(extension_args) -> bool:
-    csv_path = extension_args.get("csv_path", EXTENSION_DEFAULT_ARGUMENTS["csv_path"])
-    threshold = extension_args.get("threshold", EXTENSION_DEFAULT_ARGUMENTS["threshold"])
-
+def main(data: ExtensionData) -> bool:
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -204,7 +201,7 @@ def main(extension_args) -> bool:
 
     sources = [source.name for source in aedtapp.boundaries_by_type["Source"]]
 
-    q3d_sources_unfiltered = pd.read_csv(csv_path, sep=",")
+    q3d_sources_unfiltered = pd.read_csv(data.csv_path, sep=",")
 
     # Delete a row if and only if both re and im are below the threshold value for all sources at that frequency.
     # Build per-source masks where True indicates that both parts of the source are below the threshold for that row.
@@ -216,7 +213,7 @@ def main(extension_args) -> bool:
         col_im = f"im({source}.I) [A]"
         re_vals = pd.to_numeric(df[col_re], errors="coerce").abs()
         im_vals = pd.to_numeric(df[col_im], errors="coerce").abs()
-        src_masks.append((re_vals < threshold) & (im_vals < threshold))
+        src_masks.append((re_vals < data.threshold) & (im_vals < data.threshold))
 
     # A row is removed only if every source mask is True for that row
     rows_all_small = pd.concat(src_masks, axis=1).all(axis=1) if src_masks else pd.Series(False, index=df.index)
