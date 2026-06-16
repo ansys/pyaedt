@@ -144,11 +144,11 @@ jobs:
     name: Check PR template
     # NOTE: Disable checking for dependabot and other automated PRs
     if: |
-      github.event.pull_request.title != 'CHORE: Pre-commit automatic update' &&
       !startsWith(github.event.pull_request.title, 'BUILD(uv):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(actions):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(pre-commit):') &&
-      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v')
+      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v') &&
+      github.event.pull_request.user.login != 'pyansys-automation'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read   # Required to read PR content for validation
