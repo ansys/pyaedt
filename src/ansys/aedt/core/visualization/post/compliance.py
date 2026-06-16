@@ -26,7 +26,6 @@ import copy
 from pathlib import Path
 import time
 
-from matplotlib.path import Path as MplPath
 import numpy as np
 from pyedb.generic.constants import unit_converter
 
@@ -39,6 +38,7 @@ from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
@@ -395,7 +395,7 @@ class VirtualComplianceGenerator(PyAedtBase):
             "type": report_type,
             "config": str(config_file),
             "traces": traces,
-            "pass_fail": True,  # nosec B105
+            "pass_fail": True,  # nosec
             "pass_fail_criteria": pass_fail_criteria,
             "parameter_name": parameter,
         }
@@ -1379,7 +1379,10 @@ class VirtualCompliance(PyAedtBase):
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
     @staticmethod
+    @requires_graphical_dependency("matplotlib")
     def points_in_polygon(points: np.ndarray, polygon: np.ndarray) -> np.ndarray:
+        from matplotlib.path import Path as MplPath
+
         path = MplPath(polygon)
         return path.contains_points(points)
 

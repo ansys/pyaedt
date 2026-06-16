@@ -88,7 +88,8 @@ def test_create_resistor(aedt_app) -> None:
 
 
 def test_create_capacitor(aedt_app) -> None:
-    mycap = aedt_app.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
+    mycap = aedt_app.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000], name="cap1")
+    assert aedt_app.modeler.schematic.refresh_all_ids()
     assert type(mycap.id) is int
     assert mycap.parameters["C"] == "1e-12"
     tol = 1e-12

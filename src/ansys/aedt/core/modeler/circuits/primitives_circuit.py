@@ -1385,7 +1385,7 @@ class CircuitComponents(PyAedtBase):
                         o.schematic_id = int(name[1].split(":")[0])
                         objID = int(o.schematic_id)
                     else:
-                        o.id = int(name[1])
+                        o.id = int(name[1]) if is_number(name[1]) else name[1]
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
 

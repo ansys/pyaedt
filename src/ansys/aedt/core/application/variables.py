@@ -953,7 +953,7 @@ class VariableManager(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> aedtapp = Maxwell3d(version="2025.2")
+        >>> aedtapp = Maxwell3d(version="2026.1")
 
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.
@@ -1567,7 +1567,7 @@ class Variable(PyAedtBase):
         prop = prop or self.name
         app = self._aedt_obj
         # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-        if self.has_definition_parameters:
+        if hasattr(app, "GetDesignName") and self.has_definition_parameters:
             inst_name = f"Instance:{app.GetName()}"
 
             if self.is_circuit_parameter:

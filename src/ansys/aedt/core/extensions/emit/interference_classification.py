@@ -61,7 +61,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._default_protection_levels = [30.0, -4.0, -30.0, -104.0]  # Damage, Overload, Intermod, Desensitization
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
         )

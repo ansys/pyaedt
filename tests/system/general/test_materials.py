@@ -164,6 +164,27 @@ def test_create_material(aedt_app) -> None:
         mat1.material_appearance = [11, 22]
 
 
+def test_material_value_file(aedt_app) -> None:
+    mat1 = aedt_app.materials.add_material("new_copper")
+    filename = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ds_1d.tab"
+
+    with pytest.raises(FileNotFoundError):
+        aedt_app.materials["new_copper"].permittivity = Path("invented.tab")
+
+    with pytest.raises(ValueError):
+        filename2 = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ds_3d.tab"
+        aedt_app.materials["new_copper"].permittivity = Path(filename2)
+
+    with pytest.raises(ValueError):
+        filename3 = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "ds_1d_invalid.tab"
+        aedt_app.materials["new_copper"].permittivity = Path(filename3)
+
+    mat1.permittivity = filename
+
+    assert len(mat1.permittivity.value) == 3
+    assert isinstance(mat1.permittivity.value, list)
+
+
 def test_create_modifiers(aedt_app) -> None:
     aedt_app.materials.add_material("new_copper")
     assert aedt_app.materials["new_copper"].mass_density.add_thermal_modifier_free_form(

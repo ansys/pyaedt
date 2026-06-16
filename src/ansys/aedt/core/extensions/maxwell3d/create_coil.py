@@ -110,7 +110,6 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=1,

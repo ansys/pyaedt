@@ -537,7 +537,6 @@ def add_custom_toolkit(
         os.environ[f"ANSYSEM_ROOT{version}"] = str(edt_root)
         ld_library_path_dirs_to_add = [
             f"{edt_root}/commonfiles/CPython/{python_version_new}/linx64/Release/python/lib",
-            f"{edt_root}/common/mono/Linux64/lib64",
             f"{edt_root}",
         ]
         if version < "232":

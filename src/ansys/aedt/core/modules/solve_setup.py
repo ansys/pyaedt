@@ -2229,7 +2229,7 @@ class Setup3DLayout(CommonSetup):
         edb = self._app.modeler.edb
         if not edb:
             return
-        net_primitives = edb.modeler.primitives_by_net
+        net_primitives = edb.layout.primitives_by_net
         primitive_dict = {}
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
@@ -3954,7 +3954,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         ... )
         >>> m2d.desktop_class.close_desktop()
         """
-        if self.setuptype != 5:
+        if self.setuptype != 5 and self.setuptype != 56:
             if enable:
                 self.props["SolveFieldOnly"] = True
             else:

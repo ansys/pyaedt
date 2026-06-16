@@ -29,7 +29,6 @@ import platform
 import shutil
 import subprocess  # nosec
 import sys
-import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -43,8 +42,9 @@ import PIL.ImageTk
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ToolTip
-from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update_on_startup
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_aedt_theme
 from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -68,8 +68,12 @@ class VersionManager:
     USER_GUIDE = (
         "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/version_manager.html"
     )
-    UI_WIDTH = 800
-    UI_HEIGHT = 400
+    UI_WIDTH = 650
+    UI_HEIGHT = 320
+    UI_MAX_WIDTH = 650
+    UI_MAX_HEIGHT = 320
+    UI_MIN_WIDTH = 450
+    UI_MIN_HEIGHT = 250
 
     @property
     def venv_path(self) -> str:
@@ -100,11 +104,19 @@ class VersionManager:
         from ansys.aedt.core.extensions.misc import get_aedt_version
         return get_aedt_version()
 
+    def _get_desktop(self):
+        if self.desktop is None:
+            self.desktop = get_desktop()
+        return self.desktop
+
     @property
     def personal_lib(self) -> str:
-        return self.desktop.personallib
+        personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
+        if personal_lib:
+            return personal_lib
+        return self._get_desktop().personallib
 
-    def __init__(self, ui, desktop) -> None:
+    def __init__(self, ui, desktop=None) -> None:
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
         self.desktop = desktop
@@ -119,8 +131,12 @@ class VersionManager:
         # Help for opening links
         self.help = Help()
 
-        self.theme.apply_light_theme(self.style)
-        self.theme_color = "light"
+        # Detect AEDT theme similarly to ExtensionCommon behavior.
+        self.theme_color = self._resolve_theme_color()
+        if self.theme_color == "dark":
+            self.theme.apply_dark_theme(self.style)
+        else:
+            self.theme.apply_light_theme(self.style)
 
         self.venv_information = tkinter.StringVar()
         self.pyaedt_info = tkinter.StringVar()
@@ -147,7 +163,14 @@ class VersionManager:
         self.root = ui
         self.root.iconphoto(True, photo)
         self.root.title(self.TITLE)
+        self.root.minsize(self.UI_MIN_WIDTH, self.UI_MIN_HEIGHT)
+        self.root.maxsize(self.UI_MAX_WIDTH, self.UI_MAX_HEIGHT)
         self.root.geometry(f"{self.UI_WIDTH}x{self.UI_HEIGHT}")
+
+        # Apply theme colours to root window.
+        theme_colors = self.theme.dark if self.theme_color == "dark" else self.theme.light
+        self.root.configure(bg=theme_colors["widget_bg"])
+        self.root.theme = self.theme_color
 
         # Main panel
         main_frame = ttk.PanedWindow(self.root, orient=tkinter.HORIZONTAL, style="TPanedwindow")
@@ -170,7 +193,21 @@ class VersionManager:
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         # Check for PyAEDT updates on startup
-        self.check_for_pyaedt_update_on_startup()
+        check_for_pyaedt_update_on_startup(
+            self.root,
+            self.personal_lib,
+            self.show_pyaedt_update_notification,
+        )
+
+    @staticmethod
+    def _resolve_theme_color() -> str:
+        """Resolve AEDT theme preference and normalize it to "light" or "dark"."""
+        theme_color = get_aedt_theme()
+        if "dark" in theme_color.lower():
+            return "dark"
+        if theme_color in ["light", "dark"]:
+            return theme_color
+        return "light"
 
     def toggle_theme(self) -> None:
         if self.theme_color == "light":
@@ -180,18 +217,45 @@ class VersionManager:
             self.set_light_theme()
             self.theme_color = "light"
 
+    def _apply_root_theme(self, colors: dict) -> None:
+        """Walk all non-ttk widgets and apply theme colours."""
+        self.root.configure(bg=colors["widget_bg"])
+        for widget in self._find_all_widgets(self.root):
+            if isinstance(widget, tkinter.Text):
+                widget.configure(
+                    background=colors["pane_bg"],
+                    foreground=colors["text"],
+                    highlightthickness=0,
+                    bd=0,
+                )
+            elif isinstance(widget, (tkinter.Canvas, tkinter.Listbox)):
+                widget.configure(
+                    background=colors["widget_bg"],
+                    highlightthickness=0,
+                    bd=0,
+                )
+
+    @staticmethod
+    def _find_all_widgets(parent: tkinter.Widget):
+        """Yield all descendant widgets of *parent*."""
+        for child in parent.winfo_children():
+            yield child
+            yield from VersionManager._find_all_widgets(child)
+
     def set_light_theme(self) -> None:
-        self.root.configure(bg=self.theme.light["widget_bg"])
+        self.root.theme = "light"
+        self._apply_root_theme(self.theme.light)
         self.theme.apply_light_theme(self.style)
         self.change_theme_button.config(text="\u263d")
 
     def set_dark_theme(self) -> None:
-        self.root.configure(bg=self.theme.dark["widget_bg"])
+        self.root.theme = "dark"
+        self._apply_root_theme(self.theme.dark)
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
 
     def create_button_menu(self) -> None:
-        menu_bar = ttk.Frame(self.root, height=30, style="PyAEDT.TFrame")
+        menu_bar = ttk.Frame(self.root, height=26, style="PyAEDT.TFrame")
         help_button = ttk.Button(
             menu_bar, text="Help", command=lambda: webbrowser.open(self.USER_GUIDE), style="PyAEDT.TButton"
         )
@@ -200,117 +264,119 @@ class VersionManager:
             menu_bar, text="\u263d", command=self.toggle_theme, style="PyAEDT.TButton"
         )
 
-        self.change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
-        help_button.pack(side=tkinter.LEFT, padx=5, pady=5)
+        self.change_theme_button.pack(side=tkinter.RIGHT, padx=4, pady=3)
+        help_button.pack(side=tkinter.LEFT, padx=4, pady=3)
 
         menu_bar.pack(fill="x")
 
     def create_ui_basic(self, parent: tkinter.Widget):
-        def create_ui_wheelhouse(frame: tkinter.Widget) -> None:
-            buttons = [
-                ["Update from wheelhouse", self.update_from_wheelhouse],
-                ["Update All", self.update_all],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        # Use a single grid inside the parent for a clean, aligned layout.
+        parent.grid_columnconfigure(1, weight=1)
 
-            loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
-            loading_label.pack(side="left", padx=5)
-            self.loading_labels["update_all"] = loading_label
+        # --- Row 0: PyAEDT ---
+        ttk.Label(
+            parent, textvariable=self.pyaedt_info, style="PyAEDT.TLabel",
+        ).grid(row=0, column=0, columnspan=2, sticky="w", padx=8, pady=(8, 2))
 
-        def create_ui_pyaedt(frame: tkinter.Widget) -> None:
-            label = ttk.Label(frame, textvariable=self.pyaedt_info, width=30, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        btn_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        btn_frame0.grid(row=0, column=2, sticky="e", padx=8, pady=(8, 2))
+        ttk.Button(
+            btn_frame0, text="Update", width=14,
+            command=self.update_pyaedt, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl0 = ttk.Label(btn_frame0, text="", style="PyAEDT.TLabel")
+        lbl0.pack(side="left")
+        self.loading_labels["pyaedt"] = lbl0
 
-            buttons = [
-                ["Update", self.update_pyaedt],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        # --- Row 1: PyEDB ---
+        ttk.Label(
+            parent, textvariable=self.pyedb_info, style="PyAEDT.TLabel",
+        ).grid(row=1, column=0, columnspan=2, sticky="w", padx=8, pady=2)
 
-            loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
-            loading_label.pack(side="left", padx=5)
-            self.loading_labels["pyaedt"] = loading_label
+        btn_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        btn_frame1.grid(row=1, column=2, sticky="e", padx=8, pady=2)
+        ttk.Button(
+            btn_frame1, text="Update", width=14,
+            command=self.update_pyedb, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl1 = ttk.Label(btn_frame1, text="", style="PyAEDT.TLabel")
+        lbl1.pack(side="left")
+        self.loading_labels["pyedb"] = lbl1
 
-        def create_ui_pyedb(frame: tkinter.Widget) -> None:
-            label = ttk.Label(frame, textvariable=self.pyedb_info, width=30, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        # --- Divider ---
+        divider = ttk.Frame(parent, style="PyAEDT.TFrame", height=1)
+        divider.grid(
+            row=2, column=0, columnspan=3, sticky="ew", padx=8, pady=6,
+        )
 
-            buttons = [
-                ["Update", self.update_pyedb],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
+        # --- Row 3: Wheelhouse actions ---
+        wh_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+        wh_frame.grid(row=3, column=0, columnspan=3, sticky="ew", padx=8, pady=2)
+        ttk.Button(
+            wh_frame, text="Update from wheelhouse", width=22,
+            command=self.update_from_wheelhouse, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 6))
+        ttk.Button(
+            wh_frame, text="Update All", width=14,
+            command=self.update_all, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 6))
+        lbl_wh = ttk.Label(wh_frame, text="", style="PyAEDT.TLabel")
+        lbl_wh.pack(side="left")
+        self.loading_labels["update_all"] = lbl_wh
 
-            loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
-            loading_label.pack(side="left", padx=5)
-            self.loading_labels["pyedb"] = loading_label
+        # --- Row 4: Environment info (fills remaining space) ---
+        info_frame = ttk.Frame(parent, style="PyAEDT.Card.TFrame")
+        info_frame.grid(
+            row=4, column=0, columnspan=3, sticky="nsew", padx=8, pady=(6, 8),
+        )
+        parent.grid_rowconfigure(4, weight=1)
 
-        def create_ui_info(frame: tkinter.Widget) -> None:
-            label = ttk.Label(frame, textvariable=self.venv_information, style="PyAEDT.TLabel")
-            label.pack(anchor="w")
-
-        frame0 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame1 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame2 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame3 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-
-        frame0.pack(padx=5, pady=5)
-        frame1.pack(padx=5, pady=5)
-        frame2.pack(side="top", padx=5, pady=5)
-        frame3.pack(side="top", padx=20, pady=20, fill="x")
-
-        create_ui_pyaedt(frame0)
-        create_ui_pyedb(frame1)
-        create_ui_wheelhouse(frame2)
-        create_ui_info(frame3)
+        info_label = ttk.Label(
+            info_frame, textvariable=self.venv_information,
+            style="PyAEDT.TLabel", wraplength=600, justify="left",
+        )
+        info_label.pack(anchor="nw", padx=6, pady=4, fill="x")
 
     def create_ui_advanced(self, parent: tkinter.Widget):
-        def create_ui_pyaedt(frame: tkinter.Widget) -> None:
-            label = ttk.Label(frame, text="PyAEDT", width=10, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        parent.grid_columnconfigure(2, weight=1)
 
-            buttons = [
-                ["Get Branch", self.get_pyaedt_branch],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
-            entry = ttk.Entry(frame, width=30, textvariable=self.pyaedt_branch_name)
-            entry.pack(side="left")
+        # --- Row 0: PyAEDT branch ---
+        ttk.Label(
+            parent, text="PyAEDT", width=8, style="PyAEDT.TLabel",
+        ).grid(row=0, column=0, sticky="w", padx=(8, 4), pady=6)
 
-            loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
-            loading_label.pack(side="left", padx=5)
-            self.loading_labels["pyaedt_branch"] = loading_label
+        ttk.Entry(
+            parent, width=28, textvariable=self.pyaedt_branch_name,
+        ).grid(row=0, column=1, sticky="w", padx=4, pady=6)
 
-        def create_ui_pyedb(frame: tkinter.Widget) -> None:
-            label = ttk.Label(frame, text="PyEDB", width=10, style="PyAEDT.TLabel")
-            label.pack(side="left")
+        adv_frame0 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        adv_frame0.grid(row=0, column=2, sticky="w", padx=4, pady=6)
+        ttk.Button(
+            adv_frame0, text="Get Branch", width=14,
+            command=self.get_pyaedt_branch, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl_ab0 = ttk.Label(adv_frame0, text="", style="PyAEDT.TLabel")
+        lbl_ab0.pack(side="left")
+        self.loading_labels["pyaedt_branch"] = lbl_ab0
 
-            buttons = [
-                ["Get Branch", self.get_pyedb_branch],
-            ]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
-            entry = ttk.Entry(frame, width=30, textvariable=self.pyedb_branch_name)
-            entry.pack(side="left")
+        # --- Row 1: PyEDB branch ---
+        ttk.Label(
+            parent, text="PyEDB", width=8, style="PyAEDT.TLabel",
+        ).grid(row=1, column=0, sticky="w", padx=(8, 4), pady=6)
 
-            loading_label = ttk.Label(frame, text="", style="PyAEDT.TLabel")
-            loading_label.pack(side="left", padx=5)
-            self.loading_labels["pyedb_branch"] = loading_label
+        ttk.Entry(
+            parent, width=28, textvariable=self.pyedb_branch_name,
+        ).grid(row=1, column=1, sticky="w", padx=4, pady=6)
 
-        frame0 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame1 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-
-        frame0.pack(padx=5, pady=5)
-        frame1.pack(padx=5, pady=5)
-
-        create_ui_pyaedt(frame0)
-        create_ui_pyedb(frame1)
+        adv_frame1 = ttk.Frame(parent, style="PyAEDT.TFrame")
+        adv_frame1.grid(row=1, column=2, sticky="w", padx=4, pady=6)
+        ttk.Button(
+            adv_frame1, text="Get Branch", width=14,
+            command=self.get_pyedb_branch, style="PyAEDT.TButton",
+        ).pack(side="left", padx=(0, 4))
+        lbl_ab1 = ttk.Label(adv_frame1, text="", style="PyAEDT.TLabel")
+        lbl_ab1.pack(side="left")
+        self.loading_labels["pyedb_branch"] = lbl_ab1
 
     @staticmethod
     def is_git_available() -> bool:
@@ -683,27 +749,6 @@ class VersionManager:
             except Exception:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
-    def check_for_pyaedt_update_on_startup(self) -> None:
-        """Spawn a background thread to check PyPI for a newer PyAEDT release."""
-        def worker() -> None:
-            log = logging.getLogger("Global")
-            try:
-                latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest:
-                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
-                    return
-                try:
-                    self.root.after(
-                        0,
-                        lambda: self.show_pyaedt_update_notification(latest, declined_file)
-                    )
-                except Exception:
-                    log.debug("PyAEDT update check: failed to schedule notification.", exc_info=True)
-            except Exception:
-                log.debug("PyAEDT update check: worker failed.", exc_info=True)
-
-        threading.Thread(target=worker, daemon=True).start()
-
     def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
@@ -714,7 +759,7 @@ class VersionManager:
             # Center dialog
             try:
                 self.root.update_idletasks()
-                width, height = 500, 150
+                width, height = 420, 130
                 x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
                 y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
                 dlg.geometry(f"{width}x{height}+{x}+{y}")
@@ -724,7 +769,7 @@ class VersionManager:
             # Create frame for label and changelog button
             label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             label_frame.pack(
-                padx=20, pady=(20, 10), expand=True, fill="both"
+                padx=12, pady=(12, 6), expand=True, fill="both"
             )
 
             ttk.Label(
@@ -759,7 +804,7 @@ class VersionManager:
             ToolTip(changelog_btn, "View changelog")
 
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
-            btn_frame.pack(padx=10, pady=(0, 10), fill="x")
+            btn_frame.pack(padx=8, pady=(0, 8), fill="x")
 
             def close_notification() -> None:
                 # Save the declined version to avoid showing again
@@ -803,7 +848,8 @@ def get_desktop():
 
 if __name__ == "__main__": # pragma: no cover
     # Initialize tkinter root window and run the app
-    desktop = get_desktop()
+    personal_lib = os.getenv("PYAEDT_PERSONAL_LIB", "").strip()
+    desktop = None if personal_lib else get_desktop()
     root = tkinter.Tk()
     app = VersionManager(root, desktop)
     root.mainloop()

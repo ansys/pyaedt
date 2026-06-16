@@ -115,6 +115,15 @@ USE_PYEDB_GRPC = config.get("use_pyedb_grpc", DEFAULT_CONFIG.get("use_pyedb_grpc
 
 os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
 
+# Override AEDT install directory if specified in local_config.json.
+# This allows tests to run against the workspace build_output instead
+# of the system-installed AEDT.
+AEDT_INSTALL_DIR = config.get("aedt_install_dir", None)
+if AEDT_INSTALL_DIR:
+    from ansys.aedt.core.internal.aedt_versions import aedt_versions
+    env_var = aedt_versions.get_version_env_variable(DESKTOP_VERSION)
+    os.environ[env_var] = AEDT_INSTALL_DIR
+
 # ================================
 # PyAEDT settings
 # ================================

@@ -32,10 +32,10 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Interaction:
-    def __init__(self, emit_obj, domain, revision):
+    def __init__(self, emit_obj, domain: InteractionDomain, revision):
         self.emit_project = emit_obj
         self.odesktop = self.emit_project.odesktop
-        self.domain = domain
+        self.domain: InteractionDomain = domain
         self.revision = revision
         self._instances = []
 
@@ -301,6 +301,48 @@ class Interaction:
         error = self._check_validity()
         if error:
             raise RuntimeError(error)
+
+    def export_results(self, file_path: str, continue_if_partial: bool = False) -> None:
+        """Export the results for this interaction to a file.
+
+        Every solved radio tuple in the current interaction (rows = victims,
+        columns = each individual aggressor plus the leftmost ``N to 1``
+        multi-aggressor cell) is written to ``file_path``. The file is
+        overwritten if it exists. The CSV is preceded by a ``#``-prefixed
+        header that captures the current state of the Result
+        Categorization filter toggles.
+
+        Parameters
+        ----------
+        file_path : str
+            The path to the file to export to.
+        continue_if_partial : bool, optional
+            When ``False`` (default), this method raises
+            :class:`RuntimeError` if any tuple in the selection has not
+            been simulated. When ``True``, the export proceeds with
+            whatever simulated rows are available.
+
+        Raises
+        ------
+        RuntimeError
+            If the export fails.
+        """
+        # Call ExportInteractionResults via COM
+        try:
+            self.emit_project._emit_com_module.ExportEmitResults(
+                self.revision.results_index,
+                "Selection",
+                file_path,
+                self.domain.receiver_name,
+                self.domain.receiver_band_name,
+                self.domain.receiver_channel_frequency,
+                self.domain.interferer_names,
+                self.domain.interferer_band_names,
+                self.domain.interferer_channel_frequencies,
+                continue_if_partial,
+            )
+        except Exception as e:
+            raise Exception(f"Failed to export results: {str(e)}") from e
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()

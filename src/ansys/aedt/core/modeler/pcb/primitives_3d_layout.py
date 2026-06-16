@@ -223,6 +223,33 @@ class Primitives3DLayout(PyAedtBase):
         return geom
 
     @pyaedt_function_handler()
+    def objects_by_polygon(self, polygon: list | object, layer: str) -> list:
+        """Retrieve the list of objects that belongs to a specific polygon.
+
+        Parameters
+        ----------
+        polygon : list
+            List of polygon points or AEDT polygon object.
+        layer : str
+            Name of the layer to filter.
+        """
+        if isinstance(polygon, list):
+            p = self.modeler.oeditor.Polygon()
+            for pp in polygon:
+                point = self.modeler.oeditor.Point()
+                point.SetX(pp[0])
+                point.SetY(pp[1])
+                p.AddPoint(point)
+            if polygon[-1] != polygon[0]:
+                point = self.modeler.oeditor.Point()
+                point.SetX(polygon[0][0])
+                point.SetY(polygon[0][1])
+                p.AddPoint(point)
+        else:
+            p = polygon
+        return self.modeler.oeditor.FindObjectsByPolygon(p, layer)
+
+    @pyaedt_function_handler()
     def objects_by_layer(self, layer: str, object_filter: str | list = None, include_voids: bool = False) -> list:
         """Retrieve the list of objects that belongs to a specific layer.
 

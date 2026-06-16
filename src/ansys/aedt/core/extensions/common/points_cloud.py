@@ -41,7 +41,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.aedt_constants import DesignType
-from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
@@ -72,7 +72,6 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
         )
@@ -222,7 +221,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         )
         output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
 
-        @graphics_required
+        @requires_graphical_dependency("pyvista")
         def preview() -> None:
             """Generate and visualize the point cloud."""
             import pyvista as pv

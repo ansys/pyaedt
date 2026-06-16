@@ -341,7 +341,7 @@ def test_add_script_to_menu_success(
             personal_lib=personal_lib,
         )
         if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
-            kwargs["aedt_version"] = "2025.2"
+            kwargs["aedt_version"] = "2026.1"
         result = add_script_to_menu(**kwargs)
 
         # Assert
@@ -393,7 +393,7 @@ def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_sessio
                 personal_lib=mock_desktop_session.personallib,
             )
             if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
-                kwargs["aedt_version"] = "2025.2"
+                kwargs["aedt_version"] = "2026.1"
             add_script_to_menu(**kwargs)
         mock_copy.assert_not_called()
 
@@ -413,7 +413,7 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
             personal_lib=mock_desktop_session.personallib,
         )
         if "aedt_version" in inspect.signature(add_script_to_menu).parameters:
-            kwargs["aedt_version"] = "2025.2"
+            kwargs["aedt_version"] = "2026.1"
         add_script_to_menu(**kwargs)
     mock_add_automation_tab.assert_called_with(
         "MyCustomToolkit",

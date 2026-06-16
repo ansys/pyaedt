@@ -38,6 +38,8 @@ This module contains these data classes for creating a material library:
 """
 
 import copy
+import csv
+from pathlib import Path
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -430,7 +432,7 @@ class MatProperty(PyAedtBase):
             return [i.value for i in self._property_value]
 
     @value.setter
-    def value(self, val: list[float] | float) -> None:
+    def value(self, val: str | list | Path | float | int) -> None:
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
             self.set_non_linear()
@@ -452,6 +454,22 @@ class MatProperty(PyAedtBase):
             if len(val) == 4:
                 self._property_value[0].value = val
                 self._material._update_props(self.name, val, update_aedt=self._material._material_update)
+        elif isinstance(val, Path) and val.suffix in [".csv", ".tab"]:
+            val = Path(val)
+            if not val.is_file():
+                raise FileNotFoundError(f"Argument {val} is not a file.")
+            datalist = []
+            with open(val) as f:
+                reader = csv.reader(f, delimiter="\t")
+                next(reader)
+                for row in reader:
+                    if len(row) != 2:
+                        raise ValueError(f"Expected 2 columns, got {len(row)}")
+                    if not (is_number(row[0]) and is_number(row[1])):
+                        raise ValueError(f"Expected numeric values, got {row[0]} and {row[1]}")
+                    datalist.append([float(row[0]), float(row[1])])
+                self.value = datalist
+
         else:
             self.type = "simple"
             self._property_value[0].value = val
@@ -2777,27 +2795,29 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         else:
             self.physics_type = ["Thermal"]
             self._props["PhysicsTypes"] = dict({"set": ["Thermal"]})
-        for property in SurfMatProperties.aedtname:
-            if property in self._props:
+        for surface_property in SurfMatProperties.aedtname:
+            if surface_property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
                     modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
                     for mod in modifiers:
                         if isinstance(modifiers[mod], list):
                             for one_tm in modifiers[mod]:
-                                if one_tm["Property:"] == property:
+                                if one_tm["Property:"] == surface_property:
                                     if mods:
                                         mods = [mods]
                                         mods.append(one_tm)
                                     else:
                                         mods = one_tm
                         else:
-                            if modifiers[mod]["Property:"] == property:
+                            if modifiers[mod]["Property:"] == surface_property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
+                self.__dict__["_" + surface_property] = MatProperty(
+                    self, surface_property, self._props[surface_property], mods
+                )
             else:
-                self.__dict__["_" + property] = MatProperty(
-                    self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
+                self.__dict__["_" + surface_property] = MatProperty(
+                    self, surface_property, SurfMatProperties.get_defaultvalue(aedtname=surface_property)
                 )
 
     @property

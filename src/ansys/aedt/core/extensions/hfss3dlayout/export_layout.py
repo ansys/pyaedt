@@ -68,11 +68,11 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         # Initialize the common extension class
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=3,
             toggle_column=1,
+            use_edb=True,
         )
 
         # Tkinter widgets

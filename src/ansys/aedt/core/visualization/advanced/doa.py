@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import sys
+from typing import TYPE_CHECKING
 
-from matplotlib.figure import Figure
 import numpy as np
 
 from ansys.aedt.core.base import PyAedtBase
@@ -32,6 +32,9 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -280,7 +283,7 @@ class DirectionOfArrival(PyAedtBase):
         show: bool = True,
         show_legend: bool = True,
         plot_size: tuple = (1920, 1440),
-        figure: Figure = None,
+        figure: "Figure" = None,
     ) -> ReportPlotter:
         """Create angle of arrival plot.
 

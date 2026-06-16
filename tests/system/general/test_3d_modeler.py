@@ -1298,6 +1298,18 @@ def test_project_sheet_success_with_single_object(aedt_app) -> None:
     assert sorted(EXPECTED_POSITIONS) == sorted(positions), "Object has not the expected vertices positions"
     aedt_app.modeler.delete(aedt_app.modeler.object_names)
 
+    box = aedt_app.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation")
+    name = box.name
+    assert aedt_app.modeler.get_objects_by_name(name.upper(), case_sensitive=False)
+    assert not aedt_app.modeler.get_objects_by_name(name.upper(), case_sensitive=True)
+
+    assert aedt_app.modeler.get_objects_by_name("box_*", case_sensitive=True)
+    assert aedt_app.modeler.get_objects_by_name("box_*", case_sensitive=False)
+    assert aedt_app.modeler.get_objects_by_name("*_project_*", case_sensitive=False)
+    assert aedt_app.modeler.get_objects_by_name("*_operation", case_sensitive=False)
+    assert not aedt_app.modeler.get_objects_by_name("Box_*", case_sensitive=True)
+    assert not aedt_app.modeler.get_objects_by_name("plane_*", case_sensitive=False)
+
 
 def test_project_sheet_success_with_multiple_objects(aedt_app) -> None:
     """Test project sheet method with multiple objects."""

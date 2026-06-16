@@ -11,7 +11,7 @@ They are accessible through the ``modeler`` property:
     from ansys.aedt.core import Maxwell2d
 
     app = Maxwell2d(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,
@@ -45,7 +45,7 @@ modeler, including all primitives methods and properties:
     from ansys.aedt.core import Maxwell2d
 
     app = Maxwell2d(
-        version="2025.2",
+        version="2026.1",
         non_graphical=False,
         new_desktop=True,
         close_on_exit=True,

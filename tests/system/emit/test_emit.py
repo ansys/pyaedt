@@ -93,6 +93,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
     from ansys.aedt.core.emit_core.results.revision import Revision
+    from ansys.aedt.core.emit_core.results.simulation import Interaction
     from ansys.aedt.core.emit_core.results.simulation import Simulation
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -3236,14 +3237,14 @@ def test_units(emit_app) -> None:
 )
 def test_hfss_phased_array_antennas(hfss_phased_array):
     rev: Revision = hfss_phased_array.results.analyze()
-    sim = rev.get_simulation()
+    sim: Simulation = rev.get_simulation()
     domain = InteractionDomain(hfss_phased_array)
     assert domain is not None
     assert sim.is_domain_valid(domain) == ""
 
     # run the interaction
     domain = InteractionDomain(hfss_phased_array)
-    interaction = sim.run(domain)
+    interaction: Interaction = sim.run(domain)
     assert interaction is not None
     assert interaction.is_valid()
     instance = interaction.get_worst_instance(ResultType.EMI)

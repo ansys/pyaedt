@@ -2541,18 +2541,18 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
-    Create an instance of Q2D using the 2025 R1 release and open
+    Create an instance of Q2D using the 2026 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> app = Q2d(version=252, project="myfile2.aedt")
+    >>> app = Q2d(version=261, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
-    Create an instance of Q2D using the 2025 R1 student version and open
+    Create an instance of Q2D using the 2026 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> app = Q2d(version="252", project="myfile3.aedt", student_version=True)
+    >>> app = Q2d(version="261", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...

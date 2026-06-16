@@ -84,7 +84,6 @@ class FieldsDistributionExtension(ExtensionCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=6,
@@ -512,13 +511,17 @@ def main(data: FieldsDistributionExtensionData) -> bool:
             if len(tmp) > 1:
                 csv_data.append(tmp)
 
-    if Path(export_file).suffix == ".csv" or Path(export_file).suffix == ".tab":
-        output_file = Path(export_file).with_suffix(Path(export_file).suffix)
-        write_csv(output_file, csv_data)
-    elif Path(export_file).suffix == ".npy":
-        output_file = Path(export_file).with_suffix(".npy")
-        array = np.array(csv_data)
-        np.save(output_file, array)
+    output_file = Path(export_file)
+    match output_file.suffix:
+        case ".csv":
+            write_csv(str(output_file), csv_data)
+        case ".tab":
+            write_csv(str(output_file), csv_data, delimiter="\t")
+        case ".npy":
+            array = np.array(csv_data)
+            np.save(output_file, array)
+        case _:
+            raise AEDTRuntimeError(f"{output_file.suffix} is not supported.")
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)

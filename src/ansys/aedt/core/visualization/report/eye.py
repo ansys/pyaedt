@@ -79,7 +79,7 @@ class AMIConturEyeDiagram(CommonReport):
         expr_head = "Eye"
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
-            expr = expr_dict["name"]
+            expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
             if ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
@@ -97,7 +97,7 @@ class AMIConturEyeDiagram(CommonReport):
     @expressions.setter
     def expressions(self, value: list | dict | str) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append = value
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:
@@ -521,7 +521,7 @@ class AMIEyeDiagram(CommonReport):
             expr_head = "Eye"
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
-            expr = expr_dict["name"]
+            expr = expr_dict["name"] if isinstance(expr_dict, dict) else expr_dict
             if ".int_ami" not in expr and ("amiprobe" not in expr.lower() and "amisource" not in expr.lower()):
                 qtype = int(self.quantity_type)
                 if qtype == 0:
@@ -537,6 +537,23 @@ class AMIEyeDiagram(CommonReport):
             else:
                 new_exprs.append(expr)
         return new_exprs
+
+    @expressions.setter
+    def expressions(self, value: list | dict | str) -> None:
+        if isinstance(value, dict):
+            self._legacy_props["expressions"] = [value]
+        elif isinstance(value, list):
+            self._legacy_props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self._legacy_props["expressions"].append(el)
+                else:
+                    self._legacy_props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self._legacy_props["expressions"], list):
+                self._legacy_props["expressions"].append({"name": value})
+            else:
+                self._legacy_props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -1076,12 +1093,12 @@ class EyeDiagram(AMIEyeDiagram):
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
         if self._legacy_props.get("expressions", None) is None:
             return []
-        return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
+        return [k.get("name", None) if isinstance(k, dict) else k for k in self._legacy_props["expressions"]]
 
     @expressions.setter
     def expressions(self, value: list | dict | str) -> None:
         if isinstance(value, dict):
-            self._legacy_props["expressions"].append = value
+            self._legacy_props["expressions"] = [value]
         elif isinstance(value, list):
             self._legacy_props["expressions"] = []
             for el in value:

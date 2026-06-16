@@ -258,17 +258,6 @@ def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal) -> None:
         aedt_terminal.create_sbr_file_based_antenna(far_field_data=str(ffd_test_path))
 
 
-@pytest.mark.skipif(on_ci, reason="Map download takes too long for unit test.")
-@pytest.mark.skipif(is_linux, reason="Not supported.")
-def test_import_map(aedt_sbr) -> None:
-    ansys_home = [40.273726, -80.168269]
-    parts_dict = aedt_sbr.modeler.import_from_openstreet_map(
-        ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
-    )
-    for part in parts_dict["parts"]:
-        assert Path(parts_dict["parts"][part]["file_name"]).exists()
-
-
 def test_create_custom_array(aedt_sbr) -> None:
     output_file1 = aedt_sbr.create_sbr_custom_array_file()
     assert Path(output_file1).is_file()

@@ -34,6 +34,7 @@ import toml
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+from tests.conftest import DESKTOP_VERSION
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -50,6 +51,8 @@ MOCK_TOML_CONTENT = {
 }
 MOCK_CALL_OPEN = mock_open(read_data=MOCK_CONTENT)
 ORIGINAL_CALL_OPEN = open
+
+pytestmark = pytest.mark.skipif(DESKTOP_VERSION == "2026.1", reason="Skipped for AEDT version 2026.1")
 
 
 @pytest.fixture

@@ -33,7 +33,7 @@ from ansys.aedt.core.extensions.installer.extension_manager import ExtensionMana
 def disable_pyaedt_update_check(monkeypatch):
     """Prevent ExtensionManager from starting the update-check thread during tests."""
     monkeypatch.setattr(
-        "ansys.aedt.core.extensions.installer.extension_manager.ExtensionManager.check_for_pyaedt_update_on_startup",
+        "ansys.aedt.core.extensions.installer.extension_manager.check_for_pyaedt_update_on_startup",
         lambda self: None,
     )
     yield

@@ -9,7 +9,7 @@ You can initiate AEDT in non-graphical mode from Python using this code:
     import ansys.aedt.core
 
     with ansys.aedt.core.Desktop(
-        version="2025.2",
+        version="2026.1",
         non_graphical=True,
         new_desktop=True,
         close_on_exit=True,

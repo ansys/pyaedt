@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report import emi as report_emi
 from ansys.aedt.core.visualization.report import eye as report_eye
@@ -55,6 +55,7 @@ from ansys.aedt.core.visualization.report import netlist as report_netlist
 from ansys.aedt.core.visualization.report import standard as report_standard
 
 if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
     from ansys.aedt.core.visualization.report.emi import EMIReceiver
     from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
     from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
@@ -1588,7 +1589,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Maxwell 2D Example - Field report on a polyline
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2")
+        >>> m2d = Maxwell2d(version="2026.1")
         Setup model
         >>> circ = m2d.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
         >>> poly = m2d.modeler.create_polyline(points=[[8, 8, 0], [8, -10, 0]], name="Poly1")
@@ -1611,7 +1612,7 @@ class PostProcessorCommon(PyAedtBase):
         Circuit Netlist Example
         >>> from ansys.aedt.core import CircuitNetlist
         >>> from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
-        >>> cir = CircuitNetlist(version="2025.2")
+        >>> cir = CircuitNetlist(version="2026.1")
         To get the available report solution there are two options:
         >>> solutions = cir.post.available_report_solutions()[0]
         or
@@ -1985,7 +1986,13 @@ class PostProcessorCommon(PyAedtBase):
                     report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
+                try:
+                    return self._report_plotter(
+                        report, show=show, snapshot_path=snapshot_path, width=width, height=height
+                    )
+                except Exception:
+                    self.logger.error("Failed to create report.")
+                    return False
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -2001,8 +2008,9 @@ class PostProcessorCommon(PyAedtBase):
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
+    @requires_graphical_dependency("matplotlib")
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> ReportPlotter:
+    def _report_plotter(self, report, show: bool = True, snapshot_path="", width=800, height=450) -> "ReportPlotter":
         """Create a Matplotlib plot from a report.
 
         Parameters
@@ -2023,6 +2031,8 @@ class PostProcessorCommon(PyAedtBase):
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
+        if "__EyeOpening" in report.variations:
+            report.variations["__EyeOpening"] = ["All"]
         report_plotter = ReportPlotter(solution_data=sols)
         report_plotter.width = width
         report_plotter.height = height
@@ -2057,6 +2067,10 @@ class PostProcessorCommon(PyAedtBase):
         except KeyError:
             pass
         try:
+            report_plotter.grid_enable_minor_y = report._legacy_props["general"]["grid"]["minor_y"]
+        except KeyError:
+            pass
+        try:
             report_plotter.grid_color = [i / 255 for i in report._legacy_props["general"]["grid"]["major_color"]]
         except KeyError:
             pass
@@ -2064,8 +2078,8 @@ class PostProcessorCommon(PyAedtBase):
             report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
-        sw = [sols.primary_sweep_values]
         for curve in sols.expressions:
+            sw = [sols.primary_sweep_values]
             if "__Amplitude" in sols.intrinsics and "__UnitInterval" in sols.intrinsics:
                 x, y = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
                 sw = [x[:, 0], x[:, 1], y]
@@ -2087,6 +2101,10 @@ class PostProcessorCommon(PyAedtBase):
                     props["trace_width"] = pp["width"]
                 except KeyError:
                     pass
+                try:
+                    props["show_symbol"] = pp["show_symbol"]
+                except KeyError:
+                    props["show_symbol"] = False
                 try:
                     props["trace_color"] = [i / 255 for i in pp["color"]]
                 except KeyError:
@@ -2869,11 +2887,7 @@ class Reports(PyAedtBase):
                     report_cat = "Statistical Eye"
                 rep = report_eye.AMIEyeDiagram(self._post_app, report_cat, setup)
                 rep.quantity_type = quantity_type
-                expressions = self._retrieve_default_expressions(expressions, rep, setup)
-                if isinstance(expressions, list):
-                    rep._legacy_props["expressions"] = expressions
-                else:
-                    rep._legacy_props["expressions"] = [expressions]
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 return rep
 
             else:
@@ -2992,7 +3006,7 @@ class Reports(PyAedtBase):
         --------
         Initialize Circuit Netlist.
         >>> from ansys.aedt.core import CircuitNetlist
-        >>> cir = CircuitNetlist(version="2025.2")
+        >>> cir = CircuitNetlist(version="2026.1")
         Create a report object (not in AEDT) for a transient analysis.
         >>> new_report = cir.post.reports_by_category.circuit_netlist(
         ...     expressions="V(net_20,0)", setup="NexximTransient", domain="Time", primary_sweep_variable="Time"

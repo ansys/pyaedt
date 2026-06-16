@@ -35,7 +35,7 @@ from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculato
 @pytest.fixture
 def mock_app(tmp_path_factory, request):
     app = MagicMock()
-    app.aedt_version_id = getattr(request, "param", "2025.2")
+    app.aedt_version_id = getattr(request, "param", "2026.1")
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
     app.logger = MagicMock()
@@ -49,7 +49,7 @@ def mock_app(tmp_path_factory, request):
 @pytest.fixture
 def mock_app_array(tmp_path_factory, request):
     app = MagicMock()
-    app.aedt_version_id = getattr(request, "param", "2025.2")
+    app.aedt_version_id = getattr(request, "param", "2026.1")
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
     app.logger = MagicMock()

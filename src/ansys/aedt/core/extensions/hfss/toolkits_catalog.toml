@@ -41,6 +41,7 @@ url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions
 icon = "../common/images/large/cloud.png"
 name = "Point Cloud Generator"
 script = "../common/points_cloud.py"
+optional = true
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
 
@@ -57,6 +58,13 @@ name = "MCAD Assembly"
 script = "mcad_assembly.py"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/mcad_assembly.html"
+
+[Fresnel]
+name = "Fresnel"
+script = "fresnel.py"
+icon = "images/large/fresnel.png"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/fresnel.html"
 
 [AntennaWizard]
 name = "Antenna Toolkit"

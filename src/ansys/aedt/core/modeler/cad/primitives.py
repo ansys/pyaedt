@@ -27,6 +27,7 @@
 from __future__ import annotations
 
 import copy
+import fnmatch
 import math
 import os
 from pathlib import Path
@@ -4496,9 +4497,11 @@ class GeometryModeler(Modeler, PyAedtBase):
         str
             Name of the bondwire created.
         """
-        old_bondwire = self.get_object_from_name(assignment)
-        if not old_bondwire:
-            return False
+        objects = self.get_objects_by_name(assignment)
+        if objects:
+            old_bondwire = objects[0]
+        else:
+            raise ValueError(f"Assignment {assignment} does not match an object.")
         edges = old_bondwire.edges
         faces = old_bondwire.faces
         centers = []
@@ -7601,7 +7604,57 @@ class GeometryModeler(Modeler, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def get_object_from_name(self, assignment: str) -> Object3d:
+    def get_objects_by_name(
+        self,
+        assignment: str,
+        case_sensitive: bool = True,
+    ) -> list[Object3d]:
+        """Return the objects whose names match a wildcard pattern.
+
+        The ``*`` character acts as a wildcard that matches any sequence of
+        characters (including none). The matching mode is inferred
+        automatically from the position of ``*`` in ``assignment``:
+
+        Parameters
+        ----------
+        assignment : str
+            Wildcard pattern to match against object names.
+            Use ``*`` as a wildcard for any sequence of characters.
+        case_sensitive : bool, optional
+            Whether the match is case-sensitive. The default is ``True``.
+
+        Returns
+        -------
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Objects whose names satisfy the pattern.
+
+        Examples
+        --------
+        # Exact match
+        >>> objs = modeler.get_objects_by_name("Patch_1")
+
+        # All objects whose name starts with "Substrate"
+        >>> objs = modeler.get_objects_by_name("Substrate*")
+
+        # All objects whose name ends with "_gnd"
+        >>> objs = modeler.get_objects_by_name("*_gnd")
+
+        # All objects whose name contains "patch"
+        >>> objs = modeler.get_objects_by_name("*patch*", case_sensitive=False)
+
+        # Mid-string wildcard: names like "Sub_1", "Sub_gnd_1".
+        >>> objs = modeler.get_objects_by_name("Sub*_1")
+        """
+        names = list(self.objects_by_name.keys())
+        if case_sensitive:
+            matched = [n for n in names if fnmatch.fnmatchcase(n, assignment)]
+        else:
+            pat = assignment.lower()
+            matched = [n for n in names if fnmatch.fnmatchcase(n.lower(), pat)]
+        return [self.objects_by_name[n] for n in matched]
+
+    @pyaedt_function_handler()
+    def get_object_from_name(self, assignment: str) -> Object3d | None:
         """Return the object from an object name.
 
         Parameters
@@ -7616,7 +7669,6 @@ class GeometryModeler(Modeler, PyAedtBase):
 
         """
         if assignment in self.object_names:
-            # object_id = self.get_obj_id(objname)
             return self.objects[assignment]
 
     @pyaedt_function_handler()

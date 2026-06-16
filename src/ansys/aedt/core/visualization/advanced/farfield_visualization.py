@@ -40,6 +40,8 @@ if TYPE_CHECKING:
     from pyvista import Plotter
     from pyvista import UnstructuredGrid
 
+    from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -49,9 +51,8 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
-from ansys.aedt.core.internal.checks import graphics_required
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
+from ansys.aedt.core.internal.checks import is_notebook
+from ansys.aedt.core.internal.checks import requires_graphical_dependency
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
 
@@ -87,7 +88,7 @@ class FfdSolutionData(PyAedtBase):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    >>> app = Hfss(version="2025.2", design="Antenna")
+    >>> app = Hfss(version="2026.1", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.desktop_class.close_desktop()
@@ -805,7 +806,7 @@ class FfdSolutionData(PyAedtBase):
         polar: bool = True,
         max_theta: int = 180,
         show: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a contour plot of a specified quantity in Matplotlib.
 
         Parameters
@@ -847,7 +848,7 @@ class FfdSolutionData(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss(version="2025.2", design="Antenna")
+        >>> app = Hfss(version="2026.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -855,6 +856,8 @@ class FfdSolutionData(PyAedtBase):
         >>> data.plot_contour()
 
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if not title:
             title = quantity
 
@@ -908,7 +911,7 @@ class FfdSolutionData(PyAedtBase):
         show: bool = True,
         is_polar: bool = False,
         show_legend: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a 2D plot of a specified quantity in Matplotlib.
 
         Parameters
@@ -952,13 +955,15 @@ class FfdSolutionData(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss(version="2025.2", design="Antenna")
+        >>> app = Hfss(version="2026.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if isinstance(output_file, Path):
             output_file = str(output_file)
         data = self.combine_farfield(phi, theta)
@@ -1025,7 +1030,7 @@ class FfdSolutionData(PyAedtBase):
         quantity_format: str = "dB10",
         output_file: str = None,
         show: bool = True,
-    ) -> ReportPlotter:
+    ) -> "ReportPlotter":
         """Create a 3D chart of a specified quantity in Matplotlib.
 
         Parameters
@@ -1059,13 +1064,15 @@ class FfdSolutionData(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss(version="2025.2", design="Antenna")
+        >>> app = Hfss(version="2026.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
             raise Exception("Far field quantity is not available.")
@@ -1097,7 +1104,7 @@ class FfdSolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    @graphics_required
+    @requires_graphical_dependency("pyvista")
     def plot_3d(
         self,
         quantity: str = "RealizedGain",
@@ -1155,7 +1162,7 @@ class FfdSolutionData(PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss(version="2025.2", design="Antenna")
+        >>> app = Hfss(version="2026.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"

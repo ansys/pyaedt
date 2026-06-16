@@ -184,7 +184,9 @@ CPython 服务器：
 
 from ansys.aedt.core.common_rpc import pyaedt_service_manager
 
-pyaedt_service_manager()
+from ansys.aedt.core.common_rpc import pyaedt_service_manager
+
+pyaedt_service_manager(host="host name")
 ```
 
 任意的 Windows 客户端：
@@ -192,9 +194,9 @@ pyaedt_service_manager()
 ``` python
 from ansys.aedt.core.common_rpc import create_session
 
-cl1 = create_session("server_name")
+cl1 = create_session("host name")
 cl1.aedt(port=50000, non_graphical=False)
-hfss = Hfss(machine="server_name", port=50000)
+hfss = Hfss(machine="host name", port=50000)
 # 在这里编辑您的代码
 ```
 

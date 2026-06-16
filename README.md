@@ -269,36 +269,44 @@ with Circuit(version="2022.2", non_graphical=False) as circuit:
 
 ## Remote application call
 
-You can make a remote application call on a CPython server
-or any Windows client machine.
-
-On a CPython Server:
+You can make a remote application call on a CPython server. Start the service manager:
 
 ``` python
-# Launch PyAEDT remote server on CPython
-
 from ansys.aedt.core.common_rpc import pyaedt_service_manager
 
-pyaedt_service_manager()
+pyaedt_service_manager(host="host name")
 ```
 
-On any Windows client machine:
+The host name can be the IP address or the host name of the server machine.
+
+On a client machine:
 
 ``` python
+from ansys.aedt.core import settings
 from ansys.aedt.core.common_rpc import create_session
+from ansys.aedt.core.hfss import Hfss
 
-cl1 = create_session("server_name")
-cl1.aedt(port=50000, non_graphical=False)
-hfss = Hfss(machine="server_name", port=50000)
-# your code here
+# Required for the Hfss call below to behave as expected.
+# If not set, the client attempts to launch a local instance
+# of AEDT instead of connecting to the remote server.
+settings.grpc_local = False
+
+cl1 = create_session("host name", client_port=50010)
+cl1.aedt(host="host name", port=50011, non_graphical=False)
+hfss = Hfss(machine="host name", port=50011)
+box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 ```
+
+Port numbers can be adjusted as needed.
+The host name should align with the host name or
+IP address used to start the service manager.
 
 ## Variables
 
 ``` python
-from ansys.aedt.core.HFSS import HFSS
+from ansys.aedt.core.Hfss import Hfss
 
-with HFSS as hfss:
+with Hfss as hfss:
     hfss["dim"] = "1mm"  # design variable
     hfss["$dim"] = "1mm"  # project variable
 ```

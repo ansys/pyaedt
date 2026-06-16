@@ -43,7 +43,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -54,8 +53,6 @@ from ansys.aedt.core.modules.design_xploration import SetupOpti
 from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.mesh_icepak import MeshRegion
-from ansys.aedt.core.modules.mesh_icepak import SubRegion
 
 
 def _find_datasets(d, out_list) -> None:
@@ -1642,6 +1639,9 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name: str, props):
+        from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+        from ansys.aedt.core.modules.mesh_icepak import SubRegion
+
         if name == "Settings":
             if not self.options.skip_import_if_exists:
                 for el in props:
@@ -2020,6 +2020,8 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
 
     @pyaedt_function_handler
     def _update_native_components(self, native_name, native_dict) -> bool:
+        from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+
         def apply_operations_to_native_components(obj, operation_dict, native_dict) -> bool:  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])

@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import TYPE_CHECKING
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
 
 class AnalysisCircuitNetlist(Analysis, PyAedtBase):
@@ -107,7 +111,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
             self._post = self.post
 
     @property
-    def post(self) -> PostProcessorCircuit:
+    def post(self) -> "PostProcessorCircuit":
         """PostProcessor.
 
         Returns

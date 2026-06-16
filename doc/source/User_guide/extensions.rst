@@ -176,6 +176,13 @@ They are small automated workflows with a simple GUI.
 
             Automated assembly workflow.
 
+   .. grid-item-card:: Fresnel coefficients
+            :link: pyaedt_extensions_doc/hfss/fresnel
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
@@ -357,7 +364,7 @@ The Python script requires a common initial part to define the port and the vers
         version = os.environ["PYAEDT_DESKTOP_VERSION"]
     else:
         port = 0
-        version = "2025.2"
+        version = "2026.1"
 
     # your pyaedt script
     app = ansys.aedt.core.Desktop(new_desktop=False, version=version, port=port)

@@ -78,8 +78,8 @@ You can customize the startup with these options:
 
 .. code-block:: bash
 
-    pyaedt start --version 2025.2
-    pyaedt start -v 2025.2
+    pyaedt start --version 2026.1
+    pyaedt start -v 2026.1
 
 **Non-Graphical Mode**
 
@@ -113,7 +113,7 @@ You can use multiple options together:
 
 .. code-block:: bash
 
-    pyaedt start -v 2025.2 -ng -p 50051
+    pyaedt start -v 2026.1 -ng -p 50051
 
 
 Stop AEDT
@@ -179,7 +179,7 @@ When you run ``pyaedt attach``, you'll see output like this:
 
     Found 2 AEDT process(es):
 
-      1. PID: 12345 | Version: 2025.2 | Port: 50051
+      1. PID: 12345 | Version: 2026.1 | Port: 50051
       2. PID: 67890 | Version: 2025.1 | Port: COM mode
 
     Select process number (1-2) or 'q' to quit:
@@ -243,7 +243,7 @@ You can also set individual values directly. For example:
 
 .. code-block:: bash
 
-    pyaedt config test desktop-version 2025.2
+    pyaedt config test desktop-version 2026.1
     pyaedt config test non-graphical true
     pyaedt config test use-grpc true
 
@@ -394,7 +394,7 @@ Here are some common workflows using the CLI:
 .. code-block:: bash
 
     # Start AEDT
-    pyaedt start -v 2025.2
+    pyaedt start -v 2026.1
 
     # Check it's running
     pyaedt processes
@@ -407,7 +407,7 @@ Here are some common workflows using the CLI:
 .. code-block:: bash
 
     # Start AEDT
-    pyaedt start -v 2025.2
+    pyaedt start -v 2026.1
 
     # List processes to get PID
     pyaedt processes
@@ -443,7 +443,7 @@ Here are some common workflows using the CLI:
     pyaedt config test
 
     # Or set values directly
-    pyaedt config test desktop-version 2025.2
+    pyaedt config test desktop-version 2026.1
 
 **Install PyAEDT Panels**
 
@@ -508,7 +508,7 @@ If you get "Access denied" errors:
 Common issues when starting AEDT:
 
 * Verify AEDT is installed and in your system PATH
-* Check the version number is correct (for example, 2025.1, 2025.2)
+* Check the version number is correct (for example, 2025.1, 2025.2 or 2026.1)
 * Ensure license server is available
 
 **Configuration Not Found**

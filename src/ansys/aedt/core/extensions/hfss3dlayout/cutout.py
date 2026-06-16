@@ -80,12 +80,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
-        super().__init__(
-            EXTENSION_TITLE,
-            theme_color="light",
-            withdraw=withdraw,
-            add_custom_content=False,
-        )
+        super().__init__(EXTENSION_TITLE, withdraw=withdraw, add_custom_content=False, use_edb=True)
         self.data: CutoutData = CutoutData()
         # NOTE: Objects net are loaded only once, if a new project/design is opened
         # the extension has to be opened again or this value will not refresh.
@@ -210,7 +205,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
         if not self.aedt_application.modeler.edb:
             self.release_desktop()
             raise AEDTRuntimeError("Extension cannot be used with an empty HFSS 3D Layout design.")
-        for net, net_objs in self.aedt_application.modeler.edb.modeler.primitives_by_net.items():
+        for net, net_objs in self.aedt_application.modeler.edb.layout.primitives_by_net.items():
             res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():
             res[net_obj.net_name].append(net_obj.aedt_name)

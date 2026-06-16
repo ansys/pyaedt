@@ -43,6 +43,7 @@ EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 def delete_downloads() -> None:
     """Delete all downloaded examples to free space or update the files."""
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
+    return True
 
 
 def _download_file(
@@ -92,7 +93,7 @@ def _download_file(
             )
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         raise AEDTRuntimeError(f"Failed to download file from URL {github_relative_path}.") from e
 
     return local_path.resolve()
@@ -150,7 +151,7 @@ def list_examples_files(folder) -> list:
     folder_prefix = folder if folder.endswith("/") else folder + "/"
     url = "https://api.github.com/repos/ansys/example-data/git/trees/main?recursive=1"
     headers = {"Accept": "application/vnd.github.v3+json"}
-    response = requests.get(url, headers=headers)  # nosec B113 : this is a trusted URL
+    response = requests.get(url, headers=headers)  # nosec B113
     response.raise_for_status()
     tree = response.json()["tree"]
 
@@ -243,7 +244,7 @@ def download_aedb(local_path: str | Path = None) -> str:
 
 
 @pyaedt_function_handler()
-def download_edb_merge_utility(force_download: bool = False, local_path: str | Path = None) -> str:
+def download_edb_merge_utility(force_download: bool = False, local_path: str | Path = None) -> str:  # pragma: no cover
     """Download an example of WPF Project which allows to merge 2aedb files.
 
     If example files have already been downloaded, the download is

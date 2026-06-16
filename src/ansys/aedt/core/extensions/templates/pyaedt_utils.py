@@ -126,18 +126,16 @@ def environment_variables(oDesktop):
     else:
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
     os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
+    if version > "2025.2":
+        os.environ["PYAEDT_GLOBAL_THEME"] = str(oDesktop.GetRegistryString("Desktop/ColorScheme"))
     if is_linux:
+        # Path of AEDT installation, needed for loading EDB DLLs
         edt_root = os.path.normpath(oDesktop.GetExeDir())
+        os.environ["PYAEDT_DESKTOP_PATH"] = edt_root
+
         reduced_version = version[2:].replace(".", "")
         os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
-        ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
-            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
-            "{}/common/mono/Linux64/lib64".format(edt_root),
-            "{}/Delcross".format(edt_root),
-            "{}".format(edt_root),
-        ]
-        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
         if version > "2023.1":
             os.environ["TCL_LIBRARY"] = os.path.join(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"

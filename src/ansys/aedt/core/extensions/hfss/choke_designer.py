@@ -66,7 +66,6 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=0,

@@ -30,7 +30,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-import subprocess  # nosec B404 - validated git calls only
+import subprocess  # nosec B404
 import sys
 
 
@@ -134,7 +134,7 @@ def get_changed_files(base_ref: str = "origin/main"):
         # Find merge base if comparing against a branch
         if base_ref not in ["HEAD", "HEAD~1"] and "/" in base_ref:
             try:
-                merge_base_result = subprocess.run(  # nosec B603 - controlled git args
+                merge_base_result = subprocess.run(  # nosec B603
                     [git_executable, "merge-base", base_ref, "HEAD"],
                     capture_output=True,
                     text=True,
@@ -148,7 +148,7 @@ def get_changed_files(base_ref: str = "origin/main"):
                 pass
 
         # Get list of changed files compared to base_ref
-        result = subprocess.run(  # nosec B603 - controlled git args
+        result = subprocess.run(  # nosec B603
             [git_executable, "diff", "--name-only", base_ref, "HEAD"],
             capture_output=True,
             text=True,
@@ -204,12 +204,12 @@ def _get_tests_requirements(lockfile_content=None):
             file_handle.write(lockfile_content)
 
     try:
-        result = subprocess.run(  # nosec B603 - controlled uv args
+        result = subprocess.run(
             ["uv", "export", "--no-dev", "--group", "tests", "--no-hashes", "--no-header", "--frozen"],
             capture_output=True,
             text=True,
             check=True,
-        )
+        )  # nosec B603, B607
         return result.stdout
     finally:
         if lockfile_content is not None and Path("uv.lock.backup").exists():
@@ -229,7 +229,7 @@ def _tests_dependencies_changed(base_ref: str) -> bool:
             raise SystemExit(1)
 
         git_executable = _get_git_executable()
-        git_uv_lock = subprocess.check_output(  # nosec B603 - controlled git args
+        git_uv_lock = subprocess.check_output(  # nosec B603
             [git_executable, "show", f"{base_ref}:uv.lock"]
         )
         old_reqs = _get_tests_requirements(git_uv_lock)
@@ -366,7 +366,7 @@ def analyze_changes(base_ref: str = "origin/main"):
                 raise SystemExit(1)
 
             git_executable = _get_git_executable()
-            old_code = subprocess.run(  # nosec B603 - controlled git args
+            old_code = subprocess.run(  # nosec B603
                 [git_executable, "show", f"{base_ref}:{git_path}"],
                 capture_output=True,
                 text=True,
