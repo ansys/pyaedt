@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import math
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -1002,7 +1002,7 @@ class SolutionData(PyAedtBase):
         coord_system_center: list = None,
         db_val: bool = False,
         num_frames: int = None,
-        csv_path: str = None,
+        csv_path: str | Path | None = None,
         csv_file_header: str = "res_",
     ) -> str:
         """Save IFFT matrix to a list of CSV files (one per time step).
@@ -1029,6 +1029,12 @@ class SolutionData(PyAedtBase):
         str
             Path to file containing the list of csv files.
         """
+        if csv_path is None:
+            settings.logger.warning("No path provided. Using default path: ./fft_csv_files/")
+            csv_path = Path("./fft_csv_files/")
+        else:
+            csv_path = Path(csv_path)
+
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
@@ -1043,15 +1049,15 @@ class SolutionData(PyAedtBase):
         else:
             frames = t_matrix.shape[0]
         csv_list = []
-        if os.path.exists(csv_path):
-            files = [os.path.join(csv_path, f) for f in os.listdir(csv_path) if csv_file_header in f and ".csv" in f]
+        if csv_path.exists():
+            files = [csv_path / f for f in csv_path.iterdir() if csv_file_header in str(f) and f.suffix == ".csv"]
             for file in files:
-                os.remove(file)
+                file.unlink()
         else:
-            os.mkdir(csv_path)
+            csv_path.mkdir(parents=True, exist_ok=True)
 
         for frame in range(frames):
-            output = os.path.join(csv_path, csv_file_header + str(frame) + ".csv")
+            output = csv_path / (csv_file_header + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
                 for j, x in enumerate(x_c_list):
@@ -1064,13 +1070,13 @@ class SolutionData(PyAedtBase):
                         val = t_matrix[frame, i, j]
                     row_lst = [x_coord, y_coord, z_coord, val]
                     list_full.append(row_lst)
-            write_csv(output, list_full, delimiter=",")
+            write_csv(str(output), list_full, delimiter=",")
             csv_list.append(output)
 
-        txt_file_name = csv_path + "fft_list.txt"
+        txt_file_name = csv_path / "fft_list.txt"
         textfile = open_file(txt_file_name, "w")
-
         for element in csv_list:
-            textfile.write(element + "\n")
+            textfile.write(str(element) + "\n")
         textfile.close()
-        return txt_file_name
+
+        return str(txt_file_name)

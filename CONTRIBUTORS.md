@@ -56,6 +56,7 @@
 * [inimaz](https://github.com/inimaz)
 * [Irene Woyna](https://github.com/IreneWoyna)
 * [Isaac Waldron](https://github.com/isaacwaldron)
+* [James Derrick](https://github.com/jgd10)
 * [JDufrenneAnsys](https://github.com/JDufrenneAnsys)
 * [jeremich41](https://github.com/jeremich41)
 * [jianwei425](https://github.com/jianwei425)
