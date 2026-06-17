@@ -1484,7 +1484,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
         if not Path(output_dir).exists():
-            os.mkdir(output_dir)
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:

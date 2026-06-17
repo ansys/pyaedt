@@ -216,7 +216,6 @@ ignore = [
 
     # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "PTH100", # os-path-abspath
-    "PTH102", # os-mkdir
     "PTH103", # os-makedirs
     "PTH104", # os-rename
     "PTH106", # os-rmdir
@@ -225,7 +224,6 @@ ignore = [
     "PTH110", # os-path-exists
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
-    "PTH116", # os-stat
     "PTH118", # os-path-join
     "PTH119", # os-path-basename
     "PTH120", # os-path-dirname
