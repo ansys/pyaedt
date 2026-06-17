@@ -82,8 +82,8 @@ def test_instance_get_value_with_unavailable_results(cell_phone):
     sim = rev.get_simulation()
 
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver("GPS Receiver", band_name="L2")
-    domain.set_interferer("GSM Mobile Station", band_name="Tx GSM-850")
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferer(radio="GSM Mobile Station", band="Tx GSM-850")
 
     interaction = sim.run(domain)
     emi_instance = interaction.get_worst_instance(ResultType.EMI)
@@ -135,3 +135,26 @@ def test_instance_get_domain(cell_phone):
     assert returned_domain is not None
     assert returned_domain.receiver_name == domain.receiver_name
     assert returned_domain.interferer_names == domain.interferer_names
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_get_radio_name_domain_filter(cell_phone):
+    """Test get_receiver_names() and get_interferer_names() with a domain filter."""
+    rev = cell_phone.results.analyze()
+
+    # Create and run simulation with radio filter
+    domain = InteractionDomain(cell_phone)
+    domain.set_interferer("WiFi - 802.11-2012", "Tx OFDM - 54 Mbps", 2.412, "GHz")
+    domain.set_receiver("GPS Receiver", "L2", 1.2276, "GHz")
+
+    rx_no_filter = rev.get_receiver_names()
+    rx_with_filter = rev.get_receiver_names(domain_filter=domain)
+    assert len(rx_no_filter) == 3
+    assert len(rx_with_filter) == 1
+    assert rx_with_filter[0] == "GPS Receiver"
+
+    tx_no_filter = rev.get_interferer_names()
+    tx_with_filter = rev.get_interferer_names(domain_filter=domain)
+    assert len(tx_no_filter) == 3
+    assert len(tx_with_filter) == 1
+    assert tx_with_filter[0] == "WiFi - 802.11-2012"

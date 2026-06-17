@@ -27,6 +27,7 @@ import sys
 # Import required modules
 import pytest
 
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -79,66 +80,66 @@ def test_interaction_domain(cell_phone):
     rev = cell_phone.results.analyze()
     sim = rev.get_simulation()
 
-    domain.set_receiver(name="", band_name=RXBANDNAME)
+    domain.set_receiver(radio="", band=RXBANDNAME)
     assert sim.is_domain_valid(domain) == f"No receiver defined for band '{RXBANDNAME}'."
 
-    domain.set_receiver(name=RXNAME, band_name="", freq=20, units="Hz")
+    domain.set_receiver(radio=RXNAME, band="", freq=20, units="Hz")
     assert sim.is_domain_valid(domain) == "Receiver frequency defined without a band."
 
-    domain.set_receiver(name="Bad Rx")
+    domain.set_receiver(radio="Bad Rx")
     assert sim.is_domain_valid(domain) == "Receiver 'Bad Rx' not found."
 
-    domain.set_receiver(name=RXNAME, band_name="Bad Rx Band")
+    domain.set_receiver(radio=RXNAME, band="Bad Rx Band")
     assert sim.is_domain_valid(domain) == f"Receiver band 'Bad Rx Band' not found in '{RXNAME}'."
 
-    domain.set_receiver(name="")
+    domain.set_receiver(radio="")
     assert sim.is_domain_valid(domain) == ""
 
     # set_interferers validation warnings
     with pytest.raises(ValueError, match="When assigning bands you must assign one band per interferer."):
-        domain.set_interferers(names=[], band_names=["band"])
+        domain.set_interferers(radios=[], bands=["band"])
 
     with pytest.raises(ValueError, match="When assigning channels you must assign one channel per band."):
-        domain.set_interferers(names=[TX1NAME], band_names=[], freqs=[50])
+        domain.set_interferers(radios=[TX1NAME], bands=[], freqs=[50])
 
-    domain.set_interferers(names=["bad tx"])
+    domain.set_interferers(radios=["bad tx"])
     assert sim.is_domain_valid(domain) == "Interferer 'bad tx' not found."
 
-    domain.set_interferers(names=[""], band_names=[TX1BANDNAME])
+    domain.set_interferers(radios=[""], bands=[TX1BANDNAME])
     assert sim.is_domain_valid(domain) == f"No interferer defined for band '{TX1BANDNAME}'."
 
-    domain.set_interferers(names=[TX1NAME], band_names=["bad band"])
+    domain.set_interferers(radios=[TX1NAME], bands=["bad band"])
     assert sim.is_domain_valid(domain) == f"Interferer band 'bad band' not found in '{TX1NAME}'."
 
-    domain.set_interferers(names=[TX1NAME], band_names=[""], freqs=[50])
+    domain.set_interferers(radios=[TX1NAME], bands=[""], freqs=[50])
     assert sim.is_domain_valid(domain) == "Interferer frequency defined without a band."
 
-    domain.set_interferers(names=[], band_names=[], freqs=[])
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=2, units="Hz")
+    domain.set_interferers(radios=[], bands=[], freqs=[])
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=2, units="Hz")
     assert (
         sim.is_domain_valid(domain) == f"Receiver channel 2.000000 Hz not found in band '{RXBANDNAME}' of '{RXNAME}'."
     )
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869000000, units="Hz")
-    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME], freqs=[50], units="Hz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869000000, units="Hz")
+    domain.set_interferers(radios=[TX1NAME], bands=[TX1BANDNAME], freqs=[50], units="Hz")
     assert (
         sim.is_domain_valid(domain)
         == f"Interferer channel 50.000000 Hz not found in band '{TX1BANDNAME}' of '{TX1NAME}'."
     )
 
-    domain.set_interferers(names=["GPS Receiver"], band_names=["L1"])
+    domain.set_interferers(radios=["GPS Receiver"], bands=["L1"])
     assert sim.is_domain_valid(domain) == "Interferer band 'L1' disabled."
 
-    domain.set_interferers(names=[], band_names=[], freqs=[])
-    domain.set_receiver(name="GPS Receiver", band_name="L1", freq=-1)
+    domain.set_interferers(radios=[], bands=[], freqs=[])
+    domain.set_receiver(radio="GPS Receiver", band="L1", freq=-1)
     assert sim.is_domain_valid(domain) == "Receiver band 'L1' disabled."
 
     # check is_single_instance
-    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME])
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869000000, units="Hz")
+    domain.set_interferers(radios=[TX1NAME], bands=[TX1BANDNAME])
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869000000, units="Hz")
     assert domain.is_single_instance() is False
 
-    domain.set_interferers(names=[TX1NAME], band_names=[TX1BANDNAME], freqs=[2422000000], units="Hz")
+    domain.set_interferers(radios=[TX1NAME], bands=[TX1BANDNAME], freqs=[2422000000], units="Hz")
     assert domain.is_single_instance() is True
 
     # check property getters
@@ -154,7 +155,7 @@ def test_interaction_domain(cell_phone):
     assert freqs[0] == 2422000000
 
     # check unit conversions for receiver frequency
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869.2, units="MHz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869.2, units="MHz")
     assert domain.get_receiver_channel_frequency() == 869200000
     assert domain.get_receiver_channel_frequency("Hz") == 869200000
     assert domain.get_receiver_channel_frequency("kHz") == 869200
@@ -162,17 +163,42 @@ def test_interaction_domain(cell_phone):
     assert domain.get_receiver_channel_frequency("GHz") == 0.8692
     assert domain.get_receiver_channel_frequency("THz") == 0.0008692
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869400000, units="Hz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869400000, units="Hz")
     assert domain.get_receiver_channel_frequency("MHz") == 869.4
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869600, units="kHz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869600, units="kHz")
     assert domain.get_receiver_channel_frequency("MHz") == 869.6
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=869.8, units="MHz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=869.8, units="MHz")
     assert domain.get_receiver_channel_frequency("MHz") == 869.8
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=0.87, units="GHz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=0.87, units="GHz")
     assert domain.get_receiver_channel_frequency("MHz") == 870.0
 
-    domain.set_receiver(name=RXNAME, band_name=RXBANDNAME, freq=0.0008702, units="THz")
+    domain.set_receiver(radio=RXNAME, band=RXBANDNAME, freq=0.0008702, units="THz")
     assert domain.get_receiver_channel_frequency("MHz") == 870.2
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_interaction_domain_by_nodes(cell_phone):
+    # Test setting a domain by passing RadioNode and Band objects instead of strings
+    rev = cell_phone.results.analyze()
+    sim = rev.get_simulation()
+
+    radios = rev.get_all_radio_nodes()
+    rx_band_nodes = rev.get_all_band_nodes(radio=radios[0], enabled_only=True, tx_rx_mode=TxRxMode.RX)
+    tx_band_nodes = rev.get_all_band_nodes(radio=radios[1], enabled_only=True, tx_rx_mode=TxRxMode.TX)
+
+    domain = InteractionDomain(cell_phone)
+    domain.set_receiver(radio=radios[0], band=rx_band_nodes[0])
+    domain.set_interferers(radios=[radios[1]], bands=[tx_band_nodes[0]])
+    assert domain.receiver_name == radios[0].name
+    assert domain.receiver_band_name == rx_band_nodes[0].name
+    assert domain.interferer_names[0] == radios[1].name
+    assert domain.interferer_band_names[0] == tx_band_nodes[0].name
+    assert sim.is_domain_valid(domain) == ""
+
+    domain.set_interferer(radio=radios[1], band=tx_band_nodes[0])
+    assert domain.interferer_names[0] == radios[1].name
+    assert domain.interferer_band_names[0] == tx_band_nodes[0].name
+    assert sim.is_domain_valid(domain) == ""

@@ -39,6 +39,7 @@ from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.emit_core.results.simulation import Simulation
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -437,13 +438,14 @@ class Revision:
         return len(bands) > 0
 
     @pyaedt_function_handler()
-    def get_receiver_names(self) -> list[str]:
+    def get_receiver_names(self, domain_filter: InteractionDomain = None) -> list[str]:
         """
         Get a list of all receivers in the project.
 
         Parameters
         ----------
-        None
+        domain_filter: InteractionDomain, optional
+            An optional filter to limit the receivers to those within a specific interaction domain.
 
         Returns
         -------
@@ -459,7 +461,7 @@ class Revision:
             radios = self.get_all_radio_nodes()
             for radio in radios:
                 radio: RadioNode
-                if self._is_receiver(radio):
+                if self._is_receiver(radio) and (radio.name == domain_filter.receiver_name if domain_filter else True):
                     receivers.append(radio.name)
         else:
             err_msg = self.result_mode_error()
@@ -470,7 +472,9 @@ class Revision:
         return receivers
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, interferer_type: object = None) -> list[str]:
+    def get_interferer_names(
+        self, interferer_type: object = None, domain_filter: InteractionDomain = None
+    ) -> list[str]:
         """
         Get a list of all interfering transmitters/emitters in the project.
 
@@ -507,7 +511,9 @@ class Revision:
                 radios = self.get_all_radio_nodes(include_emitters=True)
             for radio in radios:
                 radio: RadioNode
-                if self._is_transmitter(radio):
+                if self._is_transmitter(radio) and (
+                    radio.name in domain_filter.interferer_names if domain_filter else True
+                ):
                     transmitters.append(radio.name)
         else:
             err_msg = self.result_mode_error()

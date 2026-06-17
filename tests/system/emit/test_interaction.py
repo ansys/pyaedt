@@ -111,8 +111,8 @@ def test_interaction_creation(cell_phone):
 
     # Create an interaction domain
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=radios[0].name)
-    domain.set_interferers(names=[radios[1].name])
+    domain.set_receiver(radio=radios[0].name)
+    domain.set_interferers(radios=[radios[1].name])
 
     # Create interaction
     interaction = Interaction(cell_phone, domain, rev)
@@ -132,8 +132,8 @@ def test_interaction_is_valid(cell_phone):
 
     # Create interaction with a valid domain
     domain: InteractionDomain = InteractionDomain(cell_phone)
-    domain.set_receiver("GPS Receiver", band_name="L2")
-    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Not a band"])
+    domain.set_receiver(radio="GPS Receiver", band="L2")
+    domain.set_interferers(radios=["GSM Mobile Station"], bands=["Not a band"])
 
     interaction = Interaction(cell_phone, domain, rev)
     with pytest.raises(RuntimeError) as e:
@@ -141,7 +141,7 @@ def test_interaction_is_valid(cell_phone):
     assert "Interferer band 'Not a band' not found in 'GSM Mobile Station'." in str(e.value)
     assert not interaction.is_valid()
 
-    domain.set_interferers(names=["GSM Mobile Station"], band_names=["Tx GSM-850"])
+    domain.set_interferers(radios=["GSM Mobile Station"], bands=["Tx GSM-850"])
     # Check invalid domain (bad band name → domain validation error)
     with pytest.raises(RuntimeError) as e:
         interaction.validate()
@@ -166,8 +166,8 @@ def test_multiple_interactions(cell_phone):
 
     for i in range(num_interactions):
         domain = InteractionDomain(cell_phone)
-        domain.set_receiver(name=radios[0].name)
-        domain.set_interferers(names=[radios[i + 1].name])
+        domain.set_receiver(radio=radios[0].name)
+        domain.set_interferers(radios=[radios[i + 1].name])
 
         interaction = Interaction(cell_phone, domain, rev)
         interactions.append(interaction)
@@ -192,8 +192,8 @@ def test_interaction_domain_properties(cell_phone):
     rx_name = radios[0].name
     tx_name = radios[1].name
 
-    domain.set_receiver(name=rx_name)
-    domain.set_interferers(names=[tx_name])
+    domain.set_receiver(radio=rx_name)
+    domain.set_interferers(radios=[tx_name])
 
     interaction = Interaction(cell_phone, domain, rev)
 
@@ -218,7 +218,7 @@ def test_run_band_pair(cell_phone):
 
     # Run with receiver band only
     domain = InteractionDomain(cell_phone)
-    domain.set_receiver(name=rx_name, band_name=rx_band_name)
+    domain.set_receiver(radio=rx_name, band=rx_band_name)
 
     interaction = sim.run(domain)
     assert interaction is not None
@@ -255,8 +255,8 @@ def test_run_band_pair(cell_phone):
 
     # Test specific 1 to 1 case
     domain2 = InteractionDomain(cell_phone)
-    domain2.set_receiver(name=rx_name, band_name=rx_band_name, freq=869000000, units="Hz")
-    domain2.set_interferers(names=[tx1_name], band_names=[tx1_band_name], freqs=[2412000000], units="Hz")
+    domain2.set_receiver(radio=rx_name, band=rx_band_name, freq=869000000, units="Hz")
+    domain2.set_interferers(radios=[tx1_name], bands=[tx1_band_name], freqs=[2412000000], units="Hz")
 
     instance2 = interaction.get_instance(domain2)
     assert instance2 is not None
@@ -290,8 +290,8 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test with receiver band but no interferer band
-    domain.set_receiver(name="RF System 3 - Radio", band_name="Band")
-    domain.set_interferers(names=["RF System - SelfInteracting"])
+    domain.set_receiver(radio="RF System 3 - Radio", band="Band")
+    domain.set_interferers(radios=["RF System - SelfInteracting"])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -302,7 +302,7 @@ def test_availability(availability):
     assert "Availability only defined for bands and channels" in str(e.value)
 
     # Test radio pair disabled
-    domain.set_interferers(names=["RF System 3 - Radio"], band_names=["Band"])
+    domain.set_interferers(radios=["RF System 3 - Radio"], bands=["Band"])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -313,7 +313,7 @@ def test_availability(availability):
     assert "Radio pair disabled" in str(e.value)
 
     # Test valid availability
-    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"])
+    domain.set_interferers(radios=["RF System - SelfInteracting"], bands=["Band"])
 
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -323,7 +323,7 @@ def test_availability(availability):
     assert availability == 0.94
 
     # Test with different receiver
-    domain.set_receiver(name="RF System - SelfInteracting", band_name="Band")
+    domain.set_receiver(radio="RF System - SelfInteracting", band="Band")
 
     assert interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -333,7 +333,7 @@ def test_availability(availability):
     assert availability == 0.45
 
     # Test self-interaction availability only at band level
-    domain.set_interferers(names=["RF System - SelfInteracting"], band_names=["Band"], freqs=[101000000])
+    domain.set_interferers(radios=["RF System - SelfInteracting"], bands=["Band"], freqs=[101000000])
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -344,7 +344,7 @@ def test_availability(availability):
     assert "Self-interaction availability only at band level" in str(e.value)
 
     # Test only one channel pair
-    domain.set_receiver(name="RF System 2 - OneChannel", band_name="Band")
+    domain.set_receiver(radio="RF System 2 - OneChannel", band="Band")
 
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
@@ -354,7 +354,7 @@ def test_availability(availability):
         interaction.get_availability(domain)
     assert "Only one channel pair exists, availability undefined" in str(e.value)
 
-    domain.set_receiver(name="RF System 3 - Radio", band_name="Band", freq=103000000, units="Hz")
+    domain.set_receiver(radio="RF System 3 - Radio", band="Band", freq=103000000, units="Hz")
     assert not interaction.has_valid_availability(domain)
     warning = interaction.get_availability_warning(domain)
     assert warning == "Availability undefined for single channel pairs."
@@ -378,8 +378,8 @@ def test_non_numeric_results(non_numeric_results):
     assert count == 859
 
     # Self Interaction -> Low Susc Rx: disabled pair, getInstanceCount == 0
-    domain.set_interferers(names=["Self Interaction - Self Interaction"])
-    domain.set_receiver("Low Susc Rx - Low Susc Rx")
+    domain.set_interferers(radios=["Self Interaction - Self Interaction"])
+    domain.set_receiver(radio="Low Susc Rx - Low Susc Rx")
     count = sim.get_instance_count(domain)
     assert count == 0
 
@@ -396,20 +396,20 @@ def test_non_numeric_results(non_numeric_results):
     assert "The interaction domain must be fully defined" in str(e.value)
 
     # Bad receiver band name
-    inst_domain.set_interferer("Self Interaction - Self Interaction", "Band", 96000000, "Hz")
-    inst_domain.set_receiver("Low Susc Rx - Low Susc Rx", "Bad Band", 102000000, "Hz")
+    inst_domain.set_interferer(radio="Self Interaction - Self Interaction", band="Band", freq=96000000, units="Hz")
+    inst_domain.set_receiver(radio="Low Susc Rx - Low Susc Rx", band="Bad Band", freq=102000000, units="Hz")
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
     assert "'Bad Band' not found" in str(e.value)
 
     # Self Interaction -> Low Susc Rx: radio pair disabled
-    inst_domain.set_receiver("Low Susc Rx - Low Susc Rx", "Band", 102000000, "Hz")
+    inst_domain.set_receiver(radio="Low Susc Rx - Low Susc Rx", band="Band", freq=102000000, units="Hz")
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
     assert "Radio pair disabled" in str(e.value)
 
     # High Power Tx -> Low Susc Rx: greater than 300 dB
-    inst_domain.set_interferer("High Power Tx - High Power Tx", "Band", 102000000, "Hz")
+    inst_domain.set_interferer(radio="High Power Tx - High Power Tx", band="Band", freq=102000000, units="Hz")
     instance = interaction.get_instance(inst_domain)
     assert not instance.has_valid_values()
     warning = instance.get_result_warning()
@@ -497,7 +497,7 @@ def test_non_numeric_results(non_numeric_results):
 
     # Null -> Null: no channels enabled
     inst_domain.set_receiver("RF System - Null")
-    inst_domain.set_interferers(names=["RF System - Null"])
+    inst_domain.set_interferers(radios=["RF System - Null"])
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
     assert "No channels are enabled in this radio" in str(e.value)
@@ -596,8 +596,8 @@ def test_n_to_1_worst_case(n_to_1):
     assert "EMI value not available" in str(e.value)
 
     # Get specific 1-to-1 instance
-    domain.set_interferers(names=["Tx1 - TxRadio1"], band_names=["Band"], freqs=[100], units="MHz")
-    domain.set_receiver("Rx - RxRadio", band_name="Band", freq=100, units="MHz")
+    domain.set_interferers(radios=["Tx1 - TxRadio1"], bands=["Band"], freqs=[100], units="MHz")
+    domain.set_receiver(radio="Rx - RxRadio", band="Band", freq=100, units="MHz")
     interaction = sim.run(domain)
     instance = interaction.get_instance(domain)
     value = instance.get_value(ResultType.EMI)
@@ -605,8 +605,8 @@ def test_n_to_1_worst_case(n_to_1):
 
     # Multiple simultaneous interferers not allowed
     domain.set_interferers(
-        names=["Tx1 - TxRadio1", "Tx2 - TxRadio2", "Tx3 - TxRadio3"],
-        band_names=["Band", "Band", "Band"],
+        radios=["Tx1 - TxRadio1", "Tx2 - TxRadio2", "Tx3 - TxRadio3"],
+        bands=["Band", "Band", "Band"],
         freqs=[100, 100, 100],
         units="MHz",
     )
@@ -616,12 +616,12 @@ def test_n_to_1_worst_case(n_to_1):
 
     # Band count mismatch
     with pytest.raises(ValueError) as e:
-        domain.set_interferers(names=[], band_names=["Band"])
+        domain.set_interferers(radios=[], bands=["Band"])
     assert "When assigning bands you must assign one band per interferer" in str(e.value)
 
     # Channel count mismatch
     with pytest.raises(ValueError) as e:
-        domain.set_interferers(names=[], band_names=[], freqs=[23], units="Hz")
+        domain.set_interferers(radios=[], bands=[], freqs=[23], units="Hz")
     assert "When assigning channels you must assign one channel per band" in str(e.value)
 
 
@@ -670,14 +670,14 @@ def test_export(export):
     # 1 Tx Channel to 1 Rx Channel
     csv_path = os.path.join(temp_dir, "tx1_rx1.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
         freq=4050,
         units="MHz",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
@@ -692,7 +692,7 @@ def test_export(export):
 
     # N Tx Channels to 1 Rx Channel
     csv_path = os.path.join(temp_dir, "txn_rx1.csv")
-    domain.set_interferer(name="Tx_MultiBands", band_name="Band 2")
+    domain.set_interferer(radio="Tx_MultiBands", band="Band 2")
 
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
@@ -707,12 +707,12 @@ def test_export(export):
     # N Rx Channels to 1 Tx Channel
     csv_path = os.path.join(temp_dir, "tx1_rxn.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
@@ -733,12 +733,12 @@ def test_export(export):
     # N Rx Channels to 1 Tx Channel
     csv_path = os.path.join(temp_dir, "tx1_rxn_partial.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
     domain.set_interferer(
-        name="Tx_MultiBands",
-        band_name="Band 2",
+        radio="Tx_MultiBands",
+        band="Band 2",
         freq=305,
         units="MHz",
     )
@@ -749,10 +749,10 @@ def test_export(export):
     # N to 1
     csv_path = os.path.join(temp_dir, "n_to_1.csv")
     domain.set_receiver(
-        name="Rx_MultiBands",
-        band_name="Band 2",
+        radio="Rx_MultiBands",
+        band="Band 2",
     )
-    domain.set_interferer(name="")
+    domain.set_interferer(radio="")
     sim.run(domain)
     interaction: Interaction = Interaction(export, domain, rev)
     interaction.export_results(csv_path, True)
