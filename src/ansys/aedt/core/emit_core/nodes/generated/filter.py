@@ -39,6 +39,37 @@ class Filter(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str = "", channel_freq: float = 0.0) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        channel_freq: float[optional]
+            tuned channel freq only used for tunable filters
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        keys = "SelectedInputPort|SelectedOutputPort" + "|TestTunableFreq"
+        vals = "1|2" + "|" + f"{channel_freq}"
+        return self._export_to_csv(file_name, keys, vals)
+
+    @min_aedt_version("2027.1")
+    def plot(self, channel_freq: float = 0.0):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        channel_freq: float[optional]
+            tuned channel freq only used for tunable filters"""
+        keys = "SelectedInputPort|SelectedOutputPort" + "|TestTunableFreq"
+        vals = "1|2" + "|" + f"{channel_freq}"
+        return self._plot(keys, vals)
+
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
         """Duplicate this node"""

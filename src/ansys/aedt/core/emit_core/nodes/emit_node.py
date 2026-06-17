@@ -652,6 +652,78 @@ class EmitNode:
         """
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
+    @min_aedt_version("2027.1")
+    def _export_to_csv(self, file_path: str, keys: str, values: str) -> None:
+        """Exports an Emit node's trace data to a CSV file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to export the data to.
+        keys : str
+            Keys to export the data for.
+        values : str
+            Values to export the data for.
+
+        Returns
+        -------
+        str
+            The exported data as a string if no file path is provided.
+        """
+        try:
+            data = self._oRevisionData.ExportTraceData(self._result_id, self.name, file_path, ",", keys, values)
+            return data
+        except Exception as e:
+            raise Exception(
+                f'Failed to export "{file_path}" as CSV: {e}'
+            ) from e
+
+    @min_aedt_version("2027.1")
+    def _plot(self, keys: str, values: str) -> None:
+        """Plots an Emit node's trace data using matplotlib.
+
+        Parameters
+        ----------
+        keys : str
+            Keys to export the data for.
+        values : str
+            Values to export the data for.
+
+        Returns
+        -------
+        matplotlib.pyplot.Figure
+            The plot figure with frequency in MHz.
+        """
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("matplotlib is required for plotting. Install it with: pip install matplotlib")
+
+        try:
+            csv_data = self._oRevisionData.ExportTraceData(self._result_id, self.name, "", ",", keys, values)
+        except Exception as e:
+            raise Exception(f"Failed to retrieve trace data for plotting: {e}") from e
+
+        lines = [line for line in csv_data.strip().split("\n") if line.strip()]
+        if len(lines) < 2:
+            raise ValueError("Trace data has no plottable rows.")
+
+        x_vals = []
+        y_vals = []
+        for line in lines:
+            parts = line.split(",")
+            x_vals.append(float(parts[0]) / 1e6) # convert to MHz
+            y_vals.append(float(parts[1]))
+
+        fig, ax = plt.subplots()
+        ax.plot(x_vals, y_vals)
+        ax.set_xlabel("Frequency (MHz)")
+        ax.set_ylabel("Amplitude (dB/dBm)")
+        ax.set_title(self.name)
+        ax.grid(True)
+        return fig
+
+
     @min_aedt_version("2025.2")
     def get_is_component(self) -> bool:
         """Check if node is also a component.

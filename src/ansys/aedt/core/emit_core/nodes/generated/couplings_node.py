@@ -87,6 +87,33 @@ class CouplingsNode(EmitNode):
         """Add a new node to define coupling between antennas using the 5G channel coupling model"""
         return self._add_child_node("5G Channel Model Coupling")
 
+    @min_aedt_version("2027.1")
+    def export_to_csv(self, file_name: str, ports: str) -> str:
+        """Export's the data for this node
+
+        Parameters
+        ----------
+        file_name: str[optional]
+            full path to the file to export to.
+        ports: str
+            the ports to export the data for.
+
+        Returns
+        -------
+        csv_data: str
+            stringified data for the node returned if file_name not specified"""
+        return self._export_to_csv(file_name, "SelectedRxAntenna|SelectedTxAntenna", f"{ports}")
+
+    @min_aedt_version("2027.1")
+    def plot(self, ports: str):
+        """Bring up a Cartesian plot for this node
+
+        Parameters
+        ----------
+        ports: str
+            the ports to export the data for."""
+        return self._plot("SelectedRxAntenna|SelectedTxAntenna", f"{ports}")
+
     @property
     @min_aedt_version("2025.2")
     def minimum_allowed_coupling(self) -> float:
