@@ -550,9 +550,6 @@ class Simulation:
                 self._revision.results_index, receiver_name, interferer_name, enabled
             )
 
-        # Invalidate all interactions since the simulation state has changed
-        self._revision._invalidate_all_interactions()
-
     @min_aedt_version("2027.1")
     def get_receiver_n_to_1_enabled(self, receiver_name: str) -> bool:
         """Get whether N-to-1 analysis is enabled for a specific receiver.
@@ -589,9 +586,6 @@ class Simulation:
             engine.set_receiver_n_to_1_enabled(receiver_name, enabled)
         else:
             self._emit_com_module.SetReceiverNto1Enabled(self._revision.results_index, receiver_name, enabled)
-
-        # Invalidate all interactions since the simulation state has changed
-        self._revision._invalidate_all_interactions()
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.2")
