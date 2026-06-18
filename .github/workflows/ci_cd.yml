@@ -92,7 +92,7 @@ jobs:
           attest-provenance: true
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
-          python-version: 3.10
+          python-version: '3.10'
           target: 'all'
           use-python-cache: false
 
