@@ -3746,6 +3746,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.CreateOpenRegion
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.create_open_region()
         """
         frequency = _units_assignment(frequency)
         vars = [
@@ -4450,6 +4456,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box1 = hfss.modeler.create_box([0, 0, 0], [10, 20, 20])
+        >>> hfss.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
+        >>> hfss.create_setup()
+        >>> hfss.edit_source_from_file(assignment=hfss.excitation_names[0], input_file="file.csv")
         """
         if not assignment:
             self.osolution.LoadSourceWeights(input_file)
