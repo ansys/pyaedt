@@ -338,7 +338,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ) = range(0, 10)
 
     @property
-    def hybrid(self):
+    def hybrid(self) -> bool:
         """HFSS hybrid mode for the active solution.
 
         For instance, it must be set to ``True`` to define the solution type as 'HFSS with Hybrid and Arrays'.
@@ -346,6 +346,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> is_hybrid = hfss.hybrid
+        Change to hybrid the current HFSS design
+        >>> hfss.hybrid = True
         """
         return self.design_solutions.hybrid
 
