@@ -3294,10 +3294,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
-
         References
         ----------
         >>> oModule.AssignFloquetPort
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup()
+        >>> box1 = hfss.modeler.create_box([-100, -100, -100], [200, 200, 200])
+        >>> hfss.create_floquet_port(box1.faces[0], modes=7, deembed_distance=1)
         """
         face_id = self.modeler.convert_to_selections(assignment, True)
         props = {}
