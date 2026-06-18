@@ -54,6 +54,7 @@ if TYPE_CHECKING:
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import IncidentWaveType
 from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -4142,6 +4143,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         max_available_power: str | None = None,
         use_incident_voltage: bool | None = False,
         eigenmode_stored_energy: bool | None = True,
+        incident_wave: str | None = None,
     ) -> bool:
         """Set up the power loaded for HFSS postprocessing in multiple sources simultaneously.
 
@@ -4164,6 +4166,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         eigenmode_stored_energy : bool, optional
             Use stored energy definition. The default is ``True``.
             This argument applies only to the Eigenmode solution type.
+        incident_wave : str, optional
+            Incident wave type. The default is `None``, in which case the current type is not modified.
+            Options are ``IncidentWaveType.Scattered``, ``IncidentWaveType.Incident``, and ``IncidentWaveType.Total``.
 
         Returns
         -------
@@ -4265,6 +4270,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             if max_available_power:
                 argument.append("Incident Power:=")
                 argument.append(max_available_power)
+
+            available_incident_wave = [IncidentWaveType.Incident, IncidentWaveType.Scattered, IncidentWaveType.Total]
+            if incident_wave and incident_wave in available_incident_wave:
+                argument.extend(
+                    [
+                        "FieldType:=",
+                        incident_wave,
+                    ]
+                )
+            elif incident_wave and incident_wave not in available_incident_wave:
+                raise AttributeError(
+                    f"{incident_wave} is not a valid option for incident_wave. "
+                    f"Valid options are {available_incident_wave}"
+                )
+
         else:
             eigenmode_type_definition = "EigenStoredEnergy" if eigenmode_stored_energy else "EigenPeakElectricField"
             argument = ["FieldType:=", eigenmode_type_definition]
