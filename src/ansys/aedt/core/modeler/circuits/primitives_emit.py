@@ -808,7 +808,7 @@ class EmitRadioComponent(EmitComponent):
         """Get the bands of this radio.
 
         .. deprecated:: 0.25.2
-            Use the get_all_band_nodes method from revision.py instead.
+            Use the get_all_band_nodes method from revision.py or call radio_node.children instead.
 
         Parameters
         ----------
