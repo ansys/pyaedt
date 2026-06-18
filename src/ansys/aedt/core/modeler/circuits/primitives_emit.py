@@ -781,7 +781,7 @@ class EmitRadioComponent(EmitComponent):
         """Check if the radio component is an emitter
 
         .. deprecated:: 0.25.2
-            Use the properties method from emit_node.py instead to check if the "IsEmitter" property is "true".
+            Use the node_type property from emit_node.py instead.
 
         Parameters
         ----------
