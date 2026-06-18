@@ -1519,6 +1519,16 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> q3d.insert_em_field_box()
+        >>> setups = q3d.field_setups
+        Edit u size for the first field setup.
+        >>> q3d.field_setups[0].properties["U Size"] = "21mm"
         """
         field_setups = []
         em_fields_oo = self.get_oo_object(self.odesign, "EM Fields")
@@ -1536,6 +1546,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         List of str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> q3d.insert_em_field_box()
+        >>> setup_names = q3d.field_setup_names
         """
         return self.get_oo_name(self.odesign, "EM Fields")
 
