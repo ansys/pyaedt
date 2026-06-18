@@ -10,8 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10,<4"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
-maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+authors = [{ name = "Synopsys, Inc. and ANSYS, Inc.", email = "pyansys-core@synopsys.com" }]
+maintainers = [{ name = "Synopsys, Inc. and ANSYS, Inc.", email = "pyansys-core@synopsys.com" }]
 classifiers = [
     # General classifiers
     "Development Status :: 4 - Beta",
@@ -77,6 +77,27 @@ all = [
     "typer>=0.20.0",
     "fpdf2",
     "rpyc>=6.0.0",
+]
+all-dotnet = [
+    # From 'all' group
+    "matplotlib>=3.5.0",
+    "openpyxl>=3.1.0",
+    "osmnx>=2.0.0",
+    "pandas>=1.1.0",
+    "pyvista[io]>=0.38.0,<0.49",
+    "fast-simplification>=0.1.7",
+    "ansys-tools-visualization-interface",
+    "tables; python_version >= '3.10'",
+    "scikit-rf>=0.30.0",
+    "pyaedt[jupyter]",
+    "requests",
+    "typer>=0.20.0",
+    "fpdf2",
+    "rpyc>=6.0.0",
+    # From 'dotnet' group
+    "ansys-pythonnet>=3.1.0rc3",
+    "cffi>=1.16.0; platform_system=='Linux'",
+    "pywin32>=303; platform_system=='Windows'",
 ]
 examples = [
     "imageio>=2.34.0",
@@ -185,31 +206,24 @@ ignore = [
     "D419", # empty-docstring
 
     # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-    "N801", # invalid-class-name
     "N802", # invalid-function-name
     "N803", # invalid-argument-name
     "N806", # non-lowercase-variable-in-function
     "N813", # camelcase-imported-as-lowercase
     "N815", # mixed-case-variable-in-class-scope
     "N816", # mixed-case-variable-in-global-scope
-    "N817", # camelcase-imported-as-acronym
-    "N818", # error-suffix-on-exception-name
     "N999", # invalid-module-name
 
     # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "PTH100", # os-path-abspath
-    "PTH101", # os-chmod
-    "PTH102", # os-mkdir
     "PTH103", # os-makedirs
     "PTH104", # os-rename
     "PTH106", # os-rmdir
     "PTH107", # os-remove
     "PTH108", # os-unlink
-    "PTH109", # os-getcwd
     "PTH110", # os-path-exists
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
-    "PTH116", # os-stat
     "PTH118", # os-path-join
     "PTH119", # os-path-basename
     "PTH120", # os-path-dirname
@@ -223,6 +237,10 @@ ignore = [
     "TD003", # missing-todo-link
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"src/ansys/aedt/core/__init__.py" = ["E402"]
+"doc/source/Resources/pyaedt_installer_from_aedt.py" = ["F821"]
+
 [tool.ruff.lint.pydocstyle]
 # Use Numpy-style docstrings.
 convention = "numpy"
@@ -231,9 +249,6 @@ convention = "numpy"
 force-sort-within-sections = true
 known-first-party = ["doc", "src/ansys/aedt/core", "tests"]
 force-single-line = true
-
-[tool.ruff.lint.mccabe]
-max-complexity = 10
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1446,6 +1446,7 @@ class Material(CommonMaterial, PyAedtBase):
         self._stacking_direction = None
         self._stacking_factor = None
         self._strand_number = None
+        self._twisting_length_factor = None
 
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
@@ -2110,6 +2111,27 @@ class Material(CommonMaterial, PyAedtBase):
         self._stacking_direction = value
         if self._material_update:
             self._update_props("stacking_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
+
+    @property
+    def twisting_length_factor(self) -> MatProperty:
+        """Ratio of the twisted-strand length to the bundle length for Litz Wire.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.material.MatProperty`
+            Twisting length factor.
+
+        References
+        ----------
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._twisting_length_factor
+
+    @twisting_length_factor.setter
+    def twisting_length_factor(self, value: MatProperty) -> None:
+        self._twisting_length_factor = value
+        if self._material_update:
+            self._update_props("litz_wire_twisting_length_factor", value)
 
     @pyaedt_function_handler()
     def set_magnetic_coercivity(self, value: int = 0, x: int = 1, y: int = 0, z: int = 0) -> bool:
