@@ -77,6 +77,25 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+  failing-smoke-tests:
+    name: Build wheelhouse failure
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    steps:
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse
+        uses: ansys/actions/build-wheelhouse@refactor/split-check-licenses-into-different-venvs
+        with:
+          attest-provenance: true
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ubuntu-latest
+          python-version: 3.10
+          target: 'all'
+          use-python-cache: false
+
   smoke-tests-rocky:
     name: Build wheelhouse and smoke tests (Rocky Linux)
     permissions:
