@@ -820,7 +820,7 @@ class EmitRadioComponent(EmitComponent):
             List of the band nodes in the radio.
         """
         warnings.warn(
-            "This method is deprecated in 0.25.2. Use the get_all_band_nodes method from revision.py instead.",
+            "This method is deprecated in 0.25.2. Use the get_all_band_nodes method from revision.py or use radio_node.children instead.",
             DeprecationWarning,
             stacklevel=2
         )
