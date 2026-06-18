@@ -3233,6 +3233,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AssignVoltage
         >>> oModule.AssignCurrent
+
+        Examples
+        --------
+        >>> from ansys.aet.core import Hfss
+        >>> hfss = Hfss()
+        >>> rect = hfss.modeler.create_rectangle([0, 0, 0], [10, 10])
+        >>> excitation = hfss.create_source_excitation(rect.name, [0, 0, 5], [0, 0, 10], "my_source")
         """
         props = dict({"Objects": [assignment], "Direction": dict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
