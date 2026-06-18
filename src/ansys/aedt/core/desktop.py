@@ -585,9 +585,16 @@ class Desktop(PyAedtBase):
         another instance of the ``version`` is active on the machine.
         The default is ``True``.
     close_on_exit : bool, optional
-        Whether to close AEDT on exit. The default is ``True``.
-        This option is used only when Desktop is used in a context manager (``with`` statement).
-        If Desktop is used outside a context manager, see the ``release_desktop`` arguments.
+        Whether to close AEDT on exit. The default is ``None``, which means the behavior is chosen automatically:
+
+        - If ``Desktop`` is used in a context manager (``with`` statement), the context manager take
+          precedence and AEDT will be closed on exit (equivalent to ``close_on_exit=True``).
+        - If PyAEDT actually starts a new AEDT session, the session will be closed on exit (``close_on_exit=True``).
+        - If PyAEDT connects to an existing AEDT session, the session will not be closed on exit (``close_on_exit=False``).
+
+        A user-specified boolean (``True`` or ``False``) always overrides the automatic behavior.
+        When ``Desktop`` is used outside a context manager, the `release_desktop` method arguments offer
+        finer control over releasing and closing behavior.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
@@ -683,7 +690,7 @@ class Desktop(PyAedtBase):
         version: str | None = None,
         non_graphical: bool | None = False,
         new_desktop: bool | None = True,
-        close_on_exit: bool | None = True,
+        close_on_exit: bool | None = None,
         student_version: bool | None = False,
         machine: str | None = None,
         port: int | None = 0,
@@ -711,7 +718,7 @@ class Desktop(PyAedtBase):
         self.__non_graphical = (
             True if os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t") else non_graphical
         )
-        self.__close_on_exit = close_on_exit
+        self.__close_on_exit_arg = close_on_exit
         self.__machine = machine if machine else None
         self.__port = port
         self.__is_grpc_api = True
@@ -759,7 +766,6 @@ class Desktop(PyAedtBase):
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
             self.odesktop = sys.modules["__main__"].oDesktop
-            self.close_on_exit = False
             try:
                 self.non_graphical = self.odesktop.GetIsNonGraphical()
             except Exception:  # pragma: no cover
@@ -777,6 +783,15 @@ class Desktop(PyAedtBase):
                 if not result:
                     raise Exception("Failed to connect to AEDT via gRPC.")
 
+        # Setting close_on_exit based on the logic above.
+        # If PyAEDT attaches to a session close_on_exits defaults to False.
+        if "console" in self.__starting_mode:
+            self.__close_on_exit = False
+        elif close_on_exit is None:
+            self.__close_on_exit = self.new_desktop
+        else:
+            self.__close_on_exit = close_on_exit
+
         # Setup logging.
         self.__set_logger_file()
 
@@ -793,7 +808,7 @@ class Desktop(PyAedtBase):
         _desktop_sessions[self.aedt_process_id] = self
         # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(
-            lambda: self.__release_and_close_desktop(close_projects=close_on_exit, close_aedt_app=close_on_exit)
+            lambda: self.__release_and_close_desktop(close_projects=self.close_on_exit, close_aedt_app=self.close_on_exit)
         )
 
     @property
@@ -1004,7 +1019,11 @@ class Desktop(PyAedtBase):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             self.__exception(ex_value, ex_traceback)
-        if self.close_on_exit:
+        if self.__close_on_exit_arg is None:
+            should_close = True  # context manager default
+        else:
+            should_close = self.__close_on_exit_arg  # user choice
+        if should_close:
             self.close_desktop()
             self.__closed = True
         else:
