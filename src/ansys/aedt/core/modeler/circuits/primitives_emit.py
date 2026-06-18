@@ -662,7 +662,7 @@ class EmitComponent(PyAedtBase):
 
         .. deprecated:: 0.25.2
             This method is deprecated in 0.25.2.
-            Use the properties method from emit_node.py instead to get the "Type" property.
+            Use node_type property from emit_node.py instead.
 
         Parameters
         ----------
