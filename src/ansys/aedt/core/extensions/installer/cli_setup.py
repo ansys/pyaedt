@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
-#
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,10 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
-# Launches a shell with pyaedt commands available, activating previously the installation virtual environment.
-
 
 import atexit
 import builtins

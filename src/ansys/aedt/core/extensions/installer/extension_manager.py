@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
-#
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
