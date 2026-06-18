@@ -363,12 +363,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             self.design_solutions.hybrid = value
 
     @property
-    def composite(self):
+    def composite(self) -> bool:
         """HFSS composite mode for the active solution.
 
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> is_composite = hfss.composite
+        Change to composite solution type the current HFSS design
+        >>> hfss.composite = True
         """
         return self.design_solutions.composite
 
@@ -377,7 +385,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self.design_solutions.composite = value
 
     @property
-    def table_names(self):
+    def table_names(self) -> list[str]:
         """Imported table names.
 
         Returns
@@ -388,6 +396,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.GetValidISolutionList
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_table(input_file="table.csv", name="Table1")
+        >>> tables = hfss.table_names
         """
         table_names = []
         if self.osolution and "GetValidISolutionList" in self.osolution.__dir__():
@@ -401,7 +416,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return table_names
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation"):
+    def set_auto_open(self, enable: bool | None = True, opening_type: str | None = "Radiation") -> bool:
         """Set the HFSS auto open type.
 
         Parameters
@@ -421,6 +436,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         --------
         Enable auto open type for the PML boundary.
 
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
         >>> hfss.set_auto_open(True, "PML")
         """
         if enable and opening_type not in ["Radiation", "FEBI", "PML"]:
