@@ -1952,7 +1952,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         if len(self.excitation_names) != 0:
             tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
             file_flag = self.save_diff_pairs_to_file(tmpfile1)
-            if file_flag and os.stat(tmpfile1).st_size != 0:
+            if file_flag and tmpfile1.stat().st_size != 0:
                 with open_file(tmpfile1, "r") as fi:
                     fi_lst = fi.readlines()
                 list_output = [line.split(",")[4] for line in fi_lst]
