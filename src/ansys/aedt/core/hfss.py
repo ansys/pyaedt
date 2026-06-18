@@ -3398,6 +3398,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.AssignLatticePair
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box1 = hfss.modeler.create_box([-100, -100, -100], [200, 200, 200])
+        >>> hfss.assign_lattice_pair([box1.faces[2], box1.faces[5]])
         """
         props = {}
         face_id = self.modeler.convert_to_selections(assignment, True)
