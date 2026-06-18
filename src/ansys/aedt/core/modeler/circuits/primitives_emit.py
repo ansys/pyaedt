@@ -869,7 +869,7 @@ class EmitRadioComponent(EmitComponent):
         Float
             Start frequency of the band node.
         """
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
+        warnings.warn("This method is deprecated in 0.25.2. Use the band_node.start_frequency property instead.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
