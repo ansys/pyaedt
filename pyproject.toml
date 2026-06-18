@@ -237,6 +237,10 @@ ignore = [
     "TD003", # missing-todo-link
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"src/ansys/aedt/core/__init__.py" = ["E402"]
+"doc/source/Resources/pyaedt_installer_from_aedt.py" = ["F821"]
+
 [tool.ruff.lint.pydocstyle]
 # Use Numpy-style docstrings.
 convention = "numpy"

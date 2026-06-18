@@ -58,6 +58,7 @@ repos:
       exclude: |
         (?x)^(
             .*\.pyd |
+            .*\.py_build |
         )$
       files: '(src|examples|tests|doc)/.*\.(py)'
       args:
