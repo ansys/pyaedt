@@ -2862,6 +2862,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.SetSBRTxRxSettings
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.solution_type = "SBR+"
+        >>> par_beam = hfss.create_sbr_antenna(
+        ...     hfss.SbrAntennas.ParametricBeam, parameters={"Polarization": "Horizontal"}, name="TX1"
+        ... )
+        Only transmitter
+        >>> hfss.set_sbr_txrx_settings({"TX1_1_p1": "TX1_1_p1"})
+        Only receiver
+        >>> hfss.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1", "RX1_1_p1": "RX1_1_p1"})
+        Transmitter and receiver
+        >>> hfss.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1", "RX1_1_p1": "TX1_1_p1"})
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("This boundary only applies to a SBR+ solution.")
