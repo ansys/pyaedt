@@ -74,7 +74,7 @@ jobs:
 
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse-rocky
-        uses: ansys/actions/build-wheelhouse@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        uses: ansys/actions/build-wheelhouse@refactor/split-check-licenses-into-different-venvs
         with:
           attest-provenance: true
           checkout: false
