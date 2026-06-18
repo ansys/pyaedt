@@ -3236,7 +3236,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aet.core import Hfss
+        >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> rect = hfss.modeler.create_rectangle([0, 0, 0], [10, 10])
         >>> excitation = hfss.create_source_excitation(rect.name, [0, 0, 5], [0, 0, 10], "my_source")
