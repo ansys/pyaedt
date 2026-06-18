@@ -3534,7 +3534,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss = Hfss()
         >>> box1 = hfss.modeler.create_box([-100, -100, -100], [200, 200, 200])
         >>> primary = hfss.assign_primary(box1.faces[4], [100, -100, -100], [100, 100, -100])
-        >>> sec = hfss.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100])
+        >>> secondary = hfss.assign_secondary(box1.faces[0], primary.name, [100, -100, 100], [100, 100, 100])
         """
         props = {}
         face_id = self.modeler.convert_to_selections(assignment, True)
