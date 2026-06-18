@@ -1497,7 +1497,21 @@ def test_analysis_enabled(n_to_1):
     # Create domain for N-to-1 analysis (no specific interferers)
     domain.set_interferers([])
 
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
+    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
+
+    # Run again with N-to-1 disabled should produce 1-to-1 only results
+    interaction_n_to_1_disabled = sim.run(domain)
+    assert interaction_n_to_1_disabled.is_valid()
+    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
+    emi = instance.get_value(ResultType.EMI)
+    assert emi == 170.0
+
+    # Interaction should reflect only the 1-to-1 results
+    assert sim.get_instance_count(domain) == 3
+
     # Test N-to-1 enabled state
+    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
     assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
 
     # Run N-to-1 interaction
@@ -1508,25 +1522,6 @@ def test_analysis_enabled(n_to_1):
     emi_n_to_1 = instance_n_to_1.get_value(ResultType.EMI)
     assert emi_n_to_1 == 179.54
     assert sim.get_instance_count(domain) == 4
-
-    # Disable N-to-1 for the receiver
-    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", False)
-    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is False
-
-    # Interaction should still be valid but reflect only the 1-to-1 results
-    assert interaction_n_to_1.is_valid()
-    assert sim.get_instance_count(domain) == 3
-
-    # Run again with N-to-1 disabled should produce 1-to-1 only results
-    interaction_n_to_1_disabled = sim.run(domain)
-    assert interaction_n_to_1_disabled.is_valid()
-    instance = interaction_n_to_1_disabled.get_worst_instance(ResultType.EMI)
-    emi = instance.get_value(ResultType.EMI)
-    assert emi == 170.0
-
-    # Re-enable N-to-1 for the receiver
-    sim.set_receiver_n_to_1_enabled("Rx - RxRadio", True)
-    assert sim.get_receiver_n_to_1_enabled("Rx - RxRadio") is True
 
 
 @pytest.mark.skipif(
