@@ -1502,6 +1502,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> box_pec = hfss.create_boundary(boundary_type=hfss.BoundaryType.PerfectE, assignment=box.name, name="my_pec")
         """
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
