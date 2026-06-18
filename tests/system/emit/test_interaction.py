@@ -529,7 +529,7 @@ def test_result_validity(availability, add_app_example):
     assert not interaction.is_valid()
     with pytest.raises(RuntimeError) as e:
         interaction.validate()
-    assert "Interaction has not been run" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
 
     # Undefined instance should be invalid
     with pytest.raises(RuntimeError) as e:
@@ -539,12 +539,12 @@ def test_result_validity(availability, add_app_example):
     # Trying to get worst instance on undefined interaction should fail
     with pytest.raises(RuntimeError) as e:
         interaction.get_worst_instance(ResultType.EMI)
-    assert "Interaction has not been run" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
 
     # Trying to get instance on undefined domain should fail
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(InteractionDomain(availability))
-    assert "Interaction has not been run" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
 
     # interaction and instance after run and get worst case
     domain = InteractionDomain(availability)
