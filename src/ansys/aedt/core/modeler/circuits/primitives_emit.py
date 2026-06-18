@@ -979,7 +979,7 @@ class EmitRadioComponent(EmitComponent):
         """
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
-        warnings.warn("This method is deprecated in 0.25.2.", DeprecationWarning, stacklevel=2)
+        warnings.warn("This method is deprecated in 0.25.2. Use the band_node.stop_frequency property instead.", DeprecationWarning, stacklevel=2)
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         # convert to Hz
