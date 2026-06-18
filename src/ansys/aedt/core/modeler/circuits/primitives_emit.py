@@ -794,7 +794,7 @@ class EmitRadioComponent(EmitComponent):
         """
         warnings.warn(
             "This method is deprecated in 0.25.2. "
-            "Use the properties method from emit_node.py instead to check if the 'IsEmitter' property is 'true'.",
+            "Use the node_type property from emit_node.py instead.",
             DeprecationWarning,
             stacklevel=2
         )
