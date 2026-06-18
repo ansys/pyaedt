@@ -145,7 +145,7 @@ def test_interaction_is_valid(cell_phone):
     # Check invalid domain (bad band name → domain validation error)
     with pytest.raises(RuntimeError) as e:
         interaction.validate()
-    assert "Interaction has not been run" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
     assert not interaction.is_valid()
 
     interaction2 = sim.run(domain)
@@ -457,7 +457,6 @@ def test_non_numeric_results(non_numeric_results):
         instance.get_value(ResultType.SENSITIVITY)
     assert "An amplifier was saturated" in str(e.value)
 
-    # Amp Sat -> Amp Sat: radio pair disabled
     inst_domain.set_receiver("Amp Sat - Amp Sat", "Band", 110000000, "Hz")
     with pytest.raises(RuntimeError) as e:
         interaction.get_instance(inst_domain)
@@ -521,7 +520,7 @@ def test_result_validity(availability, add_app_example):
     assert not interaction2.is_valid()
     with pytest.raises(RuntimeError) as e:
         interaction2.validate()
-    assert "Interaction has not been run" in str(e.value)
+    assert "Interaction results are incomplete" in str(e.value)
 
     # new, undefined interaction and instance
     interaction = Interaction(availability, InteractionDomain(availability), rev)

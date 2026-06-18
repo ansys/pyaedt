@@ -50,11 +50,6 @@ class InteractionInstance:
         self.parent_interaction = parent_interaction
         """Reference to parent Interaction for invalidation tracking."""
 
-    @property
-    def power_at_rx(self) -> float:
-        """Get the power at RX value in dBm."""
-        return self._power_at_rx
-
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
     def get_result_warning(self) -> str:
@@ -213,7 +208,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def validate(self) -> None:
+    def validate(self) -> str:
         """Validate this interaction instance.
 
         Raises
@@ -227,7 +222,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def is_valid(self) -> None:
+    def is_valid(self) -> bool:
         """Check if this interaction instance is still valid.
 
         Returns
@@ -239,7 +234,7 @@ class InteractionInstance:
 
     @min_aedt_version("2027.1")
     @pyaedt_function_handler()
-    def _check_validity(self) -> None:
+    def _check_validity(self) -> str:
         """Check if this interaction instance is still valid.
 
         Returns

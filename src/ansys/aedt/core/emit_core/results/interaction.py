@@ -104,10 +104,6 @@ class Interaction:
         bool
             True if the interaction has valid availability, False otherwise.
         """
-        error = self._check_validity(domain)
-        if error:
-            return False
-
         # Call HasValidAvailability via COM
         has_valid = self.emit_project._emit_com_module.HasValidAvailability(
             self.revision.results_index,
@@ -141,10 +137,6 @@ class Interaction:
             If the interaction is not longer valid (domain invalid or results are incomplete).
             or availability cannot be calculated.
         """
-        error = self._check_validity(domain)
-        if error:
-            raise RuntimeError("Interaction is not valid: " + error)
-
         # First check if availability is valid for this domain
         warning = self.get_availability_warning(domain)
         if warning:
@@ -177,10 +169,6 @@ class Interaction:
         str
             The availability warning message, or empty string if no warning
         """
-        error = self._check_validity(domain)
-        if error:
-            return str(error)
-
         # Call GetAvailabilityWarning via COM
         warning = self.emit_project._emit_com_module.GetAvailabilityWarning(
             self.revision.results_index,
@@ -359,8 +347,7 @@ class Interaction:
         if domain is None:
             domain = self.domain
 
-        # CheckInteractionValidity handles all checks: domain validity, results existence,
-        # and N-to-1 completeness (stale results after state change).
+        # Domain validity and result completeness check
         error = self.emit_project._emit_com_module.CheckInteractionValidity(
             self.revision.results_index,
             domain.receiver_name,
