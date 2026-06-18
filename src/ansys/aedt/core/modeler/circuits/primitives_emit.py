@@ -856,7 +856,7 @@ class EmitRadioComponent(EmitComponent):
         """Get the start frequency of the band node.
 
         .. deprecated:: 0.25.2
-            This method is deprecated.
+            This method is deprecated. Use the band_node.start_frequency property instead.
 
         Parameters
         ----------
