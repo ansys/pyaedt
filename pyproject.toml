@@ -10,8 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10,<4"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
-maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+authors = [{ name = "Synopsys, Inc. and ANSYS, Inc.", email = "pyansys-core@synopsys.com" }]
+maintainers = [{ name = "Synopsys, Inc. and ANSYS, Inc.", email = "pyansys-core@synopsys.com" }]
 classifiers = [
     # General classifiers
     "Development Status :: 4 - Beta",
@@ -236,6 +236,10 @@ ignore = [
     "TD002", # missing-todo-author
     "TD003", # missing-todo-link
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"src/ansys/aedt/core/__init__.py" = ["E402"]
+"doc/source/Resources/pyaedt_installer_from_aedt.py" = ["F821"]
 
 [tool.ruff.lint.pydocstyle]
 # Use Numpy-style docstrings.
