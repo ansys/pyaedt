@@ -590,7 +590,8 @@ class Desktop(PyAedtBase):
         - If ``Desktop`` is used in a context manager (``with`` statement), the context manager take
           precedence and AEDT will be closed on exit (equivalent to ``close_on_exit=True``).
         - If PyAEDT actually starts a new AEDT session, the session will be closed on exit (``close_on_exit=True``).
-        - If PyAEDT connects to an existing AEDT session, the session will not be closed on exit (``close_on_exit=False``).
+        - If PyAEDT connects to an existing AEDT session, the session will not be closed
+          on exit (``close_on_exit=False``).
 
         A user-specified boolean (``True`` or ``False``) always overrides the automatic behavior.
         When ``Desktop`` is used outside a context manager, the `release_desktop` method arguments offer
@@ -808,7 +809,9 @@ class Desktop(PyAedtBase):
         _desktop_sessions[self.aedt_process_id] = self
         # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(
-            lambda: self.__release_and_close_desktop(close_projects=self.close_on_exit, close_aedt_app=self.close_on_exit)
+            lambda: self.__release_and_close_desktop(
+                close_projects=self.close_on_exit, close_aedt_app=self.close_on_exit
+            )
         )
 
     @property
