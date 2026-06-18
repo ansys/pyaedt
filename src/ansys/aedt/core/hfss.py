@@ -281,6 +281,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup` and
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_open_region()
+        >>> setups = hfss.field_setups
+        Edit start phi for the first field setup.
+        >>> hfss.field_setups[0].phi_start = 0
         """
         self._field_setups = []
         radiation_oo = self.get_oo_object(self.odesign, "Radiation")
@@ -301,6 +310,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         List of str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_open_region()
+        >>> hfss.field_setup_names
+        ['3D', 'Azimuth', 'Elevation']
         """
         return self.get_oo_name(self.odesign, "Radiation")
 
