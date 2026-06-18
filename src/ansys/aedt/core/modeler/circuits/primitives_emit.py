@@ -951,7 +951,7 @@ class EmitRadioComponent(EmitComponent):
         """Set stop frequency of the band.
 
         .. deprecated:: 0.25.2
-            This method is deprecated.
+            This method is deprecated. Use the band_node.stop_frequency property instead.
 
         Parameters
         ----------
