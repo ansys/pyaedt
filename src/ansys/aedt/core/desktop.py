@@ -2338,7 +2338,7 @@ class Desktop(PyAedtBase):
     def __init_desktop(self) -> None:
         # run it after the settings.non_graphical is set
         self.pyaedt_version = __version__
-        settings.aedt_version = self.odesktop.GetVersion()[0:6]
+        self.aedt_version_id = self.odesktop.GetVersion()[0:6]
         self.odesktop.RestoreWindow()
         self.aedt_install_dir = self.odesktop.GetExeDir()
 
@@ -2396,7 +2396,6 @@ class Desktop(PyAedtBase):
 
         # Save the version information in the instance and global settings for later use
         self.aedt_version_id = specified_version
-        settings.aedt_version = specified_version
 
         # Save the version string for COM dispatching
         self.aedt_version_string = version
@@ -2571,15 +2570,15 @@ class Desktop(PyAedtBase):
             )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
-            # NOTE: This is particularly necessary for rpyc connections where the version information is not available
-            # until after the connection is established and the desktop object is retrieved.
-            if self.aedt_version_id is None:
-                self.logger.debug("AEDT version is not set. Attempting to determine version from base path.")
-                aedt_version = next(
-                    (version for version, path in aedt_versions.installed_versions.items() if path == base_path), None
-                )
-                if aedt_version:
-                    self.aedt_version_id = aedt_version
+            # # NOTE: This is particularly necessary for rpyc connections where the version information is not available
+            # # until after the connection is established and the desktop object is retrieved.
+            # if self.aedt_version_id is None:
+            #     self.logger.debug("AEDT version is not set. Attempting to determine version from base path.")
+            #     aedt_version = next(
+            #         (version for version, path in aedt_versions.installed_versions.items() if path == base_path), None
+            #     )
+            #     if aedt_version:
+            #         self.aedt_version_id = aedt_version
 
             return oapp
 
