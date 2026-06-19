@@ -6,6 +6,18 @@ on:
 
 permissions: {}
 
+env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  MAIN_PYTHON_VERSION: '3.14'
+  TESTS_VERSION: '3.10'
+  PACKAGE_NAME: 'PyAEDT'
+  DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+  PYAEDT_DOC_BUILD_CHEATSHEET: False
+  ON_CI: True
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml --testmon
+  PYTEST_ARGUMENTS_NON_TESTMON: -vvv --color=yes -ra --durations=25 --maxfail=10 --junitxml=junit/test-results.xml
+  PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+
 jobs:
   test-linux:
     name: "pytest test_configuration_files"
