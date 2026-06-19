@@ -34,6 +34,59 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 
+# Wire gauge whitelists used by the straight-wire cable parser.
+# ``ISO`` values are nominal cross-sectional areas expressed in mm^2; ``AWG``
+# values are American Wire Gauge designations passed through to the native
+# AEDT API ``oModule.CreateStraightWireCable``.
+ISO_WIRE_GAUGES = [
+    "0.13",
+    "0.22",
+    "0.35",
+    "0.5",
+    "0.75",
+    "1",
+    "1.5",
+    "2",
+    "2.5",
+    "3",
+    "4",
+    "5",
+    "6",
+    "10",
+    "16",
+    "25",
+    "35",
+    "50",
+    "70",
+    "95",
+    "120",
+]
+AWG_WIRE_GAUGES = [
+    "4/0",
+    "3/0",
+    "2/0",
+    "1/0",
+    "1",
+    "2",
+    "4",
+    "6",
+    "8",
+    "10",
+    "12",
+    "14",
+    "16",
+    "18",
+    "20",
+    "22",
+    "24",
+    "25",
+    "26",
+    "28",
+    "30",
+    "32",
+]
+SUPPORTED_WIRE_STANDARDS = ("ISO", "AWG")
+
 
 class Cable(PyAedtBase):
     """Contains all common Cable features.
@@ -45,6 +98,12 @@ class Cable(PyAedtBase):
         Full path to either the JSON file or dictionary containing the cable information.
     working_dir : str, optional
         Working directory.
+
+    Notes
+    -----
+    Straight-wire cable definitions accept either the ``"ISO"`` or ``"AWG"``
+    wire standard. The accepted gauge values are exposed as
+    :data:`ISO_WIRE_GAUGES` and :data:`AWG_WIRE_GAUGES`.
 
     Examples
     --------
@@ -888,48 +947,39 @@ class Cable(PyAedtBase):
                         self.straight_wire_insulation_thickness = "0.25mm"
                         self.insulation_material = "PVC plastic"
                     else:
-                        if cable_st_wire_properties["StWireParams"]["WireStandard"] == "ISO":
-                            self.wire_standard = cable_st_wire_properties["StWireParams"]["WireStandard"]
-                        else:
-                            msg = 'The only accepted wire standard is "ISO".'
-                            raise ValueError(msg)
-                        if cable_st_wire_properties["StWireParams"]["WireGauge"] in [
-                            "0.13",
-                            "0.22",
-                            "0.35",
-                            "0.5",
-                            "0.75",
-                            "1",
-                            "1.5",
-                            "2",
-                            "2.5",
-                            "3",
-                            "4",
-                            "5",
-                            "6",
-                            "10",
-                            "16",
-                            "25",
-                            "35",
-                            "50",
-                            "70",
-                            "95",
-                            "120",
-                        ]:
-                            self.wire_type = cable_st_wire_properties["StWireParams"]["WireGauge"]
-                            if self.wire_type in ["0.13", "0.22", "0.35"]:
-                                insulation_type_options = ["Thin Wall", "Ultra-Thin Wall"]
-                            elif self.wire_type in ["0.5", "0.75", "1", "1.5", "2", "2.5"]:
-                                insulation_type_options = ["Thick Wall", "Thin Wall", "Ultra-Thin Wall"]
-                            elif self.wire_type in ["3", "4", "5", "6", "10", "16", "25"]:
-                                insulation_type_options = ["Thick Wall", "Thin Wall"]
-                            elif self.wire_type in ["35", "50", "70", "95", "120"]:
-                                insulation_type_options = ["Thick Wall"]
+                        wire_standard = cable_st_wire_properties["StWireParams"]["WireStandard"]
+                        if wire_standard in SUPPORTED_WIRE_STANDARDS:
+                            self.wire_standard = wire_standard
                         else:
                             msg = (
-                                "Wire type not valid. Available options are: 0.13, 0.22, 0.35, 0.5, 0.75, 1, 1.5, 2, "
-                                "2.5, 3, 4, 5, 6, 10, 16, 25, 35, 50, 70, 95, 120."
-                            )
+                                'Wire standard "{0}" is not valid. Accepted values are: {1}.'
+                            ).format(wire_standard, ", ".join(SUPPORTED_WIRE_STANDARDS))
+                            raise ValueError(msg)
+                        wire_gauge = cable_st_wire_properties["StWireParams"]["WireGauge"]
+                        if self.wire_standard == "ISO":
+                            allowed_gauges = ISO_WIRE_GAUGES
+                        else:
+                            allowed_gauges = AWG_WIRE_GAUGES
+                        if wire_gauge in allowed_gauges:
+                            self.wire_type = wire_gauge
+                            if self.wire_standard == "ISO":
+                                if self.wire_type in ["0.13", "0.22", "0.35"]:
+                                    insulation_type_options = ["Thin Wall", "Ultra-Thin Wall"]
+                                elif self.wire_type in ["0.5", "0.75", "1", "1.5", "2", "2.5"]:
+                                    insulation_type_options = ["Thick Wall", "Thin Wall", "Ultra-Thin Wall"]
+                                elif self.wire_type in ["3", "4", "5", "6", "10", "16", "25"]:
+                                    insulation_type_options = ["Thick Wall", "Thin Wall"]
+                                elif self.wire_type in ["35", "50", "70", "95", "120"]:
+                                    insulation_type_options = ["Thick Wall"]
+                            else:
+                                # AEDT accepts the three insulation classes for AWG cables; the
+                                # native solver enforces gauge-specific restrictions at runtime.
+                                insulation_type_options = ["Thick Wall", "Thin Wall", "Ultra-Thin Wall"]
+                        else:
+                            msg = (
+                                "Wire gauge '{0}' is not valid for wire standard '{1}'. "
+                                "Available options are: {2}."
+                            ).format(wire_gauge, self.wire_standard, ", ".join(allowed_gauges))
                             raise ValueError(msg)
                         self.conductor_diameter = cable_st_wire_properties["StWireParams"]["CondDiameter"]
                         if self._app.materials.material_keys.get(
