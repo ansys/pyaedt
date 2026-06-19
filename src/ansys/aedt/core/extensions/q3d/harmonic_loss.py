@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
@@ -22,7 +23,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import asdict
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -34,7 +34,6 @@ import pandas as pd
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionQ3DCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -145,14 +144,12 @@ class HarmonicLossExtension(ExtensionQ3DCommon):
             self.root.destroy()
 
         def browse_files() -> None:
-            global result
             filename = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select a CSV File",
                 filetypes=(("CSV", ".csv"), ("all files", "*.*")),
             )
             browse_file_entry.insert(tk.END, filename)
-            result = ExtensionData(csv_path=browse_file_entry.get("1.0", tk.END).strip())
 
         # Create button to browse an AEDT file
         browse_button = ttk.Button(
@@ -262,12 +259,14 @@ if __name__ == "__main__":
 
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        extension: ExtensionProjectCommon = HarmonicLossExtension(withdraw=False)
+        extension: ExtensionQ3DCommon = HarmonicLossExtension(withdraw=False)
 
         tk.mainloop()
 
-        if result:
-            args.update(asdict(result))
-            main(args)
+        if extension.data is not None:
+            main(extension.data)
     else:
-        main(args)
+        data = ExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)
