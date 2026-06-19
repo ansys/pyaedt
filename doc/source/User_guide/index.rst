@@ -18,6 +18,13 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
 
             How to launch AEDT and create a project.
 
+   .. grid-item-card:: Desktop sessions
+            :link: desktop_sessions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How PyAEDT launches, connects to, and closes AEDT sessions.
+
    .. grid-item-card:: Extensions
             :link: extensions
             :link-type: doc
@@ -93,6 +100,7 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
    :maxdepth: 2
 
    intro
+   desktop_sessions
    extensions
    modeler
    mesh

@@ -1,0 +1,122 @@
+Desktop sessions
+================
+
+PyAEDT can use ``Desktop`` either to start a new AEDT session or to connect to an
+existing one. The ``close_on_exit`` argument controls whether that AEDT session is
+closed when leaving a context manager or when the Python interpreter session ends.
+
+When ``close_on_exit`` is not explicitly provided, PyAEDT chooses the behavior automatically:
+
+- Inside a context manager (``with Desktop(...)``), ``close_on_exit`` is treated as ``True``.
+- Outside a context manager:
+
+  - if PyAEDT starts a new AEDT session, ``close_on_exit`` behaves as ``True``
+  - if PyAEDT connects to an existing AEDT session, ``close_on_exit`` behaves as ``False``
+
+When ``close_on_exit`` is explicitly set to ``True`` or ``False``, the user choice is always respected.
+
+Behavior summary
+----------------
+
+The following table summarizes the most common behavior combinations:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 20 20 35
+
+   * - Usage
+     - AEDT session used by PyAEDT
+     - ``close_on_exit``
+     - Result on exit
+   * - ``with Desktop(...)``
+     - New or existing session
+     - omitted
+     - AEDT closes when leaving the context manager
+   * - ``with Desktop(...)``
+     - New or existing session
+     - ``True``
+     - AEDT closes when leaving the context manager
+   * - ``with Desktop(...)``
+     - New or existing session
+     - ``False``
+     - AEDT remains open when leaving the context manager
+   * - ``Desktop(...)``
+     - New session started by PyAEDT
+     - omitted
+     - AEDT closes when the interpreter session ends
+   * - ``Desktop(...)``
+     - Existing session connected by PyAEDT
+     - omitted
+     - AEDT remains open when the interpreter session ends
+   * - ``Desktop(...)``
+     - New or existing session
+     - ``True``
+     - AEDT closes when the interpreter session ends
+   * - ``Desktop(...)``
+     - New or existing session
+     - ``False``
+     - AEDT remains open when the interpreter session ends
+
+Use a context manager
+---------------------
+
+Use a context manager when you want deterministic cleanup at the end of a block:
+
+.. code:: python
+
+    import ansys.aedt.core
+
+    with ansys.aedt.core.Desktop(
+        version="2026.1",
+        non_graphical=True,
+        new_desktop=True,
+    ):
+        hfss = ansys.aedt.core.Hfss()
+        # Work with AEDT here.
+
+    # AEDT is automatically closed here.
+
+If needed, you can still override the default behavior explicitly:
+
+.. code:: python
+
+    import ansys.aedt.core
+
+    with ansys.aedt.core.Desktop(
+        version="2026.1",
+        non_graphical=True,
+        new_desktop=False,
+        close_on_exit=False,
+    ):
+        hfss = ansys.aedt.core.Hfss()
+        # Work with an existing AEDT session here.
+
+    # The AEDT session remains open here.
+
+Use Desktop directly
+--------------------
+
+When ``Desktop`` is used directly, the default behavior depends on whether PyAEDT starts
+or attaches to AEDT. You can also release the desktop explicitly for finer control:
+
+.. code:: python
+
+    import ansys.aedt.core
+
+    d = ansys.aedt.core.Desktop(
+        version="2026.1",
+        non_graphical=False,
+        new_desktop=False,
+    )
+
+    hfss = ansys.aedt.core.Hfss()
+    # Work with AEDT here.
+
+    d.release_desktop(close_projects=False, close_desktop=False)
+
+Recommendations
+---------------
+
+- Use ``with Desktop(...)`` when you want predictable cleanup.
+- Use direct ``Desktop(...)`` construction when you need more manual control over the AEDT session lifecycle.
+- When attaching to an existing AEDT session, consider leaving ``close_on_exit`` unset or setting it explicitly to ``False`` if you do not want PyAEDT to close that session.
