@@ -22,6 +22,7 @@ url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions
 
 [HarmonicLoss]
 icon = "images/large/harmonics.png"
-name = "Excitations setup for Harmonic Loss in Q3D"
+name = "Harmonic Loss Input"
 script = "harmonic_loss.py"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/q3d/harmonic_loss.html"
