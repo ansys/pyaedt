@@ -47,7 +47,7 @@ jobs:
       - name: Install pyedb from main branch
         run: |
           source .venv/bin/activate
-          pip install git+https://github.com/ansys/pyedb.git@main
+          uv pip install git+https://github.com/ansys/pyedb.git@main
 
       - name: Run test
         run: pytest -v tests/system/general/test_configuration_files.py
@@ -87,7 +87,7 @@ jobs:
       - name: Install pyedb from main branch
         run: |
           .venv\Scripts\Activate.ps1
-          pip install git+https://github.com/ansys/pyedb.git@main
+          uv pip install git+https://github.com/ansys/pyedb.git@main
 
       - name: Run test
         run: pytest -v tests/system/general/test_configuration_files.py
