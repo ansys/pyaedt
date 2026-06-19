@@ -1,0 +1,92 @@
+name: Test configuration files (pyedb@main)
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  test-linux:
+    name: "pytest test_configuration_files"
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT261: '/usr/ansys_inc/v261/AnsysEM'
+      ANS_NODEPCHECK: '1'
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          uv sync --frozen --group tests --extra all
+
+      - name: Install pyedb from main branch
+        run: |
+          source .venv/bin/activate
+          pip install git+https://github.com/ansys/pyedb.git@main
+
+      - name: Run test
+        run: pytest -v tests/system/general/test_configuration_files.py
+
+  test-windows:
+    name: "pytest test_configuration_files"
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    permissions:
+      contents: read
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv sync --frozen --group tests --extra all
+
+      - name: Install pyedb from main branch
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install git+https://github.com/ansys/pyedb.git@main
+
+      - name: Run test
+        run: pytest -v tests/system/general/test_configuration_files.py
