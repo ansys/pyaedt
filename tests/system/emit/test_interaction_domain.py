@@ -65,6 +65,17 @@ def cell_phone(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.fixture
+def domain_test(add_app_example):
+    app = add_app_example(
+        project="Domain",
+        application=Emit,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
 def test_interaction_domain(cell_phone):
     # Test domain get/set, isSingleInstance, errors
@@ -202,3 +213,24 @@ def test_interaction_domain_by_nodes(cell_phone):
     assert domain.interferer_names[0] == radios[1].name
     assert domain.interferer_band_names[0] == tx_band_nodes[0].name
     assert sim.is_domain_valid(domain) == ""
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Skipped on versions earlier than 2027.1")
+def test_domain_validity(domain_test):
+    domain = InteractionDomain(domain_test)
+    rev = domain_test.results.analyze()
+    sim = rev.get_simulation()
+    domain.set_receiver(radio="Radio")
+    assert sim.is_domain_valid(domain) == "Receiver 'Radio' is disconnected."
+    domain.set_receiver(radio="Radio 4")
+    assert sim.is_domain_valid(domain) == "Receiver 'Radio 4' is disabled."
+    domain.set_receiver(radio="Radio 5")
+    assert "Receiver 'Radio 5' has warnings: " in sim.is_domain_valid(domain)
+
+    domain.set_receiver("Radio 2")
+    domain.set_interferer("Radio")
+    assert sim.is_domain_valid(domain) == "Interferer 'Radio' is disconnected."
+    domain.set_interferer("Radio 4")
+    assert sim.is_domain_valid(domain) == "Interferer 'Radio 4' is disabled."
+    domain.set_interferer("Radio 5")
+    assert "Interferer 'Radio 5' has warnings: " in sim.is_domain_valid(domain)
