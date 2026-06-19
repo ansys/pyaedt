@@ -2505,9 +2505,7 @@ class Desktop(PyAedtBase):
         # we should have a check here to see if AEDT is really started
         self.is_grpc_api = False
 
-    def __initialize(
-        self,
-    ):
+    def __initialize(self, new_desktop_required=None):
         """Initialize connection to a new or existing AEDT desktop instance.
 
         This internal method handles the initialization of AEDT desktop connections,
@@ -2528,6 +2526,13 @@ class Desktop(PyAedtBase):
         - Connects to gRPC server already launched by ``launch_aedt()``
         - Retrieves desktop stub from gRPC channel
         - Validates connection to AEDT instance
+
+        Parameters
+        ----------
+        new_desktop_required : bool, optional
+            Whether a new AEDT desktop instance is required.
+            If ``None``, the method uses the value of ``self.new_desktop``. In gRPC mode, the desktop is usually already
+            launched by ``launch_aedt()``. A new desktop might still be required as a fallback method.
 
         Returns
         -------
@@ -2554,6 +2559,9 @@ class Desktop(PyAedtBase):
         __dispatch_win32 : Fallback COM dispatch method
         launch_aedt : Function that spawns AEDT process with gRPC server
         """
+        if new_desktop_required is None:
+            new_desktop_required = self.new_desktop
+
         if not self.is_grpc_api:  # pragma: no cover
             from ansys.aedt.core.internal.clr_module import _clr
 
@@ -2561,7 +2569,7 @@ class Desktop(PyAedtBase):
             AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
             self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
             StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-            if self.non_graphical or self.new_desktop:
+            if self.non_graphical or new_desktop_required:
                 self.launched_by_pyaedt = True
                 return StandalonePyScriptWrapper.CreateObjectNew(self.non_graphical)
             else:
@@ -2589,7 +2597,7 @@ class Desktop(PyAedtBase):
             server_args: _ServerArgs = _get_grpcsrv_args(self.machine, self.port)
 
             oapp = self.grpc_plugin.CreateAedtApplication(
-                server_args.client_machine, self.port, self.non_graphical, self.new_desktop
+                server_args.client_machine, self.port, self.non_graphical, new_desktop_required
             )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
@@ -2847,10 +2855,11 @@ class Desktop(PyAedtBase):
                     )
                 self.launched_by_pyaedt = True
 
-            self.new_desktop = not is_launched
-
             # Establish gRPC connection (implementation details)
-            result = self.__initialize()
+            # In gRPC mode, the desktop is usually already launched by ``launch_aedt()``.
+            # If ``launch_aedt()`` fails to start a new desktop, ``__initialize`` can try to start is through the API
+            # as a fallback method, otherwise it just connects.
+            result = self.__initialize(new_desktop_required=not is_launched)
 
             if ON_CI:
                 # Release lock file after successful launch
