@@ -50,7 +50,9 @@ jobs:
           uv pip install git+https://github.com/ansys/pyedb.git@main
 
       - name: Run test
-        run: pytest -v tests/system/general/test_configuration_files.py
+        run: |
+          source .venv/bin/activate
+          pytest -v tests/system/general/test_configuration_files.py
 
   test-windows:
     name: "pytest test_configuration_files"
@@ -90,4 +92,6 @@ jobs:
           uv pip install git+https://github.com/ansys/pyedb.git@main
 
       - name: Run test
-        run: pytest -v tests/system/general/test_configuration_files.py
+        run: |
+          .venv\Scripts\Activate.ps1
+          pytest -v tests/system/general/test_configuration_files.py
