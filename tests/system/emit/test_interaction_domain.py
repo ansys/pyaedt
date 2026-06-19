@@ -225,7 +225,9 @@ def test_domain_validity(domain_test):
     domain.set_receiver(radio="Radio 4")
     assert sim.is_domain_valid(domain) == "Receiver 'Radio 4' is disabled."
     domain.set_receiver(radio="Radio 5")
-    assert "Receiver 'Radio 5' has warnings: " in sim.is_domain_valid(domain)
+    assert "'Radio 5' has warnings: " in sim.is_domain_valid(domain)
+    domain.set_receiver(radio="Radio 3")
+    assert "'Antenna 3' has warnings: " in sim.is_domain_valid(domain)
 
     domain.set_receiver("Radio 2")
     domain.set_interferer("Radio")
@@ -233,4 +235,6 @@ def test_domain_validity(domain_test):
     domain.set_interferer("Radio 4")
     assert sim.is_domain_valid(domain) == "Interferer 'Radio 4' is disabled."
     domain.set_interferer("Radio 5")
-    assert "Interferer 'Radio 5' has warnings: " in sim.is_domain_valid(domain)
+    assert "'Radio 5' has warnings: " in sim.is_domain_valid(domain)
+    domain.set_interferer("Radio 3")
+    assert "'Antenna 3' has warnings: " in sim.is_domain_valid(domain)
