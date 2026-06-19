@@ -789,6 +789,9 @@ class Desktop(PyAedtBase):
 
         self._check_new_desktop(aedt_process_id, student_version)
 
+        # Fix the self.aedt_version_string using the updated self.aedt_version_id
+        self.aedt_version_string = self.aedt_version_string[:-6] + str(self.aedt_version_id)
+
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
         # Register the desktop closure to be called at exit unless asked not to.
@@ -2570,15 +2573,6 @@ class Desktop(PyAedtBase):
             )
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
-            # # NOTE: This is particularly necessary for rpyc connections where the version information is not available
-            # # until after the connection is established and the desktop object is retrieved.
-            # if self.aedt_version_id is None:
-            #     self.logger.debug("AEDT version is not set. Attempting to determine version from base path.")
-            #     aedt_version = next(
-            #         (version for version, path in aedt_versions.installed_versions.items() if path == base_path), None
-            #     )
-            #     if aedt_version:
-            #         self.aedt_version_id = aedt_version
 
             return oapp
 
