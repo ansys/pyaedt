@@ -45,7 +45,7 @@ The following table summarizes the most common behavior combinations:
      - omitted
      - AEDT closes when the interpreter session ends
    * - ``Desktop(...)``
-     - Existing session connected by PyAEDT
+     - PyAEDT connected to an existing session
      - omitted
      - AEDT remains open when the interpreter session ends
    * - ``Desktop(...)``
@@ -72,6 +72,7 @@ Use a context manager when you want deterministic cleanup at the end of a block:
         new_desktop=True,
     ):
         hfss = ansys.aedt.core.Hfss()
+        maxwell = ansys.aedt.core.Maxwell3d()
         # Work with AEDT here.
 
     # AEDT is automatically closed here.
@@ -89,6 +90,7 @@ If needed, you can still override the default behavior explicitly:
         close_on_exit=False,
     ):
         hfss = ansys.aedt.core.Hfss()
+        maxwell = ansys.aedt.core.Maxwell3d()
         # Work with an existing AEDT session here.
 
     # The AEDT session remains open here.

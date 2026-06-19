@@ -18,13 +18,6 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
 
             How to launch AEDT and create a project.
 
-   .. grid-item-card:: Desktop sessions
-            :link: desktop_sessions
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            How PyAEDT launches, connects to, and closes AEDT sessions.
-
    .. grid-item-card:: Extensions
             :link: extensions
             :link-type: doc
@@ -87,6 +80,13 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
             :margin: 2 2 0 0
 
             How to create and analyze EMIT designs.
+
+   .. grid-item-card:: Desktop sessions
+            :link: desktop_sessions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to use the Desktop class to gain full control of the AEDT application.
 
    .. grid-item-card:: Security considerations
             :link: security_consideration
