@@ -95,7 +95,7 @@ If needed, you can still override the default behavior explicitly:
 
     # The AEDT session remains open here.
 
-Use Desktop directly
+Use ``Desktop`` class directly
 --------------------
 
 When ``Desktop`` is used directly, the default behavior depends on whether PyAEDT starts
