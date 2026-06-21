@@ -150,11 +150,7 @@ jobs:
     needs: [pr-title]
     outputs:
       skip_tests: ${{ steps.analyze.outputs.skip_tests }}
-      doc_only: ${{ steps.analyze.outputs.doc_only }}
-      run_all: ${{ steps.analyze.outputs.run_all }}
-      emit_changed: ${{ steps.analyze.outputs.emit_changed }}
       extensions_changed: ${{ steps.analyze.outputs.extensions_changed }}
-      filter_solutions_changed: ${{ steps.analyze.outputs.filter_solutions_changed }}
     permissions:
       contents: read   # Required to read repository content and git history
     steps:
@@ -182,11 +178,9 @@ jobs:
           # Run the analyze-changes script in CI mode
           python .ci/scripts/analyze_changes.py --base origin/main
 
-          # If no outputs were set, default to run_all=true
-          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then
-            echo "run_all=true" >> $GITHUB_OUTPUT
+          # If no outputs were set, default to skip_tests=false
+          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests" "$GITHUB_OUTPUT" 2>/dev/null; then
             echo "skip_tests=false" >> $GITHUB_OUTPUT
-            echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
   doc-style:
