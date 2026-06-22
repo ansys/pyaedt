@@ -4271,7 +4271,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 argument.append("Incident Power:=")
                 argument.append(max_available_power)
 
-            available_incident_wave = [IncidentWaveType.Incident, IncidentWaveType.Scattered, IncidentWaveType.Total]
+            available_incident_wave = vars(IncidentWaveType).values()
             if incident_wave and incident_wave in available_incident_wave:
                 argument.extend(
                     [

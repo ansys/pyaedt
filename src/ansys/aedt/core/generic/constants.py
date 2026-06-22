@@ -1325,7 +1325,7 @@ class DisplayFamiliesType(metaclass=DynamicMeta):
 
 
 class IncidentWaveType(metaclass=DynamicMeta):
-    """Incident wave type enum class."""
+    """Incident wave field type constants."""
 
     (
         Total,
