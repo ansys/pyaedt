@@ -1,0 +1,27 @@
+[
+  {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://aedt.docs.pyansys.com/version/dev/"
+  },
+  {
+    "name": "1.1 (stable)",
+    "version": "1.1",
+    "url": "https://aedt.docs.pyansys.com/version/stable/"
+  },
+  {
+    "name": "1.0",
+    "version": "1.0",
+    "url": "https://aedt.docs.pyansys.com/version/1.0/"
+  },
+  {
+    "name": "0.28",
+    "version": "0.28",
+    "url": "https://aedt.docs.pyansys.com/version/0.28/"
+  },
+  {
+    "name": "Older version",
+    "version": "N/A",
+    "url": "https://aedt.docs.pyansys.com/version/"
+  }
+]

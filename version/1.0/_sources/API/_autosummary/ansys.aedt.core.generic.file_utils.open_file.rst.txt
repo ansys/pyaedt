@@ -1,0 +1,6 @@
+﻿open\_file
+==========
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: open_file

@@ -1,0 +1,6 @@
+add\_substrate\_reference
+=========================
+
+.. currentmodule:: ansys.aedt.core.modules.substrate_circuit
+
+.. automethod:: SubstrateManager.add_substrate_reference

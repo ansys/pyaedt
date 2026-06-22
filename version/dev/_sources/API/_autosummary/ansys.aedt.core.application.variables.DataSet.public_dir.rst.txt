@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.application.variables
+
+.. autoproperty:: DataSet.public_dir

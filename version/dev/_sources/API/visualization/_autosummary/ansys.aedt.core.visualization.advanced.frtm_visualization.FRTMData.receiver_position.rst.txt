@@ -1,0 +1,6 @@
+receiver\_position
+==================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.receiver_position

@@ -1,0 +1,6 @@
+imported\_solution\_names
+=========================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. autoproperty:: Hfss.imported_solution_names

@@ -1,0 +1,6 @@
+image\_width
+============
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. autoproperty:: VirtualCompliance.image_width
