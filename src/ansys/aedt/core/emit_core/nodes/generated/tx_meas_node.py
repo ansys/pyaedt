@@ -45,7 +45,16 @@ class TxMeasNode(EmitNode):
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio")
+        >>> tx_meas = radio.children[0].import_tx_measurement("C:\\Temp\\tx_measurement.csv")
+        >>> tx_meas.delete()
+        """
         self._delete()
 
     @property

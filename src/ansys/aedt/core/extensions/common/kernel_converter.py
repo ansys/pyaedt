@@ -85,7 +85,13 @@ EXTENSION_TITLE = "Kernel Converter"
 
 @dataclass
 class KernelConverterExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData
+    >>> data = KernelConverterExtensionData(file_path=r"D:\\Projects\\legacy_board.aedt", application="HFSS")
+    """
 
     password: str = EXTENSION_DEFAULT_ARGUMENTS["password"]
     application: str = EXTENSION_DEFAULT_ARGUMENTS["application"]
@@ -94,7 +100,13 @@ class KernelConverterExtensionData(ExtensionCommonData):
 
 
 class KernelConverterExtension(ExtensionProjectCommon):
-    """Extension for kernel converter in AEDT."""
+    """Extension for kernel converter in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
+    >>> extension = KernelConverterExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
@@ -116,7 +128,14 @@ class KernelConverterExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
+        >>> extension = KernelConverterExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # File path selection
         file_label = ttk.Label(
             self.root,
@@ -385,7 +404,14 @@ def _convert_aedt(extension_args, output_desktop, input_desktop) -> None:
 
 
 def main(data: KernelConverterExtensionData) -> bool:  # pragma: no cover
-    """Main function to run the kernel converter extension."""
+    """Main function to run the kernel converter extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData, main
+    >>> data = KernelConverterExtensionData(file_path=r"D:\\Projects\\legacy_board.aedt")
+    >>> main(data)
+    """
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided to the extension.")
 

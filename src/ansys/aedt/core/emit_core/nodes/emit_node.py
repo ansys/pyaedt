@@ -43,7 +43,14 @@ T = TypeVar("T", bound="EmitNode")
 
 
 class EmitNode:
-    """Emit node class for managing and interacting with EMIT nodes."""
+    """Emit node class for managing and interacting with EMIT nodes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Emit
+    >>> app = Emit()
+    >>> node = app.schematic.create_component("Bluetooth")
+    """
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
         self._emit_obj = emit_obj
@@ -59,7 +66,15 @@ class EmitNode:
 
     @property
     def odesktop(self):
-        """Desktop instance used for version checking."""
+        """Desktop instance used for version checking.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.odesktop
+        """
         return self._emit_obj.odesktop
 
     @staticmethod
@@ -75,6 +90,10 @@ class EmitNode:
         -------
         dict
             Properties returned as a dictionary.
+
+        Examples
+        --------
+        >>> EmitNode.props_to_dict(["Name=Radio1", "Type=RadioNode"])
         """
         result = {}
         for prop in props:
@@ -93,6 +112,13 @@ class EmitNode:
         -------
         bool
             ``True`` if the object is valid, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.valid
         """
         return self._valid
 
@@ -105,6 +131,13 @@ class EmitNode:
         -------
         str
             Name of the node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.name
         """
         return self._get_property("Name", True)
 
@@ -122,6 +155,13 @@ class EmitNode:
         ------
         ValueError
             If the node is read-only or cannot be renamed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.name = "Bluetooth_1"
         """
         if self._result_id > 0:
             raise ValueError("This node is read-only for kept results.")
@@ -170,6 +210,13 @@ class EmitNode:
         -------
         Str
             Full node name of this node's parent node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.parent_name
         """
         return self._get_property("Parent", True)
 
@@ -210,6 +257,13 @@ class EmitNode:
         -------
         dict
             Dictionary of the node's properties with display name as key.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.properties
         """
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         props = self.props_to_dict(props)
@@ -224,6 +278,13 @@ class EmitNode:
         -------
         str
             Warning message(s).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.warnings
         """
         node_warnings = ""
         try:
@@ -244,6 +305,13 @@ class EmitNode:
         -------
         list
             Allowed child types.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Antenna")
+        >>> node.allowed_child_types
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
@@ -307,6 +375,13 @@ class EmitNode:
         -------
         list[EmitNode]
             List of child nodes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, _ = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter.children
         """
         child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
         child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
@@ -637,6 +712,13 @@ class EmitNode:
         -------
         bool
             ``True`` if the node is a component. ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> node = app.schematic.create_component("Bluetooth")
+        >>> node.get_is_component()
         """
         return self._is_component
 

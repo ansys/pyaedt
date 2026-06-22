@@ -187,6 +187,12 @@ class Results:
         -------
         revision_names : list str
             List of all revision names.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.results.revision_names()
         """
         return [rev.name for rev in self.revisions]
 

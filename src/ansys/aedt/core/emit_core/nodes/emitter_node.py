@@ -48,9 +48,11 @@ class EmitterNode(EmitNode):
     node_id : int
         Unique ID associated with the node.
 
-    >>> aedtapp.results = Results()
-    >>> revision = aedtapp.results.analyze()
-    >>> receivers = revision.get_receiver_names()
+    Examples
+    --------
+    >>> from ansys.aedt.core import Emit
+    >>> app = Emit()
+    >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
     """
 
     def __init__(self, emit_obj, result_id, node_id) -> None:
@@ -72,17 +74,41 @@ class EmitterNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node"""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter.node_type
+        """
         return "EmitterNode"
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str) -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter_copy = emitter.duplicate("Bluetooth_Copy")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> emitter.delete()
+        """
         self._delete()
 
     @min_aedt_version("2025.2")

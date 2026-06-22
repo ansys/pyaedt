@@ -51,7 +51,13 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterDesignBase(PyAedtBase):
-    """Provides the `FilterSolutions` main parameters applicable for all design types."""
+    """Provides the `FilterSolutions` main parameters applicable for all design types.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
+    >>> design = FilterDesignBase(version="2026.1")
+    """
 
     _active_design = None
 
@@ -80,7 +86,14 @@ class FilterDesignBase(PyAedtBase):
         self.export_to_aedt = ExportToAedt()
 
     def close(self) -> None:
-        """Closes the current design and clears the active design."""
+        """Closes the current design and clears the active design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import FilterDesignBase
+        >>> design = FilterDesignBase(version="2026.1")
+        >>> design.close()
+        """
         if FilterDesignBase._active_design == self:
             print(f"Closing design: {self}")
             self._cleanup_resources()
@@ -143,7 +156,7 @@ class LumpedDesign(FilterDesignBase):
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
 
-    Example
+    Examples
     --------
     Create a ``FilterSolutions.LumpedDesign`` instance with a band-pass elliptic filter.
 
@@ -178,7 +191,7 @@ class DistributedDesign(FilterDesignBase):
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
 
-    Example
+    Examples
     --------
     Create a ``FilterSolutions.DistributedDesign`` instance with a band-pass interdigital filter.
 

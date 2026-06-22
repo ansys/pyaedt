@@ -35,6 +35,12 @@ class LumpedTopology:
     """Defines topology parameters of lumped filters.
 
     This class allows you to define and modify the topology parameters of lumped filters.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+    >>> design = LumpedDesign("2026.1")
+    >>> design.topology
     """
 
     def __init__(self) -> None:
@@ -185,6 +191,12 @@ class LumpedTopology:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.source_resistance = "75"
         """
         if self._dll_interface.api_version() >= "2025.2":
             source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedSourceResistance)
@@ -206,6 +218,12 @@ class LumpedTopology:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.load_resistance = "75"
         """
         if self._dll_interface.api_version() >= "2025.2":
             load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistance)
@@ -227,6 +245,12 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.current_source = True
         """
         current_source = c_bool()
         status = self._dll.getLumpedCurrentSource(byref(current_source))
@@ -247,6 +271,12 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.first_shunt = False
         """
         first_shunt = c_bool()
         status = self._dll.getLumpedFirstElementShunt(byref(first_shunt))
@@ -265,6 +295,14 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.bridge_t = True
         """
         bridge_t = c_bool()
         status = self._dll.getLumpedBridgeT(byref(bridge_t))
@@ -283,6 +321,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType, FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.DIPLEXER_1
+        >>> design.attributes.diplexer_type = DiplexerType.HI_LO
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.bridge_t_low = True
         """
         bridge_t_low = c_bool()
         status = self._dll.getLumpedBridgeTLow(byref(bridge_t_low))
@@ -301,6 +349,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType, FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.DIPLEXER_1
+        >>> design.attributes.diplexer_type = DiplexerType.HI_LO
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.bridge_t_high = True
         """
         bridge_t_high = c_bool()
         status = self._dll.getLumpedBridgeTHigh(byref(bridge_t_high))
@@ -319,6 +377,14 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.topology.equal_inductors = True
         """
         equal_inductors = c_bool()
         status = self._dll.getLumpedEqualInductors(byref(equal_inductors))
@@ -337,6 +403,17 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
+        >>> design.topology.min_cap = True
+        >>> design.topology.equal_capacitors = True
         """
         equal_capacitors = c_bool()
         status = self._dll.getLumpedEqualCapacitors(byref(equal_capacitors))
@@ -355,6 +432,14 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.topology.equal_legs = True
         """
         equal_legs = c_bool()
         status = self._dll.getLumpedEqualLegs(byref(equal_legs))
@@ -373,6 +458,14 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.topology.high_low_pass = True
         """
         high_low_pass = c_bool()
         status = self._dll.getLumpedHighLowPass(byref(high_low_pass))
@@ -392,6 +485,15 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.high_low_pass_min_ind = True
         """
         high_low_pass_min_ind = c_bool()
         status = self._dll.getLumpedHighLowPassMinInd(byref(high_low_pass_min_ind))
@@ -410,6 +512,15 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
         """
         zig_zag = c_bool()
         status = self._dll.getLumpedZigZag(byref(zig_zag))
@@ -428,6 +539,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
+        >>> design.topology.min_ind = True
         """
         min_ind = c_bool()
         status = self._dll.getLumpedMinInd(byref(min_ind))
@@ -446,6 +567,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
+        >>> design.topology.min_cap = True
         """
         min_cap = c_bool()
         status = self._dll.getLumpedMinCap(byref(min_cap))
@@ -464,6 +595,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
+        >>> design.topology.set_source_res = True
         """
         set_source_res = c_bool()
         status = self._dll.getLumpedSourceRes(byref(set_source_res))
@@ -482,6 +623,16 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.zig_zag = True
+        >>> design.topology.trap_topology = True
         """
         trap_topology = c_bool()
         status = self._dll.getLumpedTrapTopology(byref(trap_topology))
@@ -500,6 +651,15 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
+        >>> design.topology.node_cap_ground = True
         """
         node_cap_ground = c_bool()
         status = self._dll.getLumpedNodeCapGround(byref(node_cap_ground))
@@ -518,6 +678,15 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+        >>> design = LumpedDesign("2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
+        >>> design.topology.source_resistance = "75"
+        >>> design.topology.match_impedance = True
         """
         match_impedance = c_bool()
         status = self._dll.getLumpedMatchImpedance(byref(match_impedance))
@@ -536,6 +705,12 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
         """
         complex_termination = c_bool()
         status = self._dll.getLumpedComplexTermination(byref(complex_termination))
@@ -554,6 +729,13 @@ class LumpedTopology:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.topology.complex_termination = True
+        >>> design.topology.complex_element_tune_enabled = False
         """
         complex_element_tune_enabled = c_bool()
         status = self._dll.getLumpedComplexElementTuneEnabled(byref(complex_element_tune_enabled))
@@ -566,7 +748,15 @@ class LumpedTopology:
         self._dll_interface.raise_error(status)
 
     def netlist(self):
-        """Execute real filter synthesis"""
+        """Execute real filter synthesis
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> netlist = design.topology.netlist()
+        >>> netlist.splitlines()[0]
+        """
         size = c_int()
         if self._dll_interface.api_version() >= "2025.2":
             status = self._dll.getLumpedNetlistSize(byref(size))

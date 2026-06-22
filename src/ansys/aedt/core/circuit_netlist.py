@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``CircuitNetlist`` class."""
+"""This module contains the ``CircuitNetlist`` class.
+
+Examples
+--------
+>>> from ansys.aedt.core import CircuitNetlist
+>>> netlist = CircuitNetlist()
+"""
 
 from pathlib import Path
 import shutil
@@ -165,6 +171,10 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         -------
         str
             File Path.
+
+        Examples
+        --------
+        >>> log_path = netlist.browse_log_file()
         """
         if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")

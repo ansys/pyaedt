@@ -32,8 +32,8 @@ class DirMixin:
     This is primarily intended to make interactive exploration and autocomplete faster.
     Instead of typing `dir(obj)`, you can type `obj.public_dir`.
 
-    Example
-    -------
+    Examples
+    --------
     >>> class Example(DirMixin):
     ...     def foo(self):
     ...         pass
@@ -52,7 +52,15 @@ class DirMixin:
 
     @property
     def public_dir(self):
-        """Shortcut for dir(self)."""
+        """Shortcut for dir(self).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.base import DirMixin
+        >>> class Example(DirMixin):
+        ...     pass
+        >>> Example().public_dir
+        """
         result = []
         for name in dir(self):
             if name.startswith("_") or name == "public_dir":
@@ -88,6 +96,13 @@ class PyAedtBase(DirMixin):
     - Python's method resolution order (MRO) ensures that if `Base` is
       inherited multiple times through different paths, it will only appear
       once in the hierarchy.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.base import PyAedtBase
+    >>> class Example(PyAedtBase):
+    ...     pass
+    >>> Example()
     """
 
     def __repr__(self) -> str:

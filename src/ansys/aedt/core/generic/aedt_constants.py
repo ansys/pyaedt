@@ -937,7 +937,13 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
 
 
 class DesignType(metaclass=DynamicMeta):
-    """Design Type class"""
+    """Design Type class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.aedt_constants import DesignType
+    >>> DesignType.HFSS
+    """
 
     (
         HFSS,

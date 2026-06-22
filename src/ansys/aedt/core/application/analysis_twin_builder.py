@@ -88,6 +88,12 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import TwinBuilder
+    >>> tb = TwinBuilder()
+    >>> tb.create_setup(name="Setup1")
     """
 
     @property
@@ -97,6 +103,12 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSolutionSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.setup_names
         """
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
@@ -147,6 +159,12 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerTwinBuilder`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.modeler
         """
         if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
@@ -162,6 +180,12 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.post
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -190,6 +214,12 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.SetupCircuit`
             Setup object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder()
+        >>> tb.create_setup(name="Setup1")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup

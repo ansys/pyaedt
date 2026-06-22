@@ -937,11 +937,31 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
         self.default_font = ("Segoe UI", 10)
 
     def apply_light_theme(self, style: ttk.Style):
-        """Apply light theme."""
+        """Apply light theme.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ExtensionTheme
+        >>> root = tkinter.Tk()
+        >>> theme = ExtensionTheme()
+        >>> theme.apply_light_theme(ttk.Style())
+        """
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style: ttk.Style):
-        """Apply dark theme."""
+        """Apply dark theme.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ExtensionTheme
+        >>> root = tkinter.Tk()
+        >>> theme = ExtensionTheme()
+        >>> theme.apply_dark_theme(ttk.Style())
+        """
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):
@@ -1281,7 +1301,17 @@ def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
 
 
 class ToolTip:
-    """Create a tooltip for a given widget."""
+    """Create a tooltip for a given widget.
+
+    Examples
+    --------
+    >>> import tkinter
+    >>> from tkinter import ttk
+    >>> from ansys.aedt.core.extensions.misc import ToolTip
+    >>> root = tkinter.Tk()
+    >>> button = ttk.Button(root, text="Info")
+    >>> tooltip = ToolTip(button, "Open the active project")
+    """
 
     # Palette keyed by theme name.
     _COLORS = {
@@ -1305,15 +1335,45 @@ class ToolTip:
         return self._COLORS.get(theme, self._COLORS["light"])
 
     def enter(self, event=None):
-        """Show tooltip on mouse enter."""
+        """Show tooltip on mouse enter.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.enter()
+        """
         self.show_tooltip()
 
     def leave(self, event=None):
-        """Hide tooltip on mouse leave."""
+        """Hide tooltip on mouse leave.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.leave()
+        """
         self.hide_tooltip()
 
     def show_tooltip(self) -> None:  # pragma: no cover
-        """Display tooltip."""
+        """Display tooltip.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.show_tooltip()
+        """
         if self.tipwindow or not self.text:
             return
         colors = self._current_colors()
@@ -1338,7 +1398,17 @@ class ToolTip:
         label.pack(ipadx=1)
 
     def hide_tooltip(self) -> None:  # pragma: no cover
-        """Hide tooltip."""
+        """Hide tooltip.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from tkinter import ttk
+        >>> from ansys.aedt.core.extensions.misc import ToolTip
+        >>> root = tkinter.Tk()
+        >>> tooltip = ToolTip(ttk.Button(root, text="Info"), "Details")
+        >>> tooltip.hide_tooltip()
+        """
         tw = self.tipwindow
         self.tipwindow = None
         if tw:
@@ -1346,7 +1416,14 @@ class ToolTip:
 
 
 def decline_pyaedt_update(declined_file_path: Path, latest_version: str) -> None:
-    """Record that the user declined the update notification."""
+    """Record that the user declined the update notification.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.extensions.misc import decline_pyaedt_update
+    >>> decline_pyaedt_update(Path(r"C:\\Users\\user\\AppData\\Local\\Ansys\\Toolkits\\.pyaedt_version"), "0.18.0")
+    """
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)
         if latest_version is None:

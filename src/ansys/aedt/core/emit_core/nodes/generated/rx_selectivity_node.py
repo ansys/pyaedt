@@ -34,23 +34,43 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> rx_selectivity.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> rx_selectivity.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File...
+
+        Examples
+        --------
+        >>> rx_selectivity.import_csv_file("C:\\Temp\\rx_selectivity.csv")
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> rx_selectivity.delete()
+        """
         self._delete()
 
     @property
@@ -62,6 +82,10 @@ class RxSelectivityNode(EmitNode):
             Value should be between 0 and 100e9.
         Attenuation:
             Value should be between -200 and 1000.
+
+        Examples
+        --------
+        >>> rx_selectivity.table_data = [("25 kHz", 3), ("50 kHz", 12)]
         """
         return self._get_table_data()
 
@@ -73,7 +97,12 @@ class RxSelectivityNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> rx_selectivity.enabled = True
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -90,6 +119,10 @@ class RxSelectivityNode(EmitNode):
         frequency.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> rx_selectivity.use_arithmetic_mean = True
         """
         val = self._get_property("Use Arithmetic Mean")
         return val == "true"

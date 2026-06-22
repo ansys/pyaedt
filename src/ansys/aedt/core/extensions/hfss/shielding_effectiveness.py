@@ -66,7 +66,13 @@ EXTENSION_TITLE = "Shielding Effectiveness"
 
 @dataclass
 class ShieldingEffectivenessExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
+    >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
+    """
 
     sphere_size: float = EXTENSION_DEFAULT_ARGUMENTS["sphere_size"]
     x_pol: float = EXTENSION_DEFAULT_ARGUMENTS["x_pol"]
@@ -81,7 +87,13 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
 
 
 class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
-    """Extension for shielding effectiveness in AEDT."""
+    """Extension for shielding effectiveness in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+    >>> extension = ShieldingEffectivenessExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -120,7 +132,14 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
             raise AEDTRuntimeError("There should be only one object in the design.")
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+        >>> extension = ShieldingEffectivenessExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Sphere size entry
         sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
         sphere_size_label.grid(row=0, column=0, padx=15, pady=10)
@@ -273,7 +292,17 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
 
 
 def main(data: ShieldingEffectivenessExtensionData) -> bool:
-    """Main function to run the shielding effectiveness extension."""
+    """Main function to run the shielding effectiveness extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
+    ...     ShieldingEffectivenessExtensionData,
+    ...     main,
+    ... )
+    >>> data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=0.1, stop_frequency=1.0)
+    >>> main(data)
+    """
     if data.sphere_size <= 0:
         raise AEDTRuntimeError("Sphere size must be greater than zero.")
 

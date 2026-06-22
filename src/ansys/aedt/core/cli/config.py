@@ -22,7 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test configuration management for local_config.json (conftest)."""
+"""Test configuration management for local_config.json (conftest).
+
+Examples
+--------
+    pyaedt config test --show
+"""
 
 try:
     import typer
@@ -62,7 +67,12 @@ def test_config_callback(
     ctx: typer.Context,
     show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
 ) -> None:
-    """Create or modify local_config.json in the tests folder interactively."""
+    """Create or modify local_config.json in the tests folder interactively.
+
+    Examples
+    --------
+        pyaedt config test --show
+    """
     if ctx.invoked_subcommand is not None:
         return
 

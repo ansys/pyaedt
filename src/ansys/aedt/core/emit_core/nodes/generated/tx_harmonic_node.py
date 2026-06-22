@@ -36,23 +36,67 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File...
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.import_csv_file("C:\\Measurements\\tx_harmonics.csv")
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.delete()
+        """
         self._delete()
 
     @property
@@ -64,6 +108,17 @@ class TxHarmonicNode(EmitNode):
             Value should be between 2 and 1000.
         Power (Relative or Absolute):
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.table_data = [(2, -35.0), (3, -45.0)]
+        >>> tx_harmonics.table_data
         """
         return self._get_table_data()
 
@@ -75,7 +130,19 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.enabled = False
+        >>> tx_harmonics.enabled
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -90,7 +157,19 @@ class TxHarmonicNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def harmonic_table_units(self) -> HarmonicTableUnitsOption:
-        """Specifies the units for the Harmonics."""
+        """Specifies the units for the Harmonics.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> emitter, antenna = app.schematic.create_radio_antenna("Bluetooth")
+        >>> band = emitter.get_radio().add_band()
+        >>> tx_profile = band.children[0]
+        >>> tx_harmonics = tx_profile.add_custom_tx_harmonics()
+        >>> tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
+        >>> tx_harmonics.harmonic_table_units
+        """
         val = self._get_property("Harmonic Table Units")
         val = self.HarmonicTableUnitsOption[val.upper()]
         return val

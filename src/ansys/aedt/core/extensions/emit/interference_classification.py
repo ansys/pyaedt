@@ -44,7 +44,13 @@ class _MatrixData:
 
 
 class InterferenceClassificationExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for Protection Level and Interference Type classification."""
+    """Interactive EMIT extension for Protection Level and Interference Type classification.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
+    >>> extension = InterferenceClassificationExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._matrix = {"protection": None, "interference": None}

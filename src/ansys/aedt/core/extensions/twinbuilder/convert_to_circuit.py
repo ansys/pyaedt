@@ -53,13 +53,25 @@ EXTENSION_TITLE = "Convert to Circuit"
 
 @dataclass
 class ConvertToCircuitExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
+    >>> data = ConvertToCircuitExtensionData(design_name="TwinBuilderDesign1")
+    """
 
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
 
 
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
-    """Extension for converting TwinBuilder designs to Circuit."""
+    """Extension for converting TwinBuilder designs to Circuit.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
+    >>> extension = ConvertToCircuitExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize extension class with title and theme
@@ -97,7 +109,14 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
             raise AEDTRuntimeError(f"Failed to load Twin Builder designs: {str(e)}")
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
+        >>> extension = ConvertToCircuitExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Design selection
         label = ttk.Label(self.root, text="Select Twin Builder Design:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
@@ -143,7 +162,14 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
 
 
 def main(data: ConvertToCircuitExtensionData) -> bool:
-    """Main function to run the convert to circuit extension."""
+    """Main function to run the convert to circuit extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData, main
+    >>> data = ConvertToCircuitExtensionData(design_name="TwinBuilderDesign1")
+    >>> main(data)
+    """
     if not data.design_name:
         raise AEDTRuntimeError("No design provided to the extension.")
 

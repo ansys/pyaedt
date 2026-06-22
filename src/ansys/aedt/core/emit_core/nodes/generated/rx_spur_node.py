@@ -36,23 +36,43 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> rx_spurs.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> rx_spurs.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File...
+
+        Examples
+        --------
+        >>> rx_spurs.import_csv_file("C:\\Temp\\rx_spurs.csv")
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> rx_spurs.delete()
+        """
         self._delete()
 
     @property
@@ -66,6 +86,10 @@ class RxSpurNode(EmitNode):
             Value should be greater than 1.0.
         Power:
             Value should be between -200.0 and 150.0.
+
+        Examples
+        --------
+        >>> rx_spurs.table_data = [("RF+10.0", "50 MHz", -60)]
         """
         return self._get_table_data()
 
@@ -77,7 +101,12 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def enabled(self) -> bool:
-        """Enabled state for this node."""
+        """Enabled state for this node.
+
+        Examples
+        --------
+        >>> rx_spurs.enabled = True
+        """
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
@@ -92,7 +121,13 @@ class RxSpurNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def spur_table_units(self) -> SpurTableUnitsOption:
-        """Specifies the units for the Spurs."""
+        """Specifies the units for the Spurs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
+        >>> rx_spurs.spur_table_units = RxSpurNode.SpurTableUnitsOption.RELATIVE
+        """
         val = self._get_property("Spur Table Units")
         val = self.SpurTableUnitsOption[val.upper()]
         return val

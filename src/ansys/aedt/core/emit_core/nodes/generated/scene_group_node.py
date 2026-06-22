@@ -42,37 +42,100 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """Add a new emitter"""
+        """Add a new emitter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> emitter = group.add_emitter()
+        """
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """Add a new scene group"""
+        """Add a new scene group.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> child_group = group.add_group()
+        """
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
-        """Add an existing CAD file"""
+        """Add an existing CAD file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> cad_node = group.import_cad(r"C:\\Temp\\vehicle.glb")
+        """
         return self._import(file_name, "CAD")
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """Add a new antenna"""
+        """Add a new antenna.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> antenna = group.add_antenna()
+        """
         return self._add_child_node("Antenna")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> duplicate_group = group.duplicate("Scene Group Copy")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.delete()
+        """
         self._delete()
 
     @property
@@ -84,6 +147,15 @@ class SceneGroupNode(EmitNode):
         or relative to placement coords (True).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.show_relative_coordinates = True
+        >>> group.show_relative_coordinates
         """
         val = self._get_property("Show Relative Coordinates")
         return val == "true"
@@ -99,6 +171,15 @@ class SceneGroupNode(EmitNode):
         """Set position of the Scene Group in parent-node coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.position = [0.0, 1.0, 2.0]
+        >>> group.position
         """
         val = self._get_property("Position")
         return val
@@ -114,6 +195,15 @@ class SceneGroupNode(EmitNode):
         """Set position of the Scene Group relative to placement coordinates.
 
         Value should be a list of 3 floats.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.relative_position = [0.5, 0.0, 0.0]
+        >>> group.relative_position
         """
         val = self._get_property("Relative Position")
         return val
@@ -133,6 +223,15 @@ class SceneGroupNode(EmitNode):
         """Orientation Mode.
 
         Select the convention (order of rotations) for configuring orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.orientation_mode = group.OrientationModeOption.ROLL_PITCH_YAW
+        >>> group.orientation_mode
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -151,6 +250,15 @@ class SceneGroupNode(EmitNode):
         Set orientation of the Scene Group relative to parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.orientation = [0.0, 0.0, 90.0]
+        >>> group.orientation
         """
         val = self._get_property("Orientation")
         return val
@@ -168,6 +276,15 @@ class SceneGroupNode(EmitNode):
         Set orientation of the Scene Group relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.relative_orientation = [0.0, 10.0, 0.0]
+        >>> group.relative_orientation
         """
         val = self._get_property("Relative Orientation")
         return val
@@ -185,6 +302,15 @@ class SceneGroupNode(EmitNode):
         Toggle (on/off) display of Scene Group coordinate axes in 3-D window.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.show_axes = True
+        >>> group.show_axes
         """
         val = self._get_property("Show Axes")
         return val == "true"
@@ -200,6 +326,15 @@ class SceneGroupNode(EmitNode):
         """Set color of the bounding box of the Scene Group.
 
         Color should be in RGB form: #RRGGBB.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.box_color = "#FF0000"
+        >>> group.box_color
         """
         val = self._get_property("Box Color")
         return val
@@ -212,7 +347,17 @@ class SceneGroupNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> group = revision.get_scene_node().add_group()
+        >>> group.notes = "Placed on the mast."
+        >>> group.notes
+        """
         val = self._get_property("Notes")
         return val
 

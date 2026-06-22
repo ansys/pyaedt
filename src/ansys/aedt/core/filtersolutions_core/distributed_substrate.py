@@ -39,6 +39,13 @@ class DistributedSubstrate:
     """Defines substrate parameters of distributed filters.
 
     This class allows you to define and modify the substrate parameters of distributed filters.
+
+    Examples
+    --------
+    >>> import ansys.aedt.core
+    >>> import ansys.aedt.core.filtersolutions
+    >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+    >>> design.substrate
     """
 
     def __init__(self) -> None:
@@ -112,6 +119,14 @@ class DistributedSubstrate:
         Returns
         -------
         :enum:`SubstrateType`
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_type = SubstrateType.STRIPLINE
         """
         index = c_int()
         substrate_type_list = list(SubstrateType)
@@ -136,6 +151,13 @@ class DistributedSubstrate:
         -------
         Union[SubstrateEr, str]
 
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_er = "3.2"
         """
         substrate_er_index = c_int()
         substrate_er_value_str = create_string_buffer(100)
@@ -171,6 +193,13 @@ class DistributedSubstrate:
         Returns
         -------
         Union[SubstrateResistivity, str]
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_resistivity = "0.02"
         """
         substrate_resistivity_index = c_int()
         substrate_resistivity_value_str = create_string_buffer(100)
@@ -207,6 +236,13 @@ class DistributedSubstrate:
         Returns
         -------
         Union[SubstrateEr, str]
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_loss_tangent = "0.0002"
         """
         substrate_loss_tangent_index = c_int()
         substrate_loss_tangent_value_str = create_string_buffer(100)
@@ -242,6 +278,13 @@ class DistributedSubstrate:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_conductor_thickness = "1.25 um"
         """
         substrate_conductor_thickness_string = self._dll_interface.get_string(
             self._dll.getDistributedConductorThickness
@@ -261,6 +304,13 @@ class DistributedSubstrate:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_dielectric_height = "1.22 mm"
         """
         substrate_dielectric_height_string = self._dll_interface.get_string(self._dll.getDistributedDielectricHeight)
         return substrate_dielectric_height_string
@@ -278,6 +328,16 @@ class DistributedSubstrate:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_type = SubstrateType.STRIPLINE
+        >>> design.substrate.substrate_unbalanced_stripline_enabled = True
+        >>> design.substrate.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
         """
         substrate_unbalanced_lower_dielectric_height_string = self._dll_interface.get_string(
             self._dll.getDistributedLowerDielectricHeight
@@ -301,6 +361,15 @@ class DistributedSubstrate:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_type = SubstrateType.SUSPEND
+        >>> design.substrate.substrate_suspend_dielectric_height = "3.2 mm"
         """
         substrate_suspend_dielectric_height_string = self._dll_interface.get_string(
             self._dll.getDistributedSuspendDielectricHeight
@@ -321,6 +390,14 @@ class DistributedSubstrate:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_cover_height_enabled = True
+        >>> design.substrate.substrate_cover_height = "2.5 mm"
         """
         substrate_cover_height_string = self._dll_interface.get_string(self._dll.getDistributedCoverHeight)
         return substrate_cover_height_string
@@ -336,6 +413,15 @@ class DistributedSubstrate:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_type = SubstrateType.STRIPLINE
+        >>> design.substrate.substrate_unbalanced_stripline_enabled = True
         """
         substrate_unbalanced_stripline_enabled = c_bool()
         status = self._dll.getDistributedUnbalancedStripLine(byref(substrate_unbalanced_stripline_enabled))
@@ -354,6 +440,15 @@ class DistributedSubstrate:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core
+        >>> import ansys.aedt.core.filtersolutions
+        >>> from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
+        >>> design = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2026.1")
+        >>> design.substrate.substrate_type = SubstrateType.MICROSTRIP
+        >>> design.substrate.substrate_cover_height_enabled = True
         """
         substrate_cover_height_enabled = c_bool()
         status = self._dll.getDistributedGroundedCoverAboveLine(byref(substrate_cover_height_enabled))

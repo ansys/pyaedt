@@ -81,11 +81,23 @@ class CSVDataset(PyAedtBase):
         with constant values to all data points. This dictionary is used to add
         multiple sweeps to one result file.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.variables import CSVDataset
+    >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+    >>> dataset.number_of_rows
     """
 
     @property
     def number_of_rows(self) -> int:
-        """Number of rows."""
+        """Number of rows.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.number_of_rows
+        """
         if self._data:
             for variable, data_list in self._data.items():
                 return len(data_list)
@@ -94,22 +106,50 @@ class CSVDataset(PyAedtBase):
 
     @property
     def number_of_columns(self) -> int:
-        """Number of columns."""
+        """Number of columns.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.number_of_columns
+        """
         return len(self._header)
 
     @property
     def header(self) -> list:
-        """Header."""
+        """Header.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.header
+        """
         return self._header
 
     @property
     def data(self) -> dict:
-        """Data."""
+        """Data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.data
+        """
         return self._data
 
     @property
     def path(self) -> str:
-        """Path."""
+        """Path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.path
+        """
         return os.path.dirname(os.path.realpath(self._csv_file))
 
     def __init__(
@@ -252,7 +292,14 @@ class CSVDataset(PyAedtBase):
         return output_string
 
     def next(self):
-        """Yield the next row."""
+        """Yield the next row.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import CSVDataset
+        >>> dataset = CSVDataset("C:\\Users\\user\\Documents\\results.csv")
+        >>> dataset.next()
+        """
         return self.__next__()
 
 
@@ -295,6 +342,11 @@ def generate_validation_errors(
     -------
     List[str]
         A list of validation errors for the given settings.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.application.variables import generate_validation_errors
+    >>> generate_validation_errors(["length"], ["10mm"], ["10.1mm"])
     """
     validation_errors = [
         error
@@ -415,6 +467,12 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.variables
         """
         return self._variable_dict([self._odesign, self._oproject])
 
@@ -464,6 +522,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.design_variables
         """
         return self._variable_dict([self._odesign])
 
@@ -480,6 +544,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.project_variables
         """
         return self._variable_dict([self._oproject])
 
@@ -499,6 +569,13 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.set_variable("post_gain", expression="1", is_post_processing=True)
+        >>> hfss.variable_manager.post_processing_variables
         """
         try:
             all_post_vars = list(self._odesign.GetPostProcessingVariables())
@@ -527,6 +604,12 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_variables
         """
         return self._variable_dict([self._odesign, self._oproject], dependent=False)
 
@@ -543,6 +626,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_project_variables
         """
         return self._variable_dict([self._oproject], dependent=False)
 
@@ -560,6 +649,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_design_variables
         """
         return self._variable_dict([self._odesign], dependent=False)
 
@@ -579,6 +674,12 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_variables
         """
         return self._variable_dict([self._odesign, self._oproject], independent=False)
 
@@ -595,6 +696,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_project_variables
         """
         return self._variable_dict([self._oproject], independent=False)
 
@@ -612,12 +719,25 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_design_variables
         """
         return self._variable_dict([self._odesign], independent=False)
 
     @property
     def variable_names(self) -> list[str]:
-        """List of variables."""
+        """List of variables.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.variable_names
+        """
         return [var_name for var_name in self.variables]
 
     @property
@@ -628,6 +748,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.project_variable_names
         """
         return [var_name for var_name in self.project_variables]
 
@@ -639,6 +765,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.design_variable_names
         """
         return [var_name for var_name in self.design_variables]
 
@@ -650,6 +782,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_project_variable_names
         """
         return [var_name for var_name in self.independent_project_variables]
 
@@ -661,6 +799,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_design_variable_names
         """
         return [var_name for var_name in self.independent_design_variables]
 
@@ -674,6 +818,12 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.independent_variable_names
         """
         return [var_name for var_name in self.independent_variables]
 
@@ -685,6 +835,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_project_variable_names
         """
         return [var_name for var_name in self.dependent_project_variables]
 
@@ -696,6 +852,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_design_variable_names
         """
         return [var_name for var_name in self.dependent_design_variables]
 
@@ -709,6 +871,12 @@ class VariableManager(PyAedtBase):
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.dependent_variable_names
         """
         return [var_name for var_name in self.dependent_variables]
 
@@ -866,6 +1034,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.get_expression("p1")
         """
         invalid_names = ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName", "ModelName"]
         if name not in invalid_names:
@@ -885,6 +1059,11 @@ class VariableManager(PyAedtBase):
         name : str
             Name of the variable.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.aedt_object("p1")
         """
         if name[0] == "$":
             return self._oproject
@@ -1159,6 +1338,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.delete_separator("Geometry")
         """
         object_list = [(self._odesign, "Local"), (self._oproject, "Project")]
 
@@ -1199,6 +1384,12 @@ class VariableManager(PyAedtBase):
         ----------
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.delete_variable("p1")
         """
         desktop_object = self.aedt_object(name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
@@ -1254,6 +1445,12 @@ class VariableManager(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.is_used("p1")
         """
         used = False
         # Modeler
@@ -1307,6 +1504,12 @@ class VariableManager(PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.delete_unused_variables()
         """
         var_list = self.variable_names
 
@@ -1473,7 +1676,16 @@ class Variable(PyAedtBase):
     # Low-level property read/write
     @pyaedt_function_handler()
     def update_var(self) -> bool:
-        """Push the current variable state to AEDT via variable manager."""
+        """Push the current variable state to AEDT via variable manager.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.update_var()
+        """
         if not self._app:
             raise AEDTRuntimeError(
                 f"Cannot update variable {self._variable_name}: the AEDT application connection is not initialized."
@@ -1611,7 +1823,14 @@ class Variable(PyAedtBase):
     # Public properties
     @property
     def name(self) -> str:
-        """Variable name."""
+        """Variable name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm", name="p1")
+        >>> var.name
+        """
         return self._variable_name
 
     @name.setter
@@ -1625,7 +1844,16 @@ class Variable(PyAedtBase):
 
     @property
     def has_definition_parameters(self) -> bool:
-        """Whether the design type has DefinitionParameters or only LocalVariables."""
+        """Whether the design type has DefinitionParameters or only LocalVariables.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d["trace_width"] = "0.2mm"
+        >>> var = h3d.variable_manager["trace_width"]
+        >>> var.has_definition_parameters
+        """
         if not self._app:  # pragma: no cover
             return False
         return self._app.design_type in {
@@ -1637,7 +1865,16 @@ class Variable(PyAedtBase):
 
     @property
     def is_optimization_enabled(self) -> bool:
-        """Whether optimization is enabled for this variable."""
+        """Whether optimization is enabled for this variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.is_optimization_enabled
+        """
         return self._get_prop_val("Optimization/Included")
 
     @is_optimization_enabled.setter
@@ -1646,7 +1883,16 @@ class Variable(PyAedtBase):
 
     @property
     def optimization_min_value(self) -> bool:
-        """Optimization lower bound."""
+        """Optimization lower bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.optimization_min_value
+        """
         return self._get_prop_val("Optimization/Min")
 
     @optimization_min_value.setter
@@ -1655,7 +1901,16 @@ class Variable(PyAedtBase):
 
     @property
     def optimization_max_value(self) -> bool:
-        """Optimization upper bound."""
+        """Optimization upper bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.optimization_max_value
+        """
         return self._get_prop_val("Optimization/Max")
 
     @optimization_max_value.setter
@@ -1664,7 +1919,16 @@ class Variable(PyAedtBase):
 
     @property
     def is_sensitivity_enabled(self) -> bool:
-        """Whether sensitivity analysis is enabled."""
+        """Whether sensitivity analysis is enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.is_sensitivity_enabled
+        """
         return self._get_prop_val("Sensitivity/Included")
 
     @is_sensitivity_enabled.setter
@@ -1673,7 +1937,16 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_min_value(self) -> bool:
-        """Sensitivity lower bound."""
+        """Sensitivity lower bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.sensitivity_min_value
+        """
         return self._get_prop_val("Sensitivity/Min")
 
     @sensitivity_min_value.setter
@@ -1682,7 +1955,16 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_max_value(self) -> bool:
-        """Sensitivity upper bound."""
+        """Sensitivity upper bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.sensitivity_max_value
+        """
         return self._get_prop_val("Sensitivity/Max")
 
     @sensitivity_max_value.setter
@@ -1691,7 +1973,16 @@ class Variable(PyAedtBase):
 
     @property
     def sensitivity_initial_disp(self) -> bool:
-        """Sensitivity initial displacement (if applicable)."""
+        """Sensitivity initial displacement (if applicable).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.sensitivity_initial_disp
+        """
         return self._get_prop_val("Sensitivity/IDisp")
 
     @sensitivity_initial_disp.setter
@@ -1700,7 +1991,16 @@ class Variable(PyAedtBase):
 
     @property
     def is_tuning_enabled(self) -> bool:
-        """Whether tuning is enabled."""
+        """Whether tuning is enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.is_tuning_enabled
+        """
         return self._get_prop_val("Tuning/Included")
 
     @is_tuning_enabled.setter
@@ -1709,7 +2009,16 @@ class Variable(PyAedtBase):
 
     @property
     def tuning_min_value(self) -> bool:
-        """Tuning lower bound."""
+        """Tuning lower bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.tuning_min_value
+        """
         return self._get_prop_val("Tuning/Min")
 
     @tuning_min_value.setter
@@ -1718,7 +2027,16 @@ class Variable(PyAedtBase):
 
     @property
     def tuning_max_value(self) -> bool:
-        """Tuning upper bound."""
+        """Tuning upper bound.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.tuning_max_value
+        """
         return self._get_prop_val("Tuning/Max")
 
     @tuning_max_value.setter
@@ -1727,7 +2045,16 @@ class Variable(PyAedtBase):
 
     @property
     def tuning_step_value(self) -> bool:
-        """Tuning step value."""
+        """Tuning step value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.tuning_step_value
+        """
         return self._get_prop_val("Tuning/Step")
 
     @tuning_step_value.setter
@@ -1736,7 +2063,16 @@ class Variable(PyAedtBase):
 
     @property
     def is_statistical_enabled(self) -> bool:
-        """Whether statistical analysis is enabled."""
+        """Whether statistical analysis is enabled.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.is_statistical_enabled
+        """
         return self._get_prop_val("Statistical/Included")
 
     @is_statistical_enabled.setter
@@ -1745,7 +2081,16 @@ class Variable(PyAedtBase):
 
     @property
     def read_only(self) -> bool:
-        """Current read-only flag."""
+        """Current read-only flag.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.read_only
+        """
         self._readonly = self._get_prop_val("ReadOnly")
         return self._readonly
 
@@ -1760,7 +2105,16 @@ class Variable(PyAedtBase):
 
     @property
     def hidden(self) -> bool:
-        """Current hidden flag."""
+        """Current hidden flag.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.hidden
+        """
         self._hidden = self._get_prop_val("Hidden")
         return self._hidden
 
@@ -1775,7 +2129,16 @@ class Variable(PyAedtBase):
 
     @property
     def sweep(self) -> bool:
-        """Current sweep flag."""
+        """Current sweep flag.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.sweep
+        """
         self._sweep = self._get_prop_val("Sweep")
         return self._sweep
 
@@ -1790,7 +2153,16 @@ class Variable(PyAedtBase):
 
     @property
     def description(self) -> str:
-        """Current description."""
+        """Current description.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["p1"] = "10mm"
+        >>> var = hfss.variable_manager["p1"]
+        >>> var.description
+        """
         self._description = self._get_prop_val("Description")
         return self._description
 
@@ -1805,14 +2177,32 @@ class Variable(PyAedtBase):
 
     @property
     def post_processing(self) -> bool:
-        """Whether this variable is a post-processing variable."""
+        """Whether this variable is a post-processing variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.variable_manager.set_variable("post_gain", expression="1", is_post_processing=True)
+        >>> var = hfss.variable_manager["post_gain"]
+        >>> var.post_processing
+        """
         if self._app:
             return self._variable_name in self._app.variable_manager.post_processing_variables
         return False
 
     @property
     def is_circuit_parameter(self) -> bool:
-        """Whether this variable is a circuit parameter (for supported design types)."""
+        """Whether this variable is a circuit parameter (for supported design types).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> circuit["Rload"] = "50ohm"
+        >>> var = circuit.variable_manager["Rload"]
+        >>> var.is_circuit_parameter
+        """
         if not self._app or "$" in (self._variable_name or ""):
             return False
         if self._app.design_type in [
@@ -1831,7 +2221,14 @@ class Variable(PyAedtBase):
 
     @property
     def expression(self) -> str:
-        """Raw AEDT expression."""
+        """Raw AEDT expression.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.expression
+        """
         expression = self._expression
         if self._aedt_obj:
             expression = self._aedt_obj.GetVariableValue(self._variable_name)
@@ -1852,6 +2249,12 @@ class Variable(PyAedtBase):
         """Numeric value of the expression in current units.
 
         If the expression is an array-like string ("[1, 2, 3]"), returns a list.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.numeric_value
         """
         if is_array(self._value):
             return list(ast.literal_eval(self._value))
@@ -1872,12 +2275,26 @@ class Variable(PyAedtBase):
 
     @property
     def unit_system(self) -> str:
-        """Unit system name."""
+        """Unit system name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.unit_system
+        """
         return unit_system(self._units)
 
     @property
     def units(self) -> str:
-        """Unit string associated with the expression."""
+        """Unit string associated with the expression.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.units
+        """
         try:
             evaluated_value = self._get_prop_evaluated_val()
             if evaluated_value is None:
@@ -1895,6 +2312,12 @@ class Variable(PyAedtBase):
         This getter keeps the cached SI value in sync with the AEDT backend.
         It queries the evaluated variable value from AEDT, converts it to SI
         units using the current unit system and unit string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.si_value
         """
         # If there is no AEDT app attached, just return the cached value.
         if not self._app:
@@ -1933,7 +2356,14 @@ class Variable(PyAedtBase):
 
     @property
     def evaluated_value(self) -> str:
-        """Concatenated numeric value and unit string."""
+        """Concatenated numeric value and unit string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.evaluated_value
+        """
         if self.numeric_value is None:
             return None
         return f"{self.numeric_value}{self.units}"
@@ -1946,6 +2376,12 @@ class Variable(PyAedtBase):
         -------
         tuple
             The float value of the variable and the units exposed as a string.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.decompose()
         """
         return decompose_variable_value(self.evaluated_value)
 
@@ -1956,6 +2392,12 @@ class Variable(PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.application.variables.Variable`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.rescale_to("cm")
         """
         new_unit_system = unit_system(units)
         if new_unit_system != self.unit_system:
@@ -1973,6 +2415,11 @@ class Variable(PyAedtBase):
         -------
         str
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.application.variables import Variable
+        >>> var = Variable("10mm")
+        >>> var.format("06.2f")
         """
         return f"{self.numeric_value:{fmt}}{self._units}"
 
@@ -2215,6 +2662,13 @@ class DataSet(PyAedtBase):
         Units for the V axis for a 3D dataset only. The default is ``""``.
     sort : bool, optional
         Sort dataset. The default is ``True``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+    >>> dataset.export()
     """
 
     def __init__(
@@ -2304,6 +2758,14 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.application.variables import DataSet
+        >>> hfss = Hfss()
+        >>> dataset = DataSet(hfss, "MyCurve", [0, 1], [1, 2])
+        >>> dataset.create()
         """
         if self.name[0] == "$":
             self._app._oproject.AddDataset(self._args())
@@ -2335,6 +2797,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.add_point(2, 3)
         """
         self.x.append(x)
         self.y.append(y)
@@ -2361,6 +2830,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.remove_point_from_x(1)
         """
         if x not in self.x:
             self._app.logger.error(f"Value {x} is not found.")
@@ -2386,6 +2862,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.remove_point_from_index(0)
         """
         if id_to_remove < len(self.x) > 2:
             self.x.pop(id_to_remove)
@@ -2410,6 +2893,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.update()
         """
         args = self._args()
         if not args:
@@ -2433,6 +2923,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.DeleteDataset
         >>> oDesign.DeleteDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.delete()
         """
         if self.name[0] == "$":
             self._app._oproject.DeleteDataset(self.name)
@@ -2461,6 +2958,13 @@ class DataSet(PyAedtBase):
         ----------
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> dataset = hfss.create_dataset1d_project("MyCurve", [0, 1], [1, 2])
+        >>> dataset.export()
         """
         if not output_dir:
             output_dir = os.path.join(self._app.working_directory, self.name + ".tab")

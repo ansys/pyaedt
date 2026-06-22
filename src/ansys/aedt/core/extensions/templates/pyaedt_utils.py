@@ -26,6 +26,14 @@
 * * * This script is meant to run in IronPython within AEDT. * * *
 
 It contains common methods for the PyAEDT panels.
+
+Examples
+--------
+>>> import ansys.aedt.core.extensions.templates.pyaedt_utils as pyaedt_utils
+>>> pyaedt_utils.sanitize_interpreter_path(
+...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
+...     "242",
+... )
 """
 
 import os
@@ -42,7 +50,16 @@ is_linux = os.name == "posix"
 
 
 def sanitize_interpreter_path(interpreter_path, version):
-    """Sanitize the interpreter path."""
+    """Sanitize the interpreter path.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import sanitize_interpreter_path
+    >>> sanitize_interpreter_path(
+    ...     r"C:\\Program Files\\AnsysEM\\v242\\commonfiles\\CPython\\3_7\\winx64\\Release\\python\\python.exe",
+    ...     "242",
+    ... )
+    """
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")
@@ -52,7 +69,13 @@ def sanitize_interpreter_path(interpreter_path, version):
 
 
 def check_file(file_path, oDesktop):
-    """Check if a file exists."""
+    """Check if a file exists.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import check_file
+    >>> check_file(r"C:\\Program Files\\AnsysEM\\v242\\Win64\\ansysedt.exe", oDesktop)
+    """
     if not os.path.isfile(file_path):
         show_error(
             '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
@@ -64,7 +87,13 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
-    """Get a Linux terminal."""
+    """Get a Linux terminal.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal
+    >>> terminal, terminal_exe = get_linux_terminal()
+    """
     for terminal in ["x-terminal-emulator", "xterm", "xfce4-terminal", "gnome-terminal", "lxterminal", "mlterm"]:
         terminal_exe = which(terminal)
         if terminal_exe:
@@ -73,7 +102,13 @@ def get_linux_terminal():
 
 
 def get_linux_terminal_command():
-    """Get the command to open a Linux terminal."""
+    """Get the command to open a Linux terminal.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import get_linux_terminal_command
+    >>> get_linux_terminal_command()
+    """
     terminal, terminal_exe = get_linux_terminal()
     if terminal == "x-terminal-emulator":
         return [terminal_exe, "-e"]
@@ -109,14 +144,26 @@ def which(program):
 
 
 def show_error(msg, oDesktop):
-    """Display an error message in the AEDT console and a dialog box."""
+    """Display an error message in the AEDT console and a dialog box.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import show_error
+    >>> show_error("PyAEDT is not installed.", oDesktop)
+    """
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
 def environment_variables(oDesktop):
-    """Set environment variables for the AEDT process."""
+    """Set environment variables for the AEDT process.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import environment_variables
+    >>> environment_variables(oDesktop)
+    """
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
     os.environ["PYAEDT_DESKTOP_VERSION"] = version
@@ -170,7 +217,13 @@ def generate_unique_name(root_name, suffix="", n=6):
 
 
 def validate_disclaimer():
-    """Display dialog box and evaluate the response to the disclaimer."""
+    """Display dialog box and evaluate the response to the disclaimer.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.pyaedt_utils import validate_disclaimer
+    >>> validate_disclaimer()
+    """
     DISCLAIMER = (
         "This script will download and install certain third-party software and/or "
         "open-source software (collectively, 'Third-Party Software'). Such Third-Party "

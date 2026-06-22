@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Hfss`` class."""
+"""This module contains the ``Hfss`` class.
+
+Examples
+--------
+>>> from ansys.aedt.core import Hfss
+>>> hfss = Hfss()
+"""
 
 from __future__ import annotations
 

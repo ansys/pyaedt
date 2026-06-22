@@ -31,7 +31,15 @@ from ansys.aedt.core.base import PyAedtBase
 
 
 class ThreadTrace(threading.Thread):
-    """Control a thread with python"""
+    """Control a thread with python.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.python_optimizers import ThreadTrace
+    >>> worker = ThreadTrace(target=lambda: None)
+    >>> worker.start()
+    >>> worker.join()
+    """
 
     def __init__(self, *args, **keywords) -> None:
         threading.Thread.__init__(self, *args, **keywords)
@@ -268,7 +276,18 @@ class GeneticAlgorithm(PyAedtBase):
         self.evaluate_val = 1e10
 
     def run(self) -> bool:
-        """Implement the genetic algorithm"""
+        """Implement the genetic algorithm.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm
+        >>> def objective(values):
+        ...     return np.sum(values)
+        >>> bounds = np.array([[0, 1], [0, 1]])
+        >>> ga = GeneticAlgorithm(objective, dim=2, boundaries=bounds, var_type="real", progress_bar=False)
+        >>> ga.run()
+        """
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)
         solo = np.zeros(self.dim + 1)

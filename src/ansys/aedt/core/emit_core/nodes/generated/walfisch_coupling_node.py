@@ -36,23 +36,71 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.duplicate("Walfisch_Copy")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.delete()
+        """
         self._delete()
 
     @property
@@ -61,6 +109,17 @@ class WalfischCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.enabled = True
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -73,7 +132,19 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def base_antenna(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.base_antenna = revision.get_component_node("Antenna 1")
+        """
         val = self._get_property("Base Antenna")
         return val
 
@@ -85,7 +156,19 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def mobile_antenna(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.mobile_antenna = revision.get_component_node("Antenna 2")
+        """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -101,7 +184,19 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def path_loss_type(self) -> PathLossTypeOption:
-        """Specify LOS vs NLOS for the Walfisch-Ikegami model."""
+        """Specify LOS vs NLOS for the Walfisch-Ikegami model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.path_loss_type = walfisch.PathLossTypeOption.NLOS
+        """
         val = self._get_property("Path Loss Type")
         val = self.PathLossTypeOption[val.upper()]
         return val
@@ -118,7 +213,19 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def environment(self) -> EnvironmentOption:
-        """Specify the environment type for the Walfisch model."""
+        """Specify the environment type for the Walfisch model.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.environment = walfisch.EnvironmentOption.DENSE_METRO
+        """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
         return val
@@ -134,6 +241,17 @@ class WalfischCouplingNode(EmitNode):
         """The height of the building where the antenna is located.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.roof_height = "18 m"
         """
         val = self._get_property("Roof Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -151,6 +269,17 @@ class WalfischCouplingNode(EmitNode):
         """The distance between two buildings.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.distance_between_buildings = "30 m"
         """
         val = self._get_property("Distance Between Buildings")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -168,6 +297,17 @@ class WalfischCouplingNode(EmitNode):
         """Width of the street.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.street_width = "12 m"
         """
         val = self._get_property("Street Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -185,6 +325,17 @@ class WalfischCouplingNode(EmitNode):
         """Angle between the street orientation and direction of incidence.
 
         Value should be between 0 and 90.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.incidence_angle = 45.0
         """
         val = self._get_property("Incidence Angle")
         return float(val)
@@ -203,6 +354,17 @@ class WalfischCouplingNode(EmitNode):
         this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.custom_fading_margin = 6.0
         """
         val = self._get_property("Custom Fading Margin")
         return float(val)
@@ -221,6 +383,17 @@ class WalfischCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.polarization_mismatch = 1.5
         """
         val = self._get_property("Polarization Mismatch")
         return float(val)
@@ -239,6 +412,17 @@ class WalfischCouplingNode(EmitNode):
         defined by this node.
 
         Value should be between 0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.pointing_error_loss = 2.0
         """
         val = self._get_property("Pointing Error Loss")
         return float(val)
@@ -257,7 +441,19 @@ class WalfischCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def fading_type(self) -> FadingTypeOption:
-        """Specify the type of fading to include."""
+        """Specify the type of fading to include.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.fading_type = walfisch.FadingTypeOption.SHADOWING_ONLY
+        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
         return val
@@ -276,6 +472,17 @@ class WalfischCouplingNode(EmitNode):
         value plus the margin.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.fading_availability = 99.9
         """
         val = self._get_property("Fading Availability")
         return float(val)
@@ -291,6 +498,17 @@ class WalfischCouplingNode(EmitNode):
         """Standard deviation modeling the random amount of shadowing loss.
 
         Value should be between 0.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.std_deviation = 8.0
         """
         val = self._get_property("Std Deviation")
         return float(val)
@@ -306,6 +524,17 @@ class WalfischCouplingNode(EmitNode):
         """Adds a margin for rain attenuation to the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.include_rain_attenuation = True
         """
         val = self._get_property("Include Rain Attenuation")
         return val == "true"
@@ -324,6 +553,17 @@ class WalfischCouplingNode(EmitNode):
         from 99-99.999%).
 
         Value should be between 99 and 99.999.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.rain_availability = 99.99
         """
         val = self._get_property("Rain Availability")
         return float(val)
@@ -339,6 +579,17 @@ class WalfischCouplingNode(EmitNode):
         """Rain rate (mm/hr) exceeded for 0.01% of the time.
 
         Value should be between 0.0 and 1000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.rain_rate = 25.0
         """
         val = self._get_property("Rain Rate")
         return float(val)
@@ -357,6 +608,17 @@ class WalfischCouplingNode(EmitNode):
         horizontal.
 
         Value should be between 0.0 and 180.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.polarization_tilt_angle = 90.0
         """
         val = self._get_property("Polarization Tilt Angle")
         return float(val)
@@ -375,6 +637,17 @@ class WalfischCouplingNode(EmitNode):
         the computed coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.include_atmospheric_absorption = True
         """
         val = self._get_property("Include Atmospheric Absorption")
         return val == "true"
@@ -390,6 +663,17 @@ class WalfischCouplingNode(EmitNode):
         """Air temperature in degrees Celsius.
 
         Value should be between -273.0 and 100.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.temperature = 20.0
         """
         val = self._get_property("Temperature")
         return float(val)
@@ -405,6 +689,17 @@ class WalfischCouplingNode(EmitNode):
         """Total air pressure.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.total_air_pressure = 1013.25
         """
         val = self._get_property("Total Air Pressure")
         return float(val)
@@ -420,6 +715,17 @@ class WalfischCouplingNode(EmitNode):
         """Water vapor concentration.
 
         Value should be between 0.0 and 2000.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 1")
+        >>> app.modeler.components.create_component("Antenna", name="Antenna 2")
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> walfisch = couplings.add_walfisch_ikegami_coupling()
+        >>> walfisch.water_vapor_concentration = 7.5
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)

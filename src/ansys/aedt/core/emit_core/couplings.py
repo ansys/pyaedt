@@ -25,6 +25,12 @@
 """This module contains these classes: `CouplingsEmit`.
 
 This module provides for interacting with EMIT Analysis and Results windows.
+
+Examples
+--------
+>>> from ansys.aedt.core import Emit
+>>> app = Emit()
+>>> app.couplings
 """
 
 from ansys.aedt.core.internal.checks import min_aedt_version
@@ -59,7 +65,14 @@ class CouplingsEmit(object):
 
     @property
     def logger(self) -> object:
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.logger
+        """
         return self._app.logger
 
     @property
@@ -69,7 +82,14 @@ class CouplingsEmit(object):
 
     @property
     def projdir(self) -> str:
-        """Project directory."""
+        """Project directory.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> app.couplings.projdir
+        """
         return self._app.project_path
 
     @property

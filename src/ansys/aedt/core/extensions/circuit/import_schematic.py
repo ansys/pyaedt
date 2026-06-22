@@ -52,13 +52,25 @@ EXTENSION_TITLE = "Import schematic to Circuit"
 
 @dataclass
 class ImportSchematicData(ExtensionCommonData):
-    """Data class for import schematic extension."""
+    """Data class for import schematic extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+    """
 
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
 
 
 class ImportSchematicExtension(ExtensionCircuitCommon):
-    """Extension for importing schematic into Circuit."""
+    """Extension for importing schematic into Circuit.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+    >>> extension = ImportSchematicExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -72,7 +84,14 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add UI elements for file selection and import action."""
+        """Add UI elements for file selection and import action.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+        >>> extension = ImportSchematicExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         label = ttk.Label(
             self.root,
             text="Browse file:",
@@ -136,7 +155,14 @@ class ImportSchematicExtension(ExtensionCircuitCommon):
 
 
 def main(data: ImportSchematicData) -> bool:
-    """Execute schematic import based on provided data."""
+    """Execute schematic import based on provided data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData, main
+    >>> data = ImportSchematicData(file_extension=r"D:\\Circuits\\filter.asc")
+    >>> main(data)
+    """
     file_extension = Path(data.file_extension)
     app = Desktop(
         new_desktop=False,

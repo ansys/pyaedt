@@ -59,7 +59,13 @@ EXTENSION_TITLE = "Create Report"
 
 @dataclass
 class CreateReportExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+    """
 
     report_name: str = EXTENSION_DEFAULT_ARGUMENTS["report_name"]
     open_report: bool = EXTENSION_DEFAULT_ARGUMENTS["open_report"]
@@ -67,7 +73,13 @@ class CreateReportExtensionData(ExtensionCommonData):
 
 
 class CreateReportExtension(ExtensionProjectCommon):
-    """Extension for creating PDF reports in AEDT."""
+    """Extension for creating PDF reports in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+    >>> extension = CreateReportExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with title and
@@ -89,7 +101,14 @@ class CreateReportExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+        >>> extension = CreateReportExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Report name entry
         report_name_label = ttk.Label(
             self.root,
@@ -170,7 +189,14 @@ class CreateReportExtension(ExtensionProjectCommon):
 
 
 def main(data: CreateReportExtensionData) -> bool:
-    """Main function to run the create report extension."""
+    """Main function to run the create report extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData, main
+    >>> data = CreateReportExtensionData(report_name="MyReport", save_path=r"D:\\Reports")
+    >>> main(data)
+    """
     if not data.report_name:
         raise AEDTRuntimeError("Report name cannot be empty.")
 

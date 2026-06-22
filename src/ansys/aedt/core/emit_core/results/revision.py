@@ -168,6 +168,11 @@ class Revision:
         -------
         err_msg : str
             Error/warning message that the specified revision is not accessible.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.results.revision import Revision
+        >>> Revision.result_mode_error()
         """
         err_msg = "This function is inaccessible when the revision is not loaded."
         print(err_msg)
@@ -318,6 +323,15 @@ class Revision:
         -------
         bands: list[Band]
             List of all Band (nodes) in a radio.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import TxRxMode
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> radio = revision.get_all_emitter_radios()[0]
+        >>> bands = revision.get_all_band_nodes(radio, TxRxMode.TX)
         """
         radio_children = radio.children
         bands = []
@@ -945,6 +959,14 @@ class Revision:
         -------
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import EmiCategoryFilter
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> revision.get_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL)
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
@@ -960,6 +982,14 @@ class Revision:
             EMI category filter.
         enabled : bool
             Whether to enable the EMI category filter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> from ansys.aedt.core.emit_core import EmiCategoryFilter
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> revision.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL, True)
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")

@@ -27,6 +27,12 @@ Launches an interactive shell with an instance of HFSS.
 
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
+
+Examples
+--------
+>>> from ansys.aedt.core import Hfss
+>>> hfss = Hfss()
+>>> hfss.logger.info("PyAEDT Console is ready")
 """
 
 import atexit

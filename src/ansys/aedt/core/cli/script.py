@@ -22,7 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Script execution commands."""
+"""Script execution commands.
+
+Examples
+--------
+    pyaedt script run "C:\\Scripts\\post_process.py"
+"""
 
 from __future__ import annotations
 
@@ -50,6 +55,10 @@ def run_script(
     Execute a Python script file in a subprocess.
 
     The current environment variables are copied into the child process.
+
+    Examples
+    --------
+        pyaedt script run "C:\\Scripts\\post_process.py"
     """
     try:
         path = Path(script_path)

@@ -47,7 +47,14 @@ class DesignSolution(PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design."""
+        """Get/Set the Solution Type of the active Design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.solution_type
+        """
         if self._design_type in [
             DesignType.CIRCUIT,
             DesignType.TWINBUILDER,
@@ -99,32 +106,74 @@ class DesignSolution(PyAedtBase):
 
     @property
     def report_type(self) -> str:
-        """Return the default report type of the selected solution if present."""
+        """Return the default report type of the selected solution if present.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.report_type
+        """
         return self._solution_options[self.solution_type]["report_type"]
 
     @property
     def default_setup(self) -> str:
-        """Return the default setup id of the selected solution if present."""
+        """Return the default setup id of the selected solution if present.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.default_setup
+        """
         return self._solution_options[self.solution_type]["default_setup"]
 
     @property
     def default_adaptive(self) -> str:
-        """Return the default adaptive name of the selected solution if present."""
+        """Return the default adaptive name of the selected solution if present.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.default_adaptive
+        """
         return self._solution_options[self.solution_type]["default_adaptive"]
 
     @property
     def solution_types(self) -> list[str]:
-        """Return the list of all available solutions."""
+        """Return the list of all available solutions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.solution_types
+        """
         return list(self._solution_options.keys())
 
     @property
     def design_types(self) -> list[str]:
-        """Return the list of all available designs."""
+        """Return the list of all available designs.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.design_types
+        """
         return [str(getattr(DesignType, i)) for i in dir(DesignType) if not i.startswith("_")]
 
     @property
     def intrinsics(self) -> list[str]:
-        """Get list of intrinsics for that specified setup."""
+        """Get list of intrinsics for that specified setup.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.intrinsics
+        """
         if "intrinsics" in self._solution_options[self.solution_type]:
             return self._solution_options[self.solution_type]["intrinsics"]
         return []
@@ -138,7 +187,14 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design."""
+        """Get/Set the Solution Type of the active Design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.solution_type
+        """
         if self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
@@ -208,7 +264,14 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def hybrid(self) -> bool:
-        """HFSS hybrid mode for the active solution."""
+        """HFSS hybrid mode for the active solution.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.hybrid
+        """
         if self._aedt_version < "2021.2":
             return False
         if self.solution_type is not None:
@@ -232,7 +295,14 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def composite(self) -> bool:
-        """HFSS composite mode for the active solution."""
+        """HFSS composite mode for the active solution.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.composite
+        """
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:
@@ -268,6 +338,12 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_solutions.set_auto_open(enable=True, opening_type="Radiation")
         """
         if self._aedt_version < "2021.2":
             return False
@@ -287,7 +363,14 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def xy_plane(self) -> bool:
-        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`."""
+        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> maxwell = Maxwell2d()
+        >>> maxwell.design_solutions.xy_plane
+        """
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
@@ -301,7 +384,14 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self):
-        """Get/Set the Solution Type of the active Design."""
+        """Get/Set the Solution Type of the active Design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> maxwell = Maxwell2d()
+        >>> maxwell.design_solutions.solution_type
+        """
         if self._odesign and "GetSolutionType":
             try:
                 self._solution_type = self._odesign.GetSolutionType()
@@ -350,6 +440,12 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         """Get/Set the problem type of the icepak Design.
 
         It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.design_solutions.problem_type
         """
         if self._odesign:
             self._problem_type = self._odesign.GetProblemType()
@@ -384,7 +480,14 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Solution Type of the active Design."""
+        """Get/Set the Solution Type of the active Design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.design_solutions.solution_type
+        """
         if self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
@@ -425,7 +528,14 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def solution_type(self) -> str:
-        """Get/Set the Machine Type of the active Design."""
+        """Get/Set the Machine Type of the active Design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.design_solutions.solution_type
+        """
         if self._solution_type is None and "GetMachineType" in dir(self._odesign):
             self._solution_type = self._odesign.GetMachineType()
         return self._solution_type
@@ -441,7 +551,14 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
 
     @property
     def design_type(self) -> str:
-        """Get/Set the Machine Design Type."""
+        """Get/Set the Machine Design Type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Rmxprt
+        >>> rmxprt = Rmxprt()
+        >>> rmxprt.design_solutions.design_type
+        """
         return self._design_type
 
     @design_type.setter

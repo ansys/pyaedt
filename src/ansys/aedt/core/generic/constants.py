@@ -46,7 +46,13 @@ SpeedOfLight = 299792458.0
 
 
 def db20(x: float, inverse: bool = True) -> float:
-    """Convert db20 to decimal and vice versa."""
+    """Convert db20 to decimal and vice versa.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import db20
+    >>> db20(0.5)
+    """
     if inverse:
         return 20 * math.log10(x)
     else:
@@ -54,7 +60,13 @@ def db20(x: float, inverse: bool = True) -> float:
 
 
 def db10(x: float, inverse: bool = True) -> float:
-    """Convert db10 to decimal and vice versa."""
+    """Convert db10 to decimal and vice versa.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import db10
+    >>> db10(10.0)
+    """
     if inverse:
         return 10 * math.log10(x)
     else:
@@ -62,7 +74,13 @@ def db10(x: float, inverse: bool = True) -> float:
 
 
 def dbw(x: float, inverse: bool = True) -> float:
-    """Convert W to decimal and vice versa."""
+    """Convert W to decimal and vice versa.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import dbw
+    >>> dbw(1.0)
+    """
     if inverse:
         return 10 * math.log10(x)
     else:
@@ -70,7 +88,13 @@ def dbw(x: float, inverse: bool = True) -> float:
 
 
 def dbm(x: float, inverse: bool = True) -> float:
-    """Convert W to decimal and vice versa."""
+    """Convert W to decimal and vice versa.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import dbm
+    >>> dbm(1.0)
+    """
     if inverse:
         return 10 * math.log10(x) + 30
     else:
@@ -91,6 +115,11 @@ def fah2kel(val: float, inverse: bool = True) -> float:
     -------
     float
         Temperature value converted to Kelvin.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import fah2kel
+    >>> fah2kel(32.0, inverse=False)
 
     """
     if inverse:
@@ -114,6 +143,11 @@ def cel2kel(val: float, inverse: bool = True) -> float:
     float
         Temperature value converted to Kelvin.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import cel2kel
+    >>> cel2kel(25.0, inverse=False)
+
     """
     if inverse:
         return val - 273.15
@@ -134,6 +168,11 @@ def unit_system(units: str) -> str | bool:
     str
         Key from the ``AEDT_units`` when successful. For example, ``"AngularSpeed"``.
     ``False`` when the units specified are not defined in AEDT units.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import unit_system
+    >>> unit_system("mm")
 
     """
     for unit_type, unit_dict in AEDT_UNITS.items():
@@ -191,6 +230,11 @@ def unit_converter(
     -------
     float, list
         Converted value.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import unit_converter
+    >>> unit_converter(1.0, unit_system="Length", input_units="meter", output_units="mm")
     """
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system]:
@@ -246,6 +290,11 @@ def scale_units(scale_to_unit: str) -> float:
     -------
     float
         Return the scaling factor if any.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import scale_units
+    >>> scale_units("mm")
     """
     sunit = 1.0
     for val in list(AEDT_UNITS.values()):
@@ -273,6 +322,15 @@ def validate_enum_class_value(cls, value: int) -> bool:
     -------
     bool
         ``True`` when the value is valid for the ``enumeration-class``, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import validate_enum_class_value
+    >>> class ExampleEnum:
+    ...     A = 0
+    ...     B = 1
+    ...     Invalid = 2
+    >>> validate_enum_class_value(ExampleEnum, 1)
     """
     return isinstance(value, int) and value >= 0 and value < cls.Invalid
 
@@ -754,7 +812,13 @@ class DynamicMeta(type):
 
 
 class InfiniteSphereType(metaclass=DynamicMeta):
-    """Infinite sphere type enum class."""
+    """Infinite sphere type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import InfiniteSphereType
+    >>> InfiniteSphereType.ThetaPhi
+    """
 
     ThetaPhi = "Theta-Phi"
     AzOverEl = "Az Over El"
@@ -762,7 +826,13 @@ class InfiniteSphereType(metaclass=DynamicMeta):
 
 
 class Fillet(metaclass=DynamicMeta):
-    """Fillet enum class."""
+    """Fillet enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import Fillet
+    >>> Fillet.Round
+    """
 
     (Round, Mitered) = range(2)
 
@@ -818,6 +888,13 @@ class Plane(metaclass=DynamicMeta):
     XY : int
         X-Y plane (typically 2).
 
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.generic import constants
+    >>> hfss = Hfss()
+    >>> hfss.modeler.create_rectangle(constants.Plane.XY, [0, 0, 0], [10, 5])
+
     """
 
     (YZ, ZX, XY) = range(3)
@@ -843,6 +920,11 @@ class Gravity(metaclass=DynamicMeta):
         Positive gravity force is in the +Y direction.
     ZPos : int
         Positive gravity force is in the +Z direction.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import Gravity
+    >>> Gravity.ZNeg
     """
 
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(6)
@@ -865,19 +947,36 @@ class View(metaclass=DynamicMeta):
         Set the view along the Y-Axis (view of the ZX plane).
     ISO : int
         Isometric view from the (x=1, y=1, z=1) direction.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import View
+    >>> View.ISO
     """
 
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
 class GlobalCS(metaclass=DynamicMeta):
-    """Global coordinate system enum class."""
+    """Global coordinate system enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import GlobalCS
+    >>> GlobalCS.XY
+    """
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
 class MatrixOperationsQ3D(metaclass=DynamicMeta):
-    """Matrix operations for Q3D."""
+    """Matrix operations for Q3D.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
+    >>> MatrixOperationsQ3D.JoinSeries
+    """
 
     (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
         "JoinSeries",
@@ -893,7 +992,13 @@ class MatrixOperationsQ3D(metaclass=DynamicMeta):
 
 
 class MatrixOperationsQ2D(metaclass=DynamicMeta):
-    """Matrix operations for Q2D."""
+    """Matrix operations for Q2D.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
+    >>> MatrixOperationsQ2D.DiffPair
+    """
 
     (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
         "AddGround",
@@ -905,13 +1010,25 @@ class MatrixOperationsQ2D(metaclass=DynamicMeta):
 
 
 class PlotCategoriesQ3D(metaclass=DynamicMeta):
-    """Plot categories for Q3D."""
+    """Plot categories for Q3D.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
+    >>> PlotCategoriesQ3D.C
+    """
 
     (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
 
 
 class PlotCategoriesQ2D(metaclass=DynamicMeta):
-    """Plot categories for Q2D."""
+    """Plot categories for Q2D.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import PlotCategoriesQ2D
+    >>> PlotCategoriesQ2D.CMatrix
+    """
 
     (
         CMatrix,
@@ -930,55 +1047,109 @@ class PlotCategoriesQ2D(metaclass=DynamicMeta):
 
 
 class CSMode(metaclass=DynamicMeta):
-    """Coordinate system mode enum class."""
+    """Coordinate system mode enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import CSMode
+    >>> CSMode.Axis
+    """
 
     (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
 
 
 class SegmentType(metaclass=DynamicMeta):
-    """Segment type enum class."""
+    """Segment type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SegmentType
+    >>> SegmentType.Line
+    """
 
     (Line, Arc, Spline, AngularArc) = range(0, 4)
 
 
 class CrossSection(metaclass=DynamicMeta):
-    """Cross section enum class."""
+    """Cross section enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import CrossSection
+    >>> CrossSection.Circle
+    """
 
     (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
 
 
 class SweepDraft(metaclass=DynamicMeta):
-    """Sweep draft type enum class."""
+    """Sweep draft type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SweepDraft
+    >>> SweepDraft.Round
+    """
 
     (Extended, Round, Natural, Mixed) = range(0, 4)
 
 
 class FlipChipOrientation(metaclass=DynamicMeta):
-    """Flip chip orientation enum class."""
+    """Flip chip orientation enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import FlipChipOrientation
+    >>> FlipChipOrientation.Up
+    """
 
     (Up, Down) = range(0, 2)
 
 
 class SolverType(metaclass=DynamicMeta):
-    """Provides solver type classes."""
+    """Provides solver type classes.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolverType
+    >>> SolverType.Hfss
+    """
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
 class CutoutSubdesignType(metaclass=DynamicMeta):
-    """Cutout subdesign type enum class."""
+    """Cutout subdesign type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import CutoutSubdesignType
+    >>> CutoutSubdesignType.Conformal
+    """
 
     (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
 
 
 class RadiationBoxType(metaclass=DynamicMeta):
-    """Radiation box type enum class."""
+    """Radiation box type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import RadiationBoxType
+    >>> RadiationBoxType.Polygon
+    """
 
     (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
 
 
 class SweepType(metaclass=DynamicMeta):
-    """Sweep type enum class."""
+    """Sweep type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SweepType
+    >>> SweepType.Linear
+    """
 
     (Linear, LogCount, Invalid) = range(0, 3)
 
@@ -988,25 +1159,48 @@ class BasisOrder(metaclass=DynamicMeta):
 
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
     ``single``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import BasisOrder
+    >>> BasisOrder.Single
     """
 
     (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
 class NodeType(metaclass=DynamicMeta):
-    """Enum class on the type of node for source creation."""
+    """Enum class on the type of node for source creation.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import NodeType
+    >>> NodeType.Positive
+    """
 
     (Positive, Negative, Floating) = range(0, 3)
 
 
 class SourceType(metaclass=DynamicMeta):
-    """Type of excitation enum class."""
+    """Type of excitation enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SourceType
+    >>> SourceType.CoaxPort
+    """
 
     (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
 
 
 class SolutionsHfss(metaclass=DynamicMeta):
-    """HFSS solution types enum class."""
+    """HFSS solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsHfss
+    >>> SolutionsHfss.DrivenModal
+    """
 
     (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
         "Modal",
@@ -1019,7 +1213,13 @@ class SolutionsHfss(metaclass=DynamicMeta):
 
 
 class SolutionsMaxwell3D(metaclass=DynamicMeta):
-    """Maxwell 3D solution types enum class."""
+    """Maxwell 3D solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> SolutionsMaxwell3D.Transient
+    """
 
     (
         Transient,
@@ -1072,7 +1272,13 @@ class SolutionsMaxwell3D(metaclass=DynamicMeta):
 
 
 class SolutionsMaxwell2D(metaclass=DynamicMeta):
-    """Maxwell 2D solution types enum class."""
+    """Maxwell 2D solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+    >>> SolutionsMaxwell2D.MagnetostaticXY
+    """
 
     (
         TransientXY,
@@ -1138,7 +1344,13 @@ class SolutionsMaxwell2D(metaclass=DynamicMeta):
 
 
 class SolutionsIcepak(metaclass=DynamicMeta):
-    """Icepak solution types enum class."""
+    """Icepak solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsIcepak
+    >>> SolutionsIcepak.SteadyState
+    """
 
     (SteadyState, Transient) = (
         "SteadyState",
@@ -1147,7 +1359,13 @@ class SolutionsIcepak(metaclass=DynamicMeta):
 
 
 class SolutionsCircuit(metaclass=DynamicMeta):
-    """Circuit solution types enum class."""
+    """Circuit solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsCircuit
+    >>> SolutionsCircuit.NexximTransient
+    """
 
     (
         NexximLNA,
@@ -1185,7 +1403,13 @@ class SolutionsCircuit(metaclass=DynamicMeta):
 
 
 class SolutionsMechanical(metaclass=DynamicMeta):
-    """Mechanical solution types enum class."""
+    """Mechanical solution types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SolutionsMechanical
+    >>> SolutionsMechanical.Structural
+    """
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
         "Thermal",
@@ -1197,7 +1421,13 @@ class SolutionsMechanical(metaclass=DynamicMeta):
 
 
 class Setups(metaclass=DynamicMeta):
-    """Setup types enum class."""
+    """Setup types enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import Setups
+    >>> Setups.HFSSDrivenDefault
+    """
 
     HFSSDrivenAuto = 0
     HFSSDrivenDefault = 1
@@ -1254,7 +1484,13 @@ class Setups(metaclass=DynamicMeta):
 
 
 class LineStyle(metaclass=DynamicMeta):
-    """Line style enum class."""
+    """Line style enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import LineStyle
+    >>> LineStyle.Dash
+    """
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
         "Solid",
@@ -1270,7 +1506,13 @@ class LineStyle(metaclass=DynamicMeta):
 
 
 class TraceType(metaclass=DynamicMeta):
-    """Trace type enum class."""
+    """Trace type enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import TraceType
+    >>> TraceType.Continuous
+    """
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
         "Continuous",
@@ -1287,7 +1529,13 @@ class TraceType(metaclass=DynamicMeta):
 
 
 class SymbolStyle(metaclass=DynamicMeta):
-    """Symbol style enum class."""
+    """Symbol style enum class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.constants import SymbolStyle
+    >>> SymbolStyle.Circle
+    """
 
     (
         Box,

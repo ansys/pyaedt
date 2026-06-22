@@ -48,6 +48,11 @@ class ButtonSpec:
         Button label.
     attributes : dict
         Optional extra attributes (script, image, tooltip, isLarge, ...).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec
+    >>> button = ButtonSpec("Launch", {"script": "Project/Open"})
     """
 
     label: str
@@ -67,7 +72,13 @@ class ButtonSpec:
 
 @dataclass
 class GroupSpec:
-    """Group definition inside a gallery."""
+    """Group definition inside a gallery.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GroupSpec
+    >>> group = GroupSpec("Thermal", buttons=[ButtonSpec("Export", {"script": "Thermal/Export"})])
+    """
 
     label: str
     image: str | None = None
@@ -92,7 +103,13 @@ class GroupSpec:
 
 @dataclass
 class GallerySpec:
-    """Gallery definition containing a header button and grouped buttons."""
+    """Gallery definition containing a header button and grouped buttons.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, GallerySpec, GroupSpec
+    >>> gallery = GallerySpec(header_button=ButtonSpec("Examples"), groups=[GroupSpec("Thermal")])
+    """
 
     imagewidth: int = 120
     imageheight: int = 72
@@ -127,7 +144,13 @@ class GallerySpec:
 
 @dataclass
 class PanelSpec:
-    """Panel definition with direct buttons and galleries."""
+    """Panel definition with direct buttons and galleries.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, PanelSpec
+    >>> panel = PanelSpec("PyAEDT", buttons=[ButtonSpec("Launch")])
+    """
 
     label: str
     buttons: list[ButtonSpec] = field(default_factory=list)
@@ -278,7 +301,15 @@ class TabConfigParser:
         return removed
 
     def has_button(self, panel_label: str, label: str) -> bool:
-        """Return True if a button label exists anywhere in a panel."""
+        """Return ``True`` if a button label exists anywhere in a panel.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.tabconfig_parser import ButtonSpec, TabConfigParser
+        >>> parser = TabConfigParser()
+        >>> parser.add_button("PyAEDT", ButtonSpec("Launch"))
+        >>> parser.has_button("PyAEDT", "Launch")
+        """
         panel = self.get_panel(panel_label)
         if panel is None:
             return False

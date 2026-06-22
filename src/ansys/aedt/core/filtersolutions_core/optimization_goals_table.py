@@ -51,6 +51,14 @@ class OptimizationGoalParameter(Enum):
     as the sixth value in the optimization goal table.
     - ENABLED: Represents the status of using the goal parameters, positioned
     as the seventh value in the optimization goal table.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+    >>> from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
+    >>> design = LumpedDesign("2026.1")
+    >>> design.optimization_goals_table.restore_design_goals()
+    >>> design.optimization_goals_table.row(0)[OptimizationGoalParameter.PARAMETER_NAME.value]
     """
 
     LOWER_FREQUENCY = 0
@@ -71,6 +79,13 @@ class OptimizationGoalsTable:
     a target value for the optimization goal, a condition that defines how the goal is evaluated,
     the name of the parameter to optimize, the weight of the goal in the overall optimization process,
     and whether the goal is active or not.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+    >>> design = LumpedDesign("2026.1")
+    >>> design.optimization_goals_table.restore_design_goals()
+    >>> design.optimization_goals_table
     """
 
     def __init__(self) -> None:
@@ -141,6 +156,13 @@ class OptimizationGoalsTable:
         Returns
         -------
         int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.row_count
         """
         table_row_count = c_int()
         status = self._dll.getOptimizationGoalDefinitionRowCount(byref(table_row_count))
@@ -161,6 +183,13 @@ class OptimizationGoalsTable:
         -------
         list
             A list of strings representing the row parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.row(0)
         """
         row_parameter_buffer = create_string_buffer(1024)
         # Call the DLL function. Assuming it fills the buffer with comma-separated values.
@@ -208,6 +237,13 @@ class OptimizationGoalsTable:
         enabled: str, optional
             New enabled value to set.
             If no value is specified, the value remains unchanged.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.update_row(0, lower_frequency="100 MHz", upper_frequency="2 GHz")
         """
         status = self._dll.updateOptimizationGoalDefinitionRow(
             row_index,
@@ -250,6 +286,13 @@ class OptimizationGoalsTable:
             Weight value to set.
         enabled: str
             Enabled value to set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.append_row("100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y")
         """
         status = self._dll.appendOptimizationGoalDefinitionRow(
             self._bytes_or_none(lower_frequency),
@@ -294,6 +337,15 @@ class OptimizationGoalsTable:
             Weight value.
         enabled: str
             Enabled value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.insert_row(
+        ...     1, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+        ... )
         """
         status = self._dll.insertOptimizationGoalDefinitionRow(
             row_index,
@@ -314,12 +366,26 @@ class OptimizationGoalsTable:
         ----------
         row_index: int
             Index of the row. Valid values range from ``0`` to ``49``, inclusive.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.remove_row(1)
         """
         status = self._dll.removeOptimizationGoalDefinitionRow(row_index)
         self._dll_interface.raise_error(status)
 
     def restore_design_goals(self) -> None:
-        """Configure the optimization goal table according to the recommended goals for the current design."""
+        """Configure the optimization goal table according to the recommended goals for the current design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        """
         status = self._dll.setDesignGoals()
         self._dll_interface.raise_error(status)
 
@@ -330,6 +396,13 @@ class OptimizationGoalsTable:
         ----------
         file_path: str
             The path to the config file where the goals will be saved.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign("2026.1")
+        >>> design.optimization_goals_table.restore_design_goals()
+        >>> design.optimization_goals_table.save_goals(r"C:\\Users\\Public\\goals.cfg")
         """
         with open(file_path, mode="w", newline="") as file:
             for row_index in range(self.row_count):
@@ -344,6 +417,12 @@ class OptimizationGoalsTable:
         ----------
         file_path: str
             The path to the config file from which the goals will be loaded.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.optimization_goals_table.load_goals(r"C:\\Temp\\optimization_goals.txt")
         """
         with open(file_path, mode="r", newline="") as file:
             self.clear_goal_entries()
@@ -355,10 +434,23 @@ class OptimizationGoalsTable:
     def adjust_goal_frequency(self, adjust_goal_frequency_string: str) -> None:
         """Adjust all goal frequencies in the table by the adjusting
         frequency value which can be positive or negative.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.optimization_goals_table.adjust_goal_frequency("100 MHz")
         """
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
 
     def clear_goal_entries(self) -> None:
-        """Clear the goal entries from optimization goals table."""
+        """Clear the goal entries from optimization goals table.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.optimization_goals_table.clear_goal_entries()
+        """
         status = self._dll.clearGoalEntries()
         self._dll_interface.raise_error(status)

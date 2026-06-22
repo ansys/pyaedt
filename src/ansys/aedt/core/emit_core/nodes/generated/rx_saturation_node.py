@@ -34,13 +34,23 @@ class RxSaturationNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> rx_saturation.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> rx_saturation.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
@@ -62,6 +72,10 @@ class RxSaturationNode(EmitNode):
             Value should be between 1 and 100e9.
         Amplitude:
             Value should be between -1000 and 1000.
+
+        Examples
+        --------
+        >>> rx_saturation.table_data = [(1e9, -15.0)]
         """
         return self._get_table_data()
 

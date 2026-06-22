@@ -74,6 +74,12 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import MaxwellCircuit
+    >>> maxwell = MaxwellCircuit()
+    >>> maxwell.modeler
     """
 
     def __init__(
@@ -119,6 +125,12 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerMaxwellCircuit`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> maxwell = MaxwellCircuit()
+        >>> maxwell.modeler
         """
         if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit

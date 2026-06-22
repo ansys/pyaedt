@@ -57,6 +57,13 @@ class Quaternion(PyAedtBase):
     [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     [3] https://www.euclideanspace.com/maths/geometry/rotations/conversions/
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.quaternion import Quaternion
+    >>> rotation = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+    >>> rotation.coefficients()
+    (0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+
     """
 
     def __init__(self, a: int = 0, b: int = 0, c: int = 0, d: int = 0) -> None:
@@ -584,6 +591,12 @@ class Quaternion(PyAedtBase):
         ------
         ValueError
             If the axes do not form an orthonormal basis.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion.axis_to_rotation_matrix((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+        ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
         """
         if not GeometryOperators.is_orthonormal_triplet(x_axis, y_axis, z_axis):
             raise ValueError("The provided axes must form an orthonormal basis.")
@@ -830,13 +843,27 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def conjugate(self) -> "Quaternion":
-        """Returns the conjugate of the quaternion."""
+        """Returns the conjugate of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).conjugate()
+        Quaternion(1.0, -2.0, -3.0, -4.0)
+        """
         q = self
         return Quaternion(q.a, -q.b, -q.c, -q.d)
 
     @pyaedt_function_handler()
     def norm(self) -> float:
-        """Returns the norm of the quaternion."""
+        """Returns the norm of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).norm()
+        5.477225575051661
+        """
         # fmt: off
         q = self
         return math.sqrt(q.a**2 + q.b**2 + q.c**2 + q.d**2)
@@ -844,7 +871,14 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def normalize(self) -> "Quaternion":
-        """Returns the normalized form of the quaternion."""
+        """Returns the normalized form of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(0, 2, 0, 0).normalize()
+        Quaternion(0.0, 1.0, 0.0, 0.0)
+        """
         # fmt: off
         q = self
         if MathUtils.is_zero(q.norm()):
@@ -854,7 +888,14 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def inverse(self) -> "Quaternion":
-        """Returns the inverse of the quaternion."""
+        """Returns the inverse of the quaternion.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(0, 2, 0, 0).inverse()
+        Quaternion(0.0, -0.5, 0.0, 0.0)
+        """
         # fmt: off
         q = self
         if MathUtils.is_zero(q.norm()):
@@ -914,5 +955,12 @@ class Quaternion(PyAedtBase):
 
     @pyaedt_function_handler()
     def coefficients(self) -> tuple[float, float, float, float]:
-        """Returns the coefficients of the quaternion as a tuple."""
+        """Returns the coefficients of the quaternion as a tuple.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> Quaternion(1, 2, 3, 4).coefficients()
+        (1.0, 2.0, 3.0, 4.0)
+        """
         return self.a, self.b, self.c, self.d

@@ -50,7 +50,13 @@ EXTENSION_TITLE = "Fresnel Coefficients"
 
 
 class FresnelExtension(ExtensionHFSSCommon):
-    """Extension to generate Fresnel coefficients in AEDT."""
+    """Extension to generate Fresnel coefficients in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+    >>> extension = FresnelExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -117,7 +123,14 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> extension = FresnelExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         self.fresnel_type = tkinter.StringVar(value="isotropic")
         # Layout
         self.root.columnconfigure(0, weight=1)
@@ -944,6 +957,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         filtered_list : list of float
             Values from the input that lie in [0, 90] and align with the detected grid.
             If not valid, returns just the input values filtered to [0, 90] (sorted).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss.fresnel import FresnelExtension
+        >>> FresnelExtension.validate_even_and_divides_90([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
         """
         # Sort & filter to [0, 90]
         th_input = np.sort(np.asarray(values, dtype=float))

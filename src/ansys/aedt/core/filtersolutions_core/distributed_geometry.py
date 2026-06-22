@@ -35,6 +35,12 @@ class DistributedGeometry:
     """Defines geometry parameters of distributed filters.
 
     This class allows you to define and modify the layout geometry parameters of distributed filters.
+
+    Examples
+    --------
+    >>> import ansys.aedt.core.filtersolutions
+    >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+    >>> geometry = design.geometry
     """
 
     def __init__(self) -> None:
@@ -117,6 +123,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = True
         """
         fixed_width_to_height_ratio_capacitor_sections_enabled = c_bool()
         status = self._dll.getEnableDistributedCapacitorSections(
@@ -141,6 +153,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.fixed_width_to_height_ratio_capacitor_sections = "3.5"
         """
         fixed_width_to_height_ratio_capacitor_sections_string = self._dll_interface.get_string(
             self._dll.getDistributedCapacitorSections
@@ -163,6 +181,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = True
         """
         fixed_width_to_height_ratio_inductor_sections_enabled = c_bool()
         status = self._dll.getEnableDistributedInductorSections(
@@ -187,6 +211,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.fixed_width_to_height_ratio_inductor_sections = "0.5"
         """
         fixed_width_to_height_ratio_inductor_sections_string = self._dll_interface.get_string(
             self._dll.getDistributedInductorSections
@@ -208,6 +238,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.split_wide_stubs_enabled = True
         """
         split_wide_stubs_enabled = c_bool()
         status = self._dll.getEnableDistributedSplitHeightRatio(byref(split_wide_stubs_enabled))
@@ -228,6 +264,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.wide_stubs_width_to_substrate_height_ratio = "1.2"
         """
         wide_stubs_width_to_substrate_height_ratio_string = self._dll_interface.get_string(
             self._dll.getDistributedSplitHeightRatio
@@ -250,6 +292,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.alternate_stub_orientation = True
         """
         alternate_stub_orientation = c_bool()
         status = self._dll.getDistributedAlternateStubOrientation(byref(alternate_stub_orientation))
@@ -268,6 +316,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.max_width = "3 mm"
         """
         max_width_string = self._dll_interface.get_string(self._dll.getDistributedGeometryMaxWidth)
         return max_width_string
@@ -283,6 +337,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.min_width = "75 um"
         """
         min_width_string = self._dll_interface.get_string(self._dll.getDistributedGeometryMinWidth)
         return min_width_string
@@ -298,6 +358,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.max_gap = "1 mm"
         """
         max_gap_string = self._dll_interface.get_string(self._dll.getDistributedGeometryMaxGap)
         return max_gap_string
@@ -313,6 +379,12 @@ class DistributedGeometry:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.min_gap = "100 um"
         """
         min_gap_string = self._dll_interface.get_string(self._dll.getDistributedGeometryMinGap)
         return min_gap_string
@@ -328,6 +400,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.apply_limits = True
         """
         apply_limits = c_bool()
         status = self._dll.getDistributedApplyLimits(byref(apply_limits))
@@ -348,6 +426,12 @@ class DistributedGeometry:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> import ansys.aedt.core.filtersolutions
+        >>> design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2026.1")
+        >>> design.geometry.adjust_length_on_limit = True
         """
         adjust_length_on_limit = c_bool()
         status = self._dll.getDistributedAdjustLengthOnLimit(byref(adjust_length_on_limit))

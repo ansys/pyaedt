@@ -59,7 +59,13 @@ EXTENSION_NB_COLUMN = 3
 
 @dataclass
 class PointsCloudExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
+    >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
+    """
 
     choice: str | list[str] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
@@ -67,7 +73,13 @@ class PointsCloudExtensionData(ExtensionCommonData):
 
 
 class PointsCloudExtension(ExtensionProjectCommon):
-    """Extension for point cloud generator in AEDT."""
+    """Extension for point cloud generator in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+    >>> extension = PointsCloudExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -85,7 +97,14 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical"""
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension.check_design_type()
+        """
         if self.aedt_application.design_type not in [
             "HFSS",
             "Icepak",
@@ -113,7 +132,14 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_sheets = sheets
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
         input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -278,7 +304,15 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.add_toggle_theme_button(buttons_frame, 0, 2)
 
     def check_and_format_extension_data(self) -> tuple[list[str], int, str]:
-        """Perform checks and formatting on extension input data."""
+        """Perform checks and formatting on extension input data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+        >>> extension = PointsCloudExtension(withdraw=True)
+        >>> extension._widgets["objects_list"].selection_set(1)
+        >>> assignments, points, output_file = extension.check_and_format_extension_data()
+        """
         selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
@@ -301,7 +335,14 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
 
 def main(data: PointsCloudExtensionData):
-    """Main function to run the point cloud generator extension."""
+    """Main function to run the point cloud generator extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData, main
+    >>> data = PointsCloudExtensionData(choice=["Box1"], points=500, output_file=r"D:\\Temp\\box1.pts")
+    >>> main(data)
+    """
     # Check validity of data
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")
@@ -363,7 +404,15 @@ def main(data: PointsCloudExtensionData):
 
 
 def generate_point_cloud(aedtapp: Desktop, selected_objects: list[str], num_points: int, output_file: str = None):
-    """Generate point cloud from selected objects"""
+    """Generate point cloud from selected objects
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.extensions.common.points_cloud import generate_point_cloud
+    >>> hfss = Hfss()
+    >>> generate_point_cloud(hfss, ["Box1"], 500, r"D:\\Temp\\box1.pts")
+    """
     # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
     if not output_file or Path(output_file).is_dir():
         file_name = "_".join(selected_objects) + ".obj"

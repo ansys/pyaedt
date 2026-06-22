@@ -65,7 +65,17 @@ EXTENSION_TITLE = "Layout Parametrization"
 
 @dataclass
 class ParametrizeEdbExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
+    >>> data = ParametrizeEdbExtensionData(
+    ...     aedb_path="C:\\Projects\\Demo\\Demo.aedb",
+    ...     design_name="Layout1",
+    ...     project_name="DemoParametric",
+    ... )
+    """
 
     aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
     design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
@@ -85,7 +95,13 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
 
 
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for parametrizing EDB layouts in AEDT."""
+    """Extension for parametrizing EDB layouts in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+    >>> extension = ParametrizeEdbExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -157,7 +173,14 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
 
     def add_extension_content(self) -> None:
-        """Add extension content to the UI."""
+        """Add extension content to the UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Project name
         ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
         self.project_name_entry = tkinter.Entry(self.root, width=30)
@@ -268,13 +291,27 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
     def show_error_message(self, message: str):
-        """Show error message."""
+        """Show error message.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.show_error_message("Invalid input.")
+        """
         import tkinter.messagebox
 
         tkinter.messagebox.showerror("Error", message)
 
     def generate_callback(self) -> None:
-        """Generate callback function."""
+        """Generate callback function.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtension
+        >>> extension = ParametrizeEdbExtension(withdraw=True)
+        >>> extension.generate_callback()
+        """
         try:
             # Validate expansion values
             polygon_expansion = float(self.polygons_entry.get("1.0", tkinter.END).strip())
@@ -319,7 +356,21 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ParametrizeEdbExtensionData) -> bool:
-    """Main function to run the parametrize EDB extension."""
+    """Main function to run the parametrize EDB extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import (
+    ...     ParametrizeEdbExtensionData,
+    ...     main,
+    ... )
+    >>> data = ParametrizeEdbExtensionData(
+    ...     aedb_path="C:\\Projects\\Demo\\Demo.aedb",
+    ...     design_name="Layout1",
+    ...     project_name="DemoParametric",
+    ... )
+    >>> main(data)
+    """
     if data.expansion_polygon_mm < 0:
         raise AEDTRuntimeError("Polygon expansion cannot be negative.")
 

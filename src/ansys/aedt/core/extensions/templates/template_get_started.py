@@ -53,7 +53,13 @@ result = None
 
 @dataclass
 class ExtensionData:
-    """Data class containing user input."""
+    """Data class containing user input.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
+    >>> data = ExtensionData(origin_x=1.0, origin_y=2.0, origin_z=0.0, radius=5.0)
+    """
 
     origin_x: float = 0.0
     origin_y: float = 0.0
@@ -63,7 +69,13 @@ class ExtensionData:
 
 
 class TemplateExtension(ExtensionProjectCommon):
-    """Extension template to help get started."""
+    """Extension template to help get started.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
+    >>> extension = TemplateExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -75,7 +87,14 @@ class TemplateExtension(ExtensionProjectCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
+        >>> extension = TemplateExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Origin x entry
         origin_x_label = ttk.Label(self.root, text="Origin X:", width=20, style="PyAEDT.TLabel")
         origin_x_label.grid(row=0, column=0, padx=15, pady=10)

@@ -61,7 +61,18 @@ EXTENSION_TITLE = "Arbitrary wave port creator"
 
 @dataclass
 class ArbitraryWavePortExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
+    ...     ArbitraryWavePortExtensionData,
+    ... )
+    >>> data = ArbitraryWavePortExtensionData(
+    ...     working_path="C:\\Temp\\wave_port_work",
+    ...     source_path="C:\\Temp\\board.aedb",
+    ... )
+    """
 
     working_path: str = EXTENSION_DEFAULT_ARGUMENTS["working_path"]
     source_path: str = EXTENSION_DEFAULT_ARGUMENTS["source_path"]
@@ -70,7 +81,15 @@ class ArbitraryWavePortExtensionData(ExtensionCommonData):
 
 
 class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for generating arbitrary wave ports in HFSS 3D Layout."""
+    """Extension for generating arbitrary wave ports in HFSS 3D Layout.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
+    ...     ArbitraryWavePortExtension,
+    ... )
+    >>> extension = ArbitraryWavePortExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -96,7 +115,16 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
+        ...     ArbitraryWavePortExtension,
+        ... )
+        >>> extension = ArbitraryWavePortExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Working directory
         work_dir_label = ttk.Label(self.root, text="Working directory:", width=20, style="PyAEDT.TLabel")
         work_dir_label.grid(row=0, column=0, padx=15, pady=10)
@@ -196,7 +224,20 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ArbitraryWavePortExtensionData) -> bool:
-    """Main function to run the arbitrary wave port extension."""
+    """Main function to run the arbitrary wave port extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
+    ...     ArbitraryWavePortExtensionData,
+    ...     main,
+    ... )
+    >>> data = ArbitraryWavePortExtensionData(
+    ...     working_path="C:\\Temp\\wave_port_work",
+    ...     source_path="C:\\Temp\\board.aedb",
+    ... )
+    >>> main(data)
+    """
     # Validate input data
     if not data.working_path:
         raise AEDTRuntimeError("No working path provided")

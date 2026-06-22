@@ -59,7 +59,13 @@ EXTENSION_TITLE = "Import Nastran"
 
 @dataclass
 class ImportNastranExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
+    >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
+    """
 
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
     lightweight: bool = EXTENSION_DEFAULT_ARGUMENTS["lightweight"]
@@ -69,7 +75,13 @@ class ImportNastranExtensionData(ExtensionCommonData):
 
 
 class ImportNastranExtension(ExtensionProjectCommon):
-    """Extension for importing Nastran or STL files in AEDT."""
+    """Extension for importing Nastran or STL files in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+    >>> extension = ImportNastranExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         super().__init__(
@@ -91,7 +103,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self) -> None:
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+        >>> extension = ImportNastranExtension(withdraw=True)
+        >>> extension.check_design_type()
+        """
         if self.aedt_application.design_type not in [
             "HFSS",
             "Icepak",
@@ -106,7 +125,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
             )
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+        >>> extension = ImportNastranExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # File path selection
         ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
 
@@ -265,7 +291,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
 
 def main(data: ImportNastranExtensionData) -> bool:
-    """Main function to run the import nastran extension."""
+    """Main function to run the import nastran extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData, main
+    >>> data = ImportNastranExtensionData(file_path=r"D:\\Geometry\\model.nas", decimate=0.2)
+    >>> main(data)
+    """
     # Input validation
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided.")

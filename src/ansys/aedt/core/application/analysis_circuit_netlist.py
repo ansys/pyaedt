@@ -72,6 +72,12 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import CircuitNetlist
+    >>> netlist = CircuitNetlist()
+    >>> netlist.post
     """
 
     def __init__(
@@ -118,6 +124,12 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_circuit.PostProcessorCircuit`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> netlist = CircuitNetlist()
+        >>> netlist.post
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -127,5 +139,12 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
 
     @property
     def modeler(self) -> object:
-        """Modeler object."""
+        """Modeler object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> netlist = CircuitNetlist()
+        >>> netlist.modeler
+        """
         return self._modeler

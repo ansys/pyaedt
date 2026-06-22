@@ -34,13 +34,31 @@ class SolutionCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
+        >>> coupling.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
+        >>> coupling.node_type
+        """
         return self._node_type
 
     @property
@@ -52,6 +70,15 @@ class SolutionCouplingNode(EmitNode):
         enabled in EMIT).
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> coupling = next(node for node in revision.get_all_nodes() if node.node_type == "SolutionCouplingNode")
+        >>> coupling.enabled = False
+        >>> coupling.enabled
         """
         val = self._get_property("Enabled")
         return val == "true"

@@ -32,6 +32,13 @@ Usage::
 
     python extension_error_handler.py --script <script_path> [script_args ...]
 
+Examples
+--------
+>>> import sys
+>>> import ansys.aedt.core.extensions.templates.extension_error_handler as error_handler
+>>> sys.argv = ["extension_error_handler.py", "--script", r"C:\\Users\\user\\run_extension.py"]
+>>> error_handler.main()
+
 """
 
 import os

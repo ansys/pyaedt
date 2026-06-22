@@ -54,7 +54,13 @@ EXTENSION_TITLE = "Layout Exporter"
 
 @dataclass
 class ExportLayoutExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
+    >>> data = ExportLayoutExtensionData(export_ipc=True, export_configuration=True, export_bom=False)
+    """
 
     export_ipc: bool = EXTENSION_DEFAULT_ARGUMENTS["export_ipc"]
     export_configuration: bool = EXTENSION_DEFAULT_ARGUMENTS["export_configuration"]
@@ -62,7 +68,13 @@ class ExportLayoutExtensionData(ExtensionCommonData):
 
 
 class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for exporting layout data in AEDT."""
+    """Extension for exporting layout data in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtension
+    >>> extension = ExportLayoutExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class
@@ -84,7 +96,14 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtension
+        >>> extension = ExportLayoutExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Export IPC2581 option
         label = ttk.Label(
             self.root,
@@ -162,7 +181,14 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: ExportLayoutExtensionData) -> bool:
-    """Main function to run the export layout extension."""
+    """Main function to run the export layout extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData, main
+    >>> data = ExportLayoutExtensionData(export_ipc=True, export_configuration=True, export_bom=False)
+    >>> main(data)
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

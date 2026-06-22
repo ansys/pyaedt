@@ -143,7 +143,16 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     def add_toggle_theme_button(
         self, parent: tkinter.Widget, toggle_row: int | None = None, toggle_column: int | None = None
     ) -> None:
-        """Create a button to toggle between light and dark themes."""
+        """Create a button to toggle between light and dark themes.
+
+        Examples
+        --------
+        >>> import tkinter
+        >>> from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+        >>> frontend = MCADAssemblyFrontend(withdraw=True)
+        >>> frame = tkinter.Frame(frontend.root)
+        >>> frontend.add_toggle_theme_button(frame)
+        """
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )
@@ -331,6 +340,17 @@ class Component(BaseModel):
         ----------
          cs_prefix : str
             This is the name of the component definition.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.extensions.hfss.mcad_assembly import COMPONENT_MODELS, Component
+        >>> hfss = Hfss()
+        >>> model_name = next(iter(COMPONENT_MODELS))
+        >>> component = Component(
+        ...     component_type="mcad", name="Bracket1", model=model_name, target_coordinate_system="Global"
+        ... )
+        >>> component.assemble(hfss)
         """
         if cs_prefix:
             self.target_coordinate_system = f"{cs_prefix}_{self.target_coordinate_system}"

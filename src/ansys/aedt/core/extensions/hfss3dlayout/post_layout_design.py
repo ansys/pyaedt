@@ -60,7 +60,13 @@ EXTENSION_TITLE = "Layout Design Toolkit"
 
 @dataclass
 class PostLayoutDesignExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
+    >>> data = PostLayoutDesignExtensionData(action="antipad", selections=["Via1", "Via2"], radius="0.5mm")
+    """
 
     action: str = EXTENSION_DEFAULT_ARGUMENTS["action"]
     selections: list = None
@@ -76,7 +82,13 @@ class PostLayoutDesignExtensionData(ExtensionCommonData):
 
 
 class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for post-layout design operations in AEDT."""
+    """Extension for post-layout design operations in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
+    >>> extension = PostLayoutDesignExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
@@ -135,7 +147,14 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._pedb.close()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
+        >>> extension = PostLayoutDesignExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         # Create notebook for tabs
         self._widgets["notebook"] = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self._widgets["notebook"].grid(row=0, column=0, columnspan=2, padx=15, pady=10, sticky="ew")
@@ -345,7 +364,17 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
 
 def main(data: PostLayoutDesignExtensionData) -> bool:
-    """Main function to run the post layout design extension."""
+    """Main function to run the post layout design extension.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import (
+    ...     PostLayoutDesignExtensionData,
+    ...     main,
+    ... )
+    >>> data = PostLayoutDesignExtensionData(action="antipad", selections=["Via1", "Via2"], radius="0.5mm")
+    >>> main(data)
+    """
     if not data.selections:
         raise AEDTRuntimeError("No selections provided to the extension.")
 

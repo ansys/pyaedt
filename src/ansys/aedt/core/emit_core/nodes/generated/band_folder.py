@@ -34,26 +34,71 @@ class BandFolder(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
+        >>> folder = radio.add_folder()
+        >>> folder.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
+        >>> folder = radio.add_folder()
+        >>> folder.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_band(self) -> EmitNode:
-        """Create a New Band"""
+        """Create a New Band
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
+        >>> folder = radio.add_folder()
+        >>> band = folder.add_band()
+        """
         return self._add_child_node("Band")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
+        >>> folder = radio.add_folder()
+        >>> folder_copy = folder.duplicate("BandFolder1")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> radio = app.schematic.create_component("New Radio", name="Radio1")
+        >>> folder = radio.add_folder()
+        >>> folder.delete()
+        """
         self._delete()

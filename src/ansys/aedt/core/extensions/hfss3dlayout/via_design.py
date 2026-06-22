@@ -77,7 +77,13 @@ EXPORT_EXAMPLES = [
 
 
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
-    """Extension for advanced fields calculator in AEDT."""
+    """Extension for advanced fields calculator in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+    >>> extension = ViaDesignExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         # Check for unsupported version
@@ -94,7 +100,14 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.add_extension_content()
 
     def add_extension_content(self) -> None:
-        """Add custom content to the extension UI."""
+        """Add custom content to the extension UI.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+        >>> extension = ViaDesignExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
 
         def save_example(toml_file_path: Path) -> None:
             file_path = filedialog.asksaveasfilename(
@@ -165,7 +178,25 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         change_theme_button.grid(row=0, column=1)
 
     def create_design(self, create_design_path: Path | None = None) -> bool:
-        """Create via design in AEDT"""
+        """Create via design in AEDT.
+
+        Parameters
+        ----------
+        create_design_path : Path, optional
+            Path to the TOML configuration file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
+        >>> extension = ViaDesignExtension(withdraw=True)
+        >>> extension.create_design(Path("C:\\\\Temp\\\\pcb_rf.toml"))
+        """
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(
                 title="Select configuration",

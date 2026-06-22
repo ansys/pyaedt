@@ -34,28 +34,78 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def import_csv_file(self, file_name: str) -> EmitNode:
-        """Import a CSV File..."""
+        """Import a CSV File...
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.import_csv_file("C:\\EMIT\\custom_coupling.csv")
+        """
         return self._import(file_name, "Csv")
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling_copy = custom_coupling.duplicate("Custom_Coupling_Copy")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.delete()
+        """
         self._delete()
 
     @property
@@ -67,6 +117,15 @@ class CustomCouplingNode(EmitNode):
             Value should be between 1.0 and 100.0e9.
         Value (dB):
             Value should be between -1000.0 and 0.0.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.table_data = [(1e9, -60.0), (2e9, -55.0)]
         """
         return self._get_table_data()
 
@@ -81,6 +140,15 @@ class CustomCouplingNode(EmitNode):
         """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.enabled = True
         """
         val = self._get_property("Enabled")
         return val == "true"
@@ -93,7 +161,17 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_a(self) -> EmitNode:
-        """First antenna of the pair to apply the coupling values to."""
+        """First antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.antenna_a
+        """
         val = self._get_property("Antenna A")
         return val
 
@@ -105,7 +183,17 @@ class CustomCouplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def antenna_b(self) -> EmitNode:
-        """Second antenna of the pair to apply the coupling values to."""
+        """Second antenna of the pair to apply the coupling values to.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.get_revision()
+        >>> couplings = revision.get_coupling_data_node()
+        >>> custom_coupling = couplings.add_custom_coupling()
+        >>> custom_coupling.antenna_b
+        """
         val = self._get_property("Antenna B")
         return val
 

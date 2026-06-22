@@ -49,6 +49,11 @@ class FilterType(Enum):
     - RAISED_COS: Represents a raised cosine filter.
 
     Custom and matched filter types are not available in this release.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterType
+    >>> FilterType.ELLIPTIC
     """
 
     GAUSSIAN = 0
@@ -83,6 +88,11 @@ class FilterClass(Enum):
     - BAND_HIGH: Represents a combined high-pass and multi-band filter.
     - BAND_BAND: Represents a multi-band pass filter.
     - STOP_STOP: Represents a multi-band stop filter.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+    >>> FilterClass.BAND_PASS
     """
 
     LOW_PASS = 0
@@ -108,6 +118,11 @@ class DiplexerType(Enum):
     - BP_BS: Represents a band-pass, band-stop diplexer type.
     - TRIPLEXER_1: Represents a low-pass, band-pass, and high-pass triplexer type.
     - TRIPLEXER_2: Represents a low-pass, band-pass, and high-pass triplexer type.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
+    >>> DiplexerType.BP_BS
     """
 
     HI_LO = 0
@@ -133,6 +148,11 @@ class RaisedCosineAlphaPercentage(Enum):
     - FIFTY: 50%
     - SEVENTY_FIVE: 75%
     - HUNDRED: 100%
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import RaisedCosineAlphaPercentage
+    >>> RaisedCosineAlphaPercentage.FIFTY
     """
 
     FIFTEEN = 0
@@ -158,6 +178,11 @@ class BesselRipplePercentage(Enum):
     - TWO: 2%
     - FIVE: 5%
     - TEN: 10%
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
+    >>> BesselRipplePercentage.ONE
     """
 
     ZERO = 0
@@ -179,6 +204,11 @@ class GaussianTransition(Enum):
     - TRANSITION_9_DB: 9dB
     - TRANSITION_12_DB: 12dB
     - TRANSITION_15_DB: 15dB
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
+    >>> GaussianTransition.TRANSITION_6_DB
     """
 
     TRANSITION_NONE = 0
@@ -197,6 +227,11 @@ class GaussianBesselReflection(Enum):
     - OPTION_1: The first method for filter synthesis.
     - OPTION_2: The second method for filter synthesis.
     - OPTION_3: The third method for filter synthesis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
+    >>> GaussianBesselReflection.OPTION_2
     """
 
     OPTION_1 = 0
@@ -212,6 +247,11 @@ class RippleConstrictionBandSelect(Enum):
     - STOP: Stop band
     - PASS: Pass band
     - BOTH: Stop and pass bands
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBandSelect
+    >>> RippleConstrictionBandSelect.BOTH
     """
 
     STOP = 0
@@ -226,6 +266,11 @@ class SinglePointRippleInfZeros(Enum):
 
     - RIPPLE_INF_ZEROS_1: One zero
     - RIPPLE_INF_ZEROS_3: Three zeros
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
+    >>> SinglePointRippleInfZeros.RIPPLE_INF_ZEROS_3
     """
 
     RIPPLE_INF_ZEROS_1 = 0
@@ -239,6 +284,11 @@ class PassbandDefinition(Enum):
 
     - CENTER_FREQUENCY: Define the passband by the center frequency and bandwidth.
     - CORNER_FREQUENCIES: Define the passband by the corner frequencies.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import PassbandDefinition
+    >>> PassbandDefinition.CENTER_FREQUENCY
     """
 
     CENTER_FREQUENCY = 0
@@ -253,6 +303,11 @@ class StopbandDefinition(Enum):
     - RATIO: Ratio between the stop band and pass band frequencies.
     - FREQUENCY: Explicit frequency.
     - ATTENUATION_DB: Attenuation in decibels.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
+    >>> StopbandDefinition.ATTENUATION_DB
     """
 
     RATIO = 0
@@ -264,6 +319,12 @@ class Attributes:
     """Defines attributes and parameters of filters.
 
     This class lets you construct all the necessary attributes for the ``FilterDesign`` class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.attributes import Attributes
+    >>> attributes = Attributes()
+    >>> attributes.filter_type
     """
 
     def __init__(self) -> None:
@@ -604,6 +665,13 @@ class Attributes:
         Returns
         -------
         :enum:`FilterType`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterType
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_type = FilterType.ELLIPTIC
         """
         type_string = self._dll_interface.get_string(self._dll.getFilterType)
         return self._dll_interface.string_to_enum(FilterType, type_string)
@@ -625,6 +693,13 @@ class Attributes:
         Returns
         -------
         :enum:`FilterClass`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_class = FilterClass.BAND_PASS
         """
         type_string = self._dll_interface.get_string(self._dll.getFilterClass)
         return self._dll_interface.string_to_enum(FilterClass, type_string)
@@ -650,6 +725,14 @@ class Attributes:
         Returns
         -------
         :enum:`DiplexerType`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType, FilterClass
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_class = FilterClass.DIPLEXER_2
+        >>> design.attributes.diplexer_type = DiplexerType.BP_BS
         """
         type_string = self._dll_interface.get_string(self._dll.getDiplexerType)
         return self._dll_interface.string_to_enum(DiplexerType, type_string)
@@ -666,6 +749,12 @@ class Attributes:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_multiple_bands_enabled = True
         """
         filter_multiple_bands_enabled = c_bool()
         status = self._dll.getMultipleBandsEnabled(byref(filter_multiple_bands_enabled))
@@ -684,6 +773,12 @@ class Attributes:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.filtersolutions import LumpedDesign
+        >>> design = LumpedDesign(version="2026.1")
+        >>> design.attributes.filter_multiple_bands_low_pass_frequency = "900MHz"
         """
         filter_multiple_bands_low_pass_freq_string = self._dll_interface.get_string(
             self._dll.getMultipleBandsLowPassFrequency

@@ -233,7 +233,15 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
 
 def main(data: CoilExtensionData) -> bool:
-    """Main function to create coils in AEDT."""
+    """Main function to create coils in AEDT.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtensionData
+    >>> from ansys.aedt.core.extensions.maxwell3d.create_coil import main
+    >>> coil_data = CoilExtensionData(name="Coil1", turns=6)
+    >>> main(coil_data)
+    """
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

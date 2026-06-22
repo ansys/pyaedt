@@ -159,7 +159,13 @@ def Edb(
 def Siwave(
     specified_version: str | None = None,
 ) -> "Siwave":
-    """Siwave Class."""
+    """Siwave Class.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Siwave
+    >>> siwave = Siwave(specified_version="2026.1")
+    """
     from pyedb.generic.design_types import Siwave as app
 
     return app(

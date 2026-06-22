@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heat Map Extension."""
+"""EMIT EMI Heat Map Extension.
+
+Examples
+--------
+>>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+>>> extension = EMIHeatmapExtension(withdraw=True)
+"""
 
 from dataclasses import dataclass
 import os
@@ -48,7 +54,13 @@ EXTENSION_DEFAULT_ARGUMENTS = {}
 
 @dataclass
 class EMIHeatmapExtensionData(ExtensionCommonData):
-    """Data class containing EMI heat map analysis results."""
+    """Data class containing EMI heat map analysis results.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
+    >>> data = EMIHeatmapExtensionData(victim="GPS", aggressor="Bluetooth")
+    """
 
     emi: np.ndarray | None = None
     rx_power: np.ndarray | None = None
@@ -61,7 +73,13 @@ class EMIHeatmapExtensionData(ExtensionCommonData):
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI heat map analysis."""
+    """Interactive EMIT extension for EMI heat map analysis.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+    >>> extension = EMIHeatmapExtension(withdraw=True)
+    """
 
     def __init__(self, withdraw: bool = False) -> None:
         self._widgets = {}
@@ -89,7 +107,14 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self) -> None:
-        """Build the UI for the EMI heat map extension."""
+        """Build the UI for the EMI heat map extension.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
+        >>> extension = EMIHeatmapExtension(withdraw=True)
+        >>> extension.add_extension_content()
+        """
         root = self.root
 
         # Header with project/design info

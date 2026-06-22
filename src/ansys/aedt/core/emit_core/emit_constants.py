@@ -28,6 +28,11 @@ This allows IDE auto-complete to find them and ``emit_constants`` to import befo
 ``EmitApiPython`` module has loaded (typically when a ``ansys.aedt.core.Emit()`` object is created).
 
 Because the members must be reassigned at runtime, the Enum class cannot be used.
+
+Examples
+--------
+>>> from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
+>>> EMIT_VALID_UNITS["Frequency"]
 """
 
 
@@ -83,7 +88,13 @@ EMIT_VALID_UNITS = {
     "Data Rate": ["bps", "kbps", "Mbps", "Gbps"],
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
-"""Valid units for each unit type."""
+"""Valid units for each unit type.
+
+Examples
+--------
+>>> from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
+>>> EMIT_VALID_UNITS["Power"]
+"""
 
 EMIT_INTERNAL_UNITS = {
     "Power": "dBm",
@@ -95,7 +106,13 @@ EMIT_INTERNAL_UNITS = {
     "Data Rate": "bps",
     "Resistance": "ohm",
 }
-"""Default units for each unit type."""
+"""Default units for each unit type.
+
+Examples
+--------
+>>> from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
+>>> EMIT_INTERNAL_UNITS["Frequency"]
+"""
 
 EMIT_TO_AEDT_UNITS = {
     "picometers": "pm",
@@ -165,6 +182,11 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True) -> float:
     Returns
     -------
         value: data rate converted to/from the internal units
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
+    >>> rate = data_rate_conv(1.5, "Mbps")
     """
     mult = 1.0
 

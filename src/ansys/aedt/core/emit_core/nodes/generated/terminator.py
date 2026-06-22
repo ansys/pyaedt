@@ -36,17 +36,41 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def duplicate(self, new_name: str = "") -> EmitNode:
-        """Duplicate this node"""
+        """Duplicate this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> duplicate_terminator = terminator.duplicate("Load1_Copy")
+        """
         return self._duplicate(new_name)
 
     @min_aedt_version("2025.2")
     def delete(self) -> None:
-        """Delete this node"""
+        """Delete this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.delete()
+        """
         self._delete()
 
     @property
@@ -60,6 +84,14 @@ class Terminator(EmitNode):
             Value should be between 1 and 100e9.
         VSWR:
             Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.table_data = [(1e9, 2e9, 1.2), (2e9, 4e9, 1.5)]
+        >>> terminator.table_data
         """
         return self._get_table_data()
 
@@ -74,6 +106,14 @@ class Terminator(EmitNode):
         """Name of file defining the Terminator.
 
         Value should be a full file path.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.filename = r"C:\\Temp\\terminator.s2p"
+        >>> terminator.filename
         """
         val = self._get_property("Filename")
         return val
@@ -89,6 +129,14 @@ class Terminator(EmitNode):
         """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.noise_temperature = 290.0
+        >>> terminator.noise_temperature
         """
         val = self._get_property("Noise Temperature")
         return float(val)
@@ -101,7 +149,16 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.notes = "Calibrated load."
+        >>> terminator.notes
+        """
         val = self._get_property("Notes")
         return val
 
@@ -121,6 +178,14 @@ class Terminator(EmitNode):
 
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.terminator_type = terminator.TerminatorTypeOption.PARAMETRIC
+        >>> terminator.terminator_type
         """
         val = self._get_property("Terminator Type")
         val = self.TerminatorTypeOption[val.upper()]
@@ -141,6 +206,14 @@ class Terminator(EmitNode):
         etc).
 
         Value should be between 1.0 and 100.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.vswr = 1.5
+        >>> terminator.vswr
         """
         val = self._get_property("VSWR")
         return float(val)
@@ -153,6 +226,14 @@ class Terminator(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> terminator = app.schematic.create_component("Terminator", name="Load1")
+        >>> terminator.warnings
+        """
         val = self._get_property("Warnings")
         return val

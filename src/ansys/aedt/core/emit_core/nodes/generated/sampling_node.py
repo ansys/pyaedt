@@ -36,13 +36,23 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def parent(self) -> EmitNode:
-        """The parent of this emit node."""
+        """The parent of this emit node.
+
+        Examples
+        --------
+        >>> sampling.parent
+        """
         return self._parent
 
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> sampling.node_type
+        """
         return self._node_type
 
     @property
@@ -54,6 +64,10 @@ class SamplingNode(EmitNode):
             Value should be between 1.0 and 100e9.
         Max:
             Value should be between 1.0 and 100e9.
+
+        Examples
+        --------
+        >>> sampling.table_data = [("100 MHz", "300 MHz")]
         """
         return self._get_table_data()
 
@@ -70,7 +84,13 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def sampling_type(self) -> SamplingTypeOption:
-        """Sampling to apply to this configuration."""
+        """Sampling to apply to this configuration.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+        >>> sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+        """
         val = self._get_property("Sampling Type")
         val = self.SamplingTypeOption[val.upper()]
         return val
@@ -89,6 +109,10 @@ class SamplingNode(EmitNode):
         available band channels.
 
         Value should be 'true' or 'false'.
+
+        Examples
+        --------
+        >>> sampling.specify_percentage = True
         """
         val = self._get_property("Specify Percentage")
         return val == "true"
@@ -104,6 +128,10 @@ class SamplingNode(EmitNode):
         """Percentage of the Band Channels to simulate.
 
         Value should be between 1 and 100.
+
+        Examples
+        --------
+        >>> sampling.percentage_of_channels = 25
         """
         val = self._get_property("Percentage of Channels")
         return float(val)
@@ -119,6 +147,10 @@ class SamplingNode(EmitNode):
         """Maximum number of Band Channels to simulate.
 
         Value should be between 1 and 100000.
+
+        Examples
+        --------
+        >>> sampling.max_channels_range_band = 75
         """
         val = self._get_property("Max # Channels/Range/Band")
         return int(val)
@@ -134,6 +166,10 @@ class SamplingNode(EmitNode):
         """Seed for random channel generator.
 
         Value should be greater than 0.
+
+        Examples
+        --------
+        >>> sampling.seed = 100
         """
         val = self._get_property("Seed")
         return int(val)
@@ -150,6 +186,10 @@ class SamplingNode(EmitNode):
 
         Total number of transmit channels this configuration is capable of
         operating on.
+
+        Examples
+        --------
+        >>> sampling.total_tx_channels
         """
         val = self._get_property("Total Tx Channels")
         return int(val)
@@ -161,6 +201,10 @@ class SamplingNode(EmitNode):
 
         Total number of receive channels this configuration is capable of
         operating on.
+
+        Examples
+        --------
+        >>> sampling.total_rx_channels
         """
         val = self._get_property("Total Rx Channels")
         return int(val)
@@ -168,6 +212,11 @@ class SamplingNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def warnings(self) -> str:
-        """Warning(s) for this node."""
+        """Warning(s) for this node.
+
+        Examples
+        --------
+        >>> sampling.warnings
+        """
         val = self._get_property("Warnings")
         return val

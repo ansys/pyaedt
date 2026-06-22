@@ -104,7 +104,16 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         return
 
     def add_toggle_theme_button_(self, parent):
-        """Create a button to toggle between light and dark themes."""
+        """Create a button to toggle between light and dark themes.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import (
+        ...     ConfigureLayoutExtension,
+        ... )
+        >>> extension = ConfigureLayoutExtension(withdraw=True)
+        >>> extension.add_toggle_theme_button_(extension.root)
+        """
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )

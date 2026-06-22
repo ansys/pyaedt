@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains the ``Circuit`` class."""
+"""This module contains the ``Circuit`` class.
+
+Examples
+--------
+>>> from ansys.aedt.core import Circuit
+>>> circuit = Circuit()
+"""
 
 from __future__ import annotations
 
@@ -259,6 +265,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        Examples
+        --------
+        >>> circuit.create_schematic_from_netlist(r"C:\\Users\\Public\\netlist.sp")
         """
         units = self.modeler.schematic_units
         self.modeler.schematic_units = "meter"
@@ -500,6 +510,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
+
+        Examples
+        --------
+        >>> ibis = circuit.get_ibis_model_from_file(r"C:\\Users\\Public\\example.ibs")
         """
         if is_ami:
             reader = ibis_reader.AMIReader(str(input_file), self)
@@ -531,6 +545,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        Examples
+        --------
+        >>> circuit.create_schematic_from_mentor_netlist(r"C:\\Users\\Public\\mentor.net")
         """
         units = self.modeler.schematic_units
         self.modeler.schematic_units = "meter"
@@ -663,6 +681,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         str
             Type of the Mentor netlist component.
 
+
+        Examples
+        --------
+        >>> circuit.retrieve_mentor_comp('"R1"')
         """
         if reference_id[1] == "R":
             return "resistor:RES."
@@ -707,6 +729,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitationsOfType
+
+        Examples
+        --------
+        >>> pins = circuit.get_source_pin_names("HFSSDesign1")
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
@@ -758,6 +784,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.ImportData
+
+        Examples
+        --------
+        >>> ports = circuit.import_touchstone_solution(r"C:\\Users\\Public\\filter.s2p")
         """
         if input_file[-2:] == "ts":
             with open_file(input_file, "r") as f:
@@ -951,6 +981,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.ExportFullWaveSpice
+
+        Examples
+        --------
+        >>> circuit.export_fullwave_spice(filename=r"C:\\Users\\Public\\filter.sp")
         """
         if not design:
             design = self.design_name
@@ -1084,6 +1118,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> circuit.create_touchstone_report("S21", ["dB(S(Port1,Port2))"])
         """
         if not solution:
             solution = self.nominal_sweep
@@ -1121,6 +1159,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.PushExcitations
+
+        Examples
+        --------
+        >>> circuit.push_excitations("U1")
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup]
 
@@ -1172,6 +1214,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oEditor.PushExcitations
+
+        Examples
+        --------
+        >>> circuit.push_time_excitations("U1", stop=2e-9)
         """
         arg = [
             "NAME:options",
@@ -1225,6 +1271,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> source = circuit.create_source("VoltageSin", name="Vsrc1")
         """
         if not name:
             name = generate_unique_name("Source")
@@ -1272,6 +1322,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> source = circuit.assign_voltage_sinusoidal_excitation_to_ports(["Port1"])
         """
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
@@ -1296,6 +1350,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> source = circuit.assign_current_sinusoidal_excitation_to_ports(["Port1"])
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
@@ -1320,6 +1378,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> source = circuit.assign_power_sinusoidal_excitation_to_ports(["Port1"])
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
@@ -1346,6 +1408,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> source = circuit.assign_voltage_frequency_dependent_excitation_to_ports(
+        ...     ["Port1"], r"C:\\Users\\Public\\source.fds"
+        ... )
         """
         if not Path(input_file).exists() or Path(input_file).suffix != ".fds":
             self.logger.error("Introduced file is not correct. Check path and format.")
@@ -1400,6 +1468,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDiffPairs
+
+        Examples
+        --------
+        >>> circuit.set_differential_pair("Port1", "Port2")
         """
         if not differential_mode:
             differential_mode = generate_unique_name("Diff")
@@ -1492,6 +1564,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.LoadDiffPairsFromFile
+
+        Examples
+        --------
+        >>> circuit.load_diff_pairs_from_file(r"C:\\Users\\Public\\diff_pairs.txt")
         """
         if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: The specified file could not be found.")
@@ -1529,6 +1605,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.SaveDiffPairsToFile
+
+        Examples
+        --------
+        >>> circuit.save_diff_pairs_to_file(r"C:\\Users\\Public\\diff_pairs.txt")
         """
         self.odesign.SaveDiffPairsToFile(str(output_file))
 
@@ -1549,6 +1629,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> circuit.add_netlist_datablock(r"C:\\Users\\Public\\subckt.cir", name="Inc1")
         """
         if not Path(input_file).exists():
             self.logger.error("Netlist File doesn't exists")
@@ -1575,6 +1659,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         Path or None
             File Path.
+
+        Examples
+        --------
+        >>> log_path = circuit.browse_log_file()
         """
         if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
@@ -1710,6 +1798,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         Returns
         -------
             ``Hfss3DLayout`` component instance.
+
+        Examples
+        --------
+        >>> comp = circuit.import_edb_in_circuit(r"C:\\Users\\Public\\board.aedb")
         """
         hfss = Hfss3dLayout(input_dir)
         try:
@@ -1783,6 +1875,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         list
             List of TDR probe traces when successful.
+
+        Examples
+        --------
+        >>> traces = circuit.create_tdr_schematic_from_snp(
+        ...     r"C:\\Users\\Public\\channel.s2p", tx_schematic_pins=["1"], differential=False
+        ... )
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
@@ -1912,6 +2010,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         (bool, list, list)
             First argument is ``True`` if succeeded.
             Second and third argument are respectively names of the differential and common mode pairs.
+
+        Examples
+        --------
+        >>> circuit.create_lna_schematic_from_snp(r"C:\\Users\\Public\\amp.s2p", design_name="LNA1")
         """
         if pattern is None:
             pattern = ["component", "pin", "net"]
@@ -2051,6 +2153,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         (bool, list, list)
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
+
+        Examples
+        --------
+        >>> circuit.create_ami_schematic_from_snp(
+        ...     r"C:\\Users\\Public\\link.s2p",
+        ...     r"C:\\Users\\Public\\tx.ibs",
+        ...     "TX_BUF",
+        ...     "RX_BUF",
+        ...     ["1"],
+        ...     ["2"],
+        ...     differential=False,
+        ...     ibis_rx_file=r"C:\\Users\\Public\\rx.ibs",
+        ... )
         """
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
@@ -2152,6 +2267,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         (bool, list, list)
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
+
+        Examples
+        --------
+        >>> circuit.create_ibis_schematic_from_snp(
+        ...     r"C:\\Users\\Public\\link.s2p",
+        ...     r"C:\\Users\\Public\\tx.ibs",
+        ...     "TX_BUF",
+        ...     "RX_BUF",
+        ...     ["1"],
+        ...     ["2"],
+        ...     differential=False,
+        ...     ibis_rx_file=r"C:\\Users\\Public\\rx.ibs",
+        ... )
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. Renaming.")
@@ -2263,6 +2391,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         (bool, list, list)
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
+
+        Examples
+        --------
+        >>> circuit.create_ibis_schematic_from_pins(
+        ...     r"C:\\Users\\Public\\tx.ibs",
+        ...     ibis_rx_file=r"C:\\Users\\Public\\rx.ibs",
+        ...     tx_buffer_name="TX_BUF",
+        ...     rx_buffer_name="RX_BUF",
+        ...     tx_schematic_pins=["P1"],
+        ...     rx_schematic_pins=["P2"],
+        ...     tx_component_name="U1",
+        ...     rx_component_name="U2",
+        ...     differential=False,
+        ... )
         """
         if tx_component_name is None:
             try:
@@ -2524,6 +2666,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         bool
             ``True`` if successful.
+
+        Examples
+        --------
+        >>> circuit.create_schematic_from_asc_file(r"C:\\Users\\Public\\filter.asc")
         """
         factor = 2
 

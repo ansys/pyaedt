@@ -36,33 +36,87 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def node_type(self) -> str:
-        """The type of this emit node."""
+        """The type of this emit node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.node_type
+        """
         return self._node_type
 
     @min_aedt_version("2025.2")
     def add_emitter(self) -> EmitNode:
-        """Add a new emitter"""
+        """Add a new emitter
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.add_emitter()
+        """
         return self._add_child_node("Emitter")
 
     @min_aedt_version("2025.2")
     def add_group(self) -> EmitNode:
-        """Add a new scene group"""
+        """Add a new scene group
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.add_group()
+        """
         return self._add_child_node("Group")
 
     @min_aedt_version("2025.2")
     def import_cad(self, file_name: str) -> EmitNode:
-        """Add an existing CAD file"""
+        """Add an existing CAD file
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.import_cad(r"C:\\Users\\Public\\Documents\\antenna_scene.glb")
+        """
         return self._import(file_name, "CAD")
 
     @min_aedt_version("2025.2")
     def add_antenna(self) -> EmitNode:
-        """Add a new antenna"""
+        """Add a new antenna
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.add_antenna()
+        """
         return self._add_child_node("Antenna")
 
     @property
     @min_aedt_version("2025.2")
     def notes(self) -> str:
-        """Expand to view/edit notes stored with the project."""
+        """Expand to view/edit notes stored with the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.notes = "Demo scene"
+        """
         val = self._get_property("Notes")
         return val
 
@@ -79,7 +133,16 @@ class EmitSceneNode(EmitNode):
     @property
     @min_aedt_version("2025.2")
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
-        """Specifies the axis of the normal to the ground plane."""
+        """Specifies the axis of the normal to the ground plane.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.ground_plane_normal = scene_node.GroundPlaneNormalOption.Z_AXIS
+        """
         val = self._get_property("Ground Plane Normal")
         val = self.GroundPlaneNormalOption[val.upper()]
         return val
@@ -96,6 +159,14 @@ class EmitSceneNode(EmitNode):
 
         Offset of ground plane in direction normal to the ground planes
         orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Emit
+        >>> app = Emit()
+        >>> revision = app.results.analyze()
+        >>> scene_node = revision.get_scene_node()
+        >>> scene_node.gp_position_along_normal = "2 m"
         """
         val = self._get_property("GP Position Along Normal")
         val = self._convert_from_internal_units(float(val), "Length")

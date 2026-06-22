@@ -22,7 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Download example datasets from https://github.com/ansys/example-data"""
+"""Download example datasets from https://github.com/ansys/example-data
+
+Examples
+--------
+>>> from ansys.aedt.core.examples import downloads
+>>> downloads.list_examples_files("pyaedt/sbr")
+"""
 
 from pathlib import Path
 import shutil
@@ -41,7 +47,13 @@ EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
 def delete_downloads() -> None:
-    """Delete all downloaded examples to free space or update the files."""
+    """Delete all downloaded examples to free space or update the files.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.examples.downloads import delete_downloads
+    >>> delete_downloads()
+    """
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
     return True
 
@@ -143,6 +155,11 @@ def list_examples_files(folder) -> list:
     -------
     list
         A list of file paths in the specified folder.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.examples.downloads import list_examples_files
+    >>> files = list_examples_files("pyaedt/sbr")
     """
     import requests
 

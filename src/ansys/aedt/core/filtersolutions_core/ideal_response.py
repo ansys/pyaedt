@@ -50,6 +50,11 @@ class FrequencyResponseColumn(Enum):
     - PHASE_DEV_DEG: Represents the frequency response phase deviation in degrees.
     - PHASE_DEV_RAD: Represents the frequency response phase deviation in radian.
     - FREQUENCY: Represents frequency parameter of the frequency response .
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
+    >>> FrequencyResponseColumn.MAGNITUDE_DB
     """
 
     MAGNITUDE_DB = 0
@@ -76,6 +81,11 @@ class TimeResponseColumn(Enum):
     - RAMP_RESPONSE_DB: Represents the ramp time response in dB.
     - IMPULSE_RESPONSE_DB: Represents the impulse time response in dB.
     - TIME: Represents time parameter of the time response .
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
+    >>> TimeResponseColumn.STEP_RESPONSE
     """
 
     STEP_RESPONSE = 0
@@ -97,6 +107,11 @@ class SParametersResponseColumn(Enum):
     - S21_ARITH: Represents the S21 parameter.
     - S11_ARITH: Represents the S11 parameter.
     - FREQUENCY: Represents the S parameters' frequency parameter.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
+    >>> SParametersResponseColumn.S21_DB
     """
 
     S21_DB = 0
@@ -127,6 +142,11 @@ class PoleZerosResponseColumn(Enum):
     - RX_ZERO_NUM_Y: Represents the y coordinate of the filter reflection zero numerator.
     - PROTO_RX_ZERO_NUM_X: Represents the x coordinate of the prototype filter reflection zero numerator.
     - PROTO_RX_ZERO_NUM_Y: Represents the y coordinate of the prototype filter reflection zero numerator.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
+    >>> PoleZerosResponseColumn.TX_ZERO_DEN_X
     """
 
     TX_ZERO_DEN_X = 0
@@ -154,6 +174,12 @@ class IdealResponse:
     and ``pole zero location``.
 
     This class allows you to define and modify the ideal response parameters for the designed filter.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import FilterSolutions
+    >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+    >>> design.ideal_response.transfer_function_response()
     """
 
     def __init__(self) -> None:
@@ -299,6 +325,12 @@ class IdealResponse:
                 Multi-line string where each line contains a coefficient from
                 the numerator and/or the denominator of the transfer function.
                 The coefficient for the highest-order term is first, and the terms are in decreasing order.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.ideal_response.transfer_function_response()
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
@@ -315,6 +347,13 @@ class IdealResponse:
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> design.ideal_response.vsg_analysis_enabled = True
+        >>> design.ideal_response.vsg_analysis_enabled
         """
         vsg_analysis_enabled = c_bool()
         status = self._dll.getVSGAnalsyis(byref(vsg_analysis_enabled))
@@ -354,6 +393,13 @@ class IdealResponse:
             The tuple contains two lists of strings. The first is a list
             of the defined frequency ranges, and the second is a
             list of the requested parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> frequency, magnitude = design.ideal_response.frequency_response(FrequencyResponseColumn.MAGNITUDE_DB)
         """
         if maximum_frequency is not None:
             self.graph_setup.maximum_frequency = maximum_frequency
@@ -395,6 +441,13 @@ class IdealResponse:
             The tuple contains two lists of strings. The first is a list
             of the defined time ranges, and the second is a
             list of the requested parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> time, response = design.ideal_response.time_response(TimeResponseColumn.STEP_RESPONSE)
         """
         if maximum_time is not None:
             self.graph_setup.maximum_time = maximum_time
@@ -432,6 +485,13 @@ class IdealResponse:
             The tuple contains two lists of strings. The first is a list
             of the defined frequency ranges, and the second is a
             list of the requested parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> frequency, s21 = design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
         """
         if maximum_frequency is not None:
             self.graph_setup.maximum_frequency = maximum_frequency
@@ -466,6 +526,15 @@ class IdealResponse:
             The tuple contains two lists of strings. The first is a list
             of the x coordinates of the requested parameter, and the second is a
             list of the y coordinates of the requested parameter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import FilterSolutions
+        >>> from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
+        >>> design = FilterSolutions.LumpedDesign(version="2026.1")
+        >>> x_values, y_values = design.ideal_response.pole_zero_locations(
+        ...     PoleZerosResponseColumn.TX_ZERO_DEN_X, PoleZerosResponseColumn.TX_ZERO_DEN_Y
+        ... )
         """
         x_parameter = self._pole_zeros_response_getter(x_axis_parameter)
         y_parameter = self._pole_zeros_response_getter(y_axis_parameter)

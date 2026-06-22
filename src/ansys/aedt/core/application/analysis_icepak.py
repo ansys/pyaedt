@@ -87,6 +87,12 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.monitor
     """
 
     def __init__(
@@ -142,6 +148,12 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
             PostProcessor object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.post
         """
         if self._post is None and self._odesign:
             from ansys.aedt.core.visualization.post import post_processor
@@ -157,6 +169,12 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
             Mesh object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.mesh
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
@@ -174,6 +192,12 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.monitor_icepak.Monitor`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.monitor
         """
         if self._monitor is None:
             from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
@@ -195,6 +219,12 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     ----------
     app : FieldAnalysisIcepak
         Icepak application that is to initialize the call.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Icepak
+    >>> icepak = Icepak()
+    >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
     """
 
     def __init__(self, app) -> None:
@@ -218,6 +248,12 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         -------
         str
              Updated value after processing, or an error message if the operation fails.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.design_settings.manipulate_inputs.execute("AmbTemp", 25)
         """
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
