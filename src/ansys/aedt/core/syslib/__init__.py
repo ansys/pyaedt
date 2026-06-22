@@ -55,6 +55,12 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     ------
         FileNotFoundError: If the compiled module file is not found.
         ImportError: If the module cannot be imported.
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> from ansys.aedt.core.syslib import load_native_module
+    >>> load_native_module("nastran_import_lib", Path(r"C:/temp/nastran_import"))
     """
     base_path = Path(base_dir)
 

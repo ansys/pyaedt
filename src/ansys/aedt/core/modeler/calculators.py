@@ -50,7 +50,7 @@ class TransmissionLine(PyAedtBase):
     --------
     >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
     >>> tl_calc = TransmissionLine(frequency=2)
-    >>> tl_calc.stripline_calculator(substrate_height=10, permittivity=2.2, impedance=60)
+    >>> tl_calc.microstrip_synthesis(substrate_height=10, permittivity=2.2, impedance=60)
     """
 
     def __init__(self, frequency: int = 10, frequency_unit: str = "GHz") -> None:
@@ -65,7 +65,7 @@ class TransmissionLine(PyAedtBase):
         impedance: str | float = 50.0,
         electrical_length: str | float = 150.0,
     ) -> tuple[float, float]:
-        """Strip line calculator.
+        """Micro strip calculator.
 
         Parameters
         ----------
@@ -82,6 +82,12 @@ class TransmissionLine(PyAedtBase):
         -------
         tuple
             Line width and length.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
+        >>> obj = TransmissionLine()
+        >>> obj.microstrip_synthesis(substrate_height=1, permittivity=4.4)
         """
         z0 = impedance
         e0 = permittivity
@@ -122,7 +128,7 @@ class TransmissionLine(PyAedtBase):
     def microstrip_analysis(
         self, substrate_height: float, permittivity: float, width: float, thickness: float
     ) -> float:
-        """Strip line calculator.
+        """Micro strip calculator.
 
         Parameters
         ----------
@@ -139,6 +145,12 @@ class TransmissionLine(PyAedtBase):
         -------
         float
             z0
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
+        >>> obj = TransmissionLine()
+        >>> obj.microstrip_analysis(substrate_height=1, permittivity=4.4)
         """
         e0 = permittivity
         h0 = substrate_height
@@ -151,7 +163,7 @@ class TransmissionLine(PyAedtBase):
     def differential_microstrip_analysis(
         self, substrate_height: float, permittivity: float, width: float, separation: float, thickness: float
     ) -> tuple[float, float]:
-        """Strip line calculator.
+        """Differential micro strip calculator.
 
         Parameters
         ----------
@@ -166,11 +178,16 @@ class TransmissionLine(PyAedtBase):
         thickness : float
             Trace thickness.
 
-
         Returns
         -------
         tuple
             z0 single end and differential.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
+        >>> obj = TransmissionLine()
+        >>> obj.differential_microstrip_analysis(1, 4.4, 0.1, 0.2)
         """
         e0 = permittivity
         h0 = substrate_height
@@ -197,6 +214,12 @@ class TransmissionLine(PyAedtBase):
         -------
         float
             Line width.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
+        >>> obj = TransmissionLine()
+        >>> obj.stripline_synthesis(substrate_height=1, permittivity=4.4)
         """
         x = 30.0 * math.pi / (math.sqrt(permittivity) * impedance) - 0.441
 
@@ -229,6 +252,12 @@ class TransmissionLine(PyAedtBase):
         -------
         float
             Effective permittivity.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import TransmissionLine
+        >>> obj = TransmissionLine()
+        >>> obj.suspended_strip_synthesis(substrate_height=1, permittivity=4.4, w1=0.2)
         """
         wavelength = (SpeedOfLight / AEDT_UNITS["Length"][units]) / (
             self.frequency * AEDT_UNITS["Freq"][self.frequency_unit]
@@ -320,7 +349,14 @@ class StandardWaveguide(PyAedtBase):
 
     @property
     def waveguide_list(self) -> list:
-        """Waveguide lists."""
+        """Waveguide lists.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import StandardWaveguide
+        >>> obj = StandardWaveguide()
+        >>> obj.waveguide_list
+        """
         return self.wg.keys()
 
     @pyaedt_function_handler()
@@ -338,6 +374,12 @@ class StandardWaveguide(PyAedtBase):
         -------
         list
             Waveguide dimensions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import StandardWaveguide
+        >>> obj = StandardWaveguide()
+        >>> obj.get_waveguide_dimensions(name="WR-75")
         """
         if name in self.wg:
             wg_dim = []
@@ -362,6 +404,12 @@ class StandardWaveguide(PyAedtBase):
         -------
         str
             Waveguide name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.calculators import StandardWaveguide
+        >>> obj = StandardWaveguide()
+        >>> obj.find_waveguide(freq=10)
         """
         freq = constants.unit_converter(freq, "Frequency", units, "GHz")
         op_freq = freq * 0.8

@@ -85,5 +85,9 @@ def nastran_to_stl(*args, **kwargs):
             - A dictionary representing the parsed Nastran data.
             - A boolean indicating whether planar merging was enabled.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+    >>> nastran_to_stl(input_file="my_file.nas", decimation=0, preview=True)
     """
     return _nastran_import_lib.nastran_to_stl(*args, **kwargs)

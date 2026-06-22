@@ -50,6 +50,11 @@ def read_actors(fn: str, actor_lib: str) -> dict:
     -------
     list
         List of actor objects.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import read_actors
+    >>> read_actors(r"C:\\temp\\actors.json", r"C:\\temp\\actors")
     """
     a = {}
     actor_dict = read_json(fn)
@@ -78,6 +83,10 @@ class Generic(Actor, PyAedtBase):
         Name of the relative coordinate system of the actor. The default is ``None``,
         in which case the global coordinate system is used.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import Generic
+    >>> actor = Generic(r"C:\\temp\\actors\\generic")
     """
 
     def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
@@ -108,6 +117,12 @@ class Person(Actor, PyAedtBase):
         default is ``None``, in which case the global coordinate
         system is used.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import Person
+    >>> person = Person(r"C:\\temp\\actors\\person", speed="1m_per_sec", stride="0.8meters")
+    >>> person.stride
+    '0.8meters'
     """
 
     def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None) -> None:
@@ -123,6 +138,14 @@ class Person(Actor, PyAedtBase):
         Returns
         -------
         str
+            Stride value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Person
+        >>> person = Person(r"C:\\temp\\actors\\person")
+        >>> person.stride
+        '0.8meters'
         """
         return self._stride
 
@@ -167,6 +190,14 @@ class Person(Actor, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Person
+        >>> hfss = pyaedt.Hfss()
+        >>> person = Person(r"C:\\temp\\actors\\person")
+        >>> person.insert(app=hfss)
         """
         app.logger.info("Adding person: " + self.name)
 
@@ -175,6 +206,7 @@ class Person(Actor, PyAedtBase):
         if motion:
             self._add_speed(app)
             self._add_walking(app)
+        return True
 
 
 class Bird(Actor, PyAedtBase):
@@ -199,6 +231,11 @@ class Bird(Actor, PyAedtBase):
         default is``None``, in which case the global coordinate system
         is used.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import Bird
+    >>> bird = Bird(r"C:\\temp\\actors\\bird", speed="2.0", flapping_rate="50Hz")
+    >>> bird
     """
 
     def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None) -> None:
@@ -230,6 +267,14 @@ class Bird(Actor, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Bird
+        >>> hfss = pyaedt.Hfss()
+        >>> bird = Bird(r"C:\\temp\\actors\\bird")
+        >>> bird.insert(app=hfss)
         """
         app.logger.info("Adding Vehicle: " + self.name)
 
@@ -237,6 +282,7 @@ class Bird(Actor, PyAedtBase):
         if motion:
             self._add_speed(app)
             self._add_flying(app)
+        return True
 
 
 class Vehicle(Actor, PyAedtBase):
@@ -259,6 +305,11 @@ class Vehicle(Actor, PyAedtBase):
         default is ``None``, in which case the global coordinate
         system is used.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle
+    >>> vehicle = Vehicle(r"C:\\temp\\actors\\vehicle", speed=10.0)
+    >>> vehicle
     """
 
     def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None) -> None:
@@ -295,6 +346,14 @@ class Vehicle(Actor, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle
+        >>> hfss = pyaedt.Hfss()
+        >>> vehicle = Vehicle(r"C:\\temp\\actors\\vehicle")
+        >>> vehicle.insert(app=hfss)
         """
         app.logger.info("Adding vehicle: " + self.name)
 
@@ -327,6 +386,12 @@ class Radar(MultiPartComponent, PyAedtBase):
         default is ``None``, in which case the global coordinate
         system is used.
 
+    Examples
+    --------
+    >>> from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+    >>> radar = Radar(r"C:\\temp\\actors\\radar", name="radar1", speed=10)
+    >>> radar.speed_name
+    'radar1_speed'
     """
 
     def __init__(
@@ -354,13 +419,20 @@ class Radar(MultiPartComponent, PyAedtBase):
         self.pair = []
 
     @property
-    def units(self) -> str:
+    def units(self) -> str | None:
         """Multi-part units.
 
         Returns
         -------
         str
             Multipart units.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+        >>> radar = Radar(r"C:\\temp\\actors\\radar")
+        >>> radar.units
+        'mm'
         """
         return self._local_units
 
@@ -372,6 +444,13 @@ class Radar(MultiPartComponent, PyAedtBase):
         -------
         str
             Name of the speed variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+        >>> radar = Radar(r"C:\\temp\\actors\\radar", name="radar1")
+        >>> radar.speed_name
+        'radar1_speed'
         """
         return self.name + "_speed"
 
@@ -383,6 +462,13 @@ class Radar(MultiPartComponent, PyAedtBase):
         -------
         str
             Expression for the speed variable.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+        >>> radar = Radar(r"C:\\temp\\actors\\radar", speed=10)
+        >>> radar.speed_expression
+        '10m_per_sec'
         """
         return self._speed_expression
 
@@ -418,6 +504,14 @@ class Radar(MultiPartComponent, PyAedtBase):
         -------
         list
             List of antennae that have been placed.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+        >>> hfss = pyaedt.Hfss()
+        >>> radar = Radar(r"C:\\temp\\actors\\radar")
+        >>> radar.insert(app=hfss)
         """
         app.logger.info("Adding radar module:  " + self.name)
         if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
