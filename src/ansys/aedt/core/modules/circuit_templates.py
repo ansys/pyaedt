@@ -573,7 +573,13 @@ DCProps = [
 
 
 class SourceKeys:
-    """Provides source keys."""
+    """Provides source keys.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.modules.circuit_templates import SourceKeys
+    >>> obj = SourceKeys()
+    """
 
     SourceTemplates = {
         "PowerSin": PowerSinusoidal,

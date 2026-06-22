@@ -51,6 +51,11 @@ class COMParameters:
     Parameters
     ----------
     standard  : int
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+    >>> obj = COMParameters()
     """
 
     _CFG_DIR = Path(__file__).parent
@@ -87,7 +92,14 @@ class COMParameters:
 
     @property
     def parameters(self) -> dict:
-        """All parameters."""
+        """All parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.parameters
+        """
         temp = {
             **self.spisim_control,
             **self.table_93a1,
@@ -112,6 +124,12 @@ class COMParameters:
         Returns
         -------
         str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.standard
         """
         return self._standard  # pragma: no cover
 
@@ -132,6 +150,12 @@ class COMParameters:
             Keyword of the COM parameter.
         value : str,
             Value of the COM parameter.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.set_parameter(...)
         """
         if keyword in self.table_93a1:
             self.table_93a1[keyword] = value
@@ -168,6 +192,12 @@ class COMParameters:
         ----------
         file_path : str
             Path of file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.export(...)
         """
         temp = dict()
         temp["table_93a1"] = self.table_93a1
@@ -195,6 +225,12 @@ class COMParameters:
         ----------
         file_path : str,
             Path of file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.load(...)
         """
         self._init()
         with open(file_path) as f:  # pragma: no cover
@@ -212,6 +248,12 @@ class COMParameters:
         ----------
         file_path : str, Path
             Full path of file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.export_spisim_cfg(...)
         """
         with open(file_path, "w") as fp:
             fp.write("################################################################################\n")
@@ -238,6 +280,12 @@ class COMParameters:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParameters
+        >>> obj = COMParameters()
+        >>> obj.load_spisim_cfg(...)
         """
         reverse_map = {j: i for i, j in spimsim_matlab_keywords_mapping.items()}
 
@@ -254,7 +302,13 @@ class COMParameters:
 
 
 class COMParametersVer3p4(COMParameters):
-    """Manages COM parameters of version 3.4."""
+    """Manages COM parameters of version 3.4.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+    >>> obj = COMParametersVer3p4()
+    """
 
     def __init__(self, standard: int = 1) -> None:
         super().__init__(standard)

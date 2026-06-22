@@ -35,7 +35,13 @@ existing_showwarning = warnings.showwarning
 
 
 def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
-    """Custom warning used to remove <stdin>:loc: pattern."""
+    """Custom warning used to remove <stdin>:loc: pattern.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.internal.clr_module import custom_show_warning
+    >>> custom_show_warning(...)
+    """
     print(f"{category.__name__}: {message}", file=file or sys.stderr)
 
 

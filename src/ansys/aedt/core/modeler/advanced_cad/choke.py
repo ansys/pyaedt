@@ -223,6 +223,12 @@ class Choke(PyAedtBase):
         -------
         Choke
             Choke instance created from the dictionary.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import CHOKE_DEFAULT_PARAMETERS, Choke
+        >>> data = CHOKE_DEFAULT_PARAMETERS.copy()
+        >>> obj = Choke.from_dict(data)
         """
         return cls(
             number_of_windings=data["Number of Windings"],
@@ -247,6 +253,13 @@ class Choke(PyAedtBase):
         -------
         dict
             Dictionary of choke parameters.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> choke = Choke()
+        >>> choke.choke_parameters["Core"]["Material"]
+        'ferrite'
         """
         return {
             "Number of Windings": self.number_of_windings,
@@ -280,6 +293,13 @@ class Choke(PyAedtBase):
         ------
         Exception
             If there's an error during file writing.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> choke = Choke()
+        >>> choke.export_to_json(str(Path("choke_config.json")))
         """
         try:
             write_configuration_file(self.choke_parameters, file_path)
@@ -295,6 +315,14 @@ class Choke(PyAedtBase):
         -------
         list
             List of objects created.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
         """
         # Create temporary directory for JSON file
         temp_dir = Path(tempfile.mkdtemp())
@@ -316,6 +344,15 @@ class Choke(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ground object.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> ground = choke.create_ground(app=hfss)
         """
         first_winding_list = self.list_object[2]
         ground_radius = 1.2 * self.outer_winding["Outer Radius"]
@@ -339,6 +376,15 @@ class Choke(PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.mesh_helpers.MeshOperation`
             Mesh operation object.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> mesh = choke.create_mesh(app=hfss)
         """
         first_winding_list = self.list_object[2]
         ground_radius = 1.2 * self.outer_winding["Outer Radius"]
@@ -373,6 +419,16 @@ class Choke(PyAedtBase):
         -------
         list
             List of ports.
+
+        Examples
+        --------
+        >>> import ansys.aedt.core as pyaedt
+        >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+        >>> hfss = pyaedt.Hfss()
+        >>> choke = Choke()
+        >>> choke.create_choke(app=hfss)
+        >>> ground = choke.create_ground(app=hfss)
+        >>> ports = choke.create_ports(ground, app=hfss)
         """
         first_winding_list = self.list_object[2]
         second_winding_list = self.list_object[3] if len(self.list_object) > 3 else None
