@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.autosave_disable

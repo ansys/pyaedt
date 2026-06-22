@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. automethod:: Standard.delete

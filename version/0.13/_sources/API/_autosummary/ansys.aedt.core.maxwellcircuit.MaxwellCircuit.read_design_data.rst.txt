@@ -1,6 +1,0 @@
-read\_design\_data
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.read_design_data

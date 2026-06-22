@@ -1,6 +1,0 @@
-internal\_nodes
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: NetworkObject.internal_nodes

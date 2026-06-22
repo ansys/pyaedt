@@ -1,6 +1,0 @@
-workbench\_name
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoattribute:: MatProperties.workbench_name

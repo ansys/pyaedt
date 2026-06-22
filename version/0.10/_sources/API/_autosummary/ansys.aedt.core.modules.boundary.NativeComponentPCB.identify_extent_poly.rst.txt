@@ -1,6 +1,0 @@
-identify\_extent\_poly
-======================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. automethod:: NativeComponentPCB.identify_extent_poly

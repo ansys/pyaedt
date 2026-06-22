@@ -1,6 +1,0 @@
-is\_general\_expression
-=======================
-
-.. currentmodule:: ansys.aedt.core.modules.fields_calculator
-
-.. automethod:: FieldsCalculator.is_general_expression

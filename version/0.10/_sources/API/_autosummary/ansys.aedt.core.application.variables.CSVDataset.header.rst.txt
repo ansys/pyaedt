@@ -1,6 +1,0 @@
-header
-======
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: CSVDataset.header

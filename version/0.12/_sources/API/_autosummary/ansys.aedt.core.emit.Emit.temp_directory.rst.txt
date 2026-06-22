@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.temp_directory

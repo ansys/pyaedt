@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.omaterial_manager

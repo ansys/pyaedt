@@ -1,6 +1,0 @@
-nominal\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q2d.nominal_sweep

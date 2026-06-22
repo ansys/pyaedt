@@ -1,6 +1,0 @@
-name
-====
-
-.. currentmodule:: ansys.aedt.core.modules.monitor_icepak
-
-.. autoproperty:: FaceMonitor.name

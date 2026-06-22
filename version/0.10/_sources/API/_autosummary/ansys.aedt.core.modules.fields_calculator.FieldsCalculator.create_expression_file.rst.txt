@@ -1,6 +1,0 @@
-create\_expression\_file
-========================
-
-.. currentmodule:: ansys.aedt.core.modules.fields_calculator
-
-.. automethod:: FieldsCalculator.create_expression_file

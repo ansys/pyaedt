@@ -1,6 +1,0 @@
-manual\_delay
-=============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIEyeDiagram.manual_delay

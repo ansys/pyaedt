@@ -1,6 +1,0 @@
-create\_cable\_harness
-======================
-
-.. currentmodule:: ansys.aedt.core.modules.cable_modeling
-
-.. automethod:: Cable.create_cable_harness

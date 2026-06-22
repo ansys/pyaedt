@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.post.vrt_data
-
-.. automethod:: VRTFieldPlot.delete

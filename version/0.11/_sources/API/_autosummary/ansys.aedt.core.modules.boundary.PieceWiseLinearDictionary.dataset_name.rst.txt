@@ -1,6 +1,0 @@
-dataset\_name
-=============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: PieceWiseLinearDictionary.dataset_name

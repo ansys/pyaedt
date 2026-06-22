@@ -1,6 +1,0 @@
-onetwork\_data\_explorer
-========================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.onetwork_data_explorer

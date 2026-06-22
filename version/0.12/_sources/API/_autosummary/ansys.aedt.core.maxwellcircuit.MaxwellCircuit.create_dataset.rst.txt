@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.create_dataset

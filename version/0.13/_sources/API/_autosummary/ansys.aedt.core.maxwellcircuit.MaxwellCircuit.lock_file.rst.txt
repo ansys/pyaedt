@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.lock_file

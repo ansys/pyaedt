@@ -1,6 +1,0 @@
-sub\_design\_id
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: Standard.sub_design_id

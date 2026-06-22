@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.analyze_setup

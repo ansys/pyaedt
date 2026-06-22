@@ -1,6 +1,0 @@
-do\_rotate
-==========
-
-.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.parts
-
-.. automethod:: Part.do_rotate

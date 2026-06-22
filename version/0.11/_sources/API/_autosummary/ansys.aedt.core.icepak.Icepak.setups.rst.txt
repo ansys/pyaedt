@@ -1,6 +1,0 @@
-setups
-======
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.setups

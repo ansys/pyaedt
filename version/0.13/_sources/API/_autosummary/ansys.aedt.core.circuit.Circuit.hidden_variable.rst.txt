@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.hidden_variable

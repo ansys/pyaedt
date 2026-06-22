@@ -1,6 +1,0 @@
-origin
-======
-
-.. currentmodule:: ansys.aedt.core.generic.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.origin

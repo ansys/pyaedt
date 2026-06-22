@@ -1,6 +1,0 @@
-arith\_symmetry
-===============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.arith_symmetry

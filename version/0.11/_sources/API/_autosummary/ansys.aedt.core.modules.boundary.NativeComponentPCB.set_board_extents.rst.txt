@@ -1,6 +1,0 @@
-set\_board\_extents
-===================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. automethod:: NativeComponentPCB.set_board_extents

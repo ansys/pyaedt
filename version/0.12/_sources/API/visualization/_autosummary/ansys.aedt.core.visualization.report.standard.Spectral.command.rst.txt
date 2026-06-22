@@ -1,6 +1,0 @@
-command
-=======
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Spectral.command

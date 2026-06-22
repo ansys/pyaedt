@@ -1,6 +1,0 @@
-fds\_filename
-=============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.circuit_boundary
-
-.. autoproperty:: VoltageFrequencyDependentSource.fds_filename

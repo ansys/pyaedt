@@ -1,6 +1,0 @@
-grid\_style
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. autoproperty:: ReportPlotter.grid_style

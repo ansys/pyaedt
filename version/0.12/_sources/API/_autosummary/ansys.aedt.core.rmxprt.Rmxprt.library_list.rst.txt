@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.library_list

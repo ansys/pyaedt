@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
-
-.. autoproperty:: NetworkObject.available_properties

@@ -1,6 +1,0 @@
-independent\_design\_variables
-==============================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: VariableManager.independent_design_variables

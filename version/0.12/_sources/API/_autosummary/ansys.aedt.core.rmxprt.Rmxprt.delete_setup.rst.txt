@@ -1,6 +1,0 @@
-delete\_setup
-=============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.delete_setup

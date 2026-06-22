@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.analyze

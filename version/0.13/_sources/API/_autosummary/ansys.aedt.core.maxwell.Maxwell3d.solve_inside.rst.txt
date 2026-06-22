@@ -1,6 +1,0 @@
-solve\_inside
-=============
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.solve_inside

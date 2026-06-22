@@ -1,6 +1,0 @@
-omodule
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.solve_setup
-
-.. autoproperty:: SetupHFSS.omodule

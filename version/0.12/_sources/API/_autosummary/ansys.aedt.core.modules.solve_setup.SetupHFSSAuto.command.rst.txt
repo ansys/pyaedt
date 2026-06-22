@@ -1,6 +1,0 @@
-command
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.solve_setup
-
-.. autoproperty:: SetupHFSSAuto.command

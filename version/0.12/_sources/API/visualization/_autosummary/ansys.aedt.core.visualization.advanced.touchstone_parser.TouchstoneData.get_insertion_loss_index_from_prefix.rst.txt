@@ -1,6 +1,0 @@
-﻿get\_insertion\_loss\_index\_from\_prefix
-=========================================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.touchstone_parser
-
-.. automethod:: TouchstoneData.get_insertion_loss_index_from_prefix

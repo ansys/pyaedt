@@ -1,6 +1,0 @@
-edit\_source
-============
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.edit_source

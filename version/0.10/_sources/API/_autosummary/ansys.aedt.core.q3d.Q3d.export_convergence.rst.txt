@@ -1,6 +1,0 @@
-export\_convergence
-===================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q3d.export_convergence

@@ -1,6 +1,0 @@
-a\_size
-=======
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.component_array
-
-.. autoproperty:: ComponentArray.a_size

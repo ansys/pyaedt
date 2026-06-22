@@ -1,6 +1,0 @@
-global\_import\_success
-=======================
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. autoproperty:: ImportResults.global_import_success

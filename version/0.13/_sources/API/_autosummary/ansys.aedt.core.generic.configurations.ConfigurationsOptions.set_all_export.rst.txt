@@ -1,6 +1,0 @@
-set\_all\_export
-================
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. automethod:: ConfigurationsOptions.set_all_export

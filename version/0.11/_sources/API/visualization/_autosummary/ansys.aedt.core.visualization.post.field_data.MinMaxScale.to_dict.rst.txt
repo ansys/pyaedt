@@ -1,6 +1,0 @@
-to\_dict
-========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.field_data
-
-.. automethod:: MinMaxScale.to_dict

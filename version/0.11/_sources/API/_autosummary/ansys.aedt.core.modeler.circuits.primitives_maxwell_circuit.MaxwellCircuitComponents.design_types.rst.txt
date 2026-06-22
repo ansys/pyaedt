@@ -1,6 +1,0 @@
-design\_types
-=============
-
-.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit
-
-.. autoproperty:: MaxwellCircuitComponents.design_types

@@ -1,6 +1,0 @@
-plot\_name
-==========
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: FarField.plot_name

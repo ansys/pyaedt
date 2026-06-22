@@ -1,6 +1,0 @@
-export\_field\_jpg
-==================
-
-.. currentmodule:: ansys.aedt.core.modules.advanced_post_processing
-
-.. automethod:: PostProcessor.export_field_jpg

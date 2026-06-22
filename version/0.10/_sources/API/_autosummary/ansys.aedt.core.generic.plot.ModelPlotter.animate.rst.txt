@@ -1,6 +1,0 @@
-animate
-=======
-
-.. currentmodule:: ansys.aedt.core.generic.plot
-
-.. automethod:: ModelPlotter.animate

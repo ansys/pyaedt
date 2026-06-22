@@ -1,6 +1,0 @@
-disable\_autosave
-=================
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.disable_autosave

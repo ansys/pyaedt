@@ -1,6 +1,0 @@
-magnetic\_coercivity
-====================
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: Material.magnetic_coercivity

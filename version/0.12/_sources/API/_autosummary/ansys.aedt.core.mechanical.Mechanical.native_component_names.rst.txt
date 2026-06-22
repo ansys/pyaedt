@@ -1,6 +1,0 @@
-native\_component\_names
-========================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.native_component_names

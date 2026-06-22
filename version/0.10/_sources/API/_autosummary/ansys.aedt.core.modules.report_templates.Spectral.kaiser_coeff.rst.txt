@@ -1,6 +1,0 @@
-kaiser\_coeff
-=============
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: Spectral.kaiser_coeff

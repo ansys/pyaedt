@@ -1,6 +1,0 @@
-working\_directory
-==================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.working_directory

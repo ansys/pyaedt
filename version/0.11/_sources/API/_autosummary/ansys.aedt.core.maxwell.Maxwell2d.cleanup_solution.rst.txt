@@ -1,6 +1,0 @@
-cleanup\_solution
-=================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell2d.cleanup_solution

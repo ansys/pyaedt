@@ -1,6 +1,0 @@
-get\_monostatic\_rcs
-====================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
-
-.. automethod:: MonostaticRCSExporter.get_monostatic_rcs

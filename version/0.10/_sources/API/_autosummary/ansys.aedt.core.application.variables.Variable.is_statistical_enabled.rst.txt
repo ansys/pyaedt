@@ -1,6 +1,0 @@
-is\_statistical\_enabled
-========================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.is_statistical_enabled

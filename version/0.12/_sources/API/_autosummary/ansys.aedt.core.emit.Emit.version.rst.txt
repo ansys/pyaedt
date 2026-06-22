@@ -1,6 +1,0 @@
-version
-=======
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. automethod:: Emit.version

@@ -1,6 +1,0 @@
-real\_impedance
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.circuit_boundary
-
-.. autoproperty:: PowerIQSource.real_impedance

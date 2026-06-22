@@ -1,6 +1,0 @@
-targetcs
-========
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: NativeComponentPCB.targetcs

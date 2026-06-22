@@ -1,6 +1,0 @@
-release\_desktop
-================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.release_desktop

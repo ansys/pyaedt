@@ -1,6 +1,0 @@
-report\_category
-================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIConturEyeDiagram.report_category

@@ -1,6 +1,0 @@
-export\_configuration
-=====================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.export_configuration

@@ -1,6 +1,0 @@
-set\_oo\_property\_value
-========================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.set_oo_property_value

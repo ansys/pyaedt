@@ -1,6 +1,0 @@
-Position
-========
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.Position

@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q2d.autosave_disable

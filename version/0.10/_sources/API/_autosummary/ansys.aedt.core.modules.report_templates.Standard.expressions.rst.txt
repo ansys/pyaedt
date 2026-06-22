@@ -1,6 +1,0 @@
-expressions
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: Standard.expressions

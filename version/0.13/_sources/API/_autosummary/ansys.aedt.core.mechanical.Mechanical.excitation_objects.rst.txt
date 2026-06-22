@@ -1,6 +1,0 @@
-excitation\_objects
-===================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.excitation_objects

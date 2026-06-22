@@ -1,6 +1,0 @@
-set\_bp\_curve\_coreloss
-========================
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. automethod:: Material.set_bp_curve_coreloss

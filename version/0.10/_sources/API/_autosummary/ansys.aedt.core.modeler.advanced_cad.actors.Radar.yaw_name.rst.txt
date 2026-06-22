@@ -1,6 +1,0 @@
-yaw\_name
-=========
-
-.. currentmodule:: ansys.aedt.core.modeler.advanced_cad.actors
-
-.. autoproperty:: Radar.yaw_name

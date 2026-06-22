@@ -1,6 +1,0 @@
-number\_with\_units
-===================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.number_with_units

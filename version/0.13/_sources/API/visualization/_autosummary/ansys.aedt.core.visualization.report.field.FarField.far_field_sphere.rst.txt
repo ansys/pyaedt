@@ -1,6 +1,0 @@
-far\_field\_sphere
-==================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. autoproperty:: FarField.far_field_sphere

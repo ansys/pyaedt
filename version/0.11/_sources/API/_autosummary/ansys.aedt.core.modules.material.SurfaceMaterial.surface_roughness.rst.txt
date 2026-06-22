@@ -1,6 +1,0 @@
-surface\_roughness
-==================
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: SurfaceMaterial.surface_roughness

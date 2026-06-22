@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.archive_project

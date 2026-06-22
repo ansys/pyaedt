@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.hidden_variable

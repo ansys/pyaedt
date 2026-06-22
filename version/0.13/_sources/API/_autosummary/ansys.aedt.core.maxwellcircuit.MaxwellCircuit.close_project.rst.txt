@@ -1,6 +1,0 @@
-close\_project
-==============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.close_project

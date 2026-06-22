@@ -1,6 +1,0 @@
-close
-=====
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
-
-.. automethod:: ModelPlotter.close

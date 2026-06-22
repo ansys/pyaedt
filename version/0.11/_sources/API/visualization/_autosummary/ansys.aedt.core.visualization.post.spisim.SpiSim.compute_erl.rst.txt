@@ -1,6 +1,0 @@
-compute\_erl
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.post.spisim
-
-.. automethod:: SpiSim.compute_erl

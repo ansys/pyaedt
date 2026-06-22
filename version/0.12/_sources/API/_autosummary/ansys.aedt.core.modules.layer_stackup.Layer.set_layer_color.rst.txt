@@ -1,6 +1,0 @@
-set\_layer\_color
-=================
-
-.. currentmodule:: ansys.aedt.core.modules.layer_stackup
-
-.. automethod:: Layer.set_layer_color

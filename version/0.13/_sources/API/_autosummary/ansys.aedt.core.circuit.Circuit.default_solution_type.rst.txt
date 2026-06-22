@@ -1,6 +1,0 @@
-default\_solution\_type
-=======================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.default_solution_type

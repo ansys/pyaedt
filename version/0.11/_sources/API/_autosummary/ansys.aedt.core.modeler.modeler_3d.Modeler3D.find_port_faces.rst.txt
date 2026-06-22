@@ -1,6 +1,0 @@
-find\_port\_faces
-=================
-
-.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
-
-.. automethod:: Modeler3D.find_port_faces

@@ -1,6 +1,0 @@
-﻿add\_section
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pdf
-
-.. automethod:: AnsysReport.add_section

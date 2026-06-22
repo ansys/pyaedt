@@ -1,6 +1,0 @@
-project\_file
-=============
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.project_file

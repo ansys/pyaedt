@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.design_variation

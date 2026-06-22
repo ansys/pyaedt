@@ -1,6 +1,0 @@
-fill\_material
-==============
-
-.. currentmodule:: ansys.aedt.core.modules.layer_stackup
-
-.. autoproperty:: Layer.fill_material

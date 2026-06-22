@@ -1,6 +1,0 @@
-﻿is\_notebook
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. autofunction:: is_notebook

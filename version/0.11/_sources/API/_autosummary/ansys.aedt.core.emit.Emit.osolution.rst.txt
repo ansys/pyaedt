@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: ansys.aedt.core.emit
-
-.. autoproperty:: Emit.osolution

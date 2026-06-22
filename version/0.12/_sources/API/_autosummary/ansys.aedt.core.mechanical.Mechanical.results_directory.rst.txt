@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. autoproperty:: Mechanical.results_directory

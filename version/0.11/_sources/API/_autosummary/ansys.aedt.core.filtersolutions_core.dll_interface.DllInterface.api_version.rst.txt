@@ -1,6 +1,0 @@
-api\_version
-============
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.dll_interface
-
-.. automethod:: DllInterface.api_version

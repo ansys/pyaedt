@@ -1,6 +1,0 @@
-animate
-=======
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
-
-.. automethod:: ModelPlotter.animate

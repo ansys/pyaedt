@@ -1,6 +1,0 @@
-hidden
-======
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.hidden

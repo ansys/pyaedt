@@ -1,6 +1,0 @@
-primary\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIEyeDiagram.primary_sweep

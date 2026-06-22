@@ -1,6 +1,0 @@
-close
-=====
-
-.. currentmodule:: ansys.aedt.core.generic.plot
-
-.. automethod:: ModelPlotter.close

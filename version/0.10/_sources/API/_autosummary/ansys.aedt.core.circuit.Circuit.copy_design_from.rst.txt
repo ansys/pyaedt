@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.copy_design_from

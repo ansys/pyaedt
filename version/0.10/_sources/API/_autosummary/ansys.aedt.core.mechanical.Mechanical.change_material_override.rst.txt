@@ -1,6 +1,0 @@
-change\_material\_override
-==========================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.change_material_override

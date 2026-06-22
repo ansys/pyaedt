@@ -1,6 +1,0 @@
-get\_scalar\_field\_value
-=========================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
-
-.. automethod:: PostProcessor3D.get_scalar_field_value

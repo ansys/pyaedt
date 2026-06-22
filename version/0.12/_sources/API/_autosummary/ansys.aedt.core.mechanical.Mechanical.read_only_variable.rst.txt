@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.read_only_variable

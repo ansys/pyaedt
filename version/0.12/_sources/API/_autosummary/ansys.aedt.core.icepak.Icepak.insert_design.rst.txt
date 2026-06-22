@@ -1,6 +1,0 @@
-insert\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.insert_design

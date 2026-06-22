@@ -1,6 +1,0 @@
-available\_variations
-=====================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. autoproperty:: Icepak.available_variations

@@ -1,6 +1,0 @@
-substrate\_unbalanced\_stripline\_enabled
-=========================================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.export_to_aedt
-
-.. autoproperty:: ExportToAedt.substrate_unbalanced_stripline_enabled

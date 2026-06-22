@@ -1,6 +1,0 @@
-field\_plot\_names
-==================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_3dlayout
-
-.. autoproperty:: PostProcessor3DLayout.field_plot_names

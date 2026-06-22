@@ -1,6 +1,0 @@
-matrix
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Standard.matrix

@@ -1,6 +1,0 @@
-get\_output\_variable
-=====================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.get_output_variable

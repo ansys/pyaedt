@@ -1,6 +1,0 @@
-pointing\_to\_axis
-==================
-
-.. currentmodule:: ansys.aedt.core.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.pointing_to_axis

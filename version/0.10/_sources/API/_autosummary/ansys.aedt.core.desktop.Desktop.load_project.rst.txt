@@ -1,6 +1,0 @@
-load\_project
-=============
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.load_project

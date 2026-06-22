@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. automethod:: DataSet.delete

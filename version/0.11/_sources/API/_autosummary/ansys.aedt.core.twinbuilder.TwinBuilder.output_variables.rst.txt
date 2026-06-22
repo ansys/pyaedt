@@ -1,6 +1,0 @@
-output\_variables
-=================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.output_variables

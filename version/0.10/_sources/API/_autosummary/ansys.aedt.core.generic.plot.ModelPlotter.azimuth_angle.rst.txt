@@ -1,6 +1,0 @@
-azimuth\_angle
-==============
-
-.. currentmodule:: ansys.aedt.core.generic.plot
-
-.. autoproperty:: ModelPlotter.azimuth_angle

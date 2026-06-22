@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.parametrics

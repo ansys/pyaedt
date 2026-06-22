@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.archive_project

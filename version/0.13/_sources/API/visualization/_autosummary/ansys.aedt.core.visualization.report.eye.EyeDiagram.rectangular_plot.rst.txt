@@ -1,6 +1,0 @@
-rectangular\_plot
-=================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. automethod:: EyeDiagram.rectangular_plot

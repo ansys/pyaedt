@@ -1,6 +1,0 @@
-model\_units
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.post.post_3dlayout
-
-.. autoproperty:: PostProcessor3DLayout.model_units

@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.export_results

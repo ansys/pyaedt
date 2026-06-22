@@ -1,6 +1,0 @@
-secondary\_sweep\_range
-=======================
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: Standard.secondary_sweep_range

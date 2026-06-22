@@ -1,6 +1,0 @@
-command
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
-
-.. autoproperty:: MaxwellParameters.command

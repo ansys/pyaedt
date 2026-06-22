@@ -1,6 +1,0 @@
-units
-=====
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.units

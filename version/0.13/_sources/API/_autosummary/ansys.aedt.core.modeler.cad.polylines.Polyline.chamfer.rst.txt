@@ -1,6 +1,0 @@
-chamfer
-=======
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.polylines
-
-.. automethod:: Polyline.chamfer

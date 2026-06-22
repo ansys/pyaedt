@@ -1,6 +1,0 @@
-release\_desktop
-================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.release_desktop

@@ -1,6 +1,0 @@
-copy\_project
-=============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.copy_project

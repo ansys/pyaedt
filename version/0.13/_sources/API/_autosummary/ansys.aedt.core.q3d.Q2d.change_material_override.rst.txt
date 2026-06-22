@@ -1,6 +1,0 @@
-change\_material\_override
-==========================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q2d.change_material_override

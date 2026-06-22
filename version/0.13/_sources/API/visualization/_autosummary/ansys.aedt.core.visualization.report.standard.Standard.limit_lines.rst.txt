@@ -1,6 +1,0 @@
-limit\_lines
-============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Standard.limit_lines

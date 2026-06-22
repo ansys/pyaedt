@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.get_setups

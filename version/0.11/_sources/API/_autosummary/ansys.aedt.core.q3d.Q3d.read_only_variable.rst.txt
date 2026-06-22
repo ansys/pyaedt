@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q3d.read_only_variable

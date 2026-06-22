@@ -1,6 +1,0 @@
-circuit\_response
-=================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.lumped_topology
-
-.. automethod:: LumpedTopology.circuit_response

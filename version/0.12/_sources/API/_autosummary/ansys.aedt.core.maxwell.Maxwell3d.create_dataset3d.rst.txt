@@ -1,6 +1,0 @@
-create\_dataset3d
-=================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.create_dataset3d

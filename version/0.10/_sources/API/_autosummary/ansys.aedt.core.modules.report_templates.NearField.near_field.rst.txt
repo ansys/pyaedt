@@ -1,6 +1,0 @@
-near\_field
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. autoproperty:: NearField.near_field

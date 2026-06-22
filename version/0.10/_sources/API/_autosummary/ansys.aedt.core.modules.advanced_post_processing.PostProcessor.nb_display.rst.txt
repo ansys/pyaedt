@@ -1,6 +1,0 @@
-nb\_display
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.advanced_post_processing
-
-.. automethod:: PostProcessor.nb_display

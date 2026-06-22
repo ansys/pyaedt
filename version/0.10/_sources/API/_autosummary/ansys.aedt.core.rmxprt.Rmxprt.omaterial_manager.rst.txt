@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.omaterial_manager

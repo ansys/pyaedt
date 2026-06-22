@@ -1,6 +1,0 @@
-post\_osolution
-===============
-
-.. currentmodule:: ansys.aedt.core.modules.advanced_post_processing
-
-.. autoproperty:: PostProcessor.post_osolution

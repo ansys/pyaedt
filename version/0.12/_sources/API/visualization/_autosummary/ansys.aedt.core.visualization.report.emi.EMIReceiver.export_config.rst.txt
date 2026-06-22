@@ -1,6 +1,0 @@
-export\_config
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.emi
-
-.. automethod:: EMIReceiver.export_config

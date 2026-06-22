@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.autosave_disable

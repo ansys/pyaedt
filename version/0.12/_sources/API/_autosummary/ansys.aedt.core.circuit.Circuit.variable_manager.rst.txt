@@ -1,6 +1,0 @@
-variable\_manager
-=================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. autoproperty:: Circuit.variable_manager

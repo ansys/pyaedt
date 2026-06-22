@@ -1,6 +1,0 @@
-mass\_density
-=============
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. autoproperty:: Material.mass_density

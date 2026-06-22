@@ -1,6 +1,0 @@
-y\_scale
-========
-
-.. currentmodule:: ansys.aedt.core.generic.plot
-
-.. autoproperty:: ModelPlotter.y_scale

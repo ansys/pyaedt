@@ -1,6 +1,0 @@
-gaussian\_transition
-====================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.gaussian_transition

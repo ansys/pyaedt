@@ -1,6 +1,0 @@
-change\_material\_override
-==========================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.change_material_override

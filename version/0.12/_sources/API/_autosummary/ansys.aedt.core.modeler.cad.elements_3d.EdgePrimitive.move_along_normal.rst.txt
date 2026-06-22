@@ -1,6 +1,0 @@
-move\_along\_normal
-===================
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
-
-.. automethod:: EdgePrimitive.move_along_normal

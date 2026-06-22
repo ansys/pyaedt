@@ -1,6 +1,0 @@
-add\_note
-=========
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. automethod:: NearField.add_note

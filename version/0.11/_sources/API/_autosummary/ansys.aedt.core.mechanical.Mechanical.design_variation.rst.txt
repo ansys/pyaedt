@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: ansys.aedt.core.mechanical
-
-.. automethod:: Mechanical.design_variation

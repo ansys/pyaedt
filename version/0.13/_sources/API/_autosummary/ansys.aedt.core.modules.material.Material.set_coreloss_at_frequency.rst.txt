@@ -1,6 +1,0 @@
-set\_coreloss\_at\_frequency
-============================
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. automethod:: Material.set_coreloss_at_frequency

@@ -1,6 +1,0 @@
-clean\_proj\_folder
-===================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.clean_proj_folder

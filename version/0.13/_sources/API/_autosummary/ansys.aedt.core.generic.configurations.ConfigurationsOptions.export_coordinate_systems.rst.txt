@@ -1,6 +1,0 @@
-export\_coordinate\_systems
-===========================
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.export_coordinate_systems

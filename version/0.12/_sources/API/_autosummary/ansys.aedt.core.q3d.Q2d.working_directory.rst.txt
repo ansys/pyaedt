@@ -1,6 +1,0 @@
-working\_directory
-==================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q2d.working_directory

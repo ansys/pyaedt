@@ -1,6 +1,0 @@
-assign\_primary
-===============
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.assign_primary

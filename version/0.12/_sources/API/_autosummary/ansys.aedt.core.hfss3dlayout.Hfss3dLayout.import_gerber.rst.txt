@@ -1,6 +1,0 @@
-import\_gerber
-==============
-
-.. currentmodule:: ansys.aedt.core.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.import_gerber

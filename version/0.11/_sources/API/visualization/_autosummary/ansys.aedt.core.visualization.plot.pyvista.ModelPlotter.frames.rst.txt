@@ -1,6 +1,0 @@
-frames
-======
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
-
-.. autoproperty:: ModelPlotter.frames

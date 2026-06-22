@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: ansys.aedt.core.modules.material_lib
-
-.. autoproperty:: Materials.omaterial_manager

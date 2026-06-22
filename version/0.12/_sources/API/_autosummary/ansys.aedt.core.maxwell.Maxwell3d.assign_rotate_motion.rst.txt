@@ -1,6 +1,0 @@
-assign\_rotate\_motion
-======================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. automethod:: Maxwell3d.assign_rotate_motion

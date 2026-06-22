@@ -1,6 +1,0 @@
-﻿plot
-====
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.touchstone_parser
-
-.. automethod:: TouchstoneData.plot

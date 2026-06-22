@@ -1,6 +1,0 @@
-theta\_step
-===========
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: FarFieldSetup.theta_step

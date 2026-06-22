@@ -1,6 +1,0 @@
-convert\_fields\_in\_db
-=======================
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.hdm_plot
-
-.. autoproperty:: HDMPlotter.convert_fields_in_db

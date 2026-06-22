@@ -1,6 +1,0 @@
-add\_calculation
-================
-
-.. currentmodule:: ansys.aedt.core.modules.design_xploration
-
-.. automethod:: SetupOpti.add_calculation

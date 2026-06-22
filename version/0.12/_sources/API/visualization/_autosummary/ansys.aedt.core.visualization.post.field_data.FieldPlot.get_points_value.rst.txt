@@ -1,6 +1,0 @@
-get\_points\_value
-==================
-
-.. currentmodule:: ansys.aedt.core.visualization.post.field_data
-
-.. automethod:: FieldPlot.get_points_value

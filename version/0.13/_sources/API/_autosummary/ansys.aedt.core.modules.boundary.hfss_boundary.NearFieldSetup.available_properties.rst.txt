@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.hfss_boundary
-
-.. autoproperty:: NearFieldSetup.available_properties

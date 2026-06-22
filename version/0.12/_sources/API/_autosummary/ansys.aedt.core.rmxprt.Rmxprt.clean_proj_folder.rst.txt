@@ -1,6 +1,0 @@
-clean\_proj\_folder
-===================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.clean_proj_folder

@@ -1,6 +1,0 @@
-set\_material\_threshold
-========================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.set_material_threshold

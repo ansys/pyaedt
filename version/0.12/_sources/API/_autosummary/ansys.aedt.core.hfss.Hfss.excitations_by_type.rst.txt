@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.excitations_by_type

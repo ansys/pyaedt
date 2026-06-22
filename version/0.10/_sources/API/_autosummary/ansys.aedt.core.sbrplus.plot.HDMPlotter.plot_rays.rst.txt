@@ -1,6 +1,0 @@
-plot\_rays
-==========
-
-.. currentmodule:: ansys.aedt.core.sbrplus.plot
-
-.. automethod:: HDMPlotter.plot_rays

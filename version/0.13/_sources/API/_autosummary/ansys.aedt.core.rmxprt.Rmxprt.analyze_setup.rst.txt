@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.analyze_setup

@@ -1,6 +1,0 @@
-export\_antenna\_metadata
-=========================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.export_antenna_metadata

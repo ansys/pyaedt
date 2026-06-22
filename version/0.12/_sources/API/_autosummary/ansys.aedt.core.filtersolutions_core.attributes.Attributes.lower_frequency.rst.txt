@@ -1,6 +1,0 @@
-lower\_frequency
-================
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.attributes
-
-.. autoproperty:: Attributes.lower_frequency

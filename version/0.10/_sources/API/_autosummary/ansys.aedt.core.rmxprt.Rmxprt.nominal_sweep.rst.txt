@@ -1,6 +1,0 @@
-nominal\_sweep
-==============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. autoproperty:: Rmxprt.nominal_sweep

@@ -1,6 +1,0 @@
-duplicate\_design
-=================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.duplicate_design

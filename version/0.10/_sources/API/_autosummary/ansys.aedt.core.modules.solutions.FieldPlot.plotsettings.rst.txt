@@ -1,6 +1,0 @@
-plotsettings
-============
-
-.. currentmodule:: ansys.aedt.core.modules.solutions
-
-.. autoproperty:: FieldPlot.plotsettings

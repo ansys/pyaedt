@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.design_xploration
-
-.. automethod:: SetupOpti.analyze

@@ -1,6 +1,0 @@
-id
-==
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
-
-.. autoproperty:: FacePrimitive.id

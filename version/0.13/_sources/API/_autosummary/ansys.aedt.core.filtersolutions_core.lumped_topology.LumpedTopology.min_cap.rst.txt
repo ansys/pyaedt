@@ -1,6 +1,0 @@
-min\_cap
-========
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core.lumped_topology
-
-.. autoproperty:: LumpedTopology.min_cap

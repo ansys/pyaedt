@@ -1,6 +1,0 @@
-export\_datasets
-================
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.export_datasets

@@ -1,6 +1,0 @@
-y\_scale
-========
-
-.. currentmodule:: ansys.aedt.core.sbrplus.plot
-
-.. autoproperty:: HDMPlotter.y_scale

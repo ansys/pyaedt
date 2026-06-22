@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.read_only_variable

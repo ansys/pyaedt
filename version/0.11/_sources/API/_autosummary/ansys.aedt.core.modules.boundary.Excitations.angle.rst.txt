@@ -1,6 +1,0 @@
-angle
-=====
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: Excitations.angle

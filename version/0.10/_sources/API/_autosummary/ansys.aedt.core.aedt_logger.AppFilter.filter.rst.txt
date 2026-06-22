@@ -1,6 +1,0 @@
-filter
-======
-
-.. currentmodule:: ansys.aedt.core.aedt_logger
-
-.. automethod:: AppFilter.filter

@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.autosave_disable

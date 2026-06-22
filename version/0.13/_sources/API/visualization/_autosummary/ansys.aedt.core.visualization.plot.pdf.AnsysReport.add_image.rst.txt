@@ -1,6 +1,0 @@
-﻿add\_image
-==========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pdf
-
-.. automethod:: AnsysReport.add_image

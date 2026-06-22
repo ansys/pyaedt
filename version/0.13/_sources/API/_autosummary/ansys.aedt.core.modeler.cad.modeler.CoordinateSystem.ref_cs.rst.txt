@@ -1,6 +1,0 @@
-ref\_cs
-=======
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.modeler
-
-.. autoproperty:: CoordinateSystem.ref_cs

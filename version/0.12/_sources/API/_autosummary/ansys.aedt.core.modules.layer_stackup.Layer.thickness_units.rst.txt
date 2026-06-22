@@ -1,6 +1,0 @@
-thickness\_units
-================
-
-.. currentmodule:: ansys.aedt.core.modules.layer_stackup
-
-.. autoproperty:: Layer.thickness_units

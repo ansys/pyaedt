@@ -1,6 +1,0 @@
-apply\_report\_template
-=======================
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. automethod:: NearField.apply_report_template

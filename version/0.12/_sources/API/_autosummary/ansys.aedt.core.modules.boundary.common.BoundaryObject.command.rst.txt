@@ -1,6 +1,0 @@
-command
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.common
-
-.. autoproperty:: BoundaryObject.command

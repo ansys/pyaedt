@@ -1,6 +1,0 @@
-remove\_point\_from\_x
-======================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. automethod:: DataSet.remove_point_from_x

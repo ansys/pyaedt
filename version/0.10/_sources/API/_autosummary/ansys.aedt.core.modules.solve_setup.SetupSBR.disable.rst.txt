@@ -1,6 +1,0 @@
-disable
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.solve_setup
-
-.. automethod:: SetupSBR.disable

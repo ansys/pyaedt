@@ -1,6 +1,0 @@
-plot\_continous\_spectrum
-=========================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.standard
-
-.. autoproperty:: Spectral.plot_continous_spectrum

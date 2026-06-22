@@ -1,6 +1,0 @@
-toolkit\_directory
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwell
-
-.. autoproperty:: Maxwell3d.toolkit_directory

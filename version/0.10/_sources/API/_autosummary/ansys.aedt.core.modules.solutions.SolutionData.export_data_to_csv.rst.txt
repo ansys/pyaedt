@@ -1,6 +1,0 @@
-export\_data\_to\_csv
-=====================
-
-.. currentmodule:: ansys.aedt.core.modules.solutions
-
-.. automethod:: SolutionData.export_data_to_csv

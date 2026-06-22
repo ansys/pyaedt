@@ -1,6 +1,0 @@
-plot\_3d
-========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. automethod:: SolutionData.plot_3d

@@ -1,6 +1,0 @@
-component\_info
-===============
-
-.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
-
-.. autoproperty:: CircuitComponent.component_info

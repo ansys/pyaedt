@@ -1,6 +1,0 @@
-import\_table
-=============
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.import_table

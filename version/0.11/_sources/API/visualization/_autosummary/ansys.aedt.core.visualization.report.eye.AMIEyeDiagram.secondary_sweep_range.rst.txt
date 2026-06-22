@@ -1,6 +1,0 @@
-secondary\_sweep\_range
-=======================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: AMIEyeDiagram.secondary_sweep_range

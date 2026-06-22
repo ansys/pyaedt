@@ -1,6 +1,0 @@
-push\_time\_excitations
-=======================
-
-.. currentmodule:: ansys.aedt.core.circuit
-
-.. automethod:: Circuit.push_time_excitations

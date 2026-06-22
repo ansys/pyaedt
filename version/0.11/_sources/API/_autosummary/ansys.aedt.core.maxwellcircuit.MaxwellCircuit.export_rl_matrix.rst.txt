@@ -1,6 +1,0 @@
-export\_rl\_matrix
-==================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_rl_matrix

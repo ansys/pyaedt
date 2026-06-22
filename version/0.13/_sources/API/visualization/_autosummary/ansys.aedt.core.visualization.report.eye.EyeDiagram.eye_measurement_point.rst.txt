@@ -1,6 +1,0 @@
-eye\_measurement\_point
-=======================
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. autoproperty:: EyeDiagram.eye_measurement_point

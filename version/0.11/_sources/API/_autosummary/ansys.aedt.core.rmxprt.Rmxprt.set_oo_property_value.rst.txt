@@ -1,6 +1,0 @@
-set\_oo\_property\_value
-========================
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.set_oo_property_value

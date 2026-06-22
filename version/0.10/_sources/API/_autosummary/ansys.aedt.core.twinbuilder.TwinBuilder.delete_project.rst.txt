@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.delete_project

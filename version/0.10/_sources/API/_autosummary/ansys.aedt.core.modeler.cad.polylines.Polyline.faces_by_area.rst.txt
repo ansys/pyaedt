@@ -1,6 +1,0 @@
-faces\_by\_area
-===============
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.polylines
-
-.. automethod:: Polyline.faces_by_area

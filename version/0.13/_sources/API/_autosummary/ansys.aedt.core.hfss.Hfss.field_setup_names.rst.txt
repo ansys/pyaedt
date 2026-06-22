@@ -1,6 +1,0 @@
-field\_setup\_names
-===================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. autoproperty:: Hfss.field_setup_names

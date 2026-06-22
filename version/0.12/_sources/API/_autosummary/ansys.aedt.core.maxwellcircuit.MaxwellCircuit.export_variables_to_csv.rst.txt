@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_variables_to_csv

@@ -1,6 +1,0 @@
-interactive
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
-
-.. autoproperty:: ReportPlotter.interactive

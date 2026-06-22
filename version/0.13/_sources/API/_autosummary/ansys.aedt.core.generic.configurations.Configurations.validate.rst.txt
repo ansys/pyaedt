@@ -1,6 +1,0 @@
-validate
-========
-
-.. currentmodule:: ansys.aedt.core.generic.configurations
-
-.. automethod:: Configurations.validate

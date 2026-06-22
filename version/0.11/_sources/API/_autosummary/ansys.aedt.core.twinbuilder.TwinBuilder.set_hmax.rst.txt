@@ -1,6 +1,0 @@
-set\_hmax
-=========
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.set_hmax

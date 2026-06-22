@@ -1,6 +1,0 @@
-farfield\_data
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.farfield_data

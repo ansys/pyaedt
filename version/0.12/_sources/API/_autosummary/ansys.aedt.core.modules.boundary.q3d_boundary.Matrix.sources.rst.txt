@@ -1,6 +1,0 @@
-sources
-=======
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.q3d_boundary
-
-.. automethod:: Matrix.sources

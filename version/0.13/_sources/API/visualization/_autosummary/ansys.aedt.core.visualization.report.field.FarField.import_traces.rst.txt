@@ -1,6 +1,0 @@
-import\_traces
-==============
-
-.. currentmodule:: ansys.aedt.core.visualization.report.field
-
-.. automethod:: FarField.import_traces

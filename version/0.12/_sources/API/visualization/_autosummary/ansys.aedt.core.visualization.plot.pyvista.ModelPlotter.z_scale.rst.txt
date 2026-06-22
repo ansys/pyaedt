@@ -1,6 +1,0 @@
-z\_scale
-========
-
-.. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
-
-.. autoproperty:: ModelPlotter.z_scale

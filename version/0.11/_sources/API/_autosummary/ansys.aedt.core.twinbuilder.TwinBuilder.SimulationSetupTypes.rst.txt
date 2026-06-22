@@ -1,6 +1,0 @@
-SimulationSetupTypes
-====================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. autoproperty:: TwinBuilder.SimulationSetupTypes

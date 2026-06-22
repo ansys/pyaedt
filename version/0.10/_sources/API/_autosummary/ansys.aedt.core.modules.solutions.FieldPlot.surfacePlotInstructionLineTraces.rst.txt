@@ -1,6 +1,0 @@
-surfacePlotInstructionLineTraces
-================================
-
-.. currentmodule:: ansys.aedt.core.modules.solutions
-
-.. autoproperty:: FieldPlot.surfacePlotInstructionLineTraces

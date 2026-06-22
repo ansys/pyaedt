@@ -1,6 +1,0 @@
-split
-=====
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.polylines
-
-.. automethod:: Polyline.split

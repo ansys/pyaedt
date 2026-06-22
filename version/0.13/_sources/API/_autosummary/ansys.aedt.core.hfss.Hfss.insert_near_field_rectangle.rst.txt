@@ -1,6 +1,0 @@
-insert\_near\_field\_rectangle
-==============================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.insert_near_field_rectangle

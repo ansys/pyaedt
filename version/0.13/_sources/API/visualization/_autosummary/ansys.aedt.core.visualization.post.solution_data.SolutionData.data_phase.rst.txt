@@ -1,6 +1,0 @@
-data\_phase
-===========
-
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
-
-.. automethod:: SolutionData.data_phase

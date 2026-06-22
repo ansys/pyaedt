@@ -1,6 +1,0 @@
-analyze\_all
-============
-
-.. currentmodule:: ansys.aedt.core.desktop
-
-.. automethod:: Desktop.analyze_all

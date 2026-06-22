@@ -1,6 +1,0 @@
-set\_oo\_property\_value
-========================
-
-.. currentmodule:: ansys.aedt.core.twinbuilder
-
-.. automethod:: TwinBuilder.set_oo_property_value

@@ -1,6 +1,0 @@
-assign\_surface\_material
-=========================
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.assign_surface_material

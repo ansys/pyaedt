@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: ansys.aedt.core.modules.material
-
-.. automethod:: Material.update

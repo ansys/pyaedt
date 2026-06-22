@@ -1,6 +1,0 @@
-import\_traces
-==============
-
-.. currentmodule:: ansys.aedt.core.modules.report_templates
-
-.. automethod:: Standard.import_traces

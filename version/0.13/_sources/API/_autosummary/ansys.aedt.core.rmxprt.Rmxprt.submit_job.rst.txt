@@ -1,6 +1,0 @@
-submit\_job
-===========
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.submit_job

@@ -1,6 +1,0 @@
-assign\_material
-================
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. automethod:: Q2d.assign_material

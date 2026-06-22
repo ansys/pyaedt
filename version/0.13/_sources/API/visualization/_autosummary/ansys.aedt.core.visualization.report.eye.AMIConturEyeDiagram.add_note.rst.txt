@@ -1,6 +1,0 @@
-add\_note
-=========
-
-.. currentmodule:: ansys.aedt.core.visualization.report.eye
-
-.. automethod:: AMIConturEyeDiagram.add_note

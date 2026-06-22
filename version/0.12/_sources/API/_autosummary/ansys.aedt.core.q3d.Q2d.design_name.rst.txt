@@ -1,6 +1,0 @@
-design\_name
-============
-
-.. currentmodule:: ansys.aedt.core.q3d
-
-.. autoproperty:: Q2d.design_name

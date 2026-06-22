@@ -1,6 +1,0 @@
-tuning\_step\_value
-===================
-
-.. currentmodule:: ansys.aedt.core.application.variables
-
-.. autoproperty:: Variable.tuning_step_value

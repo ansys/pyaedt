@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: ansys.aedt.core.rmxprt
-
-.. automethod:: Rmxprt.rename_design

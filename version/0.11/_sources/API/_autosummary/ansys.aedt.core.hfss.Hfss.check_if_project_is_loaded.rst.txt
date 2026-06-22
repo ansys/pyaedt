@@ -1,6 +1,0 @@
-check\_if\_project\_is\_loaded
-==============================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.check_if_project_is_loaded

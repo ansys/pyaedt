@@ -1,6 +1,0 @@
-get\_property\_value
-====================
-
-.. currentmodule:: ansys.aedt.core.hfss
-
-.. automethod:: Hfss.get_property_value

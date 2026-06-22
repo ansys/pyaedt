@@ -1,6 +1,0 @@
-assign\_grille
-==============
-
-.. currentmodule:: ansys.aedt.core.icepak
-
-.. automethod:: Icepak.assign_grille

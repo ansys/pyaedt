@@ -1,6 +1,0 @@
-points\_in\_segment
-===================
-
-.. currentmodule:: ansys.aedt.core.modeler.circuits.object_3d_circuit
-
-.. autoproperty:: Wire.points_in_segment

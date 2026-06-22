@@ -1,6 +1,0 @@
-pop
-===
-
-.. currentmodule:: ansys.aedt.core.modeler.cad.elements_3d
-
-.. automethod:: HistoryProps.pop

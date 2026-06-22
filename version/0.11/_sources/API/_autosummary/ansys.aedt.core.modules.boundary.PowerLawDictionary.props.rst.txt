@@ -1,6 +1,0 @@
-props
-=====
-
-.. currentmodule:: ansys.aedt.core.modules.boundary
-
-.. autoproperty:: PowerLawDictionary.props

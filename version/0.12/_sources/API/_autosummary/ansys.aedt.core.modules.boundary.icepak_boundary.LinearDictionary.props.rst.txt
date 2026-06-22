@@ -1,6 +1,0 @@
-props
-=====
-
-.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
-
-.. autoproperty:: LinearDictionary.props

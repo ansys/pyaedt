@@ -1,6 +1,0 @@
-clean\_proj\_folder
-===================
-
-.. currentmodule:: ansys.aedt.core.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.clean_proj_folder
