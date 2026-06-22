@@ -71,10 +71,10 @@ class Band(EmitNode):
             keys = "TraceChannelFreq|TraceChannelType|TraceTxOffsetFreq|NarrowOrBroad"
             offset = channel_freq + self.tx_offset
             nb_or_bb = "Narrowband"
-            vals = f"{channel_freq}" + "|" + f"{channel_type.value}" + "|" + f"{offset}" + "|" + f"{nb_or_bb}"
+            vals = f"{channel_freq}" + "|Tx|" + f"{offset}" + "|" + f"{nb_or_bb}"
         else:
             keys = "TraceChannelFreq|TraceChannelType"
-            vals = f"{channel_freq}" + "|" + f"{channel_type.value}"
+            vals = f"{channel_freq}" + "|Rx"
         return self._export_to_csv(file_name, keys, vals)
 
     @min_aedt_version("2027.1")
@@ -84,10 +84,10 @@ class Band(EmitNode):
             keys = "TraceChannelFreq|TraceChannelType|TraceTxOffsetFreq|NarrowOrBroad"
             offset = channel_freq + self.tx_offset
             nb_or_bb = "Narrowband"
-            vals = f"{channel_freq}" + "|" + f"{channel_type.value}" + "|" + f"{offset}" + "|" + f"{nb_or_bb}"
+            vals = f"{channel_freq}" + "|Tx|" + f"{offset}" + "|" + f"{nb_or_bb}"
         else:
             keys = "TraceChannelFreq|TraceChannelType"
-            vals = f"{channel_freq}" + "|" + f"{channel_type.value}"
+            vals = f"{channel_freq}" + "|Rx"
         return self._plot(keys, vals)
 
     @min_aedt_version("2025.2")
