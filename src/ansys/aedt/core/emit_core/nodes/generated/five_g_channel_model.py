@@ -65,7 +65,7 @@ class FiveGChannelModel(EmitNode):
         -------
         csv_data: str
             stringified data for the node returned if file_name not specified"""
-        if all(isinstance(x, AntennaNode) for x in antennas):
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
             vals = f"{a1.name}|{a2.name}"
         else:
@@ -83,7 +83,7 @@ class FiveGChannelModel(EmitNode):
             If not specified, will use the names specified by the ports parameter.
         ports: str, optional
             the ports to export the data for."""
-        if all(isinstance(x, AntennaNode) for x in antennas):
+        if antennas is not None and all(isinstance(x, AntennaNode) for x in antennas):
             a1, a2 = antennas
             vals = f"{a1.name}|{a2.name}"
         else:
