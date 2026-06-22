@@ -345,7 +345,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -396,7 +396,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -463,7 +463,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -529,7 +529,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -599,7 +599,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -668,7 +668,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -740,7 +740,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -810,7 +810,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -877,7 +877,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-icepak-tests-windows
           files: ./coverage.xml
@@ -943,7 +943,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-icepak-tests-linux
           files: ./coverage.xml
@@ -1010,7 +1010,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-layout-tests-windows
           files: ./coverage.xml
@@ -1076,7 +1076,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-layout-tests-linux
           files: ./coverage.xml
@@ -1146,7 +1146,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -1215,7 +1215,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -1282,7 +1282,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
@@ -1349,7 +1349,7 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
