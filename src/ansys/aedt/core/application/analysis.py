@@ -120,6 +120,13 @@ class Analysis(Design, PyAedtBase):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> hfss.setups
+    >>> hfss.analyze(setup="Setup1")
     """
 
     def __init__(
@@ -182,6 +189,12 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_setups
         """
         return {i.name.split(":")[0].strip(): i for i in self.setups}
 
@@ -192,6 +205,12 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         dict[str, :class:`ansys.aedt.core.modules.Boundaries.NativeComponentObject`]
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.native_components
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
@@ -204,6 +223,12 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.native_component_names
         """
         return self.modeler.user_defined_component_names
 
@@ -218,6 +243,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetOutputVariables()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.output_variables
         """
         return self.ooutput_variable.GetOutputVariables()
 
@@ -230,6 +261,11 @@ class Analysis(Design, PyAedtBase):
         :class:`ansys.aedt.core.modules.material_lib.Materials`
            Materials in the project.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.materials
         """
         if self._materials is None and self._odesign:
             self.logger.reset_timer()
@@ -251,6 +287,11 @@ class Analysis(Design, PyAedtBase):
         list[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
             Setups in the project.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.setups
         """
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
@@ -268,6 +309,11 @@ class Analysis(Design, PyAedtBase):
         :class:`ansys.aedt.core.modules.design_xploration.ParametricSetups`
             Parametric setups in the project.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.parametrics
         """
         if not self._parametrics:
             self._parametrics = ParametricSetups(self)
@@ -282,6 +328,11 @@ class Analysis(Design, PyAedtBase):
         :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`
             Parametric setups in the project.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.optimizations
         """
         if not self._optimizations:
             self._optimizations = OptimizationSetups(self)
@@ -296,6 +347,11 @@ class Analysis(Design, PyAedtBase):
         type
             Position object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.Position
         """
         if self.modeler:
             return self.modeler.Position
@@ -310,6 +366,11 @@ class Analysis(Design, PyAedtBase):
         :class:`ansys.aedt.core.application.analysis.AvailableVariations`
             Available variation object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations
         """
         if self._available_variations is None:
             self._available_variations = AvailableVariations(self)
@@ -327,6 +388,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetAllSolutionSetups()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.active_setup
         """
         if self._setup:
             return self._setup
@@ -355,6 +422,12 @@ class Analysis(Design, PyAedtBase):
         -------
         dict
             A dictionary containing the nominal value for such setup and all available sweeps.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.setup_sweeps_names
         """
         setup_list = self.setup_names
         sweep_list = {}
@@ -410,6 +483,12 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.existing_analysis_sweeps
         """
         sweep_list = []
         for k, v in self.setup_sweeps_names.items():
@@ -434,6 +513,12 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.nominal_adaptive
         """
         if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
@@ -456,6 +541,12 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.nominal_sweep
         """
         if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
@@ -476,6 +567,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.setup_names
         """
         setup_names = []
         if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
@@ -489,6 +586,12 @@ class Analysis(Design, PyAedtBase):
         Returns
         -------
         list of str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.imported_solution_names
         """
         solution_list = list(self.get_oo_name(self.oreportsetup, "Profile"))
         return [i for i in solution_list if i not in self.setup_names]
@@ -506,6 +609,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.excitation_names
         """
         try:
             list_names = list(self.oboundary.GetExcitations())
@@ -527,6 +636,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetExcitations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.design_excitations
         """
         exc_names = self.excitation_names[::]
 
@@ -557,6 +672,12 @@ class Analysis(Design, PyAedtBase):
         -------
         dict
             Dictionary of excitations.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.excitations_by_type
         """
         _dict_out = {}
         for bound in self.design_excitations.values():
@@ -664,6 +785,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.ListVariations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.list_of_variations(setup="Setup1")
         """
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
@@ -961,6 +1088,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.ExportConvergence
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_convergence(setup="Setup1")
         """
         if " : " in setup:
             setup = setup.split(" : ")[0]
@@ -1037,7 +1170,14 @@ class Analysis(Design, PyAedtBase):
 
     @property
     def axis_directions(self):
-        """Contains constants for the axis directions."""
+        """Contains constants for the axis directions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.axis_directions
+        """
         return Gravity
 
     @pyaedt_function_handler()
@@ -1052,6 +1192,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetSetups
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_setups()
         """
         setups = self.oanalysis.GetSetups()
         return list(setups)
@@ -1070,6 +1216,11 @@ class Analysis(Design, PyAedtBase):
         -------
         dict
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_nominal_variation()
         """
         independent_flag = self.available_variations.independent
         self.available_variations.independent = True
@@ -1097,6 +1248,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.GetSweeps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_sweeps("Setup1")
         """
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
@@ -1123,6 +1280,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oModule.ExportParametricResults
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_parametric_results("ParametricSetup1", "results.csv")
         """
         self.ooptimetrics.ExportParametricResults(sweep, output_file, export_units)
         return True
@@ -1141,6 +1304,11 @@ class Analysis(Design, PyAedtBase):
         str
             Name of the setup.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.generate_unique_setup_name("MySetup")
         """
         if not name:
             name = "Setup"
@@ -1325,6 +1493,11 @@ class Analysis(Design, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.solve_setup.Setup`
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_setup("Setup1")
         """
         return self.design_setups[name]
 
@@ -1466,6 +1639,12 @@ class Analysis(Design, PyAedtBase):
         ----------
         >>> oDesign.GetNominalVariation
         >>> oModule.GetOutputVariableValue
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_output_variable("my_var")
         """
         if variable not in self.output_variables:
             raise KeyError(f"Output variable {variable} does not exist.")
@@ -1496,6 +1675,12 @@ class Analysis(Design, PyAedtBase):
         -------
         dict
             Dictionary of objects with material properties.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_object_material_properties(assignment=["Box1"], prop_names="permittivity")
         """
         if assignment:
             if not isinstance(assignment, list):
@@ -1576,6 +1761,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesign.Analyze
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.analyze(setup="Setup1")
         """
         self.save_project()
         if solve_in_batch:
@@ -1615,6 +1806,12 @@ class Analysis(Design, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.set_hpc_from_file(acf_file="custom_hpc.acf")
         """
         if not acf_file and not configuration_name:
             raise AEDTRuntimeError("No custom ACF file or configuration name provided.")
@@ -1668,6 +1865,12 @@ class Analysis(Design, PyAedtBase):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.set_custom_hpc_options(cores=4, tasks=2)
         """
         config_name = "pyaedt_config"
         source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
@@ -1790,6 +1993,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesign.Analyze
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.analyze_setup(name="Setup1")
         """
         start = time.time()
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
@@ -1867,6 +2076,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesktop.AreThereSimulationsRunning
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.are_there_simulations_running
         """
         return self.desktop_class.are_there_simulations_running
 
@@ -1884,6 +2099,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesktop.GetMonitorData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.get_monitor_data()
         """
         return self.desktop_class.get_monitor_data()
 
@@ -1901,6 +2122,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesktop.StopSimulations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.stop_simulations()
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
@@ -1956,6 +2183,12 @@ class Analysis(Design, PyAedtBase):
         -------
          bool
            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.solve_in_batch(cores=4, tasks=1)
         """
         import subprocess  # nosec
 
@@ -2086,6 +2319,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oDesktop.SubmitJob
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.submit_job(cluster_name="my_cluster", cores=32)
         """
         return self.desktop_class.submit_job(
             project_file=self.project_file,
@@ -2275,6 +2514,13 @@ class Analysis(Design, PyAedtBase):
         >>> oEditor.GetDefaultUnit
         >>> oEditor.GetModelUnits
         >>> oEditor.GetActiveUnits
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.value_with_units(1.2, "mm")
+        '1.2mm'
         """
         _, u = decompose_variable_value(value)
         if u:
@@ -2331,6 +2577,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.change_properties(hfss.oeditor, "BaseElementTab", "Box1", ["Xpos", "Ypos"], ["0mm", "1mm"])
         """
         if not isinstance(property_names, list) or not isinstance(property_values, list):
             raise ValueError("``property_names`` and ``property_values`` must be lists.")
@@ -2396,6 +2648,12 @@ class Analysis(Design, PyAedtBase):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.change_property(hfss.oeditor, "BaseElementTab", "Box1", "Xpos", "0mm")
         """
         if not isinstance(property_name, str):
             raise ValueError("``property_name`` must be a string.")
@@ -2541,6 +2799,11 @@ class AvailableVariations(PyAedtBase):
         app : :class:`ansys.aedt.core.application.analysis.Analysis`
             Analysis object.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations.all
         """
         self._app = app
         self.independent = True
@@ -2554,6 +2817,11 @@ class AvailableVariations(PyAedtBase):
         dict
             Dictionary of all variables with ``"All"`` value.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations.all
         """
         return {name: "All" for name in self.__variable_names()}
 
@@ -2565,6 +2833,12 @@ class AvailableVariations(PyAedtBase):
         -------
         dict
             Dictionary of all variables with ``"Nominal"`` value.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations.nominal
         """
         return {name: "Nominal" for name in self.__variable_names()}
 
@@ -2577,6 +2851,11 @@ class AvailableVariations(PyAedtBase):
         dict
             Dictionary of nominal variations with values.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations.nominal_values
         """
         available_variables = self.__available_variables()
         return {k: v.expression for k, v in list(available_variables.items())}
@@ -2596,6 +2875,12 @@ class AvailableVariations(PyAedtBase):
         str
             String containing the variations.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> variation = {"x": "1mm", "y": "2mm"}
+        >>> hfss.available_variations.variation_string(variation)
         """
         var = []
         for k, v in variation.items():
@@ -2681,6 +2966,12 @@ class AvailableVariations(PyAedtBase):
         -------
         dict
             Dictionary containing the nominal variation for the current design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.available_variations.nominal_variation()
         """
         independent_flag = self.independent
         self.independent = not dependent_params
