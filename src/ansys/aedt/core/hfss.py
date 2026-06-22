@@ -5654,6 +5654,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.insert_near_field_sphere()
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
@@ -5727,6 +5733,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.insert_near_field_box()
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
@@ -5791,6 +5803,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.insert_near_field_rectangle()
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
@@ -5843,6 +5861,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> line = hfss.modeler.create_polyline([[0, 0, 0], [10, 0, 0], [10, 10, 0]])
+        >>> hfss.insert_near_field_line(assignment=line.name)
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
@@ -5868,7 +5893,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         coordinate_system: str | None = "Global",
         name: str | None = None,
     ) -> NearFieldSetup:
-        """Create a near field line.
+        """Create a near field from a point list file.
 
         .. note::
            This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
@@ -5885,6 +5910,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.insert_near_field_points(input_file="field_points.pts")
         """
         point_file = Path(input_file)
         if not self.oradfield:  # pragma: no cover
