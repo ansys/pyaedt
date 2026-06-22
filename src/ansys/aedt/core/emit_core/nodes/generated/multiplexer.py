@@ -54,6 +54,7 @@ class Multiplexer(EmitNode):
             full path to the file to export to.
         ports: str
             the ports to export the data for.
+            Default orientation port names: 1|2|3
 
         Returns
         -------
@@ -70,7 +71,8 @@ class Multiplexer(EmitNode):
         Parameters
         ----------
         ports: str
-            the ports to export the data for."""
+            the ports to export the data for.
+            Default orientation port names: 1|2|3"""
         keys = "SelectedInputPort|SelectedOutputPort"
         vals = f"{ports}"
         return self._plot(keys, vals)

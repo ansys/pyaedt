@@ -481,9 +481,14 @@ class TestEmitExports:
         ant_full_names = [c._full_node_name for c in ant_children if isinstance(c, AntennaNode)]
         assert len(ant_short_names) >= 2, "Expected at least 2 antennas in the scene."
 
-        data = coupling_data.export_to_csv("", f"{ant_full_names[0]}|{ant_full_names[1]}")
+        data = coupling_data.export_to_csv("", ports=f"{ant_full_names[0]}|{ant_full_names[1]}")
         assert data is not None
         assert len(data) > 0, "Coupling CSV export should return non-empty data."
+
+        data2 = coupling_data.export_to_csv("", antennas=(ant_children[0], ant_children[1]))
+        assert data2 is not None
+        assert len(data2) > 0, "Coupling CSV export should return non-empty data."
+        assert data == data2, "Coupling CSV export should return the same data."    
 
         # test path loss coupling node export
         path_loss: PropagationLossCouplingNode = coupling_data._add_child_node("Path Loss Coupling")
@@ -491,9 +496,14 @@ class TestEmitExports:
         path_loss.antenna_a = ant_short_names[0]
         path_loss.antenna_b = ant_short_names[1]
 
-        data = path_loss.export_to_csv("", f"{ant_short_names[0]}|{ant_short_names[1]}")
+        data = path_loss.export_to_csv("", ports=f"{ant_short_names[0]}|{ant_short_names[1]}")
         assert data is not None
         assert len(data) > 0, "Path Loss Coupling CSV export should return non-empty data."
+
+        data2 = path_loss.export_to_csv("", antennas=(ant_children[0], ant_children[1]))
+        assert data2 is not None
+        assert len(data2) > 0, "Path Loss Coupling CSV export should return non-empty data."
+        assert data == data2, "Path Loss Coupling CSV export should return the same data."
 
         # test two ray path loss coupling node export
         two_ray_path_loss: TwoRayPathLossCouplingNode = coupling_data._add_child_node("Two Ray Path Loss Coupling")
@@ -501,11 +511,11 @@ class TestEmitExports:
         two_ray_path_loss.antenna_a = ant_short_names[0]
         two_ray_path_loss.antenna_b = ant_short_names[1]
 
-        data = two_ray_path_loss.export_to_csv("", f"{ant_short_names[0]}|{ant_short_names[1]}")
+        data = two_ray_path_loss.export_to_csv("", ports=f"{ant_short_names[0]}|{ant_short_names[1]}")
         assert data is not None
         assert len(data) > 0, "Two Ray Path Loss Coupling CSV export should return non-empty data."
 
-        fig = coupling_data.plot(f"{ant_full_names[0]}|{ant_full_names[1]}")
+        fig = coupling_data.plot(ports=f"{ant_full_names[0]}|{ant_full_names[1]}")
         assert fig is not None
         with tempfile.TemporaryDirectory() as tmp_dir:
             png_path = os.path.join(tmp_dir, "coupling_plot.png")

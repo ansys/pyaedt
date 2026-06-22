@@ -49,6 +49,7 @@ class Isolator(EmitNode):
             full path to the file to export to.
         ports: str
             the ports to export the data for.
+            Default orientation port names: 1|2
 
         Returns
         -------
@@ -65,7 +66,8 @@ class Isolator(EmitNode):
         Parameters
         ----------
         ports: str
-            the ports to export the data for."""
+            the ports to export the data for.
+            Default orientation port names: 1|2"""
         keys = "SelectedInputPort|SelectedOutputPort"
         vals = f"{ports}"
         return self._plot(keys, vals)

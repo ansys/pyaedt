@@ -47,6 +47,7 @@ class TR_Switch(EmitNode):
             full path to the file to export to.
         ports: str
             the ports to export the data for.
+            Default orientation port names: 2|1|3
 
         Returns
         -------
@@ -63,7 +64,8 @@ class TR_Switch(EmitNode):
         Parameters
         ----------
         ports: str
-            the ports to export the data for."""
+            the ports to export the data for.
+            Default orientation port names: 2|1|3"""
         keys = "SelectedInputPort|SelectedOutputPort"
         vals = f"{ports}"
         return self._plot(keys, vals)
