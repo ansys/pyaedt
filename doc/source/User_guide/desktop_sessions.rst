@@ -73,7 +73,9 @@ Use a context manager when you want deterministic cleanup at the end of a block:
     ):
         hfss = ansys.aedt.core.Hfss()
         maxwell = ansys.aedt.core.Maxwell3d()
+        # ...
         # Work with AEDT here.
+        # ...
 
     # AEDT is automatically closed here.
 
