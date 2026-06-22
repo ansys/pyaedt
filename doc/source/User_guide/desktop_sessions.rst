@@ -121,4 +121,4 @@ Recommendations
 
 - Use ``with Desktop(...)`` when you want predictable cleanup.
 - Use direct ``Desktop(...)`` construction when you need more manual control over the AEDT session lifecycle.
-- When attaching to an existing AEDT session, consider leaving ``close_on_exit`` unset or setting it explicitly to ``False`` if you do not want PyAEDT to close that session.
+- When attaching to an existing AEDT session, consider leaving ``close_on_exit`` unset or setting it explicitly to ``True`` if you do want PyAEDT to close that session.
