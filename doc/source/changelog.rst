@@ -15,16 +15,6 @@ This document contains the release notes for the project.
 .. tab-set::
 
 
-  .. tab-item:: Breaking
-
-    .. list-table::
-        :header-rows: 0
-        :widths: auto
-
-        * - Add doc new branching system
-          - `#7764 <https://github.com/ansys/pyaedt/pull/7764>`_
-
-
   .. tab-item:: Added
 
     .. list-table::
@@ -59,6 +49,9 @@ This document contains the release notes for the project.
 
         * - Fix changelog breaking changes
           - `#7737 <https://github.com/ansys/pyaedt/pull/7737>`_
+
+        * - Add doc new branching system
+          - `#7764 <https://github.com/ansys/pyaedt/pull/7764>`_
 
 
   .. tab-item:: Dependencies
