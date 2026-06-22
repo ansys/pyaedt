@@ -51,6 +51,8 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
     from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
     from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+    from ansys.aedt.core.visualization.report.standard import Standard
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -4853,7 +4855,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ports: list | None = None,
         ports_excited: list | None = None,
         variations: str | None = None,
-    ) -> bool:
+    ) -> "Standard | bool":
         """Create an S-parameter report.
 
         Parameters
@@ -4873,8 +4875,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`report_standard.Standard` or bool
 
         References
         ----------
@@ -4886,8 +4887,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
         >>> hfss.create_scattering(ports=["P1", "P2", "P3"], ports_excited=["P1", "P1", "P1"])
-        True
-
         """
         solution_data = "Standard"
         if "Modal" in self.solution_type:
@@ -4906,6 +4905,66 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
+    def create_q_factor_report(
+        self,
+        modes=None,
+        setup: str | None = None,
+        variations: str | None = None,
+        primary_sweep: str = "X",
+        name: str | None = None,
+    ) -> "Standard | bool":
+        """Export a CSV file of the EigenQ plot.
+
+        Parameters
+        ----------
+        modes : str, optional
+             Modes to plot. The default is the first mode, ``1``.
+        setup : str, optional
+            Name of the setup in the format ``"SetupName : LastAdaptive"``.
+            The default is ``None``, in which case ``nominal_adaptive`` is used.
+        variations : str, optional
+             The default is ``None``.
+        primary_sweep: str, optional
+             X-axis variable. The default is ``"X"``.
+        name: str, optional
+
+        Returns
+        -------
+        :class:`report_standard.Standard` or bool
+
+        References
+        ----------
+        >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="Eigenmode")
+        >>> hfss.create_q_factor_report(modes=[1])
+        """
+        if self.solution_type != "Eigenmode":
+            raise AEDTRuntimeError("Q factor can only be calculated for Eigenmode solutions.")
+
+        if modes is None:
+            modes = [1]
+
+        if setup is None:
+            setup = self.nominal_sweep
+
+        traces = []
+        for mode in modes:
+            traces.append(f"Q({mode})")
+
+        return self.post.create_report(
+            traces,
+            setup,
+            variations=variations,
+            report_category="EigenMode Parameters",
+            plot_name=name,
+            primary_sweep_variable=primary_sweep,
+        )
+
+    @pyaedt_function_handler()
     def create_qfactor_report(
         self,
         project_dir: str = None,
@@ -4913,8 +4972,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         setup: str = None,
         name: str = "",
         x_axis: str | None = "X",
-    ) -> bool:
+    ) -> bool:  # pragma: no cover
         """Export a CSV file of the EigenQ plot.
+
+        .. deprecated:: 1.2.0
+           Use :func:`create_q_factor_report` instead.
 
         Parameters
         ----------
@@ -4939,6 +5001,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> oModule.CreateReport
 
         """
+        import warnings
+
+        warnings.warn(
+            "`create_qfactor_report` is deprecated. Use `create_q_factor_report` method instead.", DeprecationWarning
+        )
+
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]
         args2 = ["X Component:=", x_axis, "Y Component:=", output]

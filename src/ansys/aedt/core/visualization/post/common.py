@@ -1491,7 +1491,7 @@ class PostProcessorCommon(PyAedtBase):
         height: int = 450,
     ) -> (
         "Standard | AMIEyeDiagram | AMIConturEyeDiagram | EMIReceiver | EyeDiagram | CircuitNetlistReport | Fields | "
-        "FarField | NearField | Spectral | ReportPlotter"
+        "FarField | NearField | Spectral | ReportPlotter | bool"
     ):
         """Create a report in AEDT or in Matplotlib. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
@@ -1655,6 +1655,15 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
+
+        if (
+            self._app.solution_type == "Eigenmode"
+            and report.report_category == "EigenMode Parameters"
+            and "Phase" in report.variations
+        ):
+            # Phase is not available in Eigenmode Parameters report
+            del report.variations["Phase"]
+
         if matplotlib:
             return self._report_plotter(report, show=show, snapshot_path=snapshot_path, width=width, height=height)
 

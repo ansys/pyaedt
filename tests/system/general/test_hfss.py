@@ -2544,3 +2544,22 @@ def test_get_fresnel_coefficients(fresnel):
         setup_sweep="Setup : LastAdaptive", theta_name="scan_T", phi_name="0deg", is_isotropic=True
     )
     assert output4_isotropic.is_file()
+
+
+def test_create_qfactor_report(aedt_app, test_tmp_dir) -> None:
+    aedt_app.solution_type = "Eigenmode"
+
+    aedt_app["x1"] = "10mm"
+    aedt_app["x2"] = "20mm"
+
+    _ = aedt_app.modeler.create_box([0, 0, 0], ["x1", "x2", 20], material="copper")
+
+    setup = aedt_app.create_setup()
+    setup.properties["Modes"] = "3"
+
+    assert aedt_app.create_q_factor_report()
+    assert aedt_app.create_q_factor_report(modes=[1, 3], primary_sweep="x2")
+
+    aedt_app.solution_type = "Modal"
+    with pytest.raises(AEDTRuntimeError):
+        aedt_app.create_q_factor_report(modes=[1, 3])
