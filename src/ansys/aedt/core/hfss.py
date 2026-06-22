@@ -5084,7 +5084,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool | None = False,
         doppler_ad_sampling_rate: int | None = 20,
         setup: str | None = None,
-    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
+    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
         """Create an SBR+ Chirp I setup.
 
         Parameters
@@ -5130,6 +5130,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.InsertSetup
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> setup, sweep = hfss.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
         """
         if self.solution_type != "SBR+":
             raise AEDTRuntimeError("Method applies only to the SBR+ solution.")
@@ -5188,7 +5193,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         include_coupling_effects: bool | None = False,
         doppler_ad_sampling_rate: int | None = 20,
         setup: str | None = None,
-    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
+    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
         """Create an SBR+ Chirp IQ setup.
 
         Parameters
@@ -5234,6 +5239,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> setup, sweep = hfss.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=20)
         """
         if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to the SBR+ solution.")
@@ -5287,7 +5298,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ray_density_per_wavelength: float | None = 0.2,
         max_bounces: int | None = 5,
         setup: str | None = None,
-    ) -> tuple["SetupHFSS" | "SetupHFSSAuto", "SetupParam" | bool]:
+    ) -> "tuple[SetupHFSS | SetupHFSSAuto, SetupParam | bool]":
         """Create an SBR+ pulse Doppler setup.
 
         Parameters
@@ -5331,6 +5342,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oModule.InsertSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> setup, sweep = hfss.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
         """
         if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method Applies only to SBR+ Solution.")
@@ -5443,6 +5460,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> oEditor.CreateRelativeCS
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> hfss.create_sbr_radar_from_json("radar_dir", name="Example_1Tx_1Rx", speed=3)
         """
         if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to SBR+ solution.")
@@ -5521,6 +5544,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         -------
         :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup`
             Far field setup object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.insert_infinite_sphere()
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
