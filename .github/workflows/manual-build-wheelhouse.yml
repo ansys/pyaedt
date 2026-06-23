@@ -39,6 +39,13 @@ on:
            - '3.12'
            - '3.13'
            - '3.14'
+      target:
+         description: "Package extras to build"
+         default: 'all'
+         type: choice
+         options:
+           - 'all'
+           - 'all-dotnet'
 
 env:
   PACKAGE_NAME: 'PyAEDT'
@@ -63,7 +70,7 @@ jobs:
         python-version: ['3.10','3.11','3.12','3.13', '3.14']
     steps:
       - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ github.event.inputs.pyaedt-branch }}
           persist-credentials: false
@@ -76,7 +83,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -94,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ github.event.inputs.pyaedt-branch }}
           persist-credentials: false
@@ -107,7 +114,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ubuntu-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -129,7 +136,7 @@ jobs:
         python-version: ['3.10','3.11','3.12','3.13', '3.14']
     steps:
       - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ github.event.inputs.pyaedt-branch }}
           persist-credentials: false
@@ -142,7 +149,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ matrix.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -160,7 +167,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Clone PyAEDT using specified input branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ github.event.inputs.pyaedt-branch }}
           persist-credentials: false
@@ -173,7 +180,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: windows-latest
           python-version: ${{ github.event.inputs.python-version }}
-          target: 'all'
+          target: ${{ github.event.inputs.target }}
           use-python-cache: false
           whitelist-license-check: 'fpdf2'
 
@@ -195,14 +202,18 @@ jobs:
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: '["3.10", "3.11", "3.12", "3.13", "3.14"]'
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}
 
   build-wheelhouse-rocky-single:
     if: github.event.inputs.build-rocky-wheels == 'yes' && github.event.inputs.python-version != 'all'
     name: Build wheelhouse (Rocky Linux)
     permissions:
-      contents: read
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
     uses: ./.github/workflows/reusable-smoke-tests-rocky.yml
     with:
       python-versions: ${{ format('["{0}"]', github.event.inputs.python-version) }}
+      extras: ${{ format('["{0}"]', github.event.inputs.target) }}
       checkout-ref: ${{ github.event.inputs.pyaedt-branch }}

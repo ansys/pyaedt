@@ -28,7 +28,7 @@ jobs:
       pull-requests: write # Needed to add existing labels to PRs
       issues: write # Needed to create labels that do not already exist
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - uses: micnncim/action-label-syncer@3abd5ab72fda571e69fffd97bd4e0033dd5f495c # v1.3.0
@@ -87,7 +87,7 @@ jobs:
 
       # Label based on trailers in PR description and commit messages
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           sparse-checkout: .github/actions/label-from-trailers/action.yml
           persist-credentials: false
@@ -144,11 +144,11 @@ jobs:
     name: Check PR template
     # NOTE: Disable checking for dependabot and other automated PRs
     if: |
-      github.event.pull_request.title != 'CHORE: Pre-commit automatic update' &&
       !startsWith(github.event.pull_request.title, 'BUILD(uv):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(actions):') &&
       !startsWith(github.event.pull_request.title, 'BUILD(pre-commit):') &&
-      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v')
+      !startsWith(github.event.pull_request.title, 'CHORE: update CHANGELOG for v') &&
+      github.event.pull_request.user.login != 'pyansys-automation'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read   # Required to read PR content for validation

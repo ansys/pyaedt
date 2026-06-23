@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from collections import defaultdict
 import copy
 from datetime import datetime
@@ -2419,7 +2420,6 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     @pyaedt_function_handler()
     def import_config(self, config_file: str, *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
-
 
         Parameters
         ----------

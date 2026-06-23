@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -855,7 +855,7 @@ def _run_ss() -> dict[int, int]:
     for pid, lines in results_pid.items():
         for line in lines:
             # Fall back to the plain TCP port pattern (RE_PORT).
-            # Only accept ports within the known AEDT gRPC range (50051-50100).
+            # Only accept ports within the known AEDT gRPC range (50051 - 50100).
             insecure_line = RE_PORT.search(line)
             if insecure_line:
                 port = int(insecure_line.group(1))

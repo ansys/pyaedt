@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,6 +30,7 @@ provided by the launcher
 """
 
 import atexit
+import builtins
 import os
 from pathlib import Path
 import sys
@@ -41,12 +42,12 @@ print("Loading the PyAEDT Console.")
 
 
 try:
-    from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core import settings
     from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core import settings
+
     settings.release_on_exception = False
 
 except (ImportError, ModuleNotFoundError):
@@ -56,12 +57,12 @@ except (ImportError, ModuleNotFoundError):
     if "PersonalLib" in console_setup_dir.parts:
         sys.path.append(str(console_setup_dir / ".." / ".." / ".." / ".." / ".."))
 
-    from ansys.aedt.core import *  # noqa: F401
     from ansys.aedt.core import Desktop
+    from ansys.aedt.core import settings
     from ansys.aedt.core.generic.file_utils import available_file_name
     from ansys.aedt.core.generic.general_methods import active_sessions
     from ansys.aedt.core.generic.general_methods import is_windows
-    from ansys.aedt.core import settings
+
     settings.release_on_exception = False
 
 if is_windows:
@@ -162,11 +163,10 @@ if not error:
         atexit.register(release, desktop)
 
 if version > "2023.1":
-
     log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
     log_file = available_file_name(log_file)
 
-    with open(log_file, 'a', encoding='utf-8') as f:
+    with open(log_file, "a", encoding="utf-8") as f:
         f.write("# PyAEDT script recorded from PyAEDT Console:\n\n")
         f.write("import ansys.aedt.core\n")
         f.write("from ansys.aedt.core import *\n")
@@ -181,10 +181,10 @@ if version > "2023.1":
             command = result.info.raw_cell.strip()
 
             # Avoid logging empty lines, comments, or the hook code itself
-            if command and not command.startswith('#') and "log_successful_command" not in command:
+            if command and not command.startswith("#") and "log_successful_command" not in command:
                 try:
                     # Append the successful command to the log file
-                    with open(log_file, 'a', encoding='utf-8') as f:
+                    with open(log_file, "a", encoding="utf-8") as f:
                         f.write(command + "\n")
                 except Exception as e:
                     # Handle potential file writing errors
@@ -192,10 +192,11 @@ if version > "2023.1":
 
     try:
         # Register the Hook
-        ip = get_ipython()
+        _get_ipython = getattr(builtins, "get_ipython", None)
+        ip = _get_ipython() if _get_ipython else None
         if ip:
             # Register the function to run after every command execution
-            ip.events.register('post_run_cell', log_successful_command)
+            ip.events.register("post_run_cell", log_successful_command)
             # Inform the user that logging is active
             print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
             print(" ")
