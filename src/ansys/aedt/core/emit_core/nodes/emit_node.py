@@ -757,7 +757,7 @@ class EmitNode:
         ValueError
             If the node is read-only and cannot be renamed.
         """
-        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
+        warnings.warn("This method is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
         self.name = requested_name
 
         return self.name
