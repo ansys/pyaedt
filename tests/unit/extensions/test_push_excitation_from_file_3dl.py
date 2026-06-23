@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the
-# following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import tkinter
 from tkinter import TclError
@@ -38,7 +37,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl impor
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_main_function_exceptions():
+def test_main_function_exceptions() -> None:
     """Test exceptions in the main function."""
     # Test with no choice
     data = PushExcitation3DLayoutExtensionData(choice="")
@@ -67,7 +66,7 @@ def mock_hfss3dl_app_with_excitations(mock_hfss_3d_layout_app):
 
 def test_push_excitation_3dlayout_extension_default(
     mock_hfss3dl_app_with_excitations,
-):
+) -> None:
     """Test instantiation of the Push Excitation 3D Layout extension."""
     extension = PushExcitation3DLayoutExtension(withdraw=True)
 
@@ -79,7 +78,7 @@ def test_push_excitation_3dlayout_extension_default(
 
 def test_push_excitation_3dlayout_extension_generate_button(
     mock_hfss3dl_app_with_excitations,
-):
+) -> None:
     """Test the generate button in the Push Excitation 3D Layout
     extension.
     """
@@ -102,7 +101,7 @@ def test_push_excitation_3dlayout_extension_generate_button(
 
 def test_push_excitation_3dlayout_extension_exceptions(
     mock_hfss3dl_app_with_excitations,
-):
+) -> None:
     """Test exceptions in the Push Excitation 3D Layout extension."""
     # Test exception when no excitations exist
     mock_hfss3dl_app_with_excitations.excitation_names = []
@@ -143,7 +142,7 @@ def test_push_excitation_3dlayout_extension_exceptions(
 
 def test_push_excitation_3dlayout_extension_browse_files(
     mock_hfss3dl_app_with_excitations,
-):
+) -> None:
     """Test the browse files functionality."""
     extension = PushExcitation3DLayoutExtension(withdraw=True)
 
@@ -167,7 +166,7 @@ def test_push_excitation_3dlayout_extension_browse_files(
     assert "selected_file.csv" == file_content
 
 
-def test_push_excitation_3dlayout_extension_wrong_design_type():
+def test_push_excitation_3dlayout_extension_wrong_design_type() -> None:
     """Test exception when design type is not HFSS 3D Layout."""
     mock_app = MagicMock()
     mock_app.design_type = "HFSS"
@@ -187,7 +186,7 @@ def test_push_excitation_3dlayout_extension_wrong_design_type():
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.get_pyaedt_app")
-def test_main_function_success(mock_get_pyaedt_app, mock_desktop):
+def test_main_function_success(mock_get_pyaedt_app, mock_desktop) -> None:
     """Test successful execution of main function."""
     # Mock the desktop and apps
     mock_app = MagicMock()
@@ -220,7 +219,7 @@ def test_main_function_success(mock_get_pyaedt_app, mock_desktop):
 
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
-def test_main_function_no_active_project(mock_desktop):
+def test_main_function_no_active_project(mock_desktop) -> None:
     """Test main function when no active project exists."""
     mock_app = MagicMock()
     mock_desktop.return_value = mock_app
@@ -234,7 +233,7 @@ def test_main_function_no_active_project(mock_desktop):
 
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
-def test_main_function_no_active_design(mock_desktop):
+def test_main_function_no_active_design(mock_desktop) -> None:
     """Test main function when no active design exists."""
     mock_app = MagicMock()
     mock_desktop.return_value = mock_app
@@ -252,7 +251,7 @@ def test_main_function_no_active_design(mock_desktop):
 
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
-def test_main_function_wrong_design_type(mock_desktop):
+def test_main_function_wrong_design_type(mock_desktop) -> None:
     """Test main function with wrong design type."""
     mock_app = MagicMock()
     mock_desktop.return_value = mock_app
@@ -277,7 +276,7 @@ def test_main_function_wrong_design_type(mock_desktop):
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.get_pyaedt_app")
-def test_main_function_wrong_app_design_type(mock_get_pyaedt_app, mock_desktop):
+def test_main_function_wrong_app_design_type(mock_get_pyaedt_app, mock_desktop) -> None:
     """Test main function when pyaedt app has wrong design type."""
     # Mock the desktop and apps
     mock_app = MagicMock()
@@ -306,7 +305,7 @@ def test_main_function_wrong_app_design_type(mock_get_pyaedt_app, mock_desktop):
             main(data)
 
 
-def test_push_excitation_3dlayout_extension_data_dataclass():
+def test_push_excitation_3dlayout_extension_data_dataclass() -> None:
     """Test the PushExcitation3DLayoutExtensionData dataclass."""
     # Test default values
     data = PushExcitation3DLayoutExtensionData()

@@ -9,9 +9,9 @@ You can initiate AEDT in non-graphical mode from Python using this code:
     import ansys.aedt.core
 
     with ansys.aedt.core.Desktop(
-        specified_version="2025.2",
+        version="2026.1",
         non_graphical=True,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
     ):
@@ -22,6 +22,9 @@ You can initiate AEDT in non-graphical mode from Python using this code:
     # AEDT is automatically closed here.
 
 The preceding code launches AEDT and initializes a new Circuit design.
+
+For more information about ``Desktop`` session lifecycle and the behavior of
+``close_on_exit``, see :doc:`desktop_sessions`.
 
 .. image:: ../Resources/aedt_first_page.png
   :width: 800

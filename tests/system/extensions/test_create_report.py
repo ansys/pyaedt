@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
 from pathlib import Path
@@ -35,7 +33,7 @@ from ansys.aedt.core.extensions.common.create_report import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_create_report_generate_button(add_app):
+def test_create_report_generate_button(add_app) -> None:
     """Test the Generate button in the Create Report extension."""
     aedt_app = add_app(application=Hfss)
 
@@ -62,7 +60,7 @@ def test_create_report_generate_button(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_custom_name(add_app):
+def test_create_report_custom_name(add_app) -> None:
     """Test creating a report with custom name."""
     data = CreateReportExtensionData(
         report_name="CustomReportName",
@@ -91,7 +89,7 @@ def test_create_report_custom_name(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_empty_name_exception():
+def test_create_report_empty_name_exception() -> None:
     """Test exception thrown when report name is empty."""
     data = CreateReportExtensionData(report_name="", open_report=False, save_path="")
 
@@ -101,7 +99,7 @@ def test_create_report_empty_name_exception():
     assert "Report name cannot be empty" in str(excinfo.value)
 
 
-def test_create_report_different_design_types(add_app):
+def test_create_report_different_design_types(add_app) -> None:
     """Test report creation for different design types."""
     # Test HFSS 3D Layout Design (should set design_name to None)
     data = CreateReportExtensionData(report_name="Layout_Report", open_report=False, save_path="")
@@ -128,7 +126,7 @@ def test_create_report_different_design_types(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_with_plots(add_app):
+def test_create_report_with_plots(add_app) -> None:
     """Test report creation when plots exist."""
     data = CreateReportExtensionData(report_name="ReportWithPlots", open_report=False, save_path="")
 
@@ -161,7 +159,7 @@ def test_create_report_with_plots(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_open_report_false(add_app):
+def test_create_report_open_report_false(add_app) -> None:
     """Test report creation with open_report set to False."""
     data = CreateReportExtensionData(report_name="NoOpenReport", open_report=False, save_path="")
 
@@ -187,7 +185,7 @@ def test_create_report_open_report_false(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_extension_ui_integration(add_app):
+def test_create_report_extension_ui_integration(add_app) -> None:
     """Test the full extension UI integration."""
     aedt_app = add_app(
         application=Hfss,
@@ -222,7 +220,7 @@ def test_create_report_extension_ui_integration(add_app):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_custom_save_path(add_app, test_tmp_dir):
+def test_create_report_custom_save_path(add_app, test_tmp_dir) -> None:
     """Test creating a report with custom save path."""
     aedt_app = add_app(
         application=Hfss,
@@ -251,7 +249,7 @@ def test_create_report_custom_save_path(add_app, test_tmp_dir):
     aedt_app.close_project(save=False)
 
 
-def test_create_report_empty_save_path_default(add_app):
+def test_create_report_empty_save_path_default(add_app) -> None:
     """Test that empty save path defaults to working directory."""
     aedt_app = add_app(
         application=Hfss,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import json
 import shutil
 from unittest.mock import patch
@@ -46,7 +47,7 @@ def hfss_app(add_app):
 
 @pytest.mark.skipif(is_linux, reason="EDB load of Layout component failing in Linux.")
 @patch("tkinter.filedialog.askopenfilename")
-def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
+def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir) -> None:
     """Test the examples provided in the via design extension."""
     shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
     config_file = test_tmp_dir / "config.json"

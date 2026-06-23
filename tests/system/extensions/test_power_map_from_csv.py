@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import shutil
 
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
@@ -35,7 +34,7 @@ TEST_SUBFOLDER = "T45"
 CSV_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / CSV_FILENAME
 
 
-def test_power_map_success(add_app, test_tmp_dir):
+def test_power_map_success(add_app, test_tmp_dir) -> None:
     """Test the successful execution of the power map creation in Icepak."""
     file = test_tmp_dir / CSV_FILENAME
     shutil.copy2(CSV_FILE_PATH, file)

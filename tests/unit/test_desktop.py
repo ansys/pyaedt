@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,16 +33,24 @@ from ansys.aedt.core.desktop import TransportMode
 from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
 from ansys.aedt.core.desktop import _find_free_port
-from ansys.aedt.core.desktop import _is_port_occupied
+from ansys.aedt.core.desktop import _get_design_display_name
 from ansys.aedt.core.desktop import _ServerArgs
+from ansys.aedt.core.generic.general_methods import _is_port_occupied
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=False)
 def mock_desktop():
-    """Fixture used to mock the creation of a Desktop instance."""
-    with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
+    """Fixture used to mock the creation of a Desktop instance.
+
+    Patching __del__ is necessary to avoid side effects associated to the logic of
+    releasing and closing the desktop.
+    """
+    with (
+        patch("ansys.aedt.core.desktop.Desktop.__init__", lambda self, *args, **kwargs: None),
+        patch("ansys.aedt.core.desktop.Desktop.__del__", lambda x: None),
+    ):
         yield
 
 
@@ -54,7 +62,7 @@ def mock_settings():
 
 
 @patch("socket.socket")
-def test_is_port_occupied_on_occupied_port(mock_socket_class):
+def test_is_port_occupied_on_occupied_port(mock_socket_class) -> None:
     """Test _is_port_occupied on an occupied port."""
     mock_socket = MagicMock()
     mock_socket.connect_ex.return_value = 0
@@ -64,7 +72,7 @@ def test_is_port_occupied_on_occupied_port(mock_socket_class):
 
 
 @patch("socket.socket")
-def test_is_port_occupied_on_unoccupied_port(mock_socket_class):
+def test_is_port_occupied_on_unoccupied_port(mock_socket_class) -> None:
     """Test _is_port_occupied on an unoccupied port."""
     mock_socket = MagicMock()
     mock_socket.connect_ex.return_value = 1
@@ -76,14 +84,14 @@ def test_is_port_occupied_on_unoccupied_port(mock_socket_class):
 # Test _find_free_port
 @patch("ansys.aedt.core.desktop.active_sessions", return_value={})
 @patch("socket.socket")
-def test_find_free_port(mock_socket, mock_active_sessions):
+def test_find_free_port(mock_socket, mock_active_sessions) -> None:
     mock_socket.return_value.getsockname.return_value = ("127.0.0.1", 12345)
     port = _find_free_port()
     assert port == 12345
 
 
 # Test Desktop.get_available_toolkits() static method
-def test_get_available_toolkits():
+def test_get_available_toolkits() -> None:
     toolkits = Desktop.get_available_toolkits()
     result = ["Circuit", "HFSS", "HFSS3DLayout", "Icepak", "Maxwell3D", "Project", "TwinBuilder"]
     all(elem in toolkits for elem in result)
@@ -91,7 +99,7 @@ def test_get_available_toolkits():
 
 @patch.object(Settings, "use_grpc_api", new_callable=lambda: True)
 @patch("time.sleep", return_value=None)
-def test_desktop_odesktop_retries(mock_settings, mock_sleep):
+def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop) -> None:
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
     desktop.grpc_plugin = MagicMock()
@@ -105,7 +113,7 @@ def test_desktop_odesktop_retries(mock_settings, mock_sleep):
     assert mock_odesktop.call_count == 2
 
 
-def test_desktop_odesktop_setter():
+def test_desktop_odesktop_setter(mock_desktop) -> None:
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
     aedt_app = MagicMock()
@@ -118,7 +126,49 @@ def test_desktop_odesktop_setter():
     assert desktop.odesktop == aedt_app
 
 
-def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
+@pytest.mark.parametrize(
+    ("design_type", "raw_name", "design_name", "expected"),
+    [
+        ("HFSS", "Design1", None, "Design1"),
+        ("HFSS 3D Layout Design", "Layout;Ignored", "Layout1", "Layout1"),
+        ("Circuit Design", "Circuit;Design1", None, "Design1"),
+        ("Twin Builder", "Twin Builder;Design2", None, "Design2"),
+        ("Circuit Design", "Design1", None, "Design1"),
+    ],
+)
+def test_get_design_display_name(design_type, raw_name, design_name, expected) -> None:
+    design = MagicMock()
+    design.GetDesignType.return_value = design_type
+    design.GetName.return_value = raw_name
+    if design_name is not None:
+        design.GetDesignName.return_value = design_name
+
+    assert _get_design_display_name(design) == expected
+
+
+def test_desktop_active_project_name(mock_desktop) -> None:
+    desktop = Desktop()
+    project = MagicMock()
+    project.GetName.return_value = "Project1"
+    desktop.active_project = MagicMock(return_value=project)
+
+    assert desktop.active_project_name == "Project1"
+
+
+def test_desktop_active_design_name(mock_desktop) -> None:
+    desktop = Desktop()
+    project = MagicMock()
+    design = MagicMock()
+    design.GetDesignType.return_value = "Circuit Design"
+    design.GetName.return_value = "Circuit Design;Design1"
+    desktop.active_project = MagicMock(return_value=project)
+    desktop.design_list = MagicMock(return_value=["Design1"])
+    desktop.active_design = MagicMock(return_value=design)
+
+    assert desktop.active_design_name == "Design1"
+
+
+def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings) -> None:
     """Test _check_settings failure due to num_cores value."""
     settings = Settings()
     settings.num_cores = -1
@@ -127,7 +177,7 @@ def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
+def test_desktop_check_settings_failure_with_lsf_ram(mock_settings) -> None:
     """Test _check_settings failure due to lsf_ram value."""
     settings = Settings()
     settings.num_cores = 1
@@ -137,7 +187,7 @@ def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings):
+def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings) -> None:
     """Test _check_settings failure due to lsf_aedt_command value."""
     settings = Settings()
     settings.num_cores = 1
@@ -148,7 +198,7 @@ def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_port_failure():
+def test_desktop_check_port_failure() -> None:
     """Test _check_port failure."""
     port = "twelve"
 
@@ -157,7 +207,7 @@ def test_desktop_check_port_failure():
 
 
 @patch("ansys.aedt.core.desktop.aedt_versions")
-def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop):
+def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop) -> None:
     mock_specified_version = MagicMock()
     mock_student_version = MagicMock()
     mock_aedt_versions.latest_version = ""
@@ -171,7 +221,7 @@ def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop):
 
 
 @patch("ansys.aedt.core.desktop.aedt_versions")
-def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_versions, mock_desktop):
+def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_versions, mock_desktop) -> None:
     mock_student_version = MagicMock()
     desktop = Desktop()
     specified_version = "2001.6"
@@ -183,7 +233,7 @@ def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_vers
 
 
 @patch("ansys.aedt.core.desktop.aedt_versions")
-def test_desktop_check_version_failure_with_unknown_specified_version(mock_aedt_versions, mock_desktop):
+def test_desktop_check_version_failure_with_unknown_specified_version(mock_aedt_versions, mock_desktop) -> None:
     desktop = Desktop()
     specified_version = "2022.6"
 
@@ -196,7 +246,7 @@ def test_desktop_check_version_failure_with_unknown_specified_version(mock_aedt_
     [(TransportMode.WNUA, None), (TransportMode.WNUA, 12345), (TransportMode.UDS, None), (TransportMode.UDS, 12345)],
 )
 @patch("ansys.aedt.core.desktop.settings")
-def test_grpc_server_args_repr_local(mock_settings, mode, port, monkeypatch):
+def test_grpc_server_args_repr_local(mock_settings, mode, port, monkeypatch) -> None:
     """Test the string representation of _ServerArgs for WNUA and UDS modes."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
@@ -207,11 +257,12 @@ def test_grpc_server_args_repr_local(mock_settings, mode, port, monkeypatch):
 
 @pytest.mark.parametrize("port", [None, 12345])
 @patch("ansys.aedt.core.desktop.settings")
-def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch):
+def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch) -> None:
     """Test the string representation of _ServerArgs for MTLS mode."""
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", "dummy_path")
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.MTLS)
@@ -220,10 +271,11 @@ def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch):
 
 @pytest.mark.parametrize("port", [None, 12345])
 @patch("ansys.aedt.core.desktop.settings")
-def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch):
+def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch) -> None:
     """Test the string representation of _ServerArgs for Insecure mode."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = False
+    mock_settings.use_lsf_scheduler = False
     host = "127.0.0.1"
 
     server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)
@@ -232,7 +284,7 @@ def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch):
 
 @pytest.mark.parametrize("port", [None, 12345])
 @patch("ansys.aedt.core.desktop.settings")
-def test_grpc_server_args_repr_with_insecure_all_interfaces(mock_settings, port, monkeypatch):
+def test_grpc_server_args_repr_with_insecure_all_interfaces(mock_settings, port, monkeypatch) -> None:
     """Test the string representation of _ServerArgs for Insecure mode with listen on all interfaces."""
     mock_settings.grpc_local = False
     mock_settings.grpc_listen_all = True
@@ -243,10 +295,112 @@ def test_grpc_server_args_repr_with_insecure_all_interfaces(mock_settings, port,
 
 
 @patch("ansys.aedt.core.desktop.settings")
-def test_grpc_server_args_repr_with_insecure_all_raise_error(mock_settings, monkeypatch):
+def test_grpc_server_args_repr_with_insecure_all_raise_error(mock_settings, monkeypatch) -> None:
     """Test that _ServerArgs raises an error when both local and listen_all are True."""
     mock_settings.grpc_local = True
     mock_settings.grpc_listen_all = True
 
     with pytest.raises(AEDTRuntimeError):
         str(_ServerArgs(mode=TransportMode.INSECURE))
+
+
+def _patch_init_dependencies(monkeypatch, *, new_desktop_after_grpc):
+    """Patch dependencies so Desktop.__init__ runs real logic without launching/connecting AEDT."""
+    # No real environment side-effects
+    monkeypatch.setattr("ansys.aedt.core.desktop.atexit.register", lambda *args, **kwargs: None)
+
+    # Keep version checks/log setup no-op
+    monkeypatch.setattr(Desktop, "_Desktop__check_version", lambda self, version, student: None)
+    monkeypatch.setattr(Desktop, "_Desktop__set_logger_file", lambda self: None)
+    monkeypatch.setattr(Desktop, "_Desktop__init_desktop", lambda self: None)
+    monkeypatch.setattr(Desktop, "_check_new_desktop", lambda self, pid, student: None)
+
+    # Use grpc path deterministically
+    monkeypatch.setattr(Desktop, "check_starting_mode", lambda self: setattr(self, "_Desktop__starting_mode", "grpc"))
+
+    # Prevent real AEDT launch/connect and force runtime outcome (new vs existing)
+    def _fake_init_grpc(self):
+        self.new_desktop = new_desktop_after_grpc
+        self._Desktop__aedt_process_id = 12345
+        self.odesktop = MagicMock()
+        return True
+
+    monkeypatch.setattr(Desktop, "_Desktop__init_grpc", _fake_init_grpc)
+
+    # Ensure we are not inside AEDT python and no special mode
+    monkeypatch.setattr("ansys.aedt.core.desktop.aedt_versions.is_pyaedt_in_edt", lambda: False)
+
+
+def test_close_on_exit_default_none_new_session_sets_true(monkeypatch):
+    _patch_init_dependencies(monkeypatch, new_desktop_after_grpc=True)
+
+    d = Desktop(version="2026.1", close_on_exit=None)
+
+    assert d.close_on_exit is True
+
+
+def test_close_on_exit_default_none_existing_session_sets_false(monkeypatch):
+    _patch_init_dependencies(monkeypatch, new_desktop_after_grpc=False)
+
+    d = Desktop(version="2026.1", close_on_exit=None)
+
+    assert d.close_on_exit is False
+
+
+def test_close_on_exit_explicit_false_overrides_runtime(monkeypatch):
+    _patch_init_dependencies(monkeypatch, new_desktop_after_grpc=True)
+
+    d = Desktop(version="2026.1", close_on_exit=False)
+
+    assert d.close_on_exit is False
+
+
+def test_context_manager_default_none_always_closes_even_if_existing_session(monkeypatch):
+    _patch_init_dependencies(monkeypatch, new_desktop_after_grpc=False)
+
+    close_calls = {"close": 0, "release": 0}
+
+    def _fake_close(self):
+        close_calls["close"] += 1
+        return True
+
+    def _fake_release(self, close_projects=True, close_on_exit=True):
+        close_calls["release"] += 1
+        return True
+
+    monkeypatch.setattr(Desktop, "close_desktop", _fake_close)
+    monkeypatch.setattr(Desktop, "release_desktop", _fake_release)
+
+    with Desktop(version="2026.1", close_on_exit=None):
+        pass
+
+    assert close_calls["close"] == 1
+    assert close_calls["release"] == 0
+
+
+@pytest.mark.parametrize("user_choice", [True, False])
+def test_context_manager_respects_explicit_user_choice(monkeypatch, user_choice):
+    _patch_init_dependencies(monkeypatch, new_desktop_after_grpc=False)
+
+    close_calls = {"close": 0, "release": 0}
+
+    def _fake_close(self):
+        close_calls["close"] += 1
+        return True
+
+    def _fake_release(self, close_projects=True, close_on_exit=True):
+        close_calls["release"] += 1
+        return True
+
+    monkeypatch.setattr(Desktop, "close_desktop", _fake_close)
+    monkeypatch.setattr(Desktop, "release_desktop", _fake_release)
+
+    with Desktop(version="2026.1", close_on_exit=user_choice):
+        pass
+
+    if user_choice:
+        assert close_calls["close"] == 1
+        assert close_calls["release"] == 0
+    else:
+        assert close_calls["close"] == 0
+        assert close_calls["release"] == 1

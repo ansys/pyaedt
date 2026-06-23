@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.extensions.maxwell3d.create_coil import EXTENSION_TITLE
 from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
 
 
-def test_extension_default(mock_maxwell_3d_app):
+def test_extension_default(mock_maxwell_3d_app) -> None:
     """Test instantiation of the Advanced Fields Calculator extension."""
     extension = CoilExtension(withdraw=True)
 
@@ -41,7 +40,7 @@ def test_extension_default(mock_maxwell_3d_app):
     extension.root.destroy()
 
 
-def test_create_button(mock_maxwell_3d_app):
+def test_create_button(mock_maxwell_3d_app) -> None:
     extension = CoilExtension(withdraw=True)
 
     create_button = str(extension.root.winfo_children()[3])
@@ -66,7 +65,7 @@ def test_create_button(mock_maxwell_3d_app):
     assert getattr(data, "looping_position") == "0.5"
 
 
-def test_is_vertical_checkbox(mock_maxwell_3d_app):
+def test_is_vertical_checkbox(mock_maxwell_3d_app) -> None:
     """Test check and uncheck of the vertical coil checkbox."""
     extension = CoilExtension(withdraw=True)
 

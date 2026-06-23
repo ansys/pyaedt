@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import shutil
 
 import pytest
@@ -40,7 +39,7 @@ TEST_SUBFOLDER = "T45"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
-def test_cutout_success(add_app_example, test_tmp_dir):
+def test_cutout_success(add_app_example, test_tmp_dir) -> None:
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
     test_project = test_tmp_dir / (AEDB_FILE_NAME + ".aedb")
     shutil.copytree(SI_VERSE_PATH, test_project)
@@ -179,10 +178,10 @@ def test_cutout_success(add_app_example, test_tmp_dir):
     )
 
     # Check with Edb that nets exist in the original AEDB file.
-    edb_app = Edb(edbpath=str(test_project), edbversion=DESKTOP_VERSION)
+    edb_app = Edb(edbpath=str(test_project), version=DESKTOP_VERSION)
     edb_app_nets = edb_app.nets
     assert all(net in edb_app_nets for net in SIGNAL_NETS + REFERENCE_NETS + OTHER_NETS)
-    edb_app.close_edb()
+    edb_app.close()
 
     # Perform the cutout operation.
     app = add_app_example(
@@ -197,10 +196,10 @@ def test_cutout_success(add_app_example, test_tmp_dir):
     # Check that the cutout AEDB file was created and contains the expected nets.
     assert cutout_path.exists()
     try:
-        cutout_app = Edb(edbpath=str(cutout_path), edbversion=DESKTOP_VERSION)
+        cutout_app = Edb(edbpath=str(cutout_path), version=DESKTOP_VERSION)
     except IndexError as e:
         pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
     assert not any(net in cutout_app_nets for net in OTHER_NETS)
-    cutout_app.close_edb()
+    cutout_app.close()

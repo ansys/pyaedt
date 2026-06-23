@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +46,7 @@ class _MatrixData:
 class InterferenceClassificationExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for Protection Level and Interference Type classification."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self._matrix = {"protection": None, "interference": None}
         self._filters_interf = {}
         self._filters_prot = {}
@@ -61,12 +62,11 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._default_protection_levels = [30.0, -4.0, -30.0, -104.0]  # Damage, Overload, Intermod, Desensitization
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
         )
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         root = self.root
         # Initialize Tk variables bound to the current root
         self._filters_interf = {
@@ -278,7 +278,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._widgets["canvas_int"] = canvas_int
 
     # ---------------- Event handlers -----------------
-    def _on_run_interference(self):
+    def _on_run_interference(self) -> None:
         """Generate interference type classification results."""
         try:
             filters = self._build_interf_filters()
@@ -288,7 +288,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate interference results: {e}")
 
-    def _on_run_protection(self):
+    def _on_run_protection(self) -> None:
         """Generate protection level classification results."""
         try:
             filters = [k for k, v in self._filters_prot.items() if bool(v.get())]
@@ -314,7 +314,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 vals.append(0.0)
         return vals
 
-    def _on_radio_specific_toggle(self):
+    def _on_radio_specific_toggle(self) -> None:
         """Configure legend and protection levels when radio-specific toggle changes."""
         enabled = bool(self._radio_specific_var.get())
         if enabled:
@@ -366,7 +366,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 entry.delete(0, tkinter.END)
                 entry.insert(0, str(values[i]))
 
-    def _on_export_excel(self):
+    def _on_export_excel(self) -> None:
         """Export the current results matrix to an Excel file."""
         from tkinter import filedialog
 
@@ -501,7 +501,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         cnv = self._widgets["canvas_int"] if tab == "interference" else self._widgets["canvas_prot"]
 
         # Draw a resizable grid with per-cell backgrounds and values
-        def draw_table(_event=None):
+        def draw_table(_event=None) -> None:
             cnv.delete("all")
             W = max(cnv.winfo_width(), 200)
             H = max(cnv.winfo_height(), 150)

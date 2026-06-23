@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import datetime
 from pathlib import Path
 import shutil
 import sys
-from typing import List
 
 import pandas as pd
 import pytest
@@ -41,7 +42,7 @@ from tests.conftest import SYSTEM_SOLVERS_TEST_PREFIX
 from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
-def _collect_archives_from_path(path_obj: Path) -> List[Path]:
+def _collect_archives_from_path(path_obj: Path) -> list[Path]:
     """Return a list of .aedtz/.aedt files under the provided path."""
     if path_obj.is_file() and path_obj.suffix.lower() in (".aedtz", ".aedt"):
         return [path_obj]
@@ -59,13 +60,13 @@ def pyaedt_root():
     return Path(__file__).parent.parent.parent.parent
 
 
-def _download_archives(folder: str, dest: Path) -> List[Path]:
+def _download_archives(folder: str, dest: Path) -> list[Path]:
     """Download one or more solved project archives."""
     dest.mkdir(parents=True, exist_ok=True)
 
     # The download_file API can differ; try common call styles gracefully.
-    candidates: List[Path] = []
-    errors: List[str] = []
+    candidates: list[Path] = []
+    errors: list[str] = []
     result = None
 
     try:
@@ -166,7 +167,7 @@ def _exercise_profile_object(profile) -> None:
         (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),
     ],
 )
-def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder):
+def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder) -> None:
     # Download one or more archives for this application class.
     archives = _download_archives(folder=folder, dest=test_tmp_dir / "downloads")
     if not archives:
@@ -174,40 +175,29 @@ def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder):
 
     # Iterate archives until we find at least one profile to validate.
     found_any_profile = False
-    last_error: Exception | None = None
 
     for archive in archives:
         app = None
-        try:
-            # Prefer the extracted .aedt if present next to .aedtz. Used
-            # for local test and debugging.
-            aedt_candidate = archive.with_suffix(".aedt")
-            project_file = aedt_candidate if aedt_candidate.exists() else archive
+        # Prefer the extracted .aedt if present next to .aedtz. Used
+        # for local test and debugging.
+        aedt_candidate = archive.with_suffix(".aedt")
+        project_file = aedt_candidate if aedt_candidate.exists() else archive
 
-            app = add_app(project=project_file, application=app_cls)
+        app = add_app(project=project_file, application=app_cls)
 
-            # Request all profiles available on the design.
-            profiles = app.get_profile()
-            assert profiles
+        # Request all profiles available on the design.
+        profiles = app.get_profile()
+        assert profiles
 
-            # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
-            for _, prof in profiles.items():
-                _exercise_profile_object(prof)
-                found_any_profile = True
-                # It is enough to validate at least one profile per application archive.
-                break
+        # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
+        for _, prof in profiles.items():
+            _exercise_profile_object(prof)
+            found_any_profile = True
+            # It is enough to validate at least one profile per application archive.
+            break
 
-            if found_any_profile:
-                break
-        except Exception as ex:  # pragma: no cover - robustness for CI/licensing variability
-            last_error = ex
-            continue
-        finally:
-            if app:
-                app.close_project(save=False)
+        if found_any_profile:
+            break
 
-    if not found_any_profile:
-        if last_error:
-            pytest.skip(f"Could not retrieve profiles for {app_cls.__name__} due to: {last_error}")
-        else:
-            pytest.skip(f"No profiles were available in any setup for {app_cls.__name__}.")
+    if app:
+        app.close_project(save=False)

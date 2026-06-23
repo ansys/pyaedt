@@ -17,8 +17,34 @@ app methods and can be used to edit or delete a boundary condition.
    q3d_boundary.Matrix
    maxwell_boundary.MaxwellParameters
    maxwell_boundary.MaxwellMatrix
+   maxwell_boundary.MaxwellReducedMatrix
+   maxwell_boundary.MaxwellReducedMatrixOperation
+   maxwell_boundary.MaxwellForce
+   maxwell_boundary.MaxwellTorque
+   maxwell_boundary.MaxwellLayoutForce
    layout_boundary.BoundaryObject3dLayout
    icepak_boundary.NetworkObject
+
+Maxwell Matrices
+----------------
+To facilitate matrix assignment in Maxwell, multiple classes have been created.
+These classes help to easily create matrix for different Maxwell solvers for both Maxwell3D and Maxwell2D.
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.maxwell_boundary
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MatrixElectric
+   SourceMagnetostatic
+   GroupSourcesMagnetostatic
+   MatrixMagnetostatic
+   SourceACMagnetic
+   MatrixACMagnetic
+   RLSourceACMagneticAPhi
+   GCSourceACMagneticAPhi
+   MatrixACMagneticAPhi
 
 Circuit excitations
 -------------------

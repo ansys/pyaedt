@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import pytest
 
 TEST_SUBFOLDER = "flatten_component"
@@ -36,5 +35,5 @@ def flatten(add_app_example):
     app.close_project(save=False)
 
 
-def test_flatten_3d_components(flatten):
+def test_flatten_3d_components(flatten) -> None:
     assert flatten.flatten_3d_components()

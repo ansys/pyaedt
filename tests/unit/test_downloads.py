@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,6 +47,10 @@ def test_download_touchstone(test_tmp_dir):
 
 def test_download_netlist(test_tmp_dir):
     assert downloads.download_netlist(test_tmp_dir)
+    # Example already downloaded
+    assert downloads.download_netlist(test_tmp_dir)
+    # Delete examples
+    assert downloads.delete_downloads()
 
 
 def test_download_sbr(test_tmp_dir):

@@ -46,7 +46,7 @@ Quick: Update from wheelhouse
 
 Notes
 =====
-- Uses ``uv pip`` when available; falls back to ``python -m pip`` automatically.
+- Uses ``python -m pip``.
 - Git must be on PATH for branch installs.
 - Wheelhouse ZIP must match Python version and OS.
 - A downgrade occurs only if your installed version is newer than the latest

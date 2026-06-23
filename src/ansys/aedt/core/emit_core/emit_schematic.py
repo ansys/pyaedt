@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -31,7 +30,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
-    def __init__(self, emit_instance):
+    def __init__(self, emit_instance) -> None:
         """Initialize the EmitSchematic class.
 
         Parameters
@@ -189,7 +188,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
 
     @pyaedt_function_handler
-    def connect_components(self, component_name_1: str, component_name_2: str) -> None:
+    def connect_components(self, component_name_1: str, component_name_2: str):
         """Connect two components in the schematic.
 
         Parameters

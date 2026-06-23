@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # Configuration file for the Sphinx_PyAEDT documentation builder.
 
 # -- Project information -----------------------------------------------------
@@ -5,6 +29,7 @@ import datetime
 from importlib import import_module
 import os
 import pathlib
+from pathlib import Path
 from pprint import pformat
 import shutil
 import sys
@@ -35,7 +60,7 @@ LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
 
 
-def visit_desc_content(self, node: Element) -> None:
+def visit_desc_content(self, node: Element):
     self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
 
@@ -84,7 +109,7 @@ def directory_size(directory_path):
     for path, _, files in os.walk(directory_path):
         for f in files:
             fp = os.path.join(path, f)
-            res += os.stat(fp).st_size
+            res += Path.stat(fp).st_size
     # Convert in megabytes
     res /= 1e6
     return res
@@ -298,13 +323,20 @@ html_theme_options = {
         "limit": 10,
         "ignoreLocation": True,
     },
-    "cheatsheet": {
+}
+
+
+def is_enabled_env_var(name, default="true"):
+    return os.getenv(name, default).strip().lower() not in {"0", "false", "no", "off"}
+
+
+if is_enabled_env_var("PYAEDT_DOC_BUILD_CHEATSHEET"):
+    html_theme_options["cheatsheet"] = {
         "file": "cheatsheet/cheat_sheet.qmd",
         "pages": ["index", "Getting_started/index", "User_guide/index"],
         "title": "PyAEDT cheat sheet",
         "version": __version__,
-    },
-}
+    }
 
 # # Add button to download PDF
 # html_theme_options["icon_links"].append(

@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the
-# following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import tkinter
 from tkinter import TclError
@@ -38,7 +37,7 @@ from ansys.aedt.core.extensions.hfss.push_excitation_from_file import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_main_function_exceptions():
+def test_main_function_exceptions() -> None:
     """Test exceptions in the main function."""
     # Test with no choice
     data = PushExcitationExtensionData(choice="")
@@ -63,7 +62,7 @@ def mock_hfss_app_with_excitations(mock_hfss_app):
     yield mock_hfss_app
 
 
-def test_push_excitation_extension_default(mock_hfss_app_with_excitations):
+def test_push_excitation_extension_default(mock_hfss_app_with_excitations) -> None:
     """Test instantiation of the Push Excitation extension."""
     extension = PushExcitationExtension(withdraw=True)
 
@@ -73,7 +72,7 @@ def test_push_excitation_extension_default(mock_hfss_app_with_excitations):
     extension.root.destroy()
 
 
-def test_push_excitation_extension_generate_button(mock_hfss_app_with_excitations):
+def test_push_excitation_extension_generate_button(mock_hfss_app_with_excitations) -> None:
     """Test the generate button in the Push Excitation extension."""
     extension = PushExcitationExtension(withdraw=True)
 
@@ -94,7 +93,7 @@ def test_push_excitation_extension_generate_button(mock_hfss_app_with_excitation
 
 def test_push_excitation_extension_exceptions(
     mock_hfss_app_with_excitations,
-):
+) -> None:
     """Test exceptions in the Push Excitation extension."""
     # Test exception when no excitations exist
     mock_hfss_app_with_excitations.excitation_names = []
@@ -132,7 +131,7 @@ def test_push_excitation_extension_exceptions(
 
 def test_push_excitation_extension_browse_files(
     mock_hfss_app_with_excitations,
-):
+) -> None:
     """Test the browse files functionality."""
     extension = PushExcitationExtension(withdraw=True)
 
@@ -153,7 +152,7 @@ def test_push_excitation_extension_browse_files(
     assert "selected_file.csv" == file_content
 
 
-def test_push_excitation_extension_wrong_design_type():
+def test_push_excitation_extension_wrong_design_type() -> None:
     """Test exception when design type is not HFSS."""
     mock_hfss_app = MagicMock()
     mock_hfss_app.design_type = "Maxwell3D"

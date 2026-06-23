@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -72,7 +72,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
     objects_list: list = None
     solution_option: str = EXTENSION_DEFAULT_ARGUMENTS["solution_option"]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.objects_list is None:
             self.objects_list = EXTENSION_DEFAULT_ARGUMENTS["objects_list"].copy()
 
@@ -80,11 +80,10 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 class FieldsDistributionExtension(ExtensionCommon):
     """Extension for fields distribution in Maxwell."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=6,
@@ -119,7 +118,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         except Exception:
             return "Maxwell 3D"  # Default fallback
 
-    def check_design_type(self):
+    def check_design_type(self) -> None:
         """Check if the active design is a Maxwell design."""
         if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()
@@ -175,7 +174,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         for item in items_list:
             listbox.insert(tkinter.END, item)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Export options
         export_options_frame = tkinter.Frame(self.root, width=20)
@@ -271,7 +270,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["sample_points_entry"] = sample_points_entry
 
         # Points file button
-        def show_points_popup():
+        def show_points_popup() -> None:
             popup = tkinter.Toplevel(self.root)
             popup.title("Select an Option")
 
@@ -290,7 +289,7 @@ class FieldsDistributionExtension(ExtensionCommon):
                 anchor=tkinter.W
             )
 
-            def submit():
+            def submit() -> None:
                 if option_var.get() == "Option 1":
                     from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
                     from ansys.aedt.core.extensions.common.points_cloud import main as points_main
@@ -343,7 +342,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["export_file_entry"] = export_file_entry
 
         # Save as button
-        def save_as_files():
+        def save_as_files() -> None:
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
                 defaultextension="*.tab",
@@ -367,7 +366,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         buttons_frame.grid(row=5, column=0, pady=10, padx=15, sticky="ew")
         self._widgets["buttons_frame"] = buttons_frame
 
-        def callback_export():
+        def callback_export() -> None:
             points_file = self._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
             export_file = self._widgets["export_file_entry"].get("1.0", tkinter.END).strip()
             selected_export = self._widgets["export_options_lb"].curselection()
@@ -389,7 +388,7 @@ class FieldsDistributionExtension(ExtensionCommon):
             self.data = fields_data
             self.root.destroy()
 
-        def callback_preview():
+        def callback_preview() -> None:
             selected_export = self._widgets["export_options_lb"].curselection()
             if not selected_export:
                 messagebox.showerror("Error", "Please select an export option.")
@@ -427,7 +426,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self._widgets["preview_button"] = preview_button
 
 
-def main(data: FieldsDistributionExtensionData):
+def main(data: FieldsDistributionExtensionData) -> bool:
     """Main function to run the fields distribution extension."""
     if not data.export_file:
         raise AEDTRuntimeError("No export file specified.")
@@ -512,13 +511,17 @@ def main(data: FieldsDistributionExtensionData):
             if len(tmp) > 1:
                 csv_data.append(tmp)
 
-    if Path(export_file).suffix == ".csv" or Path(export_file).suffix == ".tab":
-        output_file = Path(export_file).with_suffix(Path(export_file).suffix)
-        write_csv(output_file, csv_data)
-    elif Path(export_file).suffix == ".npy":
-        output_file = Path(export_file).with_suffix(".npy")
-        array = np.array(csv_data)
-        np.save(output_file, array)
+    output_file = Path(export_file)
+    match output_file.suffix:
+        case ".csv":
+            write_csv(str(output_file), csv_data)
+        case ".tab":
+            write_csv(str(output_file), csv_data, delimiter="\t")
+        case ".npy":
+            array = np.array(csv_data)
+            np.save(output_file, array)
+        case _:
+            raise AEDTRuntimeError(f"{output_file.suffix} is not supported.")
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)

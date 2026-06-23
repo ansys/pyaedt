@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -60,11 +61,10 @@ class ConvertToCircuitExtensionData(ExtensionCommonData):
 class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
     """Extension for converting TwinBuilder designs to Circuit."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize extension class with title and theme
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=2,
@@ -96,7 +96,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         except Exception as e:
             raise AEDTRuntimeError(f"Failed to load Twin Builder designs: {str(e)}")
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         # Design selection
         label = ttk.Label(self.root, text="Select Twin Builder Design:", width=30, style="PyAEDT.TLabel")
@@ -124,7 +124,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         info_label.grid(row=1, column=0, columnspan=2, padx=15, pady=5)
         self._widgets["info_label"] = info_label
 
-        def callback(extension: ConvertToCircuitExtension):
+        def callback(extension: ConvertToCircuitExtension) -> None:
             data = ConvertToCircuitExtensionData()
             data.design_name = extension.combo_design.get()
             extension.data = data
@@ -142,7 +142,7 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         self._widgets["ok_button"] = ok_button
 
 
-def main(data: ConvertToCircuitExtensionData):
+def main(data: ConvertToCircuitExtensionData) -> bool:
     """Main function to run the convert to circuit extension."""
     if not data.design_name:
         raise AEDTRuntimeError("No design provided to the extension.")

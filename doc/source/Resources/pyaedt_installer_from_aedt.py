@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-# ruff: noqa: F821
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -279,7 +278,7 @@ def unzip_if_zip(path):
                 # Remove the nested zip file so it won't be processed again
                 try:
                     zpath.unlink()
-                except Exception:
+                except Exception:  # nosec B110
                     pass
 
     # Find all wheel files under the extracted tree
@@ -322,23 +321,12 @@ def install_pyaedt():
         venv_dir = Path(VENV_DIR, python_version)
         pip_exe = venv_dir / "Scripts" / "pip.exe"
         uv_exe = venv_dir / "Scripts" / "uv.exe"
-        activate_script = venv_dir / "Scripts" / "activate.bat"
     else:
         venv_dir = Path(VENV_DIR, python_version)
         pip_exe = venv_dir / "bin" / "pip"
         uv_exe = venv_dir / "bin" / "uv"
-        activate_script = venv_dir / "bin" / "activate"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
-        ld_library_path_dirs_to_add = [
-            r"{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
-                args.edt_root, args.python_version.replace(".", "_")
-            ),
-            r"{}/common/mono/Linux64/lib64".format(args.edt_root),
-            r"{}".format(args.edt_root),
-        ]
-        if args.version < "232":
-            ld_library_path_dirs_to_add.append(r"{}/Delcross".format(args.edt_root))
-        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
         os.environ["TK_LIBRARY"] = r"{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
@@ -360,20 +348,9 @@ def install_pyaedt():
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
-            print("Installing uv using provided wheels argument")
+            print("Installing PyAEDT using provided wheels argument with pip")
             command = [
                 str(pip_exe),
-                "install",
-                "--no-cache-dir",
-                "--no-index",
-                r"--find-links={}".format(str(unzipped_path)),
-                "uv",
-            ]
-            subprocess.run(command, check=True, env=env)  # nosec
-            print("Installing PyAEDT using provided wheels argument")
-            command = [
-                str(uv_exe),
-                "pip",
                 "install",
                 "--no-cache-dir",
                 "--no-index",
@@ -440,22 +417,9 @@ def install_pyaedt():
 
         if args.wheel and Path(args.wheel).exists():
             unzipped_path = unzip_if_zip(Path(args.wheel))
-            print("Installing uv using provided wheels argument")
+            print("Installing PyAEDT using provided wheels argument with pip")
             command = [
                 str(pip_exe),
-                "install",
-                "--no-cache-dir",
-                "--no-index",
-                r"--find-links={}".format(str(unzipped_path)),
-                "uv",
-            ]
-            subprocess.run(command, check=True, env=env)  # nosec
-            print("Activating uv in the virtual environment...")
-            subprocess.run([str(activate_script)], check=True, env=env)  # nosec
-            print("Installing PyAEDT using provided wheels argument")
-            command = [
-                str(uv_exe),
-                "pip",
                 "install",
                 "--no-cache-dir",
                 "--no-index",

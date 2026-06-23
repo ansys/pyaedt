@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import copy
 import csv
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsHfss
@@ -46,6 +46,9 @@ from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetu
 from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.solve_setup import Setup
+
 
 class CommonOptimetrics(PropsManager, PyAedtBase):
     """Creates and sets up optimizations.
@@ -63,10 +66,10 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name, dictinputs, optimtype):
+    def __init__(self, p_app, name: str, dictinputs, optimtype) -> None:
         self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
@@ -109,7 +112,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
                         if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
                             for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                                 if setup["I"] == el:
-                                    setups[setups.index(el)] = setup["I"]
+                                    setups[setups.index(el)] = setup["N"]
                                     break
                         else:
                             if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
@@ -117,12 +120,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
                                     "Setup"
                                 ]["N"]
                                 break
+
                     except (TypeError, KeyError):
                         pass
 
             if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
                 if self._app._is_object_oriented_enabled():
-                    oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
+                    oparams = self._app.get_oo_object(self.omodule, self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
                     idx = None
                     if oparam[0] in oparam[1:]:
@@ -157,7 +161,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 
         self.auto_update = True
 
-    def _get_setup_props(self, arg1: Dict[str, Any]) -> None:
+    def _get_setup_props(self, arg1: dict):
         for k, v in arg1.items():
             if isinstance(v, dict):
                 arg1[k] = SetupProps(self, v)
@@ -175,13 +179,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         goal_weight,
         goal_value,
         setup_sweep_name=None,
-        domain="Sweep",
+        domain: str = "Sweep",
         intrinsics=None,
         report_category=None,
         context=None,
-        subdesign_id=None,
-        polyline_points=0,
-        is_goal=False,
+        subdesign_id: int | None = None,
+        polyline_points: int = 0,
+        is_goal: bool = False,
     ):
         did = 3
         if domain != "Sweep":
@@ -289,7 +293,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return sweep_definition
 
     @pyaedt_function_handler()
-    def update(self, update_dictionary: Optional[Dict[str, Any]] = None) -> bool:
+    def update(self, update_dictionary: dict = None) -> bool:
         """Update the setup based on stored properties.
 
         Parameters
@@ -343,15 +347,15 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        calculation,
-        ranges=None,
-        variables=None,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
+        calculation: str,
+        ranges: dict = None,
+        variables: dict = None,
+        solution: str = None,
+        context: str = None,
+        subdesign_id: int = None,
+        polyline_points: int = 1001,
+        report_type: str = None,
+    ) -> bool:
         """Add a calculation to the setup.
 
         Parameters
@@ -402,15 +406,15 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution=None,
+        solution: str | None = None,
         context=None,
-        subdesign_id=None,
-        polyline_points=1001,
+        subdesign_id: int | None = None,
+        polyline_points: int = 1001,
         report_type=None,
-        is_goal=False,
-        condition="<=",
-        goal_value=1,
-        goal_weight=1,
+        is_goal: bool = False,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
     ):
         self.auto_update = False
         if not solution:
@@ -563,11 +567,11 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
-    def __init__(self, app, name, dictinputs=None, optim_type="OptiDesignExplorer"):
+    def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Parameters
@@ -587,18 +591,18 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
     @pyaedt_function_handler()
     def add_goal(
         self,
-        calculation,
-        ranges,
-        variables=None,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-        condition="<=",
-        goal_value=1,
-        goal_weight=1,
-    ):
+        calculation: str,
+        ranges: dict,
+        variables: dict = None,
+        solution: str = None,
+        context: str = None,
+        subdesign_id: int = None,
+        polyline_points: int = 1001,
+        report_type: str = None,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
+    ) -> bool:
         """Add a goal to the setup.
 
         Parameters
@@ -656,15 +660,15 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
     @pyaedt_function_handler()
     def add_variation(
         self,
-        variable_name,
-        min_value,
-        max_value,
-        starting_point=None,
-        min_step=None,
-        max_step=None,
-        use_manufacturable=False,
-        levels=None,
-    ):
+        variable_name: str,
+        min_value: float,
+        max_value: float,
+        starting_point: float = None,
+        min_step: float = None,
+        max_step: float = None,
+        use_manufacturable: bool = False,
+        levels: list = None,
+    ) -> bool:
         """Add a new variable as input for the optimization and defines its ranges.
 
         Parameters
@@ -787,12 +791,12 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
-    def __init__(self, p_app, name, dictinputs=None, optim_type="OptiParametric"):
+    def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Returns
@@ -806,8 +810,14 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_variation(
-        self, sweep_variable, start_point, end_point=None, step=100, units=None, variation_type="LinearCount"
-    ):
+        self,
+        sweep_variable: str,
+        start_point: float,
+        end_point: float = None,
+        step: float = 100,
+        units: str = None,
+        variation_type: str = "LinearCount",
+    ) -> bool:
         """Add a variation to an existing parametric setup.
 
         Parameters
@@ -875,7 +885,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def _append_sweepdefinition(self, sweepdefinition):
+    def _append_sweepdefinition(self, sweepdefinition) -> bool:
         for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
             if sweepdefinition["Variable"] == sweep_def["Variable"]:
                 sweep_def["Data"] += " " + sweepdefinition["Data"]
@@ -884,7 +894,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def sync_variables(self, variables, sync_n=1):
+    def sync_variables(self, variables: list, sync_n: int = 1) -> bool:
         """Sync variable variations in an existing parametric setup.
         Setting the sync number to `0` will effectively unsync the variables.
 
@@ -936,7 +946,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_to_csv(self, output_file):
+    def export_to_csv(self, output_file: str) -> bool:
         """Export the current Parametric Setup to csv.
 
         Parameters
@@ -963,7 +973,7 @@ class ParametricSetups(PyAedtBase):
     >>> sensitivity_setups = app.parametrics
     """
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._app = p_app
         self.setups = []
         if self._app.design_properties:
@@ -1006,14 +1016,14 @@ class ParametricSetups(PyAedtBase):
     @pyaedt_function_handler()
     def add(
         self,
-        variable,
-        start_point,
-        end_point=None,
-        step=100,
-        variation_type="LinearCount",
-        solution=None,
-        name=None,
-    ):
+        variable: str,
+        start_point: float,
+        end_point: float = None,
+        step: float = 100,
+        variation_type: str = "LinearCount",
+        solution: str = None,
+        name: str = None,
+    ) -> SetupParam | bool:
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
 
@@ -1072,7 +1082,7 @@ class ParametricSetups(PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete(self, name):
+    def delete(self, name: str) -> bool:
         """Delete a defined Parametric Setup.
 
         Parameters
@@ -1092,7 +1102,7 @@ class ParametricSetups(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_from_file(self, input_file, name=None):
+    def add_from_file(self, input_file: str, name: str = None):
         """Add a Parametric setup from either a csv or txt file.
 
         Parameters
@@ -1157,7 +1167,7 @@ class OptimizationSetups(PyAedtBase):
     >>> optimization_setup = app.optimizations
     """
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._app = p_app
         self.setups = []
         if self._app.design_properties:
@@ -1185,7 +1195,7 @@ class OptimizationSetups(PyAedtBase):
         return self._app
 
     @property
-    def design_setups(self):
+    def design_setups(self) -> dict["Setup"]:
         """All design setups ordered by name.
 
         Returns
@@ -1206,7 +1216,7 @@ class OptimizationSetups(PyAedtBase):
         return self._app.ooptimetrics
 
     @pyaedt_function_handler()
-    def delete(self, name):
+    def delete(self, name: str) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Parameters
@@ -1228,20 +1238,20 @@ class OptimizationSetups(PyAedtBase):
     @pyaedt_function_handler()
     def add(
         self,
-        calculation=None,
-        ranges=None,
-        variables=None,
-        optimization_type="Optimization",
-        condition="<=",
-        goal_value=1,
-        goal_weight=1,
-        solution=None,
-        name=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
+        calculation: str = None,
+        ranges: dict = None,
+        variables: list = None,
+        optimization_type: str = "Optimization",
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
+        solution: str = None,
+        name: str = None,
+        context: str = None,
+        subdesign_id: int = None,
+        polyline_points: int = 1001,
+        report_type: str = None,
+    ) -> SetupOpti | bool:
         """Add a basic optimization analysis.
         You can customize all options after the analysis is added.
 

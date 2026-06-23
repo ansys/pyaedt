@@ -11,15 +11,16 @@
 </p>
 
 [![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)
-[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)
-[![PyPIact](https://static.pepy.tech/badge/pyaedt/month)](https://www.pepy.tech/projects/pyaedt)
-[![PythonVersion](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/ci_cd.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/ci_cd.yml)
+[![PyPI](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)
+[![PyPI downloads](https://static.pepy.tech/badge/pyaedt/month)](https://www.pepy.tech/projects/pyaedt)
+[![Conda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+[![Conda downloads](https://img.shields.io/conda/dn/conda-forge/pyaedt?label=Conda%20downloads)](https://anaconda.org/conda-forge/pyaedt)
+[![Python version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub CI](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/nightly-tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
-[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
-[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
-[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
-[![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)
+[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit.ci](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 [![deep-wiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ansys/pyaedt)
 
 ## What is PyAEDT?
@@ -41,7 +42,7 @@ the API.
 
 ## Install on CPython from PyPI
 
-You can install PyAEDT on CPython 3.8 through 3.12 from PyPI with this command:
+You can install PyAEDT on CPython 3.10 through 3.14 from PyPI with this command:
 
 
 ```sh
@@ -90,6 +91,11 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.10 and versions up to Python 3.13.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2025 R1.
+- PyAEDT Version ≥ 0.27.0:
+  - Python Compatibility:
+    - Compatible with Python 3.10 and versions up to Python 3.14.
+  - AEDT Compatibility:
+    - All tests were conducted using AEDT 2026 R1.
 
 
 ## About PyAnsys
@@ -176,7 +182,7 @@ Note that PyAEDT uses semantic naming for pull requests (PR). This convention
 greatly simplifies the review process by providing meaningful
 information in the PR title. The
 following
-[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+[prefixes](https://github.com/ansys/actions/blob/main/check-pr-title/action.yml)
 should be used for pull request name:
 
 - "BUILD"
@@ -238,9 +244,9 @@ Usage examples follow.
 from ansys.aedt.core import Desktop, Circuit
 
 with Desktop(
-    specified_version="2022.2",
+    version="2022.2",
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
     student_version=False,
 ):
@@ -259,7 +265,7 @@ with Desktop(
 
 from ansys.aedt.core import Circuit
 
-with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
+with Circuit(version="2022.2", non_graphical=False) as circuit:
     ...
     # Any error here will be caught by Desktop.
     ...
@@ -269,36 +275,44 @@ with Circuit(specified_version="2022.2", non_graphical=False) as circuit:
 
 ## Remote application call
 
-You can make a remote application call on a CPython server
-or any Windows client machine.
-
-On a CPython Server:
+You can make a remote application call on a CPython server. Start the service manager:
 
 ``` python
-# Launch PyAEDT remote server on CPython
-
 from ansys.aedt.core.common_rpc import pyaedt_service_manager
 
-pyaedt_service_manager()
+pyaedt_service_manager(host="host name")
 ```
 
-On any Windows client machine:
+The host name can be the IP address or the host name of the server machine.
+
+On a client machine:
 
 ``` python
+from ansys.aedt.core import settings
 from ansys.aedt.core.common_rpc import create_session
+from ansys.aedt.core.hfss import Hfss
 
-cl1 = create_session("server_name")
-cl1.aedt(port=50000, non_graphical=False)
-hfss = Hfss(machine="server_name", port=50000)
-# your code here
+# Required for the Hfss call below to behave as expected.
+# If not set, the client attempts to launch a local instance
+# of AEDT instead of connecting to the remote server.
+settings.grpc_local = False
+
+cl1 = create_session("host name", client_port=50010)
+cl1.aedt(host="host name", port=50011, non_graphical=False)
+hfss = Hfss(machine="host name", port=50011)
+box = hfss.modeler.create_box([0, 0, 0], [10, 10, 10], name="MyBox")
 ```
+
+Port numbers can be adjusted as needed.
+The host name should align with the host name or
+IP address used to start the service manager.
 
 ## Variables
 
 ``` python
-from ansys.aedt.core.HFSS import HFSS
+from ansys.aedt.core.Hfss import Hfss
 
-with HFSS as hfss:
+with Hfss as hfss:
     hfss["dim"] = "1mm"  # design variable
     hfss["$dim"] = "1mm"  # project variable
 ```

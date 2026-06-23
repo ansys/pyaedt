@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import pytest
 
@@ -34,7 +32,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_no_design_name():
+def test_convert_to_circuit_main_no_design_name() -> None:
     """Test main function with no design name provided."""
     data = ConvertToCircuitExtensionData(design_name="")
 
@@ -43,7 +41,7 @@ def test_convert_to_circuit_main_no_design_name():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_main_invalid_validation():
+def test_convert_to_circuit_main_invalid_validation() -> None:
     """Test main function validation with invalid parameters."""
     # Test with empty design name
     data = ConvertToCircuitExtensionData(design_name="")
@@ -52,7 +50,7 @@ def test_convert_to_circuit_main_invalid_validation():
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_with_components(add_app):
+def test_convert_to_circuit_with_components(add_app) -> None:
     """Test conversion with various component types."""
     tb = add_app(
         application=TwinBuilder,
@@ -74,7 +72,7 @@ def test_convert_to_circuit_with_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_exception_handling(add_app):
+def test_convert_to_circuit_exception_handling(add_app) -> None:
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
     tb = add_app(
@@ -93,7 +91,7 @@ def test_convert_to_circuit_exception_handling(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_wire_conversion(add_app):
+def test_convert_to_circuit_wire_conversion(add_app) -> None:
     """Test wire conversion functionality."""
     tb = add_app(
         application=TwinBuilder,
@@ -114,7 +112,7 @@ def test_convert_to_circuit_wire_conversion(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_fml_init_equations(add_app):
+def test_convert_to_circuit_fml_init_equations(add_app) -> None:
     """Test FML_INIT component equation processing."""
     tb = add_app(
         application=TwinBuilder,
@@ -152,7 +150,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_catalog_components(add_app):
+def test_convert_to_circuit_catalog_components(add_app) -> None:
     """Test conversion of components that exist in the catalog."""
     tb = add_app(
         application=TwinBuilder,
@@ -198,7 +196,7 @@ def test_convert_to_circuit_catalog_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_offset_calculations(add_app):
+def test_convert_to_circuit_offset_calculations(add_app) -> None:
     """Test component offset calculations with rotation."""
     tb = add_app(
         application=TwinBuilder,
@@ -241,7 +239,7 @@ def test_convert_to_circuit_offset_calculations(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_gport_components(add_app):
+def test_convert_to_circuit_gport_components(add_app) -> None:
     """Test conversion of GPort (ground) components."""
     tb = add_app(
         application=TwinBuilder,
@@ -274,7 +272,7 @@ def test_convert_to_circuit_gport_components(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_unconnected_pins(add_app):
+def test_convert_to_circuit_unconnected_pins(add_app) -> None:
     """Test handling of unconnected pins and wire creation."""
     tb = add_app(
         application=TwinBuilder,
@@ -310,7 +308,7 @@ def test_convert_to_circuit_unconnected_pins(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_property_mapping(add_app):
+def test_convert_to_circuit_property_mapping(add_app) -> None:
     """Test component property mapping from catalog."""
     tb = add_app(
         application=TwinBuilder,
@@ -351,7 +349,7 @@ def test_convert_to_circuit_property_mapping(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-def test_convert_to_circuit_component_naming(add_app):
+def test_convert_to_circuit_component_naming(add_app) -> None:
     """Test component name parsing and reference designator handling."""
     tb = add_app(
         application=TwinBuilder,

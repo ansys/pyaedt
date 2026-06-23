@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,12 +35,11 @@ from ansys.aedt.core.extensions.misc import get_latest_version
 # Use a platform-safe temporary personal lib path instead of hard-coded '/tmp/personal'
 PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
 
-# Ensure tests don't try to pip-install uv during VersionManager __init__.
 os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
 
 
 @patch("ansys.aedt.core.extensions.misc.requests.get")
-def test_get_latest_version_success_and_failure(mock_get):
+def test_get_latest_version_success_and_failure(mock_get) -> None:
     class Resp:
         status_code = 200
 
@@ -73,7 +72,7 @@ def _make_vm():
 
     # --- Fake tkinter with required constants ---
     class _SV:
-        def __init__(self, *a, **k):
+        def __init__(self, *a, **k) -> None:
             self._v = ""
 
         def set(self, v):
@@ -84,6 +83,7 @@ def _make_vm():
 
     fake_tkinter = SimpleNamespace(
         Tk=lambda *a, **k: MagicMock(),
+        Widget=object,
         StringVar=_SV,
         # orientations
         HORIZONTAL=1,
@@ -160,16 +160,18 @@ def _make_vm():
 
     desktop.release_desktop = MagicMock()
 
-    # Instantiate
-    manager = vm.VersionManager(ui, desktop)
+    # Instantiate without live PyPI lookups or background update threads.
+    with patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown"):
+        with patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update_on_startup"):
+            manager = vm.VersionManager(ui, desktop)
     manager.update_and_reload = MagicMock()
 
     return manager
 
 
-def test_activate_venv_and_exes():
+def test_activate_venv_and_exes() -> None:
     manager = _make_vm()
-    # Ensure python and uv point inside sys.prefix
+
     assert manager.venv_path == sys.prefix
     pyexe = manager.python_exe
     assert str(manager.venv_path) in pyexe
@@ -180,9 +182,17 @@ def test_activate_venv_and_exes():
     assert "VIRTUAL_ENV" in manager.activated_env
 
 
+def test_version_manager_window_bounds() -> None:
+    manager = _make_vm()
+
+    manager.root.geometry.assert_called_with(f"{vm.VersionManager.UI_WIDTH}x{vm.VersionManager.UI_HEIGHT}")
+    manager.root.minsize.assert_called_once_with(vm.VersionManager.UI_MIN_WIDTH, vm.VersionManager.UI_MIN_HEIGHT)
+    manager.root.maxsize.assert_called_once_with(vm.VersionManager.UI_MAX_WIDTH, vm.VersionManager.UI_MAX_HEIGHT)
+
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.shutil.which")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
-def test_is_git_available_and_messagebox(mock_showerror, mock_which):
+def test_is_git_available_and_messagebox(mock_showerror, mock_which) -> None:
     _ = _make_vm()
     # If git not found, showerror called
     mock_which.return_value = None
@@ -198,7 +208,7 @@ def test_is_git_available_and_messagebox(mock_showerror, mock_which):
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showinfo")
-def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_latest):
+def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_latest) -> None:
     manager = _make_vm()
 
     # Patch latest version lookups
@@ -218,7 +228,7 @@ def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_lat
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
-def test_toggle_and_theme_functions():
+def test_toggle_and_theme_functions() -> None:
     """Verify toggle_theme flips theme_color and calls appropriate helpers."""
     manager = _make_vm()
 
@@ -248,7 +258,7 @@ def test_toggle_and_theme_functions():
     manager.root.configure.assert_any_call(bg="lightbg")
 
 
-def test_set_light_and_set_dark():
+def test_set_light_and_set_dark() -> None:
     """Directly test set_light_theme and set_dark_theme behavior."""
     manager = _make_vm()
 
@@ -274,7 +284,7 @@ def test_set_light_and_set_dark():
     manager.change_theme_button.config.assert_called_with(text="\u2600")
 
 
-def test_show_loading():
+def test_show_loading() -> None:
     """Test show_loading method."""
     manager = _make_vm()
 
@@ -292,7 +302,7 @@ def test_show_loading():
     manager.root.update_idletasks.assert_called_once()
 
 
-def test_show_loading_invalid_key():
+def test_show_loading_invalid_key() -> None:
     """Test show_loading with invalid key does nothing."""
     manager = _make_vm()
     manager.root = MagicMock()
@@ -304,7 +314,7 @@ def test_show_loading_invalid_key():
     manager.root.update_idletasks.assert_not_called()
 
 
-def test_hide_loading():
+def test_hide_loading() -> None:
     """Test hide_loading method."""
     manager = _make_vm()
 
@@ -322,7 +332,7 @@ def test_hide_loading():
     manager.root.update_idletasks.assert_called_once()
 
 
-def test_hide_loading_invalid_key():
+def test_hide_loading_invalid_key() -> None:
     """Test hide_loading with invalid key does nothing."""
     manager = _make_vm()
     manager.root = MagicMock()
@@ -335,9 +345,10 @@ def test_hide_loading_invalid_key():
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version", return_value="Unknown")
 @patch("ansys.aedt.core.extensions.installer.version_manager.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror, tmp_path):
+def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_get_latest, mock_showerror, tmp_path) -> None:
     manager = _make_vm()
     # Ensure the manager reports a stable Python version for tests
     manager.__class__.python_version = property(lambda self: "3.10")
@@ -417,7 +428,7 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
-def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_askyesno):
+def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_askyesno) -> None:
     manager = _make_vm()
 
     # User declines disclaimer
@@ -466,7 +477,7 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_askyesno):
+def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_askyesno) -> None:
     manager = _make_vm()
 
     # User declines disclaimer
@@ -515,7 +526,7 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo):
+def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo) -> None:
     manager = _make_vm()
 
     # Early return when git is not available
@@ -549,7 +560,7 @@ def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _m
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo):
+def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo) -> None:
     manager = _make_vm()
 
     # Early return when git is not available
@@ -582,7 +593,7 @@ def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_availab
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
-def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
+def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno) -> None:
     manager = _make_vm()
 
     # User declines disclaimer
@@ -684,7 +695,7 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     assert any("pyedb" in str(x) for x in pip_args)
 
 
-def test_on_close_normal_operation():
+def test_on_close_normal_operation() -> None:
     """Test _on_close method under normal operation."""
     manager = _make_vm()
 
@@ -702,7 +713,7 @@ def test_on_close_normal_operation():
     manager.root.destroy.assert_called_once()
 
 
-def test_on_close_desktop_exception():
+def test_on_close_desktop_exception() -> None:
     """Test _on_close method when desktop raises an exception."""
     manager = _make_vm()
 
@@ -721,7 +732,7 @@ def test_on_close_desktop_exception():
     manager.root.destroy.assert_called_once()
 
 
-def test_on_close_root_exception():
+def test_on_close_root_exception() -> None:
     """Test _on_close method when root.destroy raises an exception."""
     manager = _make_vm()
 
@@ -740,7 +751,7 @@ def test_on_close_root_exception():
     manager.root.destroy.assert_called_once()
 
 
-def test_on_close_no_desktop():
+def test_on_close_no_desktop() -> None:
     """Test _on_close method when desktop is None."""
     manager = _make_vm()
 
@@ -755,7 +766,7 @@ def test_on_close_no_desktop():
     manager.root.destroy.assert_called_once()
 
 
-def test_on_close_no_root():
+def test_on_close_no_root() -> None:
     """Test _on_close method when root is None."""
     manager = _make_vm()
 
@@ -770,7 +781,7 @@ def test_on_close_no_root():
     manager.desktop.release_desktop.assert_called_once_with(False, False)
 
 
-def test_on_close_both_exceptions():
+def test_on_close_both_exceptions() -> None:
     """Test _on_close when both desktop and root raise exceptions."""
     manager = _make_vm()
 
@@ -788,123 +799,13 @@ def test_on_close_both_exceptions():
     manager.root.destroy.assert_called_once()
 
 
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-def test_check_for_pyaedt_update_on_startup_success(mock_check_update, mock_thread):
-    """Test check_for_pyaedt_update_on_startup when update is available."""
-    manager = _make_vm()
-
-    # Mock check_for_pyaedt_update to return an update
-    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
-
-    # Mock root.after to capture the scheduled callback
-    manager.root.after = MagicMock()
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Verify thread was created and started
-    assert mock_thread.called
-    thread_args = mock_thread.call_args
-    assert thread_args[1]["daemon"] is True
-
-    # Get the worker function and call it
-    worker_func = thread_args[1]["target"]
-    worker_func()
-
-    # Verify check_for_pyaedt_update was called with personal lib path
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-    # Verify root.after was called to schedule notification
-    manager.root.after.assert_called_once()
-    assert manager.root.after.call_args[0][0] == 0  # First argument should be 0
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-def test_check_for_pyaedt_update_on_startup_no_update(mock_check_update, mock_thread):
-    """Test check_for_pyaedt_update_on_startup when no update is needed."""
-    manager = _make_vm()
-
-    # Mock check_for_pyaedt_update to return no update
-    mock_check_update.return_value = (None, "/path/to/declined.txt")
-
-    # Mock root.after to verify it's not called
-    manager.root.after = MagicMock()
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    # Verify check_for_pyaedt_update was called
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-    # Verify root.after was NOT called since no update available
-    manager.root.after.assert_not_called()
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
-def test_check_for_pyaedt_update_on_startup_exception_in_worker(mock_get_logger, mock_check_update, mock_thread):
-    """Test check_for_pyaedt_update_on_startup when worker encounters exception."""
-    manager = _make_vm()
-
-    # Mock logger
-    mock_logger = MagicMock()
-    mock_get_logger.return_value = mock_logger
-
-    # Mock check_for_pyaedt_update to raise exception
-    mock_check_update.side_effect = Exception("Check update failed")
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    # Verify exception was logged
-    mock_logger.debug.assert_called_with("PyAEDT update check: worker failed.", exc_info=True)
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
-@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
-@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
-def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, mock_check_update, mock_thread):
-    """Test check_for_pyaedt_update_on_startup when root.after fails."""
-    manager = _make_vm()
-
-    # Mock logger
-    mock_logger = MagicMock()
-    mock_get_logger.return_value = mock_logger
-
-    # Mock check_for_pyaedt_update to return an update
-    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
-
-    # Mock root.after to raise exception
-    manager.root.after = MagicMock(side_effect=Exception("After failed"))
-
-    # Call the method
-    manager.check_for_pyaedt_update_on_startup()
-
-    # Get the worker function and call it
-    worker_func = mock_thread.call_args[1]["target"]
-    worker_func()
-
-    mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
 @patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
 def test_get_desktop_with_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
-):
+) -> None:
     """Test get_desktop when AEDT process already exists."""
     mock_get_port.return_value = 12345
     mock_get_aedt_version.return_value = "2024.1"
@@ -922,7 +823,7 @@ def test_get_desktop_with_existing_process(
 @patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
 def test_get_desktop_without_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
-):
+) -> None:
     """Test get_desktop when no AEDT process exists."""
     mock_get_port.return_value = 54321
     mock_get_aedt_version.return_value = "2023.2"

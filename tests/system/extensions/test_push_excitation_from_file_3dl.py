@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the
-# following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import shutil
 
@@ -36,7 +35,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_LAYOUT_PATH
 
 
-def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir) -> None:
     """Test the Generate button in the Push Excitation 3D Layout extension."""
     h3d = add_app_example(
         application=Hfss3dLayout,
@@ -87,7 +86,7 @@ def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
         h3d.close_project(h3d.project_name, save=False)
 
 
-def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir):
+def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir) -> None:
     """Test exceptions thrown by the Push Excitation 3D Layout extension."""
     # Test with no choice
     data = PushExcitation3DLayoutExtensionData(choice="")
@@ -135,7 +134,7 @@ def test_push_excitation_3dl_exceptions(add_app, test_tmp_dir):
         q3d_app.close_project(q3d_app.project_name)
 
 
-def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir) -> None:
     """Test HFSS 3D Layout push excitation with sinusoidal data from file."""
     h3d = add_app_example(
         application=Hfss3dLayout,
@@ -181,7 +180,7 @@ def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir
         h3d.close_project(h3d.project_name, save=False)
 
 
-def test_push_excitation_3dl_main_function(add_app_example, test_tmp_dir):
+def test_push_excitation_3dl_main_function(add_app_example, test_tmp_dir) -> None:
     """Test the main function directly based on the provided test example."""
     h3d = add_app_example(
         application=Hfss3dLayout,

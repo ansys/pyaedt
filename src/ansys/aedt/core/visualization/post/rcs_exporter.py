@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,10 +28,6 @@ from pathlib import Path
 import shutil
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 
 if TYPE_CHECKING:
     from ansys.aedt.core.hfss import Hfss
@@ -80,7 +76,7 @@ class MonostaticRCSExporter(PyAedtBase):
     Examples
     --------
     >>> import ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2026.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -91,10 +87,10 @@ class MonostaticRCSExporter(PyAedtBase):
     def __init__(
         self,
         app: "Hfss",
-        setup_name: Optional[str] = None,
-        frequencies: Optional[Union[List[Union[float, int, str]], float, int, str]] = None,
-        expression: Optional[str] = None,
-        variations: Optional[Dict[str, Any]] = None,
+        setup_name: str | None = None,
+        frequencies: list[float | int | str] | float | int | str | None = None,
+        expression: str | None = None,
+        variations: dict[str, Any] | None = None,
         overwrite: bool = True,
     ) -> None:
         # Public
@@ -131,12 +127,12 @@ class MonostaticRCSExporter(PyAedtBase):
         self.__column_name = copy.deepcopy(self.expression)
 
     @property
-    def model_info(self) -> Dict[str, Any]:
+    def model_info(self) -> dict[str, Any]:
         """List of models."""
         return self.__model_info
 
     @property
-    def metadata_file(self) -> Union[str, Path]:
+    def metadata_file(self) -> str | Path:
         """Metadata file."""
         return self.__metadata_file
 
@@ -302,7 +298,7 @@ class MonostaticRCSExporter(PyAedtBase):
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
-    def __create_geometries(self, export_path: Union[str, Path]) -> Dict[str, List[Any]]:
+    def __create_geometries(self, export_path: str | Path) -> dict[str, list[Any]]:
         """Export the geometry in OBJ format."""
         self.__app.logger.info("Exporting geometry...")
         export_path = Path(export_path).resolve()

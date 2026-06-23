@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
 import shutil
@@ -30,19 +28,17 @@ import pytest
 
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
-
-pytest.importorskip("pyedb", "0.21.0")
 
 TEST_SUBFOLDER = "T45"
 EDB_PROJECT = "ANSYS-HSD_V1.aedb"
 SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_PROJECT
+pytestmark = pytest.mark.skipif(is_linux, reason="PyEDB stability issues on Linux")
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_layout(desktop, test_tmp_dir):
+def test_parametrize_layout(desktop, test_tmp_dir) -> None:
     """Test parametrizing EDB layout with comprehensive settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
@@ -65,7 +61,7 @@ def test_parametrize_layout(desktop, test_tmp_dir):
     assert result is True
 
 
-def test_parametrize_edb_exceptions(desktop):
+def test_parametrize_edb_exceptions(desktop) -> None:
     """Test exceptions thrown by the Parametrize EDB extension."""
     # Test with negative polygon expansion
     data = ParametrizeEdbExtensionData(
@@ -91,8 +87,7 @@ def test_parametrize_edb_exceptions(desktop):
         main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
+def test_parametrize_edb_custom_settings(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with custom settings."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
@@ -116,8 +111,7 @@ def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
     assert result is True
 
 
-@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir):
+def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir) -> None:
     """Test Parametrize EDB extension with zero expansions."""
     file_path = test_tmp_dir / "ANSYS-HSD_V1_zero.aedb"
 

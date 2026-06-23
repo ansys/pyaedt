@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import json
 from unittest.mock import patch
 
@@ -31,7 +32,7 @@ from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.run")
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir):
+def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir) -> None:
     mock_check_design_type.return_value = True
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:

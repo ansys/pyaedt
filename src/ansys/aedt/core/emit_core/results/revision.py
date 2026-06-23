@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -38,7 +40,6 @@ from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
-from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -71,7 +72,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name=None):
+    def __init__(self, parent_results, emit_obj, name: str | None = None) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -112,7 +113,7 @@ class Revision:
                 self.name = name
                 """Name of the revision."""
 
-        else:
+        else:  # pragma: no cover
             if not name:
                 name = emit_obj.odesign.GetCurrentResult()
                 if not name:
@@ -144,7 +145,7 @@ class Revision:
         self._load_revision()
 
     @pyaedt_function_handler()
-    def _load_revision(self):
+    def _load_revision(self) -> None:
         """
         Load this revision.
 
@@ -159,7 +160,7 @@ class Revision:
         self.revision_loaded = True
 
     @staticmethod
-    def result_mode_error():
+    def result_mode_error() -> str:
         """
         Print the function mode error message.
 
@@ -173,7 +174,7 @@ class Revision:
         return err_msg
 
     @pyaedt_function_handler()
-    def get_interaction(self, domain):
+    def get_interaction(self, domain: object) -> object:
         """
         Create a new interaction for a domain.
 
@@ -202,7 +203,7 @@ class Revision:
         return interaction
 
     @pyaedt_function_handler()
-    def run(self, domain):
+    def run(self, domain: object) -> object:
         """
         Load the revision and then analyze along the given domain.
 
@@ -250,7 +251,7 @@ class Revision:
         return interaction
 
     @pyaedt_function_handler()
-    def is_domain_valid(self, domain):
+    def is_domain_valid(self, domain: object) -> bool:
         """
         Return ``True`` if the given domain is valid for the current revision.
 
@@ -270,7 +271,7 @@ class Revision:
         return engine.is_domain_valid(domain)
 
     @pyaedt_function_handler()
-    def get_instance_count(self, domain):
+    def get_instance_count(self, domain: object) -> int:
         """
         Return the number of instances in the domain for the current revision.
 
@@ -395,7 +396,7 @@ class Revision:
         return len(bands) > 0
 
     @pyaedt_function_handler()
-    def get_receiver_names(self):
+    def get_receiver_names(self) -> list[str]:
         """
         Get a list of all receivers in the project.
 
@@ -422,13 +423,13 @@ class Revision:
         else:
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return None
+            return []
         if len(receivers) == 0:
             warnings.warn("No valid receivers in the project.")
         return receivers
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, interferer_type=None):
+    def get_interferer_names(self, interferer_type: object = None) -> list[str]:
         """
         Get a list of all interfering transmitters/emitters in the project.
 
@@ -470,28 +471,18 @@ class Revision:
         else:
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return None
+            return []
         if len(transmitters) == 0:
             warnings.warn("No valid radios or emitters in the project.")
-            return None
+            return []
         return transmitters
 
     @pyaedt_function_handler()
-    @deprecate_argument(
-        arg_name="radio_name",
-        message=(
-            "The ''radio_name'' argument will be removed in future versions. Use the ''radio_node'' argument instead."
-        ),
-    )
-    def get_band_names(
-        self, radio_node: RadioNode = None, radio_name: str = "", tx_rx_mode: TxRxMode = None
-    ) -> list[str]:
+    def get_band_names(self, radio_node: RadioNode | None = None, tx_rx_mode: TxRxMode | None = None) -> list[str]:
         """Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------
-        radio_name : str
-            The name of the radio/emitter
         radio_node : RadioNode
             The radio/emitter.
         tx_rx_mode : :class:`emit_constants.TxRxMode`, optional
@@ -511,24 +502,25 @@ class Revision:
         band_names = []
         if self.revision_loaded:
             if radio_node is None:
-                if radio_name == "":
-                    raise ValueError("A radio_node or radio_name must be specified.")
-                radio_node = self.get_component_node(radio_name)
-            bands = self.get_all_band_nodes(radio=radio_node, enabled_only=True, tx_rx_mode=tx_rx_mode)
-            for band in bands:
-                band_names.append(band.name)
+                raise ValueError("A radio_node or radio_name must be specified.")
+            bands: list[Band] = self.get_all_band_nodes(radio=radio_node, enabled_only=True, tx_rx_mode=tx_rx_mode)
+            if bands is not None:
+                for band in bands:
+                    band_names.append(band.name)
         else:
             self.result_mode_error()
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return None
+            return []
         if len(band_names) == 0:
             warnings.warn("No valid radios or emitters in the project.")
-            return None
+            return []
         return band_names
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
+    def get_active_frequencies(
+        self, radio_name: str, band_name: str, tx_rx_mode: TxRxMode, units: str = ""
+    ) -> list[float]:
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
@@ -559,14 +551,13 @@ class Revision:
         if self.revision_loaded:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
-            freqs = None
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return freqs
+            return []
         return freqs
 
     @property
-    def notes(self):
+    def notes(self) -> str:
         """
         Add notes to the revision.
 
@@ -580,17 +571,21 @@ class Revision:
         return design.GetResultNotes(self.name)
 
     @notes.setter
-    def notes(self, notes):
+    def notes(self, notes: str) -> None:
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project.save_project()
 
     @property
-    def n_to_1_limit(self):
+    def n_to_1_limit(self) -> int:
         """
         Maximum number of interference combinations to run per receiver for N to 1.
 
         - A value of ``0`` disables N to 1 entirely.
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
+
+        Returns
+        -------
+        max_instances : int
 
         Examples
         --------
@@ -604,11 +599,11 @@ class Revision:
             engine = self.emit_project._emit_api.get_engine()
             max_instances = engine.n_to_1_limit
         else:  # pragma: no cover
-            max_instances = None
+            max_instances = -1
         return max_instances
 
     @n_to_1_limit.setter
-    def n_to_1_limit(self, max_instances):
+    def n_to_1_limit(self, max_instances: int) -> None:
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
@@ -618,11 +613,11 @@ class Revision:
     @pyaedt_function_handler()
     def interference_type_classification(
         self,
-        domain,
+        domain: object,
         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
         use_filter: bool = False,
-        filter_list: list[str] = None,
-    ):  # pragma: no cover
+        filter_list: list[str] | None = None,
+    ) -> tuple[list, list]:  # pragma: no cover
         """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
@@ -662,9 +657,9 @@ class Revision:
         else:
             tx_radios = self.get_all_emitter_radios()
 
-        if tx_radios is None:
+        if len(tx_radios) == 0:
             raise ValueError("No interferers defined in the analysis.")
-        if rx_radios is None:
+        if len(rx_radios) == 0:
             raise ValueError("No receivers defined in the analysis.")
 
         for tx_radio in tx_radios:
@@ -773,14 +768,14 @@ class Revision:
     @pyaedt_function_handler()
     def protection_level_classification(
         self,
-        domain,
+        domain: object,
         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
         global_protection_level: bool = True,
-        global_levels: list = None,
-        protection_levels: dict = None,
+        global_levels: list | None = None,
+        protection_levels: dict | None = None,
         use_filter: bool = False,
-        filter_list: list[str] = None,
-    ):  # pragma: no cover
+        filter_list: list[str] | None = None,
+    ) -> tuple[list, list]:  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
 
@@ -819,8 +814,8 @@ class Revision:
         all_colors = []
 
         # Get project results and radios
-        mode_rx = TxRxMode.RX
-        mode_tx = TxRxMode.TX
+        mode_rx: TxRxMode = TxRxMode.RX
+        mode_tx: TxRxMode = TxRxMode.TX
         mode_power = ResultType.POWER_AT_RX
         rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
         if interferer_type == InterfererType.TRANSMITTERS:
@@ -830,9 +825,9 @@ class Revision:
         else:
             tx_radios = self.get_all_emitter_radios()
 
-        if tx_radios is None:
+        if len(tx_radios) == 0:
             raise ValueError("No interferers defined in the analysis.")
-        if rx_radios is None:
+        if len(rx_radios) == 0:
             raise ValueError("No receivers defined in the analysis.")
 
         if global_protection_level and global_levels is None:
@@ -972,7 +967,7 @@ class Revision:
         engine.set_emi_category_filter_enabled(category, enabled)
 
     @pyaedt_function_handler
-    def get_license_session(self):
+    def get_license_session(self) -> object:
         """Get a license session.
 
         A license session can be started with checkout(), and ended with check in().
@@ -1091,7 +1086,9 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
-    def get_all_radio_nodes(self, tx_rx_mode: TxRxMode = None, include_emitters: bool = False) -> list[RadioNode]:
+    def get_all_radio_nodes(
+        self, tx_rx_mode: TxRxMode | None = None, include_emitters: bool = False
+    ) -> list[RadioNode]:
         """Gets all Radio nodes from this revision.
 
         Parameters
@@ -1127,7 +1124,7 @@ class Revision:
 
         if len(radio_nodes) == 0:
             warnings.warn("No valid radios in the project.")
-            return None
+            return []
         return radio_nodes
 
     @pyaedt_function_handler
@@ -1152,12 +1149,12 @@ class Revision:
                 radio_nodes.append(comp.get_radio())
         if len(radio_nodes) == 0:
             warnings.warn("No valid emitters in the project.")
-            return None
+            return []
         return radio_nodes
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
-    def get_component_node(self, component_name) -> EmitNode:
+    def get_component_node(self, component_name: str) -> EmitNode | None:
         """Gets the component node.
 
         Parameters
@@ -1240,7 +1237,7 @@ class Revision:
         props = EmitNode.props_to_dict(props)
         node_type = props["Type"]
 
-        node_type.replace(" ", "_")
+        node_type = node_type.replace(" ", "_")
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 

@@ -7,7 +7,7 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.13'
+  MAIN_PYTHON_VERSION: '3.14'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
 
 concurrency:
@@ -24,21 +24,18 @@ jobs:
     name: Documentation build
     runs-on: ubuntu-latest
     steps:
-      - name: Temporary handle broken package dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get --fix-broken install -y
-          sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
-
       - name: Documentation build
-        uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-build@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
-          # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
+          optional-dependencies-name: 'all'
+          group-dependencies-name: 'doc'
 
   upload-dev-doc:
     name: Upload dev documentation
@@ -48,9 +45,10 @@ jobs:
       contents: write   # Required to commit and push development documentation to gh-pages branch
     steps:
       - name: Upload development documentation
-        uses: ansys/actions/doc-deploy-dev@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-deploy-dev@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
-          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-python-cache: false

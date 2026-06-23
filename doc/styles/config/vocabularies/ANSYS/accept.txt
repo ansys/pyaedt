@@ -39,6 +39,7 @@ FEBI
 FE-BI
 file_path
 fix_disjoints
+Floquet
 FRTM
 getters
 Github
@@ -57,6 +58,7 @@ Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
 mcm
+microstrip
 [Mm]echanical
 [Mm]onostatic
 multiphysics
@@ -78,6 +80,7 @@ PMs
 [Pp]olyline
 polylines
 Postprocessing
+prek
 pwl
 pyaedt
 PyAEDT
@@ -96,6 +99,7 @@ RC
 reusability
 RF
 RMXprt
+RTTBL
 scipy
 setters
 SIwave
@@ -146,3 +150,4 @@ Transport
 Layer
 Security
 RCS
+[Tt]estmon

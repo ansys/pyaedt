@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,14 +41,14 @@ def netlist_test(add_app_example):
     app.close_project(save=False)
 
 
-def test_post(netlist_test):
+def test_post(netlist_test) -> None:
     if NON_GRAPHICAL:
         assert len(netlist_test.post.plots) == 0
     else:
         assert len(netlist_test.post.plots) == 1
 
 
-def test_browse_log_file(netlist_test, test_tmp_dir):
+def test_browse_log_file(netlist_test, test_tmp_dir) -> None:
     assert not netlist_test.browse_log_file()
     netlist_test.analyze()
     assert netlist_test.browse_log_file(test_tmp_dir)

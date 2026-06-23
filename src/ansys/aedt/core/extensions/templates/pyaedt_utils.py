@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
+#
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +65,7 @@ def check_file(file_path, oDesktop):
 
 def get_linux_terminal():
     """Get a Linux terminal."""
-    for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+    for terminal in ["x-terminal-emulator", "xterm", "xfce4-terminal", "gnome-terminal", "lxterminal", "mlterm"]:
         terminal_exe = which(terminal)
         if terminal_exe:
             return terminal, terminal_exe
@@ -77,6 +78,8 @@ def get_linux_terminal_command():
     if terminal == "x-terminal-emulator":
         return [terminal_exe, "-e"]
     elif terminal == "xterm":
+        return [terminal_exe, "-e"]
+    elif terminal == "xfce4-terminal":
         return [terminal_exe, "-e"]
     elif terminal == "gnome-terminal":
         return [terminal_exe, "--"]
@@ -126,17 +129,16 @@ def environment_variables(oDesktop):
     else:
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
     os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
+    if version > "2025.2":
+        os.environ["PYAEDT_GLOBAL_THEME"] = str(oDesktop.GetRegistryString("Desktop/ColorScheme"))
     if is_linux:
+        # Path of AEDT installation, needed for loading EDB DLLs
         edt_root = os.path.normpath(oDesktop.GetExeDir())
-        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
-        ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
-            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
-            "{}/common/mono/Linux64/lib64".format(edt_root),
-            "{}/Delcross".format(edt_root),
-            "{}".format(edt_root),
-        ]
-        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["PYAEDT_DESKTOP_PATH"] = edt_root
+
+        reduced_version = version[2:].replace(".", "")
+        os.environ["ANSYSEM_ROOT{}".format(reduced_version)] = edt_root
+
         if version > "2023.1":
             os.environ["TCL_LIBRARY"] = os.path.join(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
