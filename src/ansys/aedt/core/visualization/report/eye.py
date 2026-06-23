@@ -65,7 +65,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def expressions(self) -> list:
-        """Expressions.
+        """Get the expressions for the eye diagram.
 
         Returns
         -------
