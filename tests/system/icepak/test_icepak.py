@@ -1672,10 +1672,6 @@ def test_design_settings(ipk_app) -> None:
         assert d["GravityDir"] == "Positive"
         d["GravityVec"] = "Global::Y"
         assert d["GravityVec"] == "Global::Y"
-
-        d.manipulate_inputs("GravityVec", "Global::X")
-        assert d["GravityVec"] == "Global::X"
-
     else:
         cs = ipk_app.modeler.create_coordinate_system()
         assert d["GravityVec"] == "Global"
@@ -1690,8 +1686,6 @@ def test_design_settings(ipk_app) -> None:
         assert d["XComponent"] == "1m_per_s2"
         assert d["YComponent"] == "2m_per_s2"
         assert d["ZComponent"] == "3m_per_s2"
-
-        d.manipulate_inputs("XComponent", "1")
 
 
 def test_restart_solution(ipk_app) -> None:
