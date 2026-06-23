@@ -462,7 +462,6 @@ def test_create_line(aedt_app) -> None:
     assert line.center_line == center
 
 
-@pytest.mark.skipif(DESKTOP_VERSION == "2027.1", reason="WAITING BUG FIX")
 def test_create_edge_port(aedt_app) -> None:
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
