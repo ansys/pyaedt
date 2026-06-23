@@ -26,6 +26,12 @@
 This module contains the `CircuitNetlistReport` class.
 
 This module provides all functionalities for creating and editing Circuit Netlist reports.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.netlist import CircuitNetlistReport
+>>> obj = CircuitNetlistReport()
+
 """
 
 from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants

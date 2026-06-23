@@ -27,6 +27,15 @@ This module contains these classes: `AntennaParameters`, `Fields`, `NearField`, 
 
 This module provides all functionalities for creating and editing reports.
 
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.field import AntennaParameters, Fields, NearField, FarField, Emission
+>>> obj1 = AntennaParameters()
+>>> obj2 = Fields()
+>>> obj3 = NearField()
+>>> obj4 = FarField()
+>>> obj5 = Emission()
+
 """
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

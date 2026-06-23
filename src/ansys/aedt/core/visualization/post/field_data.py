@@ -149,6 +149,12 @@ class ColorMapSettings(BaseFolderPlot):
         value : str
             The type of mapping to set. Must be one of 'Spectrum', 'Ramp', or 'Uniform'.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.map_type = "Ramp"
+
         Raises
         ------
         ValueError
@@ -196,6 +202,12 @@ class ColorMapSettings(BaseFolderPlot):
             The color value to be set. If a string, it should represent a valid color
             spectrum specification (`"Magenta"`, `"Rainbow"`, `"Temperature"` or `"Gray"`).
             If a tuple, it should contain three elements representing RGB values.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ColorMapSettings
+        >>> obj = ColorMapSettings()
+        >>> obj.color = "Rainbow"  # For Spectrum map type
 
         Raises
         ------
@@ -559,6 +571,12 @@ class NumberFormat(BaseFolderPlot):
         v (str): The new format type to be set. Must be one of the accepted values
             ("Automatic", "Scientific" or "Decimal").
 
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import NumberFormat
+        >>> obj = NumberFormat()
+        >>> obj.format_type = "Scientific"
+
         Raises
         ------
         ValueError: If the provided value is not in the list of accepted values.
@@ -695,6 +713,13 @@ class Scale3DSettings(BaseFolderPlot):
         ----------
         v: str
             Unit to be set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.unit = "V"  # Set unit to Volts
+
         """
         if v is not None:
             try:
@@ -730,6 +755,12 @@ class Scale3DSettings(BaseFolderPlot):
             value : str
                 The type of scaling to set.
                 Must be one of the accepted values ("Auto", "MinMax" or "Specified").
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_type = "MinMax"  # Set scale type to MinMax
 
         Raises
         ------
@@ -769,7 +800,20 @@ class Scale3DSettings(BaseFolderPlot):
 
     @scale_settings.setter
     def scale_settings(self, value: AutoScale | MinMaxScale | SpecifiedScale) -> None:
-        """Set the current scale settings based on the scale type."""
+        """Set the current scale settings based on the scale type.
+
+        Parameters
+        ----------
+        value : AutoScale, MinMaxScale, or SpecifiedScale
+            The scale settings to set. Must match the current scale type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import Scale3DSettings, AutoScale
+        >>> obj = Scale3DSettings()
+        >>> obj.scale_settings = AutoScale(n_levels=15)  # Set scale settings for Auto scale type
+
+        """
         if self.scale_type == "Auto":
             if isinstance(value, AutoScale):
                 self._scale_settings = value
@@ -914,6 +958,13 @@ class MarkerSettings(BaseFolderPlot):
         v : str
             Marker type. Must be one of the allowed types
             (`"Octahedron"`, `"Tetrahedron"`, `"Sphere"`, `"Box"`, `"Arrow"`).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import MarkerSettings
+        >>> obj = MarkerSettings()
+        >>> obj.marker_type = "Sphere"  # Set marker type to Sphere
+
         """
         try:
             self._marker_type = AllowedMarkers[v].value
@@ -1062,6 +1113,12 @@ class ArrowSettings(BaseFolderPlot):
         ----------
             v : str
                 The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import ArrowSettings
+        >>> obj = ArrowSettings()
+        >>> obj.arrow_type = "Cylinder"  # Set arrow type to Cylinder
 
         Raises
         ------
@@ -1397,6 +1454,13 @@ class FieldPlot(PyAedtBase):
         ----------
         v : FolderPlotSettings
             The new folder plot settings to be set.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.field_data import FieldPlot, FolderPlotSettings
+        >>> obj = FieldPlot()
+        >>> new_settings = FolderPlotSettings(postprocessor=obj._postprocessor, folder_name=obj.plot_folder)
+        >>> obj.folder_settings = new_settings  # Set new folder settings
 
         Raises
         ------

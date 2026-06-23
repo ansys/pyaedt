@@ -76,7 +76,15 @@ class SolutionData(PyAedtBase):
 
     @property
     def active_variation(self) -> dict:
-        """Retrieve active variation."""
+        """Retrieve active variation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.solution_data import SolutionData
+        >>> obj = SolutionData()
+        >>> obj.active_variation
+
+        """
         return self._active_variation
 
     @active_variation.setter

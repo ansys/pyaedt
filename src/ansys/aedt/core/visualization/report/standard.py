@@ -27,6 +27,12 @@ This module contains these classes: `Standard`, and `Spectral`.
 
 This module provides all functionalities for creating and editing reports.
 
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.standard import Standard, Spectral
+>>> obj1 = Standard()
+>>> obj2 = Spectral()
+
 """
 
 import re

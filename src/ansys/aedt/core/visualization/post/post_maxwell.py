@@ -26,6 +26,12 @@
 Defines the `PostProcessor3D` class.
 
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell
+>>> obj = PostProcessorMaxwell()
+
 """
 
 import secrets

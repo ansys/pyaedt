@@ -27,6 +27,11 @@ This module contains this class: `EMIReceiver`.
 
 This module provides all functionalities for creating and editing reports.
 
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.emi import EMIReceiver
+>>> obj = EMIReceiver()
+
 """
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name

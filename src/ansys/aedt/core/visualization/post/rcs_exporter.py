@@ -175,7 +175,15 @@ class MonostaticRCSExporter(PyAedtBase):
 
     @column_name.setter
     def column_name(self, value: str) -> None:
-        """Column name."""
+        """Column name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+        >>> obj = MonostaticRCSExporter()
+        >>> obj.column_name = "NewColumnName"  # Set column name to NewColumnName
+
+        """
         self.__column_name = value
 
     @pyaedt_function_handler()

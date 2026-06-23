@@ -26,6 +26,12 @@
 This module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
+
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak
+>>> obj = PostProcessorIcepak()
+
 """
 
 import ast

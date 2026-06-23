@@ -27,6 +27,11 @@ This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and 
 
 This module provides all functionalities for creating and editing reports.
 
+Examples
+--------
+>>> from ansys.aedt.core.visualization.report.eye import AMIConturEyeDiagram
+>>> obj = AMIConturEyeDiagram()
+
 """
 
 import os

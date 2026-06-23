@@ -54,14 +54,28 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_param
 
 
 class ReportBase(BaseModel, PyAedtBase):
-    """Provide report base."""
+    """Provide report base.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import ReportBase
+    >>> obj = ReportBase()
+
+    """
 
     model_config = {"populate_by_name": True}
     """Value for model config."""
 
 
 class FrequencyFigure(ReportBase):
-    """Provide frequency figure."""
+    """Provide frequency figure.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import FrequencyFigure
+    >>> obj = FrequencyFigure()
+
+    """
 
     title: str = Field(..., alias="TITLE")
     """Value for title."""
@@ -90,7 +104,14 @@ class FrequencyFigure(ReportBase):
 
 
 class AdvancedReport(ReportBase):
-    """Provide advanced report."""
+    """Provide advanced report.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.spisim import AdvancedReport
+    >>> obj = AdvancedReport()
+
+    """
 
     version: str = Field("1.0", alias="Version")
     """Value for version."""

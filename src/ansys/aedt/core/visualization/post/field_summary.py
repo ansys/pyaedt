@@ -27,6 +27,11 @@ Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
+Examples
+--------
+>>> from ansys.aedt.core.visualization.post.field_summary import FieldSummary
+>>> obj = FieldSummary()
+
 """
 
 from collections import defaultdict
