@@ -162,12 +162,6 @@ class MonostaticRCSExporter(PyAedtBase):
         --------
         >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
         >>> obj = MonostaticRCSExporter()
-        >>> obj.column_name()
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-        >>> obj = MonostaticRCSExporter()
         >>> obj.column_name
 
         """
