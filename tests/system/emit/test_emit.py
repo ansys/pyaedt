@@ -1989,10 +1989,10 @@ def test_result_categories_with_simulation(emit_app):
     # disable last existing category and confirm expected exceptions and error messages
     sim.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
     instance = interaction.get_worst_instance(ResultType.EMI)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_value(ResultType.EMI)
         assert "Unable to evaluate value: No power received." in str(e)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(ValueError) as e:
         instance.get_largest_emi_problem_type()
         assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
