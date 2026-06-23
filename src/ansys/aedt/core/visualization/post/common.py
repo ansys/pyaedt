@@ -135,6 +135,12 @@ class PostProcessorCommon(PyAedtBase):
         -------
         list[report_standard.Standard]
             List of reports created in active design.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.plots
         """
         if self.__plots is None:
             self.__plots = self._get_plot_inputs()
@@ -157,6 +163,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableReportTypes
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_report_types
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
 
@@ -167,6 +179,12 @@ class PostProcessorCommon(PyAedtBase):
         Returns
         -------
         bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.update_report_dynamically
         """
         return (
             True
@@ -205,6 +223,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableDisplayTypes
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_display_types()
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -248,6 +272,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAllCategories
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_quantities_categories()
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -525,6 +555,12 @@ class PostProcessorCommon(PyAedtBase):
         dict
             A dictionary with primary key the report type, secondary key the solution type and
             third key the report categories.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.get_all_report_quantities()
         """
         rep_quantities = {}
         if not context and self._app.design_type in [
@@ -575,6 +611,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAvailableSolutions
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.available_report_solutions()
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -646,12 +688,25 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oDesign.GetModule("ReportSetup")
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.oreportsetup
         """
         return self._app.oreportsetup
 
     @property
     def logger(self):
-        """Logger."""
+        """Logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.logger
+        """
         return self._app.logger
 
     @property
@@ -684,6 +739,12 @@ class PostProcessorCommon(PyAedtBase):
         -------
         type
             Design solution type.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.post_solution_type
         """
         return self._app.solution_type
 
@@ -698,6 +759,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetAllReportNames()
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.all_report_names
         """
         return list(self.oreportsetup.GetAllReportNames())
 
@@ -721,6 +788,12 @@ class PostProcessorCommon(PyAedtBase):
         ----------
         >>> oModule.CopyReportsData
         >>> oModule.PasteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.copy_report_data(my_report)
         """
         self.oreportsetup.CopyReportsData([plot_name])
         if paste:
@@ -739,6 +812,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.PasteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.paste_report_data()
         """
         self.oreportsetup.PasteReports()
         return True
@@ -760,6 +839,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.DeleteReports
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.delete_report()
         """
         try:
             if plot_name:
@@ -793,6 +878,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.RenameReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.rename_report("my_plot", "my_new_plot")
         """
         try:
             self.oreportsetup.RenameReport(plot_name, new_name)
@@ -839,6 +930,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.get_solution_data_per_variation()
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
@@ -882,6 +979,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oDesktop.RestoreWindow
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.steal_focus_oneditor()
         """
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
@@ -1029,6 +1132,12 @@ class PostProcessorCommon(PyAedtBase):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         >>> oModule.ExportUniformPointsToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.export_report_to_csv("my_dir", "my_plot")
         """
         return self.export_report_to_file(
             project_dir,
@@ -1068,6 +1177,12 @@ class PostProcessorCommon(PyAedtBase):
         References
         ----------
         >>> oModule.ExportImageToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+        >>> obj = PostProcessorCommon()
+        >>> obj.export_report_to_jpg("my_dir", "my_plot")
         """
         if Path(project_path).is_dir():
             file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
@@ -2289,7 +2404,13 @@ class PostProcessorCommon(PyAedtBase):
 
 
 class Reports(PyAedtBase):
-    """Provides the names of default solution types."""
+    """Provides the names of default solution types.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.visualization.post.common import Reports
+    >>> obj = Reports()
+    """
 
     def __init__(self, post_app, design_type) -> None:
         self._post_app = post_app
@@ -2856,7 +2977,7 @@ class Reports(PyAedtBase):
         quantity_type: int = 3,
         statistical_analysis: bool = True,
         unit_interval: str = "1ns",
-    ) -> "report_eye.EyeDiagram" | "report_eye.AMIEyeDiagram" | None:
+    ) -> "report_eye.EyeDiagram | report_eye.AMIEyeDiagram | None":
         """Create a Standard or Default Report object.
 
         Parameters
