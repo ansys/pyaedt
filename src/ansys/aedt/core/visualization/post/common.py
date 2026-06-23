@@ -1006,7 +1006,7 @@ class PostProcessorCommon(PyAedtBase):
         step: str = None,
         use_trace_number_format: bool = False,
     ) -> str:
-        r"""
+        """
         Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
